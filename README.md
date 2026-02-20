@@ -4,11 +4,13 @@ A lightweight, declarative workflow framework for describing and executing multi
 
 ## Status
 
-Exploratory / prototype. This project studies multi-agent coordination patterns — the mechanics of how coding agents hand off work, verify results, and recover from failures. It is not production software.
+**Planning complete — implementation not yet started.** Project structure, core vocabulary (Tasks, Steps, Gates, Signals, Reviewers), and a detailed experiment roadmap are in place. No functional code has been written yet. See `docs/PROJECT_PLAN.md` for the full plan.
 
-## What it does
+This is an exploratory project studying multi-agent coordination patterns — the mechanics of how coding agents hand off work, verify results, and recover from failures. It is not production software.
 
-agentrelay provides a vocabulary and YAML-based spec format for defining workflows where multiple Claude Code agents collaborate through a sequence of **Steps** connected by **Gates** (verification checkpoints). The framework supports:
+## Planned capabilities
+
+agentrelay will provide a vocabulary and YAML-based spec format for defining workflows where multiple Claude Code agents collaborate through a sequence of **Steps** connected by **Gates** (verification checkpoints). Planned features:
 
 - Declarative pipeline definitions (YAML specs)
 - Configurable gate evaluation with escalation levels (automated, notify, human)
