@@ -28,7 +28,8 @@ While planning multi-agent workflows for the chatcat project, recurring coordina
 │   ├── .git                           # file (not dir) pointing to .git-bare/worktrees/main
 │   ├── CLAUDE.md                      # root project context for all agents
 │   ├── docs/                          # planning documents
-│   ├── agentorch/                     # Python package — the orchestrator
+│   ├── src/
+│   │   └── agentorch/                 # Python package — the orchestrator
 │   ├── tests/                         # pytest tests for the framework itself
 │   ├── experiments/                   # one subdirectory per experiment
 │   ├── .workflow/                     # runtime state (created by the framework)
@@ -115,9 +116,9 @@ This creates `pyproject.toml` and `pixi.lock` in `main/`.
 ```bash
 cd /data/git/agentorch/main
 
-# Python package
-mkdir -p agentorch
-touch agentorch/__init__.py
+# Python package (src layout)
+mkdir -p src/agentorch
+touch src/agentorch/__init__.py
 
 # Test directory
 mkdir -p tests
@@ -144,6 +145,32 @@ Write the root-level `CLAUDE.md` with project overview, conventions, bare repo u
 cd /data/git/agentorch/main
 git add -A
 git commit -m "project scaffolding: pixi env, package skeleton, experiment dirs"
+git push origin main
+```
+
+### Step 8: Restructure to src/ layout
+
+Move the package into the standard `src/` layout.
+
+```bash
+cd /data/git/agentorch/main
+
+# Move package into src/
+mkdir -p src
+git mv agentorch/ src/agentorch/
+
+# Update pyproject.toml: change hatch build target to src/
+# Change: packages = ["agentorch"]  →  packages = ["src/agentorch"]
+# Change pixi pypi-dependencies path if needed
+
+# Verify
+pixi install
+pixi run python -c "import agentorch; print('OK')"
+pixi run pytest
+
+# Commit
+git add -A
+git commit -m "restructure: move agentorch/ to src/agentorch/ (src layout)"
 git push origin main
 ```
 
@@ -188,15 +215,15 @@ Each experiment has a trivial task (e.g., "write a function that adds two number
 - **Validates:** Spec format is expressive enough; vocabulary covers the workflow
 
 ### Experiment 2: Python interpreter, headless execution
-- Build `agentorch/loader.py` — parse YAML spec into Python dataclasses
-- Build `agentorch/runner.py` — iterate steps, launch `claude -p` for each
-- Build `agentorch/state.py` — write/read `state.json` per workflow
+- Build `src/agentorch/loader.py` — parse YAML spec into Python dataclasses
+- Build `src/agentorch/runner.py` — iterate steps, launch `claude -p` for each
+- Build `src/agentorch/state.py` — write/read `state.json` per workflow
 - Gates are no-ops (always pass) in this experiment
 - **Deliverable:** `python -m agentorch run .workflow/specs/exp-02.yaml` executes a 2-step pipeline end-to-end
 - **Validates:** `claude -p` + CLAUDE.md is a workable execution model; state tracking works
 
 ### Experiment 3: Signals and automated step triggering
-- Build `agentorch/signals.py` — watch for sentinel files via polling or `inotifywait`
+- Build `src/agentorch/signals.py` — watch for sentinel files via polling or `inotifywait`
 - Steps write a JSON signal file on completion
 - The interpreter blocks on signal detection before proceeding
 - **Deliverable:** Steps trigger gates without manual intervention
@@ -210,7 +237,7 @@ Each experiment has a trivial task (e.g., "write a function that adds two number
 - **Validates:** The YAML format is agent-writable (not just agent-readable)
 
 ### Experiment 4: Gate evaluation + retry context + audit log
-- Build `agentorch/gates.py` — launch a `claude -p` reviewer agent that reads step outputs
+- Build `src/agentorch/gates.py` — launch a `claude -p` reviewer agent that reads step outputs
 - On failure: write retry context file, re-run the previous step with enriched inputs
 - Start writing to `.workflow/audit/` — record gate outcomes (timestamp, gate ID, result, reviewer, attempt number)
 - **Deliverable:** Fail → feedback → retry loop works end-to-end; audit log is human-readable
@@ -267,12 +294,12 @@ Each experiment has its own validation criteria (listed above). For the framewor
 |------|--------|---------|
 | `CLAUDE.md` | Create | Root project context — project overview, conventions, how to run |
 | `pyproject.toml` | Create | Python project config with dependencies (pyyaml, etc.) |
-| `agentorch/__init__.py` | Create | Package init |
-| `agentorch/models.py` | Create | Dataclasses for workflow vocabulary |
-| `agentorch/loader.py` | Create | YAML → model objects |
-| `agentorch/state.py` | Create | Workflow state read/write |
-| `agentorch/runner.py` | Create | Step execution via `claude -p` |
-| `agentorch/gates.py` | Create | Gate evaluation logic |
-| `agentorch/signals.py` | Create | Signal detection |
+| `src/agentorch/__init__.py` | Create | Package init |
+| `src/agentorch/models.py` | Create | Dataclasses for workflow vocabulary |
+| `src/agentorch/loader.py` | Create | YAML → model objects |
+| `src/agentorch/state.py` | Create | Workflow state read/write |
+| `src/agentorch/runner.py` | Create | Step execution via `claude -p` |
+| `src/agentorch/gates.py` | Create | Gate evaluation logic |
+| `src/agentorch/signals.py` | Create | Signal detection |
 | `experiments/01-manual/` | Create | Experiment 1 spec + notes |
 | `tests/` | Create | Framework unit tests |

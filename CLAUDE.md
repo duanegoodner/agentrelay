@@ -10,7 +10,7 @@ through a sequence of Steps connected by Gates (verification checkpoints).
 
 ## Repository layout
 
-- `agentorch/` — Python package (the orchestrator framework)
+- `src/agentorch/` — Python package (the orchestrator framework)
 - `tests/` — pytest tests for the framework
 - `experiments/` — one subdirectory per experiment (01-manual through 07-agent-orchestrator)
 - `.workflow/specs/` — YAML workflow definitions (version controlled)
