@@ -89,6 +89,12 @@ cd /data/git/agentorch/main && git pull origin main
 - PR body: summary bullets + test plan
 - Merge strategy: squash merge (keeps main history clean)
 
+## Key documents
+
+- `docs/PROJECT_PLAN.md` — project plan, vocabulary, and experiment roadmap
+- `docs/DECISIONS.md` — design rationale for key choices (name, format, layout, tooling)
+- `docs/AGENT_WORKFLOWS_KNOWLEDGE_CAPTURE.md` — background research on multi-agent patterns
+
 ## Key conventions
 
 - Workflow specs are YAML files in `.workflow/specs/`
