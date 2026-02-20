@@ -44,6 +44,51 @@ GIT_DIR=/data/git/agentrelay/.git-bare git worktree remove /data/git/agentrelay/
 - **Run tests**: `pixi run pytest`
 - **Run the orchestrator**: `pixi run python -m agentrelay <command>`
 
+## Development workflow
+
+### Branching rules
+
+- **Never commit directly to main.** All changes go through PRs. Branch protection enforces this server-side; a pre-push hook enforces it locally.
+- **Default: feature branch in `main/`.** For most work, create a branch, make changes, push, open a PR, merge, pull.
+- **Create a new worktree only when:**
+  - Two or more tasks are genuinely in progress simultaneously
+  - Handing off a branch to a dedicated Claude Code instance that shouldn't switch branches
+  - A long-running task should not block `main/` from staying on the main branch
+
+### Feature branch flow (in main/)
+
+```bash
+git checkout -b <branch-name>
+# ... make changes, commit ...
+git push -u origin <branch-name>
+gh pr create --title "..." --body "..."
+# after review/merge on GitHub:
+git checkout main
+git pull origin main
+git branch -d <branch-name>
+```
+
+### Worktree flow (parallel work)
+
+```bash
+# Create worktree (from repo root, not inside a worktree)
+GIT_DIR=/data/git/agentorch/.git-bare git worktree add /data/git/agentorch/<name> -b <branch-name>
+cd /data/git/agentorch/<name>
+# ... make changes, commit ...
+git push -u origin <branch-name>
+gh pr create
+# after merge:
+GIT_DIR=/data/git/agentorch/.git-bare git worktree remove /data/git/agentorch/<name>
+cd /data/git/agentorch/main && git pull origin main
+```
+
+### PR conventions
+
+- One logical change per PR — keep PRs focused
+- PR title: short imperative, under 70 chars
+- PR body: summary bullets + test plan
+- Merge strategy: squash merge (keeps main history clean)
+
 ## Key conventions
 
 - Workflow specs are YAML files in `.workflow/specs/`
