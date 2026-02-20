@@ -1,0 +1,27 @@
+[project]
+authors = [{name = "Duane Goodner", email = "dmgoodner@gmail.com"}]
+dependencies = []
+name = "agentorch"
+requires-python = ">= 3.11"
+version = "0.1.0"
+
+[build-system]
+build-backend = "hatchling.build"
+requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentorch"]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+agentorch = { path = ".", editable = true }
+
+[tool.pixi.tasks]
+
+[tool.pixi.dependencies]
+python = ">=3.14.3,<3.15"
+pyyaml = ">=6.0.3,<7"
+pytest = ">=9.0.2,<10"
