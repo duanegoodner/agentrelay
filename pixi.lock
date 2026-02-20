@@ -60,9 +60,9 @@ packages:
   size: 28948
   timestamp: 1770939786096
 - pypi: ./
-  name: agentorch
+  name: agentrelay
   version: 0.1.0
-  sha256: ba02dfc81192e12e9b54a9bd011b77d5fc1c1e7f97d742041a7c1dd5931ba4b8
+  sha256: 3ec32a7f0c3ddd023cf3b5d5342aefe9a4aadb5696be4825386f18b4e6cbc7a3
   requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/bzip2-1.0.8-hda65f42_9.conda

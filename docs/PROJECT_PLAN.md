@@ -1,4 +1,4 @@
-# agentorch — Workflow Orchestration for Multi-Agent Claude Code Pipelines
+# agentrelay — Workflow Orchestration for Multi-Agent Claude Code Pipelines
 
 ## Context
 
@@ -12,7 +12,7 @@ While planning multi-agent workflows for the chatcat project, recurring coordina
 
 ### Current State
 
-- `/data/git/agentorch/main/` — regular git repo with remote `git@github.com:duanegoodner/agentorch.git`
+- `/data/git/agentrelay/main/` — regular git repo with remote `git@github.com:duanegoodner/agentrelay.git`
 - One commit on main (`95d19ed initial commit`), contains `README.md`
 - `docs/` directory exists but is untracked
 - pixi 0.61.0 is installed
@@ -20,7 +20,7 @@ While planning multi-agent workflows for the chatcat project, recurring coordina
 ### Target Repository Structure
 
 ```
-/data/git/agentorch/
+/data/git/agentrelay/
 ├── .git-bare/                         # bare repo — all git object data, remote origin
 ├── .claude/                           # Claude Code project-level settings
 │   └── settings.local.json
@@ -29,7 +29,7 @@ While planning multi-agent workflows for the chatcat project, recurring coordina
 │   ├── CLAUDE.md                      # root project context for all agents
 │   ├── docs/                          # planning documents
 │   ├── src/
-│   │   └── agentorch/                 # Python package — the orchestrator
+│   │   └── agentrelay/                 # Python package — the orchestrator
 │   ├── tests/                         # pytest tests for the framework itself
 │   ├── experiments/                   # one subdirectory per experiment
 │   ├── .workflow/                     # runtime state (created by the framework)
@@ -42,7 +42,7 @@ While planning multi-agent workflows for the chatcat project, recurring coordina
 Ensure everything is on the remote before restructuring.
 
 ```bash
-cd /data/git/agentorch/main
+cd /data/git/agentrelay/main
 git add docs/
 git commit -m "add planning documents"
 git push origin main
@@ -53,13 +53,13 @@ git push origin main
 The idea: clone the remote as a bare repo, then set up `main/` as a linked worktree instead of a standalone clone.
 
 ```bash
-cd /data/git/agentorch
+cd /data/git/agentrelay
 
 # 2a. Move the current main/ aside (we'll recreate it as a worktree)
 mv main main-old
 
 # 2b. Bare-clone the remote into .git-bare/
-git clone --bare git@github.com:duanegoodner/agentorch.git .git-bare
+git clone --bare git@github.com:duanegoodner/agentrelay.git .git-bare
 
 # 2c. Fix the fetch refspec.
 #     A bare clone defaults to +refs/heads/*:refs/heads/*  which means
@@ -72,29 +72,29 @@ git --git-dir=.git-bare config remote.origin.fetch '+refs/heads/*:refs/remotes/o
 git --git-dir=.git-bare fetch origin
 
 # 2e. Create main/ as a linked worktree on the `main` branch
-GIT_DIR=/data/git/agentorch/.git-bare git worktree add /data/git/agentorch/main main
+GIT_DIR=/data/git/agentrelay/.git-bare git worktree add /data/git/agentrelay/main main
 
 # 2f. Verify it works
-cd /data/git/agentorch/main
+cd /data/git/agentrelay/main
 git status          # should show "On branch main", clean working tree
 git log --oneline   # should show the commits we pushed
 
 # 2g. Clean up the old clone
-rm -rf /data/git/agentorch/main-old
+rm -rf /data/git/agentrelay/main-old
 ```
 
 **How git commands work after this:**
 - Inside `main/` (or any worktree): normal `git` commands work as usual
 - Repo-level commands (manage worktrees, branches) from the project root:
   ```bash
-  GIT_DIR=/data/git/agentorch/.git-bare git worktree list
-  GIT_DIR=/data/git/agentorch/.git-bare git worktree add /data/git/agentorch/<name> -b <branch>
+  GIT_DIR=/data/git/agentrelay/.git-bare git worktree list
+  GIT_DIR=/data/git/agentrelay/.git-bare git worktree add /data/git/agentrelay/<name> -b <branch>
   ```
 
 ### Step 3: Initialize pixi environment
 
 ```bash
-cd /data/git/agentorch/main
+cd /data/git/agentrelay/main
 
 # Initialize pixi with pyproject.toml format
 pixi init --format pyproject
@@ -114,11 +114,11 @@ This creates `pyproject.toml` and `pixi.lock` in `main/`.
 ### Step 4: Create project skeleton
 
 ```bash
-cd /data/git/agentorch/main
+cd /data/git/agentrelay/main
 
 # Python package (src layout)
-mkdir -p src/agentorch
-touch src/agentorch/__init__.py
+mkdir -p src/agentrelay
+touch src/agentrelay/__init__.py
 
 # Test directory
 mkdir -p tests
@@ -142,7 +142,7 @@ Write the root-level `CLAUDE.md` with project overview, conventions, bare repo u
 ### Step 7: Commit scaffolding and push
 
 ```bash
-cd /data/git/agentorch/main
+cd /data/git/agentrelay/main
 git add -A
 git commit -m "project scaffolding: pixi env, package skeleton, experiment dirs"
 git push origin main
@@ -153,24 +153,24 @@ git push origin main
 Move the package into the standard `src/` layout.
 
 ```bash
-cd /data/git/agentorch/main
+cd /data/git/agentrelay/main
 
 # Move package into src/
 mkdir -p src
-git mv agentorch/ src/agentorch/
+git mv agentrelay/ src/agentrelay/
 
 # Update pyproject.toml: change hatch build target to src/
-# Change: packages = ["agentorch"]  →  packages = ["src/agentorch"]
+# Change: packages = ["agentrelay"]  →  packages = ["src/agentrelay"]
 # Change pixi pypi-dependencies path if needed
 
 # Verify
 pixi install
-pixi run python -c "import agentorch; print('OK')"
+pixi run python -c "import agentrelay; print('OK')"
 pixi run pytest
 
 # Commit
 git add -A
-git commit -m "restructure: move agentorch/ to src/agentorch/ (src layout)"
+git commit -m "restructure: move agentrelay/ to src/agentrelay/ (src layout)"
 git push origin main
 ```
 
@@ -215,15 +215,15 @@ Each experiment has a trivial task (e.g., "write a function that adds two number
 - **Validates:** Spec format is expressive enough; vocabulary covers the workflow
 
 ### Experiment 2: Python interpreter, headless execution
-- Build `src/agentorch/loader.py` — parse YAML spec into Python dataclasses
-- Build `src/agentorch/runner.py` — iterate steps, launch `claude -p` for each
-- Build `src/agentorch/state.py` — write/read `state.json` per workflow
+- Build `src/agentrelay/loader.py` — parse YAML spec into Python dataclasses
+- Build `src/agentrelay/runner.py` — iterate steps, launch `claude -p` for each
+- Build `src/agentrelay/state.py` — write/read `state.json` per workflow
 - Gates are no-ops (always pass) in this experiment
-- **Deliverable:** `python -m agentorch run .workflow/specs/exp-02.yaml` executes a 2-step pipeline end-to-end
+- **Deliverable:** `python -m agentrelay run .workflow/specs/exp-02.yaml` executes a 2-step pipeline end-to-end
 - **Validates:** `claude -p` + CLAUDE.md is a workable execution model; state tracking works
 
 ### Experiment 3: Signals and automated step triggering
-- Build `src/agentorch/signals.py` — watch for sentinel files via polling or `inotifywait`
+- Build `src/agentrelay/signals.py` — watch for sentinel files via polling or `inotifywait`
 - Steps write a JSON signal file on completion
 - The interpreter blocks on signal detection before proceeding
 - **Deliverable:** Steps trigger gates without manual intervention
@@ -237,7 +237,7 @@ Each experiment has a trivial task (e.g., "write a function that adds two number
 - **Validates:** The YAML format is agent-writable (not just agent-readable)
 
 ### Experiment 4: Gate evaluation + retry context + audit log
-- Build `src/agentorch/gates.py` — launch a `claude -p` reviewer agent that reads step outputs
+- Build `src/agentrelay/gates.py` — launch a `claude -p` reviewer agent that reads step outputs
 - On failure: write retry context file, re-run the previous step with enriched inputs
 - Start writing to `.workflow/audit/` — record gate outcomes (timestamp, gate ID, result, reviewer, attempt number)
 - **Deliverable:** Fail → feedback → retry loop works end-to-end; audit log is human-readable
@@ -294,12 +294,12 @@ Each experiment has its own validation criteria (listed above). For the framewor
 |------|--------|---------|
 | `CLAUDE.md` | Create | Root project context — project overview, conventions, how to run |
 | `pyproject.toml` | Create | Python project config with dependencies (pyyaml, etc.) |
-| `src/agentorch/__init__.py` | Create | Package init |
-| `src/agentorch/models.py` | Create | Dataclasses for workflow vocabulary |
-| `src/agentorch/loader.py` | Create | YAML → model objects |
-| `src/agentorch/state.py` | Create | Workflow state read/write |
-| `src/agentorch/runner.py` | Create | Step execution via `claude -p` |
-| `src/agentorch/gates.py` | Create | Gate evaluation logic |
-| `src/agentorch/signals.py` | Create | Signal detection |
+| `src/agentrelay/__init__.py` | Create | Package init |
+| `src/agentrelay/models.py` | Create | Dataclasses for workflow vocabulary |
+| `src/agentrelay/loader.py` | Create | YAML → model objects |
+| `src/agentrelay/state.py` | Create | Workflow state read/write |
+| `src/agentrelay/runner.py` | Create | Step execution via `claude -p` |
+| `src/agentrelay/gates.py` | Create | Gate evaluation logic |
+| `src/agentrelay/signals.py` | Create | Signal detection |
 | `experiments/01-manual/` | Create | Experiment 1 spec + notes |
 | `tests/` | Create | Framework unit tests |

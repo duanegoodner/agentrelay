@@ -1,7 +1,7 @@
 [project]
 authors = [{name = "Duane Goodner", email = "dmgoodner@gmail.com"}]
 dependencies = []
-name = "agentorch"
+name = "agentrelay"
 requires-python = ">= 3.11"
 version = "0.1.0"
 
@@ -10,14 +10,14 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agentorch"]
+packages = ["src/agentrelay"]
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
 
 [tool.pixi.pypi-dependencies]
-agentorch = { path = ".", editable = true }
+agentrelay = { path = ".", editable = true }
 
 [tool.pixi.tasks]
 
