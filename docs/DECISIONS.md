@@ -55,3 +55,13 @@ Most work is sequential — create a feature branch in `main/`, work, PR, merge,
 ## Merge strategy: squash merge
 
 Keeps the main branch history clean — one commit per PR instead of a trail of WIP commits.
+
+## Runner abstraction: concrete first, Generic interface later
+
+**Chosen over:** Protocol-based interface from day one; no abstraction ever
+
+Phase 1 — write `runner.py` as a single concrete module targeting `claude -p`. No abstraction layer yet. The goal is to get the input/output contract right through actual use before encoding it as an interface.
+
+Phase 2 — once the Claude Code runner is stable and the contract is well-understood, introduce a `Generic`-based interface (`Runner(Generic[StepT, ResultT])`). `Generic` is preferred over `Protocol` because covariance/contravariance issues don't arise, type-hinting is more ergonomic, and it tends to encourage composition over inheritance.
+
+This sequencing avoids the classic mistake of designing an abstraction before the concrete implementation has taught you what the interface should actually look like. The YAML workflow spec is already the primary pluggability boundary — the runner interface is a secondary, lower-priority concern.
