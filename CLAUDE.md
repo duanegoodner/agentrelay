@@ -101,3 +101,7 @@ cd /data/git/agentorch/main && git pull origin main
 - Each experiment lives in `experiments/<NN>-<name>/` with its own README and spec files
 - Tests use pytest; run with `pixi run pytest`
 - Keep task content trivial in experiments — the focus is workflow mechanics, not the work itself
+
+## Python style
+
+- Prefer `Generic` over `Protocol` for abstractions — covariance/contravariance issues don't arise, type-hinting is cleaner, and it encourages composition over inheritance
