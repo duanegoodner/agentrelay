@@ -1,0 +1,73 @@
+# .workflow/specs/exp-01.yaml
+# Experiment 1: Hand-authored spec, manual execution
+#
+# Purpose: Validate that the workflow vocabulary and YAML spec format are
+# expressive enough to describe a real (if trivial) multi-step workflow.
+# Execution is fully manual — no Python interpreter, no automated gate logic.
+#
+# See docs/experiment_plans/EXPERIMENT_01.md for the full execution guide.
+
+workflow:
+  id: exp-01
+  name: "Experiment 1 — write-tests → implement"
+  description: >
+    Trivial 2-step workflow. Execute each step by launching Claude manually.
+    Evaluate the gate yourself. Record vocabulary gaps in experiments/01-manual/NOTES.md.
+
+task:
+  id: add-function
+  name: "Implement add(a, b) with tests"
+
+  steps:
+
+    - id: write-tests
+      name: "Write pytest tests for add()"
+      prompt: |
+        Write pytest tests for a Python function `add(a, b)` that returns `a + b`.
+        Save the tests to `experiments/01-manual/tests/test_add.py`.
+        Cover at minimum: two positive integers, two negative integers, mixed signs,
+        two floats, and one integer + one float.
+        Do NOT implement `add()` — write tests only.
+      outputs:
+        - path: "experiments/01-manual/tests/test_add.py"
+          description: "Pytest test file for add()"
+      success_criterion: >
+        test_add.py exists and contains at least 5 test cases covering the
+        cases listed in the prompt. Tests do not define or import add().
+      signal:
+        type: sentinel_file
+        path: ".workflow/signals/exp-01/write-tests.done"
+      gate:
+        id: gate-review-tests
+        reviewer: human
+        escalation: human
+        criteria:
+          - "test_add.py exists at experiments/01-manual/tests/test_add.py"
+          - "At least 5 test cases are present"
+          - "Cases cover: positive ints, negative ints, mixed signs, floats, int+float"
+          - "add() is NOT defined or imported in test_add.py"
+        on_fail:
+          max_retries: 2
+          retry_step: write-tests
+
+    - id: implement
+      name: "Implement add()"
+      prompt: |
+        Implement the Python function `add(a, b)` in `experiments/01-manual/src/add.py`.
+        All tests in `experiments/01-manual/tests/test_add.py` must pass.
+        Run `pixi run pytest experiments/01-manual/tests/` to verify before finishing.
+      inputs:
+        - path: "experiments/01-manual/tests/test_add.py"
+          description: "Tests written in the write-tests step"
+      outputs:
+        - path: "experiments/01-manual/src/add.py"
+          description: "Implementation of add()"
+      success_criterion: >
+        pixi run pytest experiments/01-manual/tests/ passes with zero failures.
+      signal:
+        type: sentinel_file
+        path: ".workflow/signals/exp-01/implement.done"
+
+  terminal_state:
+    success: "Both steps completed; all gate criteria passed"
+    failure: "max_retries exceeded on gate-review-tests"
