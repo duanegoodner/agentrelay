@@ -72,14 +72,14 @@ git branch -d <branch-name>
 
 ```bash
 # Create worktree (from repo root, not inside a worktree)
-GIT_DIR=/data/git/agentorch/.git-bare git worktree add /data/git/agentorch/<name> -b <branch-name>
-cd /data/git/agentorch/<name>
+GIT_DIR=/data/git/agentrelay/.git-bare git worktree add /data/git/agentrelay/<name> -b <branch-name>
+cd /data/git/agentrelay/<name>
 # ... make changes, commit ...
 git push -u origin <branch-name>
 gh pr create
 # after merge:
-GIT_DIR=/data/git/agentorch/.git-bare git worktree remove /data/git/agentorch/<name>
-cd /data/git/agentorch/main && git pull origin main
+GIT_DIR=/data/git/agentrelay/.git-bare git worktree remove /data/git/agentrelay/<name>
+cd /data/git/agentrelay/main && git pull origin main
 ```
 
 ### PR conventions
