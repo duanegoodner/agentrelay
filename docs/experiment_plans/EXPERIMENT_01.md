@@ -190,7 +190,10 @@ mkdir -p experiments/01-manual/tests experiments/01-manual/src
    claude
    ```
 3. Paste the prompt text into the Claude session (or type equivalent instructions).
-4. Claude produces `experiments/01-manual/tests/test_add.py`.
+4. Claude produces three files:
+   - `experiments/01-manual/tests/test_add.py` — the test file
+   - `experiments/01-manual/src/add.py` — a minimal stub (`def add(a, b): pass`)
+   - `experiments/01-manual/tests/conftest.py` — import path setup (if needed)
 5. Evaluate the gate (see checklist below).
 6. **If gate passes:**
    ```bash
@@ -202,14 +205,19 @@ mkdir -p experiments/01-manual/tests experiments/01-manual/src
 
 ### Gate evaluation checklist: `gate-review-tests`
 
-Read `experiments/01-manual/tests/test_add.py` and check:
+Read `experiments/01-manual/tests/test_add.py` and `experiments/01-manual/src/add.py`, then:
 
-- [ ] File exists at `experiments/01-manual/tests/test_add.py`
+- [ ] `tests/test_add.py` exists at `experiments/01-manual/tests/test_add.py`
 - [ ] At least 5 test cases are present
-- [ ] Cases cover: two positive ints, two negative ints, mixed signs, two floats, int+float
-- [ ] `add()` is NOT defined or imported in `test_add.py`
+- [ ] Cases cover: positive ints, negative ints, mixed signs, two floats, int+float
+- [ ] `add()` is NOT implemented in `tests/test_add.py` (it imports from the stub, not defines it)
+- [ ] `src/add.py` exists as a stub (signature only — body is `pass` or equivalent)
+- [ ] Run the command criterion and confirm it exits 0:
+  ```bash
+  pixi run pytest experiments/01-manual/tests/ --collect-only
+  ```
 
-All four must pass. If any fail, provide the failing criteria as feedback and retry
+All six must pass. If any fail, provide the failing criteria as feedback and retry
 the `write-tests` step.
 
 ### Step: `implement`
@@ -220,7 +228,7 @@ the `write-tests` step.
    claude
    ```
 3. Paste the prompt text into the Claude session.
-4. Claude produces `experiments/01-manual/src/add.py`.
+4. Claude replaces the stub body in `experiments/01-manual/src/add.py` with the real implementation.
 5. Run the tests to verify:
    ```bash
    pixi run pytest experiments/01-manual/tests/
@@ -274,11 +282,19 @@ The experiment is complete when all of the following are true:
 
 - [ ] `.workflow/specs/exp-01.yaml` is committed and passes a basic YAML parse check:
   ```bash
-  python -c "import yaml; yaml.safe_load(open('.workflow/specs/exp-01.yaml')); print('OK')"
+  pixi run python -c "import yaml; yaml.safe_load(open('.workflow/specs/exp-01.yaml')); print('OK')"
   ```
 - [ ] `experiments/01-manual/tests/test_add.py` was produced by a Claude session
 - [ ] `experiments/01-manual/src/add.py` was produced by a Claude session
-- [ ] All tests pass: `pixi run pytest experiments/01-manual/tests/`
+- [ ] `experiments/01-manual/tests/conftest.py` exists (import path setup for the stub)
+- [ ] Test collection passes (imports resolve):
+  ```bash
+  pixi run pytest experiments/01-manual/tests/ --collect-only
+  ```
+- [ ] All tests pass:
+  ```bash
+  pixi run pytest experiments/01-manual/tests/
+  ```
 - [ ] `experiments/01-manual/NOTES.md` has all six sections filled in (even if some
   are "nothing notable")
 - [ ] Sentinel files exist confirming both steps ran:

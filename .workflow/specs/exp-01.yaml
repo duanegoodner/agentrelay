@@ -22,18 +22,41 @@ task:
 
     - id: write-tests
       name: "Write pytest tests for add()"
+      working_directory: "experiments/01-manual"
+      # working_directory: where the agent runs when executing this step's prompt.
+      # The Experiment 2 interpreter will cd here before launching Claude.
+      # Paths in the prompt are relative to this directory.
+      # outputs[].path, inputs[].path, and signal.path remain project-root-relative.
       prompt: |
         Write pytest tests for a Python function `add(a, b)` that returns `a + b`.
         Save the tests to `experiments/01-manual/tests/test_add.py`.
         Cover at minimum: two positive integers, two negative integers, mixed signs,
         two floats, and one integer + one float.
         Do NOT implement `add()` — write tests only.
+
+        Also create a minimal stub at `experiments/01-manual/src/add.py` containing
+        only the function signature with no logic (e.g. `def add(a, b): pass`).
+        This stub exists so the tests can import `add` without the implementation.
+
+        Ensure the tests can actually import `add` from the stub. Create a
+        `experiments/01-manual/tests/conftest.py` (or equivalent) if the project
+        structure requires it. Verify by running:
+          pixi run pytest experiments/01-manual/tests/ --collect-only
+        This must exit with 0 before you finish.
       outputs:
         - path: "experiments/01-manual/tests/test_add.py"
           description: "Pytest test file for add()"
+        - path: "experiments/01-manual/src/add.py"
+          description: "Minimal stub — function signature only, no logic (body is `pass`)"
+        - path: "experiments/01-manual/tests/conftest.py"
+          description: >
+            Import path setup so tests can find the stub. Created only if the project
+            structure requires it. In a project with editable install or pre-configured
+            pythonpath this file may not be needed.
       success_criterion: >
-        test_add.py exists and contains at least 5 test cases covering the
-        cases listed in the prompt. Tests do not define or import add().
+        test_add.py exists and contains at least 5 test cases covering the cases listed
+        in the prompt. src/add.py exists as a stub. Tests can import add from the stub
+        (pixi run pytest --collect-only exits 0).
       signal:
         type: sentinel_file
         path: ".workflow/signals/exp-01/write-tests.done"
@@ -42,18 +65,24 @@ task:
         reviewer: human
         escalation: human
         criteria:
-          - "test_add.py exists at experiments/01-manual/tests/test_add.py"
+          - "tests/test_add.py exists at experiments/01-manual/tests/test_add.py"
           - "At least 5 test cases are present"
           - "Cases cover: positive ints, negative ints, mixed signs, floats, int+float"
-          - "add() is NOT defined or imported in test_add.py"
+          - "add() is NOT implemented in tests/test_add.py (imported from stub, not defined here)"
+          - "src/add.py exists as a stub (signature only — body is `pass` or equivalent)"
+          - command: "pixi run pytest experiments/01-manual/tests/ --collect-only"
+            description: "Test file can import add from the stub (all imports resolve)"
         on_fail:
           max_retries: 2
           retry_step: write-tests
 
     - id: implement
       name: "Implement add()"
+      working_directory: "experiments/01-manual"
       prompt: |
         Implement the Python function `add(a, b)` in `experiments/01-manual/src/add.py`.
+        A stub with the correct signature already exists — replace the `pass` body with
+        the real implementation.
         All tests in `experiments/01-manual/tests/test_add.py` must pass.
         Run `pixi run pytest experiments/01-manual/tests/` to verify before finishing.
       inputs:

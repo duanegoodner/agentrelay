@@ -2,7 +2,7 @@
 authors = [{name = "Duane Goodner", email = "dmgoodner@gmail.com"}]
 dependencies = []
 name = "agentrelay"
-requires-python = ">= 3.11"
+requires-python = ">=3.12,<3.13"
 version = "0.1.0"
 
 [build-system]
@@ -12,16 +12,23 @@ requires = ["hatchling"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentrelay"]
 
-[tool.pixi.workspace]
-channels = ["conda-forge"]
-platforms = ["linux-64"]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "slow: test is slow (>5s)",
+    "integration: test requires running Claude CLI",
+]
 
-[tool.pixi.pypi-dependencies]
-agentrelay = { path = ".", editable = true }
+[tool.black]
+line-length = 88
+extend-exclude = '\.pixi/'
 
-[tool.pixi.tasks]
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+skip_glob = [".pixi/*"]
 
-[tool.pixi.dependencies]
-python = ">=3.14.3,<3.15"
-pyyaml = ">=6.0.3,<7"
-pytest = ">=9.0.2,<10"
+[tool.pyright]
+typeCheckingMode = "standard"
+pythonVersion = "3.12"
+exclude = ["tests/**", ".pixi/**"]
