@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+
+# Workflow runtime state (created at runtime, not version controlled)
+.workflow/signals/
+.workflow/retry-context/
+.workflow/state/
+.workflow/audit/
+# Keep .workflow/specs/ tracked — those are workflow definitions
