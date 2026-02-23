@@ -19,5 +19,5 @@ agentrelaysmall = { path = ".", editable = true }
 [tasks]
 pytest = "python -m pytest"
 test = "python -m pytest"
-typecheck = "pyright src/agentrelay/"
+typecheck = "pyright src/agentrelaysmall/"
 format = "black . && isort ."

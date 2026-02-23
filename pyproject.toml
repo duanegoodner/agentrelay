@@ -13,7 +13,7 @@ requires = ["hatchling"]
 packages = ["src/agentrelaysmall"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["test"]
 markers = [
     "slow: test is slow (>5s)",
     "integration: test requires running Claude CLI",
@@ -31,4 +31,4 @@ skip_glob = [".pixi/*"]
 [tool.pyright]
 typeCheckingMode = "standard"
 pythonVersion = "3.12"
-exclude = ["tests/**", ".pixi/**"]
+exclude = ["test/**", ".pixi/**"]
