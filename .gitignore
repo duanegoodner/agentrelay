@@ -9,9 +9,7 @@ build/
 .pixi/*
 !.pixi/config.toml
 
-# Workflow runtime state (created at runtime, not version controlled)
-.workflow/signals/
-.workflow/retry-context/
-.workflow/state/
-.workflow/audit/
-# Keep .workflow/specs/ tracked — those are workflow definitions
+# Workflow runtime state — entirely ephemeral, not version-controlled.
+# Workflow/graph definitions should live in a top-level directory (e.g. graphs/)
+# rather than here, to keep the gitignore simple.
+.workflow/
