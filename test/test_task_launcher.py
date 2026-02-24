@@ -11,6 +11,7 @@ from agentrelaysmall.task_launcher import (
     launch_agent,
     merge_pr,
     poll_for_completion,
+    pull_main,
     read_done_note,
     remove_worktree,
     send_prompt,
@@ -298,3 +299,29 @@ def test_poll_waits_for_done(tmp_path):
         return str(results[0])
 
     assert asyncio.run(run()) == "done"
+
+
+# ── pull_main ─────────────────────────────────────────────────────────────────
+
+def test_pull_main_returns_true_on_success(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        assert pull_main(tmp_path) is True
+    cmd = mock_run.call_args[0][0]
+    assert "git" in cmd
+    assert "pull" in cmd
+    assert "--ff-only" in cmd
+
+
+def test_pull_main_returns_false_on_failure(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 1
+        assert pull_main(tmp_path) is False
+
+
+def test_pull_main_uses_repo_root(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        pull_main(tmp_path)
+    cmd = mock_run.call_args[0][0]
+    assert str(tmp_path) in cmd
