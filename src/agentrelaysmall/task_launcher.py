@@ -130,6 +130,20 @@ def merge_pr(pr_url: str) -> None:
     )
 
 
+def pull_main(repo_root: Path) -> bool:
+    """Fast-forward local main to match origin/main after a PR merge.
+
+    Returns True if the pull succeeded, False if it failed (e.g. because
+    local main has diverged).  The caller should treat False as a signal
+    that subsequent tasks must not start until the situation is resolved.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo_root), "pull", "--ff-only"],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
 def write_merged_signal(task: AgentTask, graph_name: str, repo_root: Path) -> None:
     """Write the .merged sentinel after a successful PR merge."""
     signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id

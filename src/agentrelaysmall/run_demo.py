@@ -19,6 +19,7 @@ from agentrelaysmall.task_launcher import (
     launch_agent,
     merge_pr,
     poll_for_completion,
+    pull_main,
     read_done_note,
     remove_worktree,
     send_prompt,
@@ -32,7 +33,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_demo
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
-TASK_ID = "task_004"
+TASK_ID = "task_005"
 
 
 def build_task_prompt(task_id: str) -> str:
@@ -51,13 +52,9 @@ Complete these steps in order:
        git commit -m "Add {output_path}"
        git push -u origin HEAD
 
-3. Create a PR and signal completion by running this as a single bash script:
+3. Create a PR, capture the URL, and signal completion — run these two commands:
        PR_URL=$(gh pr create --title "Add {output_path}" --body "Automated demo task." --base main)
-       pixi run python - << PYEOF
-from agentrelaysmall import WorktreeTaskRunner
-runner = WorktreeTaskRunner.from_config()
-runner.mark_done("$PR_URL")
-PYEOF
+       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; r = WorktreeTaskRunner.from_config(); r.mark_done('$PR_URL')"
 
 The pixi.toml in the current directory provides the agentrelaysmall package.
 
@@ -104,6 +101,13 @@ async def main() -> None:
             merge_pr(pr_url)
             write_merged_signal(task, GRAPH_NAME, REPO_ROOT)
             print("[demo] PR merged and .merged signal written")
+            if pull_main(REPO_ROOT):
+                print("[demo] local main fast-forwarded to origin/main")
+            else:
+                print(
+                    "[demo] WARNING: git pull --ff-only failed — local main is stale. "
+                    "Resolve before starting the next task."
+                )
         else:
             print("[demo] no PR URL in .done note — skipping merge")
 
