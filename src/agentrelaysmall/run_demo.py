@@ -17,9 +17,12 @@ from agentrelaysmall.agent_task import AgentTask
 from agentrelaysmall.task_launcher import (
     create_worktree,
     launch_agent,
+    merge_pr,
     poll_for_completion,
+    read_done_note,
     remove_worktree,
     send_prompt,
+    write_merged_signal,
     write_task_context,
 )
 
@@ -32,25 +35,33 @@ WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 TASK_PROMPT = """\
 You are a worktree agent for the agentrelaysmall project.
 
-Your task: write a file called `hello.py` in the current directory containing
-exactly one line:  print("hello from agentrelaysmall")
+Complete these steps in order:
 
-When done, signal completion by running this snippet in bash:
-    pixi run python -c "
+1. Create a directory called `demo_output` and write `hello.py` inside it,
+   containing exactly one line:
+       print("hello from agentrelaysmall")
+
+2. Stage, commit, and push the file:
+       git add demo_output/hello.py
+       git commit -m "Add demo_output/hello.py"
+       git push -u origin HEAD
+
+3. Create a PR and signal completion by running this as a single bash script:
+       PR_URL=$(gh pr create --title "Add demo_output/hello.py" --body "Automated demo task." --base main)
+       pixi run python - << PYEOF
 from agentrelaysmall import WorktreeTaskRunner
 runner = WorktreeTaskRunner.from_config()
-runner.mark_done('wrote hello.py')
-"
+runner.mark_done("$PR_URL")
+PYEOF
 
-The pixi.toml in the current directory provides the environment with the
-agentrelaysmall package already installed.
+The pixi.toml in the current directory provides the agentrelaysmall package.
 
 Then stop — do not do anything else.
 """
 
 
 async def main() -> None:
-    task = AgentTask(id="task_001", description="Write hello.py and signal done")
+    task = AgentTask(id="task_002", description="Write hello.py and signal done")
 
     print(f"[demo] repo root: {REPO_ROOT}")
     print(f"[demo] worktrees root: {WORKTREES_ROOT}")
@@ -79,7 +90,18 @@ async def main() -> None:
     result = await poll_for_completion(task, GRAPH_NAME, REPO_ROOT)
     print(f"[demo] sentinel detected: {result}")
 
-    # 6. Teardown
+    # 6. Merge the PR (if the agent noted a PR URL in the .done file)
+    if result == "done":
+        pr_url = read_done_note(task, GRAPH_NAME, REPO_ROOT)
+        if pr_url:
+            print(f"[demo] merging PR: {pr_url}")
+            merge_pr(pr_url)
+            write_merged_signal(task, GRAPH_NAME, REPO_ROOT)
+            print("[demo] PR merged and .merged signal written")
+        else:
+            print("[demo] no PR URL in .done note — skipping merge")
+
+    # 7. Teardown
     print("[demo] removing worktree and branch...")
     remove_worktree(task)
     print("[demo] done")

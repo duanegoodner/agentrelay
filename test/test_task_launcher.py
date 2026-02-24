@@ -9,9 +9,12 @@ from agentrelaysmall.agent_task import AgentTask
 from agentrelaysmall.task_launcher import (
     create_worktree,
     launch_agent,
+    merge_pr,
     poll_for_completion,
+    read_done_note,
     remove_worktree,
     send_prompt,
+    write_merged_signal,
     write_task_context,
 )
 
@@ -129,33 +132,104 @@ def test_launch_agent_requires_worktree_path():
 def test_send_prompt_sends_prompt_to_pane():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0)
-    # Last call should be the actual prompt
-    cmd = mock_run.call_args_list[-1][0][0]
+        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0, submit_delay=0)
+    # Second call (index 1) sends the prompt text only (no Enter)
+    cmd = mock_run.call_args_list[1][0][0]
     assert "%3" in cmd
     assert "do the thing" in cmd
-    assert "Enter" in cmd
+
+
+def test_send_prompt_sends_enter_last():
+    with patch("agentrelaysmall.task_launcher.time.sleep"), \
+         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0, submit_delay=0)
+    # Last call sends a bare Enter to submit the prompt
+    last_cmd = mock_run.call_args_list[-1][0][0]
+    assert "%3" in last_cmd
+    assert "Enter" in last_cmd
+    assert len(mock_run.call_args_list) == 3
 
 
 def test_send_prompt_sends_enter_first_for_trust_dialog():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0)
+        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0, submit_delay=0)
     # First send-keys call should be the trust-dismiss (empty string + Enter)
     first_cmd = mock_run.call_args_list[0][0][0]
     assert "%3" in first_cmd
     assert "Enter" in first_cmd
-    assert len(mock_run.call_args_list) == 2
 
 
-def test_send_prompt_sleeps_twice():
+def test_send_prompt_sleeps_three_times():
     with patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep, \
          patch("agentrelaysmall.task_launcher.subprocess.run"):
-        send_prompt("%3", "prompt", trust_delay=2.0, startup_delay=6.0)
-    assert mock_sleep.call_count == 2
+        send_prompt("%3", "prompt", trust_delay=2.0, startup_delay=6.0, submit_delay=0.5)
+    assert mock_sleep.call_count == 3
     sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
     assert 2.0 in sleep_args
     assert 6.0 in sleep_args
+    assert 0.5 in sleep_args
+
+
+# ── read_done_note ────────────────────────────────────────────────────────────
+
+def test_read_done_note_returns_note(tmp_path):
+    task = make_task()
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    (signal_dir / ".done").write_text("2024-01-01T00:00:00+00:00\nhttps://github.com/org/repo/pull/42")
+    assert read_done_note(task, "demo", tmp_path) == "https://github.com/org/repo/pull/42"
+
+
+def test_read_done_note_returns_empty_when_no_note(tmp_path):
+    task = make_task()
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    (signal_dir / ".done").write_text("2024-01-01T00:00:00+00:00")
+    assert read_done_note(task, "demo", tmp_path) == ""
+
+
+# ── merge_pr ──────────────────────────────────────────────────────────────────
+
+def test_merge_pr_calls_gh():
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        merge_pr("https://github.com/org/repo/pull/42")
+    cmd = mock_run.call_args[0][0]
+    assert "gh" in cmd
+    assert "pr" in cmd
+    assert "merge" in cmd
+    assert "https://github.com/org/repo/pull/42" in cmd
+
+
+def test_merge_pr_uses_merge_strategy():
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        merge_pr("https://github.com/org/repo/pull/42")
+    cmd = mock_run.call_args[0][0]
+    assert "--merge" in cmd
+
+
+# ── write_merged_signal ───────────────────────────────────────────────────────
+
+def test_write_merged_signal_creates_file(tmp_path):
+    task = make_task()
+    write_merged_signal(task, "demo", tmp_path)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    assert (signal_dir / ".merged").exists()
+
+
+def test_write_merged_signal_contains_timestamp(tmp_path):
+    task = make_task()
+    write_merged_signal(task, "demo", tmp_path)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    content = (signal_dir / ".merged").read_text()
+    assert "T" in content  # ISO 8601 timestamp contains 'T'
+
+
+def test_write_merged_signal_creates_signal_dir(tmp_path):
+    task = make_task()
+    write_merged_signal(task, "demo", tmp_path)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    assert signal_dir.exists()
 
 
 # ── remove_worktree ───────────────────────────────────────────────────────────
@@ -167,7 +241,7 @@ def test_remove_worktree_calls_git_commands(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         remove_worktree(task)
     calls = mock_run.call_args_list
-    assert any("worktree" in str(c) and "remove" in str(c) for c in calls)
+    assert any("worktree" in str(c) and "remove" in str(c) and "force" in str(c) for c in calls)
     assert any("branch" in str(c) and "-D" in str(c) for c in calls)
 
 
