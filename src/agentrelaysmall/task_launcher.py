@@ -2,6 +2,7 @@ import asyncio
 import json
 import subprocess
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 from agentrelaysmall.agent_task import AgentTask
@@ -63,20 +64,25 @@ def send_prompt(
     prompt: str,
     trust_delay: float = 2.0,
     startup_delay: float = 6.0,
+    submit_delay: float = 0.5,
 ) -> None:
     # Wait for the Claude trust dialog to appear, then dismiss it with Enter
     time.sleep(trust_delay)
     subprocess.run(["tmux", "send-keys", "-t", pane_id, "", "Enter"])
     # Wait for Claude to finish initialising past the trust prompt
     time.sleep(startup_delay)
-    subprocess.run(["tmux", "send-keys", "-t", pane_id, prompt, "Enter"])
+    # Send prompt text first, then wait before submitting — ensures Claude
+    # has registered the full text in its input buffer before Enter is sent
+    subprocess.run(["tmux", "send-keys", "-t", pane_id, prompt])
+    time.sleep(submit_delay)
+    subprocess.run(["tmux", "send-keys", "-t", pane_id, "", "Enter"])
 
 
 def remove_worktree(task: AgentTask) -> None:
     assert task.state.worktree_path is not None, "worktree_path must be set before removing"
     assert task.state.branch_name is not None, "branch_name must be set before removing"
     subprocess.run(
-        ["git", "worktree", "remove", str(task.state.worktree_path)],
+        ["git", "worktree", "remove", "--force", str(task.state.worktree_path)],
         check=True,
     )
     subprocess.run(
@@ -98,3 +104,26 @@ async def poll_for_completion(
         if (signal_dir / ".failed").exists():
             return "failed"
         await asyncio.sleep(poll_interval)
+
+
+def read_done_note(task: AgentTask, graph_name: str, repo_root: Path) -> str:
+    """Return the note (second line) from the .done signal file, or empty string."""
+    signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id
+    content = (signal_dir / ".done").read_text()
+    lines = content.splitlines()
+    return lines[1] if len(lines) > 1 else ""
+
+
+def merge_pr(pr_url: str) -> None:
+    """Merge a PR using gh CLI."""
+    subprocess.run(
+        ["gh", "pr", "merge", pr_url, "--merge"],
+        check=True,
+    )
+
+
+def write_merged_signal(task: AgentTask, graph_name: str, repo_root: Path) -> None:
+    """Write the .merged sentinel after a successful PR merge."""
+    signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / ".merged").write_text(datetime.now(timezone.utc).isoformat())
