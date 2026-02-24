@@ -32,22 +32,27 @@ REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_demo
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
-TASK_PROMPT = """\
+TASK_ID = "task_004"
+
+
+def build_task_prompt(task_id: str) -> str:
+    output_path = f"demo_output/{task_id}/hello.py"
+    return f"""\
 You are a worktree agent for the agentrelaysmall project.
 
 Complete these steps in order:
 
-1. Create a directory called `demo_output` and write `hello.py` inside it,
+1. Create the directory `demo_output/{task_id}` and write `hello.py` inside it,
    containing exactly one line:
        print("hello from agentrelaysmall")
 
 2. Stage, commit, and push the file:
-       git add demo_output/hello.py
-       git commit -m "Add demo_output/hello.py"
+       git add {output_path}
+       git commit -m "Add {output_path}"
        git push -u origin HEAD
 
 3. Create a PR and signal completion by running this as a single bash script:
-       PR_URL=$(gh pr create --title "Add demo_output/hello.py" --body "Automated demo task." --base main)
+       PR_URL=$(gh pr create --title "Add {output_path}" --body "Automated demo task." --base main)
        pixi run python - << PYEOF
 from agentrelaysmall import WorktreeTaskRunner
 runner = WorktreeTaskRunner.from_config()
@@ -61,7 +66,8 @@ Then stop — do not do anything else.
 
 
 async def main() -> None:
-    task = AgentTask(id="task_002", description="Write hello.py and signal done")
+    task = AgentTask(id=TASK_ID, description="Write hello.py and signal done")
+    task_prompt = build_task_prompt(task.id)
 
     print(f"[demo] repo root: {REPO_ROOT}")
     print(f"[demo] worktrees root: {WORKTREES_ROOT}")
@@ -82,7 +88,7 @@ async def main() -> None:
 
     # 4. Send the task prompt (waits for Claude to initialise first)
     print("[demo] sending prompt (waiting for Claude to start)...")
-    send_prompt(pane_id, TASK_PROMPT)
+    send_prompt(pane_id, task_prompt)
     print("[demo] prompt sent")
 
     # 5. Poll for completion
