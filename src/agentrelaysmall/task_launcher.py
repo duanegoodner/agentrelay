@@ -61,7 +61,7 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
     env_path = os.environ.get("PATH", "")
     subprocess.run([
         "tmux", "send-keys", "-t", pane_id,
-        f'export PATH="{env_path}" && claude',
+        f'export PATH="{env_path}" && claude --dangerously-skip-permissions',
         "Enter",
     ])
     return pane_id
@@ -70,20 +70,26 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
 def send_prompt(
     pane_id: str,
     prompt: str,
-    trust_delay: float = 2.0,
     startup_delay: float = 6.0,
     submit_delay: float = 0.5,
 ) -> None:
-    # Wait for the Claude trust dialog to appear, then dismiss it with Enter
-    time.sleep(trust_delay)
-    subprocess.run(["tmux", "send-keys", "-t", pane_id, "", "Enter"])
-    # Wait for Claude to finish initialising past the trust prompt
+    # Wait for Claude to finish initialising
     time.sleep(startup_delay)
     # Send prompt text first, then wait before submitting — ensures Claude
     # has registered the full text in its input buffer before Enter is sent
     subprocess.run(["tmux", "send-keys", "-t", pane_id, prompt])
     time.sleep(submit_delay)
     subprocess.run(["tmux", "send-keys", "-t", pane_id, "", "Enter"])
+
+
+def write_context(task: AgentTask, content: str) -> None:
+    assert task.state.worktree_path is not None, "worktree_path must be set before writing context"
+    (task.state.worktree_path / "context.md").write_text(content)
+
+
+def close_agent_pane(task: AgentTask) -> None:
+    if task.state.pane_id:
+        subprocess.run(["tmux", "kill-window", "-t", task.state.pane_id])
 
 
 def remove_worktree(task: AgentTask) -> None:

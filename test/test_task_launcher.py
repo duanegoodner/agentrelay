@@ -7,6 +7,7 @@ import pytest
 
 from agentrelaysmall.agent_task import AgentTask
 from agentrelaysmall.task_launcher import (
+    close_agent_pane,
     create_worktree,
     launch_agent,
     merge_pr,
@@ -109,6 +110,7 @@ def test_launch_agent_sends_claude_command(tmp_path):
         launch_agent(task, "agentrelaysmall")
     cmd = mock_run.call_args[0][0]
     assert any("claude" in part for part in cmd)
+    assert any("--dangerously-skip-permissions" in part for part in cmd)
 
 
 def test_launch_agent_sets_pane_id(tmp_path):
@@ -133,9 +135,9 @@ def test_launch_agent_requires_worktree_path():
 def test_send_prompt_sends_prompt_to_pane():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0, submit_delay=0)
-    # Second call (index 1) sends the prompt text only (no Enter)
-    cmd = mock_run.call_args_list[1][0][0]
+        send_prompt("%3", "do the thing", startup_delay=0, submit_delay=0)
+    # First call (index 0) sends the prompt text only (no Enter)
+    cmd = mock_run.call_args_list[0][0][0]
     assert "%3" in cmd
     assert "do the thing" in cmd
 
@@ -143,31 +145,20 @@ def test_send_prompt_sends_prompt_to_pane():
 def test_send_prompt_sends_enter_last():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0, submit_delay=0)
+        send_prompt("%3", "do the thing", startup_delay=0, submit_delay=0)
     # Last call sends a bare Enter to submit the prompt
     last_cmd = mock_run.call_args_list[-1][0][0]
     assert "%3" in last_cmd
     assert "Enter" in last_cmd
-    assert len(mock_run.call_args_list) == 3
+    assert len(mock_run.call_args_list) == 2
 
 
-def test_send_prompt_sends_enter_first_for_trust_dialog():
-    with patch("agentrelaysmall.task_launcher.time.sleep"), \
-         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0, submit_delay=0)
-    # First send-keys call should be the trust-dismiss (empty string + Enter)
-    first_cmd = mock_run.call_args_list[0][0][0]
-    assert "%3" in first_cmd
-    assert "Enter" in first_cmd
-
-
-def test_send_prompt_sleeps_three_times():
+def test_send_prompt_sleeps_twice():
     with patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep, \
          patch("agentrelaysmall.task_launcher.subprocess.run"):
-        send_prompt("%3", "prompt", trust_delay=2.0, startup_delay=6.0, submit_delay=0.5)
-    assert mock_sleep.call_count == 3
+        send_prompt("%3", "prompt", startup_delay=6.0, submit_delay=0.5)
+    assert mock_sleep.call_count == 2
     sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
-    assert 2.0 in sleep_args
     assert 6.0 in sleep_args
     assert 0.5 in sleep_args
 
@@ -231,6 +222,26 @@ def test_write_merged_signal_creates_signal_dir(tmp_path):
     write_merged_signal(task, "demo", tmp_path)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     assert signal_dir.exists()
+
+
+# ── close_agent_pane ─────────────────────────────────────────────────────────
+
+def test_close_agent_pane_kills_window():
+    task = make_task()
+    task.state.pane_id = "%7"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        close_agent_pane(task)
+    cmd = mock_run.call_args[0][0]
+    assert "tmux" in cmd
+    assert "kill-window" in cmd
+    assert "%7" in cmd
+
+
+def test_close_agent_pane_skips_when_no_pane_id():
+    task = make_task()
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        close_agent_pane(task)
+    mock_run.assert_not_called()
 
 
 # ── remove_worktree ───────────────────────────────────────────────────────────

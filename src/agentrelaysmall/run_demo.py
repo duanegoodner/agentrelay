@@ -15,6 +15,7 @@ from pathlib import Path
 
 from agentrelaysmall.agent_task import AgentTask
 from agentrelaysmall.task_launcher import (
+    close_agent_pane,
     create_worktree,
     launch_agent,
     merge_pr,
@@ -33,7 +34,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_demo
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
-TASK_ID = "task_005"
+TASK_ID = "task_006"
 
 
 def build_task_prompt(task_id: str) -> str:
@@ -112,7 +113,8 @@ async def main() -> None:
             print("[demo] no PR URL in .done note — skipping merge")
 
     # 7. Teardown
-    print("[demo] removing worktree and branch...")
+    print("[demo] closing agent pane and removing worktree...")
+    close_agent_pane(task)
     remove_worktree(task)
     print("[demo] done")
 
