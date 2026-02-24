@@ -107,7 +107,7 @@ def test_launch_agent_sends_claude_command(tmp_path):
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         launch_agent(task, "agentrelaysmall")
     cmd = mock_run.call_args[0][0]
-    assert "claude" in cmd
+    assert any("claude" in part for part in cmd)
 
 
 def test_launch_agent_sets_pane_id(tmp_path):
