@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import subprocess
 import time
 from datetime import datetime, timezone
@@ -55,7 +56,14 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
     )
     task.state.tmux_session = tmux_session
     task.state.pane_id = pane_id
-    subprocess.run(["tmux", "send-keys", "-t", pane_id, "claude", "Enter"])
+    # Export the orchestrator's PATH so Claude's bash subshells can find
+    # tools (gh, pixi, etc.) that live outside the default non-interactive PATH
+    env_path = os.environ.get("PATH", "")
+    subprocess.run([
+        "tmux", "send-keys", "-t", pane_id,
+        f'export PATH="{env_path}" && claude',
+        "Enter",
+    ])
     return pane_id
 
 
