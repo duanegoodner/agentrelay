@@ -126,21 +126,36 @@ def test_launch_agent_requires_worktree_path():
 
 # ── send_prompt ───────────────────────────────────────────────────────────────
 
-def test_send_prompt_sends_to_pane():
+def test_send_prompt_sends_prompt_to_pane():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", startup_delay=0)
-    cmd = mock_run.call_args[0][0]
+        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0)
+    # Last call should be the actual prompt
+    cmd = mock_run.call_args_list[-1][0][0]
     assert "%3" in cmd
     assert "do the thing" in cmd
     assert "Enter" in cmd
 
 
-def test_send_prompt_sleeps_before_sending():
+def test_send_prompt_sends_enter_first_for_trust_dialog():
+    with patch("agentrelaysmall.task_launcher.time.sleep"), \
+         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        send_prompt("%3", "do the thing", trust_delay=0, startup_delay=0)
+    # First send-keys call should be the trust-dismiss (empty string + Enter)
+    first_cmd = mock_run.call_args_list[0][0][0]
+    assert "%3" in first_cmd
+    assert "Enter" in first_cmd
+    assert len(mock_run.call_args_list) == 2
+
+
+def test_send_prompt_sleeps_twice():
     with patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep, \
          patch("agentrelaysmall.task_launcher.subprocess.run"):
-        send_prompt("%3", "prompt", startup_delay=5.0)
-    mock_sleep.assert_called_once_with(5.0)
+        send_prompt("%3", "prompt", trust_delay=2.0, startup_delay=6.0)
+    assert mock_sleep.call_count == 2
+    sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
+    assert 2.0 in sleep_args
+    assert 6.0 in sleep_args
 
 
 # ── remove_worktree ───────────────────────────────────────────────────────────
@@ -153,7 +168,7 @@ def test_remove_worktree_calls_git_commands(tmp_path):
         remove_worktree(task)
     calls = mock_run.call_args_list
     assert any("worktree" in str(c) and "remove" in str(c) for c in calls)
-    assert any("branch" in str(c) and "-d" in str(c) for c in calls)
+    assert any("branch" in str(c) and "-D" in str(c) for c in calls)
 
 
 def test_remove_worktree_requires_worktree_path():

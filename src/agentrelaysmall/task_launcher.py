@@ -58,7 +58,16 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
     return pane_id
 
 
-def send_prompt(pane_id: str, prompt: str, startup_delay: float = 5.0) -> None:
+def send_prompt(
+    pane_id: str,
+    prompt: str,
+    trust_delay: float = 2.0,
+    startup_delay: float = 6.0,
+) -> None:
+    # Wait for the Claude trust dialog to appear, then dismiss it with Enter
+    time.sleep(trust_delay)
+    subprocess.run(["tmux", "send-keys", "-t", pane_id, "", "Enter"])
+    # Wait for Claude to finish initialising past the trust prompt
     time.sleep(startup_delay)
     subprocess.run(["tmux", "send-keys", "-t", pane_id, prompt, "Enter"])
 
@@ -71,7 +80,7 @@ def remove_worktree(task: AgentTask) -> None:
         check=True,
     )
     subprocess.run(
-        ["git", "branch", "-d", task.state.branch_name],
+        ["git", "branch", "-D", task.state.branch_name],
         check=True,
     )
 

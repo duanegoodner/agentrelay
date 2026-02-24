@@ -25,7 +25,7 @@ from agentrelaysmall.task_launcher import (
 
 TMUX_SESSION = "agentrelaysmall"
 GRAPH_NAME = "demo"
-REPO_ROOT = Path(__file__).resolve().parents[3]   # src/agentrelaysmall/run_demo.py → repo root
+REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_demo.py → repo root
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
@@ -35,10 +35,15 @@ You are a worktree agent for the agentrelaysmall project.
 Your task: write a file called `hello.py` in the current directory containing
 exactly one line:  print("hello from agentrelaysmall")
 
-When done, signal completion by running this Python snippet:
-    from agentrelaysmall import WorktreeTaskRunner
-    runner = WorktreeTaskRunner.from_config()
-    runner.mark_done("wrote hello.py")
+When done, signal completion by running this snippet in bash:
+    pixi run python -c "
+from agentrelaysmall import WorktreeTaskRunner
+runner = WorktreeTaskRunner.from_config()
+runner.mark_done('wrote hello.py')
+"
+
+The pixi.toml in the current directory provides the environment with the
+agentrelaysmall package already installed.
 
 Then stop — do not do anything else.
 """
