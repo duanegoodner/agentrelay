@@ -1,0 +1,15 @@
+name: demo
+tasks:
+  - id: write_greet_fn
+    description: >-
+      Write a Python function greet(name: str) -> str in
+      demo_output/write_greet_fn/greet.py that returns the string "Hello, {name}!"
+    dependencies: []
+
+  - id: use_greet_fn
+    description: >-
+      Write a script demo_output/use_greet_fn/main.py that imports greet from
+      demo_output/write_greet_fn/greet.py and prints greet() for the names
+      "Alice", "Bob", and "Carol"
+    dependencies:
+      - write_greet_fn
