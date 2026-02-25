@@ -24,6 +24,7 @@ from agentrelaysmall.task_launcher import (
     pull_main,
     read_done_note,
     remove_worktree,
+    save_agent_log,
     send_prompt,
     write_context,
     write_merged_signal,
@@ -90,7 +91,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
     """Run one task end-to-end: create worktree, dispatch agent, merge PR, teardown."""
     print(f"[graph] dispatching {task.id}: {task.description[:60]}")
     try:
-        create_worktree(task, graph.name, graph.worktrees_root)
+        create_worktree(task, graph.name, graph.worktrees_root, graph.target_repo_root)
         print(f"[graph] worktree at {task.state.worktree_path}")
 
         context_content = _build_context_content(graph, task)
@@ -98,7 +99,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
             write_context(task, context_content)
             print(f"[graph] wrote context.md for {task.id}")
 
-        write_task_context(task, graph.name, graph.repo_root)
+        write_task_context(task, graph.name, graph.target_repo_root)
 
         pane_id = launch_agent(task, TMUX_SESSION)
         print(f"[graph] {task.id} agent pane: {pane_id}")
@@ -106,17 +107,17 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         send_prompt(pane_id, _build_task_prompt(task))
         print(f"[graph] prompt sent to {task.id}")
 
-        result = await poll_for_completion(task, graph.name, graph.repo_root)
+        result = await poll_for_completion(task, graph.name, graph.target_repo_root)
         print(f"[graph] {task.id} sentinel: {result}")
 
         if result == "done":
-            pr_url = read_done_note(task, graph.name, graph.repo_root)
+            pr_url = read_done_note(task, graph.name, graph.target_repo_root)
             if pr_url:
                 print(f"[graph] merging PR for {task.id}: {pr_url}")
                 merge_pr(pr_url)
-                write_merged_signal(task, graph.name, graph.repo_root)
+                write_merged_signal(task, graph.name, graph.target_repo_root)
                 print(f"[graph] {task.id} merged")
-                if pull_main(graph.repo_root):
+                if pull_main(graph.target_repo_root):
                     print(f"[graph] main fast-forwarded after {task.id}")
                 else:
                     print(
@@ -133,9 +134,10 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         task.state.status = TaskStatus.FAILED
 
     finally:
+        save_agent_log(task, graph.signal_dir(task.id))
         close_agent_pane(task)
         if task.state.worktree_path and task.state.branch_name:
-            remove_worktree(task)
+            remove_worktree(task, graph.target_repo_root)
         print(f"[graph] teardown complete for {task.id}")
 
     # Unblock any tasks that were waiting on this one

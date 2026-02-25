@@ -13,13 +13,13 @@ from agentrelaysmall.agent_task import AgentTask, TaskStatus
 class AgentTaskGraph:
     name: str
     tasks: dict[str, AgentTask]
-    repo_root: Path
+    target_repo_root: Path
     worktrees_root: Path
 
     # ── Path authority — single source of truth ────────────────────────────
 
     def signal_dir(self, task_id: str) -> Path:
-        return self.repo_root / ".workflow" / self.name / "signals" / task_id
+        return self.target_repo_root / ".workflow" / self.name / "signals" / task_id
 
     def worktree_path(self, task_id: str) -> Path:
         return self.worktrees_root / self.name / task_id
@@ -71,6 +71,8 @@ class AgentTaskGraphBuilder:
     ) -> AgentTaskGraph:
         data: Any = yaml.safe_load(path.read_text())
         name: str = data["name"]
+        # YAML may override the default target repo with an absolute path
+        target_repo_root = Path(data["target_repo"]) if "target_repo" in data else repo_root
         tasks: dict[str, AgentTask] = {}
         for t in data["tasks"]:
             task_id: str = t["id"]
@@ -82,6 +84,6 @@ class AgentTaskGraphBuilder:
         return AgentTaskGraph(
             name=name,
             tasks=tasks,
-            repo_root=repo_root,
+            target_repo_root=target_repo_root,
             worktrees_root=worktrees_root,
         )

@@ -13,12 +13,14 @@ def create_worktree(
     task: AgentTask,
     graph_name: str,
     worktrees_root: Path,
+    target_repo_root: Path,
     base_branch: str = "main",
 ) -> Path:
     worktree_path = worktrees_root / graph_name / task.id
     branch_name = f"task/{graph_name}/{task.id}"
     subprocess.run(
-        ["git", "worktree", "add", "-b", branch_name, str(worktree_path), base_branch],
+        ["git", "-C", str(target_repo_root), "worktree", "add",
+         "-b", branch_name, str(worktree_path), base_branch],
         check=True,
     )
     task.state.worktree_path = worktree_path
@@ -26,8 +28,8 @@ def create_worktree(
     return worktree_path
 
 
-def write_task_context(task: AgentTask, graph_name: str, repo_root: Path) -> None:
-    signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id
+def write_task_context(task: AgentTask, graph_name: str, target_repo_root: Path) -> None:
+    signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     context = {
         "task_id": task.id,
         "graph_name": graph_name,
@@ -94,20 +96,34 @@ def write_context(task: AgentTask, content: str) -> None:
     (task.state.worktree_path / "context.md").write_text(content)
 
 
+def save_agent_log(task: AgentTask, signal_dir: Path) -> None:
+    """Capture the tmux pane scrollback and write to signal_dir/agent.log."""
+    if not task.state.pane_id:
+        return
+    result = subprocess.run(
+        ["tmux", "capture-pane", "-t", task.state.pane_id, "-p", "-S", "-"],
+        capture_output=True,
+        text=True,
+    )
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "agent.log").write_text(result.stdout)
+
+
 def close_agent_pane(task: AgentTask) -> None:
     if task.state.pane_id:
         subprocess.run(["tmux", "kill-window", "-t", task.state.pane_id])
 
 
-def remove_worktree(task: AgentTask) -> None:
+def remove_worktree(task: AgentTask, target_repo_root: Path) -> None:
     assert task.state.worktree_path is not None, "worktree_path must be set before removing"
     assert task.state.branch_name is not None, "branch_name must be set before removing"
     subprocess.run(
-        ["git", "worktree", "remove", "--force", str(task.state.worktree_path)],
+        ["git", "-C", str(target_repo_root), "worktree", "remove",
+         "--force", str(task.state.worktree_path)],
         check=True,
     )
     subprocess.run(
-        ["git", "branch", "-D", task.state.branch_name],
+        ["git", "-C", str(target_repo_root), "branch", "-D", task.state.branch_name],
         check=True,
     )
 
@@ -115,10 +131,10 @@ def remove_worktree(task: AgentTask) -> None:
 async def poll_for_completion(
     task: AgentTask,
     graph_name: str,
-    repo_root: Path,
+    target_repo_root: Path,
     poll_interval: float = 2.0,
 ) -> str:
-    signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id
+    signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     while True:
         if (signal_dir / ".done").exists():
             return "done"
@@ -127,9 +143,9 @@ async def poll_for_completion(
         await asyncio.sleep(poll_interval)
 
 
-def read_done_note(task: AgentTask, graph_name: str, repo_root: Path) -> str:
+def read_done_note(task: AgentTask, graph_name: str, target_repo_root: Path) -> str:
     """Return the note (second line) from the .done signal file, or empty string."""
-    signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id
+    signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     content = (signal_dir / ".done").read_text()
     lines = content.splitlines()
     return lines[1] if len(lines) > 1 else ""
@@ -143,7 +159,7 @@ def merge_pr(pr_url: str) -> None:
     )
 
 
-def pull_main(repo_root: Path) -> bool:
+def pull_main(target_repo_root: Path) -> bool:
     """Fast-forward local main to match origin/main after a PR merge.
 
     Returns True if the pull succeeded, False if it failed (e.g. because
@@ -151,14 +167,14 @@ def pull_main(repo_root: Path) -> bool:
     that subsequent tasks must not start until the situation is resolved.
     """
     result = subprocess.run(
-        ["git", "-C", str(repo_root), "pull", "--ff-only"],
+        ["git", "-C", str(target_repo_root), "pull", "--ff-only"],
         capture_output=True,
     )
     return result.returncode == 0
 
 
-def write_merged_signal(task: AgentTask, graph_name: str, repo_root: Path) -> None:
+def write_merged_signal(task: AgentTask, graph_name: str, target_repo_root: Path) -> None:
     """Write the .merged sentinel after a successful PR merge."""
-    signal_dir = repo_root / ".workflow" / graph_name / "signals" / task.id
+    signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / ".merged").write_text(datetime.now(timezone.utc).isoformat())
