@@ -199,3 +199,63 @@ def run_pixi_install(target_repo_root: Path) -> bool:
         capture_output=True,
     )
     return result.returncode == 0
+
+
+def neutralize_pixi_lock_in_pr(task: AgentTask) -> None:
+    """Restore main's current pixi.lock into the agent branch and push.
+
+    Ensures the PR never carries an agent-generated pixi.lock into main,
+    preventing merge conflicts when parallel agents have both modified pixi.toml.
+    The orchestrator regenerates pixi.lock in main after merging.
+    Only commits and pushes if the agent's pixi.lock actually differs from main's.
+    """
+    worktree = task.state.worktree_path
+    branch = task.state.branch_name
+    subprocess.run(
+        ["git", "-C", str(worktree), "fetch", "origin", "main"], check=True
+    )
+    subprocess.run(
+        ["git", "-C", str(worktree), "checkout", "origin/main", "--", "pixi.lock"],
+        check=True,
+    )
+    staged = subprocess.run(
+        ["git", "-C", str(worktree), "diff", "--staged", "--name-only"],
+        capture_output=True,
+        text=True,
+    )
+    if "pixi.lock" in staged.stdout:
+        subprocess.run(
+            ["git", "-C", str(worktree), "commit",
+             "-m", "chore: restore main pixi.lock (orchestrator regenerates after merge)"],
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(worktree), "push", "origin", f"HEAD:{branch}"],
+            check=True,
+        )
+
+
+def commit_pixi_lock_to_main(target_repo_root: Path) -> None:
+    """Commit a freshly regenerated pixi.lock to main and push.
+
+    Called after run_pixi_install() re-solves pixi.lock from the newly merged
+    pixi.toml. Only commits and pushes if pixi.lock actually changed.
+    """
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "add", "pixi.lock"], check=True
+    )
+    staged = subprocess.run(
+        ["git", "-C", str(target_repo_root), "diff", "--staged", "--name-only"],
+        capture_output=True,
+        text=True,
+    )
+    if "pixi.lock" in staged.stdout:
+        subprocess.run(
+            ["git", "-C", str(target_repo_root), "commit",
+             "-m", "chore: regenerate pixi.lock after dependency update"],
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(target_repo_root), "push", "origin", "main"],
+            check=True,
+        )

@@ -17,9 +17,11 @@ from agentrelaysmall.agent_task import AgentTask, TaskStatus
 from agentrelaysmall.agent_task_graph import AgentTaskGraph, AgentTaskGraphBuilder
 from agentrelaysmall.task_launcher import (
     close_agent_pane,
+    commit_pixi_lock_to_main,
     create_worktree,
     launch_agent,
     merge_pr,
+    neutralize_pixi_lock_in_pr,
     pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_main,
@@ -115,16 +117,21 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         if result == "done":
             pr_url = read_done_note(task, graph.name, graph.target_repo_root)
             if pr_url:
+                pixi_changed = pixi_toml_changed_in_pr(pr_url)
+                if pixi_changed:
+                    print(f"[graph] pixi.toml changed in {task.id} — neutralizing pixi.lock in branch")
+                    neutralize_pixi_lock_in_pr(task)
                 print(f"[graph] merging PR for {task.id}: {pr_url}")
                 merge_pr(pr_url)
                 write_merged_signal(task, graph.name, graph.target_repo_root)
                 print(f"[graph] {task.id} merged")
                 if pull_main(graph.target_repo_root):
                     print(f"[graph] main fast-forwarded after {task.id}")
-                    if pixi_toml_changed_in_pr(pr_url):
-                        print(f"[graph] WARNING: pixi.toml changed in {task.id} — running pixi install")
+                    if pixi_changed:
+                        print(f"[graph] regenerating pixi.lock in main")
                         if run_pixi_install(graph.target_repo_root):
-                            print(f"[graph] pixi install succeeded")
+                            commit_pixi_lock_to_main(graph.target_repo_root)
+                            print(f"[graph] pixi.lock updated on main")
                         else:
                             print(f"[graph] ERROR: pixi install failed — env may be out of sync")
                 else:
