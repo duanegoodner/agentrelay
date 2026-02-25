@@ -132,12 +132,26 @@ def test_launch_agent_requires_worktree_path():
 
 # ── send_prompt ───────────────────────────────────────────────────────────────
 
+def test_send_prompt_navigates_bypass_dialog():
+    with patch("agentrelaysmall.task_launcher.time.sleep"), \
+         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        send_prompt("%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0)
+    # First call sends Down to move cursor to "Yes, I accept"
+    first_call_args = mock_run.call_args_list[0][0][0]
+    assert "%3" in first_call_args
+    assert "Down" in first_call_args
+    # Second call sends Enter to confirm
+    second_call_args = mock_run.call_args_list[1][0][0]
+    assert "%3" in second_call_args
+    assert "Enter" in second_call_args
+
+
 def test_send_prompt_sends_prompt_to_pane():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", startup_delay=0, submit_delay=0)
-    # First call (index 0) sends the prompt text only (no Enter)
-    cmd = mock_run.call_args_list[0][0][0]
+        send_prompt("%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0)
+    # Third call (index 2) sends the prompt text only
+    cmd = mock_run.call_args_list[2][0][0]
     assert "%3" in cmd
     assert "do the thing" in cmd
 
@@ -145,20 +159,22 @@ def test_send_prompt_sends_prompt_to_pane():
 def test_send_prompt_sends_enter_last():
     with patch("agentrelaysmall.task_launcher.time.sleep"), \
          patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", startup_delay=0, submit_delay=0)
-    # Last call sends a bare Enter to submit the prompt
+        send_prompt("%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0)
+    # Last call sends Enter to submit the prompt
     last_cmd = mock_run.call_args_list[-1][0][0]
     assert "%3" in last_cmd
     assert "Enter" in last_cmd
-    assert len(mock_run.call_args_list) == 2
+    assert len(mock_run.call_args_list) == 4
 
 
-def test_send_prompt_sleeps_twice():
+def test_send_prompt_sleeps_four_times():
     with patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep, \
          patch("agentrelaysmall.task_launcher.subprocess.run"):
-        send_prompt("%3", "prompt", startup_delay=6.0, submit_delay=0.5)
-    assert mock_sleep.call_count == 2
+        send_prompt("%3", "prompt", bypass_delay=4.0, startup_delay=6.0, submit_delay=0.5)
+    assert mock_sleep.call_count == 4
     sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
+    assert 4.0 in sleep_args
+    assert 0.2 in sleep_args
     assert 6.0 in sleep_args
     assert 0.5 in sleep_args
 
