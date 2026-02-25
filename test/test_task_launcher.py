@@ -11,10 +11,12 @@ from agentrelaysmall.task_launcher import (
     create_worktree,
     launch_agent,
     merge_pr,
+    pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_main,
     read_done_note,
     remove_worktree,
+    run_pixi_install,
     save_agent_log,
     send_prompt,
     write_merged_signal,
@@ -392,3 +394,53 @@ def test_pull_main_uses_repo_root(tmp_path):
         pull_main(tmp_path)
     cmd = mock_run.call_args[0][0]
     assert str(tmp_path) in cmd
+
+
+# ── pixi_toml_changed_in_pr ───────────────────────────────────────────────────
+
+def test_pixi_toml_changed_in_pr_returns_true_when_present():
+    pr_url = "https://github.com/org/repo/pull/42"
+    payload = '["pixi.toml", "src/foo.py"]'
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = payload
+        assert pixi_toml_changed_in_pr(pr_url) is True
+    cmd = mock_run.call_args[0][0]
+    assert "gh" in cmd
+    assert "pr" in cmd
+    assert "view" in cmd
+    assert pr_url in cmd
+
+
+def test_pixi_toml_changed_in_pr_returns_false_when_absent():
+    pr_url = "https://github.com/org/repo/pull/42"
+    payload = '["src/foo.py", "README.md"]'
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = payload
+        assert pixi_toml_changed_in_pr(pr_url) is False
+
+
+def test_pixi_toml_changed_in_pr_returns_false_on_gh_error():
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 1
+        mock_run.return_value.stdout = ""
+        assert pixi_toml_changed_in_pr("https://github.com/org/repo/pull/1") is False
+
+
+# ── run_pixi_install ──────────────────────────────────────────────────────────
+
+def test_run_pixi_install_returns_true_on_success(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        assert run_pixi_install(tmp_path) is True
+    cmd = mock_run.call_args[0][0]
+    assert "pixi" in cmd
+    assert "install" in cmd
+    assert str(tmp_path / "pixi.toml") in cmd
+
+
+def test_run_pixi_install_returns_false_on_failure(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 1
+        assert run_pixi_install(tmp_path) is False

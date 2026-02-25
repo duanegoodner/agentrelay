@@ -178,3 +178,24 @@ def write_merged_signal(task: AgentTask, graph_name: str, target_repo_root: Path
     signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / ".merged").write_text(datetime.now(timezone.utc).isoformat())
+
+
+def pixi_toml_changed_in_pr(pr_url: str) -> bool:
+    """Return True if pixi.toml was among the files changed in the given PR."""
+    result = subprocess.run(
+        ["gh", "pr", "view", pr_url, "--json", "files", "--jq", "[.files[].path]"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return False
+    return "pixi.toml" in json.loads(result.stdout)
+
+
+def run_pixi_install(target_repo_root: Path) -> bool:
+    """Run `pixi install` for target_repo_root. Returns True on success."""
+    result = subprocess.run(
+        ["pixi", "install", "--manifest-path", str(target_repo_root / "pixi.toml")],
+        capture_output=True,
+    )
+    return result.returncode == 0

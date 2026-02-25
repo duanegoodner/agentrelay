@@ -20,10 +20,12 @@ from agentrelaysmall.task_launcher import (
     create_worktree,
     launch_agent,
     merge_pr,
+    pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_main,
     read_done_note,
     remove_worktree,
+    run_pixi_install,
     save_agent_log,
     send_prompt,
     write_context,
@@ -119,6 +121,12 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                 print(f"[graph] {task.id} merged")
                 if pull_main(graph.target_repo_root):
                     print(f"[graph] main fast-forwarded after {task.id}")
+                    if pixi_toml_changed_in_pr(pr_url):
+                        print(f"[graph] WARNING: pixi.toml changed in {task.id} — running pixi install")
+                        if run_pixi_install(graph.target_repo_root):
+                            print(f"[graph] pixi install succeeded")
+                        else:
+                            print(f"[graph] ERROR: pixi install failed — env may be out of sync")
                 else:
                     print(
                         f"[graph] WARNING: pull --ff-only failed after {task.id} — "
