@@ -70,16 +70,23 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
 def send_prompt(
     pane_id: str,
     prompt: str,
+    bypass_delay: float = 4.0,
     startup_delay: float = 6.0,
     submit_delay: float = 0.5,
 ) -> None:
-    # Wait for Claude to finish initialising
+    # Navigate the --dangerously-skip-permissions confirmation dialog:
+    # cursor starts on "No, exit"; Down moves to "Yes, I accept", Enter confirms
+    time.sleep(bypass_delay)
+    subprocess.run(["tmux", "send-keys", "-t", pane_id, "Down"])
+    time.sleep(0.2)
+    subprocess.run(["tmux", "send-keys", "-t", pane_id, "Enter"])
+    # Wait for Claude to finish initialising past the confirmation
     time.sleep(startup_delay)
     # Send prompt text first, then wait before submitting — ensures Claude
     # has registered the full text in its input buffer before Enter is sent
     subprocess.run(["tmux", "send-keys", "-t", pane_id, prompt])
     time.sleep(submit_delay)
-    subprocess.run(["tmux", "send-keys", "-t", pane_id, "", "Enter"])
+    subprocess.run(["tmux", "send-keys", "-t", pane_id, "Enter"])
 
 
 def write_context(task: AgentTask, content: str) -> None:
