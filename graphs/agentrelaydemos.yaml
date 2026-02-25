@@ -1,5 +1,5 @@
 name: agentrelaydemos
-target_repo: /data/git/agentrelaydemos
+target_repo: /data/git/agentrelaydemos/main
 
 tasks:
   - id: write_greet_fn
