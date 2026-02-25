@@ -11,20 +11,20 @@ from agentrelaysmall.agent_task_graph import AgentTaskGraph, AgentTaskGraphBuild
 
 def make_graph(
     tasks: list[AgentTask] | None = None,
-    repo_root: Path | None = None,
+    target_repo_root: Path | None = None,
     worktrees_root: Path | None = None,
     name: str = "demo",
 ) -> AgentTaskGraph:
     if tasks is None:
         tasks = [AgentTask(id="task_001", description="do something")]
-    if repo_root is None:
-        repo_root = Path("/repo")
+    if target_repo_root is None:
+        target_repo_root = Path("/repo")
     if worktrees_root is None:
         worktrees_root = Path("/worktrees")
     return AgentTaskGraph(
         name=name,
         tasks={t.id: t for t in tasks},
-        repo_root=repo_root,
+        target_repo_root=target_repo_root,
         worktrees_root=worktrees_root,
     )
 
@@ -32,7 +32,7 @@ def make_graph(
 # ── path computation ──────────────────────────────────────────────────────────
 
 def test_signal_dir_uses_graph_name_and_task_id():
-    graph = make_graph(name="my-graph", repo_root=Path("/repo"))
+    graph = make_graph(name="my-graph", target_repo_root=Path("/repo"))
     assert graph.signal_dir("task_001") == Path("/repo/.workflow/my-graph/signals/task_001")
 
 
@@ -134,7 +134,7 @@ def test_is_complete_false_when_any_not_terminal():
 
 def test_hydrate_sets_done_from_merged(tmp_path):
     t = AgentTask(id="task_001", description="x")
-    graph = make_graph(tasks=[t], repo_root=tmp_path)
+    graph = make_graph(tasks=[t], target_repo_root=tmp_path)
     sig_dir = graph.signal_dir("task_001")
     sig_dir.mkdir(parents=True)
     (sig_dir / ".merged").write_text("2024-01-01T00:00:00+00:00")
@@ -144,7 +144,7 @@ def test_hydrate_sets_done_from_merged(tmp_path):
 
 def test_hydrate_sets_failed_from_failed_signal(tmp_path):
     t = AgentTask(id="task_001", description="x")
-    graph = make_graph(tasks=[t], repo_root=tmp_path)
+    graph = make_graph(tasks=[t], target_repo_root=tmp_path)
     sig_dir = graph.signal_dir("task_001")
     sig_dir.mkdir(parents=True)
     (sig_dir / ".failed").write_text("2024-01-01T00:00:00+00:00\nreason")
@@ -154,14 +154,14 @@ def test_hydrate_sets_failed_from_failed_signal(tmp_path):
 
 def test_hydrate_leaves_pending_when_no_signals(tmp_path):
     t = AgentTask(id="task_001", description="x")
-    graph = make_graph(tasks=[t], repo_root=tmp_path)
+    graph = make_graph(tasks=[t], target_repo_root=tmp_path)
     graph.hydrate_from_signals()
     assert t.state.status == TaskStatus.PENDING
 
 
 def test_hydrate_merged_takes_precedence_over_failed(tmp_path):
     t = AgentTask(id="task_001", description="x")
-    graph = make_graph(tasks=[t], repo_root=tmp_path)
+    graph = make_graph(tasks=[t], target_repo_root=tmp_path)
     sig_dir = graph.signal_dir("task_001")
     sig_dir.mkdir(parents=True)
     (sig_dir / ".merged").write_text("2024-01-01T00:00:00+00:00")
@@ -220,13 +220,33 @@ def test_builder_from_yaml_empty_dependencies(tmp_path):
     assert graph.tasks["t1"].dependencies == ()
 
 
-def test_builder_from_yaml_sets_repo_root(tmp_path):
+def test_builder_from_yaml_sets_target_repo_root(tmp_path):
     p = write_yaml(tmp_path, {
         "name": "g",
         "tasks": [{"id": "t1", "description": "x"}],
     })
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
-    assert graph.repo_root == tmp_path
+    assert graph.target_repo_root == tmp_path
+
+
+def test_builder_from_yaml_reads_target_repo_from_yaml(tmp_path):
+    other_repo = tmp_path / "other"
+    p = write_yaml(tmp_path, {
+        "name": "g",
+        "target_repo": str(other_repo),
+        "tasks": [{"id": "t1", "description": "x"}],
+    })
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    assert graph.target_repo_root == other_repo
+
+
+def test_builder_from_yaml_defaults_to_repo_root_when_no_target_repo(tmp_path):
+    p = write_yaml(tmp_path, {
+        "name": "g",
+        "tasks": [{"id": "t1", "description": "x"}],
+    })
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    assert graph.target_repo_root == tmp_path
 
 
 def test_builder_from_yaml_sets_worktrees_root(tmp_path):

@@ -72,7 +72,7 @@ async def main() -> None:
 
     # 1. Create worktree
     print(f"[demo] creating worktree for {task.id}...")
-    create_worktree(task, GRAPH_NAME, WORKTREES_ROOT)
+    create_worktree(task, GRAPH_NAME, WORKTREES_ROOT, REPO_ROOT)
     print(f"[demo] worktree at {task.state.worktree_path}")
 
     # 2. Write task_context.json so WorktreeTaskRunner can initialise
@@ -115,7 +115,7 @@ async def main() -> None:
     # 7. Teardown
     print("[demo] closing agent pane and removing worktree...")
     close_agent_pane(task)
-    remove_worktree(task)
+    remove_worktree(task, REPO_ROOT)
     print("[demo] done")
 
 

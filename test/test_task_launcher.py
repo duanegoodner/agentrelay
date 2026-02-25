@@ -15,6 +15,7 @@ from agentrelaysmall.task_launcher import (
     pull_main,
     read_done_note,
     remove_worktree,
+    save_agent_log,
     send_prompt,
     write_merged_signal,
     write_task_context,
@@ -31,19 +32,22 @@ def make_task(task_id: str = "task_001") -> AgentTask:
 
 def test_create_worktree_calls_git(tmp_path):
     task = make_task()
+    target_repo = tmp_path / "target"
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        create_worktree(task, "demo", tmp_path)
+        create_worktree(task, "demo", tmp_path, target_repo)
     expected_path = tmp_path / "demo" / "task_001"
     mock_run.assert_called_once_with(
-        ["git", "worktree", "add", "-b", "task/demo/task_001", str(expected_path), "main"],
+        ["git", "-C", str(target_repo), "worktree", "add",
+         "-b", "task/demo/task_001", str(expected_path), "main"],
         check=True,
     )
 
 
 def test_create_worktree_sets_state(tmp_path):
     task = make_task()
+    target_repo = tmp_path / "target"
     with patch("agentrelaysmall.task_launcher.subprocess.run"):
-        result = create_worktree(task, "demo", tmp_path, base_branch="main")
+        result = create_worktree(task, "demo", tmp_path, target_repo, base_branch="main")
     assert task.state.worktree_path == tmp_path / "demo" / "task_001"
     assert task.state.branch_name == "task/demo/task_001"
     assert result == task.state.worktree_path
@@ -51,8 +55,9 @@ def test_create_worktree_sets_state(tmp_path):
 
 def test_create_worktree_branch_uses_graph_name(tmp_path):
     task = make_task("task_002")
+    target_repo = tmp_path / "target"
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        create_worktree(task, "my-graph", tmp_path)
+        create_worktree(task, "my-graph", tmp_path, target_repo)
     cmd = mock_run.call_args[0][0]
     assert "task/my-graph/task_002" in cmd
 
@@ -260,31 +265,66 @@ def test_close_agent_pane_skips_when_no_pane_id():
     mock_run.assert_not_called()
 
 
+# ── save_agent_log ────────────────────────────────────────────────────────────
+
+def test_save_agent_log_calls_tmux_capture_pane(tmp_path):
+    task = make_task()
+    task.state.pane_id = "%7"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.stdout = "log output"
+        save_agent_log(task, tmp_path)
+    cmd = mock_run.call_args[0][0]
+    assert "tmux" in cmd
+    assert "capture-pane" in cmd
+    assert "%7" in cmd
+    assert "-p" in cmd
+    assert "-S" in cmd
+
+
+def test_save_agent_log_writes_to_signal_dir(tmp_path):
+    task = make_task()
+    task.state.pane_id = "%7"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.stdout = "agent output here"
+        save_agent_log(task, tmp_path)
+    assert (tmp_path / "agent.log").read_text() == "agent output here"
+
+
+def test_save_agent_log_skips_when_no_pane_id(tmp_path):
+    task = make_task()
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        save_agent_log(task, tmp_path)
+    mock_run.assert_not_called()
+    assert not (tmp_path / "agent.log").exists()
+
+
 # ── remove_worktree ───────────────────────────────────────────────────────────
 
 def test_remove_worktree_calls_git_commands(tmp_path):
     task = make_task()
     task.state.worktree_path = tmp_path / "worktree"
     task.state.branch_name = "task/demo/task_001"
+    target_repo = tmp_path / "target"
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        remove_worktree(task)
+        remove_worktree(task, target_repo)
     calls = mock_run.call_args_list
     assert any("worktree" in str(c) and "remove" in str(c) and "force" in str(c) for c in calls)
     assert any("branch" in str(c) and "-D" in str(c) for c in calls)
+    assert all(str(target_repo) in str(c) for c in calls)
 
 
-def test_remove_worktree_requires_worktree_path():
+def test_remove_worktree_requires_worktree_path(tmp_path):
     task = make_task()
     task.state.branch_name = "task/demo/task_001"
     with pytest.raises(AssertionError):
-        remove_worktree(task)
+        remove_worktree(task, tmp_path)
 
 
 def test_remove_worktree_requires_branch_name(tmp_path):
     task = make_task()
     task.state.worktree_path = tmp_path / "worktree"
     with pytest.raises(AssertionError):
-        remove_worktree(task)
+        remove_worktree(task, tmp_path)
 
 
 # ── poll_for_completion ───────────────────────────────────────────────────────
