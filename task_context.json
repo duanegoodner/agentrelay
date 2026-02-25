@@ -1,0 +1,5 @@
+{
+  "task_id": "write_greet_fn",
+  "graph_name": "demo",
+  "signal_dir": "/data/git/agentrelaysmall/main/.workflow/demo/signals/write_greet_fn"
+}
