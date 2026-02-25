@@ -8,9 +8,11 @@ import pytest
 from agentrelaysmall.agent_task import AgentTask
 from agentrelaysmall.task_launcher import (
     close_agent_pane,
+    commit_pixi_lock_to_main,
     create_worktree,
     launch_agent,
     merge_pr,
+    neutralize_pixi_lock_in_pr,
     pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_main,
@@ -444,3 +446,76 @@ def test_run_pixi_install_returns_false_on_failure(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 1
         assert run_pixi_install(tmp_path) is False
+
+
+# ── neutralize_pixi_lock_in_pr ────────────────────────────────────────────────
+
+def _make_task_with_worktree(tmp_path: Path) -> AgentTask:
+    task = make_task()
+    task.state.worktree_path = tmp_path / "worktree"
+    task.state.branch_name = "task/demo/task_001"
+    return task
+
+
+def test_neutralize_calls_git_fetch_and_checkout(tmp_path):
+    task = _make_task_with_worktree(tmp_path)
+    # diff returns empty → no pixi.lock change → no commit/push
+    def fake_run(cmd, **kwargs):
+        m = type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+        return m
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+        neutralize_pixi_lock_in_pr(task)
+    calls = [c[0][0] for c in mock_run.call_args_list]
+    assert any("fetch" in c and "origin" in c and "main" in c for c in calls)
+    assert any("checkout" in c and "origin/main" in c and "pixi.lock" in c for c in calls)
+
+
+def test_neutralize_commits_and_pushes_when_lock_changed(tmp_path):
+    task = _make_task_with_worktree(tmp_path)
+    call_count = [0]
+    def fake_run(cmd, **kwargs):
+        call_count[0] += 1
+        # Third call is git diff --staged; return pixi.lock to trigger commit
+        stdout = "pixi.lock\n" if "diff" in cmd else ""
+        return type("R", (), {"returncode": 0, "stdout": stdout, "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+        neutralize_pixi_lock_in_pr(task)
+    calls = [c[0][0] for c in mock_run.call_args_list]
+    assert any("commit" in c for c in calls)
+    assert any("push" in c for c in calls)
+
+
+def test_neutralize_skips_commit_when_lock_unchanged(tmp_path):
+    task = _make_task_with_worktree(tmp_path)
+    def fake_run(cmd, **kwargs):
+        return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+        neutralize_pixi_lock_in_pr(task)
+    calls = [c[0][0] for c in mock_run.call_args_list]
+    assert not any("commit" in c for c in calls)
+    assert not any("push" in c for c in calls)
+
+
+# ── commit_pixi_lock_to_main ──────────────────────────────────────────────────
+
+def test_commit_pixi_lock_stages_and_commits_when_changed(tmp_path):
+    def fake_run(cmd, **kwargs):
+        stdout = "pixi.lock\n" if "diff" in cmd else ""
+        return type("R", (), {"returncode": 0, "stdout": stdout, "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+        commit_pixi_lock_to_main(tmp_path)
+    calls = [c[0][0] for c in mock_run.call_args_list]
+    assert any("add" in c and "pixi.lock" in c for c in calls)
+    assert any("commit" in c for c in calls)
+    assert any("push" in c and "origin" in c and "main" in c for c in calls)
+
+
+def test_commit_pixi_lock_skips_when_unchanged(tmp_path):
+    def fake_run(cmd, **kwargs):
+        return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+        commit_pixi_lock_to_main(tmp_path)
+    calls = [c[0][0] for c in mock_run.call_args_list]
+    assert any("add" in c and "pixi.lock" in c for c in calls)
+    assert not any("commit" in c for c in calls)
+    assert not any("push" in c for c in calls)
