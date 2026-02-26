@@ -18,6 +18,7 @@ def make_config(tmp_path: Path, signal_dir: Path | None = None) -> dict:
 
 # ── from_config ──────────────────────────────────────────────────────────────
 
+
 def test_from_config_reads_task_id(tmp_path):
     config = make_config(tmp_path)
     (tmp_path / "task_context.json").write_text(json.dumps(config))
@@ -46,6 +47,7 @@ def test_from_config_missing_file_raises(tmp_path):
 
 
 # ── mark_done ─────────────────────────────────────────────────────────────────
+
 
 def test_mark_done_creates_file(tmp_path):
     signal_dir = tmp_path / "signals"
@@ -88,6 +90,7 @@ def test_mark_done_no_note_no_trailing_newline_noise(tmp_path):
 
 # ── mark_failed ───────────────────────────────────────────────────────────────
 
+
 def test_mark_failed_creates_file(tmp_path):
     signal_dir = tmp_path / "signals"
     runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
@@ -112,6 +115,7 @@ def test_mark_failed_contains_timestamp(tmp_path):
 
 
 # ── get_context ───────────────────────────────────────────────────────────────
+
 
 def test_get_context_returns_none_when_missing(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)

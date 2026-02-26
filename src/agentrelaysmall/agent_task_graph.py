@@ -74,7 +74,9 @@ class AgentTaskGraphBuilder:
         data: Any = yaml.safe_load(path.read_text())
         name: str = data["name"]
         # YAML may override the default target repo with an absolute path
-        target_repo_root = Path(data["target_repo"]) if "target_repo" in data else repo_root
+        target_repo_root = (
+            Path(data["target_repo"]) if "target_repo" in data else repo_root
+        )
         tmux_session: str = data.get("tmux_session", "agentrelaysmall")
         keep_panes: bool = bool(data.get("keep_panes", False))
         tasks: dict[str, AgentTask] = {}

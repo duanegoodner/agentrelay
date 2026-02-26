@@ -39,7 +39,9 @@ def test_agent_task_basic_creation():
 
 
 def test_agent_task_with_dependencies():
-    task = AgentTask(id="task_002", description="depends on 001", dependencies=("task_001",))
+    task = AgentTask(
+        id="task_002", description="depends on 001", dependencies=("task_001",)
+    )
     assert "task_001" in task.dependencies
 
 

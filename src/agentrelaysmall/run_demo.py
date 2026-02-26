@@ -30,7 +30,9 @@ from agentrelaysmall.task_launcher import (
 
 TMUX_SESSION = "agentrelaysmall"
 GRAPH_NAME = "demo"
-REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_demo.py → repo root
+REPO_ROOT = (
+    Path(__file__).resolve().parents[2]
+)  # src/agentrelaysmall/run_demo.py → repo root
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 

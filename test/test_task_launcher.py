@@ -31,14 +31,15 @@ from agentrelaysmall.task_launcher import (
     write_task_context,
 )
 
-
 # ── helpers ───────────────────────────────────────────────────────────────────
+
 
 def make_task(task_id: str = "task_001") -> AgentTask:
     return AgentTask(id=task_id, description="test task")
 
 
 # ── create_worktree ───────────────────────────────────────────────────────────
+
 
 def test_create_worktree_calls_git(tmp_path):
     task = make_task()
@@ -47,8 +48,17 @@ def test_create_worktree_calls_git(tmp_path):
         create_worktree(task, "demo", tmp_path, target_repo)
     expected_path = tmp_path / "demo" / "task_001"
     mock_run.assert_called_once_with(
-        ["git", "-C", str(target_repo), "worktree", "add",
-         "-b", "task/demo/task_001", str(expected_path), "main"],
+        [
+            "git",
+            "-C",
+            str(target_repo),
+            "worktree",
+            "add",
+            "-b",
+            "task/demo/task_001",
+            str(expected_path),
+            "main",
+        ],
         check=True,
     )
 
@@ -57,7 +67,9 @@ def test_create_worktree_sets_state(tmp_path):
     task = make_task()
     target_repo = tmp_path / "target"
     with patch("agentrelaysmall.task_launcher.subprocess.run"):
-        result = create_worktree(task, "demo", tmp_path, target_repo, base_branch="main")
+        result = create_worktree(
+            task, "demo", tmp_path, target_repo, base_branch="main"
+        )
     assert task.state.worktree_path == tmp_path / "demo" / "task_001"
     assert task.state.branch_name == "task/demo/task_001"
     assert result == task.state.worktree_path
@@ -73,6 +85,7 @@ def test_create_worktree_branch_uses_graph_name(tmp_path):
 
 
 # ── write_task_context ────────────────────────────────────────────────────────
+
 
 def test_write_task_context_creates_json(tmp_path):
     task = make_task()
@@ -104,11 +117,17 @@ def test_write_task_context_requires_worktree_path():
 
 # ── launch_agent ──────────────────────────────────────────────────────────────
 
+
 def test_launch_agent_creates_tmux_window(tmp_path):
     task = make_task()
     task.state.worktree_path = tmp_path
-    with patch("agentrelaysmall.task_launcher.subprocess.check_output", return_value=b"%3\n") as mock_out, \
-         patch("agentrelaysmall.task_launcher.subprocess.run"):
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%3\n",
+        ) as mock_out,
+        patch("agentrelaysmall.task_launcher.subprocess.run"),
+    ):
         launch_agent(task, "agentrelaysmall")
     cmd = mock_out.call_args[0][0]
     assert "tmux" in cmd
@@ -120,8 +139,13 @@ def test_launch_agent_creates_tmux_window(tmp_path):
 def test_launch_agent_sends_claude_command(tmp_path):
     task = make_task()
     task.state.worktree_path = tmp_path
-    with patch("agentrelaysmall.task_launcher.subprocess.check_output", return_value=b"%3\n"), \
-         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%3\n",
+        ),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
         launch_agent(task, "agentrelaysmall")
     cmd = mock_run.call_args[0][0]
     assert any("claude" in part for part in cmd)
@@ -131,8 +155,13 @@ def test_launch_agent_sends_claude_command(tmp_path):
 def test_launch_agent_sets_pane_id(tmp_path):
     task = make_task()
     task.state.worktree_path = tmp_path
-    with patch("agentrelaysmall.task_launcher.subprocess.check_output", return_value=b"%7\n"), \
-         patch("agentrelaysmall.task_launcher.subprocess.run"):
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%7\n",
+        ),
+        patch("agentrelaysmall.task_launcher.subprocess.run"),
+    ):
         pane_id = launch_agent(task, "agentrelaysmall")
     assert pane_id == "%7"
     assert task.state.pane_id == "%7"
@@ -147,10 +176,15 @@ def test_launch_agent_requires_worktree_path():
 
 # ── send_prompt ───────────────────────────────────────────────────────────────
 
+
 def test_send_prompt_navigates_bypass_dialog():
-    with patch("agentrelaysmall.task_launcher.time.sleep"), \
-         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0)
+    with (
+        patch("agentrelaysmall.task_launcher.time.sleep"),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        send_prompt(
+            "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
+        )
     # First call sends Down to move cursor to "Yes, I accept"
     first_call_args = mock_run.call_args_list[0][0][0]
     assert "%3" in first_call_args
@@ -162,9 +196,13 @@ def test_send_prompt_navigates_bypass_dialog():
 
 
 def test_send_prompt_sends_prompt_to_pane():
-    with patch("agentrelaysmall.task_launcher.time.sleep"), \
-         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0)
+    with (
+        patch("agentrelaysmall.task_launcher.time.sleep"),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        send_prompt(
+            "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
+        )
     # Third call (index 2) sends the prompt text only
     cmd = mock_run.call_args_list[2][0][0]
     assert "%3" in cmd
@@ -172,9 +210,13 @@ def test_send_prompt_sends_prompt_to_pane():
 
 
 def test_send_prompt_sends_enter_last():
-    with patch("agentrelaysmall.task_launcher.time.sleep"), \
-         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
-        send_prompt("%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0)
+    with (
+        patch("agentrelaysmall.task_launcher.time.sleep"),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        send_prompt(
+            "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
+        )
     # Last call sends Enter to submit the prompt
     last_cmd = mock_run.call_args_list[-1][0][0]
     assert "%3" in last_cmd
@@ -183,9 +225,13 @@ def test_send_prompt_sends_enter_last():
 
 
 def test_send_prompt_sleeps_four_times():
-    with patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep, \
-         patch("agentrelaysmall.task_launcher.subprocess.run"):
-        send_prompt("%3", "prompt", bypass_delay=4.0, startup_delay=6.0, submit_delay=0.5)
+    with (
+        patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep,
+        patch("agentrelaysmall.task_launcher.subprocess.run"),
+    ):
+        send_prompt(
+            "%3", "prompt", bypass_delay=4.0, startup_delay=6.0, submit_delay=0.5
+        )
     assert mock_sleep.call_count == 4
     sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
     assert 4.0 in sleep_args
@@ -196,12 +242,17 @@ def test_send_prompt_sleeps_four_times():
 
 # ── read_done_note ────────────────────────────────────────────────────────────
 
+
 def test_read_done_note_returns_note(tmp_path):
     task = make_task()
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     signal_dir.mkdir(parents=True)
-    (signal_dir / ".done").write_text("2024-01-01T00:00:00+00:00\nhttps://github.com/org/repo/pull/42")
-    assert read_done_note(task, "demo", tmp_path) == "https://github.com/org/repo/pull/42"
+    (signal_dir / ".done").write_text(
+        "2024-01-01T00:00:00+00:00\nhttps://github.com/org/repo/pull/42"
+    )
+    assert (
+        read_done_note(task, "demo", tmp_path) == "https://github.com/org/repo/pull/42"
+    )
 
 
 def test_read_done_note_returns_empty_when_no_note(tmp_path):
@@ -213,6 +264,7 @@ def test_read_done_note_returns_empty_when_no_note(tmp_path):
 
 
 # ── merge_pr ──────────────────────────────────────────────────────────────────
+
 
 def test_merge_pr_calls_gh():
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
@@ -232,6 +284,7 @@ def test_merge_pr_uses_merge_strategy():
 
 
 # ── write_merged_signal ───────────────────────────────────────────────────────
+
 
 def test_write_merged_signal_creates_file(tmp_path):
     task = make_task()
@@ -257,6 +310,7 @@ def test_write_merged_signal_creates_signal_dir(tmp_path):
 
 # ── close_agent_pane ─────────────────────────────────────────────────────────
 
+
 def test_close_agent_pane_kills_window():
     task = make_task()
     task.state.pane_id = "%7"
@@ -276,6 +330,7 @@ def test_close_agent_pane_skips_when_no_pane_id():
 
 
 # ── save_agent_log ────────────────────────────────────────────────────────────
+
 
 def test_save_agent_log_calls_tmux_capture_pane(tmp_path):
     task = make_task()
@@ -310,6 +365,7 @@ def test_save_agent_log_skips_when_no_pane_id(tmp_path):
 
 # ── remove_worktree ───────────────────────────────────────────────────────────
 
+
 def test_remove_worktree_calls_git_commands(tmp_path):
     task = make_task()
     task.state.worktree_path = tmp_path / "worktree"
@@ -318,7 +374,9 @@ def test_remove_worktree_calls_git_commands(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         remove_worktree(task, target_repo)
     calls = mock_run.call_args_list
-    assert any("worktree" in str(c) and "remove" in str(c) and "force" in str(c) for c in calls)
+    assert any(
+        "worktree" in str(c) and "remove" in str(c) and "force" in str(c) for c in calls
+    )
     assert any("branch" in str(c) and "-D" in str(c) for c in calls)
     assert all(str(target_repo) in str(c) for c in calls)
 
@@ -339,12 +397,15 @@ def test_remove_worktree_requires_branch_name(tmp_path):
 
 # ── poll_for_completion ───────────────────────────────────────────────────────
 
+
 def test_poll_detects_existing_done(tmp_path):
     task = make_task()
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     signal_dir.mkdir(parents=True)
     (signal_dir / ".done").write_text("2024-01-01T00:00:00+00:00")
-    result = asyncio.run(poll_for_completion(task, "demo", tmp_path, poll_interval=0.05))
+    result = asyncio.run(
+        poll_for_completion(task, "demo", tmp_path, poll_interval=0.05)
+    )
     assert result == "done"
 
 
@@ -353,7 +414,9 @@ def test_poll_detects_existing_failed(tmp_path):
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     signal_dir.mkdir(parents=True)
     (signal_dir / ".failed").write_text("2024-01-01T00:00:00+00:00\noops")
-    result = asyncio.run(poll_for_completion(task, "demo", tmp_path, poll_interval=0.05))
+    result = asyncio.run(
+        poll_for_completion(task, "demo", tmp_path, poll_interval=0.05)
+    )
     assert result == "failed"
 
 
@@ -380,6 +443,7 @@ def test_poll_waits_for_done(tmp_path):
 
 # ── pull_main ─────────────────────────────────────────────────────────────────
 
+
 def test_pull_main_returns_true_on_success(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
@@ -405,6 +469,7 @@ def test_pull_main_uses_repo_root(tmp_path):
 
 
 # ── pixi_toml_changed_in_pr ───────────────────────────────────────────────────
+
 
 def test_pixi_toml_changed_in_pr_returns_true_when_present():
     pr_url = "https://github.com/org/repo/pull/42"
@@ -438,6 +503,7 @@ def test_pixi_toml_changed_in_pr_returns_false_on_gh_error():
 
 # ── run_pixi_install ──────────────────────────────────────────────────────────
 
+
 def test_run_pixi_install_returns_true_on_success(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
@@ -456,6 +522,7 @@ def test_run_pixi_install_returns_false_on_failure(tmp_path):
 
 # ── neutralize_pixi_lock_in_pr ────────────────────────────────────────────────
 
+
 def _make_task_with_worktree(tmp_path: Path) -> AgentTask:
     task = make_task()
     task.state.worktree_path = tmp_path / "worktree"
@@ -465,26 +532,36 @@ def _make_task_with_worktree(tmp_path: Path) -> AgentTask:
 
 def test_neutralize_calls_git_fetch_and_checkout(tmp_path):
     task = _make_task_with_worktree(tmp_path)
+
     # diff returns empty → no pixi.lock change → no commit/push
     def fake_run(cmd, **kwargs):
         m = type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
         return m
-    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+
+    with patch(
+        "agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run
+    ) as mock_run:
         neutralize_pixi_lock_in_pr(task)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert any("fetch" in c and "origin" in c and "main" in c for c in calls)
-    assert any("checkout" in c and "origin/main" in c and "pixi.lock" in c for c in calls)
+    assert any(
+        "checkout" in c and "origin/main" in c and "pixi.lock" in c for c in calls
+    )
 
 
 def test_neutralize_commits_and_pushes_when_lock_changed(tmp_path):
     task = _make_task_with_worktree(tmp_path)
     call_count = [0]
+
     def fake_run(cmd, **kwargs):
         call_count[0] += 1
         # Third call is git diff --staged; return pixi.lock to trigger commit
         stdout = "pixi.lock\n" if "diff" in cmd else ""
         return type("R", (), {"returncode": 0, "stdout": stdout, "stderr": ""})()
-    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+
+    with patch(
+        "agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run
+    ) as mock_run:
         neutralize_pixi_lock_in_pr(task)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert any("commit" in c for c in calls)
@@ -493,9 +570,13 @@ def test_neutralize_commits_and_pushes_when_lock_changed(tmp_path):
 
 def test_neutralize_skips_commit_when_lock_unchanged(tmp_path):
     task = _make_task_with_worktree(tmp_path)
+
     def fake_run(cmd, **kwargs):
         return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
-    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+
+    with patch(
+        "agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run
+    ) as mock_run:
         neutralize_pixi_lock_in_pr(task)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert not any("commit" in c for c in calls)
@@ -504,11 +585,15 @@ def test_neutralize_skips_commit_when_lock_unchanged(tmp_path):
 
 # ── commit_pixi_lock_to_main ──────────────────────────────────────────────────
 
+
 def test_commit_pixi_lock_stages_and_commits_when_changed(tmp_path):
     def fake_run(cmd, **kwargs):
         stdout = "pixi.lock\n" if "diff" in cmd else ""
         return type("R", (), {"returncode": 0, "stdout": stdout, "stderr": ""})()
-    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+
+    with patch(
+        "agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run
+    ) as mock_run:
         commit_pixi_lock_to_main(tmp_path)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert any("add" in c and "pixi.lock" in c for c in calls)
@@ -519,7 +604,10 @@ def test_commit_pixi_lock_stages_and_commits_when_changed(tmp_path):
 def test_commit_pixi_lock_skips_when_unchanged(tmp_path):
     def fake_run(cmd, **kwargs):
         return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
-    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run) as mock_run:
+
+    with patch(
+        "agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run
+    ) as mock_run:
         commit_pixi_lock_to_main(tmp_path)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert any("add" in c and "pixi.lock" in c for c in calls)
@@ -529,10 +617,13 @@ def test_commit_pixi_lock_skips_when_unchanged(tmp_path):
 
 # ── record_run_start ──────────────────────────────────────────────────────────
 
+
 def test_record_run_start_writes_run_info(tmp_path):
     sha = "abc1234def5678"
+
     def fake_run(cmd, **kwargs):
         return type("R", (), {"returncode": 0, "stdout": sha + "\n", "stderr": ""})()
+
     with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
         record_run_start("demo", tmp_path)
     p = tmp_path / ".workflow" / "demo" / "run_info.json"
@@ -546,8 +637,12 @@ def test_record_run_start_overwrites_existing(tmp_path):
     first_sha = "aaa111"
     second_sha = "bbb222"
     shas = iter([first_sha, second_sha])
+
     def fake_run(cmd, **kwargs):
-        return type("R", (), {"returncode": 0, "stdout": next(shas) + "\n", "stderr": ""})()
+        return type(
+            "R", (), {"returncode": 0, "stdout": next(shas) + "\n", "stderr": ""}
+        )()
+
     with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
         record_run_start("demo", tmp_path)
     with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
@@ -558,6 +653,7 @@ def test_record_run_start_overwrites_existing(tmp_path):
 
 
 # ── read_run_info ─────────────────────────────────────────────────────────────
+
 
 def test_read_run_info_returns_dict(tmp_path):
     run_info_dir = tmp_path / ".workflow" / "demo"
@@ -570,23 +666,31 @@ def test_read_run_info_returns_dict(tmp_path):
 
 # ── reset_target_repo_to_head ─────────────────────────────────────────────────
 
+
 def test_reset_target_repo_calls_git_reset_and_push(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         reset_target_repo_to_head("abc1234", tmp_path)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert any("reset" in c and "--hard" in c and "abc1234" in c for c in calls)
-    assert any("push" in c and "--force-with-lease" in c and "origin" in c for c in calls)
+    assert any(
+        "push" in c and "--force-with-lease" in c and "origin" in c for c in calls
+    )
 
 
 # ── list_remote_task_branches ─────────────────────────────────────────────────
+
 
 def test_list_remote_task_branches_parses_ls_remote_output(tmp_path):
     ls_remote_output = (
         "abc123\trefs/heads/task/demo/write_greet_fn\n"
         "def456\trefs/heads/task/demo/write_farewell_fn\n"
     )
+
     def fake_run(cmd, **kwargs):
-        return type("R", (), {"returncode": 0, "stdout": ls_remote_output, "stderr": ""})()
+        return type(
+            "R", (), {"returncode": 0, "stdout": ls_remote_output, "stderr": ""}
+        )()
+
     with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
         branches = list_remote_task_branches("demo", tmp_path)
     assert branches == ["task/demo/write_greet_fn", "task/demo/write_farewell_fn"]
@@ -595,12 +699,14 @@ def test_list_remote_task_branches_parses_ls_remote_output(tmp_path):
 def test_list_remote_task_branches_empty_when_none(tmp_path):
     def fake_run(cmd, **kwargs):
         return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+
     with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
         branches = list_remote_task_branches("demo", tmp_path)
     assert branches == []
 
 
 # ── delete_remote_branches ────────────────────────────────────────────────────
+
 
 def test_delete_remote_branches_passes_all_names(tmp_path):
     branches = ["task/demo/t1", "task/demo/t2"]
@@ -620,6 +726,7 @@ def test_delete_remote_branches_skips_when_empty(tmp_path):
 
 
 # ── save_pr_summary ───────────────────────────────────────────────────────────
+
 
 def test_save_pr_summary_writes_body_to_file(tmp_path):
     signal_dir = tmp_path / "signals" / "task_001"
