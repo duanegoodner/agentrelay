@@ -60,4 +60,4 @@ tasks:
 - `docs/WORKFLOW_DESCRIPTION.md` — end-to-end workflow specification
 - `docs/REPO_SETUP.md` — setting up a new target repo
 - `docs/OPERATIONS.md` — day-to-day running guide
-- `docs/CHANGELOG.md` — feature history
+- `docs/HISTORY.md` — feature history (one entry per PR)
