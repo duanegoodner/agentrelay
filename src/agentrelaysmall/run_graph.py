@@ -2,15 +2,18 @@
 
 Usage (from repo root, with pixi env active):
     python -m agentrelaysmall.run_graph graphs/demo.yaml
+    python -m agentrelaysmall.run_graph graphs/demo.yaml --tmux-session myproject
+    python -m agentrelaysmall.run_graph graphs/demo.yaml --keep-panes
 
 Requires:
-    - A tmux session named 'agentrelaysmall' already running
+    - A tmux session already running (default name: 'agentrelaysmall', or set via
+      --tmux-session or the 'tmux_session' key in the graph YAML)
     - git repo at repo root with a 'main' branch
     - claude CLI available in PATH
 """
 
+import argparse
 import asyncio
-import sys
 from pathlib import Path
 
 from agentrelaysmall.agent_task import AgentTask, TaskStatus
@@ -26,6 +29,7 @@ from agentrelaysmall.task_launcher import (
     poll_for_completion,
     pull_main,
     read_done_note,
+    record_run_start,
     remove_worktree,
     run_pixi_install,
     save_agent_log,
@@ -35,7 +39,6 @@ from agentrelaysmall.task_launcher import (
     write_task_context,
 )
 
-TMUX_SESSION = "agentrelaysmall"
 REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_graph.py → repo root
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
@@ -105,7 +108,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
 
         write_task_context(task, graph.name, graph.target_repo_root)
 
-        pane_id = launch_agent(task, TMUX_SESSION)
+        pane_id = launch_agent(task, graph.tmux_session)
         print(f"[graph] {task.id} agent pane: {pane_id}")
 
         send_prompt(pane_id, _build_task_prompt(task))
@@ -150,7 +153,8 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
 
     finally:
         save_agent_log(task, graph.signal_dir(task.id))
-        close_agent_pane(task)
+        if not graph.keep_panes:
+            close_agent_pane(task)
         if task.state.worktree_path and task.state.branch_name:
             remove_worktree(task, graph.target_repo_root)
         print(f"[graph] teardown complete for {task.id}")
@@ -160,6 +164,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
 
 
 async def _run_graph_loop(graph: AgentTaskGraph) -> None:
+    record_run_start(graph.name, graph.target_repo_root)
     graph.hydrate_from_signals()
     graph._refresh_ready()
 
@@ -187,11 +192,24 @@ async def _run_graph_loop(graph: AgentTaskGraph) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) < 2:
-        print("Usage: python -m agentrelaysmall.run_graph <graph.yaml>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description="Run an agentrelaysmall graph from a YAML definition."
+    )
+    parser.add_argument("graph", help="Path to graph YAML file")
+    parser.add_argument(
+        "--tmux-session",
+        default=None,
+        metavar="SESSION",
+        help="Override tmux session name (default: value from YAML or 'agentrelaysmall')",
+    )
+    parser.add_argument(
+        "--keep-panes",
+        action="store_true",
+        help="Leave agent tmux windows open after tasks complete (useful for debugging)",
+    )
+    args = parser.parse_args()
 
-    graph_path = Path(sys.argv[1])
+    graph_path = Path(args.graph)
     if not graph_path.is_absolute():
         graph_path = Path.cwd() / graph_path
 
@@ -200,7 +218,13 @@ def main() -> None:
     print(f"[graph] worktrees root: {WORKTREES_ROOT}")
 
     graph = AgentTaskGraphBuilder.from_yaml(graph_path, REPO_ROOT, WORKTREES_ROOT)
+    if args.tmux_session:
+        graph.tmux_session = args.tmux_session
+    if args.keep_panes:
+        graph.keep_panes = True
     print(f"[graph] loaded '{graph.name}' with {len(graph.tasks)} task(s): {list(graph.tasks)}")
+    print(f"[graph] tmux session: {graph.tmux_session}")
+    print(f"[graph] keep panes: {graph.keep_panes}")
 
     asyncio.run(_run_graph_loop(graph))
 

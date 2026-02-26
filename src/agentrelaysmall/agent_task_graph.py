@@ -15,6 +15,8 @@ class AgentTaskGraph:
     tasks: dict[str, AgentTask]
     target_repo_root: Path
     worktrees_root: Path
+    tmux_session: str = "agentrelaysmall"
+    keep_panes: bool = False
 
     # ── Path authority — single source of truth ────────────────────────────
 
@@ -73,6 +75,8 @@ class AgentTaskGraphBuilder:
         name: str = data["name"]
         # YAML may override the default target repo with an absolute path
         target_repo_root = Path(data["target_repo"]) if "target_repo" in data else repo_root
+        tmux_session: str = data.get("tmux_session", "agentrelaysmall")
+        keep_panes: bool = bool(data.get("keep_panes", False))
         tasks: dict[str, AgentTask] = {}
         for t in data["tasks"]:
             task_id: str = t["id"]
@@ -86,4 +90,6 @@ class AgentTaskGraphBuilder:
             tasks=tasks,
             target_repo_root=target_repo_root,
             worktrees_root=worktrees_root,
+            tmux_session=tmux_session,
+            keep_panes=keep_panes,
         )
