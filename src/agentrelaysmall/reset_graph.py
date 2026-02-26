@@ -31,7 +31,9 @@ from agentrelaysmall.task_launcher import (
     reset_target_repo_to_head,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/reset_graph.py → repo root
+REPO_ROOT = (
+    Path(__file__).resolve().parents[2]
+)  # src/agentrelaysmall/reset_graph.py → repo root
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
@@ -39,7 +41,9 @@ def _get_remote_repo(target_repo_root: Path) -> str:
     """Return the GitHub owner/repo string inferred from origin remote URL."""
     result = subprocess.run(
         ["git", "-C", str(target_repo_root), "remote", "get-url", "origin"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     )
     url = result.stdout.strip()
     # Handle both SSH (git@github.com:owner/repo.git) and HTTPS forms
@@ -57,17 +61,25 @@ def _close_open_prs(graph_name: str, target_repo_root: Path) -> None:
     remote_repo = _get_remote_repo(target_repo_root)
     result = subprocess.run(
         [
-            "gh", "pr", "list",
-            "--repo", remote_repo,
-            "--state", "open",
-            "--json", "number,headRefName",
-            "--jq", f'[.[] | select(.headRefName | startswith("task/{graph_name}/"))]',
+            "gh",
+            "pr",
+            "list",
+            "--repo",
+            remote_repo,
+            "--state",
+            "open",
+            "--json",
+            "number,headRefName",
+            "--jq",
+            f'[.[] | select(.headRefName | startswith("task/{graph_name}/"))]',
         ],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
     if result.returncode != 0 or not result.stdout.strip():
         return
     import json
+
     prs = json.loads(result.stdout)
     for pr in prs:
         number = pr["number"]
@@ -100,7 +112,8 @@ def main() -> None:
     )
     parser.add_argument("graph", help="Path to graph YAML file")
     parser.add_argument(
-        "--yes", "-y",
+        "--yes",
+        "-y",
         action="store_true",
         help="Skip confirmation prompt",
     )
@@ -132,7 +145,9 @@ def main() -> None:
     print()
     print("[reset] This will:")
     print("  1. Close open PRs on task branches")
-    print(f"  2. git reset --hard {start_head[:12]} && push --force-with-lease origin main")
+    print(
+        f"  2. git reset --hard {start_head[:12]} && push --force-with-lease origin main"
+    )
     print("  3. Delete remote task branches")
     print("  4. Remove leftover worktrees")
     print(f"  5. Delete .workflow/{graph.name}/")

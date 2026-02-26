@@ -3,6 +3,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+
 class TaskStatus(Enum):
     PENDING = "pending"
     READY = "ready"
@@ -10,6 +11,7 @@ class TaskStatus(Enum):
     NEEDS_REVIEW = "needs_review"
     DONE = "done"
     FAILED = "failed"
+
 
 @dataclass
 class TaskState:
@@ -22,6 +24,7 @@ class TaskState:
     result: Any = None
     error: str | None = None
     retries: int = 0
+
 
 @dataclass(frozen=True)
 class AgentTask:

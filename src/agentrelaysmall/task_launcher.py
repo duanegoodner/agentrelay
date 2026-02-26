@@ -19,8 +19,17 @@ def create_worktree(
     worktree_path = worktrees_root / graph_name / task.id
     branch_name = f"task/{graph_name}/{task.id}"
     subprocess.run(
-        ["git", "-C", str(target_repo_root), "worktree", "add",
-         "-b", branch_name, str(worktree_path), base_branch],
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "worktree",
+            "add",
+            "-b",
+            branch_name,
+            str(worktree_path),
+            base_branch,
+        ],
         check=True,
     )
     task.state.worktree_path = worktree_path
@@ -28,29 +37,41 @@ def create_worktree(
     return worktree_path
 
 
-def write_task_context(task: AgentTask, graph_name: str, target_repo_root: Path) -> None:
+def write_task_context(
+    task: AgentTask, graph_name: str, target_repo_root: Path
+) -> None:
     signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     context = {
         "task_id": task.id,
         "graph_name": graph_name,
         "signal_dir": str(signal_dir),
     }
-    assert task.state.worktree_path is not None, "worktree_path must be set before writing context"
+    assert (
+        task.state.worktree_path is not None
+    ), "worktree_path must be set before writing context"
     (task.state.worktree_path / "task_context.json").write_text(
         json.dumps(context, indent=2)
     )
 
 
 def launch_agent(task: AgentTask, tmux_session: str) -> str:
-    assert task.state.worktree_path is not None, "worktree_path must be set before launching agent"
+    assert (
+        task.state.worktree_path is not None
+    ), "worktree_path must be set before launching agent"
     pane_id = (
         subprocess.check_output(
             [
-                "tmux", "new-window",
-                "-t", tmux_session,
-                "-n", task.id,
-                "-P", "-F", "#{pane_id}",
-                "-c", str(task.state.worktree_path),
+                "tmux",
+                "new-window",
+                "-t",
+                tmux_session,
+                "-n",
+                task.id,
+                "-P",
+                "-F",
+                "#{pane_id}",
+                "-c",
+                str(task.state.worktree_path),
             ]
         )
         .decode()
@@ -61,11 +82,16 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
     # Export the orchestrator's PATH so Claude's bash subshells can find
     # tools (gh, pixi, etc.) that live outside the default non-interactive PATH
     env_path = os.environ.get("PATH", "")
-    subprocess.run([
-        "tmux", "send-keys", "-t", pane_id,
-        f'export PATH="{env_path}" && claude --dangerously-skip-permissions',
-        "Enter",
-    ])
+    subprocess.run(
+        [
+            "tmux",
+            "send-keys",
+            "-t",
+            pane_id,
+            f'export PATH="{env_path}" && claude --dangerously-skip-permissions',
+            "Enter",
+        ]
+    )
     return pane_id
 
 
@@ -92,7 +118,9 @@ def send_prompt(
 
 
 def write_context(task: AgentTask, content: str) -> None:
-    assert task.state.worktree_path is not None, "worktree_path must be set before writing context"
+    assert (
+        task.state.worktree_path is not None
+    ), "worktree_path must be set before writing context"
     (task.state.worktree_path / "context.md").write_text(content)
 
 
@@ -115,11 +143,20 @@ def close_agent_pane(task: AgentTask) -> None:
 
 
 def remove_worktree(task: AgentTask, target_repo_root: Path) -> None:
-    assert task.state.worktree_path is not None, "worktree_path must be set before removing"
+    assert (
+        task.state.worktree_path is not None
+    ), "worktree_path must be set before removing"
     assert task.state.branch_name is not None, "branch_name must be set before removing"
     subprocess.run(
-        ["git", "-C", str(target_repo_root), "worktree", "remove",
-         "--force", str(task.state.worktree_path)],
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "worktree",
+            "remove",
+            "--force",
+            str(task.state.worktree_path),
+        ],
         check=True,
     )
     subprocess.run(
@@ -173,7 +210,9 @@ def pull_main(target_repo_root: Path) -> bool:
     return result.returncode == 0
 
 
-def write_merged_signal(task: AgentTask, graph_name: str, target_repo_root: Path) -> None:
+def write_merged_signal(
+    task: AgentTask, graph_name: str, target_repo_root: Path
+) -> None:
     """Write the .merged sentinel after a successful PR merge."""
     signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     signal_dir.mkdir(parents=True, exist_ok=True)
@@ -211,9 +250,7 @@ def neutralize_pixi_lock_in_pr(task: AgentTask) -> None:
     """
     worktree = task.state.worktree_path
     branch = task.state.branch_name
-    subprocess.run(
-        ["git", "-C", str(worktree), "fetch", "origin", "main"], check=True
-    )
+    subprocess.run(["git", "-C", str(worktree), "fetch", "origin", "main"], check=True)
     subprocess.run(
         ["git", "-C", str(worktree), "checkout", "origin/main", "--", "pixi.lock"],
         check=True,
@@ -225,8 +262,14 @@ def neutralize_pixi_lock_in_pr(task: AgentTask) -> None:
     )
     if "pixi.lock" in staged.stdout:
         subprocess.run(
-            ["git", "-C", str(worktree), "commit",
-             "-m", "chore: restore main pixi.lock (orchestrator regenerates after merge)"],
+            [
+                "git",
+                "-C",
+                str(worktree),
+                "commit",
+                "-m",
+                "chore: restore main pixi.lock (orchestrator regenerates after merge)",
+            ],
             check=True,
         )
         subprocess.run(
@@ -243,15 +286,19 @@ def record_run_start(graph_name: str, target_repo_root: Path) -> None:
     """
     result = subprocess.run(
         ["git", "-C", str(target_repo_root), "rev-parse", "HEAD"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     )
     start_head = result.stdout.strip()
     run_info_dir = target_repo_root / ".workflow" / graph_name
     run_info_dir.mkdir(parents=True, exist_ok=True)
     (run_info_dir / "run_info.json").write_text(
         json.dumps(
-            {"start_head": start_head,
-             "started_at": datetime.now(timezone.utc).isoformat()},
+            {
+                "start_head": start_head,
+                "started_at": datetime.now(timezone.utc).isoformat(),
+            },
             indent=2,
         )
     )
@@ -274,8 +321,15 @@ def reset_target_repo_to_head(start_head: str, target_repo_root: Path) -> None:
         check=True,
     )
     subprocess.run(
-        ["git", "-C", str(target_repo_root), "push", "--force-with-lease",
-         "origin", "main"],
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "push",
+            "--force-with-lease",
+            "origin",
+            "main",
+        ],
         check=True,
     )
 
@@ -283,15 +337,24 @@ def reset_target_repo_to_head(start_head: str, target_repo_root: Path) -> None:
 def list_remote_task_branches(graph_name: str, target_repo_root: Path) -> list[str]:
     """Return short branch names on origin matching task/<graph-name>/*."""
     result = subprocess.run(
-        ["git", "-C", str(target_repo_root), "ls-remote", "--heads",
-         "origin", f"refs/heads/task/{graph_name}/*"],
-        capture_output=True, text=True, check=True,
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "ls-remote",
+            "--heads",
+            "origin",
+            f"refs/heads/task/{graph_name}/*",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
     )
     branches = []
     for line in result.stdout.splitlines():
         if not line.strip():
             continue
-        ref = line.split("\t")[1]          # refs/heads/task/<graph>/<id>
+        ref = line.split("\t")[1]  # refs/heads/task/<graph>/<id>
         branches.append(ref.removeprefix("refs/heads/"))
     return branches
 
@@ -301,8 +364,7 @@ def delete_remote_branches(branches: list[str], target_repo_root: Path) -> None:
     if not branches:
         return
     subprocess.run(
-        ["git", "-C", str(target_repo_root), "push", "origin", "--delete"]
-        + branches,
+        ["git", "-C", str(target_repo_root), "push", "origin", "--delete"] + branches,
         check=True,
     )
 
@@ -333,9 +395,7 @@ def commit_pixi_lock_to_main(target_repo_root: Path) -> None:
     Called after run_pixi_install() re-solves pixi.lock from the newly merged
     pixi.toml. Only commits and pushes if pixi.lock actually changed.
     """
-    subprocess.run(
-        ["git", "-C", str(target_repo_root), "add", "pixi.lock"], check=True
-    )
+    subprocess.run(["git", "-C", str(target_repo_root), "add", "pixi.lock"], check=True)
     staged = subprocess.run(
         ["git", "-C", str(target_repo_root), "diff", "--staged", "--name-only"],
         capture_output=True,
@@ -343,8 +403,14 @@ def commit_pixi_lock_to_main(target_repo_root: Path) -> None:
     )
     if "pixi.lock" in staged.stdout:
         subprocess.run(
-            ["git", "-C", str(target_repo_root), "commit",
-             "-m", "chore: regenerate pixi.lock after dependency update"],
+            [
+                "git",
+                "-C",
+                str(target_repo_root),
+                "commit",
+                "-m",
+                "chore: regenerate pixi.lock after dependency update",
+            ],
             check=True,
         )
         subprocess.run(

@@ -40,7 +40,9 @@ from agentrelaysmall.task_launcher import (
     write_task_context,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[2]   # src/agentrelaysmall/run_graph.py → repo root
+REPO_ROOT = (
+    Path(__file__).resolve().parents[2]
+)  # src/agentrelaysmall/run_graph.py → repo root
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
@@ -66,7 +68,7 @@ def _build_task_prompt(task: AgentTask) -> str:
         context_note = (
             "Before starting, read your context file to understand what "
             "prerequisite tasks produced:\n"
-            "    pixi run python -c \""
+            '    pixi run python -c "'
             "from agentrelaysmall import WorktreeTaskRunner; "
             "r = WorktreeTaskRunner.from_config(); "
             "ctx = r.get_context(); "
@@ -94,7 +96,7 @@ def _build_task_prompt(task: AgentTask) -> str:
         f'PRBODY\n)" --base main)\n'
         f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
-        f'r.mark_done(\'$PR_URL\')"\n\n'
+        f"r.mark_done('$PR_URL')\"\n\n"
         f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
         f"Then stop — do not do anything else.\n"
     )
@@ -128,7 +130,9 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
             if pr_url:
                 pixi_changed = pixi_toml_changed_in_pr(pr_url)
                 if pixi_changed:
-                    print(f"[graph] pixi.toml changed in {task.id} — neutralizing pixi.lock in branch")
+                    print(
+                        f"[graph] pixi.toml changed in {task.id} — neutralizing pixi.lock in branch"
+                    )
                     neutralize_pixi_lock_in_pr(task)
                 print(f"[graph] merging PR for {task.id}: {pr_url}")
                 save_pr_summary(pr_url, graph.signal_dir(task.id))
@@ -143,7 +147,9 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                             commit_pixi_lock_to_main(graph.target_repo_root)
                             print(f"[graph] pixi.lock updated on main")
                         else:
-                            print(f"[graph] ERROR: pixi install failed — env may be out of sync")
+                            print(
+                                f"[graph] ERROR: pixi install failed — env may be out of sync"
+                            )
                 else:
                     print(
                         f"[graph] WARNING: pull --ff-only failed after {task.id} — "
@@ -189,7 +195,9 @@ async def _run_graph_loop(graph: AgentTaskGraph) -> None:
             await asyncio.wait(running, return_when=asyncio.FIRST_COMPLETED)
         elif not graph.is_complete():
             # No running tasks, nothing ready, not done — dependency cycle or all failed
-            print("[graph] WARNING: no runnable tasks; possible cycle or all tasks failed")
+            print(
+                "[graph] WARNING: no runnable tasks; possible cycle or all tasks failed"
+            )
             break
 
     # Final status report
@@ -197,7 +205,9 @@ async def _run_graph_loop(graph: AgentTaskGraph) -> None:
     for task in graph.tasks.values():
         summary_path = graph.signal_dir(task.id) / "summary.md"
         summary_note = f"  summary → {summary_path}" if summary_path.exists() else ""
-        print(f"  {task.id}: {task.state.status.value}{('  ' + summary_note) if summary_note else ''}")
+        print(
+            f"  {task.id}: {task.state.status.value}{('  ' + summary_note) if summary_note else ''}"
+        )
 
 
 def main() -> None:
@@ -231,7 +241,9 @@ def main() -> None:
         graph.tmux_session = args.tmux_session
     if args.keep_panes:
         graph.keep_panes = True
-    print(f"[graph] loaded '{graph.name}' with {len(graph.tasks)} task(s): {list(graph.tasks)}")
+    print(
+        f"[graph] loaded '{graph.name}' with {len(graph.tasks)} task(s): {list(graph.tasks)}"
+    )
     print(f"[graph] tmux session: {graph.tmux_session}")
     print(f"[graph] keep panes: {graph.keep_panes}")
 
