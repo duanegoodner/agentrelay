@@ -100,6 +100,47 @@ this feature existed), reset manually by identifying the pre-run HEAD from
 
 ---
 
+## Development workflow
+
+The standard process for making changes to agentrelaysmall itself:
+
+1. **Make changes** — edit source, tests, or docs in the local worktree.
+
+2. **Commit to a new branch** — create a feature branch and commit:
+   ```bash
+   git checkout -b feat/your-feature-name
+   git add <files>
+   git commit -m "feat: describe the change"
+   ```
+
+3. **Push to remote:**
+   ```bash
+   git push -u origin feat/your-feature-name
+   ```
+
+4. **Create a PR with a checklist** — the PR body should include a test plan
+   checklist that covers both automated and human-verified items. Example:
+   ```
+   ## Test plan
+   - [ ] `pixi run check` passes (format, typecheck, tests)
+   - [ ] <human-verifiable item, e.g. "new section appears correctly in docs">
+   - [ ] <another human-verifiable item>
+   ```
+
+5. **Go through the checklist together** — Claude Code runs automatable checks
+   directly (e.g. `pixi run check`); the human verifies items that require
+   judgment or visual inspection.
+
+6. **Iterate** — the human describes any needed changes; Claude Code makes them,
+   commits, and pushes. Repeat until the human gives the OK.
+
+7. **Merge** — once the human approves, Claude Code merges the PR:
+   ```bash
+   gh pr merge <url> --merge
+   ```
+
+---
+
 ## Pre-PR verification
 
 Before creating a PR on agentrelaysmall itself:
