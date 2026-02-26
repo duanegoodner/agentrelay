@@ -235,6 +235,78 @@ def neutralize_pixi_lock_in_pr(task: AgentTask) -> None:
         )
 
 
+def record_run_start(graph_name: str, target_repo_root: Path) -> None:
+    """Write run_info.json with the starting HEAD sha and timestamp.
+
+    Called before any tasks are dispatched so that reset_graph can return
+    the target repo to exactly this state.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(target_repo_root), "rev-parse", "HEAD"],
+        capture_output=True, text=True, check=True,
+    )
+    start_head = result.stdout.strip()
+    run_info_dir = target_repo_root / ".workflow" / graph_name
+    run_info_dir.mkdir(parents=True, exist_ok=True)
+    (run_info_dir / "run_info.json").write_text(
+        json.dumps(
+            {"start_head": start_head,
+             "started_at": datetime.now(timezone.utc).isoformat()},
+            indent=2,
+        )
+    )
+
+
+def read_run_info(graph_name: str, target_repo_root: Path) -> dict:
+    """Return the dict stored in run_info.json for the given graph run."""
+    p = target_repo_root / ".workflow" / graph_name / "run_info.json"
+    return json.loads(p.read_text())
+
+
+def reset_target_repo_to_head(start_head: str, target_repo_root: Path) -> None:
+    """Hard-reset target repo's main to start_head and force-push to origin.
+
+    Uses --force-with-lease so the push is rejected if unrelated commits
+    have appeared on origin/main since start_head was recorded.
+    """
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "reset", "--hard", start_head],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "push", "--force-with-lease",
+         "origin", "main"],
+        check=True,
+    )
+
+
+def list_remote_task_branches(graph_name: str, target_repo_root: Path) -> list[str]:
+    """Return short branch names on origin matching task/<graph-name>/*."""
+    result = subprocess.run(
+        ["git", "-C", str(target_repo_root), "ls-remote", "--heads",
+         "origin", f"refs/heads/task/{graph_name}/*"],
+        capture_output=True, text=True, check=True,
+    )
+    branches = []
+    for line in result.stdout.splitlines():
+        if not line.strip():
+            continue
+        ref = line.split("\t")[1]          # refs/heads/task/<graph>/<id>
+        branches.append(ref.removeprefix("refs/heads/"))
+    return branches
+
+
+def delete_remote_branches(branches: list[str], target_repo_root: Path) -> None:
+    """Delete a list of remote branches from origin. No-op if list is empty."""
+    if not branches:
+        return
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "push", "origin", "--delete"]
+        + branches,
+        check=True,
+    )
+
+
 def commit_pixi_lock_to_main(target_repo_root: Path) -> None:
     """Commit a freshly regenerated pixi.lock to main and push.
 

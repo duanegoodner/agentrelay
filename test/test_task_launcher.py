@@ -10,14 +10,19 @@ from agentrelaysmall.task_launcher import (
     close_agent_pane,
     commit_pixi_lock_to_main,
     create_worktree,
+    delete_remote_branches,
     launch_agent,
+    list_remote_task_branches,
     merge_pr,
     neutralize_pixi_lock_in_pr,
     pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_main,
     read_done_note,
+    read_run_info,
+    record_run_start,
     remove_worktree,
+    reset_target_repo_to_head,
     run_pixi_install,
     save_agent_log,
     send_prompt,
@@ -519,3 +524,95 @@ def test_commit_pixi_lock_skips_when_unchanged(tmp_path):
     assert any("add" in c and "pixi.lock" in c for c in calls)
     assert not any("commit" in c for c in calls)
     assert not any("push" in c for c in calls)
+
+
+# ── record_run_start ──────────────────────────────────────────────────────────
+
+def test_record_run_start_writes_run_info(tmp_path):
+    sha = "abc1234def5678"
+    def fake_run(cmd, **kwargs):
+        return type("R", (), {"returncode": 0, "stdout": sha + "\n", "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
+        record_run_start("demo", tmp_path)
+    p = tmp_path / ".workflow" / "demo" / "run_info.json"
+    assert p.exists()
+    data = json.loads(p.read_text())
+    assert data["start_head"] == sha
+    assert "started_at" in data
+
+
+def test_record_run_start_overwrites_existing(tmp_path):
+    first_sha = "aaa111"
+    second_sha = "bbb222"
+    shas = iter([first_sha, second_sha])
+    def fake_run(cmd, **kwargs):
+        return type("R", (), {"returncode": 0, "stdout": next(shas) + "\n", "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
+        record_run_start("demo", tmp_path)
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
+        record_run_start("demo", tmp_path)
+    p = tmp_path / ".workflow" / "demo" / "run_info.json"
+    data = json.loads(p.read_text())
+    assert data["start_head"] == second_sha
+
+
+# ── read_run_info ─────────────────────────────────────────────────────────────
+
+def test_read_run_info_returns_dict(tmp_path):
+    run_info_dir = tmp_path / ".workflow" / "demo"
+    run_info_dir.mkdir(parents=True)
+    payload = {"start_head": "deadbeef", "started_at": "2024-01-01T00:00:00+00:00"}
+    (run_info_dir / "run_info.json").write_text(json.dumps(payload))
+    result = read_run_info("demo", tmp_path)
+    assert result == payload
+
+
+# ── reset_target_repo_to_head ─────────────────────────────────────────────────
+
+def test_reset_target_repo_calls_git_reset_and_push(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        reset_target_repo_to_head("abc1234", tmp_path)
+    calls = [c[0][0] for c in mock_run.call_args_list]
+    assert any("reset" in c and "--hard" in c and "abc1234" in c for c in calls)
+    assert any("push" in c and "--force-with-lease" in c and "origin" in c for c in calls)
+
+
+# ── list_remote_task_branches ─────────────────────────────────────────────────
+
+def test_list_remote_task_branches_parses_ls_remote_output(tmp_path):
+    ls_remote_output = (
+        "abc123\trefs/heads/task/demo/write_greet_fn\n"
+        "def456\trefs/heads/task/demo/write_farewell_fn\n"
+    )
+    def fake_run(cmd, **kwargs):
+        return type("R", (), {"returncode": 0, "stdout": ls_remote_output, "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
+        branches = list_remote_task_branches("demo", tmp_path)
+    assert branches == ["task/demo/write_greet_fn", "task/demo/write_farewell_fn"]
+
+
+def test_list_remote_task_branches_empty_when_none(tmp_path):
+    def fake_run(cmd, **kwargs):
+        return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+    with patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=fake_run):
+        branches = list_remote_task_branches("demo", tmp_path)
+    assert branches == []
+
+
+# ── delete_remote_branches ────────────────────────────────────────────────────
+
+def test_delete_remote_branches_passes_all_names(tmp_path):
+    branches = ["task/demo/t1", "task/demo/t2"]
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        delete_remote_branches(branches, tmp_path)
+    cmd = mock_run.call_args[0][0]
+    assert "push" in cmd
+    assert "--delete" in cmd
+    assert "task/demo/t1" in cmd
+    assert "task/demo/t2" in cmd
+
+
+def test_delete_remote_branches_skips_when_empty(tmp_path):
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        delete_remote_branches([], tmp_path)
+    mock_run.assert_not_called()

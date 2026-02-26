@@ -259,6 +259,44 @@ def test_builder_from_yaml_sets_worktrees_root(tmp_path):
     assert graph.worktrees_root == wt
 
 
+def test_builder_from_yaml_default_tmux_session(tmp_path):
+    p = write_yaml(tmp_path, {
+        "name": "g",
+        "tasks": [{"id": "t1", "description": "x"}],
+    })
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    assert graph.tmux_session == "agentrelaysmall"
+
+
+def test_builder_from_yaml_custom_tmux_session(tmp_path):
+    p = write_yaml(tmp_path, {
+        "name": "g",
+        "tmux_session": "myproject",
+        "tasks": [{"id": "t1", "description": "x"}],
+    })
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    assert graph.tmux_session == "myproject"
+
+
+def test_builder_from_yaml_default_keep_panes(tmp_path):
+    p = write_yaml(tmp_path, {
+        "name": "g",
+        "tasks": [{"id": "t1", "description": "x"}],
+    })
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    assert graph.keep_panes is False
+
+
+def test_builder_from_yaml_keep_panes_true(tmp_path):
+    p = write_yaml(tmp_path, {
+        "name": "g",
+        "keep_panes": True,
+        "tasks": [{"id": "t1", "description": "x"}],
+    })
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    assert graph.keep_panes is True
+
+
 # ── write_context (task_launcher) ─────────────────────────────────────────────
 
 def test_write_context_creates_file(tmp_path):
