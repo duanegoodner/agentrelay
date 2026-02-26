@@ -61,3 +61,4 @@ tasks:
 - `docs/REPO_SETUP.md` — setting up a new target repo
 - `docs/OPERATIONS.md` — day-to-day running guide
 - `docs/HISTORY.md` — feature history (one entry per PR)
+- `docs/BACKLOG.md` — ideas and future work (add here, don't interrupt current task)
