@@ -307,6 +307,26 @@ def delete_remote_branches(branches: list[str], target_repo_root: Path) -> None:
     )
 
 
+def save_pr_summary(pr_url: str, signal_dir: Path) -> None:
+    """Fetch the PR body and write it to signal_dir/summary.md.
+
+    Called after merge_pr() so the agent's self-description of what it did is
+    preserved in the signal directory alongside the other per-task artefacts.
+    Silently skips if gh returns an error or the body is empty.
+    """
+    result = subprocess.run(
+        ["gh", "pr", "view", pr_url, "--json", "body", "--jq", ".body"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return
+    body = result.stdout.strip()
+    if body:
+        signal_dir.mkdir(parents=True, exist_ok=True)
+        (signal_dir / "summary.md").write_text(body)
+
+
 def commit_pixi_lock_to_main(target_repo_root: Path) -> None:
     """Commit a freshly regenerated pixi.lock to main and push.
 

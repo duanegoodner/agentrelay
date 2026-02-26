@@ -25,6 +25,7 @@ from agentrelaysmall.task_launcher import (
     reset_target_repo_to_head,
     run_pixi_install,
     save_agent_log,
+    save_pr_summary,
     send_prompt,
     write_merged_signal,
     write_task_context,
@@ -616,3 +617,58 @@ def test_delete_remote_branches_skips_when_empty(tmp_path):
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
         delete_remote_branches([], tmp_path)
     mock_run.assert_not_called()
+
+
+# ── save_pr_summary ───────────────────────────────────────────────────────────
+
+def test_save_pr_summary_writes_body_to_file(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    pr_url = "https://github.com/org/repo/pull/42"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "## Summary\nDid the thing.\n"
+        save_pr_summary(pr_url, signal_dir)
+    assert (signal_dir / "summary.md").read_text() == "## Summary\nDid the thing."
+
+
+def test_save_pr_summary_calls_gh_pr_view(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    pr_url = "https://github.com/org/repo/pull/42"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "some body\n"
+        save_pr_summary(pr_url, signal_dir)
+    cmd = mock_run.call_args[0][0]
+    assert "gh" in cmd
+    assert "pr" in cmd
+    assert "view" in cmd
+    assert pr_url in cmd
+    assert "--json" in cmd
+    assert "body" in cmd
+
+
+def test_save_pr_summary_skips_when_gh_fails(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 1
+        mock_run.return_value.stdout = ""
+        save_pr_summary("https://github.com/org/repo/pull/1", signal_dir)
+    assert not (signal_dir / "summary.md").exists()
+
+
+def test_save_pr_summary_skips_when_body_empty(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = ""
+        save_pr_summary("https://github.com/org/repo/pull/1", signal_dir)
+    assert not (signal_dir / "summary.md").exists()
+
+
+def test_save_pr_summary_creates_signal_dir(tmp_path):
+    signal_dir = tmp_path / "deep" / "nested" / "dir"
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "body text\n"
+        save_pr_summary("https://github.com/org/repo/pull/1", signal_dir)
+    assert (signal_dir / "summary.md").exists()

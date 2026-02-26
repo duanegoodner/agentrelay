@@ -33,6 +33,7 @@ from agentrelaysmall.task_launcher import (
     remove_worktree,
     run_pixi_install,
     save_agent_log,
+    save_pr_summary,
     send_prompt,
     write_context,
     write_merged_signal,
@@ -84,8 +85,13 @@ def _build_task_prompt(task: AgentTask) -> str:
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"3. Create a PR, capture the URL, and signal completion:\n"
-        f'       PR_URL=$(gh pr create --title "{task.id}" --body "Automated task." --base main)\n'
+        f"3. Create a PR with a meaningful body, capture the URL, and signal completion:\n"
+        f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
+        f"## Summary\n"
+        f"<1-3 sentences describing what you did and why>\n\n"
+        f"## Files changed\n"
+        f"<bullet list of the key files you created or modified>\n"
+        f'PRBODY\n)" --base main)\n'
         f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f'r.mark_done(\'$PR_URL\')"\n\n'
@@ -125,6 +131,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                     print(f"[graph] pixi.toml changed in {task.id} — neutralizing pixi.lock in branch")
                     neutralize_pixi_lock_in_pr(task)
                 print(f"[graph] merging PR for {task.id}: {pr_url}")
+                save_pr_summary(pr_url, graph.signal_dir(task.id))
                 merge_pr(pr_url)
                 write_merged_signal(task, graph.name, graph.target_repo_root)
                 print(f"[graph] {task.id} merged")
@@ -188,7 +195,9 @@ async def _run_graph_loop(graph: AgentTaskGraph) -> None:
     # Final status report
     print("\n[graph] === final status ===")
     for task in graph.tasks.values():
-        print(f"  {task.id}: {task.state.status.value}")
+        summary_path = graph.signal_dir(task.id) / "summary.md"
+        summary_note = f"  summary → {summary_path}" if summary_path.exists() else ""
+        print(f"  {task.id}: {task.state.status.value}{('  ' + summary_note) if summary_note else ''}")
 
 
 def main() -> None:
