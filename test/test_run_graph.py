@@ -1,0 +1,228 @@
+"""Tests for run_graph module-level prompt-builder functions."""
+
+from pathlib import Path
+
+from agentrelaysmall.agent_task import AgentRole, AgentTask
+from agentrelaysmall.agent_task_graph import AgentTaskGraph
+from agentrelaysmall.run_graph import _build_context_content, _build_task_prompt
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+
+def make_task(
+    task_id: str = "task_001",
+    description: str = "do something",
+    role: AgentRole = AgentRole.GENERIC,
+    dependencies: tuple[str, ...] = (),
+) -> AgentTask:
+    return AgentTask(
+        id=task_id,
+        description=description,
+        role=role,
+        dependencies=dependencies,
+    )
+
+
+def make_graph(tasks: list[AgentTask]) -> AgentTaskGraph:
+    return AgentTaskGraph(
+        name="demo",
+        tasks={t.id: t for t in tasks},
+        target_repo_root=Path("/repo"),
+        worktrees_root=Path("/worktrees"),
+    )
+
+
+# ── GENERIC role ──────────────────────────────────────────────────────────────
+
+
+def test_generic_prompt_contains_task_description():
+    task = make_task(description="implement the greet function")
+    assert "implement the greet function" in _build_task_prompt(task)
+
+
+def test_generic_prompt_contains_task_id():
+    task = make_task(task_id="my_task")
+    assert "my_task" in _build_task_prompt(task)
+
+
+def test_generic_prompt_contains_git_add():
+    assert "git add" in _build_task_prompt(make_task())
+
+
+def test_generic_prompt_contains_gh_pr_create():
+    assert "gh pr create" in _build_task_prompt(make_task())
+
+
+def test_generic_prompt_contains_mark_done():
+    assert "mark_done" in _build_task_prompt(make_task())
+
+
+def test_generic_prompt_with_dependencies_contains_context_note():
+    task = make_task(task_id="t2", dependencies=("t1",))
+    assert "context" in _build_task_prompt(task).lower()
+
+
+def test_generic_prompt_without_dependencies_has_no_context_note():
+    task = make_task(dependencies=())
+    assert "context file" not in _build_task_prompt(task)
+
+
+# ── TEST_WRITER role ──────────────────────────────────────────────────────────
+
+
+def test_test_writer_prompt_contains_stub():
+    task = make_task(role=AgentRole.TEST_WRITER)
+    assert "stub" in _build_task_prompt(task).lower()
+
+
+def test_test_writer_prompt_contains_pytest():
+    task = make_task(role=AgentRole.TEST_WRITER)
+    assert "pytest" in _build_task_prompt(task)
+
+
+def test_test_writer_prompt_contains_notimplementederror():
+    task = make_task(role=AgentRole.TEST_WRITER)
+    assert "NotImplementedError" in _build_task_prompt(task)
+
+
+def test_test_writer_prompt_contains_collect_only():
+    task = make_task(role=AgentRole.TEST_WRITER)
+    assert "--collect-only" in _build_task_prompt(task)
+
+
+def test_test_writer_prompt_says_do_not_implement():
+    task = make_task(role=AgentRole.TEST_WRITER)
+    prompt = _build_task_prompt(task).lower()
+    assert "do not implement" in prompt or "not implement" in prompt
+
+
+def test_test_writer_prompt_contains_mark_done():
+    task = make_task(role=AgentRole.TEST_WRITER)
+    assert "mark_done" in _build_task_prompt(task)
+
+
+def test_test_writer_prompt_contains_task_description():
+    task = make_task(description="add login endpoint", role=AgentRole.TEST_WRITER)
+    assert "add login endpoint" in _build_task_prompt(task)
+
+
+def test_test_writer_prompt_contains_task_id():
+    task = make_task(task_id="auth_tests", role=AgentRole.TEST_WRITER)
+    assert "auth_tests" in _build_task_prompt(task)
+
+
+# ── TEST_REVIEWER role ────────────────────────────────────────────────────────
+
+
+def test_test_reviewer_prompt_contains_review_file():
+    task = make_task(task_id="foo_review", role=AgentRole.TEST_REVIEWER)
+    assert "foo_review.md" in _build_task_prompt(task)
+
+
+def test_test_reviewer_prompt_contains_approved():
+    task = make_task(role=AgentRole.TEST_REVIEWER)
+    assert "APPROVED" in _build_task_prompt(task)
+
+
+def test_test_reviewer_prompt_contains_concerns():
+    task = make_task(role=AgentRole.TEST_REVIEWER)
+    assert "CONCERNS" in _build_task_prompt(task)
+
+
+def test_test_reviewer_prompt_contains_coverage():
+    task = make_task(role=AgentRole.TEST_REVIEWER)
+    assert "coverage" in _build_task_prompt(task).lower()
+
+
+def test_test_reviewer_prompt_contains_mark_failed():
+    task = make_task(role=AgentRole.TEST_REVIEWER)
+    assert "mark_failed" in _build_task_prompt(task)
+
+
+def test_test_reviewer_prompt_contains_mark_done():
+    task = make_task(role=AgentRole.TEST_REVIEWER)
+    assert "mark_done" in _build_task_prompt(task)
+
+
+def test_test_reviewer_prompt_contains_task_description():
+    task = make_task(description="validate auth module", role=AgentRole.TEST_REVIEWER)
+    assert "validate auth module" in _build_task_prompt(task)
+
+
+def test_test_reviewer_prompt_does_not_say_implement():
+    task = make_task(role=AgentRole.TEST_REVIEWER)
+    assert "do not implement" in _build_task_prompt(task).lower()
+
+
+# ── IMPLEMENTER role ──────────────────────────────────────────────────────────
+
+
+def test_implementer_prompt_contains_pytest():
+    task = make_task(role=AgentRole.IMPLEMENTER)
+    assert "pytest" in _build_task_prompt(task)
+
+
+def test_implementer_prompt_references_review_file():
+    task = make_task(task_id="add_auth_impl", role=AgentRole.IMPLEMENTER)
+    assert "add_auth_review.md" in _build_task_prompt(task)
+
+
+def test_implementer_prompt_contains_stub():
+    task = make_task(role=AgentRole.IMPLEMENTER)
+    assert "stub" in _build_task_prompt(task).lower()
+
+
+def test_implementer_prompt_mentions_passing_tests():
+    task = make_task(role=AgentRole.IMPLEMENTER)
+    assert "pass" in _build_task_prompt(task).lower()
+
+
+def test_implementer_prompt_contains_mark_done():
+    task = make_task(role=AgentRole.IMPLEMENTER)
+    assert "mark_done" in _build_task_prompt(task)
+
+
+def test_implementer_prompt_contains_task_description():
+    task = make_task(description="add caching layer", role=AgentRole.IMPLEMENTER)
+    assert "add caching layer" in _build_task_prompt(task)
+
+
+def test_implementer_prompt_contains_task_id():
+    task = make_task(task_id="cache_impl", role=AgentRole.IMPLEMENTER)
+    assert "cache_impl" in _build_task_prompt(task)
+
+
+# ── _build_context_content ────────────────────────────────────────────────────
+
+
+def test_context_content_is_none_when_no_dependencies():
+    task = make_task(dependencies=())
+    graph = make_graph([task])
+    assert _build_context_content(graph, task) is None
+
+
+def test_context_content_includes_dep_id():
+    dep = make_task(task_id="dep_task")
+    task = make_task(task_id="main_task", dependencies=("dep_task",))
+    graph = make_graph([dep, task])
+    content = _build_context_content(graph, task)
+    assert content is not None
+    assert "dep_task" in content
+
+
+def test_context_content_includes_dep_description():
+    dep = make_task(task_id="dep_task", description="wrote the tests")
+    task = make_task(task_id="main_task", dependencies=("dep_task",))
+    graph = make_graph([dep, task])
+    content = _build_context_content(graph, task)
+    assert content is not None
+    assert "wrote the tests" in content
+
+
+def test_context_content_mentions_merged_into_main():
+    dep = make_task(task_id="dep_task")
+    task = make_task(task_id="main_task", dependencies=("dep_task",))
+    graph = make_graph([dep, task])
+    content = _build_context_content(graph, task)
+    assert content is not None
+    assert "merged into main" in content

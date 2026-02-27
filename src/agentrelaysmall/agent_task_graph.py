@@ -1,12 +1,19 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-from agentrelaysmall.agent_task import AgentTask, TaskStatus
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
+
+
+@dataclass(frozen=True)
+class TDDTaskGroup:
+    id: str
+    description: str
+    dependencies: tuple[str, ...] = field(default_factory=tuple)
 
 
 @dataclass
@@ -80,12 +87,44 @@ class AgentTaskGraphBuilder:
         tmux_session: str = data.get("tmux_session", "agentrelaysmall")
         keep_panes: bool = bool(data.get("keep_panes", False))
         tasks: dict[str, AgentTask] = {}
-        for t in data["tasks"]:
+        for t in data.get("tasks", []):
             task_id: str = t["id"]
             tasks[task_id] = AgentTask(
                 id=task_id,
                 description=t["description"],
                 dependencies=tuple(t.get("dependencies", [])),
+            )
+        tdd_group_ids: set[str] = {g["id"] for g in data.get("tdd_groups", [])}
+        for g in data.get("tdd_groups", []):
+            group = TDDTaskGroup(
+                id=g["id"],
+                description=g["description"],
+                dependencies=tuple(g.get("dependencies", [])),
+            )
+            resolved_deps = tuple(
+                f"{dep}_impl" if dep in tdd_group_ids else dep
+                for dep in group.dependencies
+            )
+            tasks[f"{group.id}_tests"] = AgentTask(
+                id=f"{group.id}_tests",
+                description=group.description,
+                dependencies=resolved_deps,
+                role=AgentRole.TEST_WRITER,
+                tdd_group_id=group.id,
+            )
+            tasks[f"{group.id}_review"] = AgentTask(
+                id=f"{group.id}_review",
+                description=group.description,
+                dependencies=(f"{group.id}_tests",),
+                role=AgentRole.TEST_REVIEWER,
+                tdd_group_id=group.id,
+            )
+            tasks[f"{group.id}_impl"] = AgentTask(
+                id=f"{group.id}_impl",
+                description=group.description,
+                dependencies=(f"{group.id}_review",),
+                role=AgentRole.IMPLEMENTER,
+                tdd_group_id=group.id,
             )
         return AgentTaskGraph(
             name=name,

@@ -1,6 +1,6 @@
 import pytest
 
-from agentrelaysmall.agent_task import AgentTask, TaskState, TaskStatus
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskState, TaskStatus
 
 
 def test_task_status_values():
@@ -67,3 +67,68 @@ def test_agent_task_each_instance_gets_own_state():
     task_b = AgentTask(id="b", description="b")
     task_a.state.status = TaskStatus.DONE
     assert task_b.state.status == TaskStatus.PENDING
+
+
+# ── AgentRole ─────────────────────────────────────────────────────────────────
+
+
+def test_agent_role_values():
+    assert AgentRole.GENERIC.value == "generic"
+    assert AgentRole.TEST_WRITER.value == "test_writer"
+    assert AgentRole.TEST_REVIEWER.value == "test_reviewer"
+    assert AgentRole.IMPLEMENTER.value == "implementer"
+
+
+def test_agent_role_has_four_members():
+    assert len(AgentRole) == 4
+
+
+# ── AgentTask.role ────────────────────────────────────────────────────────────
+
+
+def test_agent_task_default_role_is_generic():
+    task = AgentTask(id="t1", description="d")
+    assert task.role == AgentRole.GENERIC
+
+
+def test_agent_task_accepts_explicit_role():
+    task = AgentTask(id="t1", description="d", role=AgentRole.TEST_WRITER)
+    assert task.role == AgentRole.TEST_WRITER
+
+
+def test_agent_task_accepts_all_non_generic_roles():
+    for role in (AgentRole.TEST_WRITER, AgentRole.TEST_REVIEWER, AgentRole.IMPLEMENTER):
+        task = AgentTask(id="t", description="d", role=role)
+        assert task.role == role
+
+
+def test_agent_task_role_is_immutable():
+    task = AgentTask(id="t1", description="d", role=AgentRole.TEST_WRITER)
+    with pytest.raises(AttributeError):
+        task.role = AgentRole.GENERIC  # type: ignore[misc]
+
+
+def test_agent_task_role_does_not_affect_state_independence():
+    task_a = AgentTask(id="a", description="a", role=AgentRole.TEST_WRITER)
+    task_b = AgentTask(id="b", description="b", role=AgentRole.IMPLEMENTER)
+    task_a.state.status = TaskStatus.DONE
+    assert task_b.state.status == TaskStatus.PENDING
+
+
+# ── AgentTask.tdd_group_id ────────────────────────────────────────────────────
+
+
+def test_agent_task_default_tdd_group_id_is_none():
+    task = AgentTask(id="t1", description="d")
+    assert task.tdd_group_id is None
+
+
+def test_agent_task_accepts_tdd_group_id():
+    task = AgentTask(id="t1", description="d", tdd_group_id="my_group")
+    assert task.tdd_group_id == "my_group"
+
+
+def test_agent_task_tdd_group_id_is_immutable():
+    task = AgentTask(id="t1", description="d", tdd_group_id="my_group")
+    with pytest.raises(AttributeError):
+        task.tdd_group_id = "other"  # type: ignore[misc]
