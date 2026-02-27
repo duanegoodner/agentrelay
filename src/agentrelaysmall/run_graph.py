@@ -46,14 +46,13 @@ REPO_ROOT = (
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
-def _build_context_content(graph: AgentTaskGraph, task: AgentTask) -> str | None:
+def _build_context_content(task: AgentTask) -> str | None:
     """Produce context.md content summarising completed dependency tasks."""
     if not task.dependencies:
         return None
     lines = ["# Context from prerequisite tasks\n"]
-    for dep_id in task.dependencies:
-        dep = graph.tasks[dep_id]
-        lines.append(f"## {dep_id}\n")
+    for dep in task.dependencies:
+        lines.append(f"## {dep.id}\n")
         lines.append(f"Description: {dep.description}\n")
         lines.append(
             f"The files produced by this task are available in your worktree "
@@ -230,7 +229,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         create_worktree(task, graph.name, graph.worktrees_root, graph.target_repo_root)
         print(f"[graph] worktree at {task.state.worktree_path}")
 
-        context_content = _build_context_content(graph, task)
+        context_content = _build_context_content(task)
         if context_content:
             write_context(task, context_content)
             print(f"[graph] wrote context.md for {task.id}")

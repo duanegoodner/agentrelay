@@ -1,9 +1,6 @@
 """Tests for run_graph module-level prompt-builder functions."""
 
-from pathlib import Path
-
 from agentrelaysmall.agent_task import AgentRole, AgentTask
-from agentrelaysmall.agent_task_graph import AgentTaskGraph
 from agentrelaysmall.run_graph import _build_context_content, _build_task_prompt
 
 # ── helpers ───────────────────────────────────────────────────────────────────
@@ -13,22 +10,13 @@ def make_task(
     task_id: str = "task_001",
     description: str = "do something",
     role: AgentRole = AgentRole.GENERIC,
-    dependencies: tuple[str, ...] = (),
+    dependencies: tuple[AgentTask, ...] = (),
 ) -> AgentTask:
     return AgentTask(
         id=task_id,
         description=description,
         role=role,
         dependencies=dependencies,
-    )
-
-
-def make_graph(tasks: list[AgentTask]) -> AgentTaskGraph:
-    return AgentTaskGraph(
-        name="demo",
-        tasks={t.id: t for t in tasks},
-        target_repo_root=Path("/repo"),
-        worktrees_root=Path("/worktrees"),
     )
 
 
@@ -58,7 +46,8 @@ def test_generic_prompt_contains_mark_done():
 
 
 def test_generic_prompt_with_dependencies_contains_context_note():
-    task = make_task(task_id="t2", dependencies=("t1",))
+    dep = make_task(task_id="t1")
+    task = make_task(task_id="t2", dependencies=(dep,))
     assert "context" in _build_task_prompt(task).lower()
 
 
@@ -197,32 +186,28 @@ def test_implementer_prompt_contains_task_id():
 
 def test_context_content_is_none_when_no_dependencies():
     task = make_task(dependencies=())
-    graph = make_graph([task])
-    assert _build_context_content(graph, task) is None
+    assert _build_context_content(task) is None
 
 
 def test_context_content_includes_dep_id():
     dep = make_task(task_id="dep_task")
-    task = make_task(task_id="main_task", dependencies=("dep_task",))
-    graph = make_graph([dep, task])
-    content = _build_context_content(graph, task)
+    task = make_task(task_id="main_task", dependencies=(dep,))
+    content = _build_context_content(task)
     assert content is not None
     assert "dep_task" in content
 
 
 def test_context_content_includes_dep_description():
     dep = make_task(task_id="dep_task", description="wrote the tests")
-    task = make_task(task_id="main_task", dependencies=("dep_task",))
-    graph = make_graph([dep, task])
-    content = _build_context_content(graph, task)
+    task = make_task(task_id="main_task", dependencies=(dep,))
+    content = _build_context_content(task)
     assert content is not None
     assert "wrote the tests" in content
 
 
 def test_context_content_mentions_merged_into_main():
     dep = make_task(task_id="dep_task")
-    task = make_task(task_id="main_task", dependencies=("dep_task",))
-    graph = make_graph([dep, task])
-    content = _build_context_content(graph, task)
+    task = make_task(task_id="main_task", dependencies=(dep,))
+    content = _build_context_content(task)
     assert content is not None
     assert "merged into main" in content

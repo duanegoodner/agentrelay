@@ -1,6 +1,12 @@
 import pytest
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskState, TaskStatus
+from agentrelaysmall.agent_task import (
+    AgentRole,
+    AgentTask,
+    TaskGroup,
+    TaskState,
+    TaskStatus,
+)
 
 
 def test_task_status_values():
@@ -39,10 +45,21 @@ def test_agent_task_basic_creation():
 
 
 def test_agent_task_with_dependencies():
-    task = AgentTask(
-        id="task_002", description="depends on 001", dependencies=("task_001",)
-    )
-    assert "task_001" in task.dependencies
+    dep = AgentTask(id="task_001", description="the dep")
+    task = AgentTask(id="task_002", description="depends on 001", dependencies=(dep,))
+    assert "task_001" in task.dependency_ids
+
+
+def test_agent_task_dependency_ids_returns_ids_as_strings():
+    dep_a = AgentTask(id="a", description="a")
+    dep_b = AgentTask(id="b", description="b")
+    task = AgentTask(id="c", description="c", dependencies=(dep_a, dep_b))
+    assert task.dependency_ids == ("a", "b")
+
+
+def test_agent_task_dependency_ids_empty_when_no_deps():
+    task = AgentTask(id="task_001", description="d")
+    assert task.dependency_ids == ()
 
 
 def test_agent_task_default_state():
@@ -132,3 +149,11 @@ def test_agent_task_tdd_group_id_is_immutable():
     task = AgentTask(id="t1", description="d", tdd_group_id="my_group")
     with pytest.raises(AttributeError):
         task.tdd_group_id = "other"  # type: ignore[misc]
+
+
+# ── TaskGroup ABC ─────────────────────────────────────────────────────────────
+
+
+def test_task_group_cannot_be_instantiated_directly():
+    with pytest.raises(TypeError):
+        TaskGroup(id="g", description="d")  # type: ignore[abstract]

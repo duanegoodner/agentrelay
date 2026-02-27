@@ -6,14 +6,19 @@ from typing import Any
 
 import yaml
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskGroup, TaskStatus
 
 
 @dataclass(frozen=True)
-class TDDTaskGroup:
-    id: str
-    description: str
-    dependencies: tuple[str, ...] = field(default_factory=tuple)
+class TDDTaskGroup(TaskGroup):
+    dependencies_single_task: tuple[AgentTask, ...] = field(default_factory=tuple)
+    dependencies_task_group: tuple[TaskGroup, ...] = field(default_factory=tuple)
+
+    @property
+    def dependency_ids(self) -> tuple[str, ...]:
+        return tuple(t.id for t in self.dependencies_single_task) + tuple(
+            g.id for g in self.dependencies_task_group
+        )
 
 
 @dataclass
@@ -43,8 +48,7 @@ class AgentTaskGraph:
         for task in self.tasks.values():
             if task.state.status == TaskStatus.PENDING:
                 if all(
-                    self.tasks[dep_id].state.status == TaskStatus.DONE
-                    for dep_id in task.dependencies
+                    dep.state.status == TaskStatus.DONE for dep in task.dependencies
                 ):
                     task.state.status = TaskStatus.READY
 
@@ -70,6 +74,26 @@ class AgentTaskGraph:
                 task.state.status = TaskStatus.FAILED
 
 
+def _topo_sort(node_ids: list[str], deps: dict[str, list[str]]) -> list[str]:
+    """Return node_ids in dependency-first topological order (Kahn's algorithm)."""
+    in_degree = {n: 0 for n in node_ids}
+    dependents: dict[str, list[str]] = {n: [] for n in node_ids}
+    for node, node_deps in deps.items():
+        for dep in node_deps:
+            in_degree[node] += 1
+            dependents[dep].append(node)
+    queue = [n for n in node_ids if in_degree[n] == 0]
+    result: list[str] = []
+    while queue:
+        n = queue.pop(0)
+        result.append(n)
+        for dependent in dependents[n]:
+            in_degree[dependent] -= 1
+            if in_degree[dependent] == 0:
+                queue.append(dependent)
+    return result
+
+
 class AgentTaskGraphBuilder:
     @classmethod
     def from_yaml(
@@ -80,55 +104,91 @@ class AgentTaskGraphBuilder:
     ) -> AgentTaskGraph:
         data: Any = yaml.safe_load(path.read_text())
         name: str = data["name"]
-        # YAML may override the default target repo with an absolute path
         target_repo_root = (
             Path(data["target_repo"]) if "target_repo" in data else repo_root
         )
         tmux_session: str = data.get("tmux_session", "agentrelaysmall")
         keep_panes: bool = bool(data.get("keep_panes", False))
-        tasks: dict[str, AgentTask] = {}
-        for t in data.get("tasks", []):
-            task_id: str = t["id"]
-            tasks[task_id] = AgentTask(
-                id=task_id,
-                description=t["description"],
-                dependencies=tuple(t.get("dependencies", [])),
-            )
-        tdd_group_ids: set[str] = {g["id"] for g in data.get("tdd_groups", [])}
-        for g in data.get("tdd_groups", []):
-            group = TDDTaskGroup(
-                id=g["id"],
-                description=g["description"],
-                dependencies=tuple(g.get("dependencies", [])),
-            )
-            resolved_deps = tuple(
-                f"{dep}_impl" if dep in tdd_group_ids else dep
-                for dep in group.dependencies
-            )
-            tasks[f"{group.id}_tests"] = AgentTask(
-                id=f"{group.id}_tests",
-                description=group.description,
-                dependencies=resolved_deps,
-                role=AgentRole.TEST_WRITER,
-                tdd_group_id=group.id,
-            )
-            tasks[f"{group.id}_review"] = AgentTask(
-                id=f"{group.id}_review",
-                description=group.description,
-                dependencies=(f"{group.id}_tests",),
-                role=AgentRole.TEST_REVIEWER,
-                tdd_group_id=group.id,
-            )
-            tasks[f"{group.id}_impl"] = AgentTask(
-                id=f"{group.id}_impl",
-                description=group.description,
-                dependencies=(f"{group.id}_review",),
-                role=AgentRole.IMPLEMENTER,
-                tdd_group_id=group.id,
-            )
+
+        # Collect raw specs keyed by ID
+        raw_plain: dict[str, Any] = {t["id"]: t for t in data.get("tasks", [])}
+        raw_groups: dict[str, Any] = {g["id"]: g for g in data.get("tdd_groups", [])}
+        group_ids: set[str] = set(raw_groups.keys())
+
+        # Build dep graph for topo sort (nodes = plain task IDs + group IDs)
+        all_node_ids = list(raw_plain.keys()) + list(raw_groups.keys())
+        node_deps: dict[str, list[str]] = {
+            nid: list(raw_plain[nid].get("dependencies", [])) for nid in raw_plain
+        }
+        for gid, g in raw_groups.items():
+            node_deps[gid] = list(g.get("dependencies", []))
+
+        sorted_nodes = _topo_sort(all_node_ids, node_deps)
+
+        built_tasks: dict[str, AgentTask] = {}
+        built_groups: dict[str, TDDTaskGroup] = {}
+
+        for node_id in sorted_nodes:
+            if node_id in raw_plain:
+                raw = raw_plain[node_id]
+                raw_dep_ids: list[str] = raw.get("dependencies", [])
+                deps = tuple(built_tasks[d] for d in raw_dep_ids)
+                built_tasks[node_id] = AgentTask(
+                    id=node_id,
+                    description=raw["description"],
+                    dependencies=deps,
+                )
+            else:
+                raw = raw_groups[node_id]
+                description: str = raw["description"]
+                raw_dep_ids = raw.get("dependencies", [])
+
+                plain_dep_ids = [d for d in raw_dep_ids if d not in group_ids]
+                group_dep_ids = [d for d in raw_dep_ids if d in group_ids]
+
+                task_deps = tuple(built_tasks[d] for d in plain_dep_ids)
+                group_deps = tuple(built_groups[d] for d in group_dep_ids)
+
+                # External deps for the _tests task: plain deps + each group's _impl
+                resolved = task_deps + tuple(
+                    built_tasks[f"{g.id}_impl"] for g in group_deps
+                )
+
+                built_groups[node_id] = TDDTaskGroup(
+                    id=node_id,
+                    description=description,
+                    dependencies_single_task=task_deps,
+                    dependencies_task_group=group_deps,
+                )
+
+                tests = AgentTask(
+                    id=f"{node_id}_tests",
+                    description=description,
+                    dependencies=resolved,
+                    role=AgentRole.TEST_WRITER,
+                    tdd_group_id=node_id,
+                )
+                review = AgentTask(
+                    id=f"{node_id}_review",
+                    description=description,
+                    dependencies=(tests,),
+                    role=AgentRole.TEST_REVIEWER,
+                    tdd_group_id=node_id,
+                )
+                impl = AgentTask(
+                    id=f"{node_id}_impl",
+                    description=description,
+                    dependencies=(review,),
+                    role=AgentRole.IMPLEMENTER,
+                    tdd_group_id=node_id,
+                )
+                built_tasks[f"{node_id}_tests"] = tests
+                built_tasks[f"{node_id}_review"] = review
+                built_tasks[f"{node_id}_impl"] = impl
+
         return AgentTaskGraph(
             name=name,
-            tasks=tasks,
+            tasks=built_tasks,
             target_repo_root=target_repo_root,
             worktrees_root=worktrees_root,
             tmux_session=tmux_session,

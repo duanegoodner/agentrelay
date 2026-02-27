@@ -67,7 +67,7 @@ def test_refresh_ready_promotes_task_with_no_deps():
 def test_refresh_ready_promotes_when_all_deps_done():
     dep = AgentTask(id="dep", description="x")
     dep.state.status = TaskStatus.DONE
-    child = AgentTask(id="child", description="y", dependencies=("dep",))
+    child = AgentTask(id="child", description="y", dependencies=(dep,))
     graph = make_graph(tasks=[dep, child])
     graph._refresh_ready()
     assert child.state.status == TaskStatus.READY
@@ -75,7 +75,7 @@ def test_refresh_ready_promotes_when_all_deps_done():
 
 def test_refresh_ready_does_not_promote_when_dep_pending():
     dep = AgentTask(id="dep", description="x")
-    child = AgentTask(id="child", description="y", dependencies=("dep",))
+    child = AgentTask(id="child", description="y", dependencies=(dep,))
     graph = make_graph(tasks=[dep, child])
     graph._refresh_ready()
     assert child.state.status == TaskStatus.PENDING
@@ -229,7 +229,7 @@ def test_builder_from_yaml_sets_dependencies(tmp_path):
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
-    assert graph.tasks["t2"].dependencies == ("t1",)
+    assert graph.tasks["t2"].dependency_ids == ("t1",)
 
 
 def test_builder_from_yaml_empty_dependencies(tmp_path):
@@ -241,7 +241,7 @@ def test_builder_from_yaml_empty_dependencies(tmp_path):
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
-    assert graph.tasks["t1"].dependencies == ()
+    assert graph.tasks["t1"].dependency_ids == ()
 
 
 def test_builder_from_yaml_sets_target_repo_root(tmp_path):
@@ -352,12 +352,33 @@ def test_tdd_task_group_creation():
     g = TDDTaskGroup(id="foo", description="implement foo")
     assert g.id == "foo"
     assert g.description == "implement foo"
-    assert g.dependencies == ()
+    assert g.dependencies_single_task == ()
+    assert g.dependencies_task_group == ()
+    assert g.dependency_ids == ()
 
 
-def test_tdd_task_group_with_dependencies():
-    g = TDDTaskGroup(id="bar", description="bar", dependencies=("foo",))
-    assert g.dependencies == ("foo",)
+def test_tdd_task_group_with_single_task_dependency():
+    dep = AgentTask(id="setup", description="setup task")
+    g = TDDTaskGroup(id="bar", description="bar", dependencies_single_task=(dep,))
+    assert g.dependency_ids == ("setup",)
+
+
+def test_tdd_task_group_with_group_dependency():
+    foo = TDDTaskGroup(id="foo", description="foo")
+    g = TDDTaskGroup(id="bar", description="bar", dependencies_task_group=(foo,))
+    assert g.dependency_ids == ("foo",)
+
+
+def test_tdd_task_group_with_mixed_dependencies():
+    dep_task = AgentTask(id="setup", description="setup")
+    dep_group = TDDTaskGroup(id="foo", description="foo")
+    g = TDDTaskGroup(
+        id="bar",
+        description="bar",
+        dependencies_single_task=(dep_task,),
+        dependencies_task_group=(dep_group,),
+    )
+    assert g.dependency_ids == ("setup", "foo")
 
 
 def test_tdd_task_group_is_frozen():
@@ -404,9 +425,9 @@ def test_tdd_group_internal_dependencies(tmp_path):
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
-    assert graph.tasks["foo_tests"].dependencies == ()
-    assert graph.tasks["foo_review"].dependencies == ("foo_tests",)
-    assert graph.tasks["foo_impl"].dependencies == ("foo_review",)
+    assert graph.tasks["foo_tests"].dependency_ids == ()
+    assert graph.tasks["foo_review"].dependency_ids == ("foo_tests",)
+    assert graph.tasks["foo_impl"].dependency_ids == ("foo_review",)
 
 
 def test_tdd_group_description_propagated_to_all_tasks(tmp_path):
@@ -449,7 +470,7 @@ def test_tdd_group_dependency_resolves_group_id_to_impl(tmp_path):
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
-    assert graph.tasks["bar_tests"].dependencies == ("foo_impl",)
+    assert graph.tasks["bar_tests"].dependency_ids == ("foo_impl",)
 
 
 def test_tdd_group_dependency_on_raw_task_passes_through(tmp_path):
@@ -464,7 +485,7 @@ def test_tdd_group_dependency_on_raw_task_passes_through(tmp_path):
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
-    assert graph.tasks["bar_tests"].dependencies == ("setup",)
+    assert graph.tasks["bar_tests"].dependency_ids == ("setup",)
 
 
 def test_mixed_yaml_tasks_and_tdd_groups(tmp_path):
