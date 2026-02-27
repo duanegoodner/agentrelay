@@ -34,16 +34,13 @@ from pathlib import Path
 
 from agentrelaysmall.agent_task_graph import AgentTaskGraphBuilder
 from agentrelaysmall.task_launcher import (
+    delete_local_graph_branch,
     delete_remote_branches,
+    graph_branch_exists_on_remote,
     list_remote_task_branches,
     read_run_info,
     reset_target_repo_to_head,
 )
-
-REPO_ROOT = (
-    Path(__file__).resolve().parents[2]
-)  # src/agentrelaysmall/reset_graph.py → repo root
-WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
 def _get_remote_repo(target_repo_root: Path) -> str:
@@ -66,7 +63,9 @@ def _get_remote_repo(target_repo_root: Path) -> str:
 
 
 def _close_open_prs(graph_name: str, target_repo_root: Path) -> None:
-    """Close any open PRs whose head branch matches task/<graph-name>/*."""
+    """Close any open PRs whose head branch matches task/<graph-name>/* or graph/<graph-name>."""
+    import json
+
     remote_repo = _get_remote_repo(target_repo_root)
     result = subprocess.run(
         [
@@ -80,15 +79,13 @@ def _close_open_prs(graph_name: str, target_repo_root: Path) -> None:
             "--json",
             "number,headRefName",
             "--jq",
-            f'[.[] | select(.headRefName | startswith("task/{graph_name}/"))]',
+            f'[.[] | select(.headRefName | (startswith("task/{graph_name}/") or . == "graph/{graph_name}"))]',
         ],
         capture_output=True,
         text=True,
     )
     if result.returncode != 0 or not result.stdout.strip():
         return
-    import json
-
     prs = json.loads(result.stdout)
     for pr in prs:
         number = pr["number"]
@@ -132,7 +129,7 @@ def main() -> None:
     if not graph_path.is_absolute():
         graph_path = Path.cwd() / graph_path
 
-    graph = AgentTaskGraphBuilder.from_yaml(graph_path, REPO_ROOT, WORKTREES_ROOT)
+    graph = AgentTaskGraphBuilder.from_yaml(graph_path, Path.cwd())
 
     try:
         run_info = read_run_info(graph.name, graph.target_repo_root)
@@ -177,14 +174,14 @@ def main() -> None:
         print("  Tip: reset graphs in reverse run order (most-recently-run first).")
     print()
     print("[reset] This will:")
-    print("  1. Close open PRs on task branches")
+    print("  1. Close open PRs on task and graph branches")
     if start_head_is_ancestor:
         print(
             f"  2. git reset --hard {start_head[:12]} && push --force-with-lease origin main"
         )
     else:
         print(f"  2. [SKIP] git reset --hard {start_head[:12]}  (out-of-order reset)")
-    print("  3. Delete remote task branches")
+    print("  3. Delete remote task branches and graph integration branch")
     print("  4. Remove leftover worktrees")
     print(f"  5. Delete .workflow/{graph.name}/")
 
@@ -205,16 +202,19 @@ def main() -> None:
     else:
         print("[reset] step 2: skipped (out-of-order reset — git history unchanged)")
 
-    print("[reset] step 3: deleting remote task branches")
+    print("[reset] step 3: deleting remote task branches and graph integration branch")
     branches = list_remote_task_branches(graph.name, graph.target_repo_root)
+    if graph_branch_exists_on_remote(graph.name, graph.target_repo_root):
+        branches = branches + [graph.graph_branch()]
     if branches:
         print(f"  [reset] deleting: {branches}")
         delete_remote_branches(branches, graph.target_repo_root)
     else:
         print("  [reset] none found")
+    delete_local_graph_branch(graph.name, graph.target_repo_root)
 
     print("[reset] step 4: removing leftover worktrees")
-    _remove_leftover_worktrees(graph.name, WORKTREES_ROOT)
+    _remove_leftover_worktrees(graph.name, graph.worktrees_root)
 
     print("[reset] step 5: removing signal files")
     _remove_workflow_dir(graph.name, graph.target_repo_root)

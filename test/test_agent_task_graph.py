@@ -53,6 +53,11 @@ def test_branch_name_uses_graph_name_and_task_id():
     assert graph.branch_name("task_001") == "task/my-graph/task_001"
 
 
+def test_graph_branch_uses_graph_name():
+    graph = make_graph(name="my-graph")
+    assert graph.graph_branch() == "graph/my-graph"
+
+
 # ── _refresh_ready ────────────────────────────────────────────────────────────
 
 
@@ -198,7 +203,7 @@ def test_builder_from_yaml_sets_graph_name(tmp_path):
             "tasks": [{"id": "t1", "description": "do it", "dependencies": []}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.name == "my-graph"
 
 
@@ -213,7 +218,7 @@ def test_builder_from_yaml_creates_tasks(tmp_path):
             ],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert set(graph.tasks.keys()) == {"t1", "t2"}
 
 
@@ -228,7 +233,7 @@ def test_builder_from_yaml_sets_dependencies(tmp_path):
             ],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["t2"].dependency_ids == ("t1",)
 
 
@@ -240,7 +245,7 @@ def test_builder_from_yaml_empty_dependencies(tmp_path):
             "tasks": [{"id": "t1", "description": "first"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["t1"].dependency_ids == ()
 
 
@@ -252,7 +257,7 @@ def test_builder_from_yaml_sets_target_repo_root(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.target_repo_root == tmp_path
 
 
@@ -266,7 +271,7 @@ def test_builder_from_yaml_reads_target_repo_from_yaml(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.target_repo_root == other_repo
 
 
@@ -278,12 +283,12 @@ def test_builder_from_yaml_defaults_to_repo_root_when_no_target_repo(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.target_repo_root == tmp_path
 
 
-def test_builder_from_yaml_sets_worktrees_root(tmp_path):
-    wt = tmp_path / "wt"
+def test_builder_from_yaml_derives_worktrees_root_from_target_repo(tmp_path):
+    """worktrees_root defaults to target_repo_root.parent / 'worktrees'."""
     p = write_yaml(
         tmp_path,
         {
@@ -291,8 +296,23 @@ def test_builder_from_yaml_sets_worktrees_root(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, wt)
-    assert graph.worktrees_root == wt
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.worktrees_root == tmp_path.parent / "worktrees"
+
+
+def test_builder_from_yaml_custom_worktrees_root_via_yaml(tmp_path):
+    """YAML worktrees_root key overrides the default derived path."""
+    custom_wt = tmp_path / "custom_wt"
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "worktrees_root": str(custom_wt),
+            "tasks": [{"id": "t1", "description": "x"}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.worktrees_root == custom_wt
 
 
 def test_builder_from_yaml_default_tmux_session(tmp_path):
@@ -303,7 +323,7 @@ def test_builder_from_yaml_default_tmux_session(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tmux_session == "agentrelaysmall"
 
 
@@ -316,7 +336,7 @@ def test_builder_from_yaml_custom_tmux_session(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tmux_session == "myproject"
 
 
@@ -328,7 +348,7 @@ def test_builder_from_yaml_default_keep_panes(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.keep_panes is False
 
 
@@ -341,7 +361,7 @@ def test_builder_from_yaml_keep_panes_true(tmp_path):
             "tasks": [{"id": "t1", "description": "x"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.keep_panes is True
 
 
@@ -398,7 +418,7 @@ def test_tdd_group_expands_to_three_tasks(tmp_path):
             "tdd_groups": [{"id": "foo", "description": "implement foo feature"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert set(graph.tasks.keys()) == {"foo_tests", "foo_review", "foo_impl"}
 
 
@@ -410,7 +430,7 @@ def test_tdd_group_roles_are_correct(tmp_path):
             "tdd_groups": [{"id": "foo", "description": "d"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["foo_tests"].role == AgentRole.TEST_WRITER
     assert graph.tasks["foo_review"].role == AgentRole.TEST_REVIEWER
     assert graph.tasks["foo_impl"].role == AgentRole.IMPLEMENTER
@@ -424,7 +444,7 @@ def test_tdd_group_internal_dependencies(tmp_path):
             "tdd_groups": [{"id": "foo", "description": "d"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["foo_tests"].dependency_ids == ()
     assert graph.tasks["foo_review"].dependency_ids == ("foo_tests",)
     assert graph.tasks["foo_impl"].dependency_ids == ("foo_review",)
@@ -439,7 +459,7 @@ def test_tdd_group_description_propagated_to_all_tasks(tmp_path):
             "tdd_groups": [{"id": "greet", "description": desc}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     for task_id in ("greet_tests", "greet_review", "greet_impl"):
         assert graph.tasks[task_id].description == desc
 
@@ -452,7 +472,7 @@ def test_tdd_group_id_set_on_all_expanded_tasks(tmp_path):
             "tdd_groups": [{"id": "add_auth", "description": "d"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["add_auth_tests"].tdd_group_id == "add_auth"
     assert graph.tasks["add_auth_review"].tdd_group_id == "add_auth"
     assert graph.tasks["add_auth_impl"].tdd_group_id == "add_auth"
@@ -469,7 +489,7 @@ def test_tdd_group_dependency_resolves_group_id_to_impl(tmp_path):
             ],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["bar_tests"].dependency_ids == ("foo_impl",)
 
 
@@ -484,7 +504,7 @@ def test_tdd_group_dependency_on_raw_task_passes_through(tmp_path):
             ],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["bar_tests"].dependency_ids == ("setup",)
 
 
@@ -497,7 +517,7 @@ def test_mixed_yaml_tasks_and_tdd_groups(tmp_path):
             "tdd_groups": [{"id": "feature", "description": "the feature"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert set(graph.tasks.keys()) == {
         "setup",
         "feature_tests",
@@ -515,7 +535,7 @@ def test_plain_task_in_mixed_yaml_has_generic_role(tmp_path):
             "tdd_groups": [{"id": "feature", "description": "d"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["setup"].role == AgentRole.GENERIC
 
 
@@ -527,7 +547,7 @@ def test_plain_task_has_none_tdd_group_id(tmp_path):
             "tasks": [{"id": "setup", "description": "setup"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["setup"].tdd_group_id is None
 
 
@@ -539,7 +559,7 @@ def test_from_yaml_without_tdd_groups_key_still_works(tmp_path):
             "tasks": [{"id": "t1", "description": "do it"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert set(graph.tasks.keys()) == {"t1"}
     assert graph.tasks["t1"].role == AgentRole.GENERIC
 
@@ -552,7 +572,7 @@ def test_from_yaml_with_only_tdd_groups_no_tasks_key(tmp_path):
             "tdd_groups": [{"id": "foo", "description": "d"}],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert len(graph.tasks) == 3
 
 
@@ -567,7 +587,7 @@ def test_multiple_tdd_groups_all_expanded(tmp_path):
             ],
         },
     )
-    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path, tmp_path / "wt")
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert len(graph.tasks) == 6
     assert set(graph.tasks.keys()) == {
         "alpha_tests",

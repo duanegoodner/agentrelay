@@ -57,7 +57,7 @@ def test_create_worktree_calls_git(tmp_path):
             "-b",
             "task/demo/task_001",
             str(expected_path),
-            "main",
+            "graph/demo",
         ],
         check=True,
     )
@@ -177,7 +177,7 @@ def test_launch_agent_requires_worktree_path():
 # ── send_prompt ───────────────────────────────────────────────────────────────
 
 
-def test_send_prompt_navigates_bypass_dialog():
+def test_send_prompt_accepts_trust_dialog():
     with (
         patch("agentrelaysmall.task_launcher.time.sleep"),
         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
@@ -185,14 +185,11 @@ def test_send_prompt_navigates_bypass_dialog():
         send_prompt(
             "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
         )
-    # First call sends Down to move cursor to "Yes, I accept"
+    # First call sends Enter to accept the "Yes, trust folder" default
     first_call_args = mock_run.call_args_list[0][0][0]
     assert "%3" in first_call_args
-    assert "Down" in first_call_args
-    # Second call sends Enter to confirm
-    second_call_args = mock_run.call_args_list[1][0][0]
-    assert "%3" in second_call_args
-    assert "Enter" in second_call_args
+    assert "Enter" in first_call_args
+    assert "Down" not in first_call_args
 
 
 def test_send_prompt_sends_prompt_to_pane():
@@ -203,8 +200,8 @@ def test_send_prompt_sends_prompt_to_pane():
         send_prompt(
             "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
         )
-    # Third call (index 2) sends the prompt text only
-    cmd = mock_run.call_args_list[2][0][0]
+    # Second call (index 1) sends the prompt text only
+    cmd = mock_run.call_args_list[1][0][0]
     assert "%3" in cmd
     assert "do the thing" in cmd
 
@@ -221,10 +218,10 @@ def test_send_prompt_sends_enter_last():
     last_cmd = mock_run.call_args_list[-1][0][0]
     assert "%3" in last_cmd
     assert "Enter" in last_cmd
-    assert len(mock_run.call_args_list) == 4
+    assert len(mock_run.call_args_list) == 3
 
 
-def test_send_prompt_sleeps_four_times():
+def test_send_prompt_sleeps_three_times():
     with (
         patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep,
         patch("agentrelaysmall.task_launcher.subprocess.run"),
@@ -232,10 +229,9 @@ def test_send_prompt_sleeps_four_times():
         send_prompt(
             "%3", "prompt", bypass_delay=4.0, startup_delay=6.0, submit_delay=0.5
         )
-    assert mock_sleep.call_count == 4
+    assert mock_sleep.call_count == 3
     sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
     assert 4.0 in sleep_args
-    assert 0.2 in sleep_args
     assert 6.0 in sleep_args
     assert 0.5 in sleep_args
 

@@ -9,13 +9,73 @@ from pathlib import Path
 from agentrelaysmall.agent_task import AgentTask
 
 
+def create_graph_branch(
+    graph_name: str,
+    target_repo_root: Path,
+    base_branch: str = "main",
+) -> None:
+    """Create graph/<graph-name> off base_branch and push it to origin.
+
+    Idempotent: uses ls-remote as the authoritative check so stale local
+    tracking refs (left over after a reset) cannot cause a false skip.
+    If the remote branch already exists, skips creation.
+    If the remote branch does not exist, sets the local branch to base_branch
+    (creating or force-moving it as needed) and pushes to origin.
+    """
+    branch = f"graph/{graph_name}"
+    # ls-remote is authoritative: stale refs/remotes/origin/<branch> tracking
+    # refs can make rev-parse --verify return 0 even after a reset deletes the
+    # remote branch, so we always check the remote directly.
+    remote_check = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "ls-remote",
+            "--heads",
+            "origin",
+            f"refs/heads/{branch}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    if remote_check.stdout.strip():
+        print(f"[graph] integration branch {branch} already exists — skipping creation")
+        return
+    # Remote branch does not exist.  Set the local branch to base_branch
+    # (branch -f creates or moves it).  If the branch is currently checked out
+    # in the main worktree, branch -f is rejected; fall back to reset --hard.
+    set_local = subprocess.run(
+        ["git", "-C", str(target_repo_root), "branch", "-f", branch, base_branch],
+        capture_output=True,
+    )
+    if set_local.returncode != 0:
+        # Branch is currently checked out — hard-reset HEAD to base_branch
+        subprocess.run(
+            ["git", "-C", str(target_repo_root), "reset", "--hard", base_branch],
+            check=True,
+        )
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "push", "-u", "origin", branch],
+        check=True,
+    )
+    # Ensure the main worktree is back on base_branch
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "checkout", base_branch],
+        capture_output=True,
+    )
+
+
 def create_worktree(
     task: AgentTask,
     graph_name: str,
     worktrees_root: Path,
     target_repo_root: Path,
-    base_branch: str = "main",
+    base_branch: str | None = None,
 ) -> Path:
+    graph_branch = f"graph/{graph_name}"
+    effective_base = base_branch if base_branch is not None else graph_branch
     worktree_path = worktrees_root / graph_name / task.id
     branch_name = f"task/{graph_name}/{task.id}"
     subprocess.run(
@@ -28,7 +88,7 @@ def create_worktree(
             "-b",
             branch_name,
             str(worktree_path),
-            base_branch,
+            effective_base,
         ],
         check=True,
     )
@@ -88,7 +148,7 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
             "send-keys",
             "-t",
             pane_id,
-            f'export PATH="{env_path}" && claude --dangerously-skip-permissions',
+            f'export PATH="{env_path}" && claude --dangerously-skip-permissions --add-dir {str(task.state.worktree_path)}',
             "Enter",
         ]
     )
@@ -102,11 +162,12 @@ def send_prompt(
     startup_delay: float = 6.0,
     submit_delay: float = 0.5,
 ) -> None:
-    # Navigate the --dangerously-skip-permissions confirmation dialog:
-    # cursor starts on "No, exit"; Down moves to "Yes, I accept", Enter confirms
+    # Accept the workspace-trust dialog if it appears:
+    # default option is "Yes, trust folder", so Enter confirms it.
+    # The --dangerously-skip-permissions dialog is auto-accepted by
+    # skipDangerousModePermissionPrompt=true in ~/.claude/settings.json,
+    # so we no longer need the Down keystroke that used to navigate it.
     time.sleep(bypass_delay)
-    subprocess.run(["tmux", "send-keys", "-t", pane_id, "Down"])
-    time.sleep(0.2)
     subprocess.run(["tmux", "send-keys", "-t", pane_id, "Enter"])
     # Wait for Claude to finish initialising past the confirmation
     time.sleep(startup_delay)
@@ -208,6 +269,116 @@ def pull_main(target_repo_root: Path) -> bool:
         capture_output=True,
     )
     return result.returncode == 0
+
+
+def pull_graph_branch(graph_name: str, target_repo_root: Path) -> bool:
+    """Update the local graph/<graph-name> branch after a task PR merges.
+
+    Two-step: fetch updates origin/<branch> tracking ref, then update-ref
+    forces the local branch ref to match.  update-ref works even when the
+    branch is currently checked out, unlike the fetch <src>:<dst> refspec
+    form which is rejected in that situation.
+
+    Returns True on success, False otherwise.
+    """
+    branch = f"graph/{graph_name}"
+    fetch = subprocess.run(
+        ["git", "-C", str(target_repo_root), "fetch", "origin", branch],
+        capture_output=True,
+    )
+    if fetch.returncode != 0:
+        return False
+    update = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "update-ref",
+            f"refs/heads/{branch}",
+            f"origin/{branch}",
+        ],
+        capture_output=True,
+    )
+    return update.returncode == 0
+
+
+def create_final_pr(graph_name: str, target_repo_root: Path) -> str | None:
+    """Create a PR from graph/<graph-name> → main and return its URL.
+
+    Returns None if the graph branch has no commits ahead of main (e.g. a
+    run resumed from stale signals with no new task work done).
+    Idempotent: if an open PR from this head already exists (e.g. because the
+    graph was re-run after a partial reset), returns the existing PR URL.
+    """
+    graph_branch = f"graph/{graph_name}"
+    ahead = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "log",
+            "--oneline",
+            f"main..{graph_branch}",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if not ahead.stdout.strip():
+        print(
+            f"[graph] {graph_branch} has no commits ahead of main — "
+            "skipping final PR (did tasks actually run?)"
+        )
+        return None
+    result = subprocess.run(
+        [
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            f"graph/{graph_name}: merge all tasks into main",
+            "--body",
+            f"## Summary\n\nMerges the `{graph_branch}` integration branch into `main`.\n"
+            f"This PR includes the combined output of all tasks in the `{graph_name}` graph.\n",
+            "--base",
+            "main",
+            "--head",
+            graph_branch,
+        ],
+        capture_output=True,
+        text=True,
+        cwd=str(target_repo_root),
+    )
+    if result.returncode == 0:
+        return result.stdout.strip()
+    # Creation failed — check for an existing open PR with the same head
+    print(f"[graph] gh pr create stderr: {result.stderr.strip()}")
+    existing = subprocess.run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--head",
+            graph_branch,
+            "--base",
+            "main",
+            "--state",
+            "open",
+            "--json",
+            "url",
+            "--jq",
+            ".[0].url",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=str(target_repo_root),
+    )
+    if existing.returncode == 0 and existing.stdout.strip():
+        url = existing.stdout.strip()
+        print(f"[graph] using existing open PR: {url}")
+        return url
+    raise subprocess.CalledProcessError(
+        result.returncode, result.args, result.stdout, result.stderr
+    )
 
 
 def write_merged_signal(
@@ -313,9 +484,15 @@ def read_run_info(graph_name: str, target_repo_root: Path) -> dict:
 def reset_target_repo_to_head(start_head: str, target_repo_root: Path) -> None:
     """Hard-reset target repo's main to start_head and force-push to origin.
 
-    Uses --force-with-lease so the push is rejected if unrelated commits
-    have appeared on origin/main since start_head was recorded.
+    Fetches origin/main first so the local tracking ref is current; this
+    prevents --force-with-lease from being rejected with "stale info" when
+    the final graph PR was merged on GitHub after the run completed but
+    before reset was invoked.
     """
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "fetch", "origin", "main"],
+        check=True,
+    )
     subprocess.run(
         ["git", "-C", str(target_repo_root), "reset", "--hard", start_head],
         check=True,
@@ -357,6 +534,34 @@ def list_remote_task_branches(graph_name: str, target_repo_root: Path) -> list[s
         ref = line.split("\t")[1]  # refs/heads/task/<graph>/<id>
         branches.append(ref.removeprefix("refs/heads/"))
     return branches
+
+
+def delete_local_graph_branch(graph_name: str, target_repo_root: Path) -> None:
+    """Delete the local graph/<graph-name> branch if it exists. Silent no-op otherwise."""
+    branch = f"graph/{graph_name}"
+    subprocess.run(
+        ["git", "-C", str(target_repo_root), "branch", "-D", branch],
+        capture_output=True,
+    )
+
+
+def graph_branch_exists_on_remote(graph_name: str, target_repo_root: Path) -> bool:
+    """Return True if graph/<graph-name> exists on origin."""
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "ls-remote",
+            "--heads",
+            "origin",
+            f"refs/heads/graph/{graph_name}",
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return bool(result.stdout.strip())
 
 
 def delete_remote_branches(branches: list[str], target_repo_root: Path) -> None:

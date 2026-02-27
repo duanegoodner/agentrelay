@@ -41,6 +41,9 @@ class AgentTaskGraph:
     def branch_name(self, task_id: str) -> str:
         return f"task/{self.name}/{task_id}"
 
+    def graph_branch(self) -> str:
+        return f"graph/{self.name}"
+
     # ── State management ────────────────────────────────────────────────────
 
     def _refresh_ready(self) -> None:
@@ -100,12 +103,16 @@ class AgentTaskGraphBuilder:
         cls,
         path: Path,
         repo_root: Path,
-        worktrees_root: Path,
     ) -> AgentTaskGraph:
         data: Any = yaml.safe_load(path.read_text())
         name: str = data["name"]
         target_repo_root = (
             Path(data["target_repo"]) if "target_repo" in data else repo_root
+        )
+        worktrees_root = (
+            Path(data["worktrees_root"])
+            if "worktrees_root" in data
+            else target_repo_root.parent / "worktrees"
         )
         tmux_session: str = data.get("tmux_session", "agentrelaysmall")
         keep_panes: bool = bool(data.get("keep_panes", False))
