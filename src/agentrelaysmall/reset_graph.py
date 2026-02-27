@@ -8,9 +8,18 @@ What this does (in order):
     1. Reads .workflow/<graph>/run_info.json to find the starting HEAD sha.
     2. Closes any open GitHub PRs on task/<graph>/* branches.
     3. Hard-resets target repo's main to the starting HEAD and force-pushes.
+       (Skipped when the reset is out-of-order — see below.)
     4. Deletes remote task/<graph>/* branches.
     5. Removes leftover worktrees from worktrees_root/<graph>/.
     6. Deletes .workflow/<graph>/ from the target repo.
+
+Out-of-order reset detection:
+    If start_head is NOT an ancestor of current HEAD (i.e. start_head is ahead
+    of HEAD), step 3 is skipped automatically.  This happens when graphs are
+    reset in the wrong order (e.g. resetting graph A after graph B whose
+    start_head already included A's commits).  All other cleanup steps still
+    run so branches, worktrees, and signal files are removed.  Reset graphs in
+    reverse run order (most-recently-run first) to avoid this situation.
 
 Requires:
     - run_info.json written by run_graph at graph start (present if graph was run)
@@ -138,16 +147,43 @@ def main() -> None:
     start_head = run_info["start_head"]
     started_at = run_info.get("started_at", "unknown")
 
+    # Detect out-of-order reset: if start_head is not an ancestor of current HEAD,
+    # the reset would move HEAD forward (re-introducing previously-reset commits).
+    # This typically happens when multiple graphs are reset in the wrong order.
+    is_ancestor_result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(graph.target_repo_root),
+            "merge-base",
+            "--is-ancestor",
+            start_head,
+            "HEAD",
+        ],
+        capture_output=True,
+    )
+    start_head_is_ancestor = is_ancestor_result.returncode == 0
+
     print(f"[reset] graph:       {graph.name}")
     print(f"[reset] target repo: {graph.target_repo_root}")
     print(f"[reset] run started: {started_at}")
     print(f"[reset] start HEAD:  {start_head[:12]}")
+    if not start_head_is_ancestor:
+        print()
+        print("[reset] WARNING: out-of-order reset detected.")
+        print("  start_head is not an ancestor of current HEAD — resetting would move")
+        print("  main FORWARD, re-introducing previously-reset commits.")
+        print("  Step 2 (git reset) will be SKIPPED; all other cleanup will run.")
+        print("  Tip: reset graphs in reverse run order (most-recently-run first).")
     print()
     print("[reset] This will:")
     print("  1. Close open PRs on task branches")
-    print(
-        f"  2. git reset --hard {start_head[:12]} && push --force-with-lease origin main"
-    )
+    if start_head_is_ancestor:
+        print(
+            f"  2. git reset --hard {start_head[:12]} && push --force-with-lease origin main"
+        )
+    else:
+        print(f"  2. [SKIP] git reset --hard {start_head[:12]}  (out-of-order reset)")
     print("  3. Delete remote task branches")
     print("  4. Remove leftover worktrees")
     print(f"  5. Delete .workflow/{graph.name}/")
@@ -162,9 +198,12 @@ def main() -> None:
     print("[reset] step 1: closing open PRs")
     _close_open_prs(graph.name, graph.target_repo_root)
 
-    print("[reset] step 2: resetting main and force-pushing")
-    reset_target_repo_to_head(start_head, graph.target_repo_root)
-    print(f"  [reset] main is now at {start_head[:12]}")
+    if start_head_is_ancestor:
+        print("[reset] step 2: resetting main and force-pushing")
+        reset_target_repo_to_head(start_head, graph.target_repo_root)
+        print(f"  [reset] main is now at {start_head[:12]}")
+    else:
+        print("[reset] step 2: skipped (out-of-order reset — git history unchanged)")
 
     print("[reset] step 3: deleting remote task branches")
     branches = list_remote_task_branches(graph.name, graph.target_repo_root)

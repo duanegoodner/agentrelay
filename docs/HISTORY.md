@@ -7,6 +7,47 @@ each PR on GitHub.
 
 ## 2026-02-27
 
+### `reset_graph`: skip git reset on out-of-order runs — PR #29
+
+`reset_graph.py` now automatically skips the `git reset --hard` + force-push step
+when the recorded `start_head` is not an ancestor of the current `HEAD` (i.e. the
+reset would move `main` forward and re-introduce already-reset commits). All other
+cleanup still runs: open PRs are closed, remote task branches are deleted, leftover
+worktrees are removed, and the `.workflow/` signal directory is cleared. The warning
+message is updated to communicate that step 2 will be skipped rather than implying
+the user must decide.
+
+**Correct reset order:** most-recently-run graph first (reverse run order).
+**Key file:** `reset_graph.py`.
+
+---
+
+### Typed `AgentTask.dependencies` and `TaskGroup` ABC — PR #28
+
+Replaced string-based dependency references with typed object references throughout
+the task model and graph builder.
+
+- **`TaskGroup` ABC** added to `agent_task.py`: abstract frozen dataclass with `id`,
+  `description`, and abstract `dependency_ids` property. Provides a common type for
+  groups that expand to multiple tasks.
+- **`AgentTask.dependencies`** changed from `tuple[str, ...]` to `tuple[AgentTask, ...]`;
+  a `dependency_ids` computed property reconstructs the string tuple when needed. No
+  call sites that already held `AgentTask` objects are broken.
+- **`TDDTaskGroup`** (in `agent_task_graph.py`) extends `TaskGroup` with two typed dep
+  fields: `dependencies_single_task: tuple[AgentTask, ...]` and
+  `dependencies_task_group: tuple[TaskGroup, ...]`. Its `dependency_ids` property
+  concatenates both.
+- **Topological sort** (`_topo_sort`, Kahn's algorithm) added to `agent_task_graph.py`
+  so the builder can construct frozen dataclasses in dependency-first order.
+- **`_build_context_content()`** in `run_graph.py` simplified: no longer needs the
+  graph as a parameter; iterates `task.dependencies` directly.
+- **Tests** updated across `test_agent_task.py`, `test_agent_task_graph.py`, and
+  `test_run_graph.py` — 176 tests total.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`.
+
+---
+
 ### TDD workflow: `AgentRole`, `TDDTaskGroup`, role-specific prompts — PR #26
 
 Added first-class TDD workflow support via a `tdd_groups:` YAML key that
