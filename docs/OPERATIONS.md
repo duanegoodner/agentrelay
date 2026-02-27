@@ -20,6 +20,34 @@ python -m agentrelaysmall.run_graph graphs/<name>.yaml --keep-panes
 The graph YAML itself can also set `tmux_session:` and `keep_panes:` as defaults —
 see [CLAUDE.md](../CLAUDE.md) for the YAML key reference.
 
+### Graph YAML quick reference
+
+```yaml
+name: my-graph
+target_repo: /path/to/target/repo
+tmux_session: agentrelaysmall   # optional; default "agentrelaysmall"
+keep_panes: false                # optional; leave tmux windows open after tasks
+
+# Plain tasks (role=GENERIC, one agent each):
+tasks:
+  - id: setup
+    description: "Initial project scaffolding"
+    dependencies: []
+
+# TDD task groups (auto-expand to 3 agents: test-writer → reviewer → implementer):
+tdd_groups:
+  - id: stats_module
+    description: >-
+      Create src/pkg/stats.py with mean() and median() functions.
+      Both raise ValueError on empty input.
+      Tests go in tests/test_stats.py.
+    dependencies: []      # can reference other tdd_group ids (resolves to {id}_impl)
+                          # or plain task ids (passed through unchanged)
+```
+
+Running a `tdd_groups:` graph produces three tasks per group:
+`{id}_tests`, `{id}_review`, `{id}_impl` — each with its own worktree and PR.
+
 ### What to expect in the terminal
 
 ```
