@@ -138,10 +138,35 @@ def main() -> None:
     start_head = run_info["start_head"]
     started_at = run_info.get("started_at", "unknown")
 
+    # Detect out-of-order reset: if start_head is not an ancestor of current HEAD,
+    # the reset would move HEAD forward (re-introducing previously-reset commits).
+    # This typically happens when multiple graphs are reset in the wrong order.
+    is_ancestor_result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(graph.target_repo_root),
+            "merge-base",
+            "--is-ancestor",
+            start_head,
+            "HEAD",
+        ],
+        capture_output=True,
+    )
+    start_head_is_ancestor = is_ancestor_result.returncode == 0
+
     print(f"[reset] graph:       {graph.name}")
     print(f"[reset] target repo: {graph.target_repo_root}")
     print(f"[reset] run started: {started_at}")
     print(f"[reset] start HEAD:  {start_head[:12]}")
+    if not start_head_is_ancestor:
+        print()
+        print("[reset] WARNING: start HEAD is not an ancestor of current HEAD.")
+        print(
+            "  Resetting will move main FORWARD, re-introducing previously-reset commits."
+        )
+        print("  This typically happens when graphs are reset out of order.")
+        print("  Tip: reset graphs in reverse run order (most-recently-run first).")
     print()
     print("[reset] This will:")
     print("  1. Close open PRs on task branches")
