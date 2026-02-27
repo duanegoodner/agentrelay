@@ -181,9 +181,10 @@ def test_send_prompt_accepts_trust_dialog():
     with (
         patch("agentrelaysmall.task_launcher.time.sleep"),
         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelaysmall.task_launcher._wait_for_claude_tui", return_value=True),
     ):
         send_prompt(
-            "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
+            "%3", "do the thing", bypass_delay=0, startup_timeout=0, submit_delay=0
         )
     # First call sends Enter to accept the "Yes, trust folder" default
     first_call_args = mock_run.call_args_list[0][0][0]
@@ -196,9 +197,10 @@ def test_send_prompt_sends_prompt_to_pane():
     with (
         patch("agentrelaysmall.task_launcher.time.sleep"),
         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelaysmall.task_launcher._wait_for_claude_tui", return_value=True),
     ):
         send_prompt(
-            "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
+            "%3", "do the thing", bypass_delay=0, startup_timeout=0, submit_delay=0
         )
     # Second call (index 1) sends the prompt text only
     cmd = mock_run.call_args_list[1][0][0]
@@ -210,9 +212,10 @@ def test_send_prompt_sends_enter_last():
     with (
         patch("agentrelaysmall.task_launcher.time.sleep"),
         patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelaysmall.task_launcher._wait_for_claude_tui", return_value=True),
     ):
         send_prompt(
-            "%3", "do the thing", bypass_delay=0, startup_delay=0, submit_delay=0
+            "%3", "do the thing", bypass_delay=0, startup_timeout=0, submit_delay=0
         )
     # Last call sends Enter to submit the prompt
     last_cmd = mock_run.call_args_list[-1][0][0]
@@ -221,19 +224,44 @@ def test_send_prompt_sends_enter_last():
     assert len(mock_run.call_args_list) == 3
 
 
-def test_send_prompt_sleeps_three_times():
+def test_send_prompt_sleeps_twice():
     with (
         patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep,
         patch("agentrelaysmall.task_launcher.subprocess.run"),
+        patch("agentrelaysmall.task_launcher._wait_for_claude_tui", return_value=True),
     ):
         send_prompt(
-            "%3", "prompt", bypass_delay=4.0, startup_delay=6.0, submit_delay=0.5
+            "%3", "prompt", bypass_delay=4.0, startup_timeout=30.0, submit_delay=0.5
         )
-    assert mock_sleep.call_count == 3
+    # bypass_delay + submit_delay (startup is handled by polling, not a fixed sleep)
+    assert mock_sleep.call_count == 2
     sleep_args = [c[0][0] for c in mock_sleep.call_args_list]
     assert 4.0 in sleep_args
-    assert 6.0 in sleep_args
     assert 0.5 in sleep_args
+
+
+def test_wait_for_claude_tui_returns_true_when_bypass_present():
+    from agentrelaysmall.task_launcher import _wait_for_claude_tui
+
+    with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "some output\nbypass permissions on\nmore"
+        result = _wait_for_claude_tui("%3", timeout=5.0)
+    assert result is True
+
+
+def test_wait_for_claude_tui_returns_false_on_timeout():
+    from agentrelaysmall.task_launcher import _wait_for_claude_tui
+
+    with (
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelaysmall.task_launcher.time.sleep"),
+        patch("agentrelaysmall.task_launcher.time.time", side_effect=[0.0, 0.0, 1.0]),
+    ):
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = "no match here"
+        result = _wait_for_claude_tui("%3", timeout=0.5)
+    assert result is False
 
 
 # ── read_done_note ────────────────────────────────────────────────────────────

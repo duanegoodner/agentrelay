@@ -155,11 +155,34 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
     return pane_id
 
 
+def _wait_for_claude_tui(pane_id: str, timeout: float = 30.0) -> bool:
+    """Poll the tmux pane until Claude's TUI input area is visible.
+
+    'bypass permissions' appears in the Claude status bar when launched with
+    --dangerously-skip-permissions and the TUI is fully loaded.  Polling
+    instead of a fixed sleep handles variable startup times (trust dialog
+    acceptance, workspace initialisation, slow machines).
+
+    Returns True when ready, False if timeout expires.
+    """
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        capture = subprocess.run(
+            ["tmux", "capture-pane", "-t", pane_id, "-p"],
+            capture_output=True,
+            text=True,
+        )
+        if capture.returncode == 0 and "bypass permissions" in capture.stdout:
+            return True
+        time.sleep(0.5)
+    return False
+
+
 def send_prompt(
     pane_id: str,
     prompt: str,
     bypass_delay: float = 4.0,
-    startup_delay: float = 6.0,
+    startup_timeout: float = 30.0,
     submit_delay: float = 0.5,
 ) -> None:
     # Accept the workspace-trust dialog if it appears:
@@ -169,8 +192,14 @@ def send_prompt(
     # so we no longer need the Down keystroke that used to navigate it.
     time.sleep(bypass_delay)
     subprocess.run(["tmux", "send-keys", "-t", pane_id, "Enter"])
-    # Wait for Claude to finish initialising past the confirmation
-    time.sleep(startup_delay)
+    # Poll until Claude's TUI shows "bypass permissions" (fully loaded).
+    # This is more robust than a fixed sleep for fresh (untrusted) workspaces
+    # where the trust dialog acceptance adds variable startup time.
+    if not _wait_for_claude_tui(pane_id, timeout=startup_timeout):
+        print(
+            f"[warn] Claude TUI not detected in pane {pane_id} after "
+            f"{startup_timeout}s; sending prompt anyway"
+        )
     # Send prompt text first, then wait before submitting — ensures Claude
     # has registered the full text in its input buffer before Enter is sent
     subprocess.run(["tmux", "send-keys", "-t", pane_id, prompt])
