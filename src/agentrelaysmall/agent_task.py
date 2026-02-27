@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -20,6 +23,16 @@ class AgentRole(Enum):
     IMPLEMENTER = "implementer"
 
 
+@dataclass(frozen=True)
+class TaskGroup(ABC):
+    id: str
+    description: str
+
+    @property
+    @abstractmethod
+    def dependency_ids(self) -> tuple[str, ...]: ...
+
+
 @dataclass
 class TaskState:
     status: TaskStatus = TaskStatus.PENDING
@@ -37,7 +50,11 @@ class TaskState:
 class AgentTask:
     id: str
     description: str
-    dependencies: tuple[str, ...] = field(default_factory=tuple)
+    dependencies: tuple[AgentTask, ...] = field(default_factory=tuple)
     role: AgentRole = AgentRole.GENERIC
     tdd_group_id: str | None = None
     state: TaskState = field(default_factory=TaskState)
+
+    @property
+    def dependency_ids(self) -> tuple[str, ...]:
+        return tuple(dep.id for dep in self.dependencies)
