@@ -68,19 +68,53 @@ Decisions made during early design discussions, with rationale. Ordered roughly 
 
 ---
 
-## Two agents per task (test-writer + implementer)
+## Three agents per TDD task group (test-writer → reviewer → implementer)
 
-**Decision:** Each task dispatches two separate, short-lived Claude Code agents: one to write tests, one to implement. The orchestrator kills Agent 1 after `mark_tests_written()`, reviews the tests, then launches Agent 2 for implementation.
+**Decision:** Each `tdd_groups:` entry dispatches three separate, short-lived Claude Code
+agents in sequence: one writes tests and a stub module; one reviews the tests and writes
+a review file; one implements until the tests pass. Each agent creates its own PR, which
+is merged before the next agent is dispatched.
 
-**Rationale:** A single long-lived agent would need to poll for an approval signal mid-task, adding complexity to `WorktreeTaskRunner` and making the agent lifecycle harder to reason about. Two short-lived agents are simpler: each has a single job, exits cleanly, and the orchestrator retains full control of the handoff. The worktree persists between the two agents, so shared state (the test file, `context.md`) is preserved.
+**Rationale:** Three short-lived single-purpose agents are easier to reason about than one
+long-lived agent that switches modes mid-run. Separating test-writing, review, and
+implementation into distinct PRs creates a clean audit trail in git history. The reviewer
+agent (not the orchestrator) performs test quality assessment, keeping the orchestrator loop
+simple and uniform — it treats all tasks identically regardless of role. The worktree for
+each sub-task is independent, which is consistent with the project's one-worktree-per-task
+model.
 
 ---
 
 ## TDD workflow: tests define task completion
 
-**Decision:** The worktree Agent 1 writes tests *before* any implementation. The orchestrator reviews and approves the tests. Agent 2 implements until those tests pass. Tests are committed to `main` as part of the task's PR.
+**Decision:** The test-writer agent writes tests *and* a stub module (signatures only,
+bodies `raise NotImplementedError`) before any real implementation. The reviewer agent reads
+the tests and stub, writes a review file (`{task_id}_review.md`), and signals done or
+failed. The implementer agent reads the review file, implements the code in the stub module,
+and runs `pytest` until all tests pass. Tests and implementation are merged to `main` as
+separate PRs.
 
-**Rationale:** Tests serve as a precise, machine-verifiable definition of "done." This enables the pre-dispatch check (see below) and makes task completion independent of signal files — a passing test suite is the ground truth, regardless of what the signals directory says.
+**Rationale:** Tests serve as a precise, machine-verifiable definition of "done." Writing
+them first forces a clear contract before implementation begins. The stub module ensures the
+test-writer PR compiles and tests can be collected (`--collect-only`) without any real
+implementation existing yet. The review step catches fundamentally broken tests before any
+implementation effort is spent on them.
+
+---
+
+## `TDDTaskGroup` as a build-time YAML abstraction
+
+**Decision:** `TDDTaskGroup` is a transient dataclass used only inside `from_yaml()`.
+It is not stored on `AgentTaskGraph`. The graph's `tasks` dict is always a flat
+`dict[str, AgentTask]`. Dependency resolution (group ID → `{dep}_impl`) is computed
+once at build time and baked into each task's `dependencies` tuple.
+
+**Rationale:** Keeping the expansion at load time rather than at runtime means the
+orchestrator loop has no special cases for TDD tasks — it dispatches, polls, and merges
+identically for all task types. `AgentRole` on `AgentTask` is the sole runtime signal
+that changes behavior (via prompt selection). This minimises the blast radius of the
+feature: the orchestrator (`run_graph.py`) only needed a prompt dispatch change, not
+structural changes to the dispatch loop.
 
 ---
 

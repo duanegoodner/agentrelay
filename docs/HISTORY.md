@@ -5,7 +5,71 @@ each PR on GitHub.
 
 ---
 
+## 2026-02-27
+
+### TDD workflow: `AgentRole`, `TDDTaskGroup`, role-specific prompts — PR #26
+
+Added first-class TDD workflow support via a `tdd_groups:` YAML key that
+auto-expands a single group entry into three sequential `AgentTask` objects —
+test-writer, reviewer, and implementer — each dispatched as its own
+worktree-PR-merge cycle.
+
+- **`AgentRole`** enum (`GENERIC`, `TEST_WRITER`, `TEST_REVIEWER`, `IMPLEMENTER`)
+  added to `agent_task.py`. `AgentTask` gains two new optional fields: `role`
+  (default `GENERIC`) and `tdd_group_id` (default `None`) — fully
+  backward-compatible with existing plain `tasks:` graphs.
+- **`TDDTaskGroup`** dataclass added to `agent_task_graph.py`. It is a
+  transient build-time concept: `from_yaml()` expands each group into
+  `{id}_tests`, `{id}_review`, and `{id}_impl` `AgentTask` objects, then
+  discards the group. `AgentTaskGraph` stays a flat `dict[str, AgentTask]`.
+  The `tasks:` YAML key is now optional (a YAML with only `tdd_groups:` is valid).
+- **Cross-group dependencies**: a dep string that matches another group's `id`
+  resolves to `{dep}_impl` at build time; plain task IDs pass through unchanged.
+- **Role-specific prompts**: `_build_task_prompt()` in `run_graph.py` dispatches
+  to `_build_test_writer_prompt`, `_build_test_reviewer_prompt`,
+  `_build_implementer_prompt`, or `_build_generic_prompt` based on `task.role`.
+  Reviewer writes `{task.id}.md` (e.g. `stats_module_review.md`); implementer
+  derives the review filename from `task.id`.
+- **New test coverage**: new `test/test_run_graph.py`; additions to
+  `test_agent_task.py` and `test_agent_task_graph.py` — 171 tests total.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`.
+
+---
+
 ## 2026-02-26
+
+### `BACKLOG.md` for quick idea capture — PR #25
+
+Added `docs/BACKLOG.md` — a lightweight place to park ideas immediately without
+interrupting a current task. Three sections: Features, Improvements, Ideas/Maybe.
+Items graduate to `HISTORY.md` when done. Added a pointer in `CLAUDE.md` so new
+sessions see it.
+
+---
+
+### Black + isort formatting pass — PR #24
+
+Ran `pixi run check` (introduced in PR #23) across the whole codebase to apply
+`black` line wrapping, blank-line normalization, and `isort` import ordering. No
+functional changes — pure formatting.
+
+---
+
+### `CLAUDE.md`, `OPERATIONS.md`, `HISTORY.md`, `pixi run check` — PR #23
+
+Three usability improvements landed together:
+
+- **`CLAUDE.md`** at repo root: concise project reference auto-loaded by Claude Code
+  at session start — commands, module map, signal files, YAML keys, and links to
+  detailed docs.
+- **`pixi run check`**: one command for format + typecheck + test — the canonical
+  pre-PR verification step.
+- **`docs/OPERATIONS.md`**: day-to-day running guide (running a graph, reading
+  results, resetting after a run, common failure modes).
+- **`docs/HISTORY.md`**: per-PR development log covering all 23 PRs to that point.
+
+---
 
 ### Agent PR body capture + `summary.md` — PR #22
 

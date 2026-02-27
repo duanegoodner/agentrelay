@@ -4,10 +4,16 @@
 
 The system has two roles:
 
-- **Orchestrator** — a long-running process (human-assisted Claude Code instance or a Python script) that manages the task graph, dispatches agents, reviews test output, merges PRs, and handles failures.
-- **Worktree agent** — a short-lived Claude Code instance launched in an isolated git worktree to perform one task. Each task produces two agents: one for the test-writing phase, one for the implementation phase.
+- **Orchestrator** — a long-running Python process that manages the task graph,
+  dispatches agents, merges PRs, and handles failures.
+- **Worktree agent** — a short-lived Claude Code instance launched in an isolated git
+  worktree to perform one atomic task. Generic tasks produce one agent; TDD task groups
+  produce three agents in sequence (test-writer, reviewer, implementer), each with its
+  own worktree and PR.
 
-All coordination between roles happens through files: a `task_context.json` the orchestrator writes into the worktree, and signal files the orchestrator and agents write to `.workflow/<graph-name>/signals/<task-id>/`.
+All coordination happens through files: a `task_context.json` the orchestrator writes
+into each worktree, and signal files that agents and the orchestrator write to
+`.workflow/<graph-name>/signals/<task-id>/`.
 
 ---
 
@@ -17,20 +23,22 @@ All coordination between roles happens through files: a `task_context.json` the 
 <repo-root>/
   .workflow/
     <graph-name>/
+      run_info.json           # Written at graph start: start HEAD + timestamp
       signals/
         <task-id>/
-          .tests-written      # Agent 1 wrote: test phase complete
-          .tests-approved     # Orchestrator wrote: approved, launching Agent 2
-          .done               # Agent 2 wrote: contains PR URL
+          .done               # Agent wrote: line 1 = timestamp, line 2 = PR URL
           .merged             # Orchestrator wrote: PR merged into main
           .failed             # Agent wrote: contains reason
-          .needs-human        # Orchestrator wrote: escalation required
+          agent.log           # Orchestrator wrote: full tmux pane scrollback
+          summary.md          # Orchestrator wrote: agent's PR body
 
 <worktrees-root>/
   <graph-name>/
     <task-id>/                # Git worktree for this task
       task_context.json       # Written by orchestrator before agent launch
       context.md              # Optional: dependency outputs for this task
+      <task_id>.md            # TEST_REVIEWER only: review verdict + notes
+                              #   e.g. stats_module_review.md
 ```
 
 Git branches follow the pattern `task/<graph-name>/<task-id>`.
@@ -44,16 +52,14 @@ Git branches follow the pattern `task/<graph-name>/<task-id>`.
 On startup the orchestrator:
 
 1. Loads the task graph from a workflow config file (via `AgentTaskGraphBuilder`).
+   `tdd_groups:` entries are expanded to three `AgentTask` objects each at load time.
 2. Scans `.workflow/<graph-name>/signals/` and hydrates `TaskState` for each task:
 
 | Signals present | Inferred status |
 |---|---|
 | `.merged` present | `DONE` — skip entirely |
 | `.done` but no `.merged` | PR exists; attempt merge, then mark `DONE` |
-| `.tests-approved` but no `.done`/`.failed` | Agent 2 was killed mid-run; re-dispatch implementer |
-| `.tests-written` but no `.tests-approved` | Agent 1 finished; re-run test review, then decide |
 | `.failed` present | `FAILED`; needs retry decision |
-| `.in-progress`, no terminal signal | Process killed unexpectedly; treat as `FAILED` |
 | No signals | `PENDING` |
 
 3. Calls `_refresh_ready()` to promote any task whose dependencies are all `DONE` to `READY`.
@@ -63,80 +69,92 @@ On startup the orchestrator:
 The orchestrator continuously:
 
 1. Calls `_refresh_ready()` to find newly unblocked tasks.
-2. For each `READY` task, runs the **pre-dispatch check** (see below).
-3. Dispatches any task that passes the pre-dispatch check.
-4. Polls signal directories for terminal signals from running agents.
-5. On `.done`: reviews PR (or auto-merges), writes `.merged`, removes worktree and branch.
-6. On `.failed` or timeout: decides to retry, escalate, or abort.
-
-### 3. Pre-dispatch check
-
-Before creating a worktree or launching any agent, the orchestrator checks whether the task is already complete:
-
-```
-Does a test file for this task exist in main?
-│
-├─ No → proceed to dispatch (fresh task)
-│
-└─ Yes → run structural check (pytest --collect-only)
-    │
-    ├─ Fails → tests malformed → write .needs-human, escalate
-    │
-    └─ Passes → run the tests
-        │
-        ├─ Tests PASS → task already done
-        │               write .done + .merged in signals, skip dispatch
-        │
-        └─ Tests FAIL → consult signals + git to determine phase
-            ├─ .failed exists          → retry; dispatch Agent 2 with failure context
-            ├─ .tests-approved exists  → Agent 2 was killed; re-dispatch implementer
-            ├─ .tests-written exists   → re-run orchestrator test review
-            └─ No signals at all       → orphan tests; write .needs-human, escalate
-```
+2. Dispatches each `READY` task (creates worktree, opens tmux window, sends prompt).
+3. Polls signal directories for terminal signals from running agents.
+4. On `.done`: merges PR, writes `.merged`, removes worktree and branch.
+5. On `.failed`: logs the failure; the task is not retried automatically.
+6. After each merge: calls `_refresh_ready()` — downstream tasks may now be unblocked.
 
 ---
 
 ## Per-Task Lifecycle
 
-### Phase 1: Test-writing
+Every task — whether a plain `tasks:` entry or one of three expanded from a
+`tdd_groups:` entry — follows the same lifecycle:
+
+### Dispatch
 
 1. Orchestrator creates git worktree and branch:
    - Path: `<worktrees-root>/<graph-name>/<task-id>/`
    - Branch: `task/<graph-name>/<task-id>`
 2. Orchestrator writes `task_context.json` into the worktree root.
-3. Orchestrator opens a tmux window, launches `claude` interactively.
-4. Orchestrator sends the **test-writing prompt** via `tmux send-keys`.
-5. Agent 1 runs `WorktreeTaskRunner.from_config()`, writes tests, calls `runner.mark_tests_written()`, and exits.
+3. Orchestrator writes `context.md` into the worktree root (if the task has dependencies
+   that produced content).
+4. Orchestrator opens a tmux window, launches `claude --dangerously-skip-permissions`.
+5. Orchestrator sends a role-specific prompt via `tmux send-keys`.
 
-### Orchestrator test review
+### Agent execution
 
-1. Orchestrator detects `.tests-written`.
-2. Runs structural check (`pytest --collect-only`).
-3. If automated: runs semantic check (LLM review of tests against task description).
-4. If approved: writes `.tests-approved`, proceeds to Phase 2.
-5. If rejected: writes `.needs-human` with reason; halts this task.
-
-### Phase 2: Implementation
-
-1. Orchestrator launches a **new** Claude Code instance in the **same worktree**.
-2. Sends the **implementation prompt** via `tmux send-keys`.
-3. Agent 2 runs `WorktreeTaskRunner.from_config()`, implements until tests pass, creates a PR, calls `runner.mark_done(pr_url)`, and exits.
-4. On failure: Agent 2 calls `runner.mark_failed(reason)` and exits.
+The agent runs `WorktreeTaskRunner.from_config()`, does its work, creates a PR,
+calls `runner.mark_done(pr_url)`, and exits. On unrecoverable failure it calls
+`runner.mark_failed(reason)` and exits.
 
 ### Post-completion
 
 1. Orchestrator detects `.done`, reads PR URL from file.
-2. Merges PR into `main`.
-3. Writes `.merged` to signal directory.
-4. Removes worktree (`git worktree remove`).
-5. Deletes branch (`git branch -d`).
+2. Captures tmux pane scrollback to `agent.log`; fetches PR body to `summary.md`.
+3. Merges PR into `main` (`gh pr merge --merge`).
+4. Writes `.merged` to signal directory.
+5. Removes worktree and branch.
 6. Calls `_refresh_ready()` — downstream tasks may now be unblocked.
+
+---
+
+## TDD Task Group Lifecycle
+
+A `tdd_groups:` entry with `id: stats_module` expands to three tasks dispatched
+sequentially. Each is a full worktree-PR-merge cycle:
+
+```
+stats_module_tests  →  stats_module_review  →  stats_module_impl
+(TEST_WRITER)          (TEST_REVIEWER)          (IMPLEMENTER)
+```
+
+### `TEST_WRITER` agent (`{id}_tests`)
+
+1. Writes pytest tests covering the feature described in `description`.
+2. Writes a stub module — function signatures only, bodies `raise NotImplementedError`.
+3. Verifies test collection: `pixi run pytest --collect-only` (must pass, no implementation yet).
+4. Commits, pushes, creates PR, calls `runner.mark_done(pr_url)`.
+
+### `TEST_REVIEWER` agent (`{id}_review`)
+
+The `_tests` PR has been merged to `main` before this agent starts, so the test files
+are present in the worktree.
+
+1. Reads the test files and stub module.
+2. Writes `{task_id}.md` (e.g. `stats_module_review.md`) with:
+   - `Verdict: APPROVED` or `Verdict: CONCERNS`
+   - Coverage assessment
+   - Specific comments on individual tests
+3. If tests are fundamentally broken: calls `runner.mark_failed(reason)` and stops.
+4. Otherwise: commits the review file, pushes, creates PR, calls `runner.mark_done(pr_url)`.
+
+### `IMPLEMENTER` agent (`{id}_impl`)
+
+The `_review` PR has been merged to `main`. The review file is available in the worktree.
+
+1. Reads the test files (from worktree / main).
+2. Reads the review file (`{group_id}_review.md`) for guidance.
+3. Implements the feature in the stub module (replaces `NotImplementedError` bodies).
+4. Runs `pixi run pytest` until all tests pass.
+5. Commits, pushes, creates PR, calls `runner.mark_done(pr_url)`.
 
 ---
 
 ## Worktree Agent Process
 
-Each agent (test-writer or implementer) follows the same startup sequence:
+Every agent (regardless of role) follows the same startup sequence:
 
 ```python
 from agentrelaysmall import WorktreeTaskRunner
@@ -144,19 +162,36 @@ runner = WorktreeTaskRunner.from_config()   # reads task_context.json
 context = runner.get_context()              # reads context.md if present
 ```
 
-`WorktreeTaskRunner` provides only infrastructure — signal writing, path resolution, context reading. All reasoning and code writing is done by the agent.
+`WorktreeTaskRunner` provides only infrastructure — signal writing, path resolution,
+context reading. All reasoning and code writing is done by the agent.
 
-**Agent 1 (test-writer) sequence:**
+**GENERIC agent sequence:**
 1. Read `runner.get_context()` for dependency outputs.
-2. Write tests that define what task completion looks like.
-3. Call `runner.mark_tests_written()` and exit.
-
-**Agent 2 (implementer) sequence:**
-1. Read `runner.get_context()` for dependency outputs.
-2. Implement code until `pytest` passes.
-3. Create a PR.
+2. Perform the task described in the prompt.
+3. `git add -A`, commit, push, `gh pr create`.
 4. Call `runner.mark_done(pr_url)` and exit.
-5. If blocked: call `runner.mark_failed(reason)` and exit.
+
+**TEST_WRITER agent sequence:**
+1. Write pytest tests covering the described feature.
+2. Write a stub module (signatures only, bodies `raise NotImplementedError`).
+3. Run `pixi run pytest --collect-only` to verify test collection.
+4. `git add -A`, commit, push, `gh pr create`.
+5. Call `runner.mark_done(pr_url)` and exit.
+
+**TEST_REVIEWER agent sequence:**
+1. Read the test files and stub module.
+2. Write `{task_id}.md` with verdict, coverage assessment, and comments.
+3. If tests are fundamentally broken: `runner.mark_failed(reason)` and exit.
+4. `git add {task_id}.md`, commit, push, `gh pr create`.
+5. Call `runner.mark_done(pr_url)` and exit.
+
+**IMPLEMENTER agent sequence:**
+1. Read the test files and `{group_id}_review.md`.
+2. Implement the feature in the stub module.
+3. Run `pixi run pytest` until all tests pass.
+4. `git add -A`, commit, push, `gh pr create`.
+5. Call `runner.mark_done(pr_url)` and exit.
+6. If blocked: `runner.mark_failed(reason)` and exit.
 
 ---
 
@@ -166,12 +201,11 @@ Signal files are written by exactly one role — never shared:
 
 | Signal | Written by | Meaning |
 |---|---|---|
-| `.tests-written` | Agent (worktree) | Test phase complete |
-| `.tests-approved` | Orchestrator | Tests reviewed and approved |
-| `.done` | Agent (worktree) | Implementation complete, PR created |
+| `.done` | Agent (worktree) | Task complete; line 2 is the PR URL |
 | `.merged` | Orchestrator | PR merged into main |
 | `.failed` | Agent (worktree) | Task failed; file contains reason |
-| `.needs-human` | Orchestrator | Escalation required; file contains context |
+| `agent.log` | Orchestrator | Full tmux pane scrollback |
+| `summary.md` | Orchestrator | Agent's PR body (fetched before merge) |
 
 ---
 
