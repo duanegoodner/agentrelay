@@ -13,6 +13,13 @@ class TaskStatus(Enum):
     FAILED = "failed"
 
 
+class AgentRole(Enum):
+    GENERIC = "generic"
+    TEST_WRITER = "test_writer"
+    TEST_REVIEWER = "test_reviewer"
+    IMPLEMENTER = "implementer"
+
+
 @dataclass
 class TaskState:
     status: TaskStatus = TaskStatus.PENDING
@@ -31,4 +38,6 @@ class AgentTask:
     id: str
     description: str
     dependencies: tuple[str, ...] = field(default_factory=tuple)
+    role: AgentRole = AgentRole.GENERIC
+    tdd_group_id: str | None = None
     state: TaskState = field(default_factory=TaskState)

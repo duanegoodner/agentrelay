@@ -16,7 +16,7 @@ import argparse
 import asyncio
 from pathlib import Path
 
-from agentrelaysmall.agent_task import AgentTask, TaskStatus
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
 from agentrelaysmall.agent_task_graph import AgentTaskGraph, AgentTaskGraphBuilder
 from agentrelaysmall.task_launcher import (
     close_agent_pane,
@@ -63,6 +63,16 @@ def _build_context_content(graph: AgentTaskGraph, task: AgentTask) -> str | None
 
 
 def _build_task_prompt(task: AgentTask) -> str:
+    if task.role == AgentRole.TEST_WRITER:
+        return _build_test_writer_prompt(task)
+    if task.role == AgentRole.TEST_REVIEWER:
+        return _build_test_reviewer_prompt(task)
+    if task.role == AgentRole.IMPLEMENTER:
+        return _build_implementer_prompt(task)
+    return _build_generic_prompt(task)
+
+
+def _build_generic_prompt(task: AgentTask) -> str:
     context_note = ""
     if task.dependencies:
         context_note = (
@@ -99,6 +109,117 @@ def _build_task_prompt(task: AgentTask) -> str:
         f"r.mark_done('$PR_URL')\"\n\n"
         f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
         f"Then stop — do not do anything else.\n"
+    )
+
+
+def _build_test_writer_prompt(task: AgentTask) -> str:
+    short_desc = task.description[:60]
+    return (
+        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"Your role: TEST WRITER\n\n"
+        f"Your task: {task.description}\n\n"
+        f"Complete these steps in order:\n\n"
+        f"1. Write a pytest test file covering the described feature. "
+        f"Place it at an appropriate path in the target module's test directory.\n\n"
+        f"2. Write a stub module — function/class signatures only, "
+        f"all bodies must raise NotImplementedError. "
+        f"The stub must provide enough API surface for the tests to import "
+        f"and be collected. Do NOT implement the feature.\n\n"
+        f"3. Verify tests collect without import errors:\n"
+        f"       pixi run pytest --collect-only\n\n"
+        f"4. Stage, commit, and push:\n"
+        f"       git add -A\n"
+        f'       git commit -m "{task.id}: {short_desc}"\n'
+        f"       git push -u origin HEAD\n\n"
+        f"5. Create a PR and signal completion:\n"
+        f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
+        f"## Summary\n"
+        f"<1-3 sentences describing the tests written and stub created>\n\n"
+        f"## Files changed\n"
+        f"<bullet list of key files>\n"
+        f'PRBODY\n)" --base main)\n'
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_done('$PR_URL')\"\n\n"
+        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"Then stop — do not implement the feature.\n"
+    )
+
+
+def _build_test_reviewer_prompt(task: AgentTask) -> str:
+    short_desc = task.description[:60]
+    review_file = f"{task.id}.md"
+    return (
+        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"Your role: TEST REVIEWER\n\n"
+        f"Your task: {task.description}\n\n"
+        f"The test file(s) and stub module from the test-writer task are already "
+        f"merged into main and available in your worktree.\n\n"
+        f"Complete these steps in order:\n\n"
+        f"1. Read the test file(s) and stub module.\n\n"
+        f"2. Write a review file named {review_file} with the following sections:\n"
+        f"   ## Verdict\n"
+        f"   APPROVED or CONCERNS\n\n"
+        f"   ## Coverage assessment\n"
+        f"   Which aspects of the feature are tested; what is missing.\n\n"
+        f"   ## Comments\n"
+        f"   Specific notes on individual tests or the stub API.\n\n"
+        f"3. If the tests are fundamentally broken (import errors, wrong assertions, "
+        f"untestable structure), signal failure and stop:\n"
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_failed('Tests are fundamentally broken: <reason>')\"\n\n"
+        f"4. Otherwise stage, commit, and push {review_file}:\n"
+        f"       git add {review_file}\n"
+        f'       git commit -m "{task.id}: {short_desc}"\n'
+        f"       git push -u origin HEAD\n\n"
+        f"5. Create a PR and signal completion:\n"
+        f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
+        f"## Summary\n"
+        f"<verdict and 1-2 sentence summary of the review>\n\n"
+        f"## Files changed\n"
+        f"- {review_file}\n"
+        f'PRBODY\n)" --base main)\n'
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_done('$PR_URL')\"\n\n"
+        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"Then stop — do not implement the feature.\n"
+    )
+
+
+def _build_implementer_prompt(task: AgentTask) -> str:
+    short_desc = task.description[:60]
+    review_file = task.id.removesuffix("_impl") + "_review.md"
+    return (
+        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"Your role: IMPLEMENTER\n\n"
+        f"Your task: {task.description}\n\n"
+        f"The test file(s), stub module, and review file are already merged into main "
+        f"and available in your worktree.\n\n"
+        f"Complete these steps in order:\n\n"
+        f"1. Read the test file(s) and {review_file} to understand what is expected "
+        f"and any reviewer feedback.\n\n"
+        f"2. Implement the feature by replacing the NotImplementedError stubs with "
+        f"working code. Add supporting modules as needed.\n\n"
+        f"3. Run the tests and fix any failures. Repeat until all tests pass:\n"
+        f"       pixi run pytest\n\n"
+        f"4. Stage, commit, and push:\n"
+        f"       git add -A\n"
+        f'       git commit -m "{task.id}: {short_desc}"\n'
+        f"       git push -u origin HEAD\n\n"
+        f"5. Create a PR and signal completion:\n"
+        f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
+        f"## Summary\n"
+        f"<1-3 sentences describing the implementation>\n\n"
+        f"## Files changed\n"
+        f"<bullet list of key files>\n"
+        f'PRBODY\n)" --base main)\n'
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_done('$PR_URL')\"\n\n"
+        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"Then stop.\n"
     )
 
 
