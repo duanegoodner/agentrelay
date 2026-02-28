@@ -710,19 +710,9 @@ def test_multiple_tdd_groups_all_expanded(tmp_path):
 
 
 def test_write_context_creates_file(tmp_path):
-    from agentrelaysmall.agent_task import AgentTask
     from agentrelaysmall.task_launcher import write_context
 
-    task = AgentTask(id="t1", description="x")
-    task.state.worktree_path = tmp_path
-    write_context(task, "# Context\nsome info")
-    assert (tmp_path / "context.md").read_text() == "# Context\nsome info"
-
-
-def test_write_context_requires_worktree_path():
-    from agentrelaysmall.agent_task import AgentTask
-    from agentrelaysmall.task_launcher import write_context
-
-    task = AgentTask(id="t1", description="x")
-    with pytest.raises(AssertionError):
-        write_context(task, "content")
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "t1"
+    signal_dir.mkdir(parents=True)
+    write_context(signal_dir, "# Context\nsome info")
+    assert (signal_dir / "context.md").read_text() == "# Context\nsome info"

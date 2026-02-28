@@ -82,8 +82,9 @@ async def main() -> None:
     print("[demo] wrote task_context.json")
 
     # 3. Launch Claude Code in a tmux window
+    signal_dir = REPO_ROOT / ".workflow" / GRAPH_NAME / "signals" / task.id
     print(f"[demo] launching agent in tmux session '{TMUX_SESSION}'...")
-    pane_id = launch_agent(task, TMUX_SESSION)
+    pane_id = launch_agent(task, TMUX_SESSION, signal_dir=signal_dir)
     print(f"[demo] agent pane: {pane_id}")
 
     # 4. Send the task prompt (waits for Claude to initialise first)

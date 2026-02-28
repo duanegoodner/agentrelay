@@ -27,6 +27,7 @@ from agentrelaysmall.task_launcher import (
     save_agent_log,
     save_pr_summary,
     send_prompt,
+    write_context,
     write_merged_signal,
     write_task_context,
 )
@@ -87,32 +88,38 @@ def test_create_worktree_branch_uses_graph_name(tmp_path):
 # ── write_task_context ────────────────────────────────────────────────────────
 
 
-def test_write_task_context_creates_json(tmp_path):
+def test_write_task_context_creates_json_in_signal_dir(tmp_path):
     task = make_task()
-    worktree = tmp_path / "worktree"
-    worktree.mkdir()
-    task.state.worktree_path = worktree
     write_task_context(task, "demo", tmp_path)
-    data = json.loads((worktree / "task_context.json").read_text())
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["task_id"] == "task_001"
     assert data["graph_name"] == "demo"
 
 
 def test_write_task_context_signal_dir_path(tmp_path):
     task = make_task()
-    worktree = tmp_path / "worktree"
-    worktree.mkdir()
-    task.state.worktree_path = worktree
     write_task_context(task, "demo", tmp_path)
-    data = json.loads((worktree / "task_context.json").read_text())
-    expected = str(tmp_path / ".workflow" / "demo" / "signals" / "task_001")
-    assert data["signal_dir"] == expected
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    data = json.loads((signal_dir / "task_context.json").read_text())
+    assert data["signal_dir"] == str(signal_dir)
 
 
-def test_write_task_context_requires_worktree_path():
+def test_write_task_context_creates_signal_dir(tmp_path):
     task = make_task()
-    with pytest.raises(AssertionError):
-        write_task_context(task, "demo", Path("/some/root"))
+    write_task_context(task, "demo", tmp_path)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    assert signal_dir.is_dir()
+
+
+# ── write_context ─────────────────────────────────────────────────────────────
+
+
+def test_write_context_writes_to_signal_dir(tmp_path):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    write_context(signal_dir, "# some context\n")
+    assert (signal_dir / "context.md").read_text() == "# some context\n"
 
 
 # ── launch_agent ──────────────────────────────────────────────────────────────
@@ -202,6 +209,37 @@ def test_launch_agent_omits_model_flag_when_none(tmp_path):
         launch_agent(task, "agentrelaysmall", model=None)
     cmd = mock_run.call_args[0][0]
     assert not any("--model" in part for part in cmd)
+
+
+def test_launch_agent_exports_signal_dir_when_provided(tmp_path):
+    task = make_task()
+    task.state.worktree_path = tmp_path
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%3\n",
+        ),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        launch_agent(task, "agentrelaysmall", signal_dir=signal_dir)
+    cmd = mock_run.call_args[0][0]
+    assert any(f'AGENTRELAY_SIGNAL_DIR="{signal_dir}"' in part for part in cmd)
+
+
+def test_launch_agent_omits_signal_dir_when_not_provided(tmp_path):
+    task = make_task()
+    task.state.worktree_path = tmp_path
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%3\n",
+        ),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        launch_agent(task, "agentrelaysmall")
+    cmd = mock_run.call_args[0][0]
+    assert not any("AGENTRELAY_SIGNAL_DIR" in part for part in cmd)
 
 
 # ── send_prompt ───────────────────────────────────────────────────────────────

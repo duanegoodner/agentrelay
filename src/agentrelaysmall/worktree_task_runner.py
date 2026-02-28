@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -10,18 +11,17 @@ class WorktreeTaskRunner:
         self.signal_dir = signal_dir
 
     @classmethod
-    def from_config(cls, worktree_path: Path | None = None) -> "WorktreeTaskRunner":
-        root = worktree_path if worktree_path is not None else Path.cwd()
-        config_path = root / "task_context.json"
-        data = json.loads(config_path.read_text())
+    def from_config(cls) -> "WorktreeTaskRunner":
+        signal_dir = Path(os.environ["AGENTRELAY_SIGNAL_DIR"])
+        data = json.loads((signal_dir / "task_context.json").read_text())
         return cls(
             task_id=data["task_id"],
             graph_name=data["graph_name"],
-            signal_dir=Path(data["signal_dir"]),
+            signal_dir=signal_dir,
         )
 
     def get_context(self) -> str | None:
-        context_file = Path.cwd() / "context.md"
+        context_file = self.signal_dir / "context.md"
         return context_file.read_text() if context_file.exists() else None
 
     def _write_signal(self, name: str, content: str) -> None:

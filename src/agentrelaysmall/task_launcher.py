@@ -106,15 +106,16 @@ def write_task_context(
         "graph_name": graph_name,
         "signal_dir": str(signal_dir),
     }
-    assert (
-        task.state.worktree_path is not None
-    ), "worktree_path must be set before writing context"
-    (task.state.worktree_path / "task_context.json").write_text(
-        json.dumps(context, indent=2)
-    )
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))
 
 
-def launch_agent(task: AgentTask, tmux_session: str, model: str | None = None) -> str:
+def launch_agent(
+    task: AgentTask,
+    tmux_session: str,
+    model: str | None = None,
+    signal_dir: Path | None = None,
+) -> str:
     assert (
         task.state.worktree_path is not None
     ), "worktree_path must be set before launching agent"
@@ -140,8 +141,11 @@ def launch_agent(task: AgentTask, tmux_session: str, model: str | None = None) -
     task.state.tmux_session = tmux_session
     task.state.pane_id = pane_id
     # Export the orchestrator's PATH so Claude's bash subshells can find
-    # tools (gh, pixi, etc.) that live outside the default non-interactive PATH
+    # tools (gh, pixi, etc.) that live outside the default non-interactive PATH.
+    # Export AGENTRELAY_SIGNAL_DIR so WorktreeTaskRunner.from_config() can locate
+    # task_context.json under .workflow/ without reading from the worktree root.
     env_path = os.environ.get("PATH", "")
+    signal_dir_export = f' AGENTRELAY_SIGNAL_DIR="{signal_dir}"' if signal_dir else ""
     model_flag = f"--model {model} " if model else ""
     subprocess.run(
         [
@@ -149,7 +153,7 @@ def launch_agent(task: AgentTask, tmux_session: str, model: str | None = None) -
             "send-keys",
             "-t",
             pane_id,
-            f'export PATH="{env_path}" && claude {model_flag}--dangerously-skip-permissions --add-dir {str(task.state.worktree_path)}',
+            f'export PATH="{env_path}"{signal_dir_export} && claude {model_flag}--dangerously-skip-permissions --add-dir {str(task.state.worktree_path)}',
             "Enter",
         ]
     )
@@ -208,11 +212,9 @@ def send_prompt(
     subprocess.run(["tmux", "send-keys", "-t", pane_id, "Enter"])
 
 
-def write_context(task: AgentTask, content: str) -> None:
-    assert (
-        task.state.worktree_path is not None
-    ), "worktree_path must be set before writing context"
-    (task.state.worktree_path / "context.md").write_text(content)
+def write_context(signal_dir: Path, content: str) -> None:
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "context.md").write_text(content)
 
 
 def save_agent_log(task: AgentTask, signal_dir: Path) -> None:

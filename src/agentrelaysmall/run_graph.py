@@ -224,15 +224,19 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         create_worktree(task, graph.name, graph.worktrees_root, graph.target_repo_root)
         print(f"[graph] worktree at {task.state.worktree_path}")
 
+        signal_dir = graph.signal_dir(task.id)
+
         context_content = _build_context_content(task)
         if context_content:
-            write_context(task, context_content)
+            write_context(signal_dir, context_content)
             print(f"[graph] wrote context.md for {task.id}")
 
         write_task_context(task, graph.name, graph.target_repo_root)
 
         effective_model = task.model or graph.model
-        pane_id = launch_agent(task, graph.tmux_session, model=effective_model)
+        pane_id = launch_agent(
+            task, graph.tmux_session, model=effective_model, signal_dir=signal_dir
+        )
         print(f"[graph] {task.id} agent pane: {pane_id}")
 
         send_prompt(pane_id, _build_task_prompt(task, graph.graph_branch()))
