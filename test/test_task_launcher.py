@@ -174,6 +174,36 @@ def test_launch_agent_requires_worktree_path():
         launch_agent(task, "agentrelaysmall")
 
 
+def test_launch_agent_includes_model_flag_when_set(tmp_path):
+    task = make_task()
+    task.state.worktree_path = tmp_path
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%3\n",
+        ),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        launch_agent(task, "agentrelaysmall", model="claude-opus-4-6")
+    cmd = mock_run.call_args[0][0]
+    assert any("--model claude-opus-4-6" in part for part in cmd)
+
+
+def test_launch_agent_omits_model_flag_when_none(tmp_path):
+    task = make_task()
+    task.state.worktree_path = tmp_path
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.check_output",
+            return_value=b"%3\n",
+        ),
+        patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run,
+    ):
+        launch_agent(task, "agentrelaysmall", model=None)
+    cmd = mock_run.call_args[0][0]
+    assert not any("--model" in part for part in cmd)
+
+
 # ── send_prompt ───────────────────────────────────────────────────────────────
 
 

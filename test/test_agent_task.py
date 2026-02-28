@@ -151,6 +151,25 @@ def test_agent_task_tdd_group_id_is_immutable():
         task.tdd_group_id = "other"  # type: ignore[misc]
 
 
+# ── AgentTask.model ───────────────────────────────────────────────────────────
+
+
+def test_agent_task_default_model_is_none():
+    task = AgentTask(id="t1", description="d")
+    assert task.model is None
+
+
+def test_agent_task_accepts_model():
+    task = AgentTask(id="t1", description="d", model="claude-opus-4-6")
+    assert task.model == "claude-opus-4-6"
+
+
+def test_agent_task_model_is_immutable():
+    task = AgentTask(id="t1", description="d", model="claude-sonnet-4-6")
+    with pytest.raises(AttributeError):
+        task.model = "claude-opus-4-6"  # type: ignore[misc]
+
+
 # ── TaskGroup ABC ─────────────────────────────────────────────────────────────
 
 

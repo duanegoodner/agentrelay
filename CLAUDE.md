@@ -47,13 +47,20 @@ Graph-level: `.workflow/<graph>/run_info.json` — start HEAD + timestamp (for r
 name: my-graph
 tmux_session: agentrelaysmall  # optional; default "agentrelaysmall"
 keep_panes: false              # optional; leave tmux windows open for debugging
+model: claude-sonnet-4-6       # optional; graph-level default model for all agents
 tasks:                         # optional; plain tasks (one agent each)
   - id: my_task
     description: "..."
+    model: claude-haiku-4-5-20251001  # optional; overrides graph-level model for this task
     dependencies: []
 tdd_groups:                    # optional; each expands to 3 tasks: _tests, _review, _impl
   - id: my_feature
     description: "..."
+    model: claude-sonnet-4-6   # optional; group default (applies to all 3 sub-tasks)
+    models:                    # optional; per-role overrides
+      tests: claude-haiku-4-5-20251001
+      review: claude-haiku-4-5-20251001
+      impl: claude-opus-4-6
     dependencies: []           # group IDs resolve to {id}_impl; plain task IDs pass through
 ```
 

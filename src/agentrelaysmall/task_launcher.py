@@ -114,7 +114,7 @@ def write_task_context(
     )
 
 
-def launch_agent(task: AgentTask, tmux_session: str) -> str:
+def launch_agent(task: AgentTask, tmux_session: str, model: str | None = None) -> str:
     assert (
         task.state.worktree_path is not None
     ), "worktree_path must be set before launching agent"
@@ -142,13 +142,14 @@ def launch_agent(task: AgentTask, tmux_session: str) -> str:
     # Export the orchestrator's PATH so Claude's bash subshells can find
     # tools (gh, pixi, etc.) that live outside the default non-interactive PATH
     env_path = os.environ.get("PATH", "")
+    model_flag = f"--model {model} " if model else ""
     subprocess.run(
         [
             "tmux",
             "send-keys",
             "-t",
             pane_id,
-            f'export PATH="{env_path}" && claude --dangerously-skip-permissions --add-dir {str(task.state.worktree_path)}',
+            f'export PATH="{env_path}" && claude {model_flag}--dangerously-skip-permissions --add-dir {str(task.state.worktree_path)}',
             "Enter",
         ]
     )
