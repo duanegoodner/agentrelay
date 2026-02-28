@@ -7,6 +7,27 @@ each PR on GitHub.
 
 ## 2026-02-27
 
+### Move `task_context.json` and `context.md` to `.workflow/` — PR #32
+
+Both orchestration context files are now written under
+`.workflow/<graph>/signals/<task-id>/` instead of the worktree root.
+
+- **`task_context.json`**: was written to the worktree root (gitignored in target
+  repos); now lives alongside the other signal files (`.done`, `.merged`, `agent.log`,
+  etc.) and persists after worktree cleanup for easier debugging.
+- **`context.md`**: was written to the worktree root with no gitignore entry, causing
+  it to be picked up by `git add -A` and committed into PRs/`main`. Now also under
+  `.workflow/`, so it is automatically gitignored and persists after teardown.
+- **`AGENTRELAY_SIGNAL_DIR` env var**: exported by `launch_agent()` to the tmux pane;
+  `WorktreeTaskRunner.from_config()` reads it to locate `task_context.json` without
+  needing the worktree path. The `worktree_path` parameter of `from_config()` is removed.
+- **`WorktreeTaskRunner.get_context()`**: now reads from `self.signal_dir / "context.md"`
+  instead of `Path.cwd() / "context.md"`.
+
+**Key files:** `task_launcher.py`, `worktree_task_runner.py`, `run_graph.py`.
+
+---
+
 ### `reset_graph`: skip git reset on out-of-order runs — PR #29
 
 `reset_graph.py` now automatically skips the `git reset --hard` + force-push step
