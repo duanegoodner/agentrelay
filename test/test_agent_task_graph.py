@@ -576,6 +576,113 @@ def test_from_yaml_with_only_tdd_groups_no_tasks_key(tmp_path):
     assert len(graph.tasks) == 3
 
 
+# ── model selection ───────────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_graph_model_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1", "description": "x"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.model is None
+
+
+def test_builder_from_yaml_reads_graph_level_model(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "model": "claude-opus-4-6",
+            "tasks": [{"id": "t1", "description": "x"}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.model == "claude-opus-4-6"
+
+
+def test_builder_from_yaml_plain_task_model(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [
+                {"id": "t1", "description": "x", "model": "claude-haiku-4-5-20251001"}
+            ],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].model == "claude-haiku-4-5-20251001"
+
+
+def test_builder_from_yaml_plain_task_default_model_is_none(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {"name": "g", "tasks": [{"id": "t1", "description": "x"}]},
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].model is None
+
+
+def test_builder_from_yaml_tdd_group_model_applies_to_all_subtasks(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tdd_groups": [
+                {"id": "foo", "description": "d", "model": "claude-sonnet-4-6"}
+            ],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["foo_tests"].model == "claude-sonnet-4-6"
+    assert graph.tasks["foo_review"].model == "claude-sonnet-4-6"
+    assert graph.tasks["foo_impl"].model == "claude-sonnet-4-6"
+
+
+def test_builder_from_yaml_tdd_group_per_role_model_override(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tdd_groups": [
+                {
+                    "id": "foo",
+                    "description": "d",
+                    "models": {
+                        "tests": "claude-haiku-4-5-20251001",
+                        "review": "claude-haiku-4-5-20251001",
+                        "impl": "claude-opus-4-6",
+                    },
+                }
+            ],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["foo_tests"].model == "claude-haiku-4-5-20251001"
+    assert graph.tasks["foo_review"].model == "claude-haiku-4-5-20251001"
+    assert graph.tasks["foo_impl"].model == "claude-opus-4-6"
+
+
+def test_builder_from_yaml_tdd_group_partial_role_override(tmp_path):
+    """Only impl is overridden; tests and review fall back to group-level model."""
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tdd_groups": [
+                {
+                    "id": "foo",
+                    "description": "d",
+                    "model": "claude-sonnet-4-6",
+                    "models": {"impl": "claude-opus-4-6"},
+                }
+            ],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["foo_tests"].model == "claude-sonnet-4-6"
+    assert graph.tasks["foo_review"].model == "claude-sonnet-4-6"
+    assert graph.tasks["foo_impl"].model == "claude-opus-4-6"
+
+
 def test_multiple_tdd_groups_all_expanded(tmp_path):
     p = write_yaml(
         tmp_path,

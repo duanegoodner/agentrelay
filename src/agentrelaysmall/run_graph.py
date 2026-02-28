@@ -231,7 +231,8 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
 
         write_task_context(task, graph.name, graph.target_repo_root)
 
-        pane_id = launch_agent(task, graph.tmux_session)
+        effective_model = task.model or graph.model
+        pane_id = launch_agent(task, graph.tmux_session, model=effective_model)
         print(f"[graph] {task.id} agent pane: {pane_id}")
 
         send_prompt(pane_id, _build_task_prompt(task, graph.graph_branch()))

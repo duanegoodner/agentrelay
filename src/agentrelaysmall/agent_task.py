@@ -53,6 +53,7 @@ class AgentTask:
     dependencies: tuple[AgentTask, ...] = field(default_factory=tuple)
     role: AgentRole = AgentRole.GENERIC
     tdd_group_id: str | None = None
+    model: str | None = None
     state: TaskState = field(default_factory=TaskState)
 
     @property

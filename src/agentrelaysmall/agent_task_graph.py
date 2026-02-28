@@ -29,6 +29,7 @@ class AgentTaskGraph:
     worktrees_root: Path
     tmux_session: str = "agentrelaysmall"
     keep_panes: bool = False
+    model: str | None = None
 
     # ── Path authority — single source of truth ────────────────────────────
 
@@ -116,6 +117,7 @@ class AgentTaskGraphBuilder:
         )
         tmux_session: str = data.get("tmux_session", "agentrelaysmall")
         keep_panes: bool = bool(data.get("keep_panes", False))
+        graph_model: str | None = data.get("model")
 
         # Collect raw specs keyed by ID
         raw_plain: dict[str, Any] = {t["id"]: t for t in data.get("tasks", [])}
@@ -144,6 +146,7 @@ class AgentTaskGraphBuilder:
                     id=node_id,
                     description=raw["description"],
                     dependencies=deps,
+                    model=raw.get("model"),
                 )
             else:
                 raw = raw_groups[node_id]
@@ -168,12 +171,19 @@ class AgentTaskGraphBuilder:
                     dependencies_task_group=group_deps,
                 )
 
+                group_model: str | None = raw.get("model")
+                role_models: dict[str, str] = raw.get("models", {})
+                tests_model = role_models.get("tests") or group_model
+                review_model = role_models.get("review") or group_model
+                impl_model = role_models.get("impl") or group_model
+
                 tests = AgentTask(
                     id=f"{node_id}_tests",
                     description=description,
                     dependencies=resolved,
                     role=AgentRole.TEST_WRITER,
                     tdd_group_id=node_id,
+                    model=tests_model,
                 )
                 review = AgentTask(
                     id=f"{node_id}_review",
@@ -181,6 +191,7 @@ class AgentTaskGraphBuilder:
                     dependencies=(tests,),
                     role=AgentRole.TEST_REVIEWER,
                     tdd_group_id=node_id,
+                    model=review_model,
                 )
                 impl = AgentTask(
                     id=f"{node_id}_impl",
@@ -188,6 +199,7 @@ class AgentTaskGraphBuilder:
                     dependencies=(review,),
                     role=AgentRole.IMPLEMENTER,
                     tdd_group_id=node_id,
+                    model=impl_model,
                 )
                 built_tasks[f"{node_id}_tests"] = tests
                 built_tasks[f"{node_id}_review"] = review
@@ -200,4 +212,5 @@ class AgentTaskGraphBuilder:
             worktrees_root=worktrees_root,
             tmux_session=tmux_session,
             keep_panes=keep_panes,
+            model=graph_model,
         )
