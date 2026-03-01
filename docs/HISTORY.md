@@ -5,6 +5,34 @@ each PR on GitHub.
 
 ---
 
+## 2026-03-01
+
+### AgentTask structure — completion_gate, agent_index, instructions.md channel — PR #33
+
+Three coordinated improvements giving `AgentTask` more structure and reducing
+reliance on large ephemeral f-string prompts:
+
+- **`completion_gate`**: optional shell command on `AgentTask` (YAML `completion_gate:`
+  key). The orchestrator runs it in the worktree after `.done` is seen but before
+  merging the PR. Non-zero exit marks the task `FAILED` without merging. The agent
+  also self-validates via a step included in `instructions.md` (defense-in-depth).
+- **`agent_index`**: monotonically increasing integer assigned at dispatch time.
+  Stored in `TaskState`, written to `task_context.json`, shown in log messages as
+  `[a{N}]`. `AgentTaskGraph` gains `_agent_counter` + `next_agent_index()`.
+- **`instructions.md` as the sole instruction channel**: all role-specific steps move
+  to a file written in the signal directory before the agent launches. The tmux prompt
+  becomes a minimal bootstrap string. `task_context.json` is now a rich structured
+  record (`role`, `description`, `graph_branch`, `model`, `completion_gate`,
+  `agent_index`). `WorktreeTaskRunner` gains the new fields and `get_instructions()`.
+- **`BACKLOG.md`**: added 5 entries from a review of the original `agentrelay` project.
+
+Scope: `AgentTask` and `GENERIC` role only. `TDDTaskGroup` intentionally untouched.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`,
+`task_launcher.py`, `worktree_task_runner.py`.
+
+---
+
 ## 2026-02-27
 
 ### Move `task_context.json` and `context.md` to `.workflow/` — PR #32
