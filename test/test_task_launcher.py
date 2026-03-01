@@ -92,7 +92,7 @@ def test_create_worktree_branch_uses_graph_name(tmp_path):
 
 def test_write_task_context_creates_json_in_signal_dir(tmp_path):
     task = make_task()
-    write_task_context(task, "demo", tmp_path, "graph/demo", 0)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["task_id"] == "task_001"
@@ -101,7 +101,7 @@ def test_write_task_context_creates_json_in_signal_dir(tmp_path):
 
 def test_write_task_context_signal_dir_path(tmp_path):
     task = make_task()
-    write_task_context(task, "demo", tmp_path, "graph/demo", 0)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["signal_dir"] == str(signal_dir)
@@ -109,7 +109,7 @@ def test_write_task_context_signal_dir_path(tmp_path):
 
 def test_write_task_context_creates_signal_dir(tmp_path):
     task = make_task()
-    write_task_context(task, "demo", tmp_path, "graph/demo", 0)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     assert signal_dir.is_dir()
 
@@ -120,7 +120,7 @@ def test_write_task_context_includes_new_fields(tmp_path):
         description="do something",
         completion_gate="pixi run pytest",
     )
-    write_task_context(task, "demo", tmp_path, "graph/demo", 5)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 5, 10)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["role"] == "generic"
@@ -128,6 +128,65 @@ def test_write_task_context_includes_new_fields(tmp_path):
     assert data["graph_branch"] == "graph/demo"
     assert data["completion_gate"] == "pixi run pytest"
     assert data["agent_index"] == 5
+
+
+def test_write_task_context_writes_coverage_threshold(tmp_path):
+    task = AgentTask(
+        id="task_001",
+        description="do something",
+        coverage_threshold=90,
+    )
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    data = json.loads((signal_dir / "task_context.json").read_text())
+    assert data["coverage_threshold"] == 90
+
+
+def test_write_task_context_writes_review_model(tmp_path):
+    task = AgentTask(
+        id="task_001",
+        description="do something",
+        review_model="claude-sonnet-4-6",
+    )
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    data = json.loads((signal_dir / "task_context.json").read_text())
+    assert data["review_model"] == "claude-sonnet-4-6"
+
+
+def test_write_task_context_writes_resolved_max_gate_retries(tmp_path):
+    task = AgentTask(id="task_001", description="do something")
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0, 7)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    data = json.loads((signal_dir / "task_context.json").read_text())
+    assert data["max_gate_retries"] == 7
+
+
+def test_run_completion_gate_substitutes_coverage_threshold(tmp_path):
+    # Gate command contains placeholder; should be resolved before running
+    sentinel = tmp_path / "sentinel.txt"
+    sentinel.write_text("ok")
+    # The gate checks that a file exists; coverage_threshold substitution should
+    # leave the rest of the command intact
+    result = run_completion_gate(
+        "test -f sentinel.txt",
+        tmp_path,
+        coverage_threshold=80,
+    )
+    assert result is True
+
+
+def test_run_completion_gate_substitutes_placeholder_in_command(tmp_path):
+    # Use coverage_threshold in actual placeholder substitution
+    # We verify that {coverage_threshold} is replaced (not left as-is)
+    # by using a command that checks we can echo the resolved value
+    result = run_completion_gate(
+        "test '{coverage_threshold}' = '95'",
+        tmp_path,
+        coverage_threshold=95,
+    )
+    # The substituted command becomes: test '95' = '95' → exits 0
+    assert result is True
 
 
 # ── write_context ─────────────────────────────────────────────────────────────
@@ -411,6 +470,9 @@ def test_read_done_note_returns_empty_when_no_note(tmp_path):
 
 def test_merge_pr_calls_gh():
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = ""
+        mock_run.return_value.stderr = ""
         merge_pr("https://github.com/org/repo/pull/42")
     cmd = mock_run.call_args[0][0]
     assert "gh" in cmd
@@ -421,9 +483,69 @@ def test_merge_pr_calls_gh():
 
 def test_merge_pr_uses_merge_strategy():
     with patch("agentrelaysmall.task_launcher.subprocess.run") as mock_run:
+        mock_run.return_value.returncode = 0
+        mock_run.return_value.stdout = ""
+        mock_run.return_value.stderr = ""
         merge_pr("https://github.com/org/repo/pull/42")
     cmd = mock_run.call_args[0][0]
     assert "--merge" in cmd
+
+
+def test_merge_pr_retries_on_not_mergeable():
+    # First call returns "not mergeable"; second call succeeds.
+    results = [
+        type(
+            "R",
+            (),
+            {
+                "returncode": 1,
+                "stdout": "",
+                "stderr": "GraphQL: Pull Request is not mergeable (mergePullRequest)",
+            },
+        )(),
+        type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})(),
+    ]
+    with (
+        patch("agentrelaysmall.task_launcher.subprocess.run", side_effect=results),
+        patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep,
+    ):
+        merge_pr("https://github.com/org/repo/pull/42", delay=0.0)
+    assert mock_sleep.call_count == 1
+
+
+def test_merge_pr_raises_after_all_retries_exhausted():
+    import subprocess as sp
+
+    always_fail = type(
+        "R",
+        (),
+        {"returncode": 1, "stdout": "", "stderr": "Pull Request is not mergeable"},
+    )()
+    with (
+        patch(
+            "agentrelaysmall.task_launcher.subprocess.run",
+            return_value=always_fail,
+        ),
+        patch("agentrelaysmall.task_launcher.time.sleep"),
+        pytest.raises(sp.CalledProcessError),
+    ):
+        merge_pr("https://github.com/org/repo/pull/42", retries=3, delay=0.0)
+
+
+def test_merge_pr_raises_immediately_on_other_errors():
+    import subprocess as sp
+
+    other_error = type(
+        "R", (), {"returncode": 1, "stdout": "", "stderr": "authentication required"}
+    )()
+    with (
+        patch("agentrelaysmall.task_launcher.subprocess.run", return_value=other_error),
+        patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep,
+        pytest.raises(sp.CalledProcessError),
+    ):
+        merge_pr("https://github.com/org/repo/pull/42", retries=6, delay=0.0)
+    # No retries for non-transient errors
+    mock_sleep.assert_not_called()
 
 
 # ── write_merged_signal ───────────────────────────────────────────────────────

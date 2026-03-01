@@ -15,6 +15,9 @@ class WorktreeTaskRunner:
         graph_branch: str | None = None,
         completion_gate: str | None = None,
         agent_index: int | None = None,
+        coverage_threshold: int | None = None,
+        review_model: str | None = None,
+        max_gate_retries: int | None = None,
     ) -> None:
         self.task_id = task_id
         self.graph_name = graph_name
@@ -24,6 +27,9 @@ class WorktreeTaskRunner:
         self.graph_branch = graph_branch
         self.completion_gate = completion_gate
         self.agent_index = agent_index
+        self.coverage_threshold = coverage_threshold
+        self.review_model = review_model
+        self.max_gate_retries = max_gate_retries
 
     @classmethod
     def from_config(cls) -> "WorktreeTaskRunner":
@@ -38,6 +44,9 @@ class WorktreeTaskRunner:
             graph_branch=data.get("graph_branch"),
             completion_gate=data.get("completion_gate"),
             agent_index=data.get("agent_index"),
+            coverage_threshold=data.get("coverage_threshold"),
+            review_model=data.get("review_model"),
+            max_gate_retries=data.get("max_gate_retries"),
         )
 
     def get_context(self) -> str | None:
@@ -47,6 +56,13 @@ class WorktreeTaskRunner:
     def get_instructions(self) -> str | None:
         instructions_file = self.signal_dir / "instructions.md"
         return instructions_file.read_text() if instructions_file.exists() else None
+
+    def record_gate_attempt(self, attempt: int, passed: bool) -> None:
+        self.signal_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).isoformat()
+        line = f"{ts} attempt={attempt} passed={passed}\n"
+        with open(self.signal_dir / "gate_retries.log", "a") as f:
+            f.write(line)
 
     def _write_signal(self, name: str, content: str) -> None:
         self.signal_dir.mkdir(parents=True, exist_ok=True)

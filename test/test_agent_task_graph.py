@@ -752,6 +752,103 @@ def test_multiple_tdd_groups_all_expanded(tmp_path):
     }
 
 
+# ── AgentTaskGraph.max_gate_retries ───────────────────────────────────────────
+
+
+def test_graph_max_gate_retries_defaults_to_none():
+    graph = make_graph()
+    assert graph.max_gate_retries is None
+
+
+def test_graph_max_gate_retries_can_be_set():
+    graph = AgentTaskGraph(
+        name="g",
+        tasks={},
+        target_repo_root=Path("/repo"),
+        worktrees_root=Path("/wt"),
+        max_gate_retries=3,
+    )
+    assert graph.max_gate_retries == 3
+
+
+def test_builder_from_yaml_graph_max_gate_retries_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1", "description": "x"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.max_gate_retries is None
+
+
+def test_builder_from_yaml_reads_graph_level_max_gate_retries(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "max_gate_retries": 4,
+            "tasks": [{"id": "t1", "description": "x"}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.max_gate_retries == 4
+
+
+# ── plain task new fields ─────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_plain_task_coverage_threshold(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [{"id": "t1", "description": "x", "coverage_threshold": 95}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].coverage_threshold == 95
+
+
+def test_builder_from_yaml_plain_task_coverage_threshold_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1", "description": "x"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].coverage_threshold is None
+
+
+def test_builder_from_yaml_plain_task_review_model(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [
+                {"id": "t1", "description": "x", "review_model": "claude-sonnet-4-6"}
+            ],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].review_model == "claude-sonnet-4-6"
+
+
+def test_builder_from_yaml_plain_task_review_model_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1", "description": "x"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].review_model is None
+
+
+def test_builder_from_yaml_plain_task_max_gate_retries(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [{"id": "t1", "description": "x", "max_gate_retries": 2}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].max_gate_retries == 2
+
+
+def test_builder_from_yaml_plain_task_max_gate_retries_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1", "description": "x"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].max_gate_retries is None
+
+
 # ── write_context (task_launcher) ─────────────────────────────────────────────
 
 

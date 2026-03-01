@@ -225,6 +225,39 @@ def test_from_config_new_fields_default_to_none_when_absent(tmp_path, monkeypatc
     assert runner.graph_branch is None
     assert runner.completion_gate is None
     assert runner.agent_index is None
+    assert runner.coverage_threshold is None
+    assert runner.review_model is None
+    assert runner.max_gate_retries is None
+
+
+def test_from_config_reads_coverage_threshold(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, coverage_threshold=90)
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.coverage_threshold == 90
+
+
+def test_from_config_reads_review_model(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, review_model="claude-sonnet-4-6")
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.review_model == "claude-sonnet-4-6"
+
+
+def test_from_config_reads_max_gate_retries(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, max_gate_retries=3)
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.max_gate_retries == 3
 
 
 # ── get_instructions ─────────────────────────────────────────────────────────
@@ -242,3 +275,57 @@ def test_get_instructions_returns_content(tmp_path):
     (signal_dir / "instructions.md").write_text("## Step 1\nDo the thing.\n")
     runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
     assert runner.get_instructions() == "## Step 1\nDo the thing.\n"
+
+
+# ── record_gate_attempt ───────────────────────────────────────────────────────
+
+
+def test_record_gate_attempt_creates_log_file(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_gate_attempt(1, False)
+    assert (signal_dir / "gate_retries.log").exists()
+
+
+def test_record_gate_attempt_contains_attempt_number(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_gate_attempt(2, True)
+    content = (signal_dir / "gate_retries.log").read_text()
+    assert "attempt=2" in content
+
+
+def test_record_gate_attempt_contains_passed_value(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_gate_attempt(1, True)
+    content = (signal_dir / "gate_retries.log").read_text()
+    assert "passed=True" in content
+
+
+def test_record_gate_attempt_appends_multiple_entries(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_gate_attempt(1, False)
+    runner.record_gate_attempt(2, True)
+    lines = (signal_dir / "gate_retries.log").read_text().splitlines()
+    assert len(lines) == 2
+    assert "attempt=1" in lines[0]
+    assert "attempt=2" in lines[1]
+
+
+def test_record_gate_attempt_contains_timestamp(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_gate_attempt(1, False)
+    content = (signal_dir / "gate_retries.log").read_text()
+    # ISO 8601 timestamps contain 'T'
+    assert "T" in content
+
+
+def test_record_gate_attempt_creates_signal_dir_if_missing(tmp_path):
+    signal_dir = tmp_path / "nested" / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_gate_attempt(1, False)
+    assert signal_dir.is_dir()
+    assert (signal_dir / "gate_retries.log").exists()

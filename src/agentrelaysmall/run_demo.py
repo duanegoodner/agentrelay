@@ -79,7 +79,7 @@ async def main() -> None:
 
     # 2. Write task_context.json so WorktreeTaskRunner can initialise
     graph_branch = f"graph/{GRAPH_NAME}"
-    write_task_context(task, GRAPH_NAME, REPO_ROOT, graph_branch, 0)
+    write_task_context(task, GRAPH_NAME, REPO_ROOT, graph_branch, 0, 5)
     print("[demo] wrote task_context.json")
 
     # 3. Launch Claude Code in a tmux window

@@ -7,6 +7,38 @@ each PR on GitHub.
 
 ## 2026-03-01
 
+### coverage_threshold, review_model, max_gate_retries, gate instruction hardening — PR #34
+
+Three new optional `AgentTask` fields extend the `completion_gate` machinery:
+
+- **`coverage_threshold: int | None`**: substituted into `{coverage_threshold}` in the
+  gate command string; `run_completion_gate()` performs the substitution before exec.
+- **`review_model: str | None`**: model ID for a self-review subagent that the agent
+  spawns after completing its main work; included in `instructions.md` when set.
+- **`max_gate_retries: int | None`**: per-task override for gate retry count; falls back
+  to the graph-wide `max_gate_retries` YAML key (default `DEFAULT_GATE_RETRIES = 5`).
+
+Gate instruction improvements to prevent agents from ignoring non-zero gate exits:
+- "Exit code is the only accepted truth" paragraph explicitly overrides prior observations.
+- `tee` + `PIPESTATUS[0]` pattern captures gate output to `gate_last_output.txt` while
+  preserving the gate command's exit code through the pipe.
+- Steps use "gate_exit is 0" / "gate_exit is non-zero" language to remove ambiguity.
+- `mark_failed()` instruction references `gate_last_output.txt` for post-mortem.
+
+`merge_pr()` now retries up to 6× (5 s delay) on transient GitHub "not mergeable"
+responses that occur after `neutralize_pixi_lock_in_pr` pushes a new commit.
+
+`WorktreeTaskRunner.record_gate_attempt(n, passed)` appends a timestamped JSONL
+entry to `gate_retries.log` in the signal directory so retry history is auditable.
+
+270 tests (up from 258). Demo graphs in `agentrelaydemos`:
+`covg_and_retry_single.yaml`, `covg_and_retry_chained.yaml`.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`,
+`task_launcher.py`, `worktree_task_runner.py`.
+
+---
+
 ### AgentTask structure — completion_gate, agent_index, instructions.md channel — PR #33
 
 Three coordinated improvements giving `AgentTask` more structure and reducing
