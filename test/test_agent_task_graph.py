@@ -186,6 +186,29 @@ def test_hydrate_merged_takes_precedence_over_failed(tmp_path):
     assert t.state.status == TaskStatus.DONE
 
 
+# ── next_agent_index ──────────────────────────────────────────────────────────
+
+
+def test_next_agent_index_starts_at_zero():
+    graph = make_graph()
+    assert graph.next_agent_index() == 0
+
+
+def test_next_agent_index_increments():
+    graph = make_graph()
+    assert graph.next_agent_index() == 0
+    assert graph.next_agent_index() == 1
+    assert graph.next_agent_index() == 2
+
+
+def test_next_agent_index_independent_per_graph():
+    g1 = make_graph(name="g1")
+    g2 = make_graph(name="g2")
+    g1.next_agent_index()
+    g1.next_agent_index()
+    assert g2.next_agent_index() == 0
+
+
 # ── AgentTaskGraphBuilder ─────────────────────────────────────────────────────
 
 
@@ -619,6 +642,29 @@ def test_builder_from_yaml_plain_task_default_model_is_none(tmp_path):
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
     assert graph.tasks["t1"].model is None
+
+
+# ── completion_gate ───────────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_plain_task_default_completion_gate_is_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1", "description": "x"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].completion_gate is None
+
+
+def test_builder_from_yaml_plain_task_completion_gate(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [
+                {"id": "t1", "description": "x", "completion_gate": "pixi run pytest"}
+            ],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].completion_gate == "pixi run pytest"
 
 
 def test_builder_from_yaml_tdd_group_model_applies_to_all_subtasks(tmp_path):

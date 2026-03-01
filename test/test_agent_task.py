@@ -29,6 +29,13 @@ def test_task_state_defaults():
     assert state.result is None
     assert state.error is None
     assert state.retries == 0
+    assert state.agent_index is None
+
+
+def test_task_state_agent_index_can_be_set():
+    state = TaskState()
+    state.agent_index = 3
+    assert state.agent_index == 3
 
 
 def test_task_state_is_mutable():
@@ -168,6 +175,25 @@ def test_agent_task_model_is_immutable():
     task = AgentTask(id="t1", description="d", model="claude-sonnet-4-6")
     with pytest.raises(AttributeError):
         task.model = "claude-opus-4-6"  # type: ignore[misc]
+
+
+# ── AgentTask.completion_gate ─────────────────────────────────────────────────
+
+
+def test_agent_task_default_completion_gate_is_none():
+    task = AgentTask(id="t1", description="d")
+    assert task.completion_gate is None
+
+
+def test_agent_task_accepts_completion_gate():
+    task = AgentTask(id="t1", description="d", completion_gate="pixi run pytest")
+    assert task.completion_gate == "pixi run pytest"
+
+
+def test_agent_task_completion_gate_is_immutable():
+    task = AgentTask(id="t1", description="d", completion_gate="pixi run pytest")
+    with pytest.raises(AttributeError):
+        task.completion_gate = "false"  # type: ignore[misc]
 
 
 # ── TaskGroup ABC ─────────────────────────────────────────────────────────────
