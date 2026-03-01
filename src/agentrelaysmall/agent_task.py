@@ -44,6 +44,7 @@ class TaskState:
     result: Any = None
     error: str | None = None
     retries: int = 0
+    agent_index: int | None = None
 
 
 @dataclass(frozen=True)
@@ -54,6 +55,7 @@ class AgentTask:
     role: AgentRole = AgentRole.GENERIC
     tdd_group_id: str | None = None
     model: str | None = None
+    completion_gate: str | None = None
     state: TaskState = field(default_factory=TaskState)
 
     @property

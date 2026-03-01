@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 import subprocess
+import textwrap
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -98,13 +99,23 @@ def create_worktree(
 
 
 def write_task_context(
-    task: AgentTask, graph_name: str, target_repo_root: Path
+    task: AgentTask,
+    graph_name: str,
+    target_repo_root: Path,
+    graph_branch: str,
+    agent_index: int,
 ) -> None:
     signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     context = {
         "task_id": task.id,
         "graph_name": graph_name,
         "signal_dir": str(signal_dir),
+        "role": task.role.value,
+        "description": textwrap.fill(task.description, width=72),
+        "graph_branch": graph_branch,
+        "model": task.model,
+        "completion_gate": task.completion_gate,
+        "agent_index": agent_index,
     }
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))
@@ -215,6 +226,17 @@ def send_prompt(
 def write_context(signal_dir: Path, content: str) -> None:
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / "context.md").write_text(content)
+
+
+def write_instructions(signal_dir: Path, content: str) -> None:
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "instructions.md").write_text(content)
+
+
+def run_completion_gate(command: str, worktree_path: Path) -> bool:
+    """Run the completion gate command in the worktree. Returns True if exit code is 0."""
+    result = subprocess.run(command, shell=True, cwd=str(worktree_path))
+    return result.returncode == 0
 
 
 def save_agent_log(task: AgentTask, signal_dir: Path) -> None:

@@ -23,11 +23,13 @@ from agentrelaysmall.task_launcher import (
     record_run_start,
     remove_worktree,
     reset_target_repo_to_head,
+    run_completion_gate,
     run_pixi_install,
     save_agent_log,
     save_pr_summary,
     send_prompt,
     write_context,
+    write_instructions,
     write_merged_signal,
     write_task_context,
 )
@@ -90,7 +92,7 @@ def test_create_worktree_branch_uses_graph_name(tmp_path):
 
 def test_write_task_context_creates_json_in_signal_dir(tmp_path):
     task = make_task()
-    write_task_context(task, "demo", tmp_path)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["task_id"] == "task_001"
@@ -99,7 +101,7 @@ def test_write_task_context_creates_json_in_signal_dir(tmp_path):
 
 def test_write_task_context_signal_dir_path(tmp_path):
     task = make_task()
-    write_task_context(task, "demo", tmp_path)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["signal_dir"] == str(signal_dir)
@@ -107,9 +109,25 @@ def test_write_task_context_signal_dir_path(tmp_path):
 
 def test_write_task_context_creates_signal_dir(tmp_path):
     task = make_task()
-    write_task_context(task, "demo", tmp_path)
+    write_task_context(task, "demo", tmp_path, "graph/demo", 0)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     assert signal_dir.is_dir()
+
+
+def test_write_task_context_includes_new_fields(tmp_path):
+    task = AgentTask(
+        id="task_001",
+        description="do something",
+        completion_gate="pixi run pytest",
+    )
+    write_task_context(task, "demo", tmp_path, "graph/demo", 5)
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    data = json.loads((signal_dir / "task_context.json").read_text())
+    assert data["role"] == "generic"
+    assert data["description"] == "do something"
+    assert data["graph_branch"] == "graph/demo"
+    assert data["completion_gate"] == "pixi run pytest"
+    assert data["agent_index"] == 5
 
 
 # ── write_context ─────────────────────────────────────────────────────────────
@@ -120,6 +138,39 @@ def test_write_context_writes_to_signal_dir(tmp_path):
     signal_dir.mkdir(parents=True)
     write_context(signal_dir, "# some context\n")
     assert (signal_dir / "context.md").read_text() == "# some context\n"
+
+
+# ── write_instructions ────────────────────────────────────────────────────────
+
+
+def test_write_instructions_creates_file(tmp_path):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    write_instructions(signal_dir, "## Step 1\nDo things.\n")
+    assert (signal_dir / "instructions.md").read_text() == "## Step 1\nDo things.\n"
+
+
+def test_write_instructions_creates_signal_dir(tmp_path):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    write_instructions(signal_dir, "instructions")
+    assert signal_dir.is_dir()
+
+
+# ── run_completion_gate ───────────────────────────────────────────────────────
+
+
+def test_run_completion_gate_returns_true_on_success(tmp_path):
+    assert run_completion_gate("true", tmp_path) is True
+
+
+def test_run_completion_gate_returns_false_on_failure(tmp_path):
+    assert run_completion_gate("false", tmp_path) is False
+
+
+def test_run_completion_gate_runs_in_worktree(tmp_path):
+    sentinel = tmp_path / "sentinel.txt"
+    sentinel.write_text("ok")
+    assert run_completion_gate("test -f sentinel.txt", tmp_path) is True
 
 
 # ── launch_agent ──────────────────────────────────────────────────────────────

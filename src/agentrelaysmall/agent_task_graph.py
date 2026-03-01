@@ -30,6 +30,13 @@ class AgentTaskGraph:
     tmux_session: str = "agentrelaysmall"
     keep_panes: bool = False
     model: str | None = None
+    _agent_counter: int = field(default=0, init=False, repr=False, compare=False)
+
+    def next_agent_index(self) -> int:
+        """Return a monotonically increasing index for each agent launched this run."""
+        idx = self._agent_counter
+        self._agent_counter += 1
+        return idx
 
     # ── Path authority — single source of truth ────────────────────────────
 
@@ -147,6 +154,7 @@ class AgentTaskGraphBuilder:
                     description=raw["description"],
                     dependencies=deps,
                     model=raw.get("model"),
+                    completion_gate=raw.get("completion_gate"),
                 )
             else:
                 raw = raw_groups[node_id]

@@ -32,12 +32,18 @@ from agentrelaysmall.task_launcher import (
     read_done_note,
     record_run_start,
     remove_worktree,
+    run_completion_gate,
     save_agent_log,
     save_pr_summary,
     send_prompt,
     write_context,
+    write_instructions,
     write_merged_signal,
     write_task_context,
+)
+
+BOOTSTRAP_PROMPT = (
+    "Read $AGENTRELAY_SIGNAL_DIR/instructions.md and follow the steps exactly."
 )
 
 
@@ -56,28 +62,30 @@ def _build_context_content(task: AgentTask) -> str | None:
     return "\n".join(lines)
 
 
-def _build_task_prompt(task: AgentTask, graph_branch: str) -> str:
+def _build_task_instructions(task: AgentTask, graph_branch: str) -> str:
     if task.role == AgentRole.TEST_WRITER:
         return _build_test_writer_prompt(task, graph_branch)
     if task.role == AgentRole.TEST_REVIEWER:
         return _build_test_reviewer_prompt(task, graph_branch)
     if task.role == AgentRole.IMPLEMENTER:
         return _build_implementer_prompt(task, graph_branch)
-    return _build_generic_prompt(task, graph_branch)
+    return _build_generic_instructions(task, graph_branch)
 
 
-def _build_generic_prompt(task: AgentTask, graph_branch: str) -> str:
+def _build_generic_instructions(task: AgentTask, graph_branch: str) -> str:
     context_note = ""
     if task.dependencies:
         context_note = (
-            "Before starting, read your context file to understand what "
-            "prerequisite tasks produced:\n"
-            '    pixi run python -c "'
-            "from agentrelaysmall import WorktreeTaskRunner; "
-            "r = WorktreeTaskRunner.from_config(); "
-            "ctx = r.get_context(); "
-            'print(ctx if ctx else "No context")'
-            '"\n\n'
+            "Before starting, if the file at $AGENTRELAY_SIGNAL_DIR/context.md "
+            "exists, read it — it describes what prerequisite tasks produced.\n\n"
+        )
+
+    gate_step = ""
+    if task.completion_gate:
+        gate_step = (
+            f"N. Before marking done, verify your work passes the completion gate:\n"
+            f"       {task.completion_gate}\n"
+            f"   This command must exit 0.\n\n"
         )
 
     short_desc = task.description[:60]
@@ -87,6 +95,7 @@ def _build_generic_prompt(task: AgentTask, graph_branch: str) -> str:
         f"{context_note}"
         f"Complete these steps in order:\n\n"
         f"1. Do the work described in your task.\n\n"
+        f"{gate_step}"
         f"2. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
@@ -219,7 +228,9 @@ def _build_implementer_prompt(task: AgentTask, graph_branch: str) -> str:
 
 async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
     """Run one task end-to-end: create worktree, dispatch agent, merge PR, teardown."""
-    print(f"[graph] dispatching {task.id}: {task.description[:60]}")
+    agent_index = graph.next_agent_index()
+    task.state.agent_index = agent_index
+    print(f"[graph] dispatching {task.id}[a{agent_index}]: {task.description[:60]}")
     try:
         create_worktree(task, graph.name, graph.worktrees_root, graph.target_repo_root)
         print(f"[graph] worktree at {task.state.worktree_path}")
@@ -231,21 +242,40 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
             write_context(signal_dir, context_content)
             print(f"[graph] wrote context.md for {task.id}")
 
-        write_task_context(task, graph.name, graph.target_repo_root)
+        write_task_context(
+            task, graph.name, graph.target_repo_root, graph.graph_branch(), agent_index
+        )
+
+        instructions = _build_task_instructions(task, graph.graph_branch())
+        write_instructions(signal_dir, instructions)
+        print(f"[graph] wrote instructions.md for {task.id}[a{agent_index}]")
 
         effective_model = task.model or graph.model
         pane_id = launch_agent(
             task, graph.tmux_session, model=effective_model, signal_dir=signal_dir
         )
-        print(f"[graph] {task.id} agent pane: {pane_id}")
+        print(f"[graph] {task.id}[a{agent_index}] agent pane: {pane_id}")
 
-        send_prompt(pane_id, _build_task_prompt(task, graph.graph_branch()))
-        print(f"[graph] prompt sent to {task.id}")
+        send_prompt(pane_id, BOOTSTRAP_PROMPT)
+        print(f"[graph] bootstrap prompt sent to {task.id}[a{agent_index}]")
 
         result = await poll_for_completion(task, graph.name, graph.target_repo_root)
-        print(f"[graph] {task.id} sentinel: {result}")
+        print(f"[graph] {task.id}[a{agent_index}] sentinel: {result}")
 
         if result == "done":
+            if task.completion_gate:
+                gate_passed = run_completion_gate(
+                    task.completion_gate, task.state.worktree_path  # type: ignore[arg-type]
+                )
+                if not gate_passed:
+                    print(
+                        f"[graph] {task.id}[a{agent_index}] completion gate FAILED: "
+                        f"{task.completion_gate}"
+                    )
+                    task.state.status = TaskStatus.FAILED
+                    return
+                print(f"[graph] {task.id}[a{agent_index}] completion gate passed")
+
             pr_url = read_done_note(task, graph.name, graph.target_repo_root)
             if pr_url:
                 pixi_changed = pixi_toml_changed_in_pr(pr_url)
