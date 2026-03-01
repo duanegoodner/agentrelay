@@ -46,7 +46,15 @@ BOOTSTRAP_PROMPT = (
     "Read $AGENTRELAY_SIGNAL_DIR/instructions.md and follow the steps exactly."
 )
 
-DEFAULT_GATE_RETRIES = 5
+DEFAULT_GATE_ATTEMPTS = 5
+
+
+def _resolve_gate(task: AgentTask) -> str:
+    """Substitute task_params {key} placeholders in the completion gate command."""
+    cmd = task.completion_gate or ""
+    for key, val in task.task_params.items():
+        cmd = cmd.replace(f"{{{key}}}", str(val))
+    return cmd
 
 
 def _build_context_content(task: AgentTask) -> str | None:
@@ -65,7 +73,7 @@ def _build_context_content(task: AgentTask) -> str | None:
 
 
 def _build_task_instructions(
-    task: AgentTask, graph_branch: str, effective_retries: int = DEFAULT_GATE_RETRIES
+    task: AgentTask, graph_branch: str, effective_attempts: int = DEFAULT_GATE_ATTEMPTS
 ) -> str:
     if task.role == AgentRole.TEST_WRITER:
         return _build_test_writer_prompt(task, graph_branch)
@@ -73,11 +81,11 @@ def _build_task_instructions(
         return _build_test_reviewer_prompt(task, graph_branch)
     if task.role == AgentRole.IMPLEMENTER:
         return _build_implementer_prompt(task, graph_branch)
-    return _build_generic_instructions(task, graph_branch, effective_retries)
+    return _build_generic_instructions(task, graph_branch, effective_attempts)
 
 
 def _build_generic_instructions(
-    task: AgentTask, graph_branch: str, effective_retries: int = DEFAULT_GATE_RETRIES
+    task: AgentTask, graph_branch: str, effective_attempts: int = DEFAULT_GATE_ATTEMPTS
 ) -> str:
     context_note = ""
     if task.dependencies:
@@ -88,20 +96,26 @@ def _build_generic_instructions(
 
     gate_step = ""
     if task.completion_gate:
-        resolved_gate = task.completion_gate
-        if task.coverage_threshold is not None:
-            resolved_gate = resolved_gate.replace(
-                "{coverage_threshold}", str(task.coverage_threshold)
-            )
+        resolved_gate = _resolve_gate(task)
         coverage_hint = ""
-        if task.coverage_threshold is not None:
+        if "coverage_threshold" in task.task_params:
             coverage_hint = (
                 f"   Coverage failures: rerun with --cov-report=term-missing to see\n"
                 f"   uncovered lines, then add tests targeting those specific gaps.\n\n"
             )
+        conditional_review = ""
+        if task.review_model and task.review_on_attempt >= 2:
+            conditional_review = (
+                f"  (Attempt {task.review_on_attempt}+) Before running the gate on attempt "
+                f"{task.review_on_attempt} or later, spawn a self-review subagent:\n"
+                f'    - Use the Task tool with model="{task.review_model}"\n'
+                f"    - Pass it your task description, work done, and any previous gate output\n"
+                f"    - Ask it to identify what's failing and suggest fixes\n"
+                f"    - Incorporate its feedback before running the gate\n"
+            )
         gate_step = (
             f"Before calling mark_done(), you must pass the completion gate.\n"
-            f"You have up to {effective_retries} attempts. Each gate run counts as one attempt.\n\n"
+            f"You have up to {effective_attempts} attempts. Each gate run counts as one attempt.\n\n"
             f"Gate command:\n"
             f"    {resolved_gate}\n\n"
             f"The gate command's exit code is the only accepted truth. If it exits\n"
@@ -109,6 +123,7 @@ def _build_generic_instructions(
             f"your work session. Do not let prior test runs or your own assessment\n"
             f"override a non-zero gate exit.\n\n"
             f"For each attempt:\n"
+            f"{conditional_review}"
             f"1. Run the gate command, saving its output and checking the exit code:\n"
             f'       {resolved_gate} 2>&1 | tee "$AGENTRELAY_SIGNAL_DIR/gate_last_output.txt"\n'
             f"       gate_exit=${{PIPESTATUS[0]}}\n"
@@ -122,19 +137,19 @@ def _build_generic_instructions(
             f"3. If gate_exit is 0 (passed), proceed to mark_done().\n"
             f"4. If gate_exit is non-zero (failed), diagnose the output, fix the issue, and retry.\n\n"
             f"{coverage_hint}"
-            f"After {effective_retries} failed attempts, call mark_failed() with a summary of what\n"
+            f"After {effective_attempts} failed attempts, call mark_failed() with a summary of what\n"
             f"you tried. The full output of the last gate run is already saved to\n"
             f"$AGENTRELAY_SIGNAL_DIR/gate_last_output.txt.\n"
             f"Do NOT call mark_done() until gate_exit is 0.\n\n"
         )
 
     review_step = ""
-    if task.review_model:
+    if task.review_model and task.review_on_attempt <= 1:
         review_step = (
-            f"After writing tests and stub, spawn a self-review subagent before the gate:\n"
+            f"Before running the completion gate, spawn a self-review subagent:\n"
             f'  - Use the Task tool with model="{task.review_model}"\n'
-            f"  - Pass it your full task description and the tests you wrote\n"
-            f"  - Ask it to verify completeness, edge cases, and alignment with the description\n"
+            f"  - Pass it your full task description and the work you've done\n"
+            f"  - Ask it to verify correctness, edge cases, and alignment with the description\n"
             f"  - Incorporate any feedback before running the completion gate\n\n"
         )
 
@@ -281,8 +296,8 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
     """Run one task end-to-end: create worktree, dispatch agent, merge PR, teardown."""
     agent_index = graph.next_agent_index()
     task.state.agent_index = agent_index
-    effective_retries = (
-        task.max_gate_retries or graph.max_gate_retries or DEFAULT_GATE_RETRIES
+    effective_attempts = (
+        task.max_gate_attempts or graph.max_gate_attempts or DEFAULT_GATE_ATTEMPTS
     )
     print(f"[graph] dispatching {task.id}[a{agent_index}]: {task.description[:60]}")
     try:
@@ -302,11 +317,11 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
             graph.target_repo_root,
             graph.graph_branch(),
             agent_index,
-            effective_retries,
+            effective_attempts,
         )
 
         instructions = _build_task_instructions(
-            task, graph.graph_branch(), effective_retries
+            task, graph.graph_branch(), effective_attempts
         )
         write_instructions(signal_dir, instructions)
         print(f"[graph] wrote instructions.md for {task.id}[a{agent_index}]")
@@ -326,9 +341,8 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         if result == "done":
             if task.completion_gate:
                 gate_passed = run_completion_gate(
-                    task.completion_gate,
+                    _resolve_gate(task),
                     task.state.worktree_path,  # type: ignore[arg-type]
-                    task.coverage_threshold,
                 )
                 if not gate_passed:
                     print(

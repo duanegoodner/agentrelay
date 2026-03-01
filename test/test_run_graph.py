@@ -2,7 +2,7 @@
 
 from agentrelaysmall.agent_task import AgentRole, AgentTask
 from agentrelaysmall.run_graph import (
-    DEFAULT_GATE_RETRIES,
+    DEFAULT_GATE_ATTEMPTS,
     _build_context_content,
     _build_task_instructions,
 )
@@ -258,48 +258,48 @@ def test_generic_instructions_without_completion_gate_has_no_gate_step():
     assert "completion gate" not in instructions.lower()
 
 
-# ── DEFAULT_GATE_RETRIES and retry count in instructions ──────────────────────
+# ── DEFAULT_GATE_ATTEMPTS and attempt count in instructions ───────────────────
 
 
-def test_default_gate_retries_is_five():
-    assert DEFAULT_GATE_RETRIES == 5
+def test_default_gate_attempts_is_five():
+    assert DEFAULT_GATE_ATTEMPTS == 5
 
 
-def test_generic_instructions_show_retry_count_in_gate_block():
+def test_generic_instructions_show_attempt_count_in_gate_block():
     task = AgentTask(
         id="t1", description="do something", completion_gate="pixi run pytest"
     )
-    instructions = _build_task_instructions(task, GRAPH_BRANCH, effective_retries=3)
+    instructions = _build_task_instructions(task, GRAPH_BRANCH, effective_attempts=3)
     assert "3" in instructions
     assert "attempt" in instructions.lower()
 
 
-def test_generic_instructions_gate_block_uses_effective_retries():
+def test_generic_instructions_gate_block_uses_effective_attempts():
     task = AgentTask(
         id="t1", description="do something", completion_gate="pixi run pytest"
     )
-    instructions_2 = _build_task_instructions(task, GRAPH_BRANCH, effective_retries=2)
-    instructions_7 = _build_task_instructions(task, GRAPH_BRANCH, effective_retries=7)
+    instructions_2 = _build_task_instructions(task, GRAPH_BRANCH, effective_attempts=2)
+    instructions_7 = _build_task_instructions(task, GRAPH_BRANCH, effective_attempts=7)
     assert "2" in instructions_2
     assert "7" in instructions_7
 
 
-# ── coverage_threshold in generic instructions ────────────────────────────────
+# ── task_params substitution and coverage hint ────────────────────────────────
 
 
-def test_generic_instructions_include_coverage_hint_when_threshold_set():
+def test_generic_instructions_include_coverage_hint_when_threshold_in_task_params():
     task = AgentTask(
         id="t1",
         description="do something",
         completion_gate="pytest --cov-fail-under={coverage_threshold}",
-        coverage_threshold=90,
+        task_params={"coverage_threshold": 90},
     )
     instructions = _build_task_instructions(task, GRAPH_BRANCH)
     assert "coverage" in instructions.lower()
     assert "term-missing" in instructions
 
 
-def test_generic_instructions_no_coverage_hint_when_threshold_none():
+def test_generic_instructions_no_coverage_hint_when_no_task_params():
     task = AgentTask(
         id="t1", description="do something", completion_gate="pixi run pytest"
     )
@@ -307,19 +307,19 @@ def test_generic_instructions_no_coverage_hint_when_threshold_none():
     assert "term-missing" not in instructions
 
 
-def test_generic_instructions_substitute_coverage_threshold_in_gate_command():
+def test_generic_instructions_substitute_task_params_in_gate_command():
     task = AgentTask(
         id="t1",
         description="do something",
         completion_gate="pytest --cov-fail-under={coverage_threshold} -q",
-        coverage_threshold=85,
+        task_params={"coverage_threshold": 85},
     )
     instructions = _build_task_instructions(task, GRAPH_BRANCH)
     assert "85" in instructions
     assert "{coverage_threshold}" not in instructions
 
 
-# ── review_model in generic instructions ──────────────────────────────────────
+# ── review_model and review_on_attempt in generic instructions ────────────────
 
 
 def test_generic_instructions_include_review_step_when_review_model_set():
@@ -331,6 +331,41 @@ def test_generic_instructions_include_review_step_when_review_model_set():
     instructions = _build_task_instructions(task, GRAPH_BRANCH)
     assert "claude-sonnet-4-6" in instructions
     assert "review" in instructions.lower()
+
+
+def test_generic_instructions_review_step_before_gate_when_review_on_attempt_1():
+    task = AgentTask(
+        id="t1",
+        description="do something",
+        completion_gate="pixi run pytest",
+        review_model="claude-sonnet-4-6",
+        review_on_attempt=1,
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    # review step appears before the gate block (before "For each attempt:")
+    review_pos = instructions.lower().find("review subagent")
+    gate_pos = instructions.lower().find("for each attempt")
+    assert review_pos != -1
+    assert gate_pos != -1
+    assert review_pos < gate_pos
+
+
+def test_generic_instructions_review_step_inside_gate_when_review_on_attempt_2():
+    task = AgentTask(
+        id="t1",
+        description="do something",
+        completion_gate="pixi run pytest",
+        review_model="claude-sonnet-4-6",
+        review_on_attempt=2,
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "attempt 2" in instructions.lower()
+    # conditional review is inside the gate block
+    gate_pos = instructions.lower().find("for each attempt")
+    review_pos = instructions.lower().find("review subagent")
+    assert review_pos != -1
+    assert gate_pos != -1
+    assert review_pos > gate_pos
 
 
 def test_generic_instructions_no_review_step_when_review_model_none():

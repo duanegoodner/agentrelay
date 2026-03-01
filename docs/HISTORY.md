@@ -7,6 +7,35 @@ each PR on GitHub.
 
 ## 2026-03-01
 
+### Rename retries→attempts, `task_params`, `review_on_attempt` — PR #35
+
+Three design improvements building on PR #34's gate machinery:
+
+- **Rename "retries" → "attempts" throughout**: `max_gate_retries` →
+  `max_gate_attempts`, `DEFAULT_GATE_RETRIES` → `DEFAULT_GATE_ATTEMPTS`,
+  `gate_retries.log` → `gate_attempts.log`, `merge_pr(retries=6)` →
+  `merge_pr(attempts=6)`. "Attempt 1" is unambiguous; "retry #1" is not
+  (does it mean the first overall try or the second?).
+- **`task_params: dict[str, Any]`** replaces the typed `coverage_threshold` field.
+  A generic `{key}` → `str(val)` substitution dict avoids schema churn for future
+  gate-command parameters. A new `_resolve_gate(task)` helper in `run_graph.py`
+  performs the substitution before execution. `coverage_threshold` moves into
+  `task_params` in both the YAML and `task_context.json`. YAML: `task_params:
+  {coverage_threshold: 90}` (int preserved; coerced to str at substitution time).
+- **`review_on_attempt: int = 1`** delays the self-review subagent until a specific
+  gate attempt. Default `1` keeps the existing behavior (review before first attempt).
+  Setting `review_on_attempt: 2` causes the review instruction to appear inside the
+  gate loop instead of before it, worded as "Attempt 2+: before running the gate on
+  attempt 2 or later, spawn a self-review subagent."
+
+277 tests (up from 270). Demo graphs in `agentrelaydemos` updated to use
+`max_gate_attempts` and `task_params:` blocks.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`,
+`task_launcher.py`, `worktree_task_runner.py`.
+
+---
+
 ### coverage_threshold, review_model, max_gate_retries, gate instruction hardening — PR #34
 
 Three new optional `AgentTask` fields extend the `completion_gate` machinery:
