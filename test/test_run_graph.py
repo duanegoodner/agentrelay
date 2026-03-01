@@ -1,7 +1,11 @@
 """Tests for run_graph module-level prompt-builder functions."""
 
 from agentrelaysmall.agent_task import AgentRole, AgentTask
-from agentrelaysmall.run_graph import _build_context_content, _build_task_instructions
+from agentrelaysmall.run_graph import (
+    DEFAULT_GATE_RETRIES,
+    _build_context_content,
+    _build_task_instructions,
+)
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -252,3 +256,104 @@ def test_generic_instructions_without_completion_gate_has_no_gate_step():
     task = make_task()
     instructions = _build_task_instructions(task, GRAPH_BRANCH)
     assert "completion gate" not in instructions.lower()
+
+
+# ── DEFAULT_GATE_RETRIES and retry count in instructions ──────────────────────
+
+
+def test_default_gate_retries_is_five():
+    assert DEFAULT_GATE_RETRIES == 5
+
+
+def test_generic_instructions_show_retry_count_in_gate_block():
+    task = AgentTask(
+        id="t1", description="do something", completion_gate="pixi run pytest"
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH, effective_retries=3)
+    assert "3" in instructions
+    assert "attempt" in instructions.lower()
+
+
+def test_generic_instructions_gate_block_uses_effective_retries():
+    task = AgentTask(
+        id="t1", description="do something", completion_gate="pixi run pytest"
+    )
+    instructions_2 = _build_task_instructions(task, GRAPH_BRANCH, effective_retries=2)
+    instructions_7 = _build_task_instructions(task, GRAPH_BRANCH, effective_retries=7)
+    assert "2" in instructions_2
+    assert "7" in instructions_7
+
+
+# ── coverage_threshold in generic instructions ────────────────────────────────
+
+
+def test_generic_instructions_include_coverage_hint_when_threshold_set():
+    task = AgentTask(
+        id="t1",
+        description="do something",
+        completion_gate="pytest --cov-fail-under={coverage_threshold}",
+        coverage_threshold=90,
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "coverage" in instructions.lower()
+    assert "term-missing" in instructions
+
+
+def test_generic_instructions_no_coverage_hint_when_threshold_none():
+    task = AgentTask(
+        id="t1", description="do something", completion_gate="pixi run pytest"
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "term-missing" not in instructions
+
+
+def test_generic_instructions_substitute_coverage_threshold_in_gate_command():
+    task = AgentTask(
+        id="t1",
+        description="do something",
+        completion_gate="pytest --cov-fail-under={coverage_threshold} -q",
+        coverage_threshold=85,
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "85" in instructions
+    assert "{coverage_threshold}" not in instructions
+
+
+# ── review_model in generic instructions ──────────────────────────────────────
+
+
+def test_generic_instructions_include_review_step_when_review_model_set():
+    task = AgentTask(
+        id="t1",
+        description="do something",
+        review_model="claude-sonnet-4-6",
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "claude-sonnet-4-6" in instructions
+    assert "review" in instructions.lower()
+
+
+def test_generic_instructions_no_review_step_when_review_model_none():
+    task = make_task()
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "self-review" not in instructions.lower()
+    assert "subagent" not in instructions.lower()
+
+
+# ── gate exit-code authority and output capture ───────────────────────────────
+
+
+def test_generic_instructions_gate_mentions_exit_code():
+    task = AgentTask(
+        id="t1", description="do something", completion_gate="pixi run pytest"
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "exit" in instructions.lower()
+
+
+def test_generic_instructions_gate_mentions_gate_last_output():
+    task = AgentTask(
+        id="t1", description="do something", completion_gate="pixi run pytest"
+    )
+    instructions = _build_task_instructions(task, GRAPH_BRANCH)
+    assert "gate_last_output.txt" in instructions

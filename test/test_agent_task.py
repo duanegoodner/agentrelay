@@ -196,6 +196,63 @@ def test_agent_task_completion_gate_is_immutable():
         task.completion_gate = "false"  # type: ignore[misc]
 
 
+# ── AgentTask.coverage_threshold ──────────────────────────────────────────────
+
+
+def test_agent_task_default_coverage_threshold_is_none():
+    task = AgentTask(id="t1", description="d")
+    assert task.coverage_threshold is None
+
+
+def test_agent_task_accepts_coverage_threshold():
+    task = AgentTask(id="t1", description="d", coverage_threshold=95)
+    assert task.coverage_threshold == 95
+
+
+def test_agent_task_coverage_threshold_is_immutable():
+    task = AgentTask(id="t1", description="d", coverage_threshold=95)
+    with pytest.raises(AttributeError):
+        task.coverage_threshold = 100  # type: ignore[misc]
+
+
+# ── AgentTask.review_model ────────────────────────────────────────────────────
+
+
+def test_agent_task_default_review_model_is_none():
+    task = AgentTask(id="t1", description="d")
+    assert task.review_model is None
+
+
+def test_agent_task_accepts_review_model():
+    task = AgentTask(id="t1", description="d", review_model="claude-sonnet-4-6")
+    assert task.review_model == "claude-sonnet-4-6"
+
+
+def test_agent_task_review_model_is_immutable():
+    task = AgentTask(id="t1", description="d", review_model="claude-sonnet-4-6")
+    with pytest.raises(AttributeError):
+        task.review_model = "claude-opus-4-6"  # type: ignore[misc]
+
+
+# ── AgentTask.max_gate_retries ────────────────────────────────────────────────
+
+
+def test_agent_task_default_max_gate_retries_is_none():
+    task = AgentTask(id="t1", description="d")
+    assert task.max_gate_retries is None
+
+
+def test_agent_task_accepts_max_gate_retries():
+    task = AgentTask(id="t1", description="d", max_gate_retries=3)
+    assert task.max_gate_retries == 3
+
+
+def test_agent_task_max_gate_retries_is_immutable():
+    task = AgentTask(id="t1", description="d", max_gate_retries=3)
+    with pytest.raises(AttributeError):
+        task.max_gate_retries = 10  # type: ignore[misc]
+
+
 # ── TaskGroup ABC ─────────────────────────────────────────────────────────────
 
 
