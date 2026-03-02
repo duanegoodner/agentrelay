@@ -101,10 +101,12 @@ def test_agent_role_values():
     assert AgentRole.TEST_WRITER.value == "test_writer"
     assert AgentRole.TEST_REVIEWER.value == "test_reviewer"
     assert AgentRole.IMPLEMENTER.value == "implementer"
+    assert AgentRole.SPEC_WRITER.value == "spec_writer"
+    assert AgentRole.MERGER.value == "merger"
 
 
-def test_agent_role_has_four_members():
-    assert len(AgentRole) == 4
+def test_agent_role_has_six_members():
+    assert len(AgentRole) == 6
 
 
 # ── AgentTask.role ────────────────────────────────────────────────────────────
@@ -278,3 +280,106 @@ def test_agent_task_max_gate_attempts_is_immutable():
 def test_task_group_cannot_be_instantiated_directly():
     with pytest.raises(TypeError):
         TaskGroup(id="g", description="d")  # type: ignore[abstract]
+
+
+# ── AgentTask.description optional ────────────────────────────────────────────
+
+
+def test_agent_task_description_defaults_to_empty_string():
+    task = AgentTask(id="t1")
+    assert task.description == ""
+
+
+def test_agent_task_accepts_description():
+    task = AgentTask(id="t1", description="do something")
+    assert task.description == "do something"
+
+
+# ── AgentTask new roles ────────────────────────────────────────────────────────
+
+
+def test_agent_task_accepts_spec_writer_role():
+    task = AgentTask(id="t1", role=AgentRole.SPEC_WRITER)
+    assert task.role == AgentRole.SPEC_WRITER
+
+
+def test_agent_task_accepts_merger_role():
+    task = AgentTask(id="t1", role=AgentRole.MERGER)
+    assert task.role == AgentRole.MERGER
+
+
+# ── AgentTask.src_paths ────────────────────────────────────────────────────────
+
+
+def test_agent_task_src_paths_defaults_to_empty_tuple():
+    task = AgentTask(id="t1")
+    assert task.src_paths == ()
+
+
+def test_agent_task_accepts_src_paths():
+    task = AgentTask(id="t1", src_paths=("src/foo.py", "src/bar.py"))
+    assert task.src_paths == ("src/foo.py", "src/bar.py")
+
+
+def test_agent_task_src_paths_is_immutable():
+    task = AgentTask(id="t1", src_paths=("src/foo.py",))
+    with pytest.raises(AttributeError):
+        task.src_paths = ()  # type: ignore[misc]
+
+
+# ── AgentTask.test_paths ───────────────────────────────────────────────────────
+
+
+def test_agent_task_test_paths_defaults_to_empty_tuple():
+    task = AgentTask(id="t1")
+    assert task.test_paths == ()
+
+
+def test_agent_task_accepts_test_paths():
+    task = AgentTask(id="t1", test_paths=("tests/test_foo.py",))
+    assert task.test_paths == ("tests/test_foo.py",)
+
+
+def test_agent_task_test_paths_is_immutable():
+    task = AgentTask(id="t1", test_paths=("tests/test_foo.py",))
+    with pytest.raises(AttributeError):
+        task.test_paths = ()  # type: ignore[misc]
+
+
+# ── AgentTask.spec_path ────────────────────────────────────────────────────────
+
+
+def test_agent_task_spec_path_defaults_to_none():
+    task = AgentTask(id="t1")
+    assert task.spec_path is None
+
+
+def test_agent_task_accepts_spec_path():
+    task = AgentTask(id="t1", spec_path="specs/foo.md")
+    assert task.spec_path == "specs/foo.md"
+
+
+def test_agent_task_spec_path_is_immutable():
+    task = AgentTask(id="t1", spec_path="specs/foo.md")
+    with pytest.raises(AttributeError):
+        task.spec_path = None  # type: ignore[misc]
+
+
+# ── AgentTask.verbosity ────────────────────────────────────────────────────────
+
+
+def test_agent_task_verbosity_defaults_to_none():
+    task = AgentTask(id="t1")
+    assert task.verbosity is None
+
+
+def test_agent_task_accepts_verbosity():
+    for level in ("standard", "detailed", "educational"):
+        task = AgentTask(id="t1", verbosity=level)
+        assert task.verbosity == level
+
+
+def test_agent_task_verbosity_is_immutable():
+    task = AgentTask(id="t1", verbosity="detailed")
+    with pytest.raises(AttributeError):
+        task.verbosity = "standard"  # type: ignore[misc]

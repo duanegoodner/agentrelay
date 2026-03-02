@@ -121,6 +121,10 @@ def write_task_context(
         "review_model": task.review_model,
         "review_on_attempt": task.review_on_attempt,
         "max_gate_attempts": max_gate_attempts,
+        "src_paths": list(task.src_paths),
+        "test_paths": list(task.test_paths),
+        "spec_path": task.spec_path,
+        "verbosity": task.verbosity,
     }
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))

@@ -31,6 +31,7 @@ class AgentTaskGraph:
     keep_panes: bool = False
     model: str | None = None
     max_gate_attempts: int | None = None
+    verbosity: str = "standard"
     _agent_counter: int = field(default=0, init=False, repr=False, compare=False)
 
     def next_agent_index(self) -> int:
@@ -127,6 +128,7 @@ class AgentTaskGraphBuilder:
         keep_panes: bool = bool(data.get("keep_panes", False))
         graph_model: str | None = data.get("model")
         graph_max_gate_attempts: int | None = data.get("max_gate_attempts")
+        graph_verbosity: str = data.get("verbosity", "standard")
 
         # Collect raw specs keyed by ID
         raw_plain: dict[str, Any] = {t["id"]: t for t in data.get("tasks", [])}
@@ -151,16 +153,22 @@ class AgentTaskGraphBuilder:
                 raw = raw_plain[node_id]
                 raw_dep_ids: list[str] = raw.get("dependencies", [])
                 deps = tuple(built_tasks[d] for d in raw_dep_ids)
+                role_str: str = raw.get("role", "GENERIC").upper()
                 built_tasks[node_id] = AgentTask(
                     id=node_id,
-                    description=raw["description"],
+                    description=raw.get("description", ""),
                     dependencies=deps,
+                    role=AgentRole[role_str],
                     model=raw.get("model"),
                     completion_gate=raw.get("completion_gate"),
                     review_model=raw.get("review_model"),
                     review_on_attempt=raw.get("review_on_attempt", 1),
                     max_gate_attempts=raw.get("max_gate_attempts"),
                     task_params=raw.get("task_params", {}),
+                    src_paths=tuple(raw.get("src_paths", [])),
+                    test_paths=tuple(raw.get("test_paths", [])),
+                    spec_path=raw.get("spec_path"),
+                    verbosity=raw.get("verbosity"),
                 )
             else:
                 raw = raw_groups[node_id]
@@ -228,4 +236,5 @@ class AgentTaskGraphBuilder:
             keep_panes=keep_panes,
             model=graph_model,
             max_gate_attempts=graph_max_gate_attempts,
+            verbosity=graph_verbosity,
         )

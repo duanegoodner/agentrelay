@@ -338,3 +338,78 @@ def test_record_gate_attempt_creates_signal_dir_if_missing(tmp_path):
     runner.record_gate_attempt(1, False)
     assert signal_dir.is_dir()
     assert (signal_dir / "gate_attempts.log").exists()
+
+
+# ── src_paths / test_paths / spec_path / verbosity from config ────────────────
+
+
+def test_from_config_reads_src_paths(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, src_paths=["src/foo.py", "src/bar.py"])
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.src_paths == ["src/foo.py", "src/bar.py"]
+
+
+def test_from_config_src_paths_defaults_to_empty(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    write_config(signal_dir)
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.src_paths == []
+
+
+def test_from_config_reads_test_paths(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, test_paths=["tests/test_foo.py"])
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.test_paths == ["tests/test_foo.py"]
+
+
+def test_from_config_test_paths_defaults_to_empty(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    write_config(signal_dir)
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.test_paths == []
+
+
+def test_from_config_reads_spec_path(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, spec_path="specs/roman.md")
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.spec_path == "specs/roman.md"
+
+
+def test_from_config_spec_path_defaults_to_none(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    write_config(signal_dir)
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.spec_path is None
+
+
+def test_from_config_reads_verbosity(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    cfg = make_config(signal_dir, verbosity="educational")
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(cfg))
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.verbosity == "educational"
+
+
+def test_from_config_verbosity_defaults_to_none(tmp_path, monkeypatch):
+    signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
+    write_config(signal_dir)
+    monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+    runner = WorktreeTaskRunner.from_config()
+    assert runner.verbosity is None
