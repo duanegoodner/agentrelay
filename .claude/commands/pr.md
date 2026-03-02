@@ -1,4 +1,5 @@
 Implement plan PR $ARGUMENTS for the agentrelaysmall structured-roles feature.
+(This number is the plan-internal PR number 1–7, not the GitHub repo PR number.)
 
 Steps:
 1. Read the full plan at `/home/duane/.claude/plans/hidden-crunching-charm.md` — find the section for PR $ARGUMENTS and read it carefully.
