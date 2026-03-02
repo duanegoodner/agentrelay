@@ -104,7 +104,7 @@ def write_task_context(
     target_repo_root: Path,
     graph_branch: str,
     agent_index: int,
-    max_gate_retries: int,
+    max_gate_attempts: int,
 ) -> None:
     signal_dir = target_repo_root / ".workflow" / graph_name / "signals" / task.id
     context = {
@@ -117,9 +117,10 @@ def write_task_context(
         "model": task.model,
         "completion_gate": task.completion_gate,
         "agent_index": agent_index,
-        "coverage_threshold": task.coverage_threshold,
+        "task_params": task.task_params,
         "review_model": task.review_model,
-        "max_gate_retries": max_gate_retries,
+        "review_on_attempt": task.review_on_attempt,
+        "max_gate_attempts": max_gate_attempts,
     }
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))
@@ -237,14 +238,8 @@ def write_instructions(signal_dir: Path, content: str) -> None:
     (signal_dir / "instructions.md").write_text(content)
 
 
-def run_completion_gate(
-    command: str,
-    worktree_path: Path,
-    coverage_threshold: int | None = None,
-) -> bool:
+def run_completion_gate(command: str, worktree_path: Path) -> bool:
     """Run the completion gate command in the worktree. Returns True if exit code is 0."""
-    if coverage_threshold is not None:
-        command = command.replace("{coverage_threshold}", str(coverage_threshold))
     result = subprocess.run(command, shell=True, cwd=str(worktree_path))
     return result.returncode == 0
 
@@ -313,7 +308,7 @@ def read_done_note(task: AgentTask, graph_name: str, target_repo_root: Path) -> 
     return lines[1] if len(lines) > 1 else ""
 
 
-def merge_pr(pr_url: str, retries: int = 6, delay: float = 5.0) -> None:
+def merge_pr(pr_url: str, attempts: int = 6, delay: float = 5.0) -> None:
     """Merge a PR using gh CLI, retrying on transient 'not mergeable' errors.
 
     GitHub asynchronously recalculates PR mergeability after each push. When
@@ -322,12 +317,12 @@ def merge_pr(pr_url: str, retries: int = 6, delay: float = 5.0) -> None:
     delay resolves it in practice.
     """
     cmd = ["gh", "pr", "merge", pr_url, "--merge"]
-    for attempt in range(retries):
+    for attempt in range(attempts):
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
             return
         combined = (result.stdout + result.stderr).lower()
-        if "not mergeable" in combined and attempt < retries - 1:
+        if "not mergeable" in combined and attempt < attempts - 1:
             time.sleep(delay)
             continue
         raise subprocess.CalledProcessError(

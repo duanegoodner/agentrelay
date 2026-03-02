@@ -56,9 +56,10 @@ class AgentTask:
     tdd_group_id: str | None = None
     model: str | None = None
     completion_gate: str | None = None
-    coverage_threshold: int | None = None
     review_model: str | None = None
-    max_gate_retries: int | None = None
+    review_on_attempt: int = 1
+    max_gate_attempts: int | None = None
+    task_params: dict[str, Any] = field(default_factory=dict)
     state: TaskState = field(default_factory=TaskState)
 
     @property

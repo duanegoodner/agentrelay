@@ -30,7 +30,7 @@ class AgentTaskGraph:
     tmux_session: str = "agentrelaysmall"
     keep_panes: bool = False
     model: str | None = None
-    max_gate_retries: int | None = None
+    max_gate_attempts: int | None = None
     _agent_counter: int = field(default=0, init=False, repr=False, compare=False)
 
     def next_agent_index(self) -> int:
@@ -126,7 +126,7 @@ class AgentTaskGraphBuilder:
         tmux_session: str = data.get("tmux_session", "agentrelaysmall")
         keep_panes: bool = bool(data.get("keep_panes", False))
         graph_model: str | None = data.get("model")
-        graph_max_gate_retries: int | None = data.get("max_gate_retries")
+        graph_max_gate_attempts: int | None = data.get("max_gate_attempts")
 
         # Collect raw specs keyed by ID
         raw_plain: dict[str, Any] = {t["id"]: t for t in data.get("tasks", [])}
@@ -157,9 +157,10 @@ class AgentTaskGraphBuilder:
                     dependencies=deps,
                     model=raw.get("model"),
                     completion_gate=raw.get("completion_gate"),
-                    coverage_threshold=raw.get("coverage_threshold"),
                     review_model=raw.get("review_model"),
-                    max_gate_retries=raw.get("max_gate_retries"),
+                    review_on_attempt=raw.get("review_on_attempt", 1),
+                    max_gate_attempts=raw.get("max_gate_attempts"),
+                    task_params=raw.get("task_params", {}),
                 )
             else:
                 raw = raw_groups[node_id]
@@ -226,5 +227,5 @@ class AgentTaskGraphBuilder:
             tmux_session=tmux_session,
             keep_panes=keep_panes,
             model=graph_model,
-            max_gate_retries=graph_max_gate_retries,
+            max_gate_attempts=graph_max_gate_attempts,
         )

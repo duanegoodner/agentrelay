@@ -130,16 +130,16 @@ def test_write_task_context_includes_new_fields(tmp_path):
     assert data["agent_index"] == 5
 
 
-def test_write_task_context_writes_coverage_threshold(tmp_path):
+def test_write_task_context_writes_task_params(tmp_path):
     task = AgentTask(
         id="task_001",
         description="do something",
-        coverage_threshold=90,
+        task_params={"coverage_threshold": 90},
     )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["coverage_threshold"] == 90
+    assert data["task_params"] == {"coverage_threshold": 90}
 
 
 def test_write_task_context_writes_review_model(tmp_path):
@@ -154,38 +154,19 @@ def test_write_task_context_writes_review_model(tmp_path):
     assert data["review_model"] == "claude-sonnet-4-6"
 
 
-def test_write_task_context_writes_resolved_max_gate_retries(tmp_path):
+def test_write_task_context_writes_resolved_max_gate_attempts(tmp_path):
     task = AgentTask(id="task_001", description="do something")
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 7)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["max_gate_retries"] == 7
+    assert data["max_gate_attempts"] == 7
 
 
-def test_run_completion_gate_substitutes_coverage_threshold(tmp_path):
-    # Gate command contains placeholder; should be resolved before running
+def test_run_completion_gate_runs_command_as_given(tmp_path):
+    # Caller is responsible for pre-resolving placeholders; gate just executes
     sentinel = tmp_path / "sentinel.txt"
     sentinel.write_text("ok")
-    # The gate checks that a file exists; coverage_threshold substitution should
-    # leave the rest of the command intact
-    result = run_completion_gate(
-        "test -f sentinel.txt",
-        tmp_path,
-        coverage_threshold=80,
-    )
-    assert result is True
-
-
-def test_run_completion_gate_substitutes_placeholder_in_command(tmp_path):
-    # Use coverage_threshold in actual placeholder substitution
-    # We verify that {coverage_threshold} is replaced (not left as-is)
-    # by using a command that checks we can echo the resolved value
-    result = run_completion_gate(
-        "test '{coverage_threshold}' = '95'",
-        tmp_path,
-        coverage_threshold=95,
-    )
-    # The substituted command becomes: test '95' = '95' → exits 0
+    result = run_completion_gate("test -f sentinel.txt", tmp_path)
     assert result is True
 
 
@@ -491,7 +472,7 @@ def test_merge_pr_uses_merge_strategy():
     assert "--merge" in cmd
 
 
-def test_merge_pr_retries_on_not_mergeable():
+def test_merge_pr_reattempts_on_not_mergeable():
     # First call returns "not mergeable"; second call succeeds.
     results = [
         type(
@@ -513,7 +494,7 @@ def test_merge_pr_retries_on_not_mergeable():
     assert mock_sleep.call_count == 1
 
 
-def test_merge_pr_raises_after_all_retries_exhausted():
+def test_merge_pr_raises_after_all_attempts_exhausted():
     import subprocess as sp
 
     always_fail = type(
@@ -529,7 +510,7 @@ def test_merge_pr_raises_after_all_retries_exhausted():
         patch("agentrelaysmall.task_launcher.time.sleep"),
         pytest.raises(sp.CalledProcessError),
     ):
-        merge_pr("https://github.com/org/repo/pull/42", retries=3, delay=0.0)
+        merge_pr("https://github.com/org/repo/pull/42", attempts=3, delay=0.0)
 
 
 def test_merge_pr_raises_immediately_on_other_errors():
@@ -543,7 +524,7 @@ def test_merge_pr_raises_immediately_on_other_errors():
         patch("agentrelaysmall.task_launcher.time.sleep") as mock_sleep,
         pytest.raises(sp.CalledProcessError),
     ):
-        merge_pr("https://github.com/org/repo/pull/42", retries=6, delay=0.0)
+        merge_pr("https://github.com/org/repo/pull/42", attempts=6, delay=0.0)
     # No retries for non-transient errors
     mock_sleep.assert_not_called()
 
