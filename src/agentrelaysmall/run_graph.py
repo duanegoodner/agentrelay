@@ -125,9 +125,9 @@ def _build_generic_instructions(
             f"For each attempt:\n"
             f"{conditional_review}"
             f"1. Run the gate command, saving its output and checking the exit code:\n"
-            f'       {resolved_gate} 2>&1 | tee "$AGENTRELAY_SIGNAL_DIR/gate_last_output.txt"\n'
-            f"       gate_exit=${{PIPESTATUS[0]}}\n"
-            f"   Use gate_exit (not $?) as the authoritative exit code.\n"
+            f'       {resolved_gate} > "$AGENTRELAY_SIGNAL_DIR/gate_last_output.txt" 2>&1\n'
+            f"       gate_exit=$?\n"
+            f'       cat "$AGENTRELAY_SIGNAL_DIR/gate_last_output.txt"\n'
             f"2. Record the attempt:\n"
             f'       python -c "\\\n'
             f"from agentrelaysmall.worktree_task_runner import WorktreeTaskRunner;\\\n"
