@@ -21,6 +21,8 @@ class AgentRole(Enum):
     TEST_WRITER = "test_writer"
     TEST_REVIEWER = "test_reviewer"
     IMPLEMENTER = "implementer"
+    SPEC_WRITER = "spec_writer"
+    MERGER = "merger"
 
 
 @dataclass(frozen=True)
@@ -50,7 +52,7 @@ class TaskState:
 @dataclass(frozen=True)
 class AgentTask:
     id: str
-    description: str
+    description: str = ""
     dependencies: tuple[AgentTask, ...] = field(default_factory=tuple)
     role: AgentRole = AgentRole.GENERIC
     tdd_group_id: str | None = None
@@ -60,6 +62,10 @@ class AgentTask:
     review_on_attempt: int = 1
     max_gate_attempts: int | None = None
     task_params: dict[str, Any] = field(default_factory=dict)
+    src_paths: tuple[str, ...] = field(default_factory=tuple)
+    test_paths: tuple[str, ...] = field(default_factory=tuple)
+    spec_path: str | None = None
+    verbosity: str | None = None
     state: TaskState = field(default_factory=TaskState)
 
     @property

@@ -20,6 +20,10 @@ class WorktreeTaskRunner:
         review_model: str | None = None,
         review_on_attempt: int = 1,
         max_gate_attempts: int | None = None,
+        src_paths: list[str] | None = None,
+        test_paths: list[str] | None = None,
+        spec_path: str | None = None,
+        verbosity: str | None = None,
     ) -> None:
         self.task_id = task_id
         self.graph_name = graph_name
@@ -33,6 +37,10 @@ class WorktreeTaskRunner:
         self.review_model = review_model
         self.review_on_attempt = review_on_attempt
         self.max_gate_attempts = max_gate_attempts
+        self.src_paths: list[str] = src_paths or []
+        self.test_paths: list[str] = test_paths or []
+        self.spec_path = spec_path
+        self.verbosity = verbosity
 
     @classmethod
     def from_config(cls) -> "WorktreeTaskRunner":
@@ -51,6 +59,10 @@ class WorktreeTaskRunner:
             review_model=data.get("review_model"),
             review_on_attempt=data.get("review_on_attempt", 1),
             max_gate_attempts=data.get("max_gate_attempts"),
+            src_paths=data.get("src_paths", []),
+            test_paths=data.get("test_paths", []),
+            spec_path=data.get("spec_path"),
+            verbosity=data.get("verbosity"),
         )
 
     def get_context(self) -> str | None:

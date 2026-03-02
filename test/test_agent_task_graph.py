@@ -883,3 +883,144 @@ def test_write_context_creates_file(tmp_path):
     signal_dir.mkdir(parents=True)
     write_context(signal_dir, "# Context\nsome info")
     assert (signal_dir / "context.md").read_text() == "# Context\nsome info"
+
+
+# ── role: key on plain tasks ──────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_plain_task_role_defaults_to_generic(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].role == AgentRole.GENERIC
+
+
+def test_builder_from_yaml_plain_task_role_spec_writer(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {"name": "g", "tasks": [{"id": "t1", "role": "spec_writer"}]},
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].role == AgentRole.SPEC_WRITER
+
+
+def test_builder_from_yaml_plain_task_role_merger(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {"name": "g", "tasks": [{"id": "t1", "role": "merger"}]},
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].role == AgentRole.MERGER
+
+
+def test_builder_from_yaml_plain_task_invalid_role_raises(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {"name": "g", "tasks": [{"id": "t1", "role": "nonexistent_role"}]},
+    )
+    with pytest.raises(KeyError):
+        AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+
+
+# ── description optional ──────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_plain_task_description_optional(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].description == ""
+
+
+# ── src_paths / test_paths ────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_plain_task_src_paths(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [{"id": "t1", "src_paths": ["src/foo.py", "src/bar.py"]}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].src_paths == ("src/foo.py", "src/bar.py")
+
+
+def test_builder_from_yaml_plain_task_src_paths_defaults_to_empty(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].src_paths == ()
+
+
+def test_builder_from_yaml_plain_task_test_paths(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [{"id": "t1", "test_paths": ["tests/test_foo.py"]}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].test_paths == ("tests/test_foo.py",)
+
+
+def test_builder_from_yaml_plain_task_test_paths_defaults_to_empty(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].test_paths == ()
+
+
+# ── spec_path ─────────────────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_plain_task_spec_path(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [{"id": "t1", "spec_path": "specs/roman.md"}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].spec_path == "specs/roman.md"
+
+
+def test_builder_from_yaml_plain_task_spec_path_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].spec_path is None
+
+
+# ── verbosity ─────────────────────────────────────────────────────────────────
+
+
+def test_builder_from_yaml_graph_verbosity_defaults_to_standard(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.verbosity == "standard"
+
+
+def test_builder_from_yaml_graph_verbosity_set(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {"name": "g", "verbosity": "detailed", "tasks": [{"id": "t1"}]},
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.verbosity == "detailed"
+
+
+def test_builder_from_yaml_plain_task_verbosity(tmp_path):
+    p = write_yaml(
+        tmp_path,
+        {
+            "name": "g",
+            "tasks": [{"id": "t1", "verbosity": "educational"}],
+        },
+    )
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].verbosity == "educational"
+
+
+def test_builder_from_yaml_plain_task_verbosity_defaults_to_none(tmp_path):
+    p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
+    graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
+    assert graph.tasks["t1"].verbosity is None

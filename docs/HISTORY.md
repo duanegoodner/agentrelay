@@ -7,6 +7,40 @@ each PR on GitHub.
 
 ## 2026-03-01
 
+### Structured roles, `src_paths`/`test_paths`/`spec_path`/`verbosity`, `SPEC_WRITER`/`MERGER` roles — PR #36
+
+Core data model and YAML parser additions for the structured-roles design. No behavior
+changes to existing agents; purely a foundation for subsequent PRs.
+
+- **`AgentRole.SPEC_WRITER` and `AgentRole.MERGER`**: two new enum members support
+  the spec-in-source and PR-review workflows described in the design plan.
+- **`AgentTask.description` optional (default `""`)**: non-SPEC_WRITER roles can omit
+  the description entirely; role + structured path fields carry the instruction content.
+- **`src_paths: tuple[str, ...]`**: list of source files the task operates on. For
+  SPEC_WRITER: files to create as stubs+docstrings. For IMPLEMENTER: files to fill in.
+- **`test_paths: tuple[str, ...]`**: list of test files. TEST_WRITER creates them;
+  IMPLEMENTER reads them as the test contract.
+- **`spec_path: str | None`**: optional secondary spec `.md` for cases where the spec
+  can't fit in source comments.
+- **`verbosity: str | None`**: task-level verbosity override (`"standard"` /
+  `"detailed"` / `"educational"`); `None` means inherit from graph.
+- **`AgentTaskGraph.verbosity: str = "standard"`**: graph-level default verbosity
+  parsed from YAML `verbosity:` key.
+- **YAML `role:` key on plain tasks**: parser now maps `role: spec_writer` →
+  `AgentRole.SPEC_WRITER` etc.; invalid values raise `KeyError` immediately.
+- **`task_context.json`**: `write_task_context()` serialises all new fields.
+- **`WorktreeTaskRunner`**: `from_config()` reads `src_paths`, `test_paths`,
+  `spec_path`, and `verbosity` from `task_context.json`.
+- **tdd_groups unchanged**: all new capabilities apply to plain tasks only.
+
+46 new tests (323 total, up from 277). `pixi run check` clean.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `task_launcher.py`,
+`worktree_task_runner.py`, `test/test_agent_task.py`, `test/test_agent_task_graph.py`,
+`test/test_task_launcher.py`, `test/test_worktree_task_runner.py`.
+
+---
+
 ### Rename retries→attempts, `task_params`, `review_on_attempt` — PR #35
 
 Three design improvements building on PR #34's gate machinery:
