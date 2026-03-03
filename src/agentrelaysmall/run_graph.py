@@ -19,6 +19,7 @@ from pathlib import Path
 from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
 from agentrelaysmall.agent_task_graph import AgentTaskGraph, AgentTaskGraphBuilder
 from agentrelaysmall.task_launcher import (
+    append_concerns_to_pr,
     close_agent_pane,
     create_final_pr,
     create_graph_branch,
@@ -29,6 +30,7 @@ from agentrelaysmall.task_launcher import (
     pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_graph_branch,
+    read_design_concerns,
     read_done_note,
     record_run_start,
     remove_worktree,
@@ -475,11 +477,16 @@ def _build_implementer_prompt(task: AgentTask, graph_branch: str) -> str:
         f"and any reviewer feedback.\n\n"
         f"{impl_step}\n"
         f"{run_tests_step}\n"
-        f"4. Stage, commit, and push:\n"
+        f"4. If during implementation you encountered concerns about the spec, tests, or "
+        f"architecture — whether or not you succeeded — document each one:\n"
+        f'       python -c "from agentrelaysmall import WorktreeTaskRunner; \\\n'
+        f"WorktreeTaskRunner.from_config().record_concern('your concern here')\"\n"
+        f"   Do this for every distinct concern. If you have no concerns, skip this step.\n\n"
+        f"5. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"5. Create a PR and signal completion:\n"
+        f"6. Create a PR and signal completion:\n"
         f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
         f"## Summary\n"
         f"<1-3 sentences describing the implementation>\n\n"
@@ -548,6 +555,8 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         print(f"[graph] {task.id}[a{agent_index}] sentinel: {result}")
 
         if result == "done":
+            pr_url = read_done_note(task, graph.name, graph.target_repo_root)
+
             if task.completion_gate:
                 gate_passed = run_completion_gate(
                     _resolve_gate(task),
@@ -558,12 +567,20 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                         f"[graph] {task.id}[a{agent_index}] completion gate FAILED: "
                         f"{task.completion_gate}"
                     )
+                    if pr_url:
+                        save_pr_summary(pr_url, graph.signal_dir(task.id))
                     task.state.status = TaskStatus.FAILED
                     return
                 print(f"[graph] {task.id}[a{agent_index}] completion gate passed")
 
-            pr_url = read_done_note(task, graph.name, graph.target_repo_root)
+            concerns = read_design_concerns(signal_dir)
+            if concerns:
+                print(f"[graph] {task.id} design concerns recorded")
+                if pr_url:
+                    append_concerns_to_pr(pr_url, concerns)
+
             if pr_url:
+                save_pr_summary(pr_url, graph.signal_dir(task.id))
                 pixi_changed = pixi_toml_changed_in_pr(pr_url)
                 if pixi_changed:
                     print(
@@ -573,7 +590,6 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                 print(
                     f"[graph] merging task PR for {task.id} into {graph.graph_branch()}: {pr_url}"
                 )
-                save_pr_summary(pr_url, graph.signal_dir(task.id))
                 merge_pr(pr_url)
                 write_merged_signal(task, graph.name, graph.target_repo_root)
                 print(f"[graph] {task.id} merged into {graph.graph_branch()}")

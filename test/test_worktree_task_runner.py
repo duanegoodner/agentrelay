@@ -413,3 +413,48 @@ def test_from_config_verbosity_defaults_to_none(tmp_path, monkeypatch):
     monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
     runner = WorktreeTaskRunner.from_config()
     assert runner.verbosity is None
+
+
+# ── record_concern ────────────────────────────────────────────────────────────
+
+
+def test_record_concern_creates_file(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_concern("The API contract is ambiguous.")
+    assert (signal_dir / "design_concerns.md").exists()
+
+
+def test_record_concern_contains_concern_text(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_concern("The API contract is ambiguous.")
+    content = (signal_dir / "design_concerns.md").read_text()
+    assert "The API contract is ambiguous." in content
+
+
+def test_record_concern_contains_timestamp(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_concern("something concerning")
+    content = (signal_dir / "design_concerns.md").read_text()
+    assert "T" in content  # ISO 8601 timestamp contains 'T'
+
+
+def test_record_concern_appends_multiple_entries(tmp_path):
+    signal_dir = tmp_path / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_concern("First concern.")
+    runner.record_concern("Second concern.")
+    content = (signal_dir / "design_concerns.md").read_text()
+    assert "First concern." in content
+    assert "Second concern." in content
+    assert content.count("## Concern recorded at") == 2
+
+
+def test_record_concern_creates_signal_dir_if_missing(tmp_path):
+    signal_dir = tmp_path / "nested" / "signals"
+    runner = WorktreeTaskRunner("task_001", "demo", signal_dir)
+    runner.record_concern("no dir yet")
+    assert signal_dir.is_dir()
+    assert (signal_dir / "design_concerns.md").exists()

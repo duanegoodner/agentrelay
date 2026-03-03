@@ -18,6 +18,7 @@ from agentrelaysmall.task_launcher import (
     pixi_toml_changed_in_pr,
     poll_for_completion,
     pull_main,
+    read_design_concerns,
     read_done_note,
     read_run_info,
     record_run_start,
@@ -1092,3 +1093,37 @@ def test_write_task_context_writes_verbosity_value(tmp_path):
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
     assert data["verbosity"] == "educational"
+
+
+# ── read_design_concerns ──────────────────────────────────────────────────────
+
+
+def test_read_design_concerns_returns_none_when_file_absent(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    assert read_design_concerns(signal_dir) is None
+
+
+def test_read_design_concerns_returns_content_when_file_present(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    (signal_dir / "design_concerns.md").write_text(
+        "\n## Concern recorded at 2026-03-02T00:00:00+00:00\n\nSpec is ambiguous.\n"
+    )
+    result = read_design_concerns(signal_dir)
+    assert result is not None
+    assert "Spec is ambiguous." in result
+
+
+def test_read_design_concerns_returns_none_when_file_empty(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    (signal_dir / "design_concerns.md").write_text("")
+    assert read_design_concerns(signal_dir) is None
+
+
+def test_read_design_concerns_returns_none_when_file_whitespace_only(tmp_path):
+    signal_dir = tmp_path / "signals" / "task_001"
+    signal_dir.mkdir(parents=True)
+    (signal_dir / "design_concerns.md").write_text("   \n  \n")
+    assert read_design_concerns(signal_dir) is None
