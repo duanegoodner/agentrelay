@@ -7,6 +7,29 @@ each PR on GitHub.
 
 ## 2026-03-03
 
+### Demo YAML: `split_tdd_single.yaml` updated to three-node structured-roles graph — PR #42
+
+Replaces the two-node split-TDD demo in `agentrelaydemos` with a three-node pipeline
+that exercises the full set of structured-role features added in PRs #36–#41.
+
+- **`graphs/split_tdd_single.yaml`** (in `agentrelaydemos`): three tasks —
+  `write_roman_spec` (`role: spec_writer`), `write_roman_tests` (`role: test_writer`),
+  `impl_roman` (`role: implementer`).
+- **Features exercised:** `role:` key on plain tasks, `src_paths`/`test_paths` as
+  structured lists, spec-in-source (docstrings as authoritative spec, no separate `.md`),
+  `description:` omitted on `test_writer` and `implementer` tasks, dispatch-time path
+  validation, MERGER agent reviews implementer PR for spec integrity, `design_concerns`
+  mechanism available to implementer, `completion_gate` with `coverage_threshold: 95`,
+  graph-level `verbosity: standard`.
+- **`tdd_group` removed:** the new pipeline uses plain tasks with explicit roles instead
+  of the `tdd_groups:` expansion macro.
+
+`pixi run check` clean (no agentrelaysmall source changes in this PR).
+
+**Key file:** `/data/git/agentrelaydemos/main/graphs/split_tdd_single.yaml`.
+
+---
+
 ### Verbosity / ADR mechanism — PR #41
 
 When a task's effective verbosity is above `"standard"`, the agent now writes an
