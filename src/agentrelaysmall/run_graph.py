@@ -21,17 +21,23 @@ from agentrelaysmall.agent_task_graph import AgentTaskGraph, AgentTaskGraphBuild
 from agentrelaysmall.task_launcher import (
     append_concerns_to_pr,
     close_agent_pane,
+    close_pane_by_id,
     create_final_pr,
     create_graph_branch,
     create_worktree,
     launch_agent,
+    launch_agent_in_dir,
+    merge_history_path,
     merge_pr,
     neutralize_pixi_lock_in_pr,
     pixi_toml_changed_in_pr,
     poll_for_completion,
+    poll_for_completion_at,
     pull_graph_branch,
     read_design_concerns,
     read_done_note,
+    read_done_note_at,
+    record_gate_failure,
     record_run_start,
     remove_worktree,
     run_completion_gate,
@@ -41,6 +47,7 @@ from agentrelaysmall.task_launcher import (
     write_context,
     write_instructions,
     write_merged_signal,
+    write_merger_task_context,
     write_task_context,
 )
 
@@ -219,6 +226,106 @@ def _build_spec_writer_prompt(task: AgentTask, graph_branch: str) -> str:
         f"Do NOT implement any function or method bodies.\n\n"
         f"Then stop.\n"
     )
+
+
+def _build_merger_prompt(
+    reviewed_task: AgentTask,
+    pr_url: str,
+    history_path: Path,
+) -> str:
+    """Build instructions for the MERGER agent that reviews a PR before merge."""
+    task_id = reviewed_task.id
+
+    docstring_step = ""
+    if reviewed_task.role == AgentRole.IMPLEMENTER and reviewed_task.src_paths:
+        src_paths_str = " ".join(reviewed_task.src_paths)
+        docstring_step = (
+            f"3. Docstring integrity check (IMPLEMENTER task):\n"
+            f"   For each source file in {src_paths_str}:\n"
+            f"   - Verify that docstrings were not materially altered.\n"
+            f"   - Additive changes are acceptable (new Examples, Notes, clarifications).\n"
+            f"   - NOT acceptable: changed signatures, altered Args/Returns/Raises sections, "
+            f"weakened constraints.\n"
+            f"   - Quote specific lines from the diff that are acceptable or concerning.\n\n"
+        )
+        quality_step_num = 4
+    else:
+        quality_step_num = 3
+
+    return (
+        f"You are a merge reviewer for the agentrelaysmall project.\n\n"
+        f"Your role: PR REVIEWER / MERGER\n\n"
+        f"Your task: Review PR {pr_url} (task {task_id}) before it is merged.\n\n"
+        f"Complete these steps in order:\n\n"
+        f"1. If {history_path} exists, read it for context from previous merge reviews.\n\n"
+        f"2. Run these commands to examine the changes:\n"
+        f"       gh pr diff {pr_url}\n"
+        f"       gh pr view {pr_url}\n\n"
+        f"{docstring_step}"
+        f"{quality_step_num}. Briefly assess code quality: "
+        f"do the gate-tested files look correct? Any obvious issues?\n\n"
+        f"{quality_step_num + 1}. Append your findings to {history_path} in this format:\n"
+        f"   ## Review: {task_id} — <ISO timestamp>\n"
+        f"   PR: {pr_url}\n"
+        f"   Verdict: APPROVED / REJECTED\n"
+        f"   Notes: <your findings>\n\n"
+        f"   Use `date -Iseconds` for the ISO timestamp. "
+        f"Create parent directories if needed.\n\n"
+        f"{quality_step_num + 2}. Signal done with your verdict:\n"
+        f"   Approved:\n"
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_done('approved')\"\n"
+        f"   Rejected (include reason in the note):\n"
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_done('rejected: <reason>')\"\n"
+        f"   Always use mark_done, never mark_failed — the verdict is in the done note.\n\n"
+        f"Then stop.\n"
+    )
+
+
+def _launch_merger(
+    reviewed_task: AgentTask,
+    pr_url: str,
+    graph: "AgentTaskGraph",
+    tmux_session: str,
+) -> str:
+    """Launch a MERGER agent to review a PR. Returns the tmux pane_id."""
+    merger_task_id = f"merger_{reviewed_task.id}"
+    merger_signal_dir = (
+        graph.target_repo_root
+        / ".workflow"
+        / graph.name
+        / "merge_reviews"
+        / reviewed_task.id
+    )
+    history_path = merge_history_path(graph.name, graph.target_repo_root)
+
+    write_merger_task_context(
+        merger_task_id=merger_task_id,
+        graph_name=graph.name,
+        graph_branch=graph.graph_branch(),
+        src_paths=list(reviewed_task.src_paths),
+        signal_dir=merger_signal_dir,
+    )
+
+    instructions = _build_merger_prompt(
+        reviewed_task=reviewed_task,
+        pr_url=pr_url,
+        history_path=history_path,
+    )
+    write_instructions(merger_signal_dir, instructions)
+
+    pane_id = launch_agent_in_dir(
+        cwd=graph.target_repo_root,
+        task_id=merger_task_id,
+        tmux_session=tmux_session,
+        signal_dir=merger_signal_dir,
+        model=graph.model,
+    )
+    print(f"[graph] wrote merger instructions for {reviewed_task.id}")
+    return pane_id
 
 
 def _build_task_instructions(
@@ -569,6 +676,13 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                     )
                     if pr_url:
                         save_pr_summary(pr_url, graph.signal_dir(task.id))
+                    record_gate_failure(
+                        task_id=task.id,
+                        pr_url=pr_url or "",
+                        gate_cmd=_resolve_gate(task),
+                        graph_name=graph.name,
+                        target_repo_root=graph.target_repo_root,
+                    )
                     task.state.status = TaskStatus.FAILED
                     return
                 print(f"[graph] {task.id}[a{agent_index}] completion gate passed")
@@ -587,6 +701,33 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                         f"[graph] pixi.toml changed in {task.id} — neutralizing pixi.lock in branch"
                     )
                     neutralize_pixi_lock_in_pr(task)
+
+                merger_signal_dir = (
+                    graph.target_repo_root
+                    / ".workflow"
+                    / graph.name
+                    / "merge_reviews"
+                    / task.id
+                )
+                merger_pane = _launch_merger(task, pr_url, graph, graph.tmux_session)
+                send_prompt(merger_pane, BOOTSTRAP_PROMPT)
+                print(f"[graph] {task.id} MERGER agent launched in pane {merger_pane}")
+
+                merger_result = await poll_for_completion_at(merger_signal_dir)
+                print(
+                    f"[graph] {task.id}[a{agent_index}] merger sentinel: {merger_result}"
+                )
+
+                verdict = read_done_note_at(merger_signal_dir)
+                if not graph.keep_panes:
+                    close_pane_by_id(merger_pane)
+
+                if not verdict or not verdict.startswith("approved"):
+                    print(f"[graph] {task.id} MERGER rejected: {verdict}")
+                    task.state.status = TaskStatus.FAILED
+                    return
+
+                print(f"[graph] {task.id} MERGER approved — proceeding with merge")
                 print(
                     f"[graph] merging task PR for {task.id} into {graph.graph_branch()}: {pr_url}"
                 )

@@ -21,6 +21,7 @@ from agentrelaysmall.task_launcher import (
     read_design_concerns,
     read_done_note,
     read_run_info,
+    record_gate_failure,
     record_run_start,
     remove_worktree,
     reset_target_repo_to_head,
@@ -1127,3 +1128,45 @@ def test_read_design_concerns_returns_none_when_file_whitespace_only(tmp_path):
     signal_dir.mkdir(parents=True)
     (signal_dir / "design_concerns.md").write_text("   \n  \n")
     assert read_design_concerns(signal_dir) is None
+
+
+# ── record_gate_failure ───────────────────────────────────────────────────────
+
+
+def test_record_gate_failure_creates_merge_history(tmp_path):
+    record_gate_failure(
+        task_id="impl_fib",
+        pr_url="https://github.com/org/repo/pull/7",
+        gate_cmd="pixi run pytest test/test_fibonacci.py -q",
+        graph_name="pr40_merger_role",
+        target_repo_root=tmp_path,
+    )
+    history = tmp_path / ".workflow" / "pr40_merger_role" / "merge_history.md"
+    assert history.exists()
+    content = history.read_text()
+    assert "impl_fib" in content
+    assert "https://github.com/org/repo/pull/7" in content
+    assert "GATE FAILED" in content
+    assert "pixi run pytest test/test_fibonacci.py -q" in content
+
+
+def test_record_gate_failure_appends_on_second_call(tmp_path):
+    record_gate_failure(
+        task_id="task_a",
+        pr_url="https://github.com/org/repo/pull/1",
+        gate_cmd="pixi run pytest -q",
+        graph_name="my_graph",
+        target_repo_root=tmp_path,
+    )
+    record_gate_failure(
+        task_id="task_b",
+        pr_url="https://github.com/org/repo/pull/2",
+        gate_cmd="pixi run pytest -q",
+        graph_name="my_graph",
+        target_repo_root=tmp_path,
+    )
+    history = tmp_path / ".workflow" / "my_graph" / "merge_history.md"
+    content = history.read_text()
+    assert "task_a" in content
+    assert "task_b" in content
+    assert content.count("GATE FAILED") == 2

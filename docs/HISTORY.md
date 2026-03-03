@@ -7,6 +7,67 @@ each PR on GitHub.
 
 ## 2026-03-02
 
+### MERGER role and `merge_history` — PR #40
+
+Before the orchestrator calls `gh pr merge`, it now launches a MERGER agent to review
+the PR in a tmux pane with CWD = `target_repo_root`. The agent checks spec integrity
+for IMPLEMENTER PRs, logs findings to a graph-level `merge_history.md`, and returns
+a verdict. The orchestrator merges only on approval.
+
+- **`_build_merger_prompt(reviewed_task, pr_url, history_path) -> str`** (new, in
+  `run_graph.py`): builds instructions for the MERGER agent. For IMPLEMENTER tasks
+  with `src_paths`, includes a docstring integrity check (verifies docstrings were not
+  materially altered — additive changes OK, changed signatures/Args/Returns/Raises NOT
+  OK). Always instructs the agent to append a `## Review: {task_id} — {timestamp}`
+  entry to `merge_history.md` and call `mark_done("approved")` or
+  `mark_done("rejected: {reason}")` (never `mark_failed`).
+- **`_launch_merger(reviewed_task, pr_url, graph, tmux_session) -> str`** (new, in
+  `run_graph.py`): creates the merger signal dir at
+  `.workflow/{graph}/merge_reviews/{task_id}/`, writes `task_context.json` and
+  `instructions.md`, launches claude in a new tmux pane with CWD = `target_repo_root`,
+  returns the pane_id.
+- **`_run_task()`** updated: after `save_pr_summary` and before `merge_pr`, launches the
+  MERGER, polls for its completion sentinel, reads the verdict, and closes the pane.
+  If the verdict does not start with `"approved"`, sets status to `FAILED` and returns
+  without merging.
+- **`merge_history_path(graph_name, target_repo_root) -> Path`** (new, in
+  `task_launcher.py`): returns `.workflow/{graph_name}/merge_history.md`.
+- **`poll_for_completion_at(signal_dir, poll_interval) -> str`** (new async, in
+  `task_launcher.py`): polls an arbitrary `signal_dir` for `.done` or `.failed`;
+  variant of `poll_for_completion` that accepts a `Path` directly.
+- **`launch_agent_in_dir(cwd, task_id, tmux_session, signal_dir, model) -> str`** (new,
+  in `task_launcher.py`): launches a claude agent with a given CWD without requiring a
+  worktree (used by MERGER which runs in `target_repo_root`).
+- **`read_done_note_at(signal_dir) -> str`** (new, in `task_launcher.py`): reads line 2
+  of `.done` from an arbitrary `signal_dir`; complement to `read_done_note`.
+- **`close_pane_by_id(pane_id) -> str`** (new, in `task_launcher.py`): kills a tmux
+  window by pane_id; used to close the MERGER pane after polling completes.
+- **`write_merger_task_context(...)`** (new, in `task_launcher.py`): writes a minimal
+  `task_context.json` for the MERGER agent (role=merger, task_id, signal_dir,
+  graph_name, graph_branch, src_paths).
+
+7 new tests (367 total, up from 360). `pixi run check` clean.
+
+**Key files:** `run_graph.py`, `task_launcher.py`, `test/test_run_graph.py`.
+
+### Gate failure recording in `merge_history.md`
+
+When the orchestrator's completion gate fails, the failure is now appended to the
+graph-level `.workflow/{graph}/merge_history.md` alongside MERGER review entries,
+making the full PR lifecycle auditable from a single file.
+
+- **`record_gate_failure(task_id, pr_url, gate_cmd, graph_name, target_repo_root)`**
+  (new, in `task_launcher.py`): appends a `## Gate failure: {task_id} — {ts}` section
+  with the PR URL, verdict, and gate command.
+- **`_run_task()`** updated: calls `record_gate_failure()` in the gate-failure branch,
+  between `save_pr_summary` and `task.state.status = TaskStatus.FAILED`.
+
+2 new tests (369 total, up from 367). `pixi run check` clean.
+
+**Key files:** `task_launcher.py`, `run_graph.py`, `test/test_task_launcher.py`.
+
+---
+
 ### `design_concerns` mechanism — PR #39
 
 Agents (primarily IMPLEMENTER) can now record concerns about the spec, tests, or
