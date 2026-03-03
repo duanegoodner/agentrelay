@@ -5,6 +5,59 @@ each PR on GitHub.
 
 ---
 
+## 2026-03-03
+
+### Verbosity / ADR mechanism — PR #41
+
+When a task's effective verbosity is above `"standard"`, the agent now writes an
+ADR (Architecture Decision Record) to `docs/decisions/{task_id}.md` as part of its
+normal commit. The final graph PR body lists all ADRs produced, and
+`docs/decisions/index.md` is updated on the graph branch before the final PR is
+created.
+
+- **`_adr_step(task, graph) -> str`** (new, in `run_graph.py`): returns an empty
+  string when effective verbosity is `"standard"`; otherwise returns a numbered
+  step instructing the agent to write an ADR at `docs/decisions/{task.id}.md`
+  with YAML front matter (`task_id`, `graph`, `role`, `date`, `verbosity`) and
+  three standard sections (`## Context`, `## Decision`, `## Consequences`). At
+  `"educational"` verbosity two additional sections are added (`## Key Concepts`,
+  `## Alternatives Considered`). Always ends with `git add docs/decisions/{task.id}.md`.
+- **`_effective_verbosity(task, graph) -> str`**: already present (PR 37 scaffold);
+  now actively used by `_adr_step`.
+- **All role prompt builders updated** (`_build_spec_writer_prompt`,
+  `_build_test_writer_prompt`, `_build_test_reviewer_prompt`,
+  `_build_implementer_prompt`, `_build_generic_instructions`): each accepts a new
+  optional `graph: AgentTaskGraph | None = None` parameter and injects `_adr_step`
+  between the "do the work" step and the "stage, commit, push" step. Step numbers
+  shift accordingly when the ADR step is active.
+- **`_build_task_instructions()`** updated: accepts `graph: AgentTaskGraph | None = None`
+  and passes it to each role builder.
+- **`_run_task()`** updated: passes `graph` to `_build_task_instructions()`.
+- **`_run_graph_loop()`** updated: calls `write_adr_index_to_graph_branch()` before
+  `create_final_pr()` when all tasks are done.
+- **`scan_adr_section(graph_name, target_repo_root) -> str`** (new, in
+  `task_launcher.py`): uses `git ls-tree` to list `docs/decisions/*.md` on the
+  graph branch and `git show` to read their YAML front matter; returns a formatted
+  `## ADRs produced in this run` section for the final PR body (empty string if no
+  ADRs found).
+- **`write_adr_index_to_graph_branch(graph_name, target_repo_root, worktrees_root)`**
+  (new, in `task_launcher.py`): creates a temporary detached worktree on the graph
+  branch, writes/updates `docs/decisions/index.md` (a markdown table of all ADR
+  files with task_id, role, date columns), commits, and pushes. Silent no-op when
+  no ADR files are present. Stale worktrees at the index path are cleaned up before
+  and after the operation.
+- **`_extract_front_matter_field(content, field) -> str | None`** (new private
+  helper, in `task_launcher.py`): parses a YAML front-matter value from a markdown
+  file string; used by `scan_adr_section` and `write_adr_index_to_graph_branch`.
+- **`create_final_pr()`** updated: calls `scan_adr_section()` and appends the ADR
+  listing to the PR body alongside the existing design-concerns section.
+
+6 new tests (375 total, up from 369). `pixi run check` clean.
+
+**Key files:** `run_graph.py`, `task_launcher.py`, `test/test_run_graph.py`.
+
+---
+
 ## 2026-03-02
 
 ### MERGER role and `merge_history` — PR #40

@@ -14,6 +14,7 @@ Requires:
 
 import argparse
 import asyncio
+from datetime import date
 from pathlib import Path
 
 from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
@@ -44,6 +45,7 @@ from agentrelaysmall.task_launcher import (
     save_agent_log,
     save_pr_summary,
     send_prompt,
+    write_adr_index_to_graph_branch,
     write_context,
     write_instructions,
     write_merged_signal,
@@ -61,6 +63,46 @@ DEFAULT_GATE_ATTEMPTS = 5
 def _effective_verbosity(task: AgentTask, graph: AgentTaskGraph) -> str:
     """Return effective verbosity for a task, inheriting from graph if task is unset."""
     return task.verbosity or graph.verbosity or "standard"
+
+
+def _adr_step(task: AgentTask, graph: AgentTaskGraph | None) -> str:
+    """Return an ADR-writing step if verbosity is above 'standard', else empty string."""
+    if graph is None:
+        return ""
+    verbosity = _effective_verbosity(task, graph)
+    if verbosity == "standard":
+        return ""
+    today = date.today().isoformat()
+    adr_path = f"docs/decisions/{task.id}.md"
+    extra_sections = ""
+    if verbosity == "educational":
+        extra_sections = (
+            "\n\n## Key Concepts\n"
+            "Explain domain concepts that a reader unfamiliar with this area would need.\n\n"
+            "## Alternatives Considered\n"
+            "What else did you evaluate? Why did you choose this approach over the alternatives?"
+        )
+    return (
+        f"Write an ADR (Architecture Decision Record) to {adr_path}.\n"
+        f"Create the parent directory if needed: mkdir -p docs/decisions\n"
+        f"The file must contain this YAML front matter followed by the sections below:\n"
+        f"---\n"
+        f"task_id: {task.id}\n"
+        f"graph: {graph.name}\n"
+        f"role: {task.role.value}\n"
+        f"date: {today}\n"
+        f"verbosity: {verbosity}\n"
+        f"---\n\n"
+        f"## Context\n"
+        f"What situation or codebase state did you find? What constraints existed?\n\n"
+        f"## Decision\n"
+        f"What did you choose to do and what were the key reasons?\n\n"
+        f"## Consequences\n"
+        f"What are the trade-offs? What should future contributors know?"
+        f"{extra_sections}\n\n"
+        f"Then stage the ADR file before committing:\n"
+        f"    git add {adr_path}\n"
+    )
 
 
 def _spec_reading_step(task: AgentTask) -> str:
@@ -157,7 +199,9 @@ def _build_context_content(task: AgentTask) -> str | None:
     return "\n".join(lines)
 
 
-def _build_spec_writer_prompt(task: AgentTask, graph_branch: str) -> str:
+def _build_spec_writer_prompt(
+    task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None
+) -> str:
     short_desc = task.description[:60]
     src_paths_str = " ".join(task.src_paths) if task.src_paths else "(see description)"
 
@@ -188,6 +232,11 @@ def _build_spec_writer_prompt(task: AgentTask, graph_branch: str) -> str:
         f'(e.g. `pixi run python -c "import <module>"`). Fix any import errors.'
     )
     step_num += 1
+
+    adr_text = _adr_step(task, graph)
+    if adr_text:
+        steps.append(f"{step_num}. {adr_text}")
+        step_num += 1
 
     all_paths = list(task.src_paths)
     if task.spec_path:
@@ -329,21 +378,27 @@ def _launch_merger(
 
 
 def _build_task_instructions(
-    task: AgentTask, graph_branch: str, effective_attempts: int = DEFAULT_GATE_ATTEMPTS
+    task: AgentTask,
+    graph_branch: str,
+    effective_attempts: int = DEFAULT_GATE_ATTEMPTS,
+    graph: AgentTaskGraph | None = None,
 ) -> str:
     if task.role == AgentRole.SPEC_WRITER:
-        return _build_spec_writer_prompt(task, graph_branch)
+        return _build_spec_writer_prompt(task, graph_branch, graph)
     if task.role == AgentRole.TEST_WRITER:
-        return _build_test_writer_prompt(task, graph_branch)
+        return _build_test_writer_prompt(task, graph_branch, graph)
     if task.role == AgentRole.TEST_REVIEWER:
-        return _build_test_reviewer_prompt(task, graph_branch)
+        return _build_test_reviewer_prompt(task, graph_branch, graph)
     if task.role == AgentRole.IMPLEMENTER:
-        return _build_implementer_prompt(task, graph_branch)
-    return _build_generic_instructions(task, graph_branch, effective_attempts)
+        return _build_implementer_prompt(task, graph_branch, graph)
+    return _build_generic_instructions(task, graph_branch, effective_attempts, graph)
 
 
 def _build_generic_instructions(
-    task: AgentTask, graph_branch: str, effective_attempts: int = DEFAULT_GATE_ATTEMPTS
+    task: AgentTask,
+    graph_branch: str,
+    effective_attempts: int = DEFAULT_GATE_ATTEMPTS,
+    graph: AgentTaskGraph | None = None,
 ) -> str:
     context_note = ""
     if task.dependencies:
@@ -413,6 +468,10 @@ def _build_generic_instructions(
 
     short_desc = task.description[:60]
     spec_step = _spec_reading_step(task)
+    adr_text = _adr_step(task, graph)
+    adr_section = f"2. {adr_text}\n\n" if adr_text else ""
+    commit_num = 3 if adr_text else 2
+    pr_num = 4 if adr_text else 3
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your task: {task.description}\n\n"
@@ -422,11 +481,12 @@ def _build_generic_instructions(
         f"{spec_step}"
         f"1. Do the work described in your task.\n\n"
         f"{gate_step}"
-        f"2. Stage, commit, and push:\n"
+        f"{adr_section}"
+        f"{commit_num}. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"3. Create a PR with a meaningful body, capture the URL, and signal completion:\n"
+        f"{pr_num}. Create a PR with a meaningful body, capture the URL, and signal completion:\n"
         f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
         f"## Summary\n"
         f"<1-3 sentences describing what you did and why>\n\n"
@@ -441,7 +501,9 @@ def _build_generic_instructions(
     )
 
 
-def _build_test_writer_prompt(task: AgentTask, graph_branch: str) -> str:
+def _build_test_writer_prompt(
+    task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None
+) -> str:
     short_desc = task.description[:60]
     spec_step = _spec_reading_step(task)
 
@@ -463,6 +525,11 @@ def _build_test_writer_prompt(task: AgentTask, graph_branch: str) -> str:
     else:
         stub_note = ""
 
+    adr_text = _adr_step(task, graph)
+    adr_section = f"3. {adr_text}\n\n" if adr_text else ""
+    commit_num = 4 if adr_text else 3
+    pr_num = 5 if adr_text else 4
+
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your role: TEST WRITER\n\n"
@@ -473,11 +540,12 @@ def _build_test_writer_prompt(task: AgentTask, graph_branch: str) -> str:
         f"{stub_note}\n"
         f"2. Verify tests collect without import errors:\n"
         f"       pixi run pytest --collect-only\n\n"
-        f"3. Stage, commit, and push:\n"
+        f"{adr_section}"
+        f"{commit_num}. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"4. Create a PR and signal completion:\n"
+        f"{pr_num}. Create a PR and signal completion:\n"
         f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
         f"## Summary\n"
         f"<1-3 sentences describing the tests written>\n\n"
@@ -492,10 +560,16 @@ def _build_test_writer_prompt(task: AgentTask, graph_branch: str) -> str:
     )
 
 
-def _build_test_reviewer_prompt(task: AgentTask, graph_branch: str) -> str:
+def _build_test_reviewer_prompt(
+    task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None
+) -> str:
     short_desc = task.description[:60]
     review_file = f"{task.id}.md"
     spec_step = _spec_reading_step(task)
+    adr_text = _adr_step(task, graph)
+    adr_section = f"4. {adr_text}\n\n" if adr_text else ""
+    commit_num = 5 if adr_text else 4
+    pr_num = 6 if adr_text else 5
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your role: TEST REVIEWER\n\n"
@@ -517,11 +591,12 @@ def _build_test_reviewer_prompt(task: AgentTask, graph_branch: str) -> str:
         f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_failed('Tests are fundamentally broken: <reason>')\"\n\n"
-        f"4. Otherwise stage, commit, and push {review_file}:\n"
+        f"{adr_section}"
+        f"{commit_num}. Otherwise stage, commit, and push {review_file}:\n"
         f"       git add {review_file}\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"5. Create a PR and signal completion:\n"
+        f"{pr_num}. Create a PR and signal completion:\n"
         f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
         f"## Summary\n"
         f"<verdict and 1-2 sentence summary of the review>\n\n"
@@ -536,7 +611,9 @@ def _build_test_reviewer_prompt(task: AgentTask, graph_branch: str) -> str:
     )
 
 
-def _build_implementer_prompt(task: AgentTask, graph_branch: str) -> str:
+def _build_implementer_prompt(
+    task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None
+) -> str:
     short_desc = task.description[:60]
     review_file = task.id.removesuffix("_impl") + "_review.md"
     spec_step = _spec_reading_step(task)
@@ -572,6 +649,11 @@ def _build_implementer_prompt(task: AgentTask, graph_branch: str) -> str:
             f"       pixi run pytest\n"
         )
 
+    adr_text = _adr_step(task, graph)
+    adr_section = f"5. {adr_text}\n\n" if adr_text else ""
+    commit_num = 6 if adr_text else 5
+    pr_num = 7 if adr_text else 6
+
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your role: IMPLEMENTER\n\n"
@@ -589,11 +671,12 @@ def _build_implementer_prompt(task: AgentTask, graph_branch: str) -> str:
         f'       python -c "from agentrelaysmall import WorktreeTaskRunner; \\\n'
         f"WorktreeTaskRunner.from_config().record_concern('your concern here')\"\n"
         f"   Do this for every distinct concern. If you have no concerns, skip this step.\n\n"
-        f"5. Stage, commit, and push:\n"
+        f"{adr_section}"
+        f"{commit_num}. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"6. Create a PR and signal completion:\n"
+        f"{pr_num}. Create a PR and signal completion:\n"
         f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
         f"## Summary\n"
         f"<1-3 sentences describing the implementation>\n\n"
@@ -644,7 +727,7 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         )
 
         instructions = _build_task_instructions(
-            task, graph.graph_branch(), effective_attempts
+            task, graph.graph_branch(), effective_attempts, graph
         )
         write_instructions(signal_dir, instructions)
         print(f"[graph] wrote instructions.md for {task.id}[a{agent_index}]")
@@ -806,6 +889,9 @@ async def _run_graph_loop(graph: AgentTaskGraph) -> None:
     if all_done:
         print(
             f"\n[graph] all tasks done — creating final PR: {graph.graph_branch()} → main"
+        )
+        write_adr_index_to_graph_branch(
+            graph.name, graph.target_repo_root, graph.worktrees_root
         )
         final_pr_url = create_final_pr(graph.name, graph.target_repo_root)
         if final_pr_url:
