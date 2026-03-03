@@ -672,6 +672,27 @@ def merge_history_path(graph_name: str, target_repo_root: Path) -> Path:
     return target_repo_root / ".workflow" / graph_name / "merge_history.md"
 
 
+def record_gate_failure(
+    task_id: str,
+    pr_url: str,
+    gate_cmd: str,
+    graph_name: str,
+    target_repo_root: Path,
+) -> None:
+    """Append a gate-failure record to the graph-level merge_history.md."""
+    path = merge_history_path(graph_name, target_repo_root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).isoformat()
+    entry = (
+        f"\n## Gate failure: {task_id} — {ts}\n"
+        f"PR: {pr_url}\n"
+        f"Verdict: GATE FAILED — not merged\n"
+        f"Gate command: {gate_cmd}\n"
+    )
+    with open(path, "a") as f:
+        f.write(entry)
+
+
 async def poll_for_completion_at(
     signal_dir: Path,
     poll_interval: float = 2.0,

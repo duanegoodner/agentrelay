@@ -37,6 +37,7 @@ from agentrelaysmall.task_launcher import (
     read_design_concerns,
     read_done_note,
     read_done_note_at,
+    record_gate_failure,
     record_run_start,
     remove_worktree,
     run_completion_gate,
@@ -675,6 +676,13 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                     )
                     if pr_url:
                         save_pr_summary(pr_url, graph.signal_dir(task.id))
+                    record_gate_failure(
+                        task_id=task.id,
+                        pr_url=pr_url or "",
+                        gate_cmd=_resolve_gate(task),
+                        graph_name=graph.name,
+                        target_repo_root=graph.target_repo_root,
+                    )
                     task.state.status = TaskStatus.FAILED
                     return
                 print(f"[graph] {task.id}[a{agent_index}] completion gate passed")

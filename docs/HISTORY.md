@@ -50,6 +50,22 @@ a verdict. The orchestrator merges only on approval.
 
 **Key files:** `run_graph.py`, `task_launcher.py`, `test/test_run_graph.py`.
 
+### Gate failure recording in `merge_history.md`
+
+When the orchestrator's completion gate fails, the failure is now appended to the
+graph-level `.workflow/{graph}/merge_history.md` alongside MERGER review entries,
+making the full PR lifecycle auditable from a single file.
+
+- **`record_gate_failure(task_id, pr_url, gate_cmd, graph_name, target_repo_root)`**
+  (new, in `task_launcher.py`): appends a `## Gate failure: {task_id} — {ts}` section
+  with the PR URL, verdict, and gate command.
+- **`_run_task()`** updated: calls `record_gate_failure()` in the gate-failure branch,
+  between `save_pr_summary` and `task.state.status = TaskStatus.FAILED`.
+
+2 new tests (369 total, up from 367). `pixi run check` clean.
+
+**Key files:** `task_launcher.py`, `run_graph.py`, `test/test_task_launcher.py`.
+
 ---
 
 ### `design_concerns` mechanism — PR #39
