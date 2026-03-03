@@ -7,6 +7,27 @@ each PR on GitHub.
 
 ## 2026-03-02
 
+### Dispatch-time path validation — PR #38
+
+Adds `validate_task_paths(task, worktree_path)` to `run_graph.py`. After a worktree is
+created and before the agent is launched, the orchestrator checks that required files and
+directories are present. This surfaces missing prerequisites (e.g. SPEC_WRITER stubs not
+yet merged) with a clear error message rather than letting an agent fail mid-task.
+
+- **`validate_task_paths(task, worktree_path) -> None`** (new): role-aware validation:
+  - `SPEC_WRITER`: parent directory of each `src_paths` entry must exist; if `spec_path`
+    is set, its parent directory must also exist.
+  - `TEST_WRITER`: each `src_paths` file must exist (stubs from SPEC_WRITER must be
+    merged in); parent directories of `test_paths` entries must exist.
+  - `IMPLEMENTER`: each `src_paths` file must exist; each `test_paths` file must exist.
+  - `MERGER`, `GENERIC`: no validation (pass unconditionally).
+  - Raises `ValueError` with a message containing the task id and missing path.
+- **`_run_task()`** updated: calls `validate_task_paths` after `create_worktree()` and
+  before `write_task_context()`. On `ValueError`, prints the error, sets status to
+  `FAILED`, and returns (worktree cleanup still runs via the `finally` block).
+- **`test/test_path_validation.py`** (new): 14 unit tests covering all roles and both
+  the happy path and error cases.
+
 ### SPEC_WRITER prompt, `_spec_reading_step`, and updated role prompts — PR #37
 
 Implements the prompt-building layer for the structured-roles design. All new prompt

@@ -70,6 +70,61 @@ def _spec_reading_step(task: AgentTask) -> str:
     return "".join(parts)
 
 
+def validate_task_paths(task: AgentTask, worktree_path: Path) -> None:
+    """Validate that expected files/dirs exist in the worktree before agent launch.
+
+    Raises ValueError with a descriptive message if any required path is missing.
+    MERGER and GENERIC roles are not validated.
+    """
+    role = task.role
+    if role == AgentRole.SPEC_WRITER:
+        for src_path in task.src_paths:
+            parent = (worktree_path / src_path).parent
+            if not parent.exists():
+                raise ValueError(
+                    f"[validate] {task.id}: expected parent directory "
+                    f"'{src_path}' parent in worktree but not found"
+                )
+        if task.spec_path:
+            parent = (worktree_path / task.spec_path).parent
+            if not parent.exists():
+                raise ValueError(
+                    f"[validate] {task.id}: expected parent directory for "
+                    f"spec_path '{task.spec_path}' in worktree but not found"
+                )
+    elif role == AgentRole.TEST_WRITER:
+        for src_path in task.src_paths:
+            full_path = worktree_path / src_path
+            if not full_path.exists():
+                raise ValueError(
+                    f"[validate] {task.id}: expected src_path '{src_path}' "
+                    f"in worktree but not found"
+                )
+        for test_path in task.test_paths:
+            parent = (worktree_path / test_path).parent
+            if not parent.exists():
+                raise ValueError(
+                    f"[validate] {task.id}: expected parent directory for "
+                    f"test_path '{test_path}' in worktree but not found"
+                )
+    elif role == AgentRole.IMPLEMENTER:
+        for src_path in task.src_paths:
+            full_path = worktree_path / src_path
+            if not full_path.exists():
+                raise ValueError(
+                    f"[validate] {task.id}: expected src_path '{src_path}' "
+                    f"in worktree but not found"
+                )
+        for test_path in task.test_paths:
+            full_path = worktree_path / test_path
+            if not full_path.exists():
+                raise ValueError(
+                    f"[validate] {task.id}: expected test_path '{test_path}' "
+                    f"in worktree but not found"
+                )
+    # MERGER and GENERIC: no validation
+
+
 def _resolve_gate(task: AgentTask) -> str:
     """Substitute task_params {key} placeholders in the completion gate command."""
     cmd = task.completion_gate or ""
@@ -450,6 +505,13 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
     try:
         create_worktree(task, graph.name, graph.worktrees_root, graph.target_repo_root)
         print(f"[graph] worktree at {task.state.worktree_path}")
+
+        try:
+            validate_task_paths(task, task.state.worktree_path)  # type: ignore[arg-type]
+        except ValueError as e:
+            print(f"[graph] {task.id} path validation failed: {e}")
+            task.state.status = TaskStatus.FAILED
+            return
 
         signal_dir = graph.signal_dir(task.id)
 
