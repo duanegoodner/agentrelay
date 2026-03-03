@@ -1,9 +1,12 @@
 """Tests for run_graph module-level prompt-builder functions."""
 
+from pathlib import Path
+
 from agentrelaysmall.agent_task import AgentRole, AgentTask
 from agentrelaysmall.run_graph import (
     DEFAULT_GATE_ATTEMPTS,
     _build_context_content,
+    _build_merger_prompt,
     _build_task_instructions,
     _spec_reading_step,
 )
@@ -534,3 +537,71 @@ def test_generic_without_src_paths_or_spec_path_no_spec_reading_step():
     task = make_task()
     prompt = _build_task_instructions(task, GRAPH_BRANCH)
     assert "API contract" not in prompt
+
+
+# ── _build_merger_prompt ──────────────────────────────────────────────────────
+
+
+def test_merger_prompt_implementer_contains_docstring_check():
+    task = AgentTask(
+        id="impl_001",
+        role=AgentRole.IMPLEMENTER,
+        src_paths=("src/foo.py",),
+        test_paths=("tests/test_foo.py",),
+    )
+    prompt = _build_merger_prompt(
+        task, "https://github.com/o/r/pull/42", Path("/tmp/h.md")
+    )
+    assert "docstring" in prompt.lower()
+    assert "materially" in prompt.lower()
+    assert "src/foo.py" in prompt
+
+
+def test_merger_prompt_non_implementer_no_docstring_integrity_check():
+    task = AgentTask(
+        id="spec_001",
+        role=AgentRole.SPEC_WRITER,
+        src_paths=("src/foo.py",),
+    )
+    prompt = _build_merger_prompt(
+        task, "https://github.com/o/r/pull/99", Path("/tmp/h.md")
+    )
+    assert "materially" not in prompt.lower()
+
+
+def test_merger_prompt_contains_role_header():
+    task = make_task()
+    prompt = _build_merger_prompt(
+        task, "https://github.com/o/r/pull/1", Path("/tmp/h.md")
+    )
+    assert "PR REVIEWER / MERGER" in prompt
+
+
+def test_merger_prompt_contains_pr_url():
+    task = make_task()
+    pr_url = "https://github.com/o/r/pull/123"
+    prompt = _build_merger_prompt(task, pr_url, Path("/tmp/h.md"))
+    assert pr_url in prompt
+
+
+def test_merger_prompt_contains_history_path():
+    task = make_task()
+    history = Path("/workflow/mygraph/merge_history.md")
+    prompt = _build_merger_prompt(task, "https://github.com/o/r/pull/1", history)
+    assert str(history) in prompt
+
+
+def test_merger_prompt_contains_mark_done():
+    task = make_task()
+    prompt = _build_merger_prompt(
+        task, "https://github.com/o/r/pull/1", Path("/tmp/h.md")
+    )
+    assert "mark_done" in prompt
+
+
+def test_merger_prompt_implementer_no_src_paths_no_docstring_check():
+    task = AgentTask(id="impl_002", role=AgentRole.IMPLEMENTER)
+    prompt = _build_merger_prompt(
+        task, "https://github.com/o/r/pull/5", Path("/tmp/h.md")
+    )
+    assert "materially" not in prompt.lower()

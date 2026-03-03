@@ -667,6 +667,98 @@ def delete_remote_branches(branches: list[str], target_repo_root: Path) -> None:
     )
 
 
+def merge_history_path(graph_name: str, target_repo_root: Path) -> Path:
+    """Return the graph-level merge history log path."""
+    return target_repo_root / ".workflow" / graph_name / "merge_history.md"
+
+
+async def poll_for_completion_at(
+    signal_dir: Path,
+    poll_interval: float = 2.0,
+) -> str:
+    """Poll an arbitrary signal_dir for .done or .failed. Returns 'done' or 'failed'."""
+    while True:
+        if (signal_dir / ".done").exists():
+            return "done"
+        if (signal_dir / ".failed").exists():
+            return "failed"
+        await asyncio.sleep(poll_interval)
+
+
+def launch_agent_in_dir(
+    cwd: Path,
+    task_id: str,
+    tmux_session: str,
+    signal_dir: Path,
+    model: str | None = None,
+) -> str:
+    """Launch a claude agent with CWD=cwd (no worktree required). Returns pane_id."""
+    pane_id = (
+        subprocess.check_output(
+            [
+                "tmux",
+                "new-window",
+                "-t",
+                tmux_session,
+                "-n",
+                task_id,
+                "-P",
+                "-F",
+                "#{pane_id}",
+                "-c",
+                str(cwd),
+            ]
+        )
+        .decode()
+        .strip()
+    )
+    env_path = os.environ.get("PATH", "")
+    model_flag = f"--model {model} " if model else ""
+    subprocess.run(
+        [
+            "tmux",
+            "send-keys",
+            "-t",
+            pane_id,
+            f'export PATH="{env_path}" AGENTRELAY_SIGNAL_DIR="{signal_dir}" && claude {model_flag}--dangerously-skip-permissions --add-dir {str(cwd)}',
+            "Enter",
+        ]
+    )
+    return pane_id
+
+
+def read_done_note_at(signal_dir: Path) -> str:
+    """Return the note (second line) from .done in the given signal_dir, or empty string."""
+    content = (signal_dir / ".done").read_text()
+    lines = content.splitlines()
+    return lines[1] if len(lines) > 1 else ""
+
+
+def close_pane_by_id(pane_id: str) -> None:
+    """Kill a tmux window by pane_id."""
+    subprocess.run(["tmux", "kill-window", "-t", pane_id])
+
+
+def write_merger_task_context(
+    merger_task_id: str,
+    graph_name: str,
+    graph_branch: str,
+    src_paths: list[str],
+    signal_dir: Path,
+) -> None:
+    """Write a minimal task_context.json for a MERGER agent."""
+    context = {
+        "task_id": merger_task_id,
+        "graph_name": graph_name,
+        "signal_dir": str(signal_dir),
+        "role": "merger",
+        "graph_branch": graph_branch,
+        "src_paths": src_paths,
+    }
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))
+
+
 def read_design_concerns(signal_dir: Path) -> str | None:
     """Return contents of design_concerns.md if it exists and is non-empty, else None."""
     p = signal_dir / "design_concerns.md"
