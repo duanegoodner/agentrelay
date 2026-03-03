@@ -676,6 +676,50 @@ def read_design_concerns(signal_dir: Path) -> str | None:
     return content if content else None
 
 
+def append_concerns_to_pr(pr_url: str, concerns: str) -> None:
+    """Append a design concerns section to an existing PR body.
+
+    Fetches the current body, appends the concerns under a
+    '## Design concerns raised during implementation' heading, and updates
+    the PR via the GitHub REST API.  Silently skips if the URL cannot be
+    parsed or gh returns an error.
+    """
+    parts = pr_url.split("/")
+    try:
+        pull_idx = parts.index("pull")
+        owner = parts[pull_idx - 2]
+        repo = parts[pull_idx - 1]
+        number = parts[pull_idx + 1]
+    except (ValueError, IndexError):
+        return
+    view = subprocess.run(
+        ["gh", "pr", "view", pr_url, "--json", "body", "--jq", ".body"],
+        capture_output=True,
+        text=True,
+    )
+    if view.returncode != 0:
+        return
+    current_body = view.stdout.strip()
+    new_body = (
+        current_body
+        + "\n\n## Design concerns raised during implementation\n\n"
+        + concerns
+    )
+    subprocess.run(
+        [
+            "gh",
+            "api",
+            f"repos/{owner}/{repo}/pulls/{number}",
+            "--method",
+            "PATCH",
+            "--field",
+            f"body={new_body}",
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+
 def save_pr_summary(pr_url: str, signal_dir: Path) -> None:
     """Fetch the PR body and write it to signal_dir/summary.md.
 

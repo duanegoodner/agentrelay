@@ -19,6 +19,7 @@ from pathlib import Path
 from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
 from agentrelaysmall.agent_task_graph import AgentTaskGraph, AgentTaskGraphBuilder
 from agentrelaysmall.task_launcher import (
+    append_concerns_to_pr,
     close_agent_pane,
     create_final_pr,
     create_graph_branch,
@@ -555,8 +556,6 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
 
         if result == "done":
             pr_url = read_done_note(task, graph.name, graph.target_repo_root)
-            if pr_url:
-                save_pr_summary(pr_url, graph.signal_dir(task.id))
 
             if task.completion_gate:
                 gate_passed = run_completion_gate(
@@ -568,6 +567,8 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                         f"[graph] {task.id}[a{agent_index}] completion gate FAILED: "
                         f"{task.completion_gate}"
                     )
+                    if pr_url:
+                        save_pr_summary(pr_url, graph.signal_dir(task.id))
                     task.state.status = TaskStatus.FAILED
                     return
                 print(f"[graph] {task.id}[a{agent_index}] completion gate passed")
@@ -575,8 +576,11 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
             concerns = read_design_concerns(signal_dir)
             if concerns:
                 print(f"[graph] {task.id} design concerns recorded")
+                if pr_url:
+                    append_concerns_to_pr(pr_url, concerns)
 
             if pr_url:
+                save_pr_summary(pr_url, graph.signal_dir(task.id))
                 pixi_changed = pixi_toml_changed_in_pr(pr_url)
                 if pixi_changed:
                     print(

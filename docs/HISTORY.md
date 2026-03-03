@@ -27,8 +27,17 @@ architecture during implementation. Concerns accumulate in a per-task
 - **`_build_implementer_prompt()`** updated: step 4 now instructs the agent to call
   `record_concern()` for any concerns encountered during implementation (before the
   commit/push step). Steps 4→5 and 5→6 renumbered accordingly.
-- **`_run_task()`** updated: reads `design_concerns.md` after `result == "done"` and
-  logs a notice if concerns were recorded.
+- **`_run_task()`** updated: reads `design_concerns.md` after gate passes; if
+  concerns exist, calls `append_concerns_to_pr()` to add them to the task PR body
+  before saving `summary.md` and merging. On gate failure, `summary.md` is saved
+  immediately for debugging before the early return.
+- **`append_concerns_to_pr(pr_url, concerns)`** (new, in `task_launcher.py`):
+  fetches the current task PR body, appends a
+  `## Design concerns raised during implementation` section, and updates the PR via
+  the GitHub REST API. This ensures concerns appear in the task PR (merged into the
+  graph integration branch) as well as in the final graph PR.
+- **`save_pr_summary()`** call reordered: now called after concerns are appended
+  (when gate passes) so `summary.md` always reflects the final PR body state.
 
 9 new tests (360 total, up from 351). `pixi run check` clean.
 
