@@ -421,6 +421,8 @@ def create_final_pr(graph_name: str, target_repo_root: Path) -> str | None:
                 parts.append(f"\n### {task_id}\n\n{concerns_text}")
             concerns_section = "".join(parts)
 
+    adr_section = scan_adr_section(graph_name, target_repo_root)
+
     result = subprocess.run(
         [
             "gh",
@@ -431,7 +433,8 @@ def create_final_pr(graph_name: str, target_repo_root: Path) -> str | None:
             "--body",
             f"## Summary\n\nMerges the `{graph_branch}` integration branch into `main`.\n"
             f"This PR includes the combined output of all tasks in the `{graph_name}` graph.\n"
-            f"{concerns_section}",
+            f"{concerns_section}"
+            f"{adr_section}",
             "--base",
             "main",
             "--head",
@@ -778,6 +781,224 @@ def write_merger_task_context(
     }
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))
+
+
+def _extract_front_matter_field(content: str, field: str) -> str | None:
+    """Extract a field value from YAML front matter (between --- delimiters)."""
+    in_front_matter = False
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped == "---":
+            if not in_front_matter:
+                in_front_matter = True
+                continue
+            else:
+                break
+        if in_front_matter and stripped.startswith(f"{field}:"):
+            return stripped[len(field) + 1 :].strip()
+    return None
+
+
+def scan_adr_section(graph_name: str, target_repo_root: Path) -> str:
+    """Scan docs/decisions/*.md on the graph branch; return a PR-body section or ''."""
+    graph_branch = f"graph/{graph_name}"
+    ls_result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "ls-tree",
+            "-r",
+            "--name-only",
+            f"origin/{graph_branch}",
+            "--",
+            "docs/decisions/",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if ls_result.returncode != 0 or not ls_result.stdout.strip():
+        return ""
+    adr_files = sorted(
+        f
+        for f in ls_result.stdout.strip().splitlines()
+        if f.endswith(".md") and not f.endswith("/index.md")
+    )
+    if not adr_files:
+        return ""
+    entries = []
+    for filepath in adr_files:
+        content_result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(target_repo_root),
+                "show",
+                f"origin/{graph_branch}:{filepath}",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        task_id = Path(filepath).stem
+        role = _extract_front_matter_field(content_result.stdout, "role") or ""
+        entries.append((task_id, role, filepath))
+    lines = ["\n## ADRs produced in this run\n"]
+    for task_id, role, filepath in entries:
+        role_note = f" — {role}" if role else ""
+        lines.append(f"- [{task_id}]({filepath}){role_note}")
+    return "\n".join(lines)
+
+
+def write_adr_index_to_graph_branch(
+    graph_name: str, target_repo_root: Path, worktrees_root: Path
+) -> None:
+    """Create/update docs/decisions/index.md on the graph branch.
+
+    Lists all ADR files (excluding index.md) on the graph branch — which includes
+    ADRs from previous graph runs already merged into main — and writes a fresh
+    index table. Commits and pushes via a temporary worktree. Silent no-op when
+    no ADR files are found.
+    """
+    graph_branch = f"graph/{graph_name}"
+    ls_result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(target_repo_root),
+            "ls-tree",
+            "-r",
+            "--name-only",
+            f"origin/{graph_branch}",
+            "--",
+            "docs/decisions/",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if ls_result.returncode != 0 or not ls_result.stdout.strip():
+        return
+    adr_files = sorted(
+        f
+        for f in ls_result.stdout.strip().splitlines()
+        if f.endswith(".md") and not f.endswith("/index.md")
+    )
+    if not adr_files:
+        return
+
+    entries = []
+    for filepath in adr_files:
+        content_result = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(target_repo_root),
+                "show",
+                f"origin/{graph_branch}:{filepath}",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        task_id = Path(filepath).stem
+        role = _extract_front_matter_field(content_result.stdout, "role") or "—"
+        date_str = _extract_front_matter_field(content_result.stdout, "date") or "—"
+        entries.append((task_id, role, date_str, Path(filepath).name))
+
+    rows = [
+        "# Decision records index\n",
+        "| task_id | role | date |",
+        "|---------|------|------|",
+    ]
+    for task_id, role, date_str, filename in entries:
+        rows.append(f"| [{task_id}]({filename}) | {role} | {date_str} |")
+    index_content = "\n".join(rows) + "\n"
+
+    index_worktree = worktrees_root / "_adr_index"
+    try:
+        # Clean up any stale worktree at this path before creating a new one
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(target_repo_root),
+                "worktree",
+                "remove",
+                "--force",
+                str(index_worktree),
+            ],
+            capture_output=True,
+        )
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(target_repo_root),
+                "worktree",
+                "add",
+                "--detach",
+                str(index_worktree),
+                f"origin/{graph_branch}",
+            ],
+            check=True,
+            capture_output=True,
+        )
+        decisions_dir = index_worktree / "docs" / "decisions"
+        decisions_dir.mkdir(parents=True, exist_ok=True)
+        (decisions_dir / "index.md").write_text(index_content)
+        subprocess.run(
+            ["git", "-C", str(index_worktree), "add", "docs/decisions/index.md"],
+            check=True,
+            capture_output=True,
+        )
+        diff_result = subprocess.run(
+            ["git", "-C", str(index_worktree), "diff", "--staged", "--name-only"],
+            capture_output=True,
+            text=True,
+        )
+        if diff_result.stdout.strip():
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(index_worktree),
+                    "commit",
+                    "-m",
+                    "chore: update docs/decisions/index.md",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(index_worktree),
+                    "push",
+                    "origin",
+                    f"HEAD:refs/heads/{graph_branch}",
+                ],
+                check=True,
+                capture_output=True,
+            )
+            print(f"[graph] updated docs/decisions/index.md on {graph_branch}")
+        else:
+            print(
+                f"[graph] docs/decisions/index.md already up to date on {graph_branch}"
+            )
+    except Exception as e:
+        print(f"[graph] warning: could not write ADR index to {graph_branch}: {e}")
+    finally:
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(target_repo_root),
+                "worktree",
+                "remove",
+                "--force",
+                str(index_worktree),
+            ],
+            capture_output=True,
+        )
 
 
 def read_design_concerns(signal_dir: Path) -> str | None:

@@ -3,11 +3,14 @@
 from pathlib import Path
 
 from agentrelaysmall.agent_task import AgentRole, AgentTask
+from agentrelaysmall.agent_task_graph import AgentTaskGraph
 from agentrelaysmall.run_graph import (
     DEFAULT_GATE_ATTEMPTS,
+    _adr_step,
     _build_context_content,
     _build_merger_prompt,
     _build_task_instructions,
+    _effective_verbosity,
     _spec_reading_step,
 )
 
@@ -27,6 +30,16 @@ def make_task(
         description=description,
         role=role,
         dependencies=dependencies,
+    )
+
+
+def make_graph(verbosity: str = "standard") -> AgentTaskGraph:
+    return AgentTaskGraph(
+        name="test-graph",
+        tasks={},
+        target_repo_root=Path("/tmp"),
+        worktrees_root=Path("/tmp/worktrees"),
+        verbosity=verbosity,
     )
 
 
@@ -605,3 +618,48 @@ def test_merger_prompt_implementer_no_src_paths_no_docstring_check():
         task, "https://github.com/o/r/pull/5", Path("/tmp/h.md")
     )
     assert "materially" not in prompt.lower()
+
+
+# ── _effective_verbosity ──────────────────────────────────────────────────────
+
+
+def test_effective_verbosity_task_none_graph_standard_returns_standard():
+    task = AgentTask(id="t1", verbosity=None)
+    graph = make_graph(verbosity="standard")
+    assert _effective_verbosity(task, graph) == "standard"
+
+
+def test_effective_verbosity_task_educational_graph_standard_returns_educational():
+    task = AgentTask(id="t1", verbosity="educational")
+    graph = make_graph(verbosity="standard")
+    assert _effective_verbosity(task, graph) == "educational"
+
+
+def test_effective_verbosity_task_none_graph_detailed_returns_detailed():
+    task = AgentTask(id="t1", verbosity=None)
+    graph = make_graph(verbosity="detailed")
+    assert _effective_verbosity(task, graph) == "detailed"
+
+
+# ── _adr_step ─────────────────────────────────────────────────────────────────
+
+
+def test_adr_step_standard_verbosity_returns_empty():
+    task = AgentTask(id="my_task", role=AgentRole.GENERIC)
+    graph = make_graph(verbosity="standard")
+    assert _adr_step(task, graph) == ""
+
+
+def test_adr_step_detailed_verbosity_returns_nonempty_with_decisions_path():
+    task = AgentTask(id="my_task", role=AgentRole.GENERIC)
+    graph = make_graph(verbosity="detailed")
+    result = _adr_step(task, graph)
+    assert result != ""
+    assert "docs/decisions/my_task.md" in result
+
+
+def test_adr_step_educational_verbosity_contains_key_concepts():
+    task = AgentTask(id="my_task", role=AgentRole.GENERIC)
+    graph = make_graph(verbosity="educational")
+    result = _adr_step(task, graph)
+    assert "Key Concepts" in result
