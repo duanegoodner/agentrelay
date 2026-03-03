@@ -5,6 +5,45 @@ each PR on GitHub.
 
 ---
 
+## 2026-03-02
+
+### SPEC_WRITER prompt, `_spec_reading_step`, and updated role prompts — PR #37
+
+Implements the prompt-building layer for the structured-roles design. All new prompt
+functions and helpers land in `run_graph.py`; no behaviour changes to the orchestrator
+loop or data model.
+
+- **`_effective_verbosity(task, graph) -> str`**: returns `task.verbosity or
+  graph.verbosity or "standard"`. Scaffolded here for use by PR 6's ADR mechanism.
+- **`_spec_reading_step(task) -> str`**: returns a "Before starting, read…" preamble
+  when `task.src_paths` or `task.spec_path` is set; returns `""` otherwise. Injected
+  into all non-SPEC_WRITER role prompts so agents always read the authoritative spec
+  before acting.
+- **`_build_spec_writer_prompt(task, graph_branch) -> str`** (new): dispatched for
+  `AgentRole.SPEC_WRITER`. Instructs the agent to create stub files with full
+  Google-style docstrings and `raise NotImplementedError` bodies, optionally write a
+  supplementary `spec_path` .md index, verify importability, commit, push, and create
+  a PR. Ends with "Do NOT implement any function or method bodies."
+- **`_build_task_instructions()`**: SPEC_WRITER dispatch added at the top (before
+  TEST_WRITER).
+- **`_build_test_writer_prompt()`** updated: stub-creation step removed (SPEC_WRITER
+  already produced stubs); spec-reading preamble injected; references `task.src_paths`
+  ("already exist — do NOT create or overwrite them") and `task.test_paths` when set.
+- **`_build_test_reviewer_prompt()`** updated: spec-reading preamble injected.
+- **`_build_implementer_prompt()`** updated: spec-reading preamble injected; references
+  `task.src_paths` and `task.test_paths` when set; adds explicit docstring-preservation
+  instruction ("MUST preserve all existing docstrings … do NOT alter Args/Returns/Raises
+  … docstrings are the specification contract").
+- **`_build_generic_instructions()`** updated: spec-reading preamble injected immediately
+  before "1. Do the work described in your task."
+
+14 new tests (337 total, up from 323). 2 obsolete TEST_WRITER tests removed
+(old stub-creation assertions no longer apply). `pixi run check` clean.
+
+**Key file:** `run_graph.py`.
+
+---
+
 ## 2026-03-01
 
 ### Structured roles, `src_paths`/`test_paths`/`spec_path`/`verbosity`, `SPEC_WRITER`/`MERGER` roles — PR #36

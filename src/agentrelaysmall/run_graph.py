@@ -49,6 +49,27 @@ BOOTSTRAP_PROMPT = (
 DEFAULT_GATE_ATTEMPTS = 5
 
 
+def _effective_verbosity(task: AgentTask, graph: AgentTaskGraph) -> str:
+    """Return effective verbosity for a task, inheriting from graph if task is unset."""
+    return task.verbosity or graph.verbosity or "standard"
+
+
+def _spec_reading_step(task: AgentTask) -> str:
+    """Return a spec-reading preamble if the task has src_paths or spec_path."""
+    if not task.src_paths and not task.spec_path:
+        return ""
+    parts = ["Before starting, read the following to understand the API contract:\n"]
+    if task.src_paths:
+        paths_str = " ".join(task.src_paths)
+        parts.append(
+            f"  Source stubs (docstrings are the authoritative spec): {paths_str}\n"
+        )
+    if task.spec_path:
+        parts.append(f"  Supplementary spec file: {task.spec_path}\n")
+    parts.append("\n")
+    return "".join(parts)
+
+
 def _resolve_gate(task: AgentTask) -> str:
     """Substitute task_params {key} placeholders in the completion gate command."""
     cmd = task.completion_gate or ""
@@ -72,9 +93,82 @@ def _build_context_content(task: AgentTask) -> str | None:
     return "\n".join(lines)
 
 
+def _build_spec_writer_prompt(task: AgentTask, graph_branch: str) -> str:
+    short_desc = task.description[:60]
+    src_paths_str = " ".join(task.src_paths) if task.src_paths else "(see description)"
+
+    steps: list[str] = []
+    steps.append(
+        f"1. For each file in {src_paths_str}:\n"
+        f"   - Create the file with a module-level docstring describing the module's purpose\n"
+        f"   - Add all function/class signatures with full Python type annotations\n"
+        f"   - Write comprehensive Google-style docstrings on each function: "
+        f"Args, Returns, Raises, Examples (with doctestable >>> lines where appropriate)\n"
+        f"   - Set all bodies to: raise NotImplementedError\n"
+        f"   The docstrings ARE the spec — write them to be authoritative and complete.\n"
+        f"   Create any parent directories as needed."
+    )
+
+    step_num = 2
+    if task.spec_path:
+        steps.append(
+            f"{step_num}. Write a brief spec file at {task.spec_path} that serves as a "
+            f"high-level index/narrative pointing to the source files for detailed specs. "
+            f"This is supplementary only. Do NOT duplicate the docstring content. "
+            f"Create any parent directories as needed."
+        )
+        step_num += 1
+
+    steps.append(
+        f"{step_num}. Verify the stub module(s) are importable "
+        f'(e.g. `pixi run python -c "import <module>"`). Fix any import errors.'
+    )
+    step_num += 1
+
+    all_paths = list(task.src_paths)
+    if task.spec_path:
+        all_paths.append(task.spec_path)
+    git_add_paths = " ".join(all_paths) if all_paths else "-A"
+
+    steps.append(
+        f"{step_num}. Stage, commit, and push:\n"
+        f"       git add {git_add_paths}\n"
+        f'       git commit -m "{task.id}: {short_desc}"\n'
+        f"       git push -u origin HEAD"
+    )
+    step_num += 1
+
+    steps.append(
+        f"{step_num}. Create a PR with a meaningful body, capture the URL, and signal completion:\n"
+        f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
+        f"## Summary\n"
+        f"<1-3 sentences describing the stubs and spec written>\n\n"
+        f"## Files changed\n"
+        f"<bullet list of the key files you created or modified>\n"
+        f'PRBODY\n)" --base {graph_branch})\n'
+        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f"r = WorktreeTaskRunner.from_config(); "
+        f"r.mark_done('$PR_URL')\""
+    )
+
+    steps_text = "\n\n".join(steps)
+    return (
+        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"Your role: SPEC WRITER\n\n"
+        f"Your task: {task.description}\n\n"
+        f"Complete these steps in order:\n\n"
+        f"{steps_text}\n\n"
+        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"Do NOT implement any function or method bodies.\n\n"
+        f"Then stop.\n"
+    )
+
+
 def _build_task_instructions(
     task: AgentTask, graph_branch: str, effective_attempts: int = DEFAULT_GATE_ATTEMPTS
 ) -> str:
+    if task.role == AgentRole.SPEC_WRITER:
+        return _build_spec_writer_prompt(task, graph_branch)
     if task.role == AgentRole.TEST_WRITER:
         return _build_test_writer_prompt(task, graph_branch)
     if task.role == AgentRole.TEST_REVIEWER:
@@ -154,12 +248,14 @@ def _build_generic_instructions(
         )
 
     short_desc = task.description[:60]
+    spec_step = _spec_reading_step(task)
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your task: {task.description}\n\n"
         f"{context_note}"
         f"{review_step}"
         f"Complete these steps in order:\n\n"
+        f"{spec_step}"
         f"1. Do the work described in your task.\n\n"
         f"{gate_step}"
         f"2. Stage, commit, and push:\n"
@@ -183,27 +279,44 @@ def _build_generic_instructions(
 
 def _build_test_writer_prompt(task: AgentTask, graph_branch: str) -> str:
     short_desc = task.description[:60]
+    spec_step = _spec_reading_step(task)
+
+    if task.test_paths:
+        test_paths_str = " ".join(task.test_paths)
+        write_step = f"1. Write pytest test files at: {test_paths_str}\n"
+    else:
+        write_step = (
+            f"1. Write a pytest test file covering the described feature. "
+            f"Place it at an appropriate path in the target module's test directory.\n"
+        )
+
+    if task.src_paths:
+        src_paths_str = " ".join(task.src_paths)
+        stub_note = (
+            f"   The stub module(s) at {src_paths_str} already exist — "
+            f"do NOT create or overwrite them. Write test file(s) that import from those stubs.\n"
+        )
+    else:
+        stub_note = ""
+
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your role: TEST WRITER\n\n"
         f"Your task: {task.description}\n\n"
+        f"{spec_step}"
         f"Complete these steps in order:\n\n"
-        f"1. Write a pytest test file covering the described feature. "
-        f"Place it at an appropriate path in the target module's test directory.\n\n"
-        f"2. Write a stub module — function/class signatures only, "
-        f"all bodies must raise NotImplementedError. "
-        f"The stub must provide enough API surface for the tests to import "
-        f"and be collected. Do NOT implement the feature.\n\n"
-        f"3. Verify tests collect without import errors:\n"
+        f"{write_step}"
+        f"{stub_note}\n"
+        f"2. Verify tests collect without import errors:\n"
         f"       pixi run pytest --collect-only\n\n"
-        f"4. Stage, commit, and push:\n"
+        f"3. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
         f"       git push -u origin HEAD\n\n"
-        f"5. Create a PR and signal completion:\n"
+        f"4. Create a PR and signal completion:\n"
         f'       PR_URL=$(gh pr create --title "{task.id}" --body "$(cat <<\'PRBODY\'\n'
         f"## Summary\n"
-        f"<1-3 sentences describing the tests written and stub created>\n\n"
+        f"<1-3 sentences describing the tests written>\n\n"
         f"## Files changed\n"
         f"<bullet list of key files>\n"
         f'PRBODY\n)" --base {graph_branch})\n'
@@ -218,12 +331,14 @@ def _build_test_writer_prompt(task: AgentTask, graph_branch: str) -> str:
 def _build_test_reviewer_prompt(task: AgentTask, graph_branch: str) -> str:
     short_desc = task.description[:60]
     review_file = f"{task.id}.md"
+    spec_step = _spec_reading_step(task)
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your role: TEST REVIEWER\n\n"
         f"Your task: {task.description}\n\n"
         f"The test file(s) and stub module from the test-writer task are already "
         f"merged into the graph integration branch and available in your worktree.\n\n"
+        f"{spec_step}"
         f"Complete these steps in order:\n\n"
         f"1. Read the test file(s) and stub module.\n\n"
         f"2. Write a review file named {review_file} with the following sections:\n"
@@ -260,19 +375,51 @@ def _build_test_reviewer_prompt(task: AgentTask, graph_branch: str) -> str:
 def _build_implementer_prompt(task: AgentTask, graph_branch: str) -> str:
     short_desc = task.description[:60]
     review_file = task.id.removesuffix("_impl") + "_review.md"
+    spec_step = _spec_reading_step(task)
+
+    if task.src_paths:
+        src_paths_str = " ".join(task.src_paths)
+        impl_step = (
+            f"2. Implement the feature by replacing the NotImplementedError stubs in "
+            f"{src_paths_str} with working code.\n"
+            f"   When implementing, you MUST preserve all existing docstrings in "
+            f"{src_paths_str} exactly. You may add Examples or Notes to a docstring "
+            f"if they were absent, but do NOT alter the Args, Returns, or Raises sections, "
+            f"do NOT change signatures, and do NOT remove or weaken any documented behaviour "
+            f"or constraints. The docstrings are the specification contract — they are "
+            f"reviewed by a merge agent after you submit your PR.\n"
+            f"   Add supporting modules as needed.\n"
+        )
+    else:
+        impl_step = (
+            f"2. Implement the feature by replacing the NotImplementedError stubs with "
+            f"working code. Add supporting modules as needed.\n"
+        )
+
+    if task.test_paths:
+        test_paths_str = " ".join(task.test_paths)
+        run_tests_step = (
+            f"3. Run the tests and fix any failures. Repeat until all tests pass:\n"
+            f"       pixi run pytest {test_paths_str}\n"
+        )
+    else:
+        run_tests_step = (
+            f"3. Run the tests and fix any failures. Repeat until all tests pass:\n"
+            f"       pixi run pytest\n"
+        )
+
     return (
         f"You are a worktree agent for the agentrelaysmall project.\n\n"
         f"Your role: IMPLEMENTER\n\n"
         f"Your task: {task.description}\n\n"
         f"The test file(s), stub module, and review file are already merged into the "
         f"graph integration branch and available in your worktree.\n\n"
+        f"{spec_step}"
         f"Complete these steps in order:\n\n"
         f"1. Read the test file(s) and {review_file} to understand what is expected "
         f"and any reviewer feedback.\n\n"
-        f"2. Implement the feature by replacing the NotImplementedError stubs with "
-        f"working code. Add supporting modules as needed.\n\n"
-        f"3. Run the tests and fix any failures. Repeat until all tests pass:\n"
-        f"       pixi run pytest\n\n"
+        f"{impl_step}\n"
+        f"{run_tests_step}\n"
         f"4. Stage, commit, and push:\n"
         f"       git add -A\n"
         f'       git commit -m "{task.id}: {short_desc}"\n'
