@@ -80,6 +80,13 @@ class WorktreeTaskRunner:
         with open(self.signal_dir / "gate_attempts.log", "a") as f:
             f.write(line)
 
+    def record_concern(self, concern: str) -> None:
+        self.signal_dir.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now(timezone.utc).isoformat()
+        line = f"\n## Concern recorded at {ts}\n\n{concern.strip()}\n"
+        with open(self.signal_dir / "design_concerns.md", "a") as f:
+            f.write(line)
+
     def _write_signal(self, name: str, content: str) -> None:
         self.signal_dir.mkdir(parents=True, exist_ok=True)
         (self.signal_dir / name).write_text(content)

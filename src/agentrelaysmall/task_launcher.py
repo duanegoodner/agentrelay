@@ -406,6 +406,21 @@ def create_final_pr(graph_name: str, target_repo_root: Path) -> str | None:
             "skipping final PR (did tasks actually run?)"
         )
         return None
+    signals_root = target_repo_root / ".workflow" / graph_name / "signals"
+    concerns_section = ""
+    if signals_root.exists():
+        concerns_by_task: dict[str, str] = {}
+        for task_dir in sorted(signals_root.iterdir()):
+            if task_dir.is_dir():
+                concerns = read_design_concerns(task_dir)
+                if concerns:
+                    concerns_by_task[task_dir.name] = concerns
+        if concerns_by_task:
+            parts = ["\n## Design concerns raised during implementation\n"]
+            for task_id, concerns_text in concerns_by_task.items():
+                parts.append(f"\n### {task_id}\n\n{concerns_text}")
+            concerns_section = "".join(parts)
+
     result = subprocess.run(
         [
             "gh",
@@ -415,7 +430,8 @@ def create_final_pr(graph_name: str, target_repo_root: Path) -> str | None:
             f"graph/{graph_name}: merge all tasks into main",
             "--body",
             f"## Summary\n\nMerges the `{graph_branch}` integration branch into `main`.\n"
-            f"This PR includes the combined output of all tasks in the `{graph_name}` graph.\n",
+            f"This PR includes the combined output of all tasks in the `{graph_name}` graph.\n"
+            f"{concerns_section}",
             "--base",
             "main",
             "--head",
@@ -649,6 +665,15 @@ def delete_remote_branches(branches: list[str], target_repo_root: Path) -> None:
         ["git", "-C", str(target_repo_root), "push", "origin", "--delete"] + branches,
         check=True,
     )
+
+
+def read_design_concerns(signal_dir: Path) -> str | None:
+    """Return contents of design_concerns.md if it exists and is non-empty, else None."""
+    p = signal_dir / "design_concerns.md"
+    if not p.exists():
+        return None
+    content = p.read_text().strip()
+    return content if content else None
 
 
 def save_pr_summary(pr_url: str, signal_dir: Path) -> None:

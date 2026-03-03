@@ -7,6 +7,36 @@ each PR on GitHub.
 
 ## 2026-03-02
 
+### `design_concerns` mechanism — PR #39
+
+Agents (primarily IMPLEMENTER) can now record concerns about the spec, tests, or
+architecture during implementation. Concerns accumulate in a per-task
+`design_concerns.md` file and are surfaced in the final graph PR body.
+
+- **`WorktreeTaskRunner.record_concern(concern: str) -> None`** (new): appends a
+  timestamped `## Concern recorded at {ISO timestamp}` entry to
+  `$AGENTRELAY_SIGNAL_DIR/design_concerns.md`. Creates the signal dir and file if
+  absent. Each call appends — multiple concerns are accumulated in one file.
+- **`read_design_concerns(signal_dir: Path) -> str | None`** (new, in
+  `task_launcher.py`): returns the stripped file contents if `design_concerns.md`
+  exists and is non-empty, else `None`.
+- **`create_final_pr()`** updated: scans `.workflow/{graph}/signals/*/design_concerns.md`
+  before creating the final PR. If any tasks recorded concerns, a
+  `## Design concerns raised during implementation` section is appended to the PR
+  body with a `### {task_id}` subheading per task.
+- **`_build_implementer_prompt()`** updated: step 4 now instructs the agent to call
+  `record_concern()` for any concerns encountered during implementation (before the
+  commit/push step). Steps 4→5 and 5→6 renumbered accordingly.
+- **`_run_task()`** updated: reads `design_concerns.md` after `result == "done"` and
+  logs a notice if concerns were recorded.
+
+9 new tests (360 total, up from 351). `pixi run check` clean.
+
+**Key files:** `worktree_task_runner.py`, `task_launcher.py`, `run_graph.py`,
+`test/test_worktree_task_runner.py`, `test/test_task_launcher.py`.
+
+---
+
 ### Dispatch-time path validation — PR #38
 
 Adds `validate_task_paths(task, worktree_path)` to `run_graph.py`. After a worktree is
