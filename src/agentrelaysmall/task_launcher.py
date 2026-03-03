@@ -679,8 +679,9 @@ def read_design_concerns(signal_dir: Path) -> str | None:
 def save_pr_summary(pr_url: str, signal_dir: Path) -> None:
     """Fetch the PR body and write it to signal_dir/summary.md.
 
-    Called after merge_pr() so the agent's self-description of what it did is
-    preserved in the signal directory alongside the other per-task artefacts.
+    Called as soon as the PR URL is known (before the completion gate and
+    merge_pr), so the agent's self-description is preserved even when the gate
+    fails and the PR is never merged.
     Silently skips if gh returns an error or the body is empty.
     """
     result = subprocess.run(

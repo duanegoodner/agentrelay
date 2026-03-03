@@ -554,6 +554,10 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
         print(f"[graph] {task.id}[a{agent_index}] sentinel: {result}")
 
         if result == "done":
+            pr_url = read_done_note(task, graph.name, graph.target_repo_root)
+            if pr_url:
+                save_pr_summary(pr_url, graph.signal_dir(task.id))
+
             if task.completion_gate:
                 gate_passed = run_completion_gate(
                     _resolve_gate(task),
@@ -572,7 +576,6 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
             if concerns:
                 print(f"[graph] {task.id} design concerns recorded")
 
-            pr_url = read_done_note(task, graph.name, graph.target_repo_root)
             if pr_url:
                 pixi_changed = pixi_toml_changed_in_pr(pr_url)
                 if pixi_changed:
@@ -583,7 +586,6 @@ async def _run_task(graph: AgentTaskGraph, task: AgentTask) -> None:
                 print(
                     f"[graph] merging task PR for {task.id} into {graph.graph_branch()}: {pr_url}"
                 )
-                save_pr_summary(pr_url, graph.signal_dir(task.id))
                 merge_pr(pr_url)
                 write_merged_signal(task, graph.name, graph.target_repo_root)
                 print(f"[graph] {task.id} merged into {graph.graph_branch()}")
