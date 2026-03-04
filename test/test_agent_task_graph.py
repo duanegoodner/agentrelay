@@ -646,64 +646,64 @@ def test_builder_from_yaml_plain_task_description_optional(tmp_path):
     assert graph.tasks["t1"].description == ""
 
 
-# ── src_paths / test_paths ────────────────────────────────────────────────────
+# ── paths.src / paths.test ────────────────────────────────────────────────────
 
 
-def test_builder_from_yaml_plain_task_src_paths(tmp_path):
+def test_builder_from_yaml_plain_task_src(tmp_path):
     p = write_yaml(
         tmp_path,
         {
             "name": "g",
-            "tasks": [{"id": "t1", "src_paths": ["src/foo.py", "src/bar.py"]}],
+            "tasks": [{"id": "t1", "paths": {"src": ["src/foo.py", "src/bar.py"]}}],
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tasks["t1"].paths.src_paths == ("src/foo.py", "src/bar.py")
+    assert graph.tasks["t1"].paths.src == ("src/foo.py", "src/bar.py")
 
 
-def test_builder_from_yaml_plain_task_src_paths_defaults_to_empty(tmp_path):
+def test_builder_from_yaml_plain_task_src_defaults_to_empty(tmp_path):
     p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tasks["t1"].paths.src_paths == ()
+    assert graph.tasks["t1"].paths.src == ()
 
 
-def test_builder_from_yaml_plain_task_test_paths(tmp_path):
+def test_builder_from_yaml_plain_task_test(tmp_path):
     p = write_yaml(
         tmp_path,
         {
             "name": "g",
-            "tasks": [{"id": "t1", "test_paths": ["tests/test_foo.py"]}],
+            "tasks": [{"id": "t1", "paths": {"test": ["tests/test_foo.py"]}}],
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tasks["t1"].paths.test_paths == ("tests/test_foo.py",)
+    assert graph.tasks["t1"].paths.test == ("tests/test_foo.py",)
 
 
-def test_builder_from_yaml_plain_task_test_paths_defaults_to_empty(tmp_path):
+def test_builder_from_yaml_plain_task_test_defaults_to_empty(tmp_path):
     p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tasks["t1"].paths.test_paths == ()
+    assert graph.tasks["t1"].paths.test == ()
 
 
-# ── spec_path ─────────────────────────────────────────────────────────────────
+# ── paths.spec ────────────────────────────────────────────────────────────────
 
 
-def test_builder_from_yaml_plain_task_spec_path(tmp_path):
+def test_builder_from_yaml_plain_task_spec(tmp_path):
     p = write_yaml(
         tmp_path,
         {
             "name": "g",
-            "tasks": [{"id": "t1", "spec_path": "specs/roman.md"}],
+            "tasks": [{"id": "t1", "paths": {"spec": "specs/roman.md"}}],
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tasks["t1"].paths.spec_path == "specs/roman.md"
+    assert graph.tasks["t1"].paths.spec == "specs/roman.md"
 
 
-def test_builder_from_yaml_plain_task_spec_path_defaults_to_none(tmp_path):
+def test_builder_from_yaml_plain_task_spec_defaults_to_none(tmp_path):
     p = write_yaml(tmp_path, {"name": "g", "tasks": [{"id": "t1"}]})
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tasks["t1"].paths.spec_path is None
+    assert graph.tasks["t1"].paths.spec is None
 
 
 # ── verbosity ─────────────────────────────────────────────────────────────────

@@ -26,9 +26,9 @@ class AgentRole(Enum):
 
 @dataclass(frozen=True)
 class TaskPaths:
-    src_paths: tuple[str, ...] = field(default_factory=tuple)
-    test_paths: tuple[str, ...] = field(default_factory=tuple)
-    spec_path: str | None = None
+    src: tuple[str, ...] = field(default_factory=tuple)
+    test: tuple[str, ...] = field(default_factory=tuple)
+    spec: str | None = None
 
 
 @dataclass

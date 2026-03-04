@@ -107,16 +107,16 @@ def _adr_step(task: AgentTask, graph: AgentTaskGraph | None) -> str:
 
 def _spec_reading_step(task: AgentTask) -> str:
     """Return a spec-reading preamble if the task has src_paths or spec_path."""
-    if not task.paths.src_paths and not task.paths.spec_path:
+    if not task.paths.src and not task.paths.spec:
         return ""
     parts = ["Before starting, read the following to understand the API contract:\n"]
-    if task.paths.src_paths:
-        paths_str = " ".join(task.paths.src_paths)
+    if task.paths.src:
+        paths_str = " ".join(task.paths.src)
         parts.append(
             f"  Source stubs (docstrings are the authoritative spec): {paths_str}\n"
         )
-    if task.paths.spec_path:
-        parts.append(f"  Supplementary spec file: {task.paths.spec_path}\n")
+    if task.paths.spec:
+        parts.append(f"  Supplementary spec file: {task.paths.spec}\n")
     parts.append("\n")
     return "".join(parts)
 
@@ -129,29 +129,29 @@ def validate_task_paths(task: AgentTask, worktree_path: Path) -> None:
     """
     role = task.role
     if role == AgentRole.SPEC_WRITER:
-        for src_path in task.paths.src_paths:
+        for src_path in task.paths.src:
             parent = (worktree_path / src_path).parent
             if not parent.exists():
                 raise ValueError(
                     f"[validate] {task.id}: expected parent directory "
                     f"'{src_path}' parent in worktree but not found"
                 )
-        if task.paths.spec_path:
-            parent = (worktree_path / task.paths.spec_path).parent
+        if task.paths.spec:
+            parent = (worktree_path / task.paths.spec).parent
             if not parent.exists():
                 raise ValueError(
                     f"[validate] {task.id}: expected parent directory for "
-                    f"spec_path '{task.paths.spec_path}' in worktree but not found"
+                    f"spec_path '{task.paths.spec}' in worktree but not found"
                 )
     elif role == AgentRole.TEST_WRITER:
-        for src_path in task.paths.src_paths:
+        for src_path in task.paths.src:
             full_path = worktree_path / src_path
             if not full_path.exists():
                 raise ValueError(
                     f"[validate] {task.id}: expected src_path '{src_path}' "
                     f"in worktree but not found"
                 )
-        for test_path in task.paths.test_paths:
+        for test_path in task.paths.test:
             parent = (worktree_path / test_path).parent
             if not parent.exists():
                 raise ValueError(
@@ -159,14 +159,14 @@ def validate_task_paths(task: AgentTask, worktree_path: Path) -> None:
                     f"test_path '{test_path}' in worktree but not found"
                 )
     elif role == AgentRole.IMPLEMENTER:
-        for src_path in task.paths.src_paths:
+        for src_path in task.paths.src:
             full_path = worktree_path / src_path
             if not full_path.exists():
                 raise ValueError(
                     f"[validate] {task.id}: expected src_path '{src_path}' "
                     f"in worktree but not found"
                 )
-        for test_path in task.paths.test_paths:
+        for test_path in task.paths.test:
             full_path = worktree_path / test_path
             if not full_path.exists():
                 raise ValueError(
@@ -203,9 +203,7 @@ def _build_spec_writer_prompt(
     task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None
 ) -> str:
     short_desc = task.description[:60]
-    src_paths_str = (
-        " ".join(task.paths.src_paths) if task.paths.src_paths else "(see description)"
-    )
+    src_paths_str = " ".join(task.paths.src) if task.paths.src else "(see description)"
 
     steps: list[str] = []
     steps.append(
@@ -220,9 +218,9 @@ def _build_spec_writer_prompt(
     )
 
     step_num = 2
-    if task.paths.spec_path:
+    if task.paths.spec:
         steps.append(
-            f"{step_num}. Write a brief spec file at {task.paths.spec_path} that serves as a "
+            f"{step_num}. Write a brief spec file at {task.paths.spec} that serves as a "
             f"high-level index/narrative pointing to the source files for detailed specs. "
             f"This is supplementary only. Do NOT duplicate the docstring content. "
             f"Create any parent directories as needed."
@@ -240,9 +238,9 @@ def _build_spec_writer_prompt(
         steps.append(f"{step_num}. {adr_text}")
         step_num += 1
 
-    all_paths = list(task.paths.src_paths)
-    if task.paths.spec_path:
-        all_paths.append(task.paths.spec_path)
+    all_paths = list(task.paths.src)
+    if task.paths.spec:
+        all_paths.append(task.paths.spec)
     git_add_paths = " ".join(all_paths) if all_paths else "-A"
 
     steps.append(
@@ -288,8 +286,8 @@ def _build_merger_prompt(
     task_id = reviewed_task.id
 
     docstring_step = ""
-    if reviewed_task.role == AgentRole.IMPLEMENTER and reviewed_task.paths.src_paths:
-        src_paths_str = " ".join(reviewed_task.paths.src_paths)
+    if reviewed_task.role == AgentRole.IMPLEMENTER and reviewed_task.paths.src:
+        src_paths_str = " ".join(reviewed_task.paths.src)
         docstring_step = (
             f"3. Docstring integrity check (IMPLEMENTER task):\n"
             f"   For each source file in {src_paths_str}:\n"
@@ -357,7 +355,7 @@ def _launch_merger(
         merger_task_id=merger_task_id,
         graph_name=graph.name,
         graph_branch=graph.graph_branch(),
-        src_paths=list(reviewed_task.paths.src_paths),
+        src=list(reviewed_task.paths.src),
         signal_dir=merger_signal_dir,
     )
 
@@ -509,8 +507,8 @@ def _build_test_writer_prompt(
     short_desc = task.description[:60]
     spec_step = _spec_reading_step(task)
 
-    if task.paths.test_paths:
-        test_paths_str = " ".join(task.paths.test_paths)
+    if task.paths.test:
+        test_paths_str = " ".join(task.paths.test)
         write_step = f"1. Write pytest test files at: {test_paths_str}\n"
     else:
         write_step = (
@@ -518,8 +516,8 @@ def _build_test_writer_prompt(
             f"Place it at an appropriate path in the target module's test directory.\n"
         )
 
-    if task.paths.src_paths:
-        src_paths_str = " ".join(task.paths.src_paths)
+    if task.paths.src:
+        src_paths_str = " ".join(task.paths.src)
         stub_note = (
             f"   The stub module(s) at {src_paths_str} already exist — "
             f"do NOT create or overwrite them. Write test file(s) that import from those stubs.\n"
@@ -620,8 +618,8 @@ def _build_implementer_prompt(
     review_file = task.id.removesuffix("_impl") + "_review.md"
     spec_step = _spec_reading_step(task)
 
-    if task.paths.src_paths:
-        src_paths_str = " ".join(task.paths.src_paths)
+    if task.paths.src:
+        src_paths_str = " ".join(task.paths.src)
         impl_step = (
             f"2. Implement the feature by replacing the NotImplementedError stubs in "
             f"{src_paths_str} with working code.\n"
@@ -639,8 +637,8 @@ def _build_implementer_prompt(
             f"working code. Add supporting modules as needed.\n"
         )
 
-    if task.paths.test_paths:
-        test_paths_str = " ".join(task.paths.test_paths)
+    if task.paths.test:
+        test_paths_str = " ".join(task.paths.test)
         run_tests_step = (
             f"3. Run the tests and fix any failures. Repeat until all tests pass:\n"
             f"       pixi run pytest {test_paths_str}\n"

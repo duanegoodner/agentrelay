@@ -286,26 +286,26 @@ def test_agent_task_accepts_merger_role():
 
 def test_task_paths_defaults():
     p = TaskPaths()
-    assert p.src_paths == ()
-    assert p.test_paths == ()
-    assert p.spec_path is None
+    assert p.src == ()
+    assert p.test == ()
+    assert p.spec is None
 
 
 def test_task_paths_accepts_values():
     p = TaskPaths(
-        src_paths=("src/foo.py", "src/bar.py"),
-        test_paths=("tests/test_foo.py",),
-        spec_path="specs/foo.md",
+        src=("src/foo.py", "src/bar.py"),
+        test=("tests/test_foo.py",),
+        spec="specs/foo.md",
     )
-    assert p.src_paths == ("src/foo.py", "src/bar.py")
-    assert p.test_paths == ("tests/test_foo.py",)
-    assert p.spec_path == "specs/foo.md"
+    assert p.src == ("src/foo.py", "src/bar.py")
+    assert p.test == ("tests/test_foo.py",)
+    assert p.spec == "specs/foo.md"
 
 
 def test_task_paths_is_frozen():
-    p = TaskPaths(src_paths=("src/foo.py",))
+    p = TaskPaths(src=("src/foo.py",))
     with pytest.raises(AttributeError):
-        p.src_paths = ()  # type: ignore[misc]
+        p.src = ()  # type: ignore[misc]
 
 
 # ── AgentTask.paths ────────────────────────────────────────────────────────────
@@ -314,20 +314,20 @@ def test_task_paths_is_frozen():
 def test_agent_task_paths_defaults_to_empty_task_paths():
     task = AgentTask(id="t1")
     assert task.paths == TaskPaths()
-    assert task.paths.src_paths == ()
-    assert task.paths.test_paths == ()
-    assert task.paths.spec_path is None
+    assert task.paths.src == ()
+    assert task.paths.test == ()
+    assert task.paths.spec is None
 
 
 def test_agent_task_accepts_paths():
-    p = TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",))
+    p = TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",))
     task = AgentTask(id="t1", paths=p)
-    assert task.paths.src_paths == ("src/foo.py",)
-    assert task.paths.test_paths == ("tests/test_foo.py",)
+    assert task.paths.src == ("src/foo.py",)
+    assert task.paths.test == ("tests/test_foo.py",)
 
 
 def test_agent_task_paths_is_immutable():
-    task = AgentTask(id="t1", paths=TaskPaths(src_paths=("src/foo.py",)))
+    task = AgentTask(id="t1", paths=TaskPaths(src=("src/foo.py",)))
     with pytest.raises(AttributeError):
         task.paths = TaskPaths()  # type: ignore[misc]
 
