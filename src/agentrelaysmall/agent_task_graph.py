@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskPaths, TaskStatus
 
 
 @dataclass
@@ -144,9 +144,11 @@ class AgentTaskGraphBuilder:
                 review_on_attempt=raw.get("review_on_attempt", 1),
                 max_gate_attempts=raw.get("max_gate_attempts"),
                 task_params=raw.get("task_params", {}),
-                src_paths=tuple(raw.get("src_paths", [])),
-                test_paths=tuple(raw.get("test_paths", [])),
-                spec_path=raw.get("spec_path"),
+                paths=TaskPaths(
+                    src_paths=tuple(raw.get("src_paths", [])),
+                    test_paths=tuple(raw.get("test_paths", [])),
+                    spec_path=raw.get("spec_path"),
+                ),
                 verbosity=raw.get("verbosity"),
             )
 
