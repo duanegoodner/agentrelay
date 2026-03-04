@@ -7,6 +7,56 @@ each PR on GitHub.
 
 ## 2026-03-03
 
+### `TaskPaths` field rename and YAML/JSON nesting — PR #46
+
+Renames the three `TaskPaths` fields to shorter names and aligns the YAML task
+syntax and `task_context.json` with the Python dataclass structure.
+
+- **`TaskPaths` fields renamed**: `src_paths→src`, `test_paths→test`, `spec_path→spec`.
+- **YAML `paths:` nesting**: task entries now use a nested `paths:` block instead of flat
+  keys at the task level:
+  ```yaml
+  paths:
+    src:
+      - src/agentrelaydemos/palindrome.py
+    spec: specs/palindrome.md
+  ```
+- **`task_context.json` nesting**: `write_task_context()` and `write_merger_task_context()`
+  now emit `{"paths": {"src": [...], "test": [...], "spec": ...}}` matching the YAML shape.
+- **`WorktreeTaskRunner`**: constructor params and `self.*` attributes renamed accordingly;
+  `from_config()` reads from the nested `paths` dict.
+- **`CLAUDE.md`** graph YAML schema updated to show the new nested syntax.
+- **13 YAML files** in `agentrelaydemos/main/graphs/` converted to the new format.
+
+No behaviour changes — purely a naming and structure improvement. 349 tests, `pixi run check` clean.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`, `task_launcher.py`,
+`worktree_task_runner.py`.
+
+---
+
+### Group `src_paths`/`test_paths`/`spec_path` into `TaskPaths` dataclass — PR #45
+
+Introduces a `TaskPaths` frozen dataclass in `agent_task.py` to group the three path
+fields, then moves `AgentTask.src_paths`, `.test_paths`, and `.spec_path` under a single
+`paths: TaskPaths` attribute.
+
+- **`TaskPaths(src_paths, test_paths, spec_path)`** (new frozen dataclass): groups the
+  three path fields with the same types and defaults as before.
+- **`AgentTask.paths: TaskPaths`** replaces the three flat fields; all access sites
+  updated to `task.paths.src_paths`, `task.paths.test_paths`, `task.paths.spec_path`.
+- **`AgentTaskGraphBuilder.from_yaml()`** updated: still reads flat YAML keys
+  (`src_paths:`, `test_paths:`, `spec_path:`) and wraps them in `TaskPaths(...)`.
+- **`write_task_context()`** and **`WorktreeTaskRunner.from_config()`** unchanged at the
+  JSON level (flat keys preserved in this PR; nested in PR #46).
+
+349 tests, `pixi run check` clean.
+
+**Key files:** `agent_task.py`, `agent_task_graph.py`, `run_graph.py`, `task_launcher.py`,
+`worktree_task_runner.py`.
+
+---
+
 ### Demo YAML: `split_tdd_single.yaml` updated to three-node structured-roles graph — PR #42
 
 Replaces the two-node split-TDD demo in `agentrelaydemos` with a three-node pipeline
