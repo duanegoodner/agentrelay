@@ -405,7 +405,7 @@ def test_generic_instructions_gate_mentions_gate_last_output():
 
 
 def test_spec_reading_step_with_src_paths_returns_nonempty():
-    task = AgentTask(id="t1", paths=TaskPaths(src_paths=("src/foo.py", "src/bar.py")))
+    task = AgentTask(id="t1", paths=TaskPaths(src=("src/foo.py", "src/bar.py")))
     result = _spec_reading_step(task)
     assert result != ""
     assert "src/foo.py" in result
@@ -413,7 +413,7 @@ def test_spec_reading_step_with_src_paths_returns_nonempty():
 
 
 def test_spec_reading_step_with_spec_path_includes_spec_path():
-    task = AgentTask(id="t1", paths=TaskPaths(spec_path="specs/foo.md"))
+    task = AgentTask(id="t1", paths=TaskPaths(spec="specs/foo.md"))
     result = _spec_reading_step(task)
     assert result != ""
     assert "specs/foo.md" in result
@@ -431,7 +431,7 @@ def test_spec_writer_prompt_contains_role_header():
     task = AgentTask(
         id="spec_001",
         role=AgentRole.SPEC_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",)),
     )
     assert "SPEC WRITER" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -440,7 +440,7 @@ def test_spec_writer_prompt_contains_notimplementederror():
     task = AgentTask(
         id="spec_001",
         role=AgentRole.SPEC_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",)),
     )
     assert "NotImplementedError" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -449,7 +449,7 @@ def test_spec_writer_prompt_says_do_not_implement():
     task = AgentTask(
         id="spec_001",
         role=AgentRole.SPEC_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",)),
     )
     assert "do not implement" in _build_task_instructions(task, GRAPH_BRANCH).lower()
 
@@ -458,7 +458,7 @@ def test_spec_writer_prompt_with_spec_path_mentions_spec_file():
     task = AgentTask(
         id="spec_001",
         role=AgentRole.SPEC_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",), spec_path="specs/foo.md"),
+        paths=TaskPaths(src=("src/foo.py",), spec="specs/foo.md"),
     )
     assert "specs/foo.md" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -467,7 +467,7 @@ def test_spec_writer_prompt_without_spec_path_no_supplementary_mention():
     task = AgentTask(
         id="spec_001",
         role=AgentRole.SPEC_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",)),
     )
     prompt = _build_task_instructions(task, GRAPH_BRANCH)
     assert "supplementary" not in prompt.lower()
@@ -480,7 +480,7 @@ def test_test_writer_with_src_paths_contains_src_paths():
     task = AgentTask(
         id="tw_001",
         role=AgentRole.TEST_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     assert "src/foo.py" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -489,7 +489,7 @@ def test_test_writer_with_test_paths_contains_test_paths():
     task = AgentTask(
         id="tw_001",
         role=AgentRole.TEST_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     assert "tests/test_foo.py" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -498,7 +498,7 @@ def test_test_writer_with_src_paths_does_not_say_create_stubs():
     task = AgentTask(
         id="tw_001",
         role=AgentRole.TEST_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     prompt = _build_task_instructions(task, GRAPH_BRANCH).lower()
     assert "write a stub" not in prompt
@@ -512,7 +512,7 @@ def test_implementer_with_src_paths_contains_src_paths():
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     assert "src/foo.py" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -521,7 +521,7 @@ def test_implementer_with_test_paths_contains_test_paths():
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     assert "tests/test_foo.py" in _build_task_instructions(task, GRAPH_BRANCH)
 
@@ -530,7 +530,7 @@ def test_implementer_with_src_paths_mentions_preserve_docstrings():
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     prompt = _build_task_instructions(task, GRAPH_BRANCH).lower()
     assert "preserve" in prompt
@@ -541,7 +541,7 @@ def test_implementer_with_src_paths_mentions_preserve_docstrings():
 
 
 def test_generic_with_spec_path_contains_spec_reading_step():
-    task = AgentTask(id="t1", paths=TaskPaths(spec_path="specs/foo.md"))
+    task = AgentTask(id="t1", paths=TaskPaths(spec="specs/foo.md"))
     prompt = _build_task_instructions(task, GRAPH_BRANCH)
     assert "specs/foo.md" in prompt
     assert "Before starting" in prompt
@@ -560,7 +560,7 @@ def test_merger_prompt_implementer_contains_docstring_check():
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",), test=("tests/test_foo.py",)),
     )
     prompt = _build_merger_prompt(
         task, "https://github.com/o/r/pull/42", Path("/tmp/h.md")
@@ -574,7 +574,7 @@ def test_merger_prompt_non_implementer_no_docstring_integrity_check():
     task = AgentTask(
         id="spec_001",
         role=AgentRole.SPEC_WRITER,
-        paths=TaskPaths(src_paths=("src/foo.py",)),
+        paths=TaskPaths(src=("src/foo.py",)),
     )
     prompt = _build_merger_prompt(
         task, "https://github.com/o/r/pull/99", Path("/tmp/h.md")

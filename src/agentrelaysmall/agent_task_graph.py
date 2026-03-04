@@ -145,9 +145,9 @@ class AgentTaskGraphBuilder:
                 max_gate_attempts=raw.get("max_gate_attempts"),
                 task_params=raw.get("task_params", {}),
                 paths=TaskPaths(
-                    src_paths=tuple(raw.get("src_paths", [])),
-                    test_paths=tuple(raw.get("test_paths", [])),
-                    spec_path=raw.get("spec_path"),
+                    src=tuple((raw.get("paths") or {}).get("src", [])),
+                    test=tuple((raw.get("paths") or {}).get("test", [])),
+                    spec=(raw.get("paths") or {}).get("spec"),
                 ),
                 verbosity=raw.get("verbosity"),
             )

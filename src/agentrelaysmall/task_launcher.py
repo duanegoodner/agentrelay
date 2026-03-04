@@ -121,9 +121,11 @@ def write_task_context(
         "review_model": task.review_model,
         "review_on_attempt": task.review_on_attempt,
         "max_gate_attempts": max_gate_attempts,
-        "src_paths": list(task.paths.src_paths),
-        "test_paths": list(task.paths.test_paths),
-        "spec_path": task.paths.spec_path,
+        "paths": {
+            "src": list(task.paths.src),
+            "test": list(task.paths.test),
+            "spec": task.paths.spec,
+        },
         "verbosity": task.verbosity,
     }
     signal_dir.mkdir(parents=True, exist_ok=True)
@@ -767,7 +769,7 @@ def write_merger_task_context(
     merger_task_id: str,
     graph_name: str,
     graph_branch: str,
-    src_paths: list[str],
+    src: list[str],
     signal_dir: Path,
 ) -> None:
     """Write a minimal task_context.json for a MERGER agent."""
@@ -777,7 +779,7 @@ def write_merger_task_context(
         "signal_dir": str(signal_dir),
         "role": "merger",
         "graph_branch": graph_branch,
-        "src_paths": src_paths,
+        "paths": {"src": src},
     }
     signal_dir.mkdir(parents=True, exist_ok=True)
     (signal_dir / "task_context.json").write_text(json.dumps(context, indent=2))

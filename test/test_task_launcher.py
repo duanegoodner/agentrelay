@@ -1032,54 +1032,54 @@ def test_save_pr_summary_creates_signal_dir(tmp_path):
 # ── write_task_context: src_paths / test_paths / spec_path / verbosity ────────
 
 
-def test_write_task_context_writes_src_paths(tmp_path):
+def test_write_task_context_writes_src(tmp_path):
     task = AgentTask(
         id="task_001",
         description="x",
-        paths=TaskPaths(src_paths=("src/foo.py", "src/bar.py")),
+        paths=TaskPaths(src=("src/foo.py", "src/bar.py")),
     )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["src_paths"] == ["src/foo.py", "src/bar.py"]
+    assert data["paths"]["src"] == ["src/foo.py", "src/bar.py"]
 
 
-def test_write_task_context_writes_empty_src_paths(tmp_path):
+def test_write_task_context_writes_empty_src(tmp_path):
     task = AgentTask(id="task_001", description="x")
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["src_paths"] == []
+    assert data["paths"]["src"] == []
 
 
-def test_write_task_context_writes_test_paths(tmp_path):
+def test_write_task_context_writes_test(tmp_path):
     task = AgentTask(
         id="task_001",
         description="x",
-        paths=TaskPaths(test_paths=("tests/test_foo.py",)),
+        paths=TaskPaths(test=("tests/test_foo.py",)),
     )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["test_paths"] == ["tests/test_foo.py"]
+    assert data["paths"]["test"] == ["tests/test_foo.py"]
 
 
-def test_write_task_context_writes_spec_path_none(tmp_path):
+def test_write_task_context_writes_spec_none(tmp_path):
     task = AgentTask(id="task_001", description="x")
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["spec_path"] is None
+    assert data["paths"]["spec"] is None
 
 
-def test_write_task_context_writes_spec_path_value(tmp_path):
+def test_write_task_context_writes_spec_value(tmp_path):
     task = AgentTask(
-        id="task_001", description="x", paths=TaskPaths(spec_path="specs/roman.md")
+        id="task_001", description="x", paths=TaskPaths(spec="specs/roman.md")
     )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())
-    assert data["spec_path"] == "specs/roman.md"
+    assert data["paths"]["spec"] == "specs/roman.md"
 
 
 def test_write_task_context_writes_verbosity_none(tmp_path):

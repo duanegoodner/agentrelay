@@ -53,6 +53,12 @@ tasks:
     description: "..."
     role: generic              # optional; generic | test_writer | test_reviewer | implementer | spec_writer | merger
     model: claude-haiku-4-5-20251001  # optional; overrides graph-level model for this task
+    paths:                     # optional; all sub-keys optional
+      src:                     # list of source files (used by spec_writer, test_writer, implementer)
+        - src/my_module.py
+      test:                    # list of test files (used by test_writer, implementer)
+        - tests/test_my_module.py
+      spec: specs/my_spec.md   # supplementary spec file path (used by spec_writer, generic)
     dependencies: []
 ```
 
