@@ -29,19 +29,31 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
   capability with no impact on existing graphs. Implementation touches: YAML schema,
   `AgentTask` / `TDDTaskGroup` data models, orchestrator dispatch loop.
 
-- **Multi-agent backend support** — allow tasks to be dispatched to coding assistants
-  other than Claude Code (e.g. OpenAI Codex CLI, a Copilot-based agent, Gemini Code
-  Assist CLI). The main change points are `launch_agent()` and `send_prompt()` in
-  `task_launcher.py`, which currently hardcode `claude --dangerously-skip-permissions`
-  and the Claude-specific bypass-dialog key sequence. A natural approach:
-  - Add an `AgentBackend` enum or dataclass (e.g. `CLAUDE`, `CODEX`, `GEMINI`, …)
-    with per-backend launch command, startup flags, and any interactive-dialog handling
-  - Add an optional `backend` field to `AgentTask` (defaults to `CLAUDE` for
-    backwards compat); expose it in the graph YAML too
-  - Factor `launch_agent` / `send_prompt` into a small `AgentBackend` protocol so
-    each backend can own its own launch + prompt-delivery logic
+- **Pluggable agent harness interface** — design and implement a clean abstraction layer
+  between agentrelaysmall's core orchestration code and the specific coding assistant
+  frameworks/harnesses it uses to launch agents. The interface would decouple our
+  orchestrator from Claude Code CLI specifics, making it straightforward to plug in
+  support for GitHub Copilot, OpenAI Codex, Gemini Code Assist, or other coding
+  assistants. Key aspects of the interface:
+  - Abstract over agent launch mechanics (CLI invocation, API calls, protocol-specific
+    dialog handling)
+  - Standardize how agents receive task prompts and deliver results (currently assumes
+    tmux + sentinel files)
+  - Define per-harness capabilities (what models available, cost/latency profile, token
+    limits, concurrency constraints)
+  - Provide hooks for harness-specific setup/teardown (e.g. auth, dependency installation)
+
+- **Multi-agent backend support** — implement support for dispatching tasks to different
+  coding assistants (e.g. OpenAI Codex CLI, GitHub Copilot agent, Gemini Code Assist CLI)
+  using the pluggable harness interface described above. Concrete changes:
+  - Add an `AgentBackend` enum or dataclass (e.g. `CLAUDE`, `COPILOT`, `CODEX`, `GEMINI`, …)
+    with per-backend harness implementation
+  - Add an optional `backend` field to `AgentTask` (defaults to `CLAUDE` for backwards
+    compat); expose it in the graph YAML too
+  - Implement harness adapters that satisfy the pluggable interface for each supported
+    backend, handling backend-specific launch, prompt delivery, and result collection
   - Consider whether `worktree_task_runner.py` (the agent-side API for writing signal
-    files) needs to be backend-agnostic, or if each backend simply calls the same
+    files) needs to be harness-agnostic, or if each harness simply calls the same
     sentinel-file convention
 
 - **Reasoning-model task analysis and assistant routing** — before dispatching any
@@ -59,6 +71,13 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
   e.g. route trivial tasks to a cheaper model and reserve Opus-class agents for
   complex fan-in tasks. Results could be logged to a `routing_plan.json` alongside
   `run_info.json` for auditability.
+
+- **Agents Note Possible Improvements in Project Infrastructure** — If agents encounter
+  things that slow them down (e.g. errors for certain gh commands that have to be re-run
+  with new/different API) they make note of these in a .md file somewhere. Possible
+  locations: under docs/, or under .workflow/ (docs may be better due to persistence?).
+  Info provided by agent can note the hiccup and may suggest ways to fix (e.g. add
+  something to CLAUDE.md, install a new package, etc.)
 
 ## Improvements
 
@@ -89,6 +108,13 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
   in CI, removes Claude Code's ability to catch and fix failures before they hit
   the PR. Worth deciding whether Claude Code running checks locally or CI running
   them remotely is a better fit for this project's workflow.
+
+  - **Automate Generation/Specification of Completion Gate** — How? Can Spec Writer do it?
+    I don't think so because completion gate typically involves running test files, and
+    Spec Writer doesn't know test details. Maybe this means we really do (almost?) always
+    need the .md file under specs/. Although it may not make sense for the Spec Writer to
+    put test specs/requirements as comments in a src file, it does seem reasonable for the
+    Spec Writer to put testing requirements in the .md file.
 
 ## Ideas / Maybe
 
