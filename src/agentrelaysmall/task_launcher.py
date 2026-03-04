@@ -121,9 +121,9 @@ def write_task_context(
         "review_model": task.review_model,
         "review_on_attempt": task.review_on_attempt,
         "max_gate_attempts": max_gate_attempts,
-        "src_paths": list(task.src_paths),
-        "test_paths": list(task.test_paths),
-        "spec_path": task.spec_path,
+        "src_paths": list(task.paths.src_paths),
+        "test_paths": list(task.paths.test_paths),
+        "spec_path": task.paths.spec_path,
         "verbosity": task.verbosity,
     }
     signal_dir.mkdir(parents=True, exist_ok=True)

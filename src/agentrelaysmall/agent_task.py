@@ -24,6 +24,13 @@ class AgentRole(Enum):
     MERGER = "merger"
 
 
+@dataclass(frozen=True)
+class TaskPaths:
+    src_paths: tuple[str, ...] = field(default_factory=tuple)
+    test_paths: tuple[str, ...] = field(default_factory=tuple)
+    spec_path: str | None = None
+
+
 @dataclass
 class TaskState:
     status: TaskStatus = TaskStatus.PENDING
@@ -50,9 +57,7 @@ class AgentTask:
     review_on_attempt: int = 1
     max_gate_attempts: int | None = None
     task_params: dict[str, Any] = field(default_factory=dict)
-    src_paths: tuple[str, ...] = field(default_factory=tuple)
-    test_paths: tuple[str, ...] = field(default_factory=tuple)
-    spec_path: str | None = None
+    paths: TaskPaths = field(default_factory=TaskPaths)
     verbosity: str | None = None
     state: TaskState = field(default_factory=TaskState)
 

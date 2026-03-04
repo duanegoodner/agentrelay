@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from agentrelaysmall.agent_task import AgentTask
+from agentrelaysmall.agent_task import AgentTask, TaskPaths
 from agentrelaysmall.task_launcher import (
     close_agent_pane,
     commit_pixi_lock_to_main,
@@ -1036,7 +1036,7 @@ def test_write_task_context_writes_src_paths(tmp_path):
     task = AgentTask(
         id="task_001",
         description="x",
-        src_paths=("src/foo.py", "src/bar.py"),
+        paths=TaskPaths(src_paths=("src/foo.py", "src/bar.py")),
     )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
@@ -1056,7 +1056,7 @@ def test_write_task_context_writes_test_paths(tmp_path):
     task = AgentTask(
         id="task_001",
         description="x",
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(test_paths=("tests/test_foo.py",)),
     )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
@@ -1073,7 +1073,9 @@ def test_write_task_context_writes_spec_path_none(tmp_path):
 
 
 def test_write_task_context_writes_spec_path_value(tmp_path):
-    task = AgentTask(id="task_001", description="x", spec_path="specs/roman.md")
+    task = AgentTask(
+        id="task_001", description="x", paths=TaskPaths(spec_path="specs/roman.md")
+    )
     write_task_context(task, "demo", tmp_path, "graph/demo", 0, 5)
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     data = json.loads((signal_dir / "task_context.json").read_text())

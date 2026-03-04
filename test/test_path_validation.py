@@ -2,7 +2,7 @@
 
 import pytest
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskPaths
 from agentrelaysmall.run_graph import validate_task_paths
 
 # ── IMPLEMENTER ───────────────────────────────────────────────────────────────
@@ -19,8 +19,7 @@ def test_implementer_all_paths_present_no_exception(tmp_path):
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        src_paths=("src/foo.py",),
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
     )
     validate_task_paths(task, tmp_path)  # no exception
 
@@ -34,8 +33,7 @@ def test_implementer_missing_src_path_raises(tmp_path):
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        src_paths=("src/foo.py",),
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
     )
     with pytest.raises(ValueError, match="src/foo.py"):
         validate_task_paths(task, tmp_path)
@@ -45,7 +43,7 @@ def test_implementer_missing_src_path_includes_task_id(tmp_path):
     task = AgentTask(
         id="impl_roman",
         role=AgentRole.IMPLEMENTER,
-        src_paths=("src/roman.py",),
+        paths=TaskPaths(src_paths=("src/roman.py",)),
     )
     with pytest.raises(ValueError, match="impl_roman"):
         validate_task_paths(task, tmp_path)
@@ -60,8 +58,7 @@ def test_implementer_missing_test_path_raises(tmp_path):
     task = AgentTask(
         id="impl_001",
         role=AgentRole.IMPLEMENTER,
-        src_paths=("src/foo.py",),
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
     )
     with pytest.raises(ValueError, match="test_foo.py"):
         validate_task_paths(task, tmp_path)
@@ -85,8 +82,7 @@ def test_test_writer_stubs_present_no_exception(tmp_path):
     task = AgentTask(
         id="tw_001",
         role=AgentRole.TEST_WRITER,
-        src_paths=("src/foo.py",),
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
     )
     validate_task_paths(task, tmp_path)  # no exception
 
@@ -98,8 +94,7 @@ def test_test_writer_missing_stub_raises(tmp_path):
     task = AgentTask(
         id="tw_001",
         role=AgentRole.TEST_WRITER,
-        src_paths=("src/foo.py",),
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
     )
     with pytest.raises(ValueError, match="src/foo.py"):
         validate_task_paths(task, tmp_path)
@@ -114,8 +109,7 @@ def test_test_writer_missing_test_parent_dir_raises(tmp_path):
     task = AgentTask(
         id="tw_001",
         role=AgentRole.TEST_WRITER,
-        src_paths=("src/foo.py",),
-        test_paths=("tests/test_foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",), test_paths=("tests/test_foo.py",)),
     )
     with pytest.raises(ValueError, match="test_foo.py"):
         validate_task_paths(task, tmp_path)
@@ -130,7 +124,7 @@ def test_spec_writer_parent_dirs_present_no_exception(tmp_path):
     task = AgentTask(
         id="sw_001",
         role=AgentRole.SPEC_WRITER,
-        src_paths=("src/foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",)),
     )
     validate_task_paths(task, tmp_path)  # no exception
 
@@ -141,7 +135,7 @@ def test_spec_writer_missing_parent_dir_raises(tmp_path):
     task = AgentTask(
         id="sw_001",
         role=AgentRole.SPEC_WRITER,
-        src_paths=("src/foo.py",),
+        paths=TaskPaths(src_paths=("src/foo.py",)),
     )
     with pytest.raises(ValueError, match="src"):
         validate_task_paths(task, tmp_path)
@@ -154,8 +148,7 @@ def test_spec_writer_with_spec_path_parent_present_no_exception(tmp_path):
     task = AgentTask(
         id="sw_001",
         role=AgentRole.SPEC_WRITER,
-        src_paths=("src/foo.py",),
-        spec_path="specs/foo.md",
+        paths=TaskPaths(src_paths=("src/foo.py",), spec_path="specs/foo.md"),
     )
     validate_task_paths(task, tmp_path)  # no exception
 
@@ -167,8 +160,7 @@ def test_spec_writer_with_spec_path_missing_parent_raises(tmp_path):
     task = AgentTask(
         id="sw_001",
         role=AgentRole.SPEC_WRITER,
-        src_paths=("src/foo.py",),
-        spec_path="specs/foo.md",
+        paths=TaskPaths(src_paths=("src/foo.py",), spec_path="specs/foo.md"),
     )
     with pytest.raises(ValueError, match="specs/foo.md"):
         validate_task_paths(task, tmp_path)
@@ -181,8 +173,9 @@ def test_generic_no_exception_regardless_of_paths(tmp_path):
     task = AgentTask(
         id="t1",
         role=AgentRole.GENERIC,
-        src_paths=("nonexistent/foo.py",),
-        test_paths=("nonexistent/test_foo.py",),
+        paths=TaskPaths(
+            src_paths=("nonexistent/foo.py",), test_paths=("nonexistent/test_foo.py",)
+        ),
     )
     validate_task_paths(task, tmp_path)  # no exception — GENERIC is not validated
 
@@ -194,6 +187,6 @@ def test_merger_no_exception_regardless_of_paths(tmp_path):
     task = AgentTask(
         id="merger_001",
         role=AgentRole.MERGER,
-        src_paths=("nonexistent/foo.py",),
+        paths=TaskPaths(src_paths=("nonexistent/foo.py",)),
     )
     validate_task_paths(task, tmp_path)  # no exception — MERGER is not validated
