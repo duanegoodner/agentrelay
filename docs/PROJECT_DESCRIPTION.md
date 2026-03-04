@@ -55,43 +55,14 @@ class AgentTask:
     description: str
     dependencies: tuple[str, ...] = field(default_factory=tuple)
     role: AgentRole = AgentRole.GENERIC     # controls which prompt template is used
-    tdd_group_id: str | None = None         # set for tasks expanded from a tdd_groups: entry
     state: TaskState = field(default_factory=TaskState)
 ```
 
 `AgentTask` is frozen (immutable identity); all mutable progress lives in `TaskState`.
-`role` and `tdd_group_id` default to `GENERIC` / `None` — plain `tasks:` entries are unaffected.
+`role` defaults to `GENERIC` — plain `tasks:` entries are unaffected.
 
-### TDDTaskGroup (build-time only)
-
-`TDDTaskGroup` is a transient dataclass used only inside `AgentTaskGraphBuilder.from_yaml()`.
-A single `tdd_groups:` YAML entry auto-expands into three sequential `AgentTask` objects:
-
-| Expanded task ID | Role | Depends on |
-|---|---|---|
-| `{group_id}_tests` | `TEST_WRITER` | group's `dependencies` (resolved) |
-| `{group_id}_review` | `TEST_REVIEWER` | `{group_id}_tests` |
-| `{group_id}_impl` | `IMPLEMENTER` | `{group_id}_review` |
-
-`TDDTaskGroup` is never stored on `AgentTaskGraph` — the graph's `tasks` dict remains flat.
-When a group depends on another group (`dependencies: [other_group]`), the dep resolves
-to `other_group_impl` automatically.
-
-Example YAML:
-
-```yaml
-name: my-graph
-tdd_groups:
-  - id: stats_module
-    description: >-
-      Create stats.py with mean() and median() functions.
-      Tests go in tests/test_stats.py.
-    dependencies: []
-tasks:              # optional — can mix plain tasks and tdd_groups
-  - id: setup
-    description: "Initial project scaffolding"
-    dependencies: []
-```
+TDD workflows (test-writer → reviewer → implementer) are expressed as three plain
+`AgentTask` nodes with explicit roles and dependencies — no special YAML syntax needed.
 
 ### Tmux Launch
 

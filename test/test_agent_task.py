@@ -3,7 +3,6 @@ import pytest
 from agentrelaysmall.agent_task import (
     AgentRole,
     AgentTask,
-    TaskGroup,
     TaskState,
     TaskStatus,
 )
@@ -141,25 +140,6 @@ def test_agent_task_role_does_not_affect_state_independence():
     assert task_b.state.status == TaskStatus.PENDING
 
 
-# ── AgentTask.tdd_group_id ────────────────────────────────────────────────────
-
-
-def test_agent_task_default_tdd_group_id_is_none():
-    task = AgentTask(id="t1", description="d")
-    assert task.tdd_group_id is None
-
-
-def test_agent_task_accepts_tdd_group_id():
-    task = AgentTask(id="t1", description="d", tdd_group_id="my_group")
-    assert task.tdd_group_id == "my_group"
-
-
-def test_agent_task_tdd_group_id_is_immutable():
-    task = AgentTask(id="t1", description="d", tdd_group_id="my_group")
-    with pytest.raises(AttributeError):
-        task.tdd_group_id = "other"  # type: ignore[misc]
-
-
 # ── AgentTask.model ───────────────────────────────────────────────────────────
 
 
@@ -272,14 +252,6 @@ def test_agent_task_max_gate_attempts_is_immutable():
     task = AgentTask(id="t1", description="d", max_gate_attempts=3)
     with pytest.raises(AttributeError):
         task.max_gate_attempts = 10  # type: ignore[misc]
-
-
-# ── TaskGroup ABC ─────────────────────────────────────────────────────────────
-
-
-def test_task_group_cannot_be_instantiated_directly():
-    with pytest.raises(TypeError):
-        TaskGroup(id="g", description="d")  # type: ignore[abstract]
 
 
 # ── AgentTask.description optional ────────────────────────────────────────────

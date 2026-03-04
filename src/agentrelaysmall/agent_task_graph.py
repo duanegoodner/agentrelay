@@ -6,19 +6,7 @@ from typing import Any
 
 import yaml
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskGroup, TaskStatus
-
-
-@dataclass(frozen=True)
-class TDDTaskGroup(TaskGroup):
-    dependencies_single_task: tuple[AgentTask, ...] = field(default_factory=tuple)
-    dependencies_task_group: tuple[TaskGroup, ...] = field(default_factory=tuple)
-
-    @property
-    def dependency_ids(self) -> tuple[str, ...]:
-        return tuple(t.id for t in self.dependencies_single_task) + tuple(
-            g.id for g in self.dependencies_task_group
-        )
+from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskStatus
 
 
 @dataclass
@@ -130,102 +118,37 @@ class AgentTaskGraphBuilder:
         graph_max_gate_attempts: int | None = data.get("max_gate_attempts")
         graph_verbosity: str = data.get("verbosity", "standard")
 
-        # Collect raw specs keyed by ID
-        raw_plain: dict[str, Any] = {t["id"]: t for t in data.get("tasks", [])}
-        raw_groups: dict[str, Any] = {g["id"]: g for g in data.get("tdd_groups", [])}
-        group_ids: set[str] = set(raw_groups.keys())
+        # Collect raw task specs keyed by ID
+        raw_tasks: dict[str, Any] = {t["id"]: t for t in data.get("tasks", [])}
 
-        # Build dep graph for topo sort (nodes = plain task IDs + group IDs)
-        all_node_ids = list(raw_plain.keys()) + list(raw_groups.keys())
+        # Build dep graph for topo sort
         node_deps: dict[str, list[str]] = {
-            nid: list(raw_plain[nid].get("dependencies", [])) for nid in raw_plain
+            nid: list(raw_tasks[nid].get("dependencies", [])) for nid in raw_tasks
         }
-        for gid, g in raw_groups.items():
-            node_deps[gid] = list(g.get("dependencies", []))
-
-        sorted_nodes = _topo_sort(all_node_ids, node_deps)
+        sorted_nodes = _topo_sort(list(raw_tasks.keys()), node_deps)
 
         built_tasks: dict[str, AgentTask] = {}
-        built_groups: dict[str, TDDTaskGroup] = {}
-
         for node_id in sorted_nodes:
-            if node_id in raw_plain:
-                raw = raw_plain[node_id]
-                raw_dep_ids: list[str] = raw.get("dependencies", [])
-                deps = tuple(built_tasks[d] for d in raw_dep_ids)
-                role_str: str = raw.get("role", "GENERIC").upper()
-                built_tasks[node_id] = AgentTask(
-                    id=node_id,
-                    description=raw.get("description", ""),
-                    dependencies=deps,
-                    role=AgentRole[role_str],
-                    model=raw.get("model"),
-                    completion_gate=raw.get("completion_gate"),
-                    review_model=raw.get("review_model"),
-                    review_on_attempt=raw.get("review_on_attempt", 1),
-                    max_gate_attempts=raw.get("max_gate_attempts"),
-                    task_params=raw.get("task_params", {}),
-                    src_paths=tuple(raw.get("src_paths", [])),
-                    test_paths=tuple(raw.get("test_paths", [])),
-                    spec_path=raw.get("spec_path"),
-                    verbosity=raw.get("verbosity"),
-                )
-            else:
-                raw = raw_groups[node_id]
-                description: str = raw["description"]
-                raw_dep_ids = raw.get("dependencies", [])
-
-                plain_dep_ids = [d for d in raw_dep_ids if d not in group_ids]
-                group_dep_ids = [d for d in raw_dep_ids if d in group_ids]
-
-                task_deps = tuple(built_tasks[d] for d in plain_dep_ids)
-                group_deps = tuple(built_groups[d] for d in group_dep_ids)
-
-                # External deps for the _tests task: plain deps + each group's _impl
-                resolved = task_deps + tuple(
-                    built_tasks[f"{g.id}_impl"] for g in group_deps
-                )
-
-                built_groups[node_id] = TDDTaskGroup(
-                    id=node_id,
-                    description=description,
-                    dependencies_single_task=task_deps,
-                    dependencies_task_group=group_deps,
-                )
-
-                group_model: str | None = raw.get("model")
-                role_models: dict[str, str] = raw.get("models", {})
-                tests_model = role_models.get("tests") or group_model
-                review_model = role_models.get("review") or group_model
-                impl_model = role_models.get("impl") or group_model
-
-                tests = AgentTask(
-                    id=f"{node_id}_tests",
-                    description=description,
-                    dependencies=resolved,
-                    role=AgentRole.TEST_WRITER,
-                    tdd_group_id=node_id,
-                    model=tests_model,
-                )
-                review = AgentTask(
-                    id=f"{node_id}_review",
-                    description=description,
-                    dependencies=(tests,),
-                    role=AgentRole.TEST_REVIEWER,
-                    tdd_group_id=node_id,
-                    model=review_model,
-                )
-                impl = AgentTask(
-                    id=f"{node_id}_impl",
-                    description=description,
-                    dependencies=(review,),
-                    role=AgentRole.IMPLEMENTER,
-                    tdd_group_id=node_id,
-                    model=impl_model,
-                )
-                built_tasks[f"{node_id}_tests"] = tests
-                built_tasks[f"{node_id}_review"] = review
-                built_tasks[f"{node_id}_impl"] = impl
+            raw = raw_tasks[node_id]
+            raw_dep_ids: list[str] = raw.get("dependencies", [])
+            deps = tuple(built_tasks[d] for d in raw_dep_ids)
+            role_str: str = raw.get("role", "GENERIC").upper()
+            built_tasks[node_id] = AgentTask(
+                id=node_id,
+                description=raw.get("description", ""),
+                dependencies=deps,
+                role=AgentRole[role_str],
+                model=raw.get("model"),
+                completion_gate=raw.get("completion_gate"),
+                review_model=raw.get("review_model"),
+                review_on_attempt=raw.get("review_on_attempt", 1),
+                max_gate_attempts=raw.get("max_gate_attempts"),
+                task_params=raw.get("task_params", {}),
+                src_paths=tuple(raw.get("src_paths", [])),
+                test_paths=tuple(raw.get("test_paths", [])),
+                spec_path=raw.get("spec_path"),
+                verbosity=raw.get("verbosity"),
+            )
 
         return AgentTaskGraph(
             name=name,

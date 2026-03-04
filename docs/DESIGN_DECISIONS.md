@@ -68,20 +68,22 @@ Decisions made during early design discussions, with rationale. Ordered roughly 
 
 ---
 
-## Three agents per TDD task group (test-writer → reviewer → implementer)
+## Three agents per TDD feature (test-writer → reviewer → implementer)
 
-**Decision:** Each `tdd_groups:` entry dispatches three separate, short-lived Claude Code
-agents in sequence: one writes tests and a stub module; one reviews the tests and writes
-a review file; one implements until the tests pass. Each agent creates its own PR, which
-is merged before the next agent is dispatched.
+**Decision:** A TDD feature is expressed as three sequential `AgentTask` nodes with
+explicit roles: `TEST_WRITER`, `TEST_REVIEWER`, `IMPLEMENTER`. Each creates its own PR,
+merged before the next agent is dispatched.
 
 **Rationale:** Three short-lived single-purpose agents are easier to reason about than one
 long-lived agent that switches modes mid-run. Separating test-writing, review, and
 implementation into distinct PRs creates a clean audit trail in git history. The reviewer
 agent (not the orchestrator) performs test quality assessment, keeping the orchestrator loop
 simple and uniform — it treats all tasks identically regardless of role. The worktree for
-each sub-task is independent, which is consistent with the project's one-worktree-per-task
+each task is independent, which is consistent with the project's one-worktree-per-task
 model.
+
+The three tasks are declared explicitly in the YAML `tasks:` list with explicit `role:`
+and `dependencies:` fields. There is no auto-expansion shorthand.
 
 ---
 
@@ -89,7 +91,7 @@ model.
 
 **Decision:** The test-writer agent writes tests *and* a stub module (signatures only,
 bodies `raise NotImplementedError`) before any real implementation. The reviewer agent reads
-the tests and stub, writes a review file (`{task_id}_review.md`), and signals done or
+the tests and stub, writes a review file (`{task_id}.md`), and signals done or
 failed. The implementer agent reads the review file, implements the code in the stub module,
 and runs `pytest` until all tests pass. Tests and implementation are merged to `main` as
 separate PRs.
@@ -99,22 +101,6 @@ them first forces a clear contract before implementation begins. The stub module
 test-writer PR compiles and tests can be collected (`--collect-only`) without any real
 implementation existing yet. The review step catches fundamentally broken tests before any
 implementation effort is spent on them.
-
----
-
-## `TDDTaskGroup` as a build-time YAML abstraction
-
-**Decision:** `TDDTaskGroup` is a transient dataclass used only inside `from_yaml()`.
-It is not stored on `AgentTaskGraph`. The graph's `tasks` dict is always a flat
-`dict[str, AgentTask]`. Dependency resolution (group ID → `{dep}_impl`) is computed
-once at build time and baked into each task's `dependencies` tuple.
-
-**Rationale:** Keeping the expansion at load time rather than at runtime means the
-orchestrator loop has no special cases for TDD tasks — it dispatches, polls, and merges
-identically for all task types. `AgentRole` on `AgentTask` is the sole runtime signal
-that changes behavior (via prompt selection). This minimises the blast radius of the
-feature: the orchestrator (`run_graph.py`) only needed a prompt dispatch change, not
-structural changes to the dispatch loop.
 
 ---
 

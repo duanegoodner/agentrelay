@@ -15,19 +15,17 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
   TEST_WRITER with accumulated failure history. The agent sees all previous failure
   reasons without any special retry logic inside agents — just files. Cap with a
   `max_retries` YAML field to bound run time. This is the natural complement to
-  machine-readable verdicts (Idea 5 in `TDD_GROUP_POSSIBLE_IMPROVEMENTS.md`) and
-  converts a hard stop into a repair cycle. Implementation touches: orchestrator loop
-  in `run_graph.py`, TDD prompt builders, and optionally `AgentTask` / YAML schema
-  for the retry cap.
+  machine-readable verdicts and converts a hard stop into a repair cycle.
+  Implementation touches: orchestrator loop in `run_graph.py`, TDD prompt builders,
+  and optionally `AgentTask` / YAML schema for the retry cap.
 
 - **Human escalation checkpoints** — add an optional `escalation: human` flag to
-  `tdd_groups:` entries (and potentially plain `tasks:`). When set, the orchestrator
-  pauses after the review step (or after `max_retries` auto-escalation) and polls for
-  a human-written `human_approval.txt` in the signal directory before proceeding. A
-  lighter `escalation: notify` level could log a desktop-style message and continue
-  automatically. Default is `auto` (current behavior). This adds a human-in-the-loop
-  capability with no impact on existing graphs. Implementation touches: YAML schema,
-  `AgentTask` / `TDDTaskGroup` data models, orchestrator dispatch loop.
+  tasks. When set, the orchestrator pauses after the review step (or after
+  `max_retries` auto-escalation) and polls for a human-written `human_approval.txt`
+  in the signal directory before proceeding. A lighter `escalation: notify` level
+  could log a desktop-style message and continue automatically. Default is `auto`
+  (current behavior). Implementation touches: YAML schema, `AgentTask` data model,
+  orchestrator dispatch loop.
 
 - **Pluggable agent harness interface** — design and implement a clean abstraction layer
   between agentrelaysmall's core orchestration code and the specific coding assistant

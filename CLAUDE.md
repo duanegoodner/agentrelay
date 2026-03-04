@@ -21,7 +21,7 @@ The orchestrator merges PRs in dependency order.
 | File | Responsibility |
 |---|---|
 | `agent_task.py` | `AgentTask`, `AgentRole`, `TaskStatus`, `TaskState` data models |
-| `agent_task_graph.py` | `AgentTaskGraph` — all path computation; `AgentTaskGraphBuilder.from_yaml()` (expands `tdd_groups:`) |
+| `agent_task_graph.py` | `AgentTaskGraph` — all path computation; `AgentTaskGraphBuilder.from_yaml()` |
 | `run_graph.py` | Orchestrator loop — dispatches tasks, polls signals, merges PRs |
 | `task_launcher.py` | Low-level infrastructure: worktrees, tmux, signal files, PR operations |
 | `worktree_task_runner.py` | Agent-side API — runs inside worktrees, writes signal files |
@@ -48,20 +48,12 @@ name: my-graph
 tmux_session: agentrelaysmall  # optional; default "agentrelaysmall"
 keep_panes: false              # optional; leave tmux windows open for debugging
 model: claude-sonnet-4-6       # optional; graph-level default model for all agents
-tasks:                         # optional; plain tasks (one agent each)
+tasks:
   - id: my_task
     description: "..."
+    role: generic              # optional; generic | test_writer | test_reviewer | implementer | spec_writer | merger
     model: claude-haiku-4-5-20251001  # optional; overrides graph-level model for this task
     dependencies: []
-tdd_groups:                    # optional; each expands to 3 tasks: _tests, _review, _impl
-  - id: my_feature
-    description: "..."
-    model: claude-sonnet-4-6   # optional; group default (applies to all 3 sub-tasks)
-    models:                    # optional; per-role overrides
-      tests: claude-haiku-4-5-20251001
-      review: claude-haiku-4-5-20251001
-      impl: claude-opus-4-6
-    dependencies: []           # group IDs resolve to {id}_impl; plain task IDs pass through
 ```
 
 ## Development workflow
