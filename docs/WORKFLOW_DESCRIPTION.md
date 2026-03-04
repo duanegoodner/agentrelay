@@ -7,9 +7,9 @@ The system has two roles:
 - **Orchestrator** — a long-running Python process that manages the task graph,
   dispatches agents, merges PRs, and handles failures.
 - **Worktree agent** — a short-lived Claude Code instance launched in an isolated git
-  worktree to perform one atomic task. Generic tasks produce one agent; TDD task groups
-  produce three agents in sequence (test-writer, reviewer, implementer), each with its
-  own worktree and PR.
+  worktree to perform one atomic task. Each agent gets its own worktree and PR.
+  TDD workflows (test-writer → reviewer → implementer) are expressed as three plain
+  tasks with explicit roles.
 
 All coordination happens through files: a `task_context.json` the orchestrator writes
 into each worktree, and signal files that agents and the orchestrator write to
@@ -52,7 +52,6 @@ Git branches follow the pattern `task/<graph-name>/<task-id>`.
 On startup the orchestrator:
 
 1. Loads the task graph from a workflow config file (via `AgentTaskGraphBuilder`).
-   `tdd_groups:` entries are expanded to three `AgentTask` objects each at load time.
 2. Scans `.workflow/<graph-name>/signals/` and hydrates `TaskState` for each task:
 
 | Signals present | Inferred status |
@@ -79,8 +78,7 @@ The orchestrator continuously:
 
 ## Per-Task Lifecycle
 
-Every task — whether a plain `tasks:` entry or one of three expanded from a
-`tdd_groups:` entry — follows the same lifecycle:
+Every task follows the same lifecycle:
 
 ### Dispatch
 
@@ -110,10 +108,10 @@ calls `runner.mark_done(pr_url)`, and exits. On unrecoverable failure it calls
 
 ---
 
-## TDD Task Group Lifecycle
+## TDD Task Sequence
 
-A `tdd_groups:` entry with `id: stats_module` expands to three tasks dispatched
-sequentially. Each is a full worktree-PR-merge cycle:
+A TDD feature is expressed as three plain tasks dispatched sequentially.
+Each is a full worktree-PR-merge cycle:
 
 ```
 stats_module_tests  →  stats_module_review  →  stats_module_impl
@@ -145,7 +143,7 @@ are present in the worktree.
 The `_review` PR has been merged to `main`. The review file is available in the worktree.
 
 1. Reads the test files (from worktree / main).
-2. Reads the review file (`{group_id}_review.md`) for guidance.
+2. Reads the review file (`{review_task_id}.md`) for guidance.
 3. Implements the feature in the stub module (replaces `NotImplementedError` bodies).
 4. Runs `pixi run pytest` until all tests pass.
 5. Commits, pushes, creates PR, calls `runner.mark_done(pr_url)`.

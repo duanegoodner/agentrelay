@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -25,16 +24,6 @@ class AgentRole(Enum):
     MERGER = "merger"
 
 
-@dataclass(frozen=True)
-class TaskGroup(ABC):
-    id: str
-    description: str
-
-    @property
-    @abstractmethod
-    def dependency_ids(self) -> tuple[str, ...]: ...
-
-
 @dataclass
 class TaskState:
     status: TaskStatus = TaskStatus.PENDING
@@ -55,7 +44,6 @@ class AgentTask:
     description: str = ""
     dependencies: tuple[AgentTask, ...] = field(default_factory=tuple)
     role: AgentRole = AgentRole.GENERIC
-    tdd_group_id: str | None = None
     model: str | None = None
     completion_gate: str | None = None
     review_model: str | None = None

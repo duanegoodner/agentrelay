@@ -28,25 +28,29 @@ target_repo: /path/to/target/repo
 tmux_session: agentrelaysmall   # optional; default "agentrelaysmall"
 keep_panes: false                # optional; leave tmux windows open after tasks
 
-# Plain tasks (role=GENERIC, one agent each):
 tasks:
   - id: setup
     description: "Initial project scaffolding"
     dependencies: []
-
-# TDD task groups (auto-expand to 3 agents: test-writer → reviewer → implementer):
-tdd_groups:
-  - id: stats_module
+  # TDD workflow: three tasks with explicit roles and sequential dependencies
+  - id: stats_module_tests
     description: >-
       Create src/pkg/stats.py with mean() and median() functions.
       Both raise ValueError on empty input.
       Tests go in tests/test_stats.py.
-    dependencies: []      # can reference other tdd_group ids (resolves to {id}_impl)
-                          # or plain task ids (passed through unchanged)
+    role: test_writer
+    dependencies: ["setup"]
+  - id: stats_module_review
+    description: "Review tests for stats module"
+    role: test_reviewer
+    dependencies: ["stats_module_tests"]
+  - id: stats_module_impl
+    description: "Implement stats module"
+    role: implementer
+    dependencies: ["stats_module_review"]
 ```
 
-Running a `tdd_groups:` graph produces three tasks per group:
-`{id}_tests`, `{id}_review`, `{id}_impl` — each with its own worktree and PR.
+Each TDD task (`_tests`, `_review`, `_impl`) gets its own worktree and PR.
 
 ### What to expect in the terminal
 
