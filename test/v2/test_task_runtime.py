@@ -2,6 +2,7 @@
 
 import pytest
 
+from agentrelaysmall.v2.agent import Agent
 from agentrelaysmall.v2.task import AgentConfig, AgentRole, Task, TaskStatus
 from agentrelaysmall.v2.task_runtime import (
     AgentAddress,
@@ -10,7 +11,6 @@ from agentrelaysmall.v2.task_runtime import (
     TaskState,
     TmuxAddress,
 )
-
 
 # ── Tests for TaskState ──
 
@@ -97,9 +97,7 @@ class TestTaskArtifacts:
 
     def test_set_pr_url(self) -> None:
         """TaskArtifacts can track PR URL."""
-        artifacts = TaskArtifacts(
-            pr_url="https://github.com/user/repo/pull/123"
-        )
+        artifacts = TaskArtifacts(pr_url="https://github.com/user/repo/pull/123")
         assert artifacts.pr_url == "https://github.com/user/repo/pull/123"
 
     def test_set_concerns(self) -> None:
@@ -231,7 +229,7 @@ class TestTaskRuntime:
         assert runtime.task == task
         assert isinstance(runtime.state, TaskState)
         assert isinstance(runtime.artifacts, TaskArtifacts)
-        assert runtime.address is None
+        assert runtime.agent is None
 
     def test_default_state_created(self) -> None:
         """TaskRuntime creates default TaskState if not provided."""
@@ -262,29 +260,28 @@ class TestTaskRuntime:
     def test_custom_artifacts(self) -> None:
         """TaskRuntime can use provided TaskArtifacts."""
         task = Task(id="task", role=AgentRole.GENERIC)
-        artifacts = TaskArtifacts(
-            pr_url="https://github.com/user/repo/pull/1"
-        )
+        artifacts = TaskArtifacts(pr_url="https://github.com/user/repo/pull/1")
         runtime = TaskRuntime(task=task, artifacts=artifacts)
 
         assert runtime.artifacts == artifacts
         assert runtime.artifacts.pr_url == "https://github.com/user/repo/pull/1"
 
-    def test_address_initially_none(self) -> None:
-        """TaskRuntime.address is None until agent is launched."""
+    def test_agent_initially_none(self) -> None:
+        """TaskRuntime.agent is None until agent is launched."""
         task = Task(id="task", role=AgentRole.GENERIC)
         runtime = TaskRuntime(task=task)
-        assert runtime.address is None
+        assert runtime.agent is None
 
-    def test_set_address(self) -> None:
-        """TaskRuntime.address can be set after creation."""
+    def test_set_agent(self) -> None:
+        """TaskRuntime.agent can be set after creation."""
         task = Task(id="task", role=AgentRole.GENERIC)
         runtime = TaskRuntime(task=task)
 
-        assert runtime.address is None
-        runtime.address = TmuxAddress(session="agentrelay", pane_id="%1")
-        assert runtime.address is not None
-        assert runtime.address.label == "agentrelay:%1"
+        assert runtime.agent is None
+        agent = Agent(address=TmuxAddress(session="agentrelay", pane_id="%1"))
+        runtime.agent = agent
+        assert runtime.agent is not None
+        assert runtime.agent.address.label == "agentrelay:%1"
 
     def test_modify_state_in_runtime(self) -> None:
         """TaskRuntime.state can be modified."""
@@ -321,7 +318,8 @@ class TestTaskRuntime:
         runtime = TaskRuntime(task=task)
 
         # Agent is launched
-        runtime.address = TmuxAddress(session="agentrelay", pane_id="%2")
+        agent = Agent(address=TmuxAddress(session="agentrelay", pane_id="%2"))
+        runtime.agent = agent
         runtime.state.status = TaskStatus.RUNNING
 
         # Agent starts working
@@ -339,7 +337,7 @@ class TestTaskRuntime:
         runtime.state.status = TaskStatus.PR_MERGED
 
         # Verify final state
-        assert runtime.address.label == "agentrelay:%2"
+        assert runtime.agent.address.label == "agentrelay:%2"
         assert runtime.state.status == TaskStatus.PR_MERGED
         assert runtime.state.worktree_path == "/tmp/worktree-abc"
         assert runtime.state.branch_name == "feat/impl"
@@ -399,4 +397,4 @@ class TestTaskRuntime:
         assert len(runtime.task.dependencies) == 2
         assert runtime.task.completion_gate == "pytest"
         assert runtime.state.status == TaskStatus.PENDING
-        assert runtime.address is None
+        assert runtime.agent is None

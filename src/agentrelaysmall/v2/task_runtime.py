@@ -15,9 +15,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from agentrelaysmall.v2.task import Task, TaskStatus
+
+if TYPE_CHECKING:
+    from agentrelaysmall.v2.agent import Agent
 
 
 # ── Agent addressing ──
@@ -127,11 +130,11 @@ class TaskRuntime:
             Defaults to a new TaskState (PENDING, no paths, no error, attempt 0).
         artifacts: Work outputs and observations (PR URL, concerns).
             Defaults to a new TaskArtifacts (no PR, no concerns).
-        address: Where the agent is running (e.g., tmux pane), or None
-            until the agent is actually launched.
+        agent: The live running agent instance, or None until the orchestrator
+            spawns the agent.
     """
 
     task: Task
     state: TaskState = field(default_factory=TaskState)
     artifacts: TaskArtifacts = field(default_factory=TaskArtifacts)
-    address: Optional[AgentAddress] = None
+    agent: Optional[Agent] = None
