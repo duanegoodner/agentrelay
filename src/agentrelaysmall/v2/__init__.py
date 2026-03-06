@@ -12,7 +12,9 @@ Core types:
 - TaskState: operational state (status, worktree, branch, error, attempts)
 - TaskArtifacts: outputs of agent work (pr_url, concerns)
 - AgentAddress / TmuxAddress: addressing a running agent
-- AgentEnvironment / TmuxEnvironment: execution environment configuration
+- TmuxEnvironment: execution environment configuration (tmux pane)
+- AgentEnvironment: type alias union of all supported environment types
+- AgentEnvironmentT: TypeVar for generic code preserving concrete environment type
 - Configuration types: AgentConfig, ReviewConfig, TaskPaths
 - Enums: AgentRole, AgentFramework, AgentVerbosity
 """

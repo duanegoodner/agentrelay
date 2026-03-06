@@ -2,9 +2,9 @@
 
 import pytest
 
+from agentrelaysmall.v2.environments import AgentEnvironment, TmuxEnvironment
 from agentrelaysmall.v2.task import (
     AgentConfig,
-    AgentEnvironment,
     AgentFramework,
     AgentRole,
     AgentVerbosity,
@@ -12,7 +12,6 @@ from agentrelaysmall.v2.task import (
     Task,
     TaskPaths,
     TaskStatus,
-    TmuxEnvironment,
 )
 
 # ── Tests for enums ──
@@ -111,13 +110,14 @@ class TestTaskStatus:
 
 
 class TestAgentEnvironment:
-    """Tests for AgentEnvironment abstract base."""
+    """Tests for AgentEnvironment type alias."""
 
-    def test_is_abstract_base(self) -> None:
-        """AgentEnvironment is the abstract base for environment configurations."""
-        # AgentEnvironment is a marker type with no abstract methods
-        # Concrete subclasses like TmuxEnvironment should be used
-        assert hasattr(AgentEnvironment, "__mro__")  # Has MRO (is a class)
+    def test_environment_type_is_tmux(self) -> None:
+        """AgentEnvironment type alias currently represents TmuxEnvironment."""
+        # For now, AgentEnvironment only includes TmuxEnvironment.
+        # When more environments are added, this will become a union.
+        env = TmuxEnvironment()
+        assert isinstance(env, TmuxEnvironment)
 
 
 class TestTmuxEnvironment:
@@ -138,11 +138,6 @@ class TestTmuxEnvironment:
         env = TmuxEnvironment(session="test")
         with pytest.raises(AttributeError):
             env.session = "new_session"  # type: ignore
-
-    def test_is_agent_environment(self) -> None:
-        """TmuxEnvironment is an AgentEnvironment."""
-        env = TmuxEnvironment()
-        assert isinstance(env, AgentEnvironment)
 
 
 # ── Tests for TaskPaths ──

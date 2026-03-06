@@ -17,7 +17,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from agentrelaysmall.v2.task import AgentConfig, TmuxEnvironment
+    from agentrelaysmall.v2.environments import TmuxEnvironment
+    from agentrelaysmall.v2.task import AgentConfig
 
 from agentrelaysmall.v2.task_runtime import AgentAddress, TmuxAddress
 

@@ -6,8 +6,6 @@ configuration types for agents and reviews, and enums for roles and execution st
 Classes:
     Task: A frozen specification of work to be done in the task graph.
     TaskPaths: File paths a task operates on (source, test, supplementary spec).
-    AgentEnvironment: Abstract base for execution environment configuration.
-    TmuxEnvironment: Deploy agents in tmux panes.
     AgentConfig: Framework and model configuration for executing an agent.
     ReviewConfig: Configuration for self-review before task completion.
 
@@ -16,12 +14,16 @@ Enums:
     AgentFramework: The AI framework/platform executing an agent.
     AgentVerbosity: The detail level of Architecture Decision Records (ADRs).
     TaskStatus: The execution state of a task.
+
+See also:
+    environments: AgentEnvironment (type alias) and environment-specific types.
 """
 
-from abc import ABC
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
+
+from agentrelaysmall.v2.environments import AgentEnvironment, TmuxEnvironment
 
 # ── Enums ──
 
@@ -93,30 +95,6 @@ class TaskStatus(str, Enum):
     PR_CREATED = "pr_created"  # Agent done; PR exists against worktree branch
     PR_MERGED = "pr_merged"  # PR merged into worktree primary branch
     FAILED = "failed"
-
-
-# ── Execution environment ──
-
-
-class AgentEnvironment(ABC):
-    """Abstract base for execution environment configuration.
-
-    Determines where and how an agent process is deployed (tmux, cloud, etc.).
-    """
-
-    pass
-
-
-@dataclass(frozen=True)
-class TmuxEnvironment(AgentEnvironment):
-    """Deploy agent as a Claude Code process in a tmux pane.
-
-    Attributes:
-        session: The tmux session name where the pane will be created.
-            Defaults to "agentrelaysmall".
-    """
-
-    session: str = "agentrelaysmall"
 
 
 # ── Configuration dataclasses ──
