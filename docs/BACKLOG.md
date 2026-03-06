@@ -28,7 +28,7 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
   orchestrator dispatch loop.
 
 - **Pluggable agent harness interface** — design and implement a clean abstraction layer
-  between agentrelaysmall's core orchestration code and the specific coding assistant
+  between agentrelay's core orchestration code and the specific coding assistant
   frameworks/harnesses it uses to launch agents. The interface would decouple our
   orchestrator from Claude Code CLI specifics, making it straightforward to plug in
   support for GitHub Copilot, OpenAI Codex, Gemini Code Assist, or other coding
@@ -83,7 +83,7 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
 
 - **Live run_state.json** — a mutable per-run document at
   `.workflow/<graph>/run_state.json` that tracks each task's status, attempt count, and
-  timestamps in real time. Currently agentrelaysmall reconstructs state from scattered
+  timestamps in real time. Currently agentrelay reconstructs state from scattered
   signal files on restart (hydration); an explicit state document would make that logic
   simpler and more robust (missing signal file = wrong state today). Would also serve
   as the natural place to record retry attempt counts for the retry-with-context loop
@@ -93,7 +93,7 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
 - **Structured audit log** — an append-only `.workflow/<graph>/audit.jsonl` where each
   line is a timestamped JSON event: task dispatched, signal received, verdict parsed,
   retry attempted, merge completed, escalation triggered, etc. Currently
-  agentrelaysmall writes `agent.log` (raw tmux scrollback) and `summary.md` (PR body),
+  agentrelay writes `agent.log` (raw tmux scrollback) and `summary.md` (PR body),
   which are human-readable but not machine-queryable. An audit log would enable
   grep/jq analysis across runs, per-task duration statistics, and retry rate tracking.
   Most useful once retry loops and escalation are in place — those add many new event
@@ -120,7 +120,7 @@ Move items to `docs/HISTORY.md` when done (with the PR number).
 
 - **Agent-generated graph specs** — a pre-run planning step (Claude Opus/Sonnet via
   the Anthropic API, not an interactive session) reads a natural-language project
-  description and produces a valid `graph.yaml` that drives agentrelaysmall's normal
+  description and produces a valid `graph.yaml` that drives agentrelay's normal
   execution. This would lower the barrier to adopting the system for large or complex
   projects where authoring the task graph is itself a design problem. Pairs naturally
   with the reasoning-model routing item under Features above (the routing analysis and

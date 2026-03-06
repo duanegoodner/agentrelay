@@ -118,9 +118,9 @@ packages:
   size: 28948
   timestamp: 1770939786096
 - pypi: ./
-  name: agentrelaysmall
+  name: agentrelay
   version: 0.1.0
-  sha256: 10adde6cda4829371066c34f5a39f6d14e47e962577918340aac69b1a23b7a0d
+  sha256: 7d6aa2b0c60508af9893add537d9f2a19180539be137a3af1fe36b7e73802178
   requires_python: '>=3.12,<3.13'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/babel-2.18.0-pyhcf101f3_1.conda

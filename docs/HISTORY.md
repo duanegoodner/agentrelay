@@ -13,14 +13,14 @@ Chronological log of significant changes to the main codebase. For full details 
 The original prototype proved the concept but lacked clean separation between task specifications (immutable) and runtime state (mutable). A complete architectural redesign was created in parallel with cleaner data models, better testability, and design for future extensibility.
 
 This PR completes the transition by:
-- Promoting core modules (`Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`) to root level in `src/agentrelaysmall/`
-- Archiving all prototype modules in `src/agentrelaysmall/archive/` for reference
+- Promoting core modules (`Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`) to root level in `src/agentrelay/`
+- Archiving all prototype modules in `src/agentrelay/archive/` for reference
 - Setting up mkdocs with mkdocstrings for auto-generated API documentation
 - Creating comprehensive new documentation structure
 
 **Result:** Current architecture is now the primary implementation. All new development targets it.
 
-**Key files:** All core modules at `src/agentrelaysmall/`. Prototype reference in `src/agentrelaysmall/archive/`.
+**Key files:** All core modules at `src/agentrelay/`. Prototype reference in `src/agentrelay/archive/`.
 
 For historical record of prototype development, see `docs/archive/v1/HISTORY.md`.
 

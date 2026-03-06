@@ -1,6 +1,6 @@
 # Operations Guide
 
-Day-to-day procedures for running and managing agentrelaysmall graphs.
+Day-to-day procedures for running and managing agentrelay graphs.
 
 ---
 
@@ -8,13 +8,13 @@ Day-to-day procedures for running and managing agentrelaysmall graphs.
 
 ```bash
 # From the orchestrator repo's main worktree
-python -m agentrelaysmall.run_graph graphs/<name>.yaml
+python -m agentrelay.run_graph graphs/<name>.yaml
 
 # Override tmux session (if your tmux session has a different name)
-python -m agentrelaysmall.run_graph graphs/<name>.yaml --tmux-session <session>
+python -m agentrelay.run_graph graphs/<name>.yaml --tmux-session <session>
 
 # Keep agent tmux windows open after tasks complete (useful for debugging)
-python -m agentrelaysmall.run_graph graphs/<name>.yaml --keep-panes
+python -m agentrelay.run_graph graphs/<name>.yaml --keep-panes
 ```
 
 The graph YAML itself can also set `tmux_session:` and `keep_panes:` as defaults —
@@ -25,7 +25,7 @@ see [CLAUDE.md](../CLAUDE.md) for the YAML key reference.
 ```yaml
 name: my-graph
 target_repo: /path/to/target/repo
-tmux_session: agentrelaysmall   # optional; default "agentrelaysmall"
+tmux_session: agentrelay   # optional; default "agentrelay"
 keep_panes: false                # optional; leave tmux windows open after tasks
 
 tasks:
@@ -97,7 +97,7 @@ cat .workflow/demo/signals/write_greet_fn/summary.md
 To tail an agent's live output while it runs:
 
 ```bash
-tmux attach -t agentrelaysmall
+tmux attach -t agentrelay
 # navigate to the task's window to watch it work
 ```
 
@@ -111,10 +111,10 @@ for the `start_head` SHA.
 
 ```bash
 # From the orchestrator repo's main worktree
-python -m agentrelaysmall.reset_graph graphs/<name>.yaml
+python -m agentrelay.reset_graph graphs/<name>.yaml
 
 # Skip the confirmation prompt
-python -m agentrelaysmall.reset_graph graphs/<name>.yaml --yes
+python -m agentrelay.reset_graph graphs/<name>.yaml --yes
 ```
 
 The reset:
@@ -134,7 +134,7 @@ this feature existed), reset manually by identifying the pre-run HEAD from
 
 ## Development workflow
 
-The standard process for making changes to agentrelaysmall itself:
+The standard process for making changes to agentrelay itself:
 
 1. **Make changes** — edit source, tests, or docs in the local worktree.
 
@@ -175,7 +175,7 @@ The standard process for making changes to agentrelaysmall itself:
 
 ## Pre-PR verification
 
-Before creating a PR on agentrelaysmall itself:
+Before creating a PR on agentrelay itself:
 
 ```bash
 pixi run check

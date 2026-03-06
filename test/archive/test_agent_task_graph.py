@@ -3,13 +3,13 @@ from pathlib import Path
 import pytest
 import yaml
 
-from agentrelaysmall.archive.agent_task import (
+from agentrelay.archive.agent_task import (
     AgentRole,
     AgentTask,
     TaskPaths,
     TaskStatus,
 )
-from agentrelaysmall.archive.agent_task_graph import (
+from agentrelay.archive.agent_task_graph import (
     AgentTaskGraph,
     AgentTaskGraphBuilder,
 )
@@ -351,7 +351,7 @@ def test_builder_from_yaml_default_tmux_session(tmp_path):
         },
     )
     graph = AgentTaskGraphBuilder.from_yaml(p, tmp_path)
-    assert graph.tmux_session == "agentrelaysmall"
+    assert graph.tmux_session == "agentrelay"
 
 
 def test_builder_from_yaml_custom_tmux_session(tmp_path):
@@ -598,7 +598,7 @@ def test_builder_from_yaml_plain_task_review_on_attempt_defaults_to_one(tmp_path
 
 
 def test_write_context_creates_file(tmp_path):
-    from agentrelaysmall.archive.task_launcher import write_context
+    from agentrelay.archive.task_launcher import write_context
 
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "t1"
     signal_dir.mkdir(parents=True)

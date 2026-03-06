@@ -1,4 +1,4 @@
-# agentrelaysmall
+# agentrelay
 
 A Python orchestrator for multi-agent coding workflows. Manage a graph of tasks, each executed by Claude Code in its own tmux pane and git worktree.
 

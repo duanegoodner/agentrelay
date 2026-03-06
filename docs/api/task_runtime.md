@@ -2,4 +2,4 @@
 
 Runtime state, artifacts, and addressing types for task execution.
 
-::: agentrelaysmall.task_runtime
+::: agentrelay.task_runtime

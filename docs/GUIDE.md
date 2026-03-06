@@ -8,12 +8,12 @@
 - `pixi` (https://pixi.sh) for dependency management
 - `git` with support for worktrees
 
-### Install agentrelaysmall
+### Install agentrelay
 
 ```bash
 # Clone the repository
-git clone https://github.com/duanegoodner/agentrelaysmall.git
-cd agentrelaysmall
+git clone https://github.com/duanegoodner/agentrelay.git
+cd agentrelay
 
 # Install dependencies
 pixi install
@@ -41,7 +41,7 @@ This section describes the directory layout that orchestrator-managed projects s
 
 ### Directory Structure
 
-agentrelaysmall projects use a specific layout to support isolated task worktrees and signal coordination:
+agentrelay projects use a specific layout to support isolated task worktrees and signal coordination:
 
 ```
 <project>/                          ← project root (not a git repo itself)

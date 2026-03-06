@@ -17,10 +17,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from agentrelaysmall.environments import TmuxEnvironment
-    from agentrelaysmall.task import AgentConfig
+    from agentrelay.environments import TmuxEnvironment
+    from agentrelay.task import AgentConfig
 
-from agentrelaysmall.task_runtime import AgentAddress, TmuxAddress
+from agentrelay.task_runtime import AgentAddress, TmuxAddress
 
 
 class Agent(ABC):

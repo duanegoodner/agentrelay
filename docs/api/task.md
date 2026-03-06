@@ -1,5 +1,5 @@
 # Task
 
-Core data types for tasks in the agentrelaysmall architecture.
+Core data types for tasks in the agentrelay architecture.
 
-::: agentrelaysmall.task
+::: agentrelay.task

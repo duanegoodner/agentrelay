@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-from agentrelaysmall.archive.agent_task import (
+from agentrelay.archive.agent_task import (
     AgentRole,
     AgentTask,
     TaskPaths,
@@ -20,7 +20,7 @@ class AgentTaskGraph:
     tasks: dict[str, AgentTask]
     target_repo_root: Path
     worktrees_root: Path
-    tmux_session: str = "agentrelaysmall"
+    tmux_session: str = "agentrelay"
     keep_panes: bool = False
     model: str | None = None
     max_gate_attempts: int | None = None
@@ -117,7 +117,7 @@ class AgentTaskGraphBuilder:
             if "worktrees_root" in data
             else target_repo_root.parent / "worktrees"
         )
-        tmux_session: str = data.get("tmux_session", "agentrelaysmall")
+        tmux_session: str = data.get("tmux_session", "agentrelay")
         keep_panes: bool = bool(data.get("keep_panes", False))
         graph_model: str | None = data.get("model")
         graph_max_gate_attempts: int | None = data.get("max_gate_attempts")

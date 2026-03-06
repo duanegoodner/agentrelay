@@ -1,10 +1,10 @@
-"""Tests for agentrelaysmall.v2.task_runtime: runtime state and addressing."""
+"""Tests for agentrelay.v2.task_runtime: runtime state and addressing."""
 
 import pytest
 
-from agentrelaysmall.agent import TmuxAgent
-from agentrelaysmall.task import AgentConfig, AgentRole, Task, TaskStatus
-from agentrelaysmall.task_runtime import (
+from agentrelay.agent import TmuxAgent
+from agentrelay.task import AgentConfig, AgentRole, Task, TaskStatus
+from agentrelay.task_runtime import (
     AgentAddress,
     TaskArtifacts,
     TaskRuntime,

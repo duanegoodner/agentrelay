@@ -1,4 +1,4 @@
-# agentrelaysmall
+# agentrelay
 
 Multi-agent orchestration system: a Python orchestrator manages a graph of coding
 tasks, each executed by a Claude Code instance in its own tmux pane and git worktree.
@@ -13,8 +13,8 @@ The orchestrator merges PRs in dependency order.
 | `pixi run typecheck` | Pyright static analysis |
 | `pixi run format` | black + isort |
 | `pixi run check` | format + typecheck + test (pre-PR verification) |
-| `python -m agentrelaysmall.run_graph graphs/<name>.yaml` | Run a task graph |
-| `python -m agentrelaysmall.reset_graph graphs/<name>.yaml` | Reset repo to pre-run state |
+| `python -m agentrelay.run_graph graphs/<name>.yaml` | Run a task graph |
+| `python -m agentrelay.reset_graph graphs/<name>.yaml` | Reset repo to pre-run state |
 
 ## Module map
 
@@ -45,7 +45,7 @@ Graph-level: `.workflow/<graph>/run_info.json` — start HEAD + timestamp (for r
 
 ```yaml
 name: my-graph
-tmux_session: agentrelaysmall  # optional; default "agentrelaysmall"
+tmux_session: agentrelay  # optional; default "agentrelay"
 keep_panes: false              # optional; leave tmux windows open for debugging
 model: claude-sonnet-4-6       # optional; graph-level default model for all agents
 tasks:
@@ -64,7 +64,7 @@ tasks:
 
 ## Development workflow
 
-When making changes to agentrelaysmall itself:
+When making changes to agentrelay itself:
 
 1. **Create a feature branch** — `git checkout -b feat/<short-name>`
 2. **Make changes** — edit source, tests, or docs

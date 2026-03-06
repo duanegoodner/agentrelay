@@ -1,9 +1,9 @@
-"""Tests for agentrelaysmall.v2.task: Task specs, config, and enums."""
+"""Tests for agentrelay.v2.task: Task specs, config, and enums."""
 
 import pytest
 
-from agentrelaysmall.environments import AgentEnvironment, TmuxEnvironment
-from agentrelaysmall.task import (
+from agentrelay.environments import AgentEnvironment, TmuxEnvironment
+from agentrelay.task import (
     AgentConfig,
     AgentFramework,
     AgentRole,
@@ -124,9 +124,9 @@ class TestTmuxEnvironment:
     """Tests for TmuxEnvironment."""
 
     def test_default_session(self) -> None:
-        """TmuxEnvironment defaults session to 'agentrelaysmall'."""
+        """TmuxEnvironment defaults session to 'agentrelay'."""
         env = TmuxEnvironment()
-        assert env.session == "agentrelaysmall"
+        assert env.session == "agentrelay"
 
     def test_custom_session(self) -> None:
         """TmuxEnvironment can specify custom session."""
@@ -277,7 +277,7 @@ class TestAgentConfig:
         """AgentConfig defaults environment to TmuxEnvironment."""
         config = AgentConfig()
         assert isinstance(config.environment, TmuxEnvironment)
-        assert config.environment.session == "agentrelaysmall"
+        assert config.environment.session == "agentrelay"
 
     def test_custom_environment(self) -> None:
         """AgentConfig can specify custom environment."""

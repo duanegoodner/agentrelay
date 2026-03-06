@@ -1,4 +1,4 @@
-# agentrelaysmall — Design Decisions
+# agentrelay — Design Decisions
 
 Decisions made during early design discussions, with rationale. Ordered roughly from highest-level to most specific.
 

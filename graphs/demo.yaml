@@ -1,5 +1,5 @@
 name: demo
-# tmux_session: agentrelaysmall  # optional; overrides --tmux-session CLI flag default
+# tmux_session: agentrelay  # optional; overrides --tmux-session CLI flag default
 # keep_panes: false              # optional; set true to leave agent windows open for debugging
 tasks:
   - id: write_greet_fn

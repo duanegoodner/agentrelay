@@ -17,10 +17,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
-from agentrelaysmall.task import Task, TaskStatus
+from agentrelay.task import Task, TaskStatus
 
 if TYPE_CHECKING:
-    from agentrelaysmall.agent import Agent
+    from agentrelay.agent import Agent
 
 
 # ── Agent addressing ──

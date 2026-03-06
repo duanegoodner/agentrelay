@@ -1,7 +1,7 @@
 [workspace]
 authors = ["Duane Goodner <dmgoodner@gmail.com>"]
 channels = ["conda-forge"]
-name = "agentrelaysmall"
+name = "agentrelay"
 platforms = ["linux-64"]
 version = "0.1.0"
 
@@ -18,13 +18,13 @@ mkdocstrings = "*"
 mkdocstrings-python = "*"
 
 [pypi-dependencies]
-agentrelaysmall = { path = ".", editable = true }
+agentrelay = { path = ".", editable = true }
 
 [tasks]
 pytest = "python -m pytest"
 test = "python -m pytest"
-typecheck = "pyright src/agentrelaysmall/"
+typecheck = "pyright src/agentrelay/"
 format = "black . && isort ."
-check = "black . && isort . && pyright src/agentrelaysmall/ && python -m pytest"
+check = "black . && isort . && pyright src/agentrelay/ && python -m pytest"
 docs = "mkdocs serve"
 docs-build = "mkdocs build"
