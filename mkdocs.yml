@@ -18,7 +18,12 @@ plugins:
             members_order: source
 
 nav:
-  - Overview: index.md
+  - Home: index.md
+  - Architecture: ARCHITECTURE.md
+  - Workflow: WORKFLOW.md
+  - Guide: GUIDE.md
+  - Changelog: HISTORY.md
+  - Backlog: BACKLOG.md
   - API Reference:
     - Task: api/task.md
     - Environments: api/environments.md

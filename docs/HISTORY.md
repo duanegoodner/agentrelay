@@ -1,0 +1,45 @@
+# Changelog
+
+Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.
+
+---
+
+## 2026-03-06
+
+### Architecture Pivot — PR #51
+
+**Promote current architecture to main package, archive prototype, set up mkdocs**
+
+The original prototype proved the concept but lacked clean separation between task specifications (immutable) and runtime state (mutable). A complete architectural redesign was created in parallel with cleaner data models, better testability, and design for future extensibility.
+
+This PR completes the transition by:
+- Promoting core modules (`Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`) to root level in `src/agentrelaysmall/`
+- Archiving all prototype modules in `src/agentrelaysmall/archive/` for reference
+- Setting up mkdocs with mkdocstrings for auto-generated API documentation
+- Creating comprehensive new documentation structure
+
+**Result:** Current architecture is now the primary implementation. All new development targets it.
+
+**Key files:** All core modules at `src/agentrelaysmall/`. Prototype reference in `src/agentrelaysmall/archive/`.
+
+For historical record of prototype development, see `docs/archive/v1/HISTORY.md`.
+
+---
+
+### Foundation — PRs #48–#50
+
+**Build current architecture**
+
+Three PRs established the clean data model:
+
+- **PR #48** — Core types: `Task` (frozen spec), `TaskRuntime` (mutable envelope), `TaskState`, `TaskArtifacts`, addressing types
+- **PR #49** — `Agent` class and `TmuxAgent` concrete implementation
+- **PR #50** — Refine `Agent` as ABC, introduce `AgentEnvironment` type alias and `TmuxEnvironment`
+
+Result: 467 comprehensive tests, clean separation of concerns, foundation ready for workflow implementation.
+
+---
+
+## Historical Note
+
+For a detailed history of prototype development (PRs #36–#46), see `docs/archive/v1/HISTORY.md`. The prototype served as a proof-of-concept and informed the design of the current architecture.
