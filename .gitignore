@@ -9,6 +9,9 @@ build/
 .pixi/*
 !.pixi/config.toml
 
+# mkdocs build output
+site/
+
 # Workflow runtime state — entirely ephemeral, not version-controlled.
 # Workflow/graph definitions should live in a top-level directory (e.g. graphs/)
 # rather than here, to keep the gitignore simple.
