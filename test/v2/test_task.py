@@ -2,6 +2,7 @@
 
 import pytest
 
+from agentrelaysmall.v2.environments import AgentEnvironment, TmuxEnvironment
 from agentrelaysmall.v2.task import (
     AgentConfig,
     AgentFramework,
@@ -12,7 +13,6 @@ from agentrelaysmall.v2.task import (
     TaskPaths,
     TaskStatus,
 )
-
 
 # ── Tests for enums ──
 
@@ -104,6 +104,40 @@ class TestTaskStatus:
         # or PENDING -> RUNNING -> FAILED
         statuses = list(TaskStatus)
         assert len(statuses) == 5
+
+
+# ── Tests for AgentEnvironment ──
+
+
+class TestAgentEnvironment:
+    """Tests for AgentEnvironment type alias."""
+
+    def test_environment_type_is_tmux(self) -> None:
+        """AgentEnvironment type alias currently represents TmuxEnvironment."""
+        # For now, AgentEnvironment only includes TmuxEnvironment.
+        # When more environments are added, this will become a union.
+        env = TmuxEnvironment()
+        assert isinstance(env, TmuxEnvironment)
+
+
+class TestTmuxEnvironment:
+    """Tests for TmuxEnvironment."""
+
+    def test_default_session(self) -> None:
+        """TmuxEnvironment defaults session to 'agentrelaysmall'."""
+        env = TmuxEnvironment()
+        assert env.session == "agentrelaysmall"
+
+    def test_custom_session(self) -> None:
+        """TmuxEnvironment can specify custom session."""
+        env = TmuxEnvironment(session="custom_session")
+        assert env.session == "custom_session"
+
+    def test_is_frozen(self) -> None:
+        """TmuxEnvironment is immutable."""
+        env = TmuxEnvironment(session="test")
+        with pytest.raises(AttributeError):
+            env.session = "new_session"  # type: ignore
 
 
 # ── Tests for TaskPaths ──
@@ -222,6 +256,49 @@ class TestAgentConfig:
         config1 = AgentConfig(model="claude-opus-4-6")
         config2 = AgentConfig(model="claude-opus-4-6")
         assert config1 == config2
+
+    def test_default_adr_verbosity(self) -> None:
+        """AgentConfig defaults adr_verbosity to NONE."""
+        config = AgentConfig()
+        assert config.adr_verbosity == AgentVerbosity.NONE
+
+    def test_custom_adr_verbosity(self) -> None:
+        """AgentConfig can specify custom adr_verbosity."""
+        config_standard = AgentConfig(adr_verbosity=AgentVerbosity.STANDARD)
+        assert config_standard.adr_verbosity == AgentVerbosity.STANDARD
+
+        config_detailed = AgentConfig(adr_verbosity=AgentVerbosity.DETAILED)
+        assert config_detailed.adr_verbosity == AgentVerbosity.DETAILED
+
+        config_educational = AgentConfig(adr_verbosity=AgentVerbosity.EDUCATIONAL)
+        assert config_educational.adr_verbosity == AgentVerbosity.EDUCATIONAL
+
+    def test_default_environment(self) -> None:
+        """AgentConfig defaults environment to TmuxEnvironment."""
+        config = AgentConfig()
+        assert isinstance(config.environment, TmuxEnvironment)
+        assert config.environment.session == "agentrelaysmall"
+
+    def test_custom_environment(self) -> None:
+        """AgentConfig can specify custom environment."""
+        env = TmuxEnvironment(session="custom")
+        config = AgentConfig(environment=env)
+        assert config.environment == env
+        assert config.environment.session == "custom"
+
+    def test_full_config_with_all_fields(self) -> None:
+        """AgentConfig with all fields round-trips correctly."""
+        env = TmuxEnvironment(session="test_session")
+        config = AgentConfig(
+            framework=AgentFramework.CLAUDE_CODE,
+            model="claude-opus-4-6",
+            adr_verbosity=AgentVerbosity.DETAILED,
+            environment=env,
+        )
+        assert config.framework == AgentFramework.CLAUDE_CODE
+        assert config.model == "claude-opus-4-6"
+        assert config.adr_verbosity == AgentVerbosity.DETAILED
+        assert config.environment == env
 
 
 # ── Tests for ReviewConfig ──

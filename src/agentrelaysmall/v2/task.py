@@ -14,12 +14,16 @@ Enums:
     AgentFramework: The AI framework/platform executing an agent.
     AgentVerbosity: The detail level of Architecture Decision Records (ADRs).
     TaskStatus: The execution state of a task.
+
+See also:
+    environments: AgentEnvironment (type alias) and environment-specific types.
 """
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
+from agentrelaysmall.v2.environments import AgentEnvironment, TmuxEnvironment
 
 # ── Enums ──
 
@@ -89,7 +93,7 @@ class TaskStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     PR_CREATED = "pr_created"  # Agent done; PR exists against worktree branch
-    PR_MERGED = "pr_merged"    # PR merged into worktree primary branch
+    PR_MERGED = "pr_merged"  # PR merged into worktree primary branch
     FAILED = "failed"
 
 
@@ -116,17 +120,23 @@ class AgentConfig:
     """Framework and model configuration for executing an agent.
 
     This configuration specifies which AI framework and model to use for
-    executing an agent. It is used for primary agents, review agents,
-    and merger agents.
+    executing an agent, where to run it, and how verbosely to document decisions.
+    It is used for primary agents, review agents, and merger agents.
 
     Attributes:
         framework: The AI framework to use. Defaults to CLAUDE_CODE.
         model: The model identifier (e.g., "claude-opus-4-6"), or None to use
             the framework's default model.
+        adr_verbosity: Level of detail for Architecture Decision Records produced
+            by the agent. Defaults to NONE (no ADR produced).
+        environment: Execution environment configuration (tmux, cloud, etc.).
+            Defaults to TmuxEnvironment.
     """
 
     framework: AgentFramework = AgentFramework.CLAUDE_CODE
     model: Optional[str] = None
+    adr_verbosity: AgentVerbosity = AgentVerbosity.NONE
+    environment: AgentEnvironment = field(default_factory=TmuxEnvironment)
 
 
 @dataclass(frozen=True)
