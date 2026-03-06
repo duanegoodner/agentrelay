@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from agentrelaysmall.v2.agent import Agent, TmuxAgent
-from agentrelaysmall.v2.task import AgentConfig, AgentFramework, TmuxEnvironment
-from agentrelaysmall.v2.task_runtime import TmuxAddress
+from agentrelaysmall.agent import Agent, TmuxAgent
+from agentrelaysmall.task import AgentConfig, AgentFramework, TmuxEnvironment
+from agentrelaysmall.task_runtime import TmuxAddress
 
 # ── Tests for Agent (ABC) ──
 

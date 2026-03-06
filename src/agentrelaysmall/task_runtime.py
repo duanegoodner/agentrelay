@@ -1,4 +1,4 @@
-"""Runtime state, artifacts, and addressing types for v2 task execution.
+"""Runtime state, artifacts, and addressing types for task execution.
 
 This module defines mutable types for tracking task execution state,
 accumulating work artifacts, and addressing running agents.
@@ -17,10 +17,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
-from agentrelaysmall.v2.task import Task, TaskStatus
+from agentrelaysmall.task import Task, TaskStatus
 
 if TYPE_CHECKING:
-    from agentrelaysmall.v2.agent import Agent
+    from agentrelaysmall.agent import Agent
 
 
 # ── Agent addressing ──

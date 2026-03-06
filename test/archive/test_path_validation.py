@@ -2,8 +2,8 @@
 
 import pytest
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskPaths
-from agentrelaysmall.run_graph import validate_task_paths
+from agentrelaysmall.archive.agent_task import AgentRole, AgentTask, TaskPaths
+from agentrelaysmall.archive.run_graph import validate_task_paths
 
 # ── IMPLEMENTER ───────────────────────────────────────────────────────────────
 

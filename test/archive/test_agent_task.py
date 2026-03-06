@@ -1,6 +1,6 @@
 import pytest
 
-from agentrelaysmall.agent_task import (
+from agentrelaysmall.archive.agent_task import (
     AgentRole,
     AgentTask,
     TaskPaths,

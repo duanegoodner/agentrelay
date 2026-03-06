@@ -1,0 +1,26 @@
+site_name: agentrelaysmall
+site_description: Multi-agent orchestration system
+docs_dir: docs
+
+theme:
+  name: material
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            members_order: source
+
+nav:
+  - Overview: index.md
+  - API Reference:
+    - Task: api/task.md
+    - Environments: api/environments.md
+    - Task Runtime: api/task_runtime.md
+    - Agent: api/agent.md

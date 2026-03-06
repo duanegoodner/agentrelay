@@ -2,8 +2,8 @@
 
 import pytest
 
-from agentrelaysmall.v2.environments import AgentEnvironment, TmuxEnvironment
-from agentrelaysmall.v2.task import (
+from agentrelaysmall.environments import AgentEnvironment, TmuxEnvironment
+from agentrelaysmall.task import (
     AgentConfig,
     AgentFramework,
     AgentRole,
