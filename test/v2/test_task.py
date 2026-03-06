@@ -4,6 +4,7 @@ import pytest
 
 from agentrelaysmall.v2.task import (
     AgentConfig,
+    AgentEnvironment,
     AgentFramework,
     AgentRole,
     AgentVerbosity,
@@ -11,8 +12,8 @@ from agentrelaysmall.v2.task import (
     Task,
     TaskPaths,
     TaskStatus,
+    TmuxEnvironment,
 )
-
 
 # ── Tests for enums ──
 
@@ -104,6 +105,44 @@ class TestTaskStatus:
         # or PENDING -> RUNNING -> FAILED
         statuses = list(TaskStatus)
         assert len(statuses) == 5
+
+
+# ── Tests for AgentEnvironment ──
+
+
+class TestAgentEnvironment:
+    """Tests for AgentEnvironment abstract base."""
+
+    def test_is_abstract_base(self) -> None:
+        """AgentEnvironment is the abstract base for environment configurations."""
+        # AgentEnvironment is a marker type with no abstract methods
+        # Concrete subclasses like TmuxEnvironment should be used
+        assert hasattr(AgentEnvironment, "__mro__")  # Has MRO (is a class)
+
+
+class TestTmuxEnvironment:
+    """Tests for TmuxEnvironment."""
+
+    def test_default_session(self) -> None:
+        """TmuxEnvironment defaults session to 'agentrelaysmall'."""
+        env = TmuxEnvironment()
+        assert env.session == "agentrelaysmall"
+
+    def test_custom_session(self) -> None:
+        """TmuxEnvironment can specify custom session."""
+        env = TmuxEnvironment(session="custom_session")
+        assert env.session == "custom_session"
+
+    def test_is_frozen(self) -> None:
+        """TmuxEnvironment is immutable."""
+        env = TmuxEnvironment(session="test")
+        with pytest.raises(AttributeError):
+            env.session = "new_session"  # type: ignore
+
+    def test_is_agent_environment(self) -> None:
+        """TmuxEnvironment is an AgentEnvironment."""
+        env = TmuxEnvironment()
+        assert isinstance(env, AgentEnvironment)
 
 
 # ── Tests for TaskPaths ──
@@ -222,6 +261,49 @@ class TestAgentConfig:
         config1 = AgentConfig(model="claude-opus-4-6")
         config2 = AgentConfig(model="claude-opus-4-6")
         assert config1 == config2
+
+    def test_default_adr_verbosity(self) -> None:
+        """AgentConfig defaults adr_verbosity to NONE."""
+        config = AgentConfig()
+        assert config.adr_verbosity == AgentVerbosity.NONE
+
+    def test_custom_adr_verbosity(self) -> None:
+        """AgentConfig can specify custom adr_verbosity."""
+        config_standard = AgentConfig(adr_verbosity=AgentVerbosity.STANDARD)
+        assert config_standard.adr_verbosity == AgentVerbosity.STANDARD
+
+        config_detailed = AgentConfig(adr_verbosity=AgentVerbosity.DETAILED)
+        assert config_detailed.adr_verbosity == AgentVerbosity.DETAILED
+
+        config_educational = AgentConfig(adr_verbosity=AgentVerbosity.EDUCATIONAL)
+        assert config_educational.adr_verbosity == AgentVerbosity.EDUCATIONAL
+
+    def test_default_environment(self) -> None:
+        """AgentConfig defaults environment to TmuxEnvironment."""
+        config = AgentConfig()
+        assert isinstance(config.environment, TmuxEnvironment)
+        assert config.environment.session == "agentrelaysmall"
+
+    def test_custom_environment(self) -> None:
+        """AgentConfig can specify custom environment."""
+        env = TmuxEnvironment(session="custom")
+        config = AgentConfig(environment=env)
+        assert config.environment == env
+        assert config.environment.session == "custom"
+
+    def test_full_config_with_all_fields(self) -> None:
+        """AgentConfig with all fields round-trips correctly."""
+        env = TmuxEnvironment(session="test_session")
+        config = AgentConfig(
+            framework=AgentFramework.CLAUDE_CODE,
+            model="claude-opus-4-6",
+            adr_verbosity=AgentVerbosity.DETAILED,
+            environment=env,
+        )
+        assert config.framework == AgentFramework.CLAUDE_CODE
+        assert config.model == "claude-opus-4-6"
+        assert config.adr_verbosity == AgentVerbosity.DETAILED
+        assert config.environment == env
 
 
 # ── Tests for ReviewConfig ──

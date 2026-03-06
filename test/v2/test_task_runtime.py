@@ -2,7 +2,7 @@
 
 import pytest
 
-from agentrelaysmall.v2.agent import Agent
+from agentrelaysmall.v2.agent import TmuxAgent
 from agentrelaysmall.v2.task import AgentConfig, AgentRole, Task, TaskStatus
 from agentrelaysmall.v2.task_runtime import (
     AgentAddress,
@@ -278,7 +278,7 @@ class TestTaskRuntime:
         runtime = TaskRuntime(task=task)
 
         assert runtime.agent is None
-        agent = Agent(address=TmuxAddress(session="agentrelay", pane_id="%1"))
+        agent = TmuxAgent(_address=TmuxAddress(session="agentrelay", pane_id="%1"))
         runtime.agent = agent
         assert runtime.agent is not None
         assert runtime.agent.address.label == "agentrelay:%1"
@@ -318,7 +318,7 @@ class TestTaskRuntime:
         runtime = TaskRuntime(task=task)
 
         # Agent is launched
-        agent = Agent(address=TmuxAddress(session="agentrelay", pane_id="%2"))
+        agent = TmuxAgent(_address=TmuxAddress(session="agentrelay", pane_id="%2"))
         runtime.agent = agent
         runtime.state.status = TaskStatus.RUNNING
 
