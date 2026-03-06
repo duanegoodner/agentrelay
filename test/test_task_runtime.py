@@ -2,9 +2,9 @@
 
 import pytest
 
-from agentrelaysmall.v2.agent import TmuxAgent
-from agentrelaysmall.v2.task import AgentConfig, AgentRole, Task, TaskStatus
-from agentrelaysmall.v2.task_runtime import (
+from agentrelaysmall.agent import TmuxAgent
+from agentrelaysmall.task import AgentConfig, AgentRole, Task, TaskStatus
+from agentrelaysmall.task_runtime import (
     AgentAddress,
     TaskArtifacts,
     TaskRuntime,

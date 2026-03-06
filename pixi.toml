@@ -12,6 +12,10 @@ pytest = ">=9.0.2,<10"
 black = "*"
 isort = "*"
 pyright = "*"
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocstrings = "*"
+mkdocstrings-python = "*"
 
 [pypi-dependencies]
 agentrelaysmall = { path = ".", editable = true }
@@ -22,3 +26,5 @@ test = "python -m pytest"
 typecheck = "pyright src/agentrelaysmall/"
 format = "black . && isort ."
 check = "black . && isort . && pyright src/agentrelaysmall/ && python -m pytest"
+docs = "mkdocs serve"
+docs-build = "mkdocs build"

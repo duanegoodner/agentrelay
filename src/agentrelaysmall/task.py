@@ -1,4 +1,4 @@
-"""Core data types for tasks in the v2 architecture.
+"""Core data types for tasks in the agentrelaysmall architecture.
 
 This module defines frozen specifications for units of work in a task graph,
 configuration types for agents and reviews, and enums for roles and execution states.
@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
-from agentrelaysmall.v2.environments import AgentEnvironment, TmuxEnvironment
+from agentrelaysmall.environments import AgentEnvironment, TmuxEnvironment
 
 # ── Enums ──
 

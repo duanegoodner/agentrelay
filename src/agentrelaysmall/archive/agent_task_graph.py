@@ -6,7 +6,12 @@ from typing import Any
 
 import yaml
 
-from agentrelaysmall.agent_task import AgentRole, AgentTask, TaskPaths, TaskStatus
+from agentrelaysmall.archive.agent_task import (
+    AgentRole,
+    AgentTask,
+    TaskPaths,
+    TaskStatus,
+)
 
 
 @dataclass

@@ -2,7 +2,7 @@
 
 import pytest
 
-from agentrelaysmall.v2.environments import (
+from agentrelaysmall.environments import (
     AgentEnvironment,
     AgentEnvironmentT,
     TmuxEnvironment,
