@@ -2,11 +2,11 @@
 
 ## Overview
 
-agentrelaysmall is a Python orchestration system for multi-agent coding workflows. The core abstraction is a task graph: a DAG of tasks, each with a description, optional dependencies, and configuration specifying which AI framework and model should execute it.
+agentrelay is a Python orchestration system for multi-agent coding workflows. The core abstraction is a task graph: a DAG of tasks, each with a description, optional dependencies, and configuration specifying which AI framework and model should execute it.
 
 ## Current Modules
 
-The current architecture lives at the root of `src/agentrelaysmall/`:
+The current architecture lives at the root of `src/agentrelay/`:
 
 ### Core Data Types
 
@@ -56,7 +56,7 @@ The current architecture lives at the root of `src/agentrelaysmall/`:
 
 ## Archive
 
-The original implementation (`src/agentrelaysmall/archive/`) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.
+The original implementation (`src/agentrelay/archive/`) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.
 
 See `docs/archive/v1/HISTORY.md` for detailed history of the prototype.
 

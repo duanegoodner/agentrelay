@@ -2,4 +2,4 @@
 
 Agent execution environment types and configuration.
 
-::: agentrelaysmall.environments
+::: agentrelay.environments

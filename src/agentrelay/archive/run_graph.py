@@ -1,12 +1,12 @@
 """Graph orchestrator: drives multiple AgentTasks based on a YAML graph definition.
 
 Usage (from repo root, with pixi env active):
-    python -m agentrelaysmall.run_graph graphs/demo.yaml
-    python -m agentrelaysmall.run_graph graphs/demo.yaml --tmux-session myproject
-    python -m agentrelaysmall.run_graph graphs/demo.yaml --keep-panes
+    python -m agentrelay.run_graph graphs/demo.yaml
+    python -m agentrelay.run_graph graphs/demo.yaml --tmux-session myproject
+    python -m agentrelay.run_graph graphs/demo.yaml --keep-panes
 
 Requires:
-    - A tmux session already running (default name: 'agentrelaysmall', or set via
+    - A tmux session already running (default name: 'agentrelay', or set via
       --tmux-session or the 'tmux_session' key in the graph YAML)
     - git repo at repo root with a 'main' branch
     - claude CLI available in PATH
@@ -17,12 +17,12 @@ import asyncio
 from datetime import date
 from pathlib import Path
 
-from agentrelaysmall.archive.agent_task import AgentRole, AgentTask, TaskStatus
-from agentrelaysmall.archive.agent_task_graph import (
+from agentrelay.archive.agent_task import AgentRole, AgentTask, TaskStatus
+from agentrelay.archive.agent_task_graph import (
     AgentTaskGraph,
     AgentTaskGraphBuilder,
 )
-from agentrelaysmall.archive.task_launcher import (
+from agentrelay.archive.task_launcher import (
     append_concerns_to_pr,
     close_agent_pane,
     close_pane_by_id,
@@ -262,19 +262,19 @@ def _build_spec_writer_prompt(
         f"## Files changed\n"
         f"<bullet list of the key files you created or modified>\n"
         f'PRBODY\n)" --base {graph_branch})\n'
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('$PR_URL')\""
     )
 
     steps_text = "\n\n".join(steps)
     return (
-        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"You are a worktree agent for the agentrelay project.\n\n"
         f"Your role: SPEC WRITER\n\n"
         f"Your task: {task.description}\n\n"
         f"Complete these steps in order:\n\n"
         f"{steps_text}\n\n"
-        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"The pixi.toml in the current directory provides the agentrelay package.\n\n"
         f"Do NOT implement any function or method bodies.\n\n"
         f"Then stop.\n"
     )
@@ -305,7 +305,7 @@ def _build_merger_prompt(
         quality_step_num = 3
 
     return (
-        f"You are a merge reviewer for the agentrelaysmall project.\n\n"
+        f"You are a merge reviewer for the agentrelay project.\n\n"
         f"Your role: PR REVIEWER / MERGER\n\n"
         f"Your task: Review PR {pr_url} (task {task_id}) before it is merged.\n\n"
         f"Complete these steps in order:\n\n"
@@ -325,11 +325,11 @@ def _build_merger_prompt(
         f"Create parent directories if needed.\n\n"
         f"{quality_step_num + 2}. Signal done with your verdict:\n"
         f"   Approved:\n"
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('approved')\"\n"
         f"   Rejected (include reason in the note):\n"
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('rejected: <reason>')\"\n"
         f"   Always use mark_done, never mark_failed — the verdict is in the done note.\n\n"
@@ -446,7 +446,7 @@ def _build_generic_instructions(
             f'       cat "$AGENTRELAY_SIGNAL_DIR/gate_last_output.txt"\n'
             f"2. Record the attempt:\n"
             f'       python -c "\\\n'
-            f"from agentrelaysmall.worktree_task_runner import WorktreeTaskRunner;\\\n"
+            f"from agentrelay.worktree_task_runner import WorktreeTaskRunner;\\\n"
             f"WorktreeTaskRunner.from_config().record_gate_attempt(N, PASSED)\\\n"
             f'"\n'
             f"   Replace N with the attempt number (1, 2, ...) and PASSED with True or False.\n"
@@ -476,7 +476,7 @@ def _build_generic_instructions(
     commit_num = 3 if adr_text else 2
     pr_num = 4 if adr_text else 3
     return (
-        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"You are a worktree agent for the agentrelay project.\n\n"
         f"Your task: {task.description}\n\n"
         f"{context_note}"
         f"{review_step}"
@@ -496,10 +496,10 @@ def _build_generic_instructions(
         f"## Files changed\n"
         f"<bullet list of the key files you created or modified>\n"
         f'PRBODY\n)" --base {graph_branch})\n'
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('$PR_URL')\"\n\n"
-        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"The pixi.toml in the current directory provides the agentrelay package.\n\n"
         f"Then stop — do not do anything else.\n"
     )
 
@@ -534,7 +534,7 @@ def _build_test_writer_prompt(
     pr_num = 5 if adr_text else 4
 
     return (
-        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"You are a worktree agent for the agentrelay project.\n\n"
         f"Your role: TEST WRITER\n\n"
         f"Your task: {task.description}\n\n"
         f"{spec_step}"
@@ -555,10 +555,10 @@ def _build_test_writer_prompt(
         f"## Files changed\n"
         f"<bullet list of key files>\n"
         f'PRBODY\n)" --base {graph_branch})\n'
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('$PR_URL')\"\n\n"
-        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"The pixi.toml in the current directory provides the agentrelay package.\n\n"
         f"Then stop — do not implement the feature.\n"
     )
 
@@ -574,7 +574,7 @@ def _build_test_reviewer_prompt(
     commit_num = 5 if adr_text else 4
     pr_num = 6 if adr_text else 5
     return (
-        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"You are a worktree agent for the agentrelay project.\n\n"
         f"Your role: TEST REVIEWER\n\n"
         f"Your task: {task.description}\n\n"
         f"The test file(s) and stub module from the test-writer task are already "
@@ -591,7 +591,7 @@ def _build_test_reviewer_prompt(
         f"   Specific notes on individual tests or the stub API.\n\n"
         f"3. If the tests are fundamentally broken (import errors, wrong assertions, "
         f"untestable structure), signal failure and stop:\n"
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_failed('Tests are fundamentally broken: <reason>')\"\n\n"
         f"{adr_section}"
@@ -606,10 +606,10 @@ def _build_test_reviewer_prompt(
         f"## Files changed\n"
         f"- {review_file}\n"
         f'PRBODY\n)" --base {graph_branch})\n'
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('$PR_URL')\"\n\n"
-        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"The pixi.toml in the current directory provides the agentrelay package.\n\n"
         f"Then stop — do not implement the feature.\n"
     )
 
@@ -658,7 +658,7 @@ def _build_implementer_prompt(
     pr_num = 7 if adr_text else 6
 
     return (
-        f"You are a worktree agent for the agentrelaysmall project.\n\n"
+        f"You are a worktree agent for the agentrelay project.\n\n"
         f"Your role: IMPLEMENTER\n\n"
         f"Your task: {task.description}\n\n"
         f"The test file(s), stub module, and review file are already merged into the "
@@ -671,7 +671,7 @@ def _build_implementer_prompt(
         f"{run_tests_step}\n"
         f"4. If during implementation you encountered concerns about the spec, tests, or "
         f"architecture — whether or not you succeeded — document each one:\n"
-        f'       python -c "from agentrelaysmall import WorktreeTaskRunner; \\\n'
+        f'       python -c "from agentrelay import WorktreeTaskRunner; \\\n'
         f"WorktreeTaskRunner.from_config().record_concern('your concern here')\"\n"
         f"   Do this for every distinct concern. If you have no concerns, skip this step.\n\n"
         f"{adr_section}"
@@ -686,10 +686,10 @@ def _build_implementer_prompt(
         f"## Files changed\n"
         f"<bullet list of key files>\n"
         f'PRBODY\n)" --base {graph_branch})\n'
-        f'       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; '
+        f'       pixi run python -c "from agentrelay import WorktreeTaskRunner; '
         f"r = WorktreeTaskRunner.from_config(); "
         f"r.mark_done('$PR_URL')\"\n\n"
-        f"The pixi.toml in the current directory provides the agentrelaysmall package.\n\n"
+        f"The pixi.toml in the current directory provides the agentrelay package.\n\n"
         f"Then stop.\n"
     )
 
@@ -911,14 +911,14 @@ async def _run_graph_loop(graph: AgentTaskGraph) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Run an agentrelaysmall graph from a YAML definition."
+        description="Run an agentrelay graph from a YAML definition."
     )
     parser.add_argument("graph", help="Path to graph YAML file")
     parser.add_argument(
         "--tmux-session",
         default=None,
         metavar="SESSION",
-        help="Override tmux session name (default: value from YAML or 'agentrelaysmall')",
+        help="Override tmux session name (default: value from YAML or 'agentrelay')",
     )
     parser.add_argument(
         "--keep-panes",

@@ -1,4 +1,4 @@
-"""Clean redesign of agentrelaysmall architecture.
+"""Clean redesign of agentrelay architecture.
 
 This package contains the core abstractions for multi-agent orchestration,
 designed with careful architectural consideration rather than incremental refactoring.

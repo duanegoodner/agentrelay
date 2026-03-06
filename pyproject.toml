@@ -1,7 +1,7 @@
 [project]
 authors = [{name = "Duane Goodner", email = "dmgoodner@gmail.com"}]
 dependencies = []
-name = "agentrelaysmall"
+name = "agentrelay"
 requires-python = ">=3.12,<3.13"
 version = "0.1.0"
 
@@ -10,7 +10,7 @@ build-backend = "hatchling.build"
 requires = ["hatchling"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/agentrelaysmall"]
+packages = ["src/agentrelay"]
 
 [tool.pytest.ini_options]
 testpaths = ["test"]

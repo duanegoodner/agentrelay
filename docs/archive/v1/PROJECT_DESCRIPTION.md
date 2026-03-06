@@ -1,4 +1,4 @@
-# agentrelaysmall — Project Context
+# agentrelay — Project Context
 
 ## What We're Building
 
@@ -70,7 +70,7 @@ TDD workflows (test-writer → reviewer → implementer) are expressed as three 
 import subprocess, asyncio
 from pathlib import Path
 
-TMUX_SESSION = "agentrelaysmall"
+TMUX_SESSION = "agentrelay"
 
 def launch_in_tmux(task: AgentTask) -> str:
     pane_id = (

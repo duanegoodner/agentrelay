@@ -1,8 +1,8 @@
-"""Tests for agentrelaysmall.v2.environments: environment types and aliases."""
+"""Tests for agentrelay.v2.environments: environment types and aliases."""
 
 import pytest
 
-from agentrelaysmall.environments import (
+from agentrelay.environments import (
     AgentEnvironment,
     AgentEnvironmentT,
     TmuxEnvironment,
@@ -15,9 +15,9 @@ class TestTmuxEnvironment:
     """Tests for TmuxEnvironment concrete type."""
 
     def test_default_session(self) -> None:
-        """TmuxEnvironment defaults session to 'agentrelaysmall'."""
+        """TmuxEnvironment defaults session to 'agentrelay'."""
         env = TmuxEnvironment()
-        assert env.session == "agentrelaysmall"
+        assert env.session == "agentrelay"
 
     def test_custom_session(self) -> None:
         """TmuxEnvironment can specify custom session."""

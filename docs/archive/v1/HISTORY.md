@@ -74,7 +74,7 @@ that exercises the full set of structured-role features added in PRs #36–#41.
 - **`tdd_group` removed:** the new pipeline uses plain tasks with explicit roles instead
   of the `tdd_groups:` expansion macro.
 
-`pixi run check` clean (no agentrelaysmall source changes in this PR).
+`pixi run check` clean (no agentrelay source changes in this PR).
 
 **Key file:** `/data/git/agentrelaydemos/main/graphs/split_tdd_single.yaml`.
 
@@ -559,10 +559,10 @@ the summary path for each completed task.
 Three related usability improvements:
 
 - **`tmux_session`** graph YAML field + `--tmux-session` CLI flag: controls which
-  tmux session agent windows open in (default: `"agentrelaysmall"`).
+  tmux session agent windows open in (default: `"agentrelay"`).
 - **`keep_panes`** graph YAML field + `--keep-panes` CLI flag: suppresses auto-close
   of agent tmux windows after task completion (useful for debugging).
-- **`reset_graph.py`** module + `record_run_start()`: `python -m agentrelaysmall.reset_graph`
+- **`reset_graph.py`** module + `record_run_start()`: `python -m agentrelay.reset_graph`
   reads `run_info.json` (written at graph start) and fully resets the target repo —
   closes open PRs, `git reset --hard` + force-push, deletes remote branches,
   removes worktrees and signal dirs.

@@ -26,10 +26,10 @@ class TmuxEnvironment:
 
     Attributes:
         session: The tmux session name where the pane will be created.
-            Defaults to "agentrelaysmall".
+            Defaults to "agentrelay".
     """
 
-    session: str = "agentrelaysmall"
+    session: str = "agentrelay"
 
 
 # ── Type alias and TypeVar ──

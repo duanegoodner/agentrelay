@@ -1,1 +1,1 @@
-print("hello from agentrelaysmall")
+print("hello from agentrelay")

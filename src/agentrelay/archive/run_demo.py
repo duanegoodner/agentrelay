@@ -2,10 +2,10 @@
 Demo driver: runs a single hardcoded AgentTask end-to-end.
 
 Usage (from repo root, with pixi env active):
-    python -m agentrelaysmall.run_demo
+    python -m agentrelay.run_demo
 
 Requires:
-    - A tmux session named 'agentrelaysmall' already running
+    - A tmux session named 'agentrelay' already running
     - git repo at REPO_ROOT with a 'main' branch
     - claude CLI available in PATH
 """
@@ -13,8 +13,8 @@ Requires:
 import asyncio
 from pathlib import Path
 
-from agentrelaysmall.archive.agent_task import AgentTask
-from agentrelaysmall.archive.task_launcher import (
+from agentrelay.archive.agent_task import AgentTask
+from agentrelay.archive.task_launcher import (
     close_agent_pane,
     create_worktree,
     launch_agent,
@@ -28,11 +28,11 @@ from agentrelaysmall.archive.task_launcher import (
     write_task_context,
 )
 
-TMUX_SESSION = "agentrelaysmall"
+TMUX_SESSION = "agentrelay"
 GRAPH_NAME = "demo"
 REPO_ROOT = (
     Path(__file__).resolve().parents[2]
-)  # src/agentrelaysmall/run_demo.py → repo root
+)  # src/agentrelay/run_demo.py → repo root
 WORKTREES_ROOT = REPO_ROOT.parent / "worktrees"
 
 
@@ -42,13 +42,13 @@ TASK_ID = "task_006"
 def build_task_prompt(task_id: str) -> str:
     output_path = f"demo_output/{task_id}/hello.py"
     return f"""\
-You are a worktree agent for the agentrelaysmall project.
+You are a worktree agent for the agentrelay project.
 
 Complete these steps in order:
 
 1. Create the directory `demo_output/{task_id}` and write `hello.py` inside it,
    containing exactly one line:
-       print("hello from agentrelaysmall")
+       print("hello from agentrelay")
 
 2. Stage, commit, and push the file:
        git add {output_path}
@@ -57,9 +57,9 @@ Complete these steps in order:
 
 3. Create a PR, capture the URL, and signal completion — run these two commands:
        PR_URL=$(gh pr create --title "Add {output_path}" --body "Automated demo task." --base main)
-       pixi run python -c "from agentrelaysmall import WorktreeTaskRunner; r = WorktreeTaskRunner.from_config(); r.mark_done('$PR_URL')"
+       pixi run python -c "from agentrelay import WorktreeTaskRunner; r = WorktreeTaskRunner.from_config(); r.mark_done('$PR_URL')"
 
-The pixi.toml in the current directory provides the agentrelaysmall package.
+The pixi.toml in the current directory provides the agentrelay package.
 
 Then stop — do not do anything else.
 """

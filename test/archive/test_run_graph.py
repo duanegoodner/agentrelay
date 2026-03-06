@@ -2,9 +2,9 @@
 
 from pathlib import Path
 
-from agentrelaysmall.archive.agent_task import AgentRole, AgentTask, TaskPaths
-from agentrelaysmall.archive.agent_task_graph import AgentTaskGraph
-from agentrelaysmall.archive.run_graph import (
+from agentrelay.archive.agent_task import AgentRole, AgentTask, TaskPaths
+from agentrelay.archive.agent_task_graph import AgentTaskGraph
+from agentrelay.archive.run_graph import (
     DEFAULT_GATE_ATTEMPTS,
     _adr_step,
     _build_context_content,

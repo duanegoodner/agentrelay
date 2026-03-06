@@ -1,4 +1,4 @@
-# agentrelaysmall — Workflow Description
+# agentrelay — Workflow Description
 
 ## Overview
 
@@ -155,7 +155,7 @@ The `_review` PR has been merged to `main`. The review file is available in the 
 Every agent (regardless of role) follows the same startup sequence:
 
 ```python
-from agentrelaysmall import WorktreeTaskRunner
+from agentrelay import WorktreeTaskRunner
 runner = WorktreeTaskRunner.from_config()   # reads task_context.json
 context = runner.get_context()              # reads context.md if present
 ```

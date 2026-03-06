@@ -1,4 +1,4 @@
-Implement plan PR $ARGUMENTS for the agentrelaysmall structured-roles feature.
+Implement plan PR $ARGUMENTS for the agentrelay structured-roles feature.
 (This number is the plan-internal PR number 1–7, not the GitHub repo PR number.)
 
 Steps:
@@ -7,7 +7,7 @@ Steps:
 3. Implement all source changes described in the plan for PR $ARGUMENTS.
 4. Add all tests described in the plan for PR $ARGUMENTS.
 5. Run `pixi run check` and fix any failures.
-6. Create a feature branch (`feat/pr$ARGUMENTS-<short-name>`), commit, push, and open a PR following the agentrelaysmall development workflow.
+6. Create a feature branch (`feat/pr$ARGUMENTS-<short-name>`), commit, push, and open a PR following the agentrelay development workflow.
 7. Update `docs/HISTORY.md` with a new entry.
 
 Do not implement anything beyond what the plan specifies for PR $ARGUMENTS. Do not start the next PR.

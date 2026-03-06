@@ -11,7 +11,7 @@
 
 **Fix**: Extract prompt builders into a dedicated `prompt_builders/` package (one module per role, or a strategy pattern). `run_graph.py` should only orchestrate — not know the content of agent instructions.
 
-**Files affected**: [src/agentrelaysmall/run_graph.py](../src/agentrelaysmall/run_graph.py)
+**Files affected**: [src/agentrelay/run_graph.py](../src/agentrelay/run_graph.py)
 
 ---
 
@@ -39,14 +39,14 @@ PROMPT_STRATEGIES: dict[AgentRole, PromptStrategy] = {
 
 **Problem**: The two biggest blocks of Claude-specific, tmux-specific code:
 
-**a) Agent executor** ([task_launcher.py](../src/agentrelaysmall/task_launcher.py) — tmux + `claude` CLI):
+**a) Agent executor** ([task_launcher.py](../src/agentrelay/task_launcher.py) — tmux + `claude` CLI):
 ```python
 # Currently hardcoded:
 ["tmux", "new-window", ...]
 ['claude', '--dangerously-skip-permissions', '--add-dir', ...]
 ```
 
-**b) VCS/GitHub backend** ([task_launcher.py](../src/agentrelaysmall/task_launcher.py) — git + gh):
+**b) VCS/GitHub backend** ([task_launcher.py](../src/agentrelay/task_launcher.py) — git + gh):
 ```python
 # Currently hardcoded:
 ["git", "worktree", "add", ...]

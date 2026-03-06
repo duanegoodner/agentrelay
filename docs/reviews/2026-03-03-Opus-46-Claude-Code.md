@@ -9,8 +9,8 @@
 
 The codebase (~2,800 LOC across 7 production files) is well-structured for its current size —
 clean data models, good test coverage, and sensible conventions. But two files dominate
-complexity ([task_launcher.py](../src/agentrelaysmall/task_launcher.py) at 1,105 lines and
-[run_graph.py](../src/agentrelaysmall/run_graph.py) at 952 lines), and the code is tightly
+complexity ([task_launcher.py](../src/agentrelay/task_launcher.py) at 1,105 lines and
+[run_graph.py](../src/agentrelay/run_graph.py) at 952 lines), and the code is tightly
 coupled to specific external tools (Claude CLI, tmux, git+GitHub). The backlog goal of making
 the agent backend pluggable requires addressing these structural issues first.
 
@@ -18,7 +18,7 @@ the agent backend pluggable requires addressing these structural issues first.
 
 ### 1. SRP: `task_launcher.py` is a god module
 
-[task_launcher.py](../src/agentrelaysmall/task_launcher.py) has at least 6 distinct
+[task_launcher.py](../src/agentrelay/task_launcher.py) has at least 6 distinct
 responsibilities in one flat collection of 30+ functions:
 
 | Concern | Example functions | Lines (approx) |
@@ -38,7 +38,7 @@ and can evolve independently.
 
 ### 2. SRP: `run_graph.py` mixes orchestration with prompt generation
 
-[run_graph.py](../src/agentrelaysmall/run_graph.py) is ~950 lines, roughly half of which are
+[run_graph.py](../src/agentrelay/run_graph.py) is ~950 lines, roughly half of which are
 prompt template strings embedded in Python code:
 
 - `_build_spec_writer_prompt` (~75 lines)
@@ -63,7 +63,7 @@ Prompt-building is already tested independently in
 This is the critical issue for the pluggability goal. The agent launch sequence is hardcoded
 to Claude CLI + tmux across multiple functions:
 
-- [task_launcher.py](../src/agentrelaysmall/task_launcher.py) `launch_agent()` — hardcodes `tmux new-window` + `claude --dangerously-skip-permissions`
+- [task_launcher.py](../src/agentrelay/task_launcher.py) `launch_agent()` — hardcodes `tmux new-window` + `claude --dangerously-skip-permissions`
 - `_wait_for_claude_tui()` — polls for "bypass permissions" text specific to Claude TUI
 - `send_prompt()` — uses `tmux send-keys`
 - `save_agent_log()` — uses `tmux capture-pane`
@@ -96,7 +96,7 @@ class AgentHarness(Protocol):
 
 ### 4. DIP: Orchestrator depends on concrete implementations
 
-[run_graph.py](../src/agentrelaysmall/run_graph.py) imports 26 concrete functions from
+[run_graph.py](../src/agentrelay/run_graph.py) imports 26 concrete functions from
 `task_launcher` at the top of the file. Any change to how git/tmux/GitHub works requires
 touching both the launcher and the orchestrator. The orchestrator should depend on
 abstractions, not a bag of 26 free functions.
@@ -136,7 +136,7 @@ PROMPT_BUILDERS: dict[AgentRole, PromptBuilder] = {
 
 ### 6. ISP: `TaskState` couples agent-backend-specific state into the core model
 
-[agent_task.py](../src/agentrelaysmall/agent_task.py) `TaskState`:
+[agent_task.py](../src/agentrelay/agent_task.py) `TaskState`:
 
 ```python
 @dataclass
@@ -179,8 +179,8 @@ reveals five clear places where free functions should become classes.
 ### A. `(graph_name, target_repo_root)` — passed together 16 times
 
 This is the biggest offender. Functions across
-[task_launcher.py](../src/agentrelaysmall/task_launcher.py) and
-[reset_graph.py](../src/agentrelaysmall/reset_graph.py) — `pull_graph_branch`,
+[task_launcher.py](../src/agentrelay/task_launcher.py) and
+[reset_graph.py](../src/agentrelay/reset_graph.py) — `pull_graph_branch`,
 `create_final_pr`, `record_run_start`, `read_run_info`, `list_remote_task_branches`,
 `delete_local_graph_branch`, `graph_branch_exists_on_remote`, `merge_history_path`,
 `record_gate_failure`, `scan_adr_section`, `write_adr_index_to_graph_branch`,
@@ -195,7 +195,7 @@ operations for a graph run.
 
 ### B. `(task, graph_branch, graph)` — the prompt builder trio, 6 functions
 
-Every `_build_*_prompt` in [run_graph.py](../src/agentrelaysmall/run_graph.py) takes
+Every `_build_*_prompt` in [run_graph.py](../src/agentrelay/run_graph.py) takes
 `(task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None)` and then calls
 the same helpers (`_adr_step`, `_spec_reading_step`, `_resolve_gate`, `_effective_verbosity`)
 which read the same fields from `task` and `graph`.

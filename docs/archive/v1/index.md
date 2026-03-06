@@ -1,10 +1,10 @@
-# agentrelaysmall
+# agentrelay
 
 A lightweight custom multi-agent orchestration system for coding workflows.
 
 ## Overview
 
-agentrelaysmall is a Python orchestrator that manages a graph of coding tasks, each executed by Claude Code running in its own tmux pane and git worktree. The system uses sentinel files for signaling, git worktrees for isolation, and dependency graphs for task orchestration.
+agentrelay is a Python orchestrator that manages a graph of coding tasks, each executed by Claude Code running in its own tmux pane and git worktree. The system uses sentinel files for signaling, git worktrees for isolation, and dependency graphs for task orchestration.
 
 ## Key Features
 

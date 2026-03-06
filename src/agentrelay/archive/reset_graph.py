@@ -1,8 +1,8 @@
 """Reset a target repo to its pre-graph-run state.
 
 Usage (from the target repo dir, with pixi env active):
-    python -m agentrelaysmall.reset_graph graphs/agentrelaydemos.yaml
-    python -m agentrelaysmall.reset_graph graphs/agentrelaydemos.yaml --yes
+    python -m agentrelay.reset_graph graphs/agentrelaydemos.yaml
+    python -m agentrelay.reset_graph graphs/agentrelaydemos.yaml --yes
 
 What this does (in order):
     1. Reads .workflow/<graph>/run_info.json to find the starting HEAD sha.
@@ -32,8 +32,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from agentrelaysmall.archive.agent_task_graph import AgentTaskGraphBuilder
-from agentrelaysmall.archive.task_launcher import (
+from agentrelay.archive.agent_task_graph import AgentTaskGraphBuilder
+from agentrelay.archive.task_launcher import (
     delete_local_graph_branch,
     delete_remote_branches,
     graph_branch_exists_on_remote,
