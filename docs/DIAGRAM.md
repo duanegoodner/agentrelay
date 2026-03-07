@@ -181,3 +181,7 @@ classDiagram
 
 *PR docs/mkdocs-design: No architectural changes. `src/agentrelay/my_package/` is a
 docs-only example module demonstrating mkdocstrings; it is not part of the core design.*
+
+*PR docs/cleanup: No architectural changes. Renamed `src/agentrelay/archive/` →
+`src/agentrelay/prototypes/v01/`; this is a reference-only directory not reflected
+in the core design diagram.*

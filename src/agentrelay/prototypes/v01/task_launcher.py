@@ -7,7 +7,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from agentrelay.archive.agent_task import AgentTask
+from agentrelay.prototypes.v01.agent_task import AgentTask
 
 
 def create_graph_branch(

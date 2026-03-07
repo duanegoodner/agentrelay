@@ -46,9 +46,7 @@ nav:
   - Changelog: HISTORY.md
   - Backlog: BACKLOG.md
   - API Reference:
-    - agentrelay.task: api/task.md
-    - agentrelay.environments: api/environments.md
-    - agentrelay.task_runtime: api/task_runtime.md
-    - agentrelay.agent: api/agent.md
-    - my_package:
-      - agentrelay.my_package.my_module: api/my_package/my_module.md
+    - task: api/task.md
+    - environments: api/environments.md
+    - task_runtime: api/task_runtime.md
+    - agent: api/agent.md
