@@ -19,6 +19,9 @@ Every PR that touches `src/agentrelay/` must include a commit to this file:
 
 ## Diagram
 
+> **Tip:** For interactive pan/zoom, view this diagram on
+> [GitHub](https://github.com/duanegoodner/agentrelay/blob/main/docs/DIAGRAM.md).
+
 ```mermaid
 classDiagram
     namespace task_py {
