@@ -3,13 +3,13 @@ from pathlib import Path
 import pytest
 import yaml
 
-from agentrelay.archive.agent_task import (
+from agentrelay.prototypes.v01.agent_task import (
     AgentRole,
     AgentTask,
     TaskPaths,
     TaskStatus,
 )
-from agentrelay.archive.agent_task_graph import (
+from agentrelay.prototypes.v01.agent_task_graph import (
     AgentTaskGraph,
     AgentTaskGraphBuilder,
 )
@@ -598,7 +598,7 @@ def test_builder_from_yaml_plain_task_review_on_attempt_defaults_to_one(tmp_path
 
 
 def test_write_context_creates_file(tmp_path):
-    from agentrelay.archive.task_launcher import write_context
+    from agentrelay.prototypes.v01.task_launcher import write_context
 
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "t1"
     signal_dir.mkdir(parents=True)

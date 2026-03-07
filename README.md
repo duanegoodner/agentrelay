@@ -29,7 +29,7 @@ The core data model is in place and well-tested:
 - `Agent` / `TmuxAgent` — abstract and concrete types for running agent instances
 - `AgentEnvironment` / `TmuxEnvironment` — pluggable execution environment config
 
-118 tests cover the current architecture; 349 more cover the archived prototype. The orchestrator, agent launch, graph loading, and worktree management are under active development.
+118 tests cover the current architecture; 349 more cover the v1 prototype. The orchestrator, agent launch, graph loading, and worktree management are under active development.
 
 ## Requirements
 

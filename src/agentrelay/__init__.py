@@ -20,5 +20,5 @@ Core types:
 - TaskRuntime: mutable envelope with Task, state, artifacts [task_runtime.py]
 
 See also:
-- archive: archived v1 implementation (reference only)
+- prototypes.v01: v1 prototype implementation (reference only)
 """

@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from agentrelay.archive.agent_task import AgentTask, TaskPaths
-from agentrelay.archive.task_launcher import (
+from agentrelay.prototypes.v01.agent_task import AgentTask, TaskPaths
+from agentrelay.prototypes.v01.task_launcher import (
     close_agent_pane,
     commit_pixi_lock_to_main,
     create_worktree,
@@ -49,7 +49,7 @@ def make_task(task_id: str = "task_001") -> AgentTask:
 def test_create_worktree_calls_git(tmp_path):
     task = make_task()
     target_repo = tmp_path / "target"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         create_worktree(task, "demo", tmp_path, target_repo)
     expected_path = tmp_path / "demo" / "task_001"
     mock_run.assert_called_once_with(
@@ -71,7 +71,7 @@ def test_create_worktree_calls_git(tmp_path):
 def test_create_worktree_sets_state(tmp_path):
     task = make_task()
     target_repo = tmp_path / "target"
-    with patch("agentrelay.archive.task_launcher.subprocess.run"):
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run"):
         result = create_worktree(
             task, "demo", tmp_path, target_repo, base_branch="main"
         )
@@ -83,7 +83,7 @@ def test_create_worktree_sets_state(tmp_path):
 def test_create_worktree_branch_uses_graph_name(tmp_path):
     task = make_task("task_002")
     target_repo = tmp_path / "target"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         create_worktree(task, "my-graph", tmp_path, target_repo)
     cmd = mock_run.call_args[0][0]
     assert "task/my-graph/task_002" in cmd
@@ -223,10 +223,10 @@ def test_launch_agent_creates_tmux_window(tmp_path):
     task.state.worktree_path = tmp_path
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%3\n",
         ) as mock_out,
-        patch("agentrelay.archive.task_launcher.subprocess.run"),
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run"),
     ):
         launch_agent(task, "agentrelay")
     cmd = mock_out.call_args[0][0]
@@ -241,10 +241,10 @@ def test_launch_agent_sends_claude_command(tmp_path):
     task.state.worktree_path = tmp_path
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%3\n",
         ),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
     ):
         launch_agent(task, "agentrelay")
     cmd = mock_run.call_args[0][0]
@@ -257,10 +257,10 @@ def test_launch_agent_sets_pane_id(tmp_path):
     task.state.worktree_path = tmp_path
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%7\n",
         ),
-        patch("agentrelay.archive.task_launcher.subprocess.run"),
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run"),
     ):
         pane_id = launch_agent(task, "agentrelay")
     assert pane_id == "%7"
@@ -279,10 +279,10 @@ def test_launch_agent_includes_model_flag_when_set(tmp_path):
     task.state.worktree_path = tmp_path
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%3\n",
         ),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
     ):
         launch_agent(task, "agentrelay", model="claude-opus-4-6")
     cmd = mock_run.call_args[0][0]
@@ -294,10 +294,10 @@ def test_launch_agent_omits_model_flag_when_none(tmp_path):
     task.state.worktree_path = tmp_path
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%3\n",
         ),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
     ):
         launch_agent(task, "agentrelay", model=None)
     cmd = mock_run.call_args[0][0]
@@ -310,10 +310,10 @@ def test_launch_agent_exports_signal_dir_when_provided(tmp_path):
     signal_dir = tmp_path / ".workflow" / "demo" / "signals" / "task_001"
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%3\n",
         ),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
     ):
         launch_agent(task, "agentrelay", signal_dir=signal_dir)
     cmd = mock_run.call_args[0][0]
@@ -325,10 +325,10 @@ def test_launch_agent_omits_signal_dir_when_not_provided(tmp_path):
     task.state.worktree_path = tmp_path
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.check_output",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.check_output",
             return_value=b"%3\n",
         ),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
     ):
         launch_agent(task, "agentrelay")
     cmd = mock_run.call_args[0][0]
@@ -340,10 +340,10 @@ def test_launch_agent_omits_signal_dir_when_not_provided(tmp_path):
 
 def test_send_prompt_accepts_trust_dialog():
     with (
-        patch("agentrelay.archive.task_launcher.time.sleep"),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep"),
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
         patch(
-            "agentrelay.archive.task_launcher._wait_for_claude_tui",
+            "agentrelay.prototypes.v01.task_launcher._wait_for_claude_tui",
             return_value=True,
         ),
     ):
@@ -359,10 +359,10 @@ def test_send_prompt_accepts_trust_dialog():
 
 def test_send_prompt_sends_prompt_to_pane():
     with (
-        patch("agentrelay.archive.task_launcher.time.sleep"),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep"),
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
         patch(
-            "agentrelay.archive.task_launcher._wait_for_claude_tui",
+            "agentrelay.prototypes.v01.task_launcher._wait_for_claude_tui",
             return_value=True,
         ),
     ):
@@ -377,10 +377,10 @@ def test_send_prompt_sends_prompt_to_pane():
 
 def test_send_prompt_sends_enter_last():
     with (
-        patch("agentrelay.archive.task_launcher.time.sleep"),
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep"),
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
         patch(
-            "agentrelay.archive.task_launcher._wait_for_claude_tui",
+            "agentrelay.prototypes.v01.task_launcher._wait_for_claude_tui",
             return_value=True,
         ),
     ):
@@ -396,10 +396,10 @@ def test_send_prompt_sends_enter_last():
 
 def test_send_prompt_sleeps_twice():
     with (
-        patch("agentrelay.archive.task_launcher.time.sleep") as mock_sleep,
-        patch("agentrelay.archive.task_launcher.subprocess.run"),
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep") as mock_sleep,
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run"),
         patch(
-            "agentrelay.archive.task_launcher._wait_for_claude_tui",
+            "agentrelay.prototypes.v01.task_launcher._wait_for_claude_tui",
             return_value=True,
         ),
     ):
@@ -414,9 +414,9 @@ def test_send_prompt_sleeps_twice():
 
 
 def test_wait_for_claude_tui_returns_true_when_bypass_present():
-    from agentrelay.archive.task_launcher import _wait_for_claude_tui
+    from agentrelay.prototypes.v01.task_launcher import _wait_for_claude_tui
 
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "some output\nbypass permissions on\nmore"
         result = _wait_for_claude_tui("%3", timeout=5.0)
@@ -424,13 +424,13 @@ def test_wait_for_claude_tui_returns_true_when_bypass_present():
 
 
 def test_wait_for_claude_tui_returns_false_on_timeout():
-    from agentrelay.archive.task_launcher import _wait_for_claude_tui
+    from agentrelay.prototypes.v01.task_launcher import _wait_for_claude_tui
 
     with (
-        patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run,
-        patch("agentrelay.archive.task_launcher.time.sleep"),
+        patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run,
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep"),
         patch(
-            "agentrelay.archive.task_launcher.time.time",
+            "agentrelay.prototypes.v01.task_launcher.time.time",
             side_effect=[0.0, 0.0, 1.0],
         ),
     ):
@@ -467,7 +467,7 @@ def test_read_done_note_returns_empty_when_no_note(tmp_path):
 
 
 def test_merge_pr_calls_gh():
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = ""
         mock_run.return_value.stderr = ""
@@ -480,7 +480,7 @@ def test_merge_pr_calls_gh():
 
 
 def test_merge_pr_uses_merge_strategy():
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = ""
         mock_run.return_value.stderr = ""
@@ -504,8 +504,11 @@ def test_merge_pr_reattempts_on_not_mergeable():
         type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})(),
     ]
     with (
-        patch("agentrelay.archive.task_launcher.subprocess.run", side_effect=results),
-        patch("agentrelay.archive.task_launcher.time.sleep") as mock_sleep,
+        patch(
+            "agentrelay.prototypes.v01.task_launcher.subprocess.run",
+            side_effect=results,
+        ),
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep") as mock_sleep,
     ):
         merge_pr("https://github.com/org/repo/pull/42", delay=0.0)
     assert mock_sleep.call_count == 1
@@ -521,10 +524,10 @@ def test_merge_pr_raises_after_all_attempts_exhausted():
     )()
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.run",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.run",
             return_value=always_fail,
         ),
-        patch("agentrelay.archive.task_launcher.time.sleep"),
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep"),
         pytest.raises(sp.CalledProcessError),
     ):
         merge_pr("https://github.com/org/repo/pull/42", attempts=3, delay=0.0)
@@ -538,10 +541,10 @@ def test_merge_pr_raises_immediately_on_other_errors():
     )()
     with (
         patch(
-            "agentrelay.archive.task_launcher.subprocess.run",
+            "agentrelay.prototypes.v01.task_launcher.subprocess.run",
             return_value=other_error,
         ),
-        patch("agentrelay.archive.task_launcher.time.sleep") as mock_sleep,
+        patch("agentrelay.prototypes.v01.task_launcher.time.sleep") as mock_sleep,
         pytest.raises(sp.CalledProcessError),
     ):
         merge_pr("https://github.com/org/repo/pull/42", attempts=6, delay=0.0)
@@ -580,7 +583,7 @@ def test_write_merged_signal_creates_signal_dir(tmp_path):
 def test_close_agent_pane_kills_window():
     task = make_task()
     task.state.pane_id = "%7"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         close_agent_pane(task)
     cmd = mock_run.call_args[0][0]
     assert "tmux" in cmd
@@ -590,7 +593,7 @@ def test_close_agent_pane_kills_window():
 
 def test_close_agent_pane_skips_when_no_pane_id():
     task = make_task()
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         close_agent_pane(task)
     mock_run.assert_not_called()
 
@@ -601,7 +604,7 @@ def test_close_agent_pane_skips_when_no_pane_id():
 def test_save_agent_log_calls_tmux_capture_pane(tmp_path):
     task = make_task()
     task.state.pane_id = "%7"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.stdout = "log output"
         save_agent_log(task, tmp_path)
     cmd = mock_run.call_args[0][0]
@@ -615,7 +618,7 @@ def test_save_agent_log_calls_tmux_capture_pane(tmp_path):
 def test_save_agent_log_writes_to_signal_dir(tmp_path):
     task = make_task()
     task.state.pane_id = "%7"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.stdout = "agent output here"
         save_agent_log(task, tmp_path)
     assert (tmp_path / "agent.log").read_text() == "agent output here"
@@ -623,7 +626,7 @@ def test_save_agent_log_writes_to_signal_dir(tmp_path):
 
 def test_save_agent_log_skips_when_no_pane_id(tmp_path):
     task = make_task()
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         save_agent_log(task, tmp_path)
     mock_run.assert_not_called()
     assert not (tmp_path / "agent.log").exists()
@@ -637,7 +640,7 @@ def test_remove_worktree_calls_git_commands(tmp_path):
     task.state.worktree_path = tmp_path / "worktree"
     task.state.branch_name = "task/demo/task_001"
     target_repo = tmp_path / "target"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         remove_worktree(task, target_repo)
     calls = mock_run.call_args_list
     assert any(
@@ -711,7 +714,7 @@ def test_poll_waits_for_done(tmp_path):
 
 
 def test_pull_main_returns_true_on_success(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         assert pull_main(tmp_path) is True
     cmd = mock_run.call_args[0][0]
@@ -721,13 +724,13 @@ def test_pull_main_returns_true_on_success(tmp_path):
 
 
 def test_pull_main_returns_false_on_failure(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 1
         assert pull_main(tmp_path) is False
 
 
 def test_pull_main_uses_repo_root(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         pull_main(tmp_path)
     cmd = mock_run.call_args[0][0]
@@ -740,7 +743,7 @@ def test_pull_main_uses_repo_root(tmp_path):
 def test_pixi_toml_changed_in_pr_returns_true_when_present():
     pr_url = "https://github.com/org/repo/pull/42"
     payload = '["pixi.toml", "src/foo.py"]'
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = payload
         assert pixi_toml_changed_in_pr(pr_url) is True
@@ -754,14 +757,14 @@ def test_pixi_toml_changed_in_pr_returns_true_when_present():
 def test_pixi_toml_changed_in_pr_returns_false_when_absent():
     pr_url = "https://github.com/org/repo/pull/42"
     payload = '["src/foo.py", "README.md"]'
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = payload
         assert pixi_toml_changed_in_pr(pr_url) is False
 
 
 def test_pixi_toml_changed_in_pr_returns_false_on_gh_error():
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 1
         mock_run.return_value.stdout = ""
         assert pixi_toml_changed_in_pr("https://github.com/org/repo/pull/1") is False
@@ -771,7 +774,7 @@ def test_pixi_toml_changed_in_pr_returns_false_on_gh_error():
 
 
 def test_run_pixi_install_returns_true_on_success(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         assert run_pixi_install(tmp_path) is True
     cmd = mock_run.call_args[0][0]
@@ -781,7 +784,7 @@ def test_run_pixi_install_returns_true_on_success(tmp_path):
 
 
 def test_run_pixi_install_returns_false_on_failure(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 1
         assert run_pixi_install(tmp_path) is False
 
@@ -805,7 +808,7 @@ def test_neutralize_calls_git_fetch_and_checkout(tmp_path):
         return m
 
     with patch(
-        "agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
     ) as mock_run:
         neutralize_pixi_lock_in_pr(task)
     calls = [c[0][0] for c in mock_run.call_args_list]
@@ -826,7 +829,7 @@ def test_neutralize_commits_and_pushes_when_lock_changed(tmp_path):
         return type("R", (), {"returncode": 0, "stdout": stdout, "stderr": ""})()
 
     with patch(
-        "agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
     ) as mock_run:
         neutralize_pixi_lock_in_pr(task)
     calls = [c[0][0] for c in mock_run.call_args_list]
@@ -841,7 +844,7 @@ def test_neutralize_skips_commit_when_lock_unchanged(tmp_path):
         return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
 
     with patch(
-        "agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
     ) as mock_run:
         neutralize_pixi_lock_in_pr(task)
     calls = [c[0][0] for c in mock_run.call_args_list]
@@ -858,7 +861,7 @@ def test_commit_pixi_lock_stages_and_commits_when_changed(tmp_path):
         return type("R", (), {"returncode": 0, "stdout": stdout, "stderr": ""})()
 
     with patch(
-        "agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
     ) as mock_run:
         commit_pixi_lock_to_main(tmp_path)
     calls = [c[0][0] for c in mock_run.call_args_list]
@@ -872,7 +875,7 @@ def test_commit_pixi_lock_skips_when_unchanged(tmp_path):
         return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
 
     with patch(
-        "agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
     ) as mock_run:
         commit_pixi_lock_to_main(tmp_path)
     calls = [c[0][0] for c in mock_run.call_args_list]
@@ -890,7 +893,9 @@ def test_record_run_start_writes_run_info(tmp_path):
     def fake_run(cmd, **kwargs):
         return type("R", (), {"returncode": 0, "stdout": sha + "\n", "stderr": ""})()
 
-    with patch("agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run):
+    with patch(
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
+    ):
         record_run_start("demo", tmp_path)
     p = tmp_path / ".workflow" / "demo" / "run_info.json"
     assert p.exists()
@@ -909,9 +914,13 @@ def test_record_run_start_overwrites_existing(tmp_path):
             "R", (), {"returncode": 0, "stdout": next(shas) + "\n", "stderr": ""}
         )()
 
-    with patch("agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run):
+    with patch(
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
+    ):
         record_run_start("demo", tmp_path)
-    with patch("agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run):
+    with patch(
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
+    ):
         record_run_start("demo", tmp_path)
     p = tmp_path / ".workflow" / "demo" / "run_info.json"
     data = json.loads(p.read_text())
@@ -934,7 +943,7 @@ def test_read_run_info_returns_dict(tmp_path):
 
 
 def test_reset_target_repo_calls_git_reset_and_push(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         reset_target_repo_to_head("abc1234", tmp_path)
     calls = [c[0][0] for c in mock_run.call_args_list]
     assert any("reset" in c and "--hard" in c and "abc1234" in c for c in calls)
@@ -957,7 +966,9 @@ def test_list_remote_task_branches_parses_ls_remote_output(tmp_path):
             "R", (), {"returncode": 0, "stdout": ls_remote_output, "stderr": ""}
         )()
 
-    with patch("agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run):
+    with patch(
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
+    ):
         branches = list_remote_task_branches("demo", tmp_path)
     assert branches == ["task/demo/write_greet_fn", "task/demo/write_farewell_fn"]
 
@@ -966,7 +977,9 @@ def test_list_remote_task_branches_empty_when_none(tmp_path):
     def fake_run(cmd, **kwargs):
         return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
 
-    with patch("agentrelay.archive.task_launcher.subprocess.run", side_effect=fake_run):
+    with patch(
+        "agentrelay.prototypes.v01.task_launcher.subprocess.run", side_effect=fake_run
+    ):
         branches = list_remote_task_branches("demo", tmp_path)
     assert branches == []
 
@@ -976,7 +989,7 @@ def test_list_remote_task_branches_empty_when_none(tmp_path):
 
 def test_delete_remote_branches_passes_all_names(tmp_path):
     branches = ["task/demo/t1", "task/demo/t2"]
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         delete_remote_branches(branches, tmp_path)
     cmd = mock_run.call_args[0][0]
     assert "push" in cmd
@@ -986,7 +999,7 @@ def test_delete_remote_branches_passes_all_names(tmp_path):
 
 
 def test_delete_remote_branches_skips_when_empty(tmp_path):
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         delete_remote_branches([], tmp_path)
     mock_run.assert_not_called()
 
@@ -997,7 +1010,7 @@ def test_delete_remote_branches_skips_when_empty(tmp_path):
 def test_save_pr_summary_writes_body_to_file(tmp_path):
     signal_dir = tmp_path / "signals" / "task_001"
     pr_url = "https://github.com/org/repo/pull/42"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "## Summary\nDid the thing.\n"
         save_pr_summary(pr_url, signal_dir)
@@ -1007,7 +1020,7 @@ def test_save_pr_summary_writes_body_to_file(tmp_path):
 def test_save_pr_summary_calls_gh_pr_view(tmp_path):
     signal_dir = tmp_path / "signals" / "task_001"
     pr_url = "https://github.com/org/repo/pull/42"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "some body\n"
         save_pr_summary(pr_url, signal_dir)
@@ -1022,7 +1035,7 @@ def test_save_pr_summary_calls_gh_pr_view(tmp_path):
 
 def test_save_pr_summary_skips_when_gh_fails(tmp_path):
     signal_dir = tmp_path / "signals" / "task_001"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 1
         mock_run.return_value.stdout = ""
         save_pr_summary("https://github.com/org/repo/pull/1", signal_dir)
@@ -1031,7 +1044,7 @@ def test_save_pr_summary_skips_when_gh_fails(tmp_path):
 
 def test_save_pr_summary_skips_when_body_empty(tmp_path):
     signal_dir = tmp_path / "signals" / "task_001"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = ""
         save_pr_summary("https://github.com/org/repo/pull/1", signal_dir)
@@ -1040,7 +1053,7 @@ def test_save_pr_summary_skips_when_body_empty(tmp_path):
 
 def test_save_pr_summary_creates_signal_dir(tmp_path):
     signal_dir = tmp_path / "deep" / "nested" / "dir"
-    with patch("agentrelay.archive.task_launcher.subprocess.run") as mock_run:
+    with patch("agentrelay.prototypes.v01.task_launcher.subprocess.run") as mock_run:
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = "body text\n"
         save_pr_summary("https://github.com/org/repo/pull/1", signal_dir)

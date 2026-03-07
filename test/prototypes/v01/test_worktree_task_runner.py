@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from agentrelay.archive.worktree_task_runner import WorktreeTaskRunner
+from agentrelay.prototypes.v01.worktree_task_runner import WorktreeTaskRunner
 
 
 def make_config(signal_dir: Path, **extras: object) -> dict[str, object]:

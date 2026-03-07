@@ -54,15 +54,15 @@ The current architecture lives at the root of `src/agentrelay/`:
 - File-based coordination (no message queues or APIs)
 - Google-style docstrings throughout for auto-generated documentation
 
-## Archive
+## Prototype
 
-The original implementation (`src/agentrelay/archive/`) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.
+The original implementation (`src/agentrelay/prototypes/v01/`) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.
 
-See `docs/archive/v1/HISTORY.md` for detailed history of the prototype.
+See `docs/prototypes/v01/HISTORY.md` for detailed history of the prototype.
 
 ## Test Coverage
 
-All modules are comprehensively tested (467 tests). Tests live in `test/` (current implementation) and `test/archive/` (reference tests for the prototype).
+All modules are comprehensively tested (467 tests). Tests live in `test/` (current implementation) and `test/prototypes/v01/` (reference tests for the prototype).
 
 ## Future Extensibility
 

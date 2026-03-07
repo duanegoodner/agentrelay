@@ -13,8 +13,8 @@ Requires:
 import asyncio
 from pathlib import Path
 
-from agentrelay.archive.agent_task import AgentTask
-from agentrelay.archive.task_launcher import (
+from agentrelay.prototypes.v01.agent_task import AgentTask
+from agentrelay.prototypes.v01.task_launcher import (
     close_agent_pane,
     create_worktree,
     launch_agent,

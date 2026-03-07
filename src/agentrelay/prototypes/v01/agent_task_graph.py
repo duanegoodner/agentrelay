@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-from agentrelay.archive.agent_task import (
+from agentrelay.prototypes.v01.agent_task import (
     AgentRole,
     AgentTask,
     TaskPaths,
