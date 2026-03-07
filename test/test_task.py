@@ -2,7 +2,7 @@
 
 import pytest
 
-from agentrelay.environments import AgentEnvironment, TmuxEnvironment
+from agentrelay.environments import TmuxEnvironment
 from agentrelay.task import (
     AgentConfig,
     AgentFramework,
@@ -11,8 +11,8 @@ from agentrelay.task import (
     ReviewConfig,
     Task,
     TaskPaths,
-    TaskStatus,
 )
+from agentrelay.task_runtime import TaskStatus
 
 # ── Tests for enums ──
 

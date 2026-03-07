@@ -1,73 +1,46 @@
-"""Runtime state, artifacts, and addressing types for task execution.
+"""Runtime state and artifacts for task execution.
 
-This module defines mutable types for tracking task execution state,
-accumulating work artifacts, and addressing running agents.
+This module defines the execution state enum and mutable types for tracking
+task execution state and accumulating work artifacts.
+
+Enums:
+    TaskStatus: Execution state of a task (PENDING, RUNNING, PR_CREATED, PR_MERGED, FAILED).
 
 Classes:
     TaskState: Mutable operational state of a running task.
     TaskArtifacts: Outputs produced by a task's agent.
-    AgentAddress: Abstract base for addressing running agents.
-    TmuxAddress: Concrete address for agents in tmux panes.
     TaskRuntime: Mutable runtime envelope grouping Task spec and state.
 """
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from enum import Enum
+from pathlib import Path
+from typing import Optional
 
-from agentrelay.task import Task, TaskStatus
+from agentrelay.agent import Agent
+from agentrelay.task import Task
 
-if TYPE_CHECKING:
-    from agentrelay.agent import Agent
-
-
-# ── Agent addressing ──
+# ── Enums ──
 
 
-class AgentAddress(ABC):
-    """Abstract base for addressing a running agent instance.
-
-    This protocol defines the interface for different ways of addressing
-    agents, enabling extensibility to various execution environments
-    (tmux panes, cloud endpoints, subprocess IDs, etc.).
+class TaskStatus(str, Enum):
+    """Execution state of a task during orchestration.
 
     Attributes:
-        label: A human-readable string identifier for the agent's location.
+        PENDING: Task is waiting to be executed.
+        RUNNING: Task is currently being executed by an agent.
+        PR_CREATED: Agent completed work; pull request exists against worktree branch.
+        PR_MERGED: Pull request has been merged into the worktree primary branch.
+        FAILED: Task execution failed.
     """
 
-    @property
-    @abstractmethod
-    def label(self) -> str:
-        """Return a human-readable identifier for this agent's location.
-
-        Returns:
-            String representation of the agent's address/location.
-        """
-        ...
-
-
-@dataclass(frozen=True)
-class TmuxAddress(AgentAddress):
-    """Address of an agent running in a tmux pane.
-
-    Attributes:
-        session: The name of the tmux session.
-        pane_id: The identifier of the tmux pane (e.g., "%1", "%2").
-    """
-
-    session: str
-    pane_id: str
-
-    @property
-    def label(self) -> str:
-        """Return a human-readable identifier combining session and pane.
-
-        Returns:
-            String in format "session:pane_id" (e.g., "agentrelay:%1").
-        """
-        return f"{self.session}:{self.pane_id}"
+    PENDING = "pending"
+    RUNNING = "running"
+    PR_CREATED = "pr_created"  # Agent done; PR exists against worktree branch
+    PR_MERGED = "pr_merged"  # PR merged into worktree primary branch
+    FAILED = "failed"
 
 
 # ── Runtime state and artifacts ──
@@ -82,7 +55,7 @@ class TaskState:
 
     Attributes:
         status: Current execution state (TaskStatus enum).
-        worktree_path: Path to the git worktree where the agent works,
+        worktree_path: Filesystem path to the git worktree where the agent works,
             or None if not yet created.
         branch_name: Name of the feature branch in the worktree,
             or None if not yet created.
@@ -92,7 +65,7 @@ class TaskState:
     """
 
     status: TaskStatus = TaskStatus.PENDING
-    worktree_path: Optional[str] = None
+    worktree_path: Optional[Path] = None
     branch_name: Optional[str] = None
     error: Optional[str] = None
     attempt_num: int = 0

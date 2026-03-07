@@ -1,15 +1,17 @@
 """Tests for agentrelay.v2.task_runtime: runtime state and addressing."""
 
+from pathlib import Path
+
 import pytest
 
+from agentrelay.addressing import AgentAddress, TmuxAddress
 from agentrelay.agent import TmuxAgent
-from agentrelay.task import AgentConfig, AgentRole, Task, TaskStatus
+from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_runtime import (
-    AgentAddress,
     TaskArtifacts,
     TaskRuntime,
     TaskState,
-    TmuxAddress,
+    TaskStatus,
 )
 
 # ── Tests for TaskState ──
@@ -34,8 +36,8 @@ class TestTaskState:
 
     def test_set_worktree_path(self) -> None:
         """TaskState can track worktree path."""
-        state = TaskState(worktree_path="/tmp/worktree-abc123")
-        assert state.worktree_path == "/tmp/worktree-abc123"
+        state = TaskState(worktree_path=Path("/tmp/worktree-abc123"))
+        assert state.worktree_path == Path("/tmp/worktree-abc123")
 
     def test_set_branch_name(self) -> None:
         """TaskState can track branch name."""
@@ -72,10 +74,10 @@ class TestTaskState:
         assert state.status == TaskStatus.PENDING
 
         state.status = TaskStatus.RUNNING
-        state.worktree_path = "/tmp/work-123"
+        state.worktree_path = Path("/tmp/work-123")
         state.branch_name = "feat/task-123"
         assert state.status == TaskStatus.RUNNING
-        assert state.worktree_path == "/tmp/work-123"
+        assert state.worktree_path == Path("/tmp/work-123")
 
         state.status = TaskStatus.PR_CREATED
         state.attempt_num = 1
@@ -289,11 +291,11 @@ class TestTaskRuntime:
         runtime = TaskRuntime(task=task)
 
         runtime.state.status = TaskStatus.RUNNING
-        runtime.state.worktree_path = "/tmp/work"
+        runtime.state.worktree_path = Path("/tmp/work")
         runtime.state.attempt_num = 1
 
         assert runtime.state.status == TaskStatus.RUNNING
-        assert runtime.state.worktree_path == "/tmp/work"
+        assert runtime.state.worktree_path == Path("/tmp/work")
         assert runtime.state.attempt_num == 1
 
     def test_modify_artifacts_in_runtime(self) -> None:
@@ -323,7 +325,7 @@ class TestTaskRuntime:
         runtime.state.status = TaskStatus.RUNNING
 
         # Agent starts working
-        runtime.state.worktree_path = "/tmp/worktree-abc"
+        runtime.state.worktree_path = Path("/tmp/worktree-abc")
         runtime.state.branch_name = "feat/impl"
 
         # Agent encounters an issue and notes it
@@ -339,7 +341,7 @@ class TestTaskRuntime:
         # Verify final state
         assert runtime.agent.address.label == "agentrelay:%2"
         assert runtime.state.status == TaskStatus.PR_MERGED
-        assert runtime.state.worktree_path == "/tmp/worktree-abc"
+        assert runtime.state.worktree_path == Path("/tmp/worktree-abc")
         assert runtime.state.branch_name == "feat/impl"
         assert len(runtime.artifacts.concerns) == 1
         assert runtime.artifacts.pr_url == "https://github.com/org/repo/pull/42"

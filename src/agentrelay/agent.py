@@ -1,8 +1,11 @@
-"""Agent class: live running instance of a task executor.
+"""Agent interface and concrete implementations.
 
 This module defines the Agent abstract base class and concrete implementations
-for different execution environments. An Agent represents a running coding assistant
-(e.g., Claude Code in a tmux pane) and can be told to begin work.
+for different execution environments. An Agent represents a running coding
+assistant (e.g., Claude Code in a tmux pane) and can be told to begin work.
+
+See also:
+    addressing: AgentAddress and concrete address types (TmuxAddress, etc.)
 
 Classes:
     Agent: Abstract base for a live running agent instance.
@@ -16,11 +19,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from agentrelay.addressing import AgentAddress, TmuxAddress
+
 if TYPE_CHECKING:
     from agentrelay.environments import TmuxEnvironment
     from agentrelay.task import AgentConfig
-
-from agentrelay.task_runtime import AgentAddress, TmuxAddress
 
 
 class Agent(ABC):
