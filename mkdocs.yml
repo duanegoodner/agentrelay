@@ -5,6 +5,24 @@ docs_dir: docs
 
 theme:
   name: material
+  palette:
+    primary: black
+    accent: teal
+  icon:
+    logo: material/robot-outline
+
+extra_css:
+  - stylesheets/extra.css
+
+hooks:
+  - hooks.py
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 plugins:
   - search
@@ -15,7 +33,8 @@ plugins:
           options:
             docstring_style: google
             show_source: true
-            show_root_heading: true
+            show_root_heading: false
+            show_root_full_path: true
             members_order: source
 
 nav:
@@ -27,7 +46,9 @@ nav:
   - Changelog: HISTORY.md
   - Backlog: BACKLOG.md
   - API Reference:
-    - Task: api/task.md
-    - Environments: api/environments.md
-    - Task Runtime: api/task_runtime.md
-    - Agent: api/agent.md
+    - agentrelay.task: api/task.md
+    - agentrelay.environments: api/environments.md
+    - agentrelay.task_runtime: api/task_runtime.md
+    - agentrelay.agent: api/agent.md
+    - my_package:
+      - agentrelay.my_package.my_module: api/my_package/my_module.md

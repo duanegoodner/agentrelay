@@ -173,3 +173,8 @@ classDiagram
     TaskRuntime --> TaskArtifacts : artifacts
     TaskRuntime --> Agent : agent (optional)
 ```
+
+---
+
+*PR docs/mkdocs-design: No architectural changes. `src/agentrelay/my_package/` is a
+docs-only example module demonstrating mkdocstrings; it is not part of the core design.*
