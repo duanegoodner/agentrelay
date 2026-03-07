@@ -1,7 +1,7 @@
 """Core data types for tasks in the agentrelay architecture.
 
 This module defines frozen specifications for units of work in a task graph,
-configuration types for agents and reviews, and enums for roles and execution states.
+configuration types for agents and reviews, and enums for roles.
 
 Classes:
     Task: A frozen specification of work to be done in the task graph.
@@ -13,10 +13,10 @@ Enums:
     AgentRole: The type of work a task performs.
     AgentFramework: The AI framework/platform executing an agent.
     AgentVerbosity: The detail level of Architecture Decision Records (ADRs).
-    TaskStatus: The execution state of a task.
 
 See also:
     environments: AgentEnvironment (type alias) and environment-specific types.
+    task_runtime: TaskStatus (execution state) and mutable runtime types.
 """
 
 from dataclasses import dataclass, field
@@ -77,24 +77,6 @@ class AgentRole(str, Enum):
     IMPLEMENTER = "implementer"
     GENERIC = "generic"
     # Note: MERGER is handled at graph level, not as a task role
-
-
-class TaskStatus(str, Enum):
-    """Execution state of a task during orchestration.
-
-    Attributes:
-        PENDING: Task is waiting to be executed.
-        RUNNING: Task is currently being executed by an agent.
-        PR_CREATED: Agent completed work; pull request exists against worktree branch.
-        PR_MERGED: Pull request has been merged into the worktree primary branch.
-        FAILED: Task execution failed.
-    """
-
-    PENDING = "pending"
-    RUNNING = "running"
-    PR_CREATED = "pr_created"  # Agent done; PR exists against worktree branch
-    PR_MERGED = "pr_merged"  # PR merged into worktree primary branch
-    FAILED = "failed"
 
 
 # ── Configuration dataclasses ──

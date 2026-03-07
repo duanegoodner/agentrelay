@@ -80,13 +80,29 @@ Rules:
 - Always run `pixi run check` before creating a PR
 - PR body must include a `## Test plan` checklist (automated + human-verifiable items)
 - Update `docs/HISTORY.md` with a new entry for each merged PR
+- Update `docs/DIAGRAM.md` in every PR that touches `src/agentrelay/`; if the design
+  did not change, add a note at the bottom of DIAGRAM.md confirming this — the file
+  must still change so that diagram review is an explicit step in every PR
+
+## Coding conventions
+
+**No free functions.** If something could be a module-level function, make it a
+`@staticmethod` in a class instead. When a class exists solely as a container of static
+methods (no state, no `__init__`), it is intentionally stateless — a named namespace for
+related operations.
+
+Rationale: agentrelay uses Mermaid for design diagrams because Mermaid renders natively
+in GitHub and VS Code without an export step, keeping diagrams alive rather than stale.
+Mermaid's `classDiagram` cannot represent free functions. Rather than work around this
+limitation with workarounds that obscure design, we eliminate free functions entirely.
+Clean diagrammability is a forcing function for clean architecture: every module has an
+explicit, nameable surface that appears in the diagram.
 
 ## Docs
 
-- `docs/PROJECT_DESCRIPTION.md` — what this is
-- `docs/DESIGN_DECISIONS.md` — why things are the way they are
-- `docs/WORKFLOW_DESCRIPTION.md` — end-to-end workflow specification
-- `docs/REPO_SETUP.md` — setting up a new target repo
-- `docs/OPERATIONS.md` — day-to-day running guide
+- `docs/DIAGRAM.md` — authoritative design diagram (Mermaid); updated every PR
+- `docs/ARCHITECTURE.md` — module map, design principles, extensibility notes
+- `docs/WORKFLOW.md` — end-to-end workflow specification
+- `docs/GUIDE.md` — installation, repo setup, development workflow
 - `docs/HISTORY.md` — feature history (one entry per PR)
 - `docs/BACKLOG.md` — ideas and future work (add here, don't interrupt current task)
