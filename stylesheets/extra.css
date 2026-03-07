@@ -1,0 +1,4 @@
+/* Use code font for page titles on API pages only */
+.md-content__inner:has(.api-page) h1 {
+    font-family: var(--md-code-font-family);
+}
