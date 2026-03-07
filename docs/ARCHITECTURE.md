@@ -74,3 +74,8 @@ The current architecture is designed to support:
 - **Flexible signaling** — coordination mechanism can evolve without changing core types
 
 These extensions are anticipated but not yet implemented. Decisions will be made only as real needs emerge.
+
+## Design Diagram
+
+See [DIAGRAM.md](DIAGRAM.md) for the current design diagram. That file is updated
+as part of every PR and is the authoritative visual reference for the architecture.

@@ -1,6 +1,6 @@
-# agentrelaysmall
+# agentrelay
 
-> **This project is a work in progress and is not yet functional.** The core data model and test suite are in place; task execution, orchestration, and agent launch are not yet implemented.
+> **Early development — active work in progress.** Core abstractions are being established; end-to-end execution is not yet functional.
 
 A Python orchestration system for multi-agent coding workflows. The goal: define a graph of coding tasks, and have each task executed autonomously by a Claude Code agent in its own tmux pane and git worktree, with the orchestrator managing dependencies and merging results.
 
@@ -8,7 +8,7 @@ A Python orchestration system for multi-agent coding workflows. The goal: define
 
 Each task in the graph specifies what work to do (role, file paths, description) and how to do it (AI framework, model, execution environment). The orchestrator runs tasks in dependency order — each agent works in isolation, commits its output, and signals completion. The orchestrator merges results.
 
-Planned task roles:
+Task roles:
 
 | Role | Purpose |
 |------|---------|
@@ -22,14 +22,14 @@ The `test_writer → test_reviewer → implementer` sequence supports a TDD work
 
 ## Current state
 
-The v2 architecture has a typed, well-tested data model:
+The core data model is in place and well-tested:
 
 - `Task` — frozen specification of a unit of work (id, role, paths, dependencies, agent config)
 - `TaskRuntime` — mutable execution envelope (status, worktree path, PR URL, agent handle)
-- `Agent` / `TmuxAgent` — abstract and concrete types for running agent instances (stubbed)
+- `Agent` / `TmuxAgent` — abstract and concrete types for running agent instances
 - `AgentEnvironment` / `TmuxEnvironment` — pluggable execution environment config
 
-467 tests pass. Orchestration, agent launch, and worktree management are not yet implemented.
+118 tests cover the current architecture; 349 more cover the archived prototype. The orchestrator, agent launch, graph loading, and worktree management are under active development.
 
 ## Requirements
 
@@ -42,8 +42,8 @@ The v2 architecture has a typed, well-tested data model:
 ## Installation
 
 ```bash
-git clone https://github.com/duanegoodner/agentrelaysmall.git
-cd agentrelaysmall
+git clone https://github.com/duanegoodner/agentrelay.git
+cd agentrelay
 pixi install
 pixi run check   # format + typecheck + tests
 ```
