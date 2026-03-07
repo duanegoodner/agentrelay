@@ -349,10 +349,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#archive" class="md-nav__link">
+  <a href="#prototype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Archive
+        Prototype
       
     </span>
   </a>
@@ -596,7 +596,7 @@
   <span class="md-ellipsis">
     
   
-    agentrelay.task
+    task
   
 
     
@@ -624,7 +624,7 @@
   <span class="md-ellipsis">
     
   
-    agentrelay.environments
+    environments
   
 
     
@@ -652,7 +652,7 @@
   <span class="md-ellipsis">
     
   
-    agentrelay.task_runtime
+    task_runtime
   
 
     
@@ -680,7 +680,7 @@
   <span class="md-ellipsis">
     
   
-    agentrelay.agent
+    agent
   
 
     
@@ -689,89 +689,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_8_5" id="__nav_8_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    my_package
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    my_package
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../api/my_package/my_module/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    agentrelay.my_package.my_module
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -861,10 +778,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#archive" class="md-nav__link">
+  <a href="#prototype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Archive
+        Prototype
       
     </span>
   </a>
@@ -963,11 +880,11 @@
 - No frameworks (LangChain, LangGraph, etc.) — direct Python + subprocess
 - File-based coordination (no message queues or APIs)
 - Google-style docstrings throughout for auto-generated documentation</p>
-<h2 id="archive">Archive</h2>
-<p>The original implementation (<code>src/agentrelay/archive/</code>) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.</p>
-<p>See <code>docs/archive/v1/HISTORY.md</code> for detailed history of the prototype.</p>
+<h2 id="prototype">Prototype</h2>
+<p>The original implementation (<code>src/agentrelay/prototypes/v01/</code>) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.</p>
+<p>See <code>docs/prototypes/v01/HISTORY.md</code> for detailed history of the prototype.</p>
 <h2 id="test-coverage">Test Coverage</h2>
-<p>All modules are comprehensively tested (467 tests). Tests live in <code>test/</code> (current implementation) and <code>test/archive/</code> (reference tests for the prototype).</p>
+<p>All modules are comprehensively tested (467 tests). Tests live in <code>test/</code> (current implementation) and <code>test/prototypes/v01/</code> (reference tests for the prototype).</p>
 <h2 id="future-extensibility">Future Extensibility</h2>
 <p>The current architecture is designed to support:</p>
 <ul>
