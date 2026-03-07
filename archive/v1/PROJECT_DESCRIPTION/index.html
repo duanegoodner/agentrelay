@@ -1,0 +1,899 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/archive/v1/PROJECT_DESCRIPTION/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>agentrelay — Project Context - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agentrelay-project-context" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              agentrelay — Project Context
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-were-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We're Building
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Design Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Current Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#taskstatus-agentrole-and-agenttask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskStatus, AgentRole, and AgentTask
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tmux-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tmux Launch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worktree-creation-python-not-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worktree Creation (Python, not agent)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#typical-task-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typical Task Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next-incremental-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next (Incremental Plan)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="agentrelay-project-context">agentrelay — Project Context</h1>
+<h2 id="what-were-building">What We're Building</h2>
+<p>A lightweight custom multi-agent orchestration system for coding workflows. The core idea: a Python orchestrator manages a graph of tasks, each of which runs as a Claude Code instance in its own tmux pane and git worktree. We are deliberately keeping this simple and building incrementally.</p>
+<h2 id="key-design-decisions">Key Design Decisions</h2>
+<ul>
+<li><strong>No frameworks</strong> — built directly on the Anthropic API and subprocess calls, not LangChain/LangGraph/CrewAI</li>
+<li><strong>Async Python</strong> — <code>asyncio</code> for concurrent task dispatch; agent calls are I/O-bound so async is a natural fit</li>
+<li><strong>Tmux for agent visibility</strong> — agents launched interactively via <code>claude</code> (not <code>claude -p</code>) in tmux panes so we can watch them work</li>
+<li><strong>Git worktrees for isolation</strong> — each task gets its own worktree and branch; no filesystem race conditions</li>
+<li><strong>Sentinel files for signaling</strong> — agents communicate status by writing files to <code>.workflow/signals/&lt;task-id&gt;/</code> (e.g. <code>.done</code>, <code>.failed</code>, <code>.needs-human</code>, <code>.needs-review</code>, <code>.in-progress</code>)</li>
+<li><strong>Agent creates the PR</strong> — the worktree agent has the context to write a meaningful PR description; it creates the PR then touches <code>.done</code></li>
+</ul>
+<h2 id="current-code">Current Code</h2>
+<h3 id="taskstatus-agentrole-and-agenttask">TaskStatus, AgentRole, and AgentTask</h3>
+<pre><code class="language-python">from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Any
+
+class TaskStatus(Enum):
+    PENDING = &quot;pending&quot;       # deps not yet satisfied
+    READY = &quot;ready&quot;           # deps done, can be dispatched
+    RUNNING = &quot;running&quot;
+    NEEDS_REVIEW = &quot;needs_review&quot;
+    DONE = &quot;done&quot;
+    FAILED = &quot;failed&quot;
+
+class AgentRole(Enum):
+    GENERIC = &quot;generic&quot;           # plain tasks: entry
+    TEST_WRITER = &quot;test_writer&quot;   # writes pytest tests + stub module
+    TEST_REVIEWER = &quot;test_reviewer&quot;  # reads tests, writes review file
+    IMPLEMENTER = &quot;implementer&quot;   # implements until tests pass
+
+@dataclass
+class TaskState:
+    status: TaskStatus = TaskStatus.PENDING
+    worktree_path: Path | None = None
+    branch_name: str | None = None
+    tmux_session: str | None = None
+    pane_id: str | None = None        # tmux pane ID e.g. &quot;%3&quot; — stable, never renumbered
+    pr_url: str | None = None
+    result: Any = None
+    error: str | None = None
+    retries: int = 0
+
+@dataclass(frozen=True)
+class AgentTask:
+    id: str
+    description: str
+    dependencies: tuple[str, ...] = field(default_factory=tuple)
+    role: AgentRole = AgentRole.GENERIC     # controls which prompt template is used
+    state: TaskState = field(default_factory=TaskState)
+</code></pre>
+<p><code>AgentTask</code> is frozen (immutable identity); all mutable progress lives in <code>TaskState</code>.
+<code>role</code> defaults to <code>GENERIC</code> — plain <code>tasks:</code> entries are unaffected.</p>
+<p>TDD workflows (test-writer → reviewer → implementer) are expressed as three plain
+<code>AgentTask</code> nodes with explicit roles and dependencies — no special YAML syntax needed.</p>
+<h3 id="tmux-launch">Tmux Launch</h3>
+<pre><code class="language-python">import subprocess, asyncio
+from pathlib import Path
+
+TMUX_SESSION = &quot;agentrelay&quot;
+
+def launch_in_tmux(task: AgentTask) -&gt; str:
+    pane_id = (
+        subprocess.check_output([
+            &quot;tmux&quot;, &quot;new-window&quot;,
+            &quot;-t&quot;, TMUX_SESSION,
+            &quot;-n&quot;, task.id,
+            &quot;-P&quot;, &quot;-F&quot;, &quot;#{pane_id}&quot;,
+            &quot;-c&quot;, str(task.state.worktree_path),
+        ])
+        .decode()
+        .strip()
+    )
+    subprocess.run([&quot;tmux&quot;, &quot;send-keys&quot;, &quot;-t&quot;, pane_id, &quot;claude&quot;, &quot;Enter&quot;])
+    # TODO: wait for Claude to initialize, then send task description
+    # subprocess.run([&quot;tmux&quot;, &quot;send-keys&quot;, &quot;-t&quot;, pane_id, task.description, &quot;Enter&quot;])
+    return pane_id
+
+async def wait_for_sentinel(task: AgentTask, poll_interval: float = 2.0) -&gt; str:
+    sentinel = Path(f&quot;.workflow/signals/{task.id}/.done&quot;)
+    while not sentinel.exists():
+        await asyncio.sleep(poll_interval)
+    return sentinel.read_text()
+</code></pre>
+<p><strong>Note:</strong> <code>pane_id</code> (e.g. <code>%3</code>) is the only stable tmux identifier — window indices renumber when windows close. Always use pane_id for programmatic targeting.</p>
+<h3 id="worktree-creation-python-not-agent">Worktree Creation (Python, not agent)</h3>
+<pre><code class="language-python">def create_worktree(task_id: str, base_branch: str = &quot;main&quot;) -&gt; Path:
+    path = Path(f&quot;worktrees/{task_id}&quot;)
+    branch = f&quot;task/{task_id}&quot;
+    subprocess.run([&quot;git&quot;, &quot;worktree&quot;, &quot;add&quot;, &quot;-b&quot;, branch, str(path), base_branch], check=True)
+    return path
+
+def remove_worktree(path: Path):
+    subprocess.run([&quot;git&quot;, &quot;worktree&quot;, &quot;remove&quot;, str(path)], check=True)
+</code></pre>
+<h2 id="signal-directory-structure">Signal Directory Structure</h2>
+<pre><code>.workflow/
+  signals/
+    task_001/
+      .in-progress     # written at task start
+      .done            # written by agent on success (may include PR URL)
+      .failed          # written by agent on failure
+      .needs-human     # agent hit an ambiguity
+      .needs-review    # done but wants human eyes before downstream tasks start
+</code></pre>
+<p>Signal files should contain a timestamp and brief note, not just be empty.</p>
+<h2 id="typical-task-lifecycle">Typical Task Lifecycle</h2>
+<ol>
+<li>Orchestrator detects task is READY (all deps DONE)</li>
+<li>Python creates git worktree + branch</li>
+<li>Python creates tmux window, launches <code>claude</code> interactively</li>
+<li>Claude Code prompt is sent via <code>send-keys</code></li>
+<li>Agent does work, creates PR, writes <code>.done</code> sentinel</li>
+<li>Orchestrator polls for sentinel, confirms completion</li>
+<li>Orchestrator merges PR (or flags for human review)</li>
+<li>Orchestrator closes tmux pane, removes worktree</li>
+</ol>
+<h2 id="whats-next-incremental-plan">What's Next (Incremental Plan)</h2>
+<ul>
+<li>[ ] Single hardcoded AgentTask — get one agent running end-to-end, sentinel working</li>
+<li>[ ] Two tasks with dependency — work out context passing and polling loop</li>
+<li>[ ] Extract TaskGraph with <code>_refresh_ready()</code> and async dispatch loop</li>
+<li>[ ] Add semaphore for bounded parallelism</li>
+<li>[ ] Automate worktree creation/teardown</li>
+<li>[ ] Add trust-prompt automation (<code>Enter</code> keystroke after Claude initializes)</li>
+</ul>
+<h2 id="notes">Notes</h2>
+<ul>
+<li>Keep things simple. Add abstraction only when you feel real friction, not anticipated friction.</li>
+<li>The orchestrator is single-threaded async — no locks needed on TaskState.</li>
+<li>For CPU-heavy work use <code>asyncio.run_in_executor()</code>; LLM calls are pure I/O so plain async is fine.</li>
+<li>When prompting agents, pass dep results via a <code>context.md</code> file in the worktree rather than inlining large content into the prompt string.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

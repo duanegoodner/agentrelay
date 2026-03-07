@@ -1,0 +1,1685 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/archive/v1/HISTORY/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Changelog - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#2026-03-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#taskpaths-field-rename-and-yamljson-nesting-pr-46" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskPaths field rename and YAML/JSON nesting — PR #46
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-src_pathstest_pathsspec_path-into-taskpaths-dataclass-pr-45" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Group src_paths/test_paths/spec_path into TaskPaths dataclass — PR #45
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#demo-yaml-split_tdd_singleyaml-updated-to-three-node-structured-roles-graph-pr-42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Demo YAML: split_tdd_single.yaml updated to three-node structured-roles graph — PR #42
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verbosity-adr-mechanism-pr-41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verbosity / ADR mechanism — PR #41
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-03-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-02
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-02">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#merger-role-and-merge_history-pr-40" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MERGER role and merge_history — PR #40
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-failure-recording-in-merge_historymd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gate failure recording in merge_history.md
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design_concerns-mechanism-pr-39" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        design_concerns mechanism — PR #39
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dispatch-time-path-validation-pr-38" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dispatch-time path validation — PR #38
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec_writer-prompt-_spec_reading_step-and-updated-role-prompts-pr-37" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SPEC_WRITER prompt, _spec_reading_step, and updated role prompts — PR #37
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-03-01" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-01
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-01">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structured-roles-src_pathstest_pathsspec_pathverbosity-spec_writermerger-roles-pr-36" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structured roles, src_paths/test_paths/spec_path/verbosity, SPEC_WRITER/MERGER roles — PR #36
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rename-retriesattempts-task_params-review_on_attempt-pr-35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rename retries→attempts, task_params, review_on_attempt — PR #35
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coverage_threshold-review_model-max_gate_retries-gate-instruction-hardening-pr-34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coverage_threshold, review_model, max_gate_retries, gate instruction hardening — PR #34
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agenttask-structure-completion_gate-agent_index-instructionsmd-channel-pr-33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AgentTask structure — completion_gate, agent_index, instructions.md channel — PR #33
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-02-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-27
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-02-27">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#move-task_contextjson-and-contextmd-to-workflow-pr-32" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Move task_context.json and context.md to .workflow/ — PR #32
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset_graph-skip-git-reset-on-out-of-order-runs-pr-29" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset_graph: skip git reset on out-of-order runs — PR #29
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typed-agenttaskdependencies-and-taskgroup-abc-pr-28" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typed AgentTask.dependencies and TaskGroup ABC — PR #28
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tdd-workflow-agentrole-tddtaskgroup-role-specific-prompts-pr-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TDD workflow: AgentRole, TDDTaskGroup, role-specific prompts — PR #26
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-02-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-26
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-02-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#backlogmd-for-quick-idea-capture-pr-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BACKLOG.md for quick idea capture — PR #25
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#black-isort-formatting-pass-pr-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Black + isort formatting pass — PR #24
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#claudemd-operationsmd-historymd-pixi-run-check-pr-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLAUDE.md, OPERATIONS.md, HISTORY.md, pixi run check — PR #23
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-pr-body-capture-summarymd-pr-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent PR body capture + summary.md — PR #22
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configurable-tmux-session-keep_panes-graph-reset-pr-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configurable tmux session + keep_panes + graph reset — PR #21
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-02-25" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-25
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-02-25">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pixilock-neutralize-and-regenerate-pr-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pixi.lock neutralize-and-regenerate — PR #20
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pixitoml-change-detection-pr-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pixi.toml change detection — PR #19
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-log-capture-sibling-repo-support-target_repo_root-rename-pr-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent log capture + sibling repo support + target_repo_root rename — PR #18
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bypass-dangerously-skip-permissions-dialog-pr-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bypass --dangerously-skip-permissions dialog — PR #17
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-02-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-24
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-02-24">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multi-task-async-graph-dispatch-loop-pr-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-task async graph dispatch loop — PR #14
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull_main-after-merge-pr-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pull_main after merge — PR #11
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflow-gitignored-graph-yaml-convention-pr-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .workflow/ gitignored; graph YAML convention — PR #12
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-workflow-timing-fixes-pr-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR workflow + timing fixes — PR #5
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-propagation-in-launch_agent-pr-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PATH propagation in launch_agent — PR #7
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-02-23-2026-02-24-initial-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-02-23 — 2026-02-24 (initial build)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-02-23 — 2026-02-24 (initial build)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#foundation-prs-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Foundation — PRs #1–#3
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="changelog">Changelog</h1>
+<p>Chronological log of features and fixes merged into <code>main</code>. For full detail see
+each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-03">2026-03-03</h2>
+<h3 id="taskpaths-field-rename-and-yamljson-nesting-pr-46"><code>TaskPaths</code> field rename and YAML/JSON nesting — PR #46</h3>
+<p>Renames the three <code>TaskPaths</code> fields to shorter names and aligns the YAML task
+syntax and <code>task_context.json</code> with the Python dataclass structure.</p>
+<ul>
+<li><strong><code>TaskPaths</code> fields renamed</strong>: <code>src_paths→src</code>, <code>test_paths→test</code>, <code>spec_path→spec</code>.</li>
+<li><strong>YAML <code>paths:</code> nesting</strong>: task entries now use a nested <code>paths:</code> block instead of flat
+  keys at the task level:
+  ```yaml
+  paths:
+    src:<ul>
+<li>src/agentrelaydemos/palindrome.py
+spec: specs/palindrome.md
+  ```</li>
+</ul>
+</li>
+<li><strong><code>task_context.json</code> nesting</strong>: <code>write_task_context()</code> and <code>write_merger_task_context()</code>
+  now emit <code>{"paths": {"src": [...], "test": [...], "spec": ...}}</code> matching the YAML shape.</li>
+<li><strong><code>WorktreeTaskRunner</code></strong>: constructor params and <code>self.*</code> attributes renamed accordingly;
+  <code>from_config()</code> reads from the nested <code>paths</code> dict.</li>
+<li><strong><code>CLAUDE.md</code></strong> graph YAML schema updated to show the new nested syntax.</li>
+<li><strong>13 YAML files</strong> in <code>agentrelaydemos/main/graphs/</code> converted to the new format.</li>
+</ul>
+<p>No behaviour changes — purely a naming and structure improvement. 349 tests, <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>, <code>task_launcher.py</code>,
+<code>worktree_task_runner.py</code>.</p>
+<hr />
+<h3 id="group-src_pathstest_pathsspec_path-into-taskpaths-dataclass-pr-45">Group <code>src_paths</code>/<code>test_paths</code>/<code>spec_path</code> into <code>TaskPaths</code> dataclass — PR #45</h3>
+<p>Introduces a <code>TaskPaths</code> frozen dataclass in <code>agent_task.py</code> to group the three path
+fields, then moves <code>AgentTask.src_paths</code>, <code>.test_paths</code>, and <code>.spec_path</code> under a single
+<code>paths: TaskPaths</code> attribute.</p>
+<ul>
+<li><strong><code>TaskPaths(src_paths, test_paths, spec_path)</code></strong> (new frozen dataclass): groups the
+  three path fields with the same types and defaults as before.</li>
+<li><strong><code>AgentTask.paths: TaskPaths</code></strong> replaces the three flat fields; all access sites
+  updated to <code>task.paths.src_paths</code>, <code>task.paths.test_paths</code>, <code>task.paths.spec_path</code>.</li>
+<li><strong><code>AgentTaskGraphBuilder.from_yaml()</code></strong> updated: still reads flat YAML keys
+  (<code>src_paths:</code>, <code>test_paths:</code>, <code>spec_path:</code>) and wraps them in <code>TaskPaths(...)</code>.</li>
+<li><strong><code>write_task_context()</code></strong> and <strong><code>WorktreeTaskRunner.from_config()</code></strong> unchanged at the
+  JSON level (flat keys preserved in this PR; nested in PR #46).</li>
+</ul>
+<p>349 tests, <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>, <code>task_launcher.py</code>,
+<code>worktree_task_runner.py</code>.</p>
+<hr />
+<h3 id="demo-yaml-split_tdd_singleyaml-updated-to-three-node-structured-roles-graph-pr-42">Demo YAML: <code>split_tdd_single.yaml</code> updated to three-node structured-roles graph — PR #42</h3>
+<p>Replaces the two-node split-TDD demo in <code>agentrelaydemos</code> with a three-node pipeline
+that exercises the full set of structured-role features added in PRs #36–#41.</p>
+<ul>
+<li><strong><code>graphs/split_tdd_single.yaml</code></strong> (in <code>agentrelaydemos</code>): three tasks —
+  <code>write_roman_spec</code> (<code>role: spec_writer</code>), <code>write_roman_tests</code> (<code>role: test_writer</code>),
+  <code>impl_roman</code> (<code>role: implementer</code>).</li>
+<li><strong>Features exercised:</strong> <code>role:</code> key on plain tasks, <code>src_paths</code>/<code>test_paths</code> as
+  structured lists, spec-in-source (docstrings as authoritative spec, no separate <code>.md</code>),
+  <code>description:</code> omitted on <code>test_writer</code> and <code>implementer</code> tasks, dispatch-time path
+  validation, MERGER agent reviews implementer PR for spec integrity, <code>design_concerns</code>
+  mechanism available to implementer, <code>completion_gate</code> with <code>coverage_threshold: 95</code>,
+  graph-level <code>verbosity: standard</code>.</li>
+<li><strong><code>tdd_group</code> removed:</strong> the new pipeline uses plain tasks with explicit roles instead
+  of the <code>tdd_groups:</code> expansion macro.</li>
+</ul>
+<p><code>pixi run check</code> clean (no agentrelay source changes in this PR).</p>
+<p><strong>Key file:</strong> <code>/data/git/agentrelaydemos/main/graphs/split_tdd_single.yaml</code>.</p>
+<hr />
+<h3 id="verbosity-adr-mechanism-pr-41">Verbosity / ADR mechanism — PR #41</h3>
+<p>When a task's effective verbosity is above <code>"standard"</code>, the agent now writes an
+ADR (Architecture Decision Record) to <code>docs/decisions/{task_id}.md</code> as part of its
+normal commit. The final graph PR body lists all ADRs produced, and
+<code>docs/decisions/index.md</code> is updated on the graph branch before the final PR is
+created.</p>
+<ul>
+<li><strong><code>_adr_step(task, graph) -&gt; str</code></strong> (new, in <code>run_graph.py</code>): returns an empty
+  string when effective verbosity is <code>"standard"</code>; otherwise returns a numbered
+  step instructing the agent to write an ADR at <code>docs/decisions/{task.id}.md</code>
+  with YAML front matter (<code>task_id</code>, <code>graph</code>, <code>role</code>, <code>date</code>, <code>verbosity</code>) and
+  three standard sections (<code>## Context</code>, <code>## Decision</code>, <code>## Consequences</code>). At
+  <code>"educational"</code> verbosity two additional sections are added (<code>## Key Concepts</code>,
+  <code>## Alternatives Considered</code>). Always ends with <code>git add docs/decisions/{task.id}.md</code>.</li>
+<li><strong><code>_effective_verbosity(task, graph) -&gt; str</code></strong>: already present (PR 37 scaffold);
+  now actively used by <code>_adr_step</code>.</li>
+<li><strong>All role prompt builders updated</strong> (<code>_build_spec_writer_prompt</code>,
+  <code>_build_test_writer_prompt</code>, <code>_build_test_reviewer_prompt</code>,
+  <code>_build_implementer_prompt</code>, <code>_build_generic_instructions</code>): each accepts a new
+  optional <code>graph: AgentTaskGraph | None = None</code> parameter and injects <code>_adr_step</code>
+  between the "do the work" step and the "stage, commit, push" step. Step numbers
+  shift accordingly when the ADR step is active.</li>
+<li><strong><code>_build_task_instructions()</code></strong> updated: accepts <code>graph: AgentTaskGraph | None = None</code>
+  and passes it to each role builder.</li>
+<li><strong><code>_run_task()</code></strong> updated: passes <code>graph</code> to <code>_build_task_instructions()</code>.</li>
+<li><strong><code>_run_graph_loop()</code></strong> updated: calls <code>write_adr_index_to_graph_branch()</code> before
+  <code>create_final_pr()</code> when all tasks are done.</li>
+<li><strong><code>scan_adr_section(graph_name, target_repo_root) -&gt; str</code></strong> (new, in
+  <code>task_launcher.py</code>): uses <code>git ls-tree</code> to list <code>docs/decisions/*.md</code> on the
+  graph branch and <code>git show</code> to read their YAML front matter; returns a formatted
+  <code>## ADRs produced in this run</code> section for the final PR body (empty string if no
+  ADRs found).</li>
+<li><strong><code>write_adr_index_to_graph_branch(graph_name, target_repo_root, worktrees_root)</code></strong>
+  (new, in <code>task_launcher.py</code>): creates a temporary detached worktree on the graph
+  branch, writes/updates <code>docs/decisions/index.md</code> (a markdown table of all ADR
+  files with task_id, role, date columns), commits, and pushes. Silent no-op when
+  no ADR files are present. Stale worktrees at the index path are cleaned up before
+  and after the operation.</li>
+<li><strong><code>_extract_front_matter_field(content, field) -&gt; str | None</code></strong> (new private
+  helper, in <code>task_launcher.py</code>): parses a YAML front-matter value from a markdown
+  file string; used by <code>scan_adr_section</code> and <code>write_adr_index_to_graph_branch</code>.</li>
+<li><strong><code>create_final_pr()</code></strong> updated: calls <code>scan_adr_section()</code> and appends the ADR
+  listing to the PR body alongside the existing design-concerns section.</li>
+</ul>
+<p>6 new tests (375 total, up from 369). <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>run_graph.py</code>, <code>task_launcher.py</code>, <code>test/test_run_graph.py</code>.</p>
+<hr />
+<h2 id="2026-03-02">2026-03-02</h2>
+<h3 id="merger-role-and-merge_history-pr-40">MERGER role and <code>merge_history</code> — PR #40</h3>
+<p>Before the orchestrator calls <code>gh pr merge</code>, it now launches a MERGER agent to review
+the PR in a tmux pane with CWD = <code>target_repo_root</code>. The agent checks spec integrity
+for IMPLEMENTER PRs, logs findings to a graph-level <code>merge_history.md</code>, and returns
+a verdict. The orchestrator merges only on approval.</p>
+<ul>
+<li><strong><code>_build_merger_prompt(reviewed_task, pr_url, history_path) -&gt; str</code></strong> (new, in
+  <code>run_graph.py</code>): builds instructions for the MERGER agent. For IMPLEMENTER tasks
+  with <code>src_paths</code>, includes a docstring integrity check (verifies docstrings were not
+  materially altered — additive changes OK, changed signatures/Args/Returns/Raises NOT
+  OK). Always instructs the agent to append a <code>## Review: {task_id} — {timestamp}</code>
+  entry to <code>merge_history.md</code> and call <code>mark_done("approved")</code> or
+  <code>mark_done("rejected: {reason}")</code> (never <code>mark_failed</code>).</li>
+<li><strong><code>_launch_merger(reviewed_task, pr_url, graph, tmux_session) -&gt; str</code></strong> (new, in
+  <code>run_graph.py</code>): creates the merger signal dir at
+  <code>.workflow/{graph}/merge_reviews/{task_id}/</code>, writes <code>task_context.json</code> and
+  <code>instructions.md</code>, launches claude in a new tmux pane with CWD = <code>target_repo_root</code>,
+  returns the pane_id.</li>
+<li><strong><code>_run_task()</code></strong> updated: after <code>save_pr_summary</code> and before <code>merge_pr</code>, launches the
+  MERGER, polls for its completion sentinel, reads the verdict, and closes the pane.
+  If the verdict does not start with <code>"approved"</code>, sets status to <code>FAILED</code> and returns
+  without merging.</li>
+<li><strong><code>merge_history_path(graph_name, target_repo_root) -&gt; Path</code></strong> (new, in
+  <code>task_launcher.py</code>): returns <code>.workflow/{graph_name}/merge_history.md</code>.</li>
+<li><strong><code>poll_for_completion_at(signal_dir, poll_interval) -&gt; str</code></strong> (new async, in
+  <code>task_launcher.py</code>): polls an arbitrary <code>signal_dir</code> for <code>.done</code> or <code>.failed</code>;
+  variant of <code>poll_for_completion</code> that accepts a <code>Path</code> directly.</li>
+<li><strong><code>launch_agent_in_dir(cwd, task_id, tmux_session, signal_dir, model) -&gt; str</code></strong> (new,
+  in <code>task_launcher.py</code>): launches a claude agent with a given CWD without requiring a
+  worktree (used by MERGER which runs in <code>target_repo_root</code>).</li>
+<li><strong><code>read_done_note_at(signal_dir) -&gt; str</code></strong> (new, in <code>task_launcher.py</code>): reads line 2
+  of <code>.done</code> from an arbitrary <code>signal_dir</code>; complement to <code>read_done_note</code>.</li>
+<li><strong><code>close_pane_by_id(pane_id) -&gt; str</code></strong> (new, in <code>task_launcher.py</code>): kills a tmux
+  window by pane_id; used to close the MERGER pane after polling completes.</li>
+<li><strong><code>write_merger_task_context(...)</code></strong> (new, in <code>task_launcher.py</code>): writes a minimal
+  <code>task_context.json</code> for the MERGER agent (role=merger, task_id, signal_dir,
+  graph_name, graph_branch, src_paths).</li>
+</ul>
+<p>7 new tests (367 total, up from 360). <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>run_graph.py</code>, <code>task_launcher.py</code>, <code>test/test_run_graph.py</code>.</p>
+<h3 id="gate-failure-recording-in-merge_historymd">Gate failure recording in <code>merge_history.md</code></h3>
+<p>When the orchestrator's completion gate fails, the failure is now appended to the
+graph-level <code>.workflow/{graph}/merge_history.md</code> alongside MERGER review entries,
+making the full PR lifecycle auditable from a single file.</p>
+<ul>
+<li><strong><code>record_gate_failure(task_id, pr_url, gate_cmd, graph_name, target_repo_root)</code></strong>
+  (new, in <code>task_launcher.py</code>): appends a <code>## Gate failure: {task_id} — {ts}</code> section
+  with the PR URL, verdict, and gate command.</li>
+<li><strong><code>_run_task()</code></strong> updated: calls <code>record_gate_failure()</code> in the gate-failure branch,
+  between <code>save_pr_summary</code> and <code>task.state.status = TaskStatus.FAILED</code>.</li>
+</ul>
+<p>2 new tests (369 total, up from 367). <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>task_launcher.py</code>, <code>run_graph.py</code>, <code>test/test_task_launcher.py</code>.</p>
+<hr />
+<h3 id="design_concerns-mechanism-pr-39"><code>design_concerns</code> mechanism — PR #39</h3>
+<p>Agents (primarily IMPLEMENTER) can now record concerns about the spec, tests, or
+architecture during implementation. Concerns accumulate in a per-task
+<code>design_concerns.md</code> file and are surfaced in the final graph PR body.</p>
+<ul>
+<li><strong><code>WorktreeTaskRunner.record_concern(concern: str) -&gt; None</code></strong> (new): appends a
+  timestamped <code>## Concern recorded at {ISO timestamp}</code> entry to
+  <code>$AGENTRELAY_SIGNAL_DIR/design_concerns.md</code>. Creates the signal dir and file if
+  absent. Each call appends — multiple concerns are accumulated in one file.</li>
+<li><strong><code>read_design_concerns(signal_dir: Path) -&gt; str | None</code></strong> (new, in
+  <code>task_launcher.py</code>): returns the stripped file contents if <code>design_concerns.md</code>
+  exists and is non-empty, else <code>None</code>.</li>
+<li><strong><code>create_final_pr()</code></strong> updated: scans <code>.workflow/{graph}/signals/*/design_concerns.md</code>
+  before creating the final PR. If any tasks recorded concerns, a
+  <code>## Design concerns raised during implementation</code> section is appended to the PR
+  body with a <code>### {task_id}</code> subheading per task.</li>
+<li><strong><code>_build_implementer_prompt()</code></strong> updated: step 4 now instructs the agent to call
+  <code>record_concern()</code> for any concerns encountered during implementation (before the
+  commit/push step). Steps 4→5 and 5→6 renumbered accordingly.</li>
+<li><strong><code>_run_task()</code></strong> updated: reads <code>design_concerns.md</code> after gate passes; if
+  concerns exist, calls <code>append_concerns_to_pr()</code> to add them to the task PR body
+  before saving <code>summary.md</code> and merging. On gate failure, <code>summary.md</code> is saved
+  immediately for debugging before the early return.</li>
+<li><strong><code>append_concerns_to_pr(pr_url, concerns)</code></strong> (new, in <code>task_launcher.py</code>):
+  fetches the current task PR body, appends a
+  <code>## Design concerns raised during implementation</code> section, and updates the PR via
+  the GitHub REST API. This ensures concerns appear in the task PR (merged into the
+  graph integration branch) as well as in the final graph PR.</li>
+<li><strong><code>save_pr_summary()</code></strong> call reordered: now called after concerns are appended
+  (when gate passes) so <code>summary.md</code> always reflects the final PR body state.</li>
+</ul>
+<p>9 new tests (360 total, up from 351). <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>worktree_task_runner.py</code>, <code>task_launcher.py</code>, <code>run_graph.py</code>,
+<code>test/test_worktree_task_runner.py</code>, <code>test/test_task_launcher.py</code>.</p>
+<hr />
+<h3 id="dispatch-time-path-validation-pr-38">Dispatch-time path validation — PR #38</h3>
+<p>Adds <code>validate_task_paths(task, worktree_path)</code> to <code>run_graph.py</code>. After a worktree is
+created and before the agent is launched, the orchestrator checks that required files and
+directories are present. This surfaces missing prerequisites (e.g. SPEC_WRITER stubs not
+yet merged) with a clear error message rather than letting an agent fail mid-task.</p>
+<ul>
+<li><strong><code>validate_task_paths(task, worktree_path) -&gt; None</code></strong> (new): role-aware validation:</li>
+<li><code>SPEC_WRITER</code>: parent directory of each <code>src_paths</code> entry must exist; if <code>spec_path</code>
+    is set, its parent directory must also exist.</li>
+<li><code>TEST_WRITER</code>: each <code>src_paths</code> file must exist (stubs from SPEC_WRITER must be
+    merged in); parent directories of <code>test_paths</code> entries must exist.</li>
+<li><code>IMPLEMENTER</code>: each <code>src_paths</code> file must exist; each <code>test_paths</code> file must exist.</li>
+<li><code>MERGER</code>, <code>GENERIC</code>: no validation (pass unconditionally).</li>
+<li>Raises <code>ValueError</code> with a message containing the task id and missing path.</li>
+<li><strong><code>_run_task()</code></strong> updated: calls <code>validate_task_paths</code> after <code>create_worktree()</code> and
+  before <code>write_task_context()</code>. On <code>ValueError</code>, prints the error, sets status to
+  <code>FAILED</code>, and returns (worktree cleanup still runs via the <code>finally</code> block).</li>
+<li><strong><code>test/test_path_validation.py</code></strong> (new): 14 unit tests covering all roles and both
+  the happy path and error cases.</li>
+</ul>
+<h3 id="spec_writer-prompt-_spec_reading_step-and-updated-role-prompts-pr-37">SPEC_WRITER prompt, <code>_spec_reading_step</code>, and updated role prompts — PR #37</h3>
+<p>Implements the prompt-building layer for the structured-roles design. All new prompt
+functions and helpers land in <code>run_graph.py</code>; no behaviour changes to the orchestrator
+loop or data model.</p>
+<ul>
+<li><strong><code>_effective_verbosity(task, graph) -&gt; str</code></strong>: returns <code>task.verbosity or
+  graph.verbosity or "standard"</code>. Scaffolded here for use by PR 6's ADR mechanism.</li>
+<li><strong><code>_spec_reading_step(task) -&gt; str</code></strong>: returns a "Before starting, read…" preamble
+  when <code>task.src_paths</code> or <code>task.spec_path</code> is set; returns <code>""</code> otherwise. Injected
+  into all non-SPEC_WRITER role prompts so agents always read the authoritative spec
+  before acting.</li>
+<li><strong><code>_build_spec_writer_prompt(task, graph_branch) -&gt; str</code></strong> (new): dispatched for
+  <code>AgentRole.SPEC_WRITER</code>. Instructs the agent to create stub files with full
+  Google-style docstrings and <code>raise NotImplementedError</code> bodies, optionally write a
+  supplementary <code>spec_path</code> .md index, verify importability, commit, push, and create
+  a PR. Ends with "Do NOT implement any function or method bodies."</li>
+<li><strong><code>_build_task_instructions()</code></strong>: SPEC_WRITER dispatch added at the top (before
+  TEST_WRITER).</li>
+<li><strong><code>_build_test_writer_prompt()</code></strong> updated: stub-creation step removed (SPEC_WRITER
+  already produced stubs); spec-reading preamble injected; references <code>task.src_paths</code>
+  ("already exist — do NOT create or overwrite them") and <code>task.test_paths</code> when set.</li>
+<li><strong><code>_build_test_reviewer_prompt()</code></strong> updated: spec-reading preamble injected.</li>
+<li><strong><code>_build_implementer_prompt()</code></strong> updated: spec-reading preamble injected; references
+  <code>task.src_paths</code> and <code>task.test_paths</code> when set; adds explicit docstring-preservation
+  instruction ("MUST preserve all existing docstrings … do NOT alter Args/Returns/Raises
+  … docstrings are the specification contract").</li>
+<li><strong><code>_build_generic_instructions()</code></strong> updated: spec-reading preamble injected immediately
+  before "1. Do the work described in your task."</li>
+</ul>
+<p>14 new tests (337 total, up from 323). 2 obsolete TEST_WRITER tests removed
+(old stub-creation assertions no longer apply). <code>pixi run check</code> clean.</p>
+<p><strong>Key file:</strong> <code>run_graph.py</code>.</p>
+<hr />
+<h2 id="2026-03-01">2026-03-01</h2>
+<h3 id="structured-roles-src_pathstest_pathsspec_pathverbosity-spec_writermerger-roles-pr-36">Structured roles, <code>src_paths</code>/<code>test_paths</code>/<code>spec_path</code>/<code>verbosity</code>, <code>SPEC_WRITER</code>/<code>MERGER</code> roles — PR #36</h3>
+<p>Core data model and YAML parser additions for the structured-roles design. No behavior
+changes to existing agents; purely a foundation for subsequent PRs.</p>
+<ul>
+<li><strong><code>AgentRole.SPEC_WRITER</code> and <code>AgentRole.MERGER</code></strong>: two new enum members support
+  the spec-in-source and PR-review workflows described in the design plan.</li>
+<li><strong><code>AgentTask.description</code> optional (default <code>""</code>)</strong>: non-SPEC_WRITER roles can omit
+  the description entirely; role + structured path fields carry the instruction content.</li>
+<li><strong><code>src_paths: tuple[str, ...]</code></strong>: list of source files the task operates on. For
+  SPEC_WRITER: files to create as stubs+docstrings. For IMPLEMENTER: files to fill in.</li>
+<li><strong><code>test_paths: tuple[str, ...]</code></strong>: list of test files. TEST_WRITER creates them;
+  IMPLEMENTER reads them as the test contract.</li>
+<li><strong><code>spec_path: str | None</code></strong>: optional secondary spec <code>.md</code> for cases where the spec
+  can't fit in source comments.</li>
+<li><strong><code>verbosity: str | None</code></strong>: task-level verbosity override (<code>"standard"</code> /
+  <code>"detailed"</code> / <code>"educational"</code>); <code>None</code> means inherit from graph.</li>
+<li><strong><code>AgentTaskGraph.verbosity: str = "standard"</code></strong>: graph-level default verbosity
+  parsed from YAML <code>verbosity:</code> key.</li>
+<li><strong>YAML <code>role:</code> key on plain tasks</strong>: parser now maps <code>role: spec_writer</code> →
+  <code>AgentRole.SPEC_WRITER</code> etc.; invalid values raise <code>KeyError</code> immediately.</li>
+<li><strong><code>task_context.json</code></strong>: <code>write_task_context()</code> serialises all new fields.</li>
+<li><strong><code>WorktreeTaskRunner</code></strong>: <code>from_config()</code> reads <code>src_paths</code>, <code>test_paths</code>,
+  <code>spec_path</code>, and <code>verbosity</code> from <code>task_context.json</code>.</li>
+<li><strong>tdd_groups unchanged</strong>: all new capabilities apply to plain tasks only.</li>
+</ul>
+<p>46 new tests (323 total, up from 277). <code>pixi run check</code> clean.</p>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>task_launcher.py</code>,
+<code>worktree_task_runner.py</code>, <code>test/test_agent_task.py</code>, <code>test/test_agent_task_graph.py</code>,
+<code>test/test_task_launcher.py</code>, <code>test/test_worktree_task_runner.py</code>.</p>
+<hr />
+<h3 id="rename-retriesattempts-task_params-review_on_attempt-pr-35">Rename retries→attempts, <code>task_params</code>, <code>review_on_attempt</code> — PR #35</h3>
+<p>Three design improvements building on PR #34's gate machinery:</p>
+<ul>
+<li><strong>Rename "retries" → "attempts" throughout</strong>: <code>max_gate_retries</code> →
+  <code>max_gate_attempts</code>, <code>DEFAULT_GATE_RETRIES</code> → <code>DEFAULT_GATE_ATTEMPTS</code>,
+  <code>gate_retries.log</code> → <code>gate_attempts.log</code>, <code>merge_pr(retries=6)</code> →
+  <code>merge_pr(attempts=6)</code>. "Attempt 1" is unambiguous; "retry #1" is not
+  (does it mean the first overall try or the second?).</li>
+<li><strong><code>task_params: dict[str, Any]</code></strong> replaces the typed <code>coverage_threshold</code> field.
+  A generic <code>{key}</code> → <code>str(val)</code> substitution dict avoids schema churn for future
+  gate-command parameters. A new <code>_resolve_gate(task)</code> helper in <code>run_graph.py</code>
+  performs the substitution before execution. <code>coverage_threshold</code> moves into
+  <code>task_params</code> in both the YAML and <code>task_context.json</code>. YAML: <code>task_params:
+  {coverage_threshold: 90}</code> (int preserved; coerced to str at substitution time).</li>
+<li><strong><code>review_on_attempt: int = 1</code></strong> delays the self-review subagent until a specific
+  gate attempt. Default <code>1</code> keeps the existing behavior (review before first attempt).
+  Setting <code>review_on_attempt: 2</code> causes the review instruction to appear inside the
+  gate loop instead of before it, worded as "Attempt 2+: before running the gate on
+  attempt 2 or later, spawn a self-review subagent."</li>
+</ul>
+<p>277 tests (up from 270). Demo graphs in <code>agentrelaydemos</code> updated to use
+<code>max_gate_attempts</code> and <code>task_params:</code> blocks.</p>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>,
+<code>task_launcher.py</code>, <code>worktree_task_runner.py</code>.</p>
+<hr />
+<h3 id="coverage_threshold-review_model-max_gate_retries-gate-instruction-hardening-pr-34">coverage_threshold, review_model, max_gate_retries, gate instruction hardening — PR #34</h3>
+<p>Three new optional <code>AgentTask</code> fields extend the <code>completion_gate</code> machinery:</p>
+<ul>
+<li><strong><code>coverage_threshold: int | None</code></strong>: substituted into <code>{coverage_threshold}</code> in the
+  gate command string; <code>run_completion_gate()</code> performs the substitution before exec.</li>
+<li><strong><code>review_model: str | None</code></strong>: model ID for a self-review subagent that the agent
+  spawns after completing its main work; included in <code>instructions.md</code> when set.</li>
+<li><strong><code>max_gate_retries: int | None</code></strong>: per-task override for gate retry count; falls back
+  to the graph-wide <code>max_gate_retries</code> YAML key (default <code>DEFAULT_GATE_RETRIES = 5</code>).</li>
+</ul>
+<p>Gate instruction improvements to prevent agents from ignoring non-zero gate exits:
+- "Exit code is the only accepted truth" paragraph explicitly overrides prior observations.
+- <code>tee</code> + <code>PIPESTATUS[0]</code> pattern captures gate output to <code>gate_last_output.txt</code> while
+  preserving the gate command's exit code through the pipe.
+- Steps use "gate_exit is 0" / "gate_exit is non-zero" language to remove ambiguity.
+- <code>mark_failed()</code> instruction references <code>gate_last_output.txt</code> for post-mortem.</p>
+<p><code>merge_pr()</code> now retries up to 6× (5 s delay) on transient GitHub "not mergeable"
+responses that occur after <code>neutralize_pixi_lock_in_pr</code> pushes a new commit.</p>
+<p><code>WorktreeTaskRunner.record_gate_attempt(n, passed)</code> appends a timestamped JSONL
+entry to <code>gate_retries.log</code> in the signal directory so retry history is auditable.</p>
+<p>270 tests (up from 258). Demo graphs in <code>agentrelaydemos</code>:
+<code>covg_and_retry_single.yaml</code>, <code>covg_and_retry_chained.yaml</code>.</p>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>,
+<code>task_launcher.py</code>, <code>worktree_task_runner.py</code>.</p>
+<hr />
+<h3 id="agenttask-structure-completion_gate-agent_index-instructionsmd-channel-pr-33">AgentTask structure — completion_gate, agent_index, instructions.md channel — PR #33</h3>
+<p>Three coordinated improvements giving <code>AgentTask</code> more structure and reducing
+reliance on large ephemeral f-string prompts:</p>
+<ul>
+<li><strong><code>completion_gate</code></strong>: optional shell command on <code>AgentTask</code> (YAML <code>completion_gate:</code>
+  key). The orchestrator runs it in the worktree after <code>.done</code> is seen but before
+  merging the PR. Non-zero exit marks the task <code>FAILED</code> without merging. The agent
+  also self-validates via a step included in <code>instructions.md</code> (defense-in-depth).</li>
+<li><strong><code>agent_index</code></strong>: monotonically increasing integer assigned at dispatch time.
+  Stored in <code>TaskState</code>, written to <code>task_context.json</code>, shown in log messages as
+  <code>[a{N}]</code>. <code>AgentTaskGraph</code> gains <code>_agent_counter</code> + <code>next_agent_index()</code>.</li>
+<li><strong><code>instructions.md</code> as the sole instruction channel</strong>: all role-specific steps move
+  to a file written in the signal directory before the agent launches. The tmux prompt
+  becomes a minimal bootstrap string. <code>task_context.json</code> is now a rich structured
+  record (<code>role</code>, <code>description</code>, <code>graph_branch</code>, <code>model</code>, <code>completion_gate</code>,
+  <code>agent_index</code>). <code>WorktreeTaskRunner</code> gains the new fields and <code>get_instructions()</code>.</li>
+<li><strong><code>BACKLOG.md</code></strong>: added 5 entries from a review of the original <code>agentrelay</code> project.</li>
+</ul>
+<p>Scope: <code>AgentTask</code> and <code>GENERIC</code> role only. <code>TDDTaskGroup</code> intentionally untouched.</p>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>,
+<code>task_launcher.py</code>, <code>worktree_task_runner.py</code>.</p>
+<hr />
+<h2 id="2026-02-27">2026-02-27</h2>
+<h3 id="move-task_contextjson-and-contextmd-to-workflow-pr-32">Move <code>task_context.json</code> and <code>context.md</code> to <code>.workflow/</code> — PR #32</h3>
+<p>Both orchestration context files are now written under
+<code>.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/</code> instead of the worktree root.</p>
+<ul>
+<li><strong><code>task_context.json</code></strong>: was written to the worktree root (gitignored in target
+  repos); now lives alongside the other signal files (<code>.done</code>, <code>.merged</code>, <code>agent.log</code>,
+  etc.) and persists after worktree cleanup for easier debugging.</li>
+<li><strong><code>context.md</code></strong>: was written to the worktree root with no gitignore entry, causing
+  it to be picked up by <code>git add -A</code> and committed into PRs/<code>main</code>. Now also under
+  <code>.workflow/</code>, so it is automatically gitignored and persists after teardown.</li>
+<li><strong><code>AGENTRELAY_SIGNAL_DIR</code> env var</strong>: exported by <code>launch_agent()</code> to the tmux pane;
+  <code>WorktreeTaskRunner.from_config()</code> reads it to locate <code>task_context.json</code> without
+  needing the worktree path. The <code>worktree_path</code> parameter of <code>from_config()</code> is removed.</li>
+<li><strong><code>WorktreeTaskRunner.get_context()</code></strong>: now reads from <code>self.signal_dir / "context.md"</code>
+  instead of <code>Path.cwd() / "context.md"</code>.</li>
+</ul>
+<p><strong>Key files:</strong> <code>task_launcher.py</code>, <code>worktree_task_runner.py</code>, <code>run_graph.py</code>.</p>
+<hr />
+<h3 id="reset_graph-skip-git-reset-on-out-of-order-runs-pr-29"><code>reset_graph</code>: skip git reset on out-of-order runs — PR #29</h3>
+<p><code>reset_graph.py</code> now automatically skips the <code>git reset --hard</code> + force-push step
+when the recorded <code>start_head</code> is not an ancestor of the current <code>HEAD</code> (i.e. the
+reset would move <code>main</code> forward and re-introduce already-reset commits). All other
+cleanup still runs: open PRs are closed, remote task branches are deleted, leftover
+worktrees are removed, and the <code>.workflow/</code> signal directory is cleared. The warning
+message is updated to communicate that step 2 will be skipped rather than implying
+the user must decide.</p>
+<p><strong>Correct reset order:</strong> most-recently-run graph first (reverse run order).
+<strong>Key file:</strong> <code>reset_graph.py</code>.</p>
+<hr />
+<h3 id="typed-agenttaskdependencies-and-taskgroup-abc-pr-28">Typed <code>AgentTask.dependencies</code> and <code>TaskGroup</code> ABC — PR #28</h3>
+<p>Replaced string-based dependency references with typed object references throughout
+the task model and graph builder.</p>
+<ul>
+<li><strong><code>TaskGroup</code> ABC</strong> added to <code>agent_task.py</code>: abstract frozen dataclass with <code>id</code>,
+  <code>description</code>, and abstract <code>dependency_ids</code> property. Provides a common type for
+  groups that expand to multiple tasks.</li>
+<li><strong><code>AgentTask.dependencies</code></strong> changed from <code>tuple[str, ...]</code> to <code>tuple[AgentTask, ...]</code>;
+  a <code>dependency_ids</code> computed property reconstructs the string tuple when needed. No
+  call sites that already held <code>AgentTask</code> objects are broken.</li>
+<li><strong><code>TDDTaskGroup</code></strong> (in <code>agent_task_graph.py</code>) extends <code>TaskGroup</code> with two typed dep
+  fields: <code>dependencies_single_task: tuple[AgentTask, ...]</code> and
+  <code>dependencies_task_group: tuple[TaskGroup, ...]</code>. Its <code>dependency_ids</code> property
+  concatenates both.</li>
+<li><strong>Topological sort</strong> (<code>_topo_sort</code>, Kahn's algorithm) added to <code>agent_task_graph.py</code>
+  so the builder can construct frozen dataclasses in dependency-first order.</li>
+<li><strong><code>_build_context_content()</code></strong> in <code>run_graph.py</code> simplified: no longer needs the
+  graph as a parameter; iterates <code>task.dependencies</code> directly.</li>
+<li><strong>Tests</strong> updated across <code>test_agent_task.py</code>, <code>test_agent_task_graph.py</code>, and
+  <code>test_run_graph.py</code> — 176 tests total.</li>
+</ul>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>.</p>
+<hr />
+<h3 id="tdd-workflow-agentrole-tddtaskgroup-role-specific-prompts-pr-26">TDD workflow: <code>AgentRole</code>, <code>TDDTaskGroup</code>, role-specific prompts — PR #26</h3>
+<p>Added first-class TDD workflow support via a <code>tdd_groups:</code> YAML key that
+auto-expands a single group entry into three sequential <code>AgentTask</code> objects —
+test-writer, reviewer, and implementer — each dispatched as its own
+worktree-PR-merge cycle.</p>
+<ul>
+<li><strong><code>AgentRole</code></strong> enum (<code>GENERIC</code>, <code>TEST_WRITER</code>, <code>TEST_REVIEWER</code>, <code>IMPLEMENTER</code>)
+  added to <code>agent_task.py</code>. <code>AgentTask</code> gains two new optional fields: <code>role</code>
+  (default <code>GENERIC</code>) and <code>tdd_group_id</code> (default <code>None</code>) — fully
+  backward-compatible with existing plain <code>tasks:</code> graphs.</li>
+<li><strong><code>TDDTaskGroup</code></strong> dataclass added to <code>agent_task_graph.py</code>. It is a
+  transient build-time concept: <code>from_yaml()</code> expands each group into
+  <code>{id}_tests</code>, <code>{id}_review</code>, and <code>{id}_impl</code> <code>AgentTask</code> objects, then
+  discards the group. <code>AgentTaskGraph</code> stays a flat <code>dict[str, AgentTask]</code>.
+  The <code>tasks:</code> YAML key is now optional (a YAML with only <code>tdd_groups:</code> is valid).</li>
+<li><strong>Cross-group dependencies</strong>: a dep string that matches another group's <code>id</code>
+  resolves to <code>{dep}_impl</code> at build time; plain task IDs pass through unchanged.</li>
+<li><strong>Role-specific prompts</strong>: <code>_build_task_prompt()</code> in <code>run_graph.py</code> dispatches
+  to <code>_build_test_writer_prompt</code>, <code>_build_test_reviewer_prompt</code>,
+  <code>_build_implementer_prompt</code>, or <code>_build_generic_prompt</code> based on <code>task.role</code>.
+  Reviewer writes <code>{task.id}.md</code> (e.g. <code>stats_module_review.md</code>); implementer
+  derives the review filename from <code>task.id</code>.</li>
+<li><strong>New test coverage</strong>: new <code>test/test_run_graph.py</code>; additions to
+  <code>test_agent_task.py</code> and <code>test_agent_task_graph.py</code> — 171 tests total.</li>
+</ul>
+<p><strong>Key files:</strong> <code>agent_task.py</code>, <code>agent_task_graph.py</code>, <code>run_graph.py</code>.</p>
+<hr />
+<h2 id="2026-02-26">2026-02-26</h2>
+<h3 id="backlogmd-for-quick-idea-capture-pr-25"><code>BACKLOG.md</code> for quick idea capture — PR #25</h3>
+<p>Added <code>docs/BACKLOG.md</code> — a lightweight place to park ideas immediately without
+interrupting a current task. Three sections: Features, Improvements, Ideas/Maybe.
+Items graduate to <code>HISTORY.md</code> when done. Added a pointer in <code>CLAUDE.md</code> so new
+sessions see it.</p>
+<hr />
+<h3 id="black-isort-formatting-pass-pr-24">Black + isort formatting pass — PR #24</h3>
+<p>Ran <code>pixi run check</code> (introduced in PR #23) across the whole codebase to apply
+<code>black</code> line wrapping, blank-line normalization, and <code>isort</code> import ordering. No
+functional changes — pure formatting.</p>
+<hr />
+<h3 id="claudemd-operationsmd-historymd-pixi-run-check-pr-23"><code>CLAUDE.md</code>, <code>OPERATIONS.md</code>, <code>HISTORY.md</code>, <code>pixi run check</code> — PR #23</h3>
+<p>Three usability improvements landed together:</p>
+<ul>
+<li><strong><code>CLAUDE.md</code></strong> at repo root: concise project reference auto-loaded by Claude Code
+  at session start — commands, module map, signal files, YAML keys, and links to
+  detailed docs.</li>
+<li><strong><code>pixi run check</code></strong>: one command for format + typecheck + test — the canonical
+  pre-PR verification step.</li>
+<li><strong><code>docs/OPERATIONS.md</code></strong>: day-to-day running guide (running a graph, reading
+  results, resetting after a run, common failure modes).</li>
+<li><strong><code>docs/HISTORY.md</code></strong>: per-PR development log covering all 23 PRs to that point.</li>
+</ul>
+<hr />
+<h3 id="agent-pr-body-capture-summarymd-pr-22">Agent PR body capture + <code>summary.md</code> — PR #22</h3>
+<p>Agents are now prompted to write a real <code>## Summary</code> / <code>## Files changed</code> PR body
+instead of the placeholder <code>"Automated task."</code>. Before merging, the orchestrator
+fetches the body via <code>gh pr view --json body</code> and writes it to
+<code>.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/summary.md</code>. The final status report shows
+the summary path for each completed task.</p>
+<p><strong>Key functions:</strong> <code>save_pr_summary()</code> in <code>task_launcher.py</code>.</p>
+<hr />
+<h3 id="configurable-tmux-session-keep_panes-graph-reset-pr-21">Configurable tmux session + keep_panes + graph reset — PR #21</h3>
+<p>Three related usability improvements:</p>
+<ul>
+<li><strong><code>tmux_session</code></strong> graph YAML field + <code>--tmux-session</code> CLI flag: controls which
+  tmux session agent windows open in (default: <code>"agentrelay"</code>).</li>
+<li><strong><code>keep_panes</code></strong> graph YAML field + <code>--keep-panes</code> CLI flag: suppresses auto-close
+  of agent tmux windows after task completion (useful for debugging).</li>
+<li><strong><code>reset_graph.py</code></strong> module + <code>record_run_start()</code>: <code>python -m agentrelay.reset_graph</code>
+  reads <code>run_info.json</code> (written at graph start) and fully resets the target repo —
+  closes open PRs, <code>git reset --hard</code> + force-push, deletes remote branches,
+  removes worktrees and signal dirs.</li>
+</ul>
+<hr />
+<h2 id="2026-02-25">2026-02-25</h2>
+<h3 id="pixilock-neutralize-and-regenerate-pr-20">pixi.lock neutralize-and-regenerate — PR #20</h3>
+<p>Eliminates pixi.lock merge conflicts when parallel agents both modify <code>pixi.toml</code>.
+Before merging any PR, the orchestrator restores main's current <code>pixi.lock</code> into
+the agent branch (neutralizing the agent's version), then after merging runs
+<code>pixi install</code> and commits the freshly resolved lock file to main.</p>
+<p><strong>Key functions:</strong> <code>neutralize_pixi_lock_in_pr()</code>, <code>commit_pixi_lock_to_main()</code>.</p>
+<hr />
+<h3 id="pixitoml-change-detection-pr-19">pixi.toml change detection — PR #19</h3>
+<p>After merging a PR, the orchestrator checks whether <code>pixi.toml</code> changed (via
+<code>gh pr view --json files</code>). If so, it runs <code>pixi install</code> on the target repo to
+keep the environment in sync.</p>
+<p><strong>Key functions:</strong> <code>pixi_toml_changed_in_pr()</code>, <code>run_pixi_install()</code>.</p>
+<hr />
+<h3 id="agent-log-capture-sibling-repo-support-target_repo_root-rename-pr-18">Agent log capture + sibling repo support + <code>target_repo_root</code> rename — PR #18</h3>
+<ul>
+<li><strong>Agent log capture:</strong> after each task, the orchestrator captures the full tmux
+  pane scrollback and writes it to <code>.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/agent.log</code>.</li>
+<li><strong>Sibling repo support:</strong> <code>AgentTaskGraphBuilder.from_yaml()</code> accepts a
+  <code>target_repo_root</code> override, enabling the orchestrator to drive tasks in a
+  separate sibling repository (e.g. <code>agentrelaydemos</code>).</li>
+<li><strong>Rename:</strong> <code>repo_root</code> → <code>target_repo_root</code> throughout for clarity.</li>
+</ul>
+<hr />
+<h3 id="bypass-dangerously-skip-permissions-dialog-pr-17">Bypass <code>--dangerously-skip-permissions</code> dialog — PR #17</h3>
+<p>Fixed the <code>send_prompt()</code> timing sequence to correctly navigate the Claude Code
+confirmation dialog (Down + Enter) before sending the task prompt.</p>
+<hr />
+<h2 id="2026-02-24">2026-02-24</h2>
+<h3 id="multi-task-async-graph-dispatch-loop-pr-14">Multi-task async graph dispatch loop — PR #14</h3>
+<p>Core orchestrator loop (<code>run_graph.py</code>): loads a YAML graph, resolves task
+dependencies, dispatches ready tasks concurrently via asyncio, polls for
+completion signals, and merges PRs in order. Supports resuming interrupted runs
+(signals persist across restarts).</p>
+<hr />
+<h3 id="pull_main-after-merge-pr-11"><code>pull_main</code> after merge — PR #11</h3>
+<p>After merging a task PR, the orchestrator fast-forwards the local main branch
+(<code>git pull --ff-only</code>) so subsequent tasks branch from the correct HEAD.</p>
+<hr />
+<h3 id="workflow-gitignored-graph-yaml-convention-pr-12"><code>.workflow/</code> gitignored; graph YAML convention — PR #12</h3>
+<p>All runtime state (<code>.workflow/</code>) is gitignored. Graph definitions (<code>graphs/</code>)
+are version-controlled. This keeps the working tree clean and makes graph
+definitions reviewable and reusable.</p>
+<hr />
+<h3 id="pr-workflow-timing-fixes-pr-5">PR workflow + timing fixes — PR #5</h3>
+<p>Agents create their own PRs and write the URL into the <code>.done</code> signal file.
+Fixed timing delays in <code>send_prompt()</code> to ensure Claude finishes initializing
+before the task prompt is sent.</p>
+<hr />
+<h3 id="path-propagation-in-launch_agent-pr-7">PATH propagation in <code>launch_agent</code> — PR #7</h3>
+<p>Exports the orchestrator's <code>PATH</code> into each agent's tmux environment so tools
+like <code>gh</code>, <code>pixi</code>, and <code>claude</code> are available in agent bash subshells.</p>
+<hr />
+<h2 id="2026-02-23-2026-02-24-initial-build">2026-02-23 — 2026-02-24 (initial build)</h2>
+<h3 id="foundation-prs-13">Foundation — PRs #1–#3</h3>
+<ul>
+<li>Project scaffolding: <code>pyproject.toml</code>, <code>pixi.toml</code>, source layout</li>
+<li>Documentation: <code>PROJECT_DESCRIPTION.md</code>, <code>WORKFLOW_DESCRIPTION.md</code>,
+  <code>DESIGN_DECISIONS.md</code>, <code>REPO_SETUP.md</code></li>
+<li>Core infrastructure: <code>AgentTask</code>, <code>AgentTaskGraph</code>, <code>AgentTaskGraphBuilder</code>,
+  <code>WorktreeTaskRunner</code>, <code>task_launcher</code> functions, demo script, initial tests</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

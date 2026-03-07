@@ -1,0 +1,942 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/reviews/2026-03-03-Opus-46-Claude-Code/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Architectural Review: SOLID Analysis & Cleanup Opportunities - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architectural-review-solid-analysis-cleanup-opportunities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architectural Review: SOLID Analysis &amp; Cleanup Opportunities
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="architectural-review-solid-analysis-cleanup-opportunities">Architectural Review: SOLID Analysis &amp; Cleanup Opportunities</h1>
+<h1 id="claude-code-claude-opus-4-6-2026-03-03">Claude Code (claude-opus-4-6) — 2026-03-03</h1>
+<hr />
+<h2 id="part-1-solid-analysis">Part 1: SOLID Analysis</h2>
+<h3 id="executive-summary">Executive Summary</h3>
+<p>The codebase (~2,800 LOC across 7 production files) is well-structured for its current size —
+clean data models, good test coverage, and sensible conventions. But two files dominate
+complexity (<a href="../src/agentrelay/task_launcher.py">task_launcher.py</a> at 1,105 lines and
+<a href="../src/agentrelay/run_graph.py">run_graph.py</a> at 952 lines), and the code is tightly
+coupled to specific external tools (Claude CLI, tmux, git+GitHub). The backlog goal of making
+the agent backend pluggable requires addressing these structural issues first.</p>
+<hr />
+<h3 id="1-srp-task_launcherpy-is-a-god-module">1. SRP: <code>task_launcher.py</code> is a god module</h3>
+<p><a href="../src/agentrelay/task_launcher.py">task_launcher.py</a> has at least 6 distinct
+responsibilities in one flat collection of 30+ functions:</p>
+<table>
+<thead>
+<tr>
+<th>Concern</th>
+<th>Example functions</th>
+<th>Lines (approx)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git worktree/branch ops</td>
+<td><code>create_worktree</code>, <code>remove_worktree</code>, <code>create_graph_branch</code>, <code>pull_main</code>, <code>list_remote_task_branches</code>, <code>reset_target_repo_to_head</code></td>
+<td>~250</td>
+</tr>
+<tr>
+<td>Tmux window management</td>
+<td><code>launch_agent</code>, <code>send_prompt</code>, <code>_wait_for_claude_tui</code>, <code>save_agent_log</code>, <code>close_agent_pane</code></td>
+<td>~170</td>
+</tr>
+<tr>
+<td>GitHub PR operations</td>
+<td><code>create_final_pr</code>, <code>merge_pr</code>, <code>pixi_toml_changed_in_pr</code>, <code>save_pr_summary</code>, <code>append_concerns_to_pr</code></td>
+<td>~200</td>
+</tr>
+<tr>
+<td>Signal file I/O</td>
+<td><code>write_task_context</code>, <code>write_context</code>, <code>write_instructions</code>, <code>write_merged_signal</code>, <code>read_done_note</code>, <code>poll_for_completion</code></td>
+<td>~200</td>
+</tr>
+<tr>
+<td>ADR scanning</td>
+<td><code>scan_adr_section</code>, <code>write_adr_index_to_graph_branch</code>, <code>_extract_front_matter_field</code></td>
+<td>~170</td>
+</tr>
+<tr>
+<td>Run tracking + gates</td>
+<td><code>record_run_start</code>, <code>read_run_info</code>, <code>run_completion_gate</code>, <code>record_gate_failure</code>, <code>neutralize_pixi_lock_in_pr</code>, <code>run_pixi_install</code></td>
+<td>~120</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommendation:</strong> Split into focused modules — <code>git_ops.py</code>, <code>terminal_ops.py</code>,
+<code>github_ops.py</code>, <code>signal_io.py</code>, <code>adr_ops.py</code>. Each module gets its own responsibility
+and can evolve independently.</p>
+<hr />
+<h3 id="2-srp-run_graphpy-mixes-orchestration-with-prompt-generation">2. SRP: <code>run_graph.py</code> mixes orchestration with prompt generation</h3>
+<p><a href="../src/agentrelay/run_graph.py">run_graph.py</a> is ~950 lines, roughly half of which are
+prompt template strings embedded in Python code:</p>
+<ul>
+<li><code>_build_spec_writer_prompt</code> (~75 lines)</li>
+<li><code>_build_test_writer_prompt</code> (~55 lines)</li>
+<li><code>_build_test_reviewer_prompt</code> (~50 lines)</li>
+<li><code>_build_implementer_prompt</code> (~75 lines)</li>
+<li><code>_build_generic_instructions</code> (~100 lines)</li>
+<li><code>_build_merger_prompt</code> (~55 lines)</li>
+</ul>
+<p>Plus helpers: <code>_resolve_gate</code>, <code>_build_context_content</code>, <code>_adr_step</code>, <code>_spec_reading_step</code>,
+<code>_effective_verbosity</code>.</p>
+<p><strong>Recommendation:</strong> Extract to a <code>prompt_builder.py</code> module. The orchestrator loop
+(<code>_run_task</code>, <code>_run_graph_loop</code>, <code>main</code>) stays in <code>run_graph.py</code> as pure coordination logic.
+Prompt-building is already tested independently in
+<a href="../test/test_run_graph.py">test_run_graph.py</a>.</p>
+<hr />
+<h3 id="3-ocp-dip-no-abstraction-boundary-for-the-agent-backend">3. OCP + DIP: No abstraction boundary for the agent backend</h3>
+<p>This is the critical issue for the pluggability goal. The agent launch sequence is hardcoded
+to Claude CLI + tmux across multiple functions:</p>
+<ul>
+<li><a href="../src/agentrelay/task_launcher.py">task_launcher.py</a> <code>launch_agent()</code> — hardcodes <code>tmux new-window</code> + <code>claude --dangerously-skip-permissions</code></li>
+<li><code>_wait_for_claude_tui()</code> — polls for "bypass permissions" text specific to Claude TUI</li>
+<li><code>send_prompt()</code> — uses <code>tmux send-keys</code></li>
+<li><code>save_agent_log()</code> — uses <code>tmux capture-pane</code></li>
+<li><code>close_agent_pane()</code> — uses <code>tmux kill-window</code></li>
+</ul>
+<p>To support Copilot/Codex/Gemini, a protocol-based abstraction is needed:</p>
+<pre><code class="language-python">class AgentHarness(Protocol):
+    &quot;&quot;&quot;Abstraction over how a coding assistant is launched and communicated with.&quot;&quot;&quot;
+
+    def launch(self, task_id: str, cwd: Path, model: str | None,
+               signal_dir: Path, session_name: str) -&gt; str:
+        &quot;&quot;&quot;Launch an agent. Returns an opaque handle for later operations.&quot;&quot;&quot;
+        ...
+
+    def send_prompt(self, handle: str, prompt: str) -&gt; None: ...
+
+    def capture_log(self, handle: str) -&gt; str: ...
+
+    def close(self, handle: str) -&gt; None: ...
+
+    def is_ready(self, handle: str, timeout: float) -&gt; bool: ...
+</code></pre>
+<p><code>ClaudeCodeTmuxHarness</code> implements this with the current tmux+claude logic. A future
+<code>CopilotHarness</code> or <code>CodexHarness</code> implements the same interface with different mechanics.</p>
+<hr />
+<h3 id="4-dip-orchestrator-depends-on-concrete-implementations">4. DIP: Orchestrator depends on concrete implementations</h3>
+<p><a href="../src/agentrelay/run_graph.py">run_graph.py</a> imports 26 concrete functions from
+<code>task_launcher</code> at the top of the file. Any change to how git/tmux/GitHub works requires
+touching both the launcher and the orchestrator. The orchestrator should depend on
+abstractions, not a bag of 26 free functions.</p>
+<p><strong>Recommendation:</strong> Group operations behind protocol-based service objects injected into
+the orchestrator:</p>
+<pre><code class="language-python">@dataclass
+class Orchestrator:
+    graph: AgentTaskGraph
+    harness: AgentHarness          # agent launch/communication
+    vcs: VCSOperations             # git worktree/branch ops
+    code_host: CodeHostOperations  # PR create/merge/view
+    signals: SignalStore           # signal file read/write
+</code></pre>
+<hr />
+<h3 id="5-ocp-adding-a-new-agentrole-requires-modifying-existing-code">5. OCP: Adding a new <code>AgentRole</code> requires modifying existing code</h3>
+<p>The prompt dispatch in <code>run_graph.py</code> is an if/elif chain that must be extended for every
+new role. Similarly, <code>validate_task_paths()</code> has role-specific if/elif chains.</p>
+<p><strong>Recommendation:</strong> Registry dict mapping <code>AgentRole</code> to a prompt builder callable. New roles
+can be registered without modifying existing dispatch code:</p>
+<pre><code class="language-python">PROMPT_BUILDERS: dict[AgentRole, PromptBuilder] = {
+    AgentRole.SPEC_WRITER: build_spec_writer_prompt,
+    AgentRole.TEST_WRITER: build_test_writer_prompt,
+    # ...
+}
+</code></pre>
+<hr />
+<h3 id="6-isp-taskstate-couples-agent-backend-specific-state-into-the-core-model">6. ISP: <code>TaskState</code> couples agent-backend-specific state into the core model</h3>
+<p><a href="../src/agentrelay/agent_task.py">agent_task.py</a> <code>TaskState</code>:</p>
+<pre><code class="language-python">@dataclass
+class TaskState:
+    status: TaskStatus = TaskStatus.PENDING
+    worktree_path: Path | None = None
+    branch_name: str | None = None
+    tmux_session: str | None = None    # tmux-specific
+    pane_id: str | None = None          # tmux-specific
+    pr_url: str | None = None
+    ...
+</code></pre>
+<p><code>tmux_session</code> and <code>pane_id</code> are tmux-specific details that won't apply to other harnesses.
+These should move behind the <code>AgentHarness</code> abstraction — the harness tracks its own handles
+internally, and <code>TaskState</code> retains only orchestrator-level concerns (status, PR URL, retries).</p>
+<hr />
+<h3 id="prioritized-roadmap-solid-only">Prioritized Roadmap (SOLID only)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Change</th>
+<th>SOLID principle</th>
+<th>Why this order</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Extract <code>prompt_builder.py</code> from <code>run_graph.py</code></td>
+<td>SRP</td>
+<td>Pure move, no behavior change; makes run_graph.py readable</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Split <code>task_launcher.py</code> into focused modules</td>
+<td>SRP, ISP</td>
+<td>Prerequisite for introducing protocols</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Define <code>AgentHarness</code> protocol + extract <code>ClaudeCodeTmuxHarness</code></td>
+<td>DIP, OCP</td>
+<td>The pluggability enabler</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Remove tmux-specific fields from <code>TaskState</code></td>
+<td>ISP</td>
+<td>Clean separation once harness exists</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Introduce <code>VCSOperations</code> / <code>CodeHostOperations</code> protocols</td>
+<td>DIP</td>
+<td>Enables non-GitHub hosting</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Registry-based prompt dispatch + path validation</td>
+<td>OCP</td>
+<td>Nice-to-have extensibility</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-2-class-encapsulation-opportunities">Part 2: Class Encapsulation Opportunities</h2>
+<p>Reviewing the codebase through the lens of repeated parameter groups and feature envy
+reveals five clear places where free functions should become classes.</p>
+<hr />
+<h3 id="a-graph_name-target_repo_root-passed-together-16-times">A. <code>(graph_name, target_repo_root)</code> — passed together 16 times</h3>
+<p>This is the biggest offender. Functions across
+<a href="../src/agentrelay/task_launcher.py">task_launcher.py</a> and
+<a href="../src/agentrelay/reset_graph.py">reset_graph.py</a> — <code>pull_graph_branch</code>,
+<code>create_final_pr</code>, <code>record_run_start</code>, <code>read_run_info</code>, <code>list_remote_task_branches</code>,
+<code>delete_local_graph_branch</code>, <code>graph_branch_exists_on_remote</code>, <code>merge_history_path</code>,
+<code>record_gate_failure</code>, <code>scan_adr_section</code>, <code>write_adr_index_to_graph_branch</code>,
+<code>_close_open_prs</code>, <code>_remove_workflow_dir</code> — all take the same pair.</p>
+<p><strong>Missing class:</strong> Something like <code>GraphRepo</code> — initialized with <code>graph_name</code> and
+<code>target_repo_root</code>, with all these operations as methods. This is distinct from
+<code>AgentTaskGraph</code> (the in-memory task DAG); <code>GraphRepo</code> owns the on-disk git/GitHub
+operations for a graph run.</p>
+<hr />
+<h3 id="b-task-graph_branch-graph-the-prompt-builder-trio-6-functions">B. <code>(task, graph_branch, graph)</code> — the prompt builder trio, 6 functions</h3>
+<p>Every <code>_build_*_prompt</code> in <a href="../src/agentrelay/run_graph.py">run_graph.py</a> takes
+<code>(task: AgentTask, graph_branch: str, graph: AgentTaskGraph | None = None)</code> and then calls
+the same helpers (<code>_adr_step</code>, <code>_spec_reading_step</code>, <code>_resolve_gate</code>, <code>_effective_verbosity</code>)
+which read the same fields from <code>task</code> and <code>graph</code>.</p>
+<p><strong>Missing class:</strong> <code>PromptBuilder</code> — initialized with <code>task</code>, <code>graph_branch</code>, and <code>graph</code>.
+Shared helpers become methods. The role-specific builders dispatch via a dict registry.
+This also naturally hosts the role→builder registry from the OCP finding above.</p>
+<hr />
+<h3 id="c-signal_dir-path-constructed-then-passed-10-times">C. <code>signal_dir: Path</code> — constructed, then passed 10+ times</h3>
+<p>The signal dir path <code>target_repo_root / ".workflow" / graph_name / "signals" / task_id</code> is
+computed in the orchestrator and then threaded through to <code>write_context</code>,
+<code>write_instructions</code>, <code>save_agent_log</code>, <code>poll_for_completion_at</code>, <code>read_done_note_at</code>,
+<code>read_design_concerns</code>, <code>save_pr_summary</code>, etc.</p>
+<p>Note: <code>AgentTaskGraph.signal_dir()</code> is already the single source of truth for computing the
+path — the issue is that the operations on that directory are scattered free functions.</p>
+<p><strong>Missing class:</strong> <code>SignalDirectory</code> — wraps a <code>Path</code> and provides the read/write methods.
+Thin, but it eliminates the repeated <code>signal_dir</code> parameter threading and centralizes file
+conventions (<code>.done</code>, <code>.failed</code>, <code>.merged</code>, <code>context.md</code>, <code>instructions.md</code>).</p>
+<hr />
+<h3 id="d-task-agenttask-passed-just-to-read-taskstatepane_id-4-functions">D. <code>task: AgentTask</code> passed just to read <code>task.state.pane_id</code> — 4 functions</h3>
+<ul>
+<li><code>save_agent_log(task, signal_dir)</code> — reads only <code>task.state.pane_id</code></li>
+<li><code>close_agent_pane(task)</code> — reads only <code>task.state.pane_id</code></li>
+<li><code>remove_worktree(task, target_repo_root)</code> — reads only <code>task.state.worktree_path</code> and <code>task.state.branch_name</code></li>
+<li><code>neutralize_pixi_lock_in_pr(task)</code> — reads only <code>task.state.worktree_path</code> and <code>task.state.branch_name</code></li>
+</ul>
+<p>Classic feature envy — these functions want <code>TaskState</code> fields, not the full <code>AgentTask</code>.
+This resolves naturally when tmux/pane operations move into <code>AgentHarness</code> (priority 3 above)
+and worktree operations become methods on a worktree manager. The agent handle replaces
+passing the whole task object.</p>
+<hr />
+<h3 id="e-pr_url-str-threaded-through-5-functions">E. <code>pr_url: str</code> — threaded through 5+ functions</h3>
+<p><code>merge_pr</code>, <code>pixi_toml_changed_in_pr</code>, <code>append_concerns_to_pr</code>, <code>save_pr_summary</code>, and the
+merger prompt builder all take a PR URL and shell out to <code>gh pr ...</code>. A <code>PRHandle</code> class
+(initialized with the URL, and optionally the parsed owner/repo/number) would consolidate
+these and eliminate the URL-parsing duplication.</p>
+<hr />
+<h3 id="updated-prioritized-roadmap-solid-class-encapsulation">Updated Prioritized Roadmap (SOLID + class encapsulation)</h3>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Change</th>
+<th>Addresses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Extract <code>PromptBuilder</code> class from <code>run_graph.py</code></td>
+<td>SRP + Finding B</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Split <code>task_launcher.py</code> into modules, extracting <code>GraphRepo</code> (A), <code>SignalDirectory</code> (C), <code>PRHandle</code> (E)</td>
+<td>SRP + ISP + Findings A/C/E</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Define <code>AgentHarness</code> protocol + extract <code>ClaudeCodeTmuxHarness</code></td>
+<td>DIP + OCP + resolves Finding D</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Remove tmux-specific fields from <code>TaskState</code></td>
+<td>ISP</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>VCSOperations</code> / <code>CodeHostOperations</code> protocols</td>
+<td>DIP</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Registry-based prompt dispatch</td>
+<td>OCP</td>
+</tr>
+</tbody>
+</table>
+<p>Steps 1–2 are pure refactors with no behavior change. The class extractions make step 3
+(the pluggability enabler) much cleaner because the harness protocol boundary is obvious —
+it wraps the tmux functions that were already grouped together.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
