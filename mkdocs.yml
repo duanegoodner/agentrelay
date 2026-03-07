@@ -1,5 +1,6 @@
 site_name: agentrelay
 site_description: Multi-agent orchestration system
+site_url: https://duanegoodner.github.io/agentrelay/
 docs_dir: docs
 
 theme:
@@ -20,6 +21,7 @@ plugins:
 nav:
   - Home: index.md
   - Architecture: ARCHITECTURE.md
+  - Design Diagram: DIAGRAM.md
   - Workflow: WORKFLOW.md
   - Guide: GUIDE.md
   - Changelog: HISTORY.md
