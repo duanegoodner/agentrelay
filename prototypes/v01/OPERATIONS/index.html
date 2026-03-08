@@ -13,6 +13,10 @@
         <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/prototypes/v01/OPERATIONS/">
       
       
+        <link rel="prev" href="../WORKFLOW_DESCRIPTION/">
+      
+      
+        <link rel="next" href="../DESIGN_DECISIONS/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>Operations Guide - agentrelay</title>
+        <title>Operations - agentrelay</title>
       
     
     
@@ -112,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Operations Guide
+              Operations
             
           </span>
         </div>
@@ -343,6 +347,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../../HISTORY/" class="md-nav__link">
         
   
@@ -394,6 +425,338 @@
       
   
   
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#running-a-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running a graph
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running a graph">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#graph-yaml-quick-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph YAML quick reference
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resetting-after-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resetting after a run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common failure modes
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
   
   
     
@@ -405,10 +768,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
         
           
-          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
             
   
   
@@ -426,8 +789,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_8">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -605,17 +968,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#what-to-expect-in-the-terminal" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What to expect in the terminal
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -637,28 +989,6 @@
     <span class="md-ellipsis">
       
         Resetting after a run
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development workflow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pre-pr-verification" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pre-PR verification
       
     </span>
   </a>
@@ -694,31 +1024,29 @@
 
 
 <h1 id="operations-guide">Operations Guide</h1>
-<p>Day-to-day procedures for running and managing agentrelay graphs.</p>
+<p>Day-to-day procedures for running and managing v01 agentrelay graphs.</p>
 <hr />
 <h2 id="running-a-graph">Running a graph</h2>
-<div class="highlight"><pre><span></span><code><span class="c1"># From the orchestrator repo&#39;s main worktree</span>
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml
+<div class="highlight"><pre><span></span><code><span class="c1"># From this repository root</span>
+pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.prototypes.v01.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml
 
-<span class="c1"># Override tmux session (if your tmux session has a different name)</span>
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml<span class="w"> </span>--tmux-session<span class="w"> </span>&lt;session&gt;
+<span class="c1"># Override tmux session</span>
+pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.prototypes.v01.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml<span class="w"> </span>--tmux-session<span class="w"> </span>&lt;session&gt;
 
-<span class="c1"># Keep agent tmux windows open after tasks complete (useful for debugging)</span>
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml<span class="w"> </span>--keep-panes
+<span class="c1"># Keep agent tmux windows open after tasks complete</span>
+pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.prototypes.v01.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml<span class="w"> </span>--keep-panes
 </code></pre></div>
-<p>The graph YAML itself can also set <code>tmux_session:</code> and <code>keep_panes:</code> as defaults —
-see <a href="../CLAUDE.md">CLAUDE.md</a> for the YAML key reference.</p>
+<p>The graph YAML itself can also set <code>tmux_session:</code> and <code>keep_panes:</code> defaults.</p>
 <h3 id="graph-yaml-quick-reference">Graph YAML quick reference</h3>
 <div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-graph</span>
 <span class="nt">target_repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/path/to/target/repo</span>
 <span class="nt">tmux_session</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">agentrelay</span><span class="w">   </span><span class="c1"># optional; default &quot;agentrelay&quot;</span>
-<span class="nt">keep_panes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">                </span><span class="c1"># optional; leave tmux windows open after tasks</span>
+<span class="nt">keep_panes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">          </span><span class="c1"># optional</span>
 
 <span class="nt">tasks</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">setup</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Initial</span><span class="nv"> </span><span class="s">project</span><span class="nv"> </span><span class="s">scaffolding&quot;</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
-<span class="w">  </span><span class="c1"># TDD workflow: three tasks with explicit roles and sequential dependencies</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stats_module_tests</span>
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
 <span class="w">      </span><span class="no">Create src/pkg/stats.py with mean() and median() functions.</span>
@@ -735,25 +1063,10 @@ see <a href="../CLAUDE.md">CLAUDE.md</a> for the YAML key reference.</p>
 <span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implementer</span>
 <span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;stats_module_review&quot;</span><span class="p p-Indicator">]</span>
 </code></pre></div>
-<p>Each TDD task (<code>_tests</code>, <code>_review</code>, <code>_impl</code>) gets its own worktree and PR.</p>
-<h3 id="what-to-expect-in-the-terminal">What to expect in the terminal</h3>
-<div class="highlight"><pre><span></span><code>[graph] starting: demo  target: /data/git/agentrelaydemos/main
-[graph] ready: write_greet_fn
-[graph] dispatching write_greet_fn
-[graph] write_greet_fn done — PR: https://github.com/org/repo/pull/5
-[graph] merging PR for write_greet_fn: https://github.com/org/repo/pull/5
-[graph] write_greet_fn merged
-[graph] main fast-forwarded after write_greet_fn
-[graph] ready: use_greet_fn
-...
-[graph] === final status ===
-  write_greet_fn: done  summary → /data/git/.../signals/write_greet_fn/summary.md
-  use_greet_fn: done  summary → /data/git/.../signals/use_greet_fn/summary.md
-</code></pre></div>
-<p>The <code>summary →</code> line only appears if the agent wrote a non-empty PR body.</p>
+<p>Each task gets its own worktree and PR.</p>
 <hr />
 <h2 id="reading-results">Reading results</h2>
-<p>After a run, each task's artefacts live under:</p>
+<p>After a run, task artifacts are written under:</p>
 <div class="highlight"><pre><span></span><code>&lt;target_repo&gt;/.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/
 </code></pre></div>
 <table>
@@ -770,116 +1083,51 @@ see <a href="../CLAUDE.md">CLAUDE.md</a> for the YAML key reference.</p>
 </tr>
 <tr>
 <td><code>.merged</code></td>
-<td>Timestamp of when the PR was merged</td>
+<td>Timestamp of successful merge</td>
 </tr>
 <tr>
 <td><code>agent.log</code></td>
-<td>Full tmux pane scrollback — everything the agent did</td>
+<td>Full tmux pane scrollback</td>
 </tr>
 <tr>
 <td><code>summary.md</code></td>
-<td>The agent's PR body (Summary + Files changed sections)</td>
+<td>Agent PR body (if available)</td>
 </tr>
 </tbody>
 </table>
-<p>To read a task summary:</p>
-<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>.workflow/demo/signals/write_greet_fn/summary.md
+<p>To view a summary:</p>
+<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/summary.md
 </code></pre></div>
-<p>To tail an agent's live output while it runs:</p>
+<p>To watch live output:</p>
 <div class="highlight"><pre><span></span><code>tmux<span class="w"> </span>attach<span class="w"> </span>-t<span class="w"> </span>agentrelay
-<span class="c1"># navigate to the task&#39;s window to watch it work</span>
 </code></pre></div>
 <hr />
 <h2 id="resetting-after-a-run">Resetting after a run</h2>
-<p>The reset script returns the target repo to exactly the state it was in before
-the graph ran. It reads <code>.workflow/&lt;graph&gt;/run_info.json</code> (written at graph start)
-for the <code>start_head</code> SHA.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># From the orchestrator repo&#39;s main worktree</span>
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml
-
-<span class="c1"># Skip the confirmation prompt</span>
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml<span class="w"> </span>--yes
+<p>The reset script returns the target repo to the <code>start_head</code> recorded in
+<code>.workflow/&lt;graph&gt;/run_info.json</code>.</p>
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.prototypes.v01.reset_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml
+pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.prototypes.v01.reset_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml<span class="w"> </span>--yes
 </code></pre></div>
-<p>The reset:</p>
+<p>Reset performs:</p>
 <ol>
-<li>Closes any open PRs on <code>task/&lt;graph&gt;/*</code> branches</li>
-<li><code>git reset --hard &lt;start_head&gt;</code> + <code>git push --force-with-lease origin main</code></li>
-<li>Deletes remote task branches</li>
-<li>Removes local worktrees under <code>worktrees/&lt;graph&gt;/</code></li>
-<li>Deletes <code>.workflow/&lt;graph&gt;/</code> from the target repo</li>
+<li>Close open PRs on <code>task/&lt;graph&gt;/*</code> and <code>graph/&lt;graph&gt;</code> branches</li>
+<li>Reset <code>main</code> back to <code>start_head</code> and push with <code>--force-with-lease</code> (unless out-of-order reset is detected)</li>
+<li>Delete remote task/graph branches</li>
+<li>Remove local worktrees under <code>worktrees/&lt;graph&gt;/</code></li>
+<li>Remove <code>.workflow/&lt;graph&gt;/</code></li>
 </ol>
-<p><strong>Requirement:</strong> <code>run_info.json</code> must exist (written when the graph starts).
-If it is missing (e.g. the graph crashed before any tasks ran, or was run before
-this feature existed), reset manually by identifying the pre-run HEAD from
-<code>git log</code> and performing the steps above by hand.</p>
-<hr />
-<h2 id="development-workflow">Development workflow</h2>
-<p>The standard process for making changes to agentrelay itself:</p>
-<ol>
-<li>
-<p><strong>Make changes</strong> — edit source, tests, or docs in the local worktree.</p>
-</li>
-<li>
-<p><strong>Commit to a new branch</strong> — create a feature branch and commit:
-   <div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feat/your-feature-name
-git<span class="w"> </span>add<span class="w"> </span>&lt;files&gt;
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: describe the change&quot;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p><strong>Push to remote:</strong>
-   <div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>feat/your-feature-name
-</code></pre></div></p>
-</li>
-<li>
-<p><strong>Create a PR with a checklist</strong> — the PR body should include a test plan
-   checklist that covers both automated and human-verified items. Example:
-   <div class="highlight"><pre><span></span><code>## Test plan
-- [ ] `pixi run check` passes (format, typecheck, tests)
-- [ ] &lt;human-verifiable item, e.g. &quot;new section appears correctly in docs&quot;&gt;
-- [ ] &lt;another human-verifiable item&gt;
-</code></pre></div></p>
-</li>
-<li>
-<p><strong>Go through the checklist together</strong> — Claude Code runs automatable checks
-   directly (e.g. <code>pixi run check</code>); the human verifies items that require
-   judgment or visual inspection.</p>
-</li>
-<li>
-<p><strong>Iterate</strong> — the human describes any needed changes; Claude Code makes them,
-   commits, and pushes. Repeat until the human gives the OK.</p>
-</li>
-<li>
-<p><strong>Merge</strong> — once the human approves, Claude Code merges the PR:
-   <div class="highlight"><pre><span></span><code>gh<span class="w"> </span>pr<span class="w"> </span>merge<span class="w"> </span>&lt;url&gt;<span class="w"> </span>--merge
-</code></pre></div></p>
-</li>
-</ol>
-<hr />
-<h2 id="pre-pr-verification">Pre-PR verification</h2>
-<p>Before creating a PR on agentrelay itself:</p>
-<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>check
-</code></pre></div>
-<p>This runs black + isort + pyright + pytest in one step.</p>
 <hr />
 <h2 id="common-failure-modes">Common failure modes</h2>
-<p><strong>Agent window opens in the wrong tmux session</strong>
-Set <code>tmux_session:</code> in the graph YAML or use <code>--tmux-session</code> on the CLI.</p>
-<p><strong>Agent pane closes before you can inspect it</strong>
-Re-run with <code>--keep-panes</code> or set <code>keep_panes: true</code> in the YAML.</p>
-<p><strong>Task stuck in <code>running</code> state</strong>
-Check <code>agent.log</code> for errors. The agent may have failed to write <code>.done</code> or
-<code>.failed</code>. You can manually write <code>.failed</code> to unblock the orchestrator:
-<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>date<span class="w"> </span>-u<span class="w"> </span>+%FT%TZ<span class="k">)</span><span class="s2">\nmanual abort&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/.failed
-</code></pre></div></p>
-<p><strong>PR merge failed (not mergeable)</strong>
-Usually a pixi.lock conflict if a parallel agent also modified <code>pixi.toml</code>.
-The orchestrator handles this automatically via <code>neutralize_pixi_lock_in_pr</code>.
-If it still fails, check the PR diff and resolve manually.</p>
-<p><strong><code>reset_graph</code> push rejected (<code>--force-with-lease</code> failed)</strong>
-Unrelated commits appeared on <code>origin/main</code> since the graph started. Do not
-force-push over them. Resolve by rebasing or fast-forwarding manually before
-retrying.</p>
+<p><strong>Agent window opens in wrong tmux session</strong>
+Use <code>--tmux-session</code> or set <code>tmux_session:</code> in YAML.</p>
+<p><strong>Pane closes before inspection</strong>
+Use <code>--keep-panes</code>.</p>
+<p><strong>Task appears stuck</strong>
+Inspect <code>agent.log</code>; if needed, write <code>.failed</code> manually in that task's signal directory.</p>
+<p><strong>PR merge not mergeable</strong>
+Commonly a lockfile/content conflict. Review PR diff and rerun/reset as needed.</p>
+<p><strong>Reset rejected (<code>--force-with-lease</code>)</strong>
+New commits landed on <code>origin/main</code> since run start; resolve manually before retrying reset.</p>
 
 
 
