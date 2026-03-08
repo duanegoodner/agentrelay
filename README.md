@@ -1,37 +1,25 @@
 # agentrelay
 
-> **Early development — active work in progress.** Core abstractions are being established; end-to-end execution is not yet functional.
+A Python orchestration system for multi-agent coding workflows. 
 
-A Python orchestration system for multi-agent coding workflows. The goal: define a graph of coding tasks, and have each task executed autonomously by a Claude Code agent in its own tmux pane and git worktree, with the orchestrator managing dependencies and merging results.
+## Description
 
-## Concept
+**agentrelay** allows users to define a collection of interdependent coding tasks as nodes in a graph. Each task specifies its role (e.g., spec writer, test writer, implementer), file paths, and dependencies.  An orchestrator manages the execution order, launching of coding agents that complete the tasks, and merging of results. Communication between the orchestrator and agents is handled primarily through the filesystem. When launching an agent, the orchestrator sends it a minimial prompt indicating where (in the filesystem) to find the task specification. The agent works in isolation, commits its changes, and signals completion by writing to a designated file.
 
-Each task in the graph specifies what work to do (role, file paths, description) and how to do it (AI framework, model, execution environment). The orchestrator runs tasks in dependency order — each agent works in isolation, commits its output, and signals completion. The orchestrator merges results.
+## Status
 
-Task roles:
+An end-to-end prototype implemented in `./src/agentrelay/prototypes/v01/` loads YAML-defined graph, launches tmux-backed Claude Code agents to work on tasks in isolated git worktrees, and merges results via PRs. The prototype supports TDD workflows with distinct `test_writer`, `test_reviewer`, and `implementer` roles.
 
-| Role | Purpose |
-|------|---------|
-| `generic` | General-purpose coding task |
-| `spec_writer` | Writes a specification document |
-| `test_writer` | Writes tests and a stub implementation |
-| `test_reviewer` | Reviews and approves tests |
-| `implementer` | Implements code to pass the tests |
+Current work is focused on formalizing interfaces for the core abstractions that emerged during prototyping and re-building the tmux + Claude Code workflow as implementations of those interfaces. Future work will extend support to cloud environments and additional agent frameworks.
 
-The `test_writer → test_reviewer → implementer` sequence supports a TDD workflow.
 
-## Current state
+## Documentation
+See https://duanegoodner.github.io/agentrelay/
 
-The core data model is in place and well-tested:
 
-- `Task` — frozen specification of a unit of work (id, role, paths, dependencies, agent config)
-- `TaskRuntime` — mutable execution envelope (status, worktree path, PR URL, agent handle)
-- `Agent` / `TmuxAgent` — abstract and concrete types for running agent instances
-- `AgentEnvironment` / `TmuxEnvironment` — pluggable execution environment config
+## Getting Started
 
-118 tests cover the current architecture; 349 more cover the v1 prototype. The orchestrator, agent launch, graph loading, and worktree management are under active development.
-
-## Requirements
+### Requirements
 
 - Python 3.12+
 - [pixi](https://pixi.sh)
@@ -39,7 +27,7 @@ The core data model is in place and well-tested:
 - tmux
 - [Claude Code](https://github.com/anthropics/claude-code)
 
-## Installation
+### Installation
 
 ```bash
 git clone https://github.com/duanegoodner/agentrelay.git
@@ -48,7 +36,7 @@ pixi install
 pixi run check   # format + typecheck + tests
 ```
 
-## Development
+### Development
 
 ```bash
 pixi run test        # Run tests
@@ -58,4 +46,4 @@ pixi run check       # All three
 pixi run docs        # Serve docs at http://localhost:8000
 ```
 
-See [docs/GUIDE.md](docs/GUIDE.md) for setup details and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for design overview.
+
