@@ -15,9 +15,9 @@ additional coding-agent frameworks and cloud execution environments.
 
 Implemented today:
 
-- Core architecture types in `src/agentrelay/` (`Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`)
+- Core architecture types in `src/agentrelay/` (`TaskGraph`, `TaskGraphBuilder`, `Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`)
 - A runnable prototype orchestrator in `src/agentrelay/prototypes/v01/`
-- Test coverage for both layers (`467` tests collected)
+- Test coverage for both layers (`493` tests collected)
 
 Not implemented yet in the current architecture layer:
 

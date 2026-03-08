@@ -120,7 +120,9 @@ packages:
 - pypi: ./
   name: agentrelay
   version: 0.1.0
-  sha256: 7d6aa2b0c60508af9893add537d9f2a19180539be137a3af1fe36b7e73802178
+  sha256: 9ff51642db6392b77f8f6d887e56a9b789c8d6801049a9aba0d9c53bb468e4be
+  requires_dist:
+  - pyyaml>=6.0.3,<7
   requires_python: '>=3.12,<3.13'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/babel-2.18.0-pyhcf101f3_1.conda
