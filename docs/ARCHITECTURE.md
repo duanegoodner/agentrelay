@@ -2,80 +2,67 @@
 
 ## Overview
 
-agentrelay is a Python orchestration system for multi-agent coding workflows. The core abstraction is a task graph: a DAG of tasks, each with a description, optional dependencies, and configuration specifying which AI framework and model should execute it.
+`agentrelay` currently has a clean architecture layer plus a legacy prototype layer:
 
-## Current Modules
+- **Current architecture**: `src/agentrelay/`
+- **Prototype reference/runner**: `src/agentrelay/prototypes/v01/`
 
-The current architecture lives at the root of `src/agentrelay/`:
+This page documents the current architecture layer only.
 
-### Core Data Types
+## Implemented Modules
 
-**`task.py`**
-- `Task` — frozen specification of a unit of work (id, role, description, paths, dependencies, completion gate, etc.)
-- `TaskPaths` — file paths a task operates on (src, test, spec)
-- `TaskStatus` — enum for execution state (PENDING, RUNNING, PR_CREATED, PR_MERGED, FAILED)
-- `AgentRole` — enum for task types (GENERIC, SPEC_WRITER, TEST_WRITER, TEST_REVIEWER, IMPLEMENTER)
-- `AgentConfig` — framework + model configuration for executing agents
-- `ReviewConfig` — configuration for self-review before task completion
-- `AgentFramework` — enum for AI platforms (currently CLAUDE_CODE)
-- `AgentVerbosity` — detail level for Architecture Decision Records
+### `task.py` (immutable task specification)
 
-**`environments.py`**
-- `TmuxEnvironment` — dataclass for tmux-based agent execution
-- `AgentEnvironment` — type alias (currently bound to TmuxEnvironment; designed for future extensibility)
-- `AgentEnvironmentT` — TypeVar for generic code working with agent environments
+- `Task`: frozen definition of a unit of work
+- `TaskPaths`: source/test/spec path set for a task
+- `AgentConfig`: framework/model/environment configuration
+- `ReviewConfig`: optional self-review configuration
+- `AgentRole`, `AgentFramework`, `AgentVerbosity`: enums
 
-**`task_runtime.py`**
-- `TaskRuntime` — mutable envelope wrapping a frozen Task with execution state
-- `TaskState` — operational state of a running task (status, worktree path, branch, error, attempt count)
-- `TaskArtifacts` — outputs produced by a task (PR URL, design concerns)
-- `AgentAddress` — abstract base for addressing running agents
-- `TmuxAddress` — concrete address for agents in tmux panes (session + pane_id)
+### `task_runtime.py` (mutable execution envelope)
 
-**`agent.py`**
-- `Agent` — abstract base for live running agent instances
-- `TmuxAgent` — concrete implementation for agents in tmux panes
-- Provides `from_config()` factory (currently stubbed) and `send_kickoff()` for agent initialization
+- `TaskStatus`: runtime status enum (`PENDING`, `RUNNING`, `PR_CREATED`, `PR_MERGED`, `FAILED`)
+- `TaskState`: mutable operational state (worktree path, branch, attempt, errors)
+- `TaskArtifacts`: runtime outputs (PR URL, concerns)
+- `TaskRuntime`: groups immutable `Task` with mutable state/artifacts and optional live `Agent`
 
-### Design Principles
+### `addressing.py` (how to locate running agents)
 
-**Type Safety & Immutability**
-- `Task` is frozen (immutable) — defines work to be done
-- `TaskRuntime` is mutable — tracks execution progress
-- Clear separation: spec (immutable) vs. state (mutable)
+- `AgentAddress`: abstract address contract
+- `TmuxAddress`: concrete `session:pane_id` address
 
-**Pluggability**
-- `AgentEnvironment` is a type alias (not an empty ABC), allowing future environments (cloud agents, subprocess, etc.) to be added without modifying core interfaces
-- `AgentConfig` accepts any AI framework; currently only CLAUDE_CODE is implemented
-- Signal and coordination mechanisms are agent-environment-agnostic
+### `environments.py` (where agents run)
 
-**Simplicity**
-- No frameworks (LangChain, LangGraph, etc.) — direct Python + subprocess
-- File-based coordination (no message queues or APIs)
-- Google-style docstrings throughout for auto-generated documentation
+- `TmuxEnvironment`: frozen config for tmux execution
+- `AgentEnvironment`: type alias (currently `TmuxEnvironment`)
+- `AgentEnvironmentT`: TypeVar bound to `AgentEnvironment`
 
-## Prototype
+### `agent.py` (live agent interface)
 
-The original implementation (`src/agentrelay/prototypes/v01/`) served as a proof-of-concept but lacked clean separation between specs and runtime state. The current architecture replaces it as the primary implementation.
+- `Agent`: abstract base with `send_kickoff()` and `address`
+- `TmuxAgent`: concrete tmux-backed agent type
+- `TmuxAgent.from_config()` and `TmuxAgent.send_kickoff()` are currently stubs (`NotImplementedError`)
 
-See `docs/prototypes/v01/HISTORY.md` for detailed history of the prototype.
+## Design Principles
 
-## Test Coverage
+- **Immutable spec vs mutable runtime**: execution never mutates the task definition.
+- **Pluggable configuration**: framework and environment are explicit config fields.
+- **Narrow interfaces**: `Agent`, `AgentAddress`, and environment typing keep launcher logic decoupled.
 
-All modules are comprehensively tested (467 tests). Tests live in `test/` (current implementation) and `test/prototypes/v01/` (reference tests for the prototype).
+## Execution Boundary (What Is Not Implemented Here Yet)
 
-## Future Extensibility
+The current architecture layer does not yet include a real orchestrator/launcher implementation.
+End-to-end behavior (tmux launch, prompt dispatch, signal polling, PR merge flow) still lives in `src/agentrelay/prototypes/v01/`.
 
-The current architecture is designed to support:
+## Relationship To Prototype v01
 
-- **Multiple agent environments** — beyond tmux (cloud APIs, subprocess, etc.)
-- **Multiple AI frameworks** — beyond Claude Code (Copilot, Codex, etc.)
-- **Rich task metadata** — room to add verbosity levels, ADR generation, cost tracking, etc.
-- **Flexible signaling** — coordination mechanism can evolve without changing core types
+Prototype docs and historical decisions are under `docs/prototypes/v01/`.
+Use those docs for runnable workflow behavior today; use this page for the target architecture model.
 
-These extensions are anticipated but not yet implemented. Decisions will be made only as real needs emerge.
+## Tests
 
-## Design Diagram
+`pixi run pytest --collect-only -q` currently reports **467 tests collected** across current architecture and prototype modules.
 
-See [DIAGRAM.md](DIAGRAM.md) for the current design diagram. That file is updated
-as part of every PR and is the authoritative visual reference for the architecture.
+## Diagram
+
+The class-level design diagram is maintained in [DIAGRAM.md](DIAGRAM.md).

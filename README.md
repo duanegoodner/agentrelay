@@ -1,21 +1,38 @@
 # agentrelay
 
-A Python orchestration system for multi-agent coding workflows. 
-
-## Description
-
-**agentrelay** allows users to define a collection of interdependent coding tasks as nodes in a graph. Each task specifies its role (e.g., spec writer, test writer, implementer), file paths, and dependencies.  An orchestrator manages the execution order, launching of coding agents that complete the tasks, and merging of results. Communication between the orchestrator and agents is handled primarily through the filesystem. When launching an agent, the orchestrator sends it a minimial prompt indicating where (in the filesystem) to find the task specification. The agent works in isolation, commits its changes, and signals completion by writing to a designated file.
+`agentrelay` is a Python orchestration system for multi-agent coding workflows.
+It models work as a dependency graph of tasks and emphasizes observable, file-based coordination.
 
 ## Status
 
-An end-to-end prototype implemented in `./src/agentrelay/prototypes/v01/` loads YAML-defined graph, launches tmux-backed Claude Code agents to work on tasks in isolated git worktrees, and merges results via PRs. The prototype supports TDD workflows with distinct `test_writer`, `test_reviewer`, and `implementer` roles.
+The project is currently split into two layers:
 
-Current work is focused on formalizing interfaces for the core abstractions that emerged during prototyping and re-building the tmux + Claude Code workflow as implementations of those interfaces. Future work will extend support to cloud environments and additional agent frameworks.
+- `src/agentrelay/` (current architecture): core data model and interfaces (`Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`)
+- `src/agentrelay/prototypes/v01/` (working prototype): tmux + git worktree + signal-file orchestration
 
+The core architecture is the long-term direction. End-to-end execution currently lives in `prototypes/v01` while launcher/orchestrator integration is rebuilt around the new interfaces.
 
-## Documentation
-See https://duanegoodner.github.io/agentrelay/
+## Goals
 
+- Orchestrate dependent coding tasks with explicit state transitions
+- Keep agent execution isolated via git worktrees and per-task branches
+- Preserve a durable audit trail of task outcomes via filesystem artifacts
+- Keep framework overhead low and favor debuggable Python primitives
+
+## Design Philosophy
+
+- **Immutable spec, mutable runtime**: `Task` describes work; `TaskRuntime` tracks execution state.
+- **Pluggable execution**: framework and environment are configuration, not hard-coded behavior.
+- **Simple coordination**: files and git are preferred over always-on services.
+- **Incremental evolution**: prove behavior in prototypes, then promote stable abstractions.
+
+## Repository Map
+
+- `src/agentrelay/` - current architecture modules
+- `src/agentrelay/prototypes/v01/` - runnable v01 prototype implementation
+- `test/` - tests for both current architecture and prototype
+- `graphs/` - example graph YAML definitions
+- `docs/` - project docs and mkdocs site source
 
 ## Getting Started
 
@@ -24,8 +41,8 @@ See https://duanegoodner.github.io/agentrelay/
 - Python 3.12+
 - [pixi](https://pixi.sh)
 - git (with worktree support)
-- tmux
-- [Claude Code](https://github.com/anthropics/claude-code)
+- tmux (for prototype execution)
+- [Claude Code](https://github.com/anthropics/claude-code) (for prototype execution)
 
 ### Installation
 
@@ -33,17 +50,20 @@ See https://duanegoodner.github.io/agentrelay/
 git clone https://github.com/duanegoodner/agentrelay.git
 cd agentrelay
 pixi install
-pixi run check   # format + typecheck + tests
 ```
 
-### Development
+### Development Commands
 
 ```bash
-pixi run test        # Run tests
-pixi run typecheck   # Pyright static analysis
+pixi run test        # run tests
+pixi run typecheck   # pyright
 pixi run format      # black + isort
-pixi run check       # All three
-pixi run docs        # Serve docs at http://localhost:8000
+pixi run check       # format + typecheck + tests
+pixi run docs        # serve docs locally
 ```
 
+## Documentation
 
+- Published docs: https://duanegoodner.github.io/agentrelay/
+- Local docs source: `docs/`
+- Prototype workflow/operations docs: `docs/prototypes/v01/`

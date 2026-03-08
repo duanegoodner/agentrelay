@@ -45,6 +45,13 @@ nav:
   - Guide: GUIDE.md
   - Changelog: HISTORY.md
   - Backlog: BACKLOG.md
+  - Prototype v01:
+    - Overview: prototypes/v01/index.md
+    - Workflow Description: prototypes/v01/WORKFLOW_DESCRIPTION.md
+    - Operations: prototypes/v01/OPERATIONS.md
+    - Design Decisions: prototypes/v01/DESIGN_DECISIONS.md
+    - History: prototypes/v01/HISTORY.md
+    - Backlog: prototypes/v01/BACKLOG.md
   - API Reference:
     - task: api/task.md
     - environments: api/environments.md
