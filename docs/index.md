@@ -1,6 +1,15 @@
 # agentrelay
 
-Documentation for the current architecture and the v01 prototype.
+`agentrelay` is a Python orchestration system for multi-agent coding workflows.
+It models work as a dependency graph of tasks and coordinates execution through
+observable artifacts (git branches/worktrees and filesystem signals).
+
+## Project Direction
+
+The project is evolving from a working prototype that implemented a specific
+workflow (Claude Code agents running in tmux) toward a pluggable architecture.
+Current development is focused on making orchestration easier to extend to
+additional coding-agent frameworks and cloud execution environments.
 
 ## Current Scope
 
@@ -17,9 +26,10 @@ Not implemented yet in the current architecture layer:
 
 ## Quick Links
 
-- **[Architecture](ARCHITECTURE.md)** - Current module boundaries and design
+- **[Architecture](ARCHITECTURE.md)** - Core abstractions and design intent
 - **[Workflow](WORKFLOW.md)** - What workflow behavior is implemented today
 - **[Guide](GUIDE.md)** - Setup and common development/prototype commands
+- **[Testing](TESTING.md)** - Test scope and validation commands
 - **[Prototype v01](prototypes/v01/index.md)** - Historical/runnable prototype docs
 - **[API Reference](api/task.md)** - Auto-generated from code
 - **[Changelog](HISTORY.md)** - Main project history

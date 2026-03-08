@@ -9,39 +9,25 @@
 
 This page documents the current architecture layer only.
 
-## Implemented Modules
+This page intentionally tracks architecture at the abstraction level rather than
+by module/file listing. The API reference and design diagram are the source of
+truth for concrete implementation details.
 
-### `task.py` (immutable task specification)
+## Core Abstractions
 
-- `Task`: frozen definition of a unit of work
-- `TaskPaths`: source/test/spec path set for a task
-- `AgentConfig`: framework/model/environment configuration
-- `ReviewConfig`: optional self-review configuration
-- `AgentRole`, `AgentFramework`, `AgentVerbosity`: enums
+- `Task`: immutable specification of a unit of work
+- `TaskRuntime`: mutable execution envelope attached to a `Task`
+- `TaskState`: operational task state (status, worktree/branch, attempts, errors)
+- `TaskArtifacts`: outputs produced during execution (for example PR URL and concerns)
+- `TaskStatus`: lifecycle state enum used by the runtime
+- `Agent`: abstract interface for a live running coding agent
+- `AgentAddress`: abstract location/identity for a running agent
+- `AgentEnvironment`: execution-environment abstraction (currently tmux)
 
-### `task_runtime.py` (mutable execution envelope)
+## Detailed References
 
-- `TaskStatus`: runtime status enum (`PENDING`, `RUNNING`, `PR_CREATED`, `PR_MERGED`, `FAILED`)
-- `TaskState`: mutable operational state (worktree path, branch, attempt, errors)
-- `TaskArtifacts`: runtime outputs (PR URL, concerns)
-- `TaskRuntime`: groups immutable `Task` with mutable state/artifacts and optional live `Agent`
-
-### `addressing.py` (how to locate running agents)
-
-- `AgentAddress`: abstract address contract
-- `TmuxAddress`: concrete `session:pane_id` address
-
-### `environments.py` (where agents run)
-
-- `TmuxEnvironment`: frozen config for tmux execution
-- `AgentEnvironment`: type alias (currently `TmuxEnvironment`)
-- `AgentEnvironmentT`: TypeVar bound to `AgentEnvironment`
-
-### `agent.py` (live agent interface)
-
-- `Agent`: abstract base with `send_kickoff()` and `address`
-- `TmuxAgent`: concrete tmux-backed agent type
-- `TmuxAgent.from_config()` and `TmuxAgent.send_kickoff()` are currently stubs (`NotImplementedError`)
+- API details: [API Reference](api/task.md)
+- Structural view: [DIAGRAM.md](DIAGRAM.md)
 
 ## Design Principles
 
@@ -58,11 +44,3 @@ End-to-end behavior (tmux launch, prompt dispatch, signal polling, PR merge flow
 
 Prototype docs and historical decisions are under `docs/prototypes/v01/`.
 Use those docs for runnable workflow behavior today; use this page for the target architecture model.
-
-## Tests
-
-`pixi run pytest --collect-only -q` currently reports **467 tests collected** across current architecture and prototype modules.
-
-## Diagram
-
-The class-level design diagram is maintained in [DIAGRAM.md](DIAGRAM.md).

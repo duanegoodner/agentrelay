@@ -3,6 +3,8 @@
 `agentrelay` is a Python orchestration system for multi-agent coding workflows.
 It models work as a dependency graph of tasks and emphasizes observable, file-based coordination.
 
+📚 **Full documentation site:** https://duanegoodner.github.io/agentrelay/
+
 ## Status
 
 The project is currently split into two layers:
@@ -61,9 +63,3 @@ pixi run format      # black + isort
 pixi run check       # format + typecheck + tests
 pixi run docs        # serve docs locally
 ```
-
-## Documentation
-
-- Published docs: https://duanegoodner.github.io/agentrelay/
-- Local docs source: `docs/`
-- Prototype workflow/operations docs: `docs/prototypes/v01/`
