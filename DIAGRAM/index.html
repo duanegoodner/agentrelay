@@ -822,6 +822,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/task_graph_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/task/" class="md-nav__link">
         
   
@@ -1050,6 +1078,28 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
+    namespace task_graph_py {
+        class TaskGraph {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            name : str | None
+            +task(task_id) Task
+            +task_ids() tuple[str, ...]
+            +dependency_ids(task_id) tuple[str, ...]
+            +dependent_ids(task_id) tuple[str, ...]
+            +roots() tuple[str, ...]
+            +leaves() tuple[str, ...]
+            +topological_order() tuple[str, ...]
+            +ready_ids(completed_ids, running_ids) tuple[str, ...]
+        }
+    }
+
+    namespace task_graph_builder_py {
+        class TaskGraphBuilder {
+            +from_yaml(path)$ TaskGraph
+            +from_dict(data)$ TaskGraph
+        }
+    }
+
     namespace environments_py {
         class AgentEnvironment {
             &lt;&lt;type alias&gt;&gt;
@@ -1132,6 +1182,9 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     AgentConfig --&gt; AgentFramework : framework
     AgentConfig --&gt; AgentVerbosity : adr_verbosity
     ReviewConfig --&gt; AgentConfig : agent
+    TaskGraph --&gt; Task : contains
+    TaskGraphBuilder --&gt; TaskGraph : builds
+    TaskGraphBuilder --&gt; Task : constructs
     AgentConfig --&gt; AgentEnvironment : environment
     TmuxEnvironment ..|&gt; AgentEnvironment
     TmuxAddress --|&gt; AgentAddress

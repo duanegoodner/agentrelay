@@ -866,6 +866,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/task_graph_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/task/" class="md-nav__link">
         
   
@@ -1072,6 +1100,8 @@ by module/file listing. The API reference and design diagram are the source of
 truth for concrete implementation details.</p>
 <h2 id="core-abstractions">Core Abstractions</h2>
 <ul>
+<li><code>TaskGraph</code>: immutable DAG of <code>Task</code> specifications</li>
+<li><code>TaskGraphBuilder</code>: YAML/dict schema parser that builds validated <code>TaskGraph</code></li>
 <li><code>Task</code>: immutable specification of a unit of work</li>
 <li><code>TaskRuntime</code>: mutable execution envelope attached to a <code>Task</code></li>
 <li><code>TaskState</code>: operational task state (status, worktree/branch, attempts, errors)</li>

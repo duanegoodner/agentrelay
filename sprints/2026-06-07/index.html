@@ -749,6 +749,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../api/task_graph_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../api/task/" class="md-nav__link">
         
   
@@ -956,7 +984,7 @@
 <h2 id="recommended-implementation-order-non-prototype">Recommended implementation order (non-prototype)</h2>
 <ol>
 <li><code>task_graph.py</code>: <code>TaskGraph</code> + validation/query APIs (<code>ready</code>, <code>dependents</code>, topo/cycle checks).</li>
-<li><code>graph_builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
+<li><code>task_graph_builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
 <li><code>runtime_builder.py</code>: initialize <code>TaskRuntime</code> objects from graph.</li>
 <li><code>task_runner.py</code>: one-task lifecycle state machine (<code>PENDING -&gt; RUNNING -&gt; PR_CREATED -&gt; PR_MERGED/FAILED</code>).</li>
 <li><code>orchestrator.py</code>: async dispatch loop + dependency scheduling + resume hooks.</li>
