@@ -15,6 +15,8 @@ truth for concrete implementation details.
 
 ## Core Abstractions
 
+- `TaskGraph`: immutable DAG of `Task` specifications
+- `TaskGraphBuilder`: YAML/dict schema parser that builds validated `TaskGraph`
 - `Task`: immutable specification of a unit of work
 - `TaskRuntime`: mutable execution envelope attached to a `Task`
 - `TaskState`: operational task state (status, worktree/branch, attempts, errors)

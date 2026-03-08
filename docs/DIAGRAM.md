@@ -82,6 +82,28 @@ classDiagram
         }
     }
 
+    namespace task_graph_py {
+        class TaskGraph {
+            <<frozen dataclass>>
+            name : str | None
+            +task(task_id) Task
+            +task_ids() tuple[str, ...]
+            +dependency_ids(task_id) tuple[str, ...]
+            +dependent_ids(task_id) tuple[str, ...]
+            +roots() tuple[str, ...]
+            +leaves() tuple[str, ...]
+            +topological_order() tuple[str, ...]
+            +ready_ids(completed_ids, running_ids) tuple[str, ...]
+        }
+    }
+
+    namespace task_graph_builder_py {
+        class TaskGraphBuilder {
+            +from_yaml(path)$ TaskGraph
+            +from_dict(data)$ TaskGraph
+        }
+    }
+
     namespace environments_py {
         class AgentEnvironment {
             <<type alias>>
@@ -164,6 +186,9 @@ classDiagram
     AgentConfig --> AgentFramework : framework
     AgentConfig --> AgentVerbosity : adr_verbosity
     ReviewConfig --> AgentConfig : agent
+    TaskGraph --> Task : contains
+    TaskGraphBuilder --> TaskGraph : builds
+    TaskGraphBuilder --> Task : constructs
     AgentConfig --> AgentEnvironment : environment
     TmuxEnvironment ..|> AgentEnvironment
     TmuxAddress --|> AgentAddress
