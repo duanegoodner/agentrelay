@@ -54,7 +54,8 @@ nav:
     - History: prototypes/v01/HISTORY.md
     - Backlog: prototypes/v01/BACKLOG.md
   - API Reference:
-    - task: api/task.md
-    - environments: api/environments.md
-    - task_runtime: api/task_runtime.md
     - agent: api/agent.md
+    - environments: api/environments.md
+    - task: api/task.md
+    - task_graph: api/task_graph.md
+    - task_runtime: api/task_runtime.md
