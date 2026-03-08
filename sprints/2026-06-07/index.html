@@ -10,31 +10,27 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/ARCHITECTURE/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-06-07/">
       
       
-        <link rel="prev" href="..">
-      
-      
-        <link rel="next" href="../DIAGRAM/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>Architecture - agentrelay</title>
+        <title>Sprint Notes — 2026-06-07 - agentrelay</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,11 +49,11 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#sprint-notes-2026-06-07" class="md-skip">
           Skip to content
         </a>
       
@@ -96,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -116,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Sprint Notes — 2026-06-07
             
           </span>
         </div>
@@ -194,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -212,7 +208,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -236,37 +232,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
         
   
   
@@ -282,92 +251,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-abstractions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Abstractions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detailed-references" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Detailed References
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#execution-boundary-what-is-not-implemented-here-yet" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Execution Boundary (What Is Not Implemented Here Yet)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#relationship-to-prototype-v01" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relationship To Prototype v01
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -379,7 +262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../DIAGRAM/" class="md-nav__link">
+      <a href="../../DIAGRAM/" class="md-nav__link">
         
   
   
@@ -406,7 +289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../WORKFLOW/" class="md-nav__link">
+      <a href="../../WORKFLOW/" class="md-nav__link">
         
   
   
@@ -433,7 +316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../GUIDE/" class="md-nav__link">
+      <a href="../../GUIDE/" class="md-nav__link">
         
   
   
@@ -460,7 +343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../TESTING/" class="md-nav__link">
+      <a href="../../TESTING/" class="md-nav__link">
         
   
   
@@ -487,7 +370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../HISTORY/" class="md-nav__link">
+      <a href="../../HISTORY/" class="md-nav__link">
         
   
   
@@ -514,7 +397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BACKLOG/" class="md-nav__link">
+      <a href="../../BACKLOG/" class="md-nav__link">
         
   
   
@@ -588,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/" class="md-nav__link">
+      <a href="../../prototypes/v01/" class="md-nav__link">
         
   
   
@@ -616,7 +499,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
         
   
   
@@ -644,7 +527,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/OPERATIONS/" class="md-nav__link">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
         
   
   
@@ -672,7 +555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
         
   
   
@@ -700,7 +583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/HISTORY/" class="md-nav__link">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
         
   
   
@@ -728,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/BACKLOG/" class="md-nav__link">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
         
   
   
@@ -810,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/agent/" class="md-nav__link">
+      <a href="../../api/agent/" class="md-nav__link">
         
   
   
@@ -838,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/environments/" class="md-nav__link">
+      <a href="../../api/environments/" class="md-nav__link">
         
   
   
@@ -866,7 +749,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task/" class="md-nav__link">
+      <a href="../../api/task/" class="md-nav__link">
         
   
   
@@ -894,7 +777,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_graph/" class="md-nav__link">
+      <a href="../../api/task_graph/" class="md-nav__link">
         
   
   
@@ -922,7 +805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_runtime/" class="md-nav__link">
+      <a href="../../api/task_runtime/" class="md-nav__link">
         
   
   
@@ -977,10 +860,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#review-findings-non-prototype-track-highest-impact-first" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Review Findings (non-prototype track, highest impact first)
       
     </span>
   </a>
@@ -988,10 +871,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-abstractions" class="md-nav__link">
+  <a href="#your-specific-questions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core Abstractions
+        Your specific questions
       
     </span>
   </a>
@@ -999,43 +882,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#detailed-references" class="md-nav__link">
+  <a href="#recommended-implementation-order-non-prototype" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Detailed References
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#execution-boundary-what-is-not-implemented-here-yet" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Execution Boundary (What Is Not Implemented Here Yet)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#relationship-to-prototype-v01" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relationship To Prototype v01
+        Recommended implementation order (non-prototype)
       
     </span>
   </a>
@@ -1059,45 +909,59 @@
 
 
 
-<h1 id="architecture">Architecture</h1>
-<h2 id="overview">Overview</h2>
-<p><code>agentrelay</code> currently has a clean architecture layer plus a legacy prototype layer:</p>
+<h1 id="sprint-notes-2026-06-07">Sprint Notes — 2026-06-07</h1>
+<h2 id="review-findings-non-prototype-track-highest-impact-first">Review Findings (non-prototype track, highest impact first)</h2>
+<ol>
+<li>
+<p>The current architecture layer intentionally stops before orchestration, so the core gap is real runtime execution.<br />
+<a href="/data/git/agentrelay/main/docs/WORKFLOW.md:12">docs/WORKFLOW.md:12</a>, <a href="/data/git/agentrelay/main/docs/WORKFLOW.md:16">docs/WORKFLOW.md:16</a>, <a href="/data/git/agentrelay/main/docs/BACKLOG.md:9">docs/BACKLOG.md:9</a></p>
+</li>
+<li>
+<p>Agent launch/kickoff in the non-prototype layer is still stubbed, so an orchestrator cannot yet dispatch real work there.<br />
+<a href="/data/git/agentrelay/main/src/agentrelay/agent.py:83">src/agentrelay/agent.py:83</a>, <a href="/data/git/agentrelay/main/src/agentrelay/agent.py:116">src/agentrelay/agent.py:116</a></p>
+</li>
+<li>
+<p>There is no non-prototype <code>TaskGraph</code>/YAML loader yet; only v01 has that (<code>AgentTaskGraphBuilder</code>).<br />
+<a href="/data/git/agentrelay/main/src/agentrelay/prototypes/v01/agent_task_graph.py:103">src/agentrelay/prototypes/v01/agent_task_graph.py:103</a></p>
+</li>
+<li>
+<p>v01 proves the loop, but it is heavily coupled/monolithic; avoid porting it 1:1 into core.<br />
+<a href="/data/git/agentrelay/main/src/agentrelay/prototypes/v01/run_graph.py:697">src/agentrelay/prototypes/v01/run_graph.py:697</a>, <a href="/data/git/agentrelay/main/src/agentrelay/prototypes/v01/task_launcher.py:135">src/agentrelay/prototypes/v01/task_launcher.py:135</a></p>
+</li>
+</ol>
+<p><code>pixi run test</code> passes (<code>467 passed</code>), so baseline is clean.</p>
+<h2 id="your-specific-questions">Your specific questions</h2>
 <ul>
-<li><strong>Current architecture</strong>: <code>src/agentrelay/</code></li>
-<li><strong>Prototype reference/runner</strong>: <code>src/agentrelay/prototypes/v01/</code></li>
+<li>
+<p><code>TaskGraph</code> next?<br />
+  Yes. Implement it now.</p>
+</li>
+<li>
+<p>YAML -&gt; runtime: <code>TaskGraphBuilder</code> or just <code>TaskBuilder</code>?<br />
+  Use both layers:</p>
+</li>
+<li><code>TaskGraphBuilder</code>: YAML -&gt; validated <code>TaskGraph</code> (IDs, deps, cycle checks, defaults).</li>
+<li>
+<p><code>TaskRuntimeBuilder</code> (or factory): <code>TaskGraph</code> -&gt; <code>dict[str, TaskRuntime]</code>.</p>
+</li>
+<li>
+<p>Should <code>Task</code> run itself?<br />
+  No. Keep <code>Task</code> immutable spec-only (<a href="/data/git/agentrelay/main/src/agentrelay/task.py:145">task.py</a>). Use <code>TaskRunner</code> for execution.</p>
+</li>
+<li>
+<p>Implement <code>Orchestrator</code>?<br />
+  Yes, but as a thin scheduler over <code>TaskRuntime</code>; delegate per-task lifecycle to <code>TaskRunner</code>.</p>
+</li>
 </ul>
-<p>This page documents the current architecture layer only.</p>
-<p>This page intentionally tracks architecture at the abstraction level rather than
-by module/file listing. The API reference and design diagram are the source of
-truth for concrete implementation details.</p>
-<h2 id="core-abstractions">Core Abstractions</h2>
-<ul>
-<li><code>Task</code>: immutable specification of a unit of work</li>
-<li><code>TaskRuntime</code>: mutable execution envelope attached to a <code>Task</code></li>
-<li><code>TaskState</code>: operational task state (status, worktree/branch, attempts, errors)</li>
-<li><code>TaskArtifacts</code>: outputs produced during execution (for example PR URL and concerns)</li>
-<li><code>TaskStatus</code>: lifecycle state enum used by the runtime</li>
-<li><code>Agent</code>: abstract interface for a live running coding agent</li>
-<li><code>AgentAddress</code>: abstract location/identity for a running agent</li>
-<li><code>AgentEnvironment</code>: execution-environment abstraction (currently tmux)</li>
-</ul>
-<h2 id="detailed-references">Detailed References</h2>
-<ul>
-<li>API details: <a href="../api/task/">API Reference</a></li>
-<li>Structural view: <a href="../DIAGRAM/">DIAGRAM.md</a></li>
-</ul>
-<h2 id="design-principles">Design Principles</h2>
-<ul>
-<li><strong>Immutable spec vs mutable runtime</strong>: execution never mutates the task definition.</li>
-<li><strong>Pluggable configuration</strong>: framework and environment are explicit config fields.</li>
-<li><strong>Narrow interfaces</strong>: <code>Agent</code>, <code>AgentAddress</code>, and environment typing keep launcher logic decoupled.</li>
-</ul>
-<h2 id="execution-boundary-what-is-not-implemented-here-yet">Execution Boundary (What Is Not Implemented Here Yet)</h2>
-<p>The current architecture layer does not yet include a real orchestrator/launcher implementation.
-End-to-end behavior (tmux launch, prompt dispatch, signal polling, PR merge flow) still lives in <code>src/agentrelay/prototypes/v01/</code>.</p>
-<h2 id="relationship-to-prototype-v01">Relationship To Prototype v01</h2>
-<p>Prototype docs and historical decisions are under <code>docs/prototypes/v01/</code>.
-Use those docs for runnable workflow behavior today; use this page for the target architecture model.</p>
+<h2 id="recommended-implementation-order-non-prototype">Recommended implementation order (non-prototype)</h2>
+<ol>
+<li><code>task_graph.py</code>: <code>TaskGraph</code> + validation/query APIs (<code>ready</code>, <code>dependents</code>, topo/cycle checks).</li>
+<li><code>graph_builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
+<li><code>runtime_builder.py</code>: initialize <code>TaskRuntime</code> objects from graph.</li>
+<li><code>task_runner.py</code>: one-task lifecycle state machine (<code>PENDING -&gt; RUNNING -&gt; PR_CREATED -&gt; PR_MERGED/FAILED</code>).</li>
+<li><code>orchestrator.py</code>: async dispatch loop + dependency scheduling + resume hooks.</li>
+<li>Adapter layer for side effects (git/worktree, signals, PR, agent launch), then wire <code>TmuxAgent</code> real implementation.</li>
+</ol>
 
 
 
@@ -1147,10 +1011,10 @@ Use those docs for runnable workflow behavior today; use this page for the targe
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
