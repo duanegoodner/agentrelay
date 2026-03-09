@@ -1536,10 +1536,7 @@ work after the module-to-package refactor.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_graph/builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 60</span>
 <span class="normal"> 61</span>
 <span class="normal"> 62</span>
 <span class="normal"> 63</span>
@@ -1613,7 +1610,28 @@ work after the module-to-package refactor.</p>
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
-<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskGraphBuilder</span><span class="p">:</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskGraphBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for constructing :class:`TaskGraph` from validated input specs.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -1649,8 +1667,22 @@ work after the module-to-package refactor.</p>
 <span class="sd">            TaskGraph: Validated immutable task graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">graph</span> <span class="o">=</span> <span class="n">_require_mapping</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">)</span>
-        <span class="n">_reject_unknown_keys</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;tasks&quot;</span><span class="p">})</span>
+        <span class="n">_reject_unknown_keys</span><span class="p">(</span>
+            <span class="n">graph</span><span class="p">,</span>
+            <span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="s2">&quot;workstreams&quot;</span><span class="p">,</span> <span class="s2">&quot;max_workstream_depth&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">_require_non_empty_string</span><span class="p">(</span><span class="n">_read_required</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+        <span class="n">workstreams</span> <span class="o">=</span> <span class="n">_parse_workstreams</span><span class="p">(</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;workstreams&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;graph.workstreams&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">max_workstream_depth</span> <span class="o">=</span> <span class="n">_parse_optional_positive_int</span><span class="p">(</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_workstream_depth&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;graph.max_workstream_depth&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">max_workstream_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_workstream_depth</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="n">task_items</span> <span class="o">=</span> <span class="n">_read_required</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task_items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -1686,10 +1718,14 @@ work after the module-to-package refactor.</p>
                 <span class="n">max_gate_attempts</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">max_gate_attempts</span><span class="p">,</span>
                 <span class="n">primary_agent</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">primary_agent</span><span class="p">,</span>
                 <span class="n">review</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">review</span><span class="p">,</span>
+                <span class="n">workstream_id</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">,</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">TaskGraph</span><span class="o">.</span><span class="n">from_tasks</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">built_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">task_ids</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+            <span class="p">(</span><span class="n">built_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">task_ids</span><span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">workstreams</span><span class="o">=</span><span class="n">workstreams</span><span class="p">,</span>
+            <span class="n">max_workstream_depth</span><span class="o">=</span><span class="n">max_workstream_depth</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -1809,10 +1845,7 @@ work after the module-to-package refactor.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_graph/builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
@@ -1826,7 +1859,10 @@ work after the module-to-package refactor.</p>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse YAML and build a validated :class:`TaskGraph`.</span>
 
@@ -1952,10 +1988,7 @@ work after the module-to-package refactor.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_graph/builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 82</span>
 <span class="normal"> 83</span>
 <span class="normal"> 84</span>
 <span class="normal"> 85</span>
@@ -2007,7 +2040,28 @@ work after the module-to-package refactor.</p>
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
-<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a validated :class:`TaskGraph` from mapping data.</span>
 
@@ -2021,8 +2075,22 @@ work after the module-to-package refactor.</p>
 <span class="sd">        TaskGraph: Validated immutable task graph.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">graph</span> <span class="o">=</span> <span class="n">_require_mapping</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">)</span>
-    <span class="n">_reject_unknown_keys</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;tasks&quot;</span><span class="p">})</span>
+    <span class="n">_reject_unknown_keys</span><span class="p">(</span>
+        <span class="n">graph</span><span class="p">,</span>
+        <span class="s2">&quot;graph&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="s2">&quot;workstreams&quot;</span><span class="p">,</span> <span class="s2">&quot;max_workstream_depth&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">_require_non_empty_string</span><span class="p">(</span><span class="n">_read_required</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">),</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+    <span class="n">workstreams</span> <span class="o">=</span> <span class="n">_parse_workstreams</span><span class="p">(</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;workstreams&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;graph.workstreams&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">max_workstream_depth</span> <span class="o">=</span> <span class="n">_parse_optional_positive_int</span><span class="p">(</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_workstream_depth&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;graph.max_workstream_depth&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_workstream_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">max_workstream_depth</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="n">task_items</span> <span class="o">=</span> <span class="n">_read_required</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="s2">&quot;graph&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">task_items</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
@@ -2058,10 +2126,14 @@ work after the module-to-package refactor.</p>
             <span class="n">max_gate_attempts</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">max_gate_attempts</span><span class="p">,</span>
             <span class="n">primary_agent</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">primary_agent</span><span class="p">,</span>
             <span class="n">review</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">review</span><span class="p">,</span>
+            <span class="n">workstream_id</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">TaskGraph</span><span class="o">.</span><span class="n">from_tasks</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">built_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">task_ids</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+        <span class="p">(</span><span class="n">built_tasks</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">task_ids</span><span class="p">),</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">workstreams</span><span class="o">=</span><span class="n">workstreams</span><span class="p">,</span>
+        <span class="n">max_workstream_depth</span><span class="o">=</span><span class="n">max_workstream_depth</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
