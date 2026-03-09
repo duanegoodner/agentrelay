@@ -1055,6 +1055,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workstream_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workstream_runtime_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream_runtime_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1187,6 +1243,7 @@ truth for concrete implementation details.</p>
 <li><code>TaskGraph</code>: immutable DAG of <code>Task</code> specifications plus workstream metadata</li>
 <li><code>TaskGraphBuilder</code>: YAML/dict schema parser that builds validated <code>TaskGraph</code></li>
 <li><code>TaskRuntimeBuilder</code>: graph-to-runtime initializer for task execution state</li>
+<li><code>WorkstreamRuntimeBuilder</code>: graph-to-runtime initializer for workstream lane state</li>
 <li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>
 <li><code>TaskRunnerIO</code>: side-effect boundary used by <code>TaskRunner</code> (launch/poll/merge/teardown)</li>
 <li><code>WorkstreamSpec</code>: immutable definition of a task workstream lane</li>
@@ -1195,6 +1252,10 @@ truth for concrete implementation details.</p>
 <li><code>TaskState</code>: operational task state (status, worktree/branch, attempts, errors)</li>
 <li><code>TaskArtifacts</code>: outputs produced during execution (for example PR URL and concerns)</li>
 <li><code>TaskStatus</code>: lifecycle state enum used by the runtime</li>
+<li><code>WorkstreamRuntime</code>: mutable execution envelope attached to a <code>WorkstreamSpec</code></li>
+<li><code>WorkstreamState</code>: operational lane state (status, worktree/branch, active task, errors)</li>
+<li><code>WorkstreamArtifacts</code>: outputs produced during lane execution (for example merge PR URL and concerns)</li>
+<li><code>WorkstreamStatus</code>: lifecycle state enum used by workstream runtime</li>
 <li><code>Agent</code>: abstract interface for a live running coding agent</li>
 <li><code>AgentAddress</code>: abstract location/identity for a running agent</li>
 <li><code>AgentEnvironment</code>: execution-environment abstraction (currently tmux)</li>

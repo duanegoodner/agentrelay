@@ -1011,6 +1011,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workstream_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workstream_runtime_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream_runtime_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1250,13 +1306,47 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
-    namespace workstream_py {
+    namespace workstream {
         class WorkstreamSpec {
             &lt;&lt;frozen dataclass&gt;&gt;
             id : str
             parent_workstream_id : str | None
             base_branch : str
             merge_target_branch : str
+        }
+
+        class WorkstreamRuntimeBuilder {
+            +from_graph(graph)$ dict[str, WorkstreamRuntime]
+        }
+
+        class WorkstreamStatus {
+            &lt;&lt;enumeration&gt;&gt;
+            PENDING
+            ACTIVE
+            MERGED
+            FAILED
+        }
+
+        class WorkstreamState {
+            &lt;&lt;mutable dataclass&gt;&gt;
+            status : WorkstreamStatus
+            worktree_path : Path | None
+            branch_name : str | None
+            error : str | None
+            active_task_id : str | None
+        }
+
+        class WorkstreamArtifacts {
+            &lt;&lt;mutable dataclass&gt;&gt;
+            merge_pr_url : str | None
+            concerns : list[str]
+        }
+
+        class WorkstreamRuntime {
+            &lt;&lt;mutable dataclass&gt;&gt;
+            spec : WorkstreamSpec
+            state : WorkstreamState
+            artifacts : WorkstreamArtifacts
         }
     }
 
@@ -1351,6 +1441,8 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     TaskGraphBuilder --&gt; Task : constructs
     TaskRuntimeBuilder --&gt; TaskGraph : reads
     TaskRuntimeBuilder --&gt; TaskRuntime : builds
+    WorkstreamRuntimeBuilder --&gt; TaskGraph : reads
+    WorkstreamRuntimeBuilder --&gt; WorkstreamRuntime : builds
     TaskRunner --&gt; TaskRunnerIO : uses
     TaskRunner --&gt; TaskRuntime : mutates
     TaskRunner --&gt; TaskRunResult : returns
@@ -1367,7 +1459,11 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     TaskRuntime --&gt; Task : task
     TaskRuntime --&gt; TaskState : state
     TaskRuntime --&gt; TaskArtifacts : artifacts
-    TaskRuntime --&gt; Agent : agent (optional)</code></pre>
+    TaskRuntime --&gt; Agent : agent (optional)
+    WorkstreamState --&gt; WorkstreamStatus : status
+    WorkstreamRuntime --&gt; WorkstreamSpec : spec
+    WorkstreamRuntime --&gt; WorkstreamState : state
+    WorkstreamRuntime --&gt; WorkstreamArtifacts : artifacts</code></pre>
 <hr />
 <p><em>PR docs/mkdocs-design: No architectural changes. <code>src/agentrelay/my_package/</code> is a
 docs-only example module demonstrating mkdocstrings; it is not part of the core design.</em></p>
