@@ -37,7 +37,7 @@ truth for concrete implementation details.
 
 ## Detailed References
 
-- API details: [API Reference](api/task.md)
+- API details: [API Reference](api/index.md)
 - Structural view: [DIAGRAM.md](DIAGRAM.md)
 
 ## Design Principles

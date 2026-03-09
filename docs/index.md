@@ -32,6 +32,6 @@ Not implemented yet in the current architecture layer:
 - **[Guide](GUIDE.md)** - Setup and common development/prototype commands
 - **[Testing](TESTING.md)** - Test scope and validation commands
 - **[Prototype v01](prototypes/v01/index.md)** - Historical/runnable prototype docs
-- **[API Reference](api/task.md)** - Auto-generated from code
+- **[API Reference](api/index.md)** - Auto-generated from code
 - **[Changelog](HISTORY.md)** - Main project history
 - **[Backlog](BACKLOG.md)** - Near-term work items

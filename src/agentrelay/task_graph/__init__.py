@@ -1,8 +1,8 @@
-"""Task graph package.
+"""Task graph model and construction surface.
 
-Backward-compatible public exports are provided here so existing imports like
-``from agentrelay.task_graph import TaskGraph, TaskGraphBuilder`` continue to
-work after the module-to-package refactor.
+This package exposes the class-based task-graph API used by orchestration code:
+an immutable ``TaskGraph`` plus ``TaskGraphBuilder`` for loading and validating
+graph definitions. Utility indexing/validation helpers live in submodules.
 """
 
 from agentrelay.task_graph.builder import TaskGraphBuilder

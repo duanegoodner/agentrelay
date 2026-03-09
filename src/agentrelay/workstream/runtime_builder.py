@@ -7,8 +7,12 @@ This module defines :class:`WorkstreamRuntimeBuilder`, which creates initial
 
 from __future__ import annotations
 
-from agentrelay.task_graph import TaskGraph
+from typing import TYPE_CHECKING
+
 from agentrelay.workstream.runtime import WorkstreamRuntime
+
+if TYPE_CHECKING:
+    from agentrelay.task_graph import TaskGraph
 
 
 class WorkstreamRuntimeBuilder:
