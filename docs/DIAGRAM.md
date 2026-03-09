@@ -79,6 +79,7 @@ classDiagram
             max_gate_attempts : int | None
             primary_agent : AgentConfig
             review : ReviewConfig | None
+            workstream_id : str
         }
     }
 
@@ -140,6 +141,16 @@ classDiagram
             <<mutable dataclass>>
             io : TaskRunnerIO
             +run(runtime)$ TaskRunResult [stub]
+        }
+    }
+
+    namespace workstream_py {
+        class WorkstreamSpec {
+            <<frozen dataclass>>
+            id : str
+            parent_workstream_id : str | None
+            base_branch : str
+            merge_target_branch : str
         }
     }
 
@@ -222,6 +233,7 @@ classDiagram
     Task --> TaskPaths : paths
     Task --> AgentConfig : primary_agent
     Task --> ReviewConfig : review (optional)
+    Task ..> WorkstreamSpec : workstream_id (ref)
     AgentConfig --> AgentFramework : framework
     AgentConfig --> AgentVerbosity : adr_verbosity
     ReviewConfig --> AgentConfig : agent

@@ -17,6 +17,7 @@ Enums:
 See also:
     environments: AgentEnvironment (type alias) and environment-specific types.
     task_runtime: TaskStatus (execution state) and mutable runtime types.
+    workstream: WorkstreamSpec for grouping related task execution.
 """
 
 from dataclasses import dataclass, field
@@ -168,6 +169,8 @@ class Task:
             executes this task. Defaults to CLAUDE_CODE.
         review: Optional ReviewConfig for self-review before completion.
             None = no self-review.
+        workstream_id: Identifier of the workstream this task belongs to.
+            Defaults to ``"default"`` for backward compatibility.
     """
 
     id: str
@@ -179,3 +182,4 @@ class Task:
     max_gate_attempts: Optional[int] = None
     primary_agent: AgentConfig = field(default_factory=AgentConfig)
     review: Optional[ReviewConfig] = None
+    workstream_id: str = "default"

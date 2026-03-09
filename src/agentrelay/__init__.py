@@ -8,6 +8,7 @@ Core types:
 - TaskGraphBuilder: YAML/dict -> TaskGraph builder           [task_graph_builder.py]
 - TaskRuntimeBuilder: TaskGraph -> TaskRuntime map builder   [task_runtime_builder.py]
 - TaskRunner: one-task lifecycle state machine               [task_runner.py]
+- WorkstreamSpec: immutable workstream configuration          [workstream.py]
 - Task: frozen specification of a unit of work              [task.py]
 - TaskPaths, AgentConfig, ReviewConfig: config dataclasses  [task.py]
 - AgentRole, AgentFramework, AgentVerbosity: spec enums     [task.py]
