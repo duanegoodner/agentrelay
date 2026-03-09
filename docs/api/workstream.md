@@ -1,1 +1,1 @@
-::: agentrelay.workstream
+::: agentrelay.workstream.workstream

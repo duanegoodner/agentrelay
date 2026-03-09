@@ -19,7 +19,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from agentrelay.workstream import WorkstreamSpec
+from agentrelay.workstream.workstream import WorkstreamSpec
 
 
 class WorkstreamStatus(str, Enum):

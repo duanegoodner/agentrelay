@@ -137,12 +137,6 @@ classDiagram
         }
     }
 
-    namespace workstream_runtime_builder_py {
-        class WorkstreamRuntimeBuilder {
-            +from_graph(graph)$ dict[str, WorkstreamRuntime]
-        }
-    }
-
     namespace task_runner_py {
         class TaskCompletionSignal {
             <<frozen dataclass>>
@@ -176,7 +170,7 @@ classDiagram
         }
     }
 
-    namespace workstream_py {
+    namespace workstream {
         class WorkstreamSpec {
             <<frozen dataclass>>
             id : str
@@ -184,9 +178,11 @@ classDiagram
             base_branch : str
             merge_target_branch : str
         }
-    }
 
-    namespace workstream_runtime_py {
+        class WorkstreamRuntimeBuilder {
+            +from_graph(graph)$ dict[str, WorkstreamRuntime]
+        }
+
         class WorkstreamStatus {
             <<enumeration>>
             PENDING

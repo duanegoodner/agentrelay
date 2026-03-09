@@ -1,1 +1,1 @@
-::: agentrelay.workstream_runtime_builder
+::: agentrelay.workstream.runtime_builder

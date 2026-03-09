@@ -8,7 +8,7 @@ This module defines :class:`WorkstreamRuntimeBuilder`, which creates initial
 from __future__ import annotations
 
 from agentrelay.task_graph import TaskGraph
-from agentrelay.workstream_runtime import WorkstreamRuntime
+from agentrelay.workstream.runtime import WorkstreamRuntime
 
 
 class WorkstreamRuntimeBuilder:
