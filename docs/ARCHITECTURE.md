@@ -18,6 +18,7 @@ truth for concrete implementation details.
 - `TaskGraph`: immutable DAG of `Task` specifications plus workstream metadata
 - `TaskGraphBuilder`: YAML/dict schema parser that builds validated `TaskGraph`
 - `TaskRuntimeBuilder`: graph-to-runtime initializer for task execution state
+- `WorkstreamRuntimeBuilder`: graph-to-runtime initializer for workstream lane state
 - `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`
 - `TaskRunnerIO`: side-effect boundary used by `TaskRunner` (launch/poll/merge/teardown)
 - `WorkstreamSpec`: immutable definition of a task workstream lane
@@ -26,6 +27,10 @@ truth for concrete implementation details.
 - `TaskState`: operational task state (status, worktree/branch, attempts, errors)
 - `TaskArtifacts`: outputs produced during execution (for example PR URL and concerns)
 - `TaskStatus`: lifecycle state enum used by the runtime
+- `WorkstreamRuntime`: mutable execution envelope attached to a `WorkstreamSpec`
+- `WorkstreamState`: operational lane state (status, worktree/branch, active task, errors)
+- `WorkstreamArtifacts`: outputs produced during lane execution (for example merge PR URL and concerns)
+- `WorkstreamStatus`: lifecycle state enum used by workstream runtime
 - `Agent`: abstract interface for a live running coding agent
 - `AgentAddress`: abstract location/identity for a running agent
 - `AgentEnvironment`: execution-environment abstraction (currently tmux)

@@ -7,6 +7,7 @@ Core types:
 - TaskGraph: immutable DAG of Task specs                     [task_graph/graph.py]
 - TaskGraphBuilder: YAML/dict -> TaskGraph builder           [task_graph/builder.py]
 - TaskRuntimeBuilder: TaskGraph -> TaskRuntime map builder   [task_runtime_builder.py]
+- WorkstreamRuntimeBuilder: TaskGraph -> WorkstreamRuntime map builder [workstream_runtime_builder.py]
 - TaskRunner: one-task lifecycle state machine               [task_runner.py]
 - WorkstreamSpec: immutable workstream configuration          [workstream.py]
 - Task: frozen specification of a unit of work              [task.py]
@@ -23,6 +24,10 @@ Core types:
 - TaskState: mutable operational state of a running task    [task_runtime.py]
 - TaskArtifacts: outputs of agent work (pr_url, concerns)   [task_runtime.py]
 - TaskRuntime: mutable envelope with Task, state, artifacts [task_runtime.py]
+- WorkstreamStatus: lane state enum (PENDING -> FAILED)      [workstream_runtime.py]
+- WorkstreamState: mutable operational state of a lane       [workstream_runtime.py]
+- WorkstreamArtifacts: outputs of lane execution             [workstream_runtime.py]
+- WorkstreamRuntime: mutable lane envelope                   [workstream_runtime.py]
 
 See also:
 - prototypes.v01: v1 prototype implementation (reference only)
