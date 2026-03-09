@@ -6,7 +6,7 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-08
 
-### Fix Pylance/pyright config for test files — PR #TBD
+### Fix Pylance/pyright config for test files — PR #63
 
 Updated `[tool.pyright]` in `pyproject.toml`:
 
