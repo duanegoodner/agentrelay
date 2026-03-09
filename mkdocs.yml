@@ -54,14 +54,14 @@ nav:
     - History: prototypes/v01/HISTORY.md
     - Backlog: prototypes/v01/BACKLOG.md
   - API Reference:
-    - agent: api/agent.md
-    - environments: api/environments.md
-    - task: api/task.md
-    - task_graph: api/task_graph.md
-    - task_graph_builder: api/task_graph_builder.md
-    - task_runner: api/task_runner.md
-    - task_runtime: api/task_runtime.md
-    - task_runtime_builder: api/task_runtime_builder.md
-    - workstream: api/workstream.md
-    - workstream_runtime: api/workstream_runtime.md
-    - workstream_runtime_builder: api/workstream_runtime_builder.md
+    - Overview: api/index.md
+    - task: api/core/task.md
+    - environments: api/core/environments.md
+    - task_runner: api/core/task_runner.md
+    - agent: api/agent/index.md
+    - task_graph:
+      - package: api/task_graph/index.md
+      - indexing.py: api/task_graph/indexing.md
+      - validation.py: api/task_graph/validation.md
+    - task_runtime: api/task_runtime/index.md
+    - workstream: api/workstream/index.md
