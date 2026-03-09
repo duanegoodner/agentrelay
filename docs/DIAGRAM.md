@@ -170,13 +170,47 @@ classDiagram
         }
     }
 
-    namespace workstream_py {
+    namespace workstream {
         class WorkstreamSpec {
             <<frozen dataclass>>
             id : str
             parent_workstream_id : str | None
             base_branch : str
             merge_target_branch : str
+        }
+
+        class WorkstreamRuntimeBuilder {
+            +from_graph(graph)$ dict[str, WorkstreamRuntime]
+        }
+
+        class WorkstreamStatus {
+            <<enumeration>>
+            PENDING
+            ACTIVE
+            MERGED
+            FAILED
+        }
+
+        class WorkstreamState {
+            <<mutable dataclass>>
+            status : WorkstreamStatus
+            worktree_path : Path | None
+            branch_name : str | None
+            error : str | None
+            active_task_id : str | None
+        }
+
+        class WorkstreamArtifacts {
+            <<mutable dataclass>>
+            merge_pr_url : str | None
+            concerns : list[str]
+        }
+
+        class WorkstreamRuntime {
+            <<mutable dataclass>>
+            spec : WorkstreamSpec
+            state : WorkstreamState
+            artifacts : WorkstreamArtifacts
         }
     }
 
@@ -271,6 +305,8 @@ classDiagram
     TaskGraphBuilder --> Task : constructs
     TaskRuntimeBuilder --> TaskGraph : reads
     TaskRuntimeBuilder --> TaskRuntime : builds
+    WorkstreamRuntimeBuilder --> TaskGraph : reads
+    WorkstreamRuntimeBuilder --> WorkstreamRuntime : builds
     TaskRunner --> TaskRunnerIO : uses
     TaskRunner --> TaskRuntime : mutates
     TaskRunner --> TaskRunResult : returns
@@ -288,6 +324,10 @@ classDiagram
     TaskRuntime --> TaskState : state
     TaskRuntime --> TaskArtifacts : artifacts
     TaskRuntime --> Agent : agent (optional)
+    WorkstreamState --> WorkstreamStatus : status
+    WorkstreamRuntime --> WorkstreamSpec : spec
+    WorkstreamRuntime --> WorkstreamState : state
+    WorkstreamRuntime --> WorkstreamArtifacts : artifacts
 ```
 
 ---

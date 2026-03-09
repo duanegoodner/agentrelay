@@ -63,3 +63,5 @@ nav:
     - task_runtime: api/task_runtime.md
     - task_runtime_builder: api/task_runtime_builder.md
     - workstream: api/workstream.md
+    - workstream_runtime: api/workstream_runtime.md
+    - workstream_runtime_builder: api/workstream_runtime_builder.md
