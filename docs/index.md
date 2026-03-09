@@ -15,13 +15,14 @@ additional coding-agent frameworks and cloud execution environments.
 
 Implemented today:
 
-- Core architecture types in `src/agentrelay/` (`TaskGraph`, `TaskGraphBuilder`, `TaskRuntimeBuilder`, `Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`)
+- Core architecture types in `src/agentrelay/` (`TaskGraph`, `TaskGraphBuilder`, `TaskRuntimeBuilder`, `TaskRunner`, `Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`)
 - A runnable prototype orchestrator in `src/agentrelay/prototypes/v01/`
 - Test coverage for both layers (`500` tests collected)
 
 Not implemented yet in the current architecture layer:
 
 - A production orchestrator loop
+- `TaskRunner.run(...)` behavior (interface contract exists; execution logic pending)
 - Non-stub `TmuxAgent.from_config()` and `TmuxAgent.send_kickoff()`
 
 ## Quick Links

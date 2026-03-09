@@ -59,5 +59,6 @@ nav:
     - task: api/task.md
     - task_graph: api/task_graph.md
     - task_graph_builder: api/task_graph_builder.md
+    - task_runner: api/task_runner.md
     - task_runtime: api/task_runtime.md
     - task_runtime_builder: api/task_runtime_builder.md
