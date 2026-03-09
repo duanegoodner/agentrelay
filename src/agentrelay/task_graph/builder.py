@@ -25,6 +25,7 @@ from agentrelay.task import (
     TaskPaths,
 )
 from agentrelay.task_graph.graph import TaskGraph
+from agentrelay.workstream import WorkstreamSpec
 
 
 @dataclass(frozen=True)
@@ -41,6 +42,7 @@ class _RawTaskSpec:
         max_gate_attempts: Optional task-specific gate attempts.
         primary_agent: Primary agent configuration.
         review: Optional review configuration.
+        workstream_id: Workstream ID for this task.
     """
 
     id: str
@@ -52,6 +54,7 @@ class _RawTaskSpec:
     max_gate_attempts: Optional[int]
     primary_agent: AgentConfig
     review: Optional[ReviewConfig]
+    workstream_id: str
 
 
 class TaskGraphBuilder:
@@ -90,8 +93,22 @@ class TaskGraphBuilder:
             TaskGraph: Validated immutable task graph.
         """
         graph = _require_mapping(data, "graph")
-        _reject_unknown_keys(graph, "graph", {"name", "tasks"})
+        _reject_unknown_keys(
+            graph,
+            "graph",
+            {"name", "tasks", "workstreams", "max_workstream_depth"},
+        )
         name = _require_non_empty_string(_read_required(graph, "name", "graph"), "name")
+        workstreams = _parse_workstreams(
+            graph.get("workstreams"),
+            "graph.workstreams",
+        )
+        max_workstream_depth = _parse_optional_positive_int(
+            graph.get("max_workstream_depth"),
+            "graph.max_workstream_depth",
+        )
+        if max_workstream_depth is None:
+            max_workstream_depth = 1
 
         task_items = _read_required(graph, "tasks", "graph")
         if not isinstance(task_items, list):
@@ -127,10 +144,14 @@ class TaskGraphBuilder:
                 max_gate_attempts=spec.max_gate_attempts,
                 primary_agent=spec.primary_agent,
                 review=spec.review,
+                workstream_id=spec.workstream_id,
             )
 
         return TaskGraph.from_tasks(
-            (built_tasks[task_id] for task_id in task_ids), name=name
+            (built_tasks[task_id] for task_id in task_ids),
+            name=name,
+            workstreams=workstreams,
+            max_workstream_depth=max_workstream_depth,
         )
 
 
@@ -149,6 +170,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
             "max_gate_attempts",
             "primary_agent",
             "review",
+            "workstream_id",
         },
     )
 
@@ -176,6 +198,11 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
         mapping.get("primary_agent"), path + ".primary_agent"
     )
     review = _parse_review_config(mapping.get("review"), path + ".review")
+    workstream_id = _parse_optional_string(
+        mapping.get("workstream_id"), path + ".workstream_id"
+    )
+    if workstream_id is None:
+        workstream_id = "default"
 
     return _RawTaskSpec(
         id=task_id,
@@ -187,6 +214,63 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
         max_gate_attempts=max_gate_attempts,
         primary_agent=primary_agent,
         review=review,
+        workstream_id=workstream_id,
+    )
+
+
+def _parse_workstreams(
+    value: Any,
+    path: str,
+) -> Optional[tuple[WorkstreamSpec, ...]]:
+    if value is None:
+        return None
+    if not isinstance(value, list):
+        raise _schema_error(path, "must be a list")
+    if not value:
+        raise _schema_error(path, "must contain at least one workstream")
+
+    result: list[WorkstreamSpec] = []
+    seen_ids: set[str] = set()
+    for index, item in enumerate(value):
+        item_path = f"{path}[{index}]"
+        workstream = _parse_workstream(item, item_path)
+        if workstream.id in seen_ids:
+            raise _schema_error(
+                item_path + ".id", f"duplicate workstream id '{workstream.id}'"
+            )
+        seen_ids.add(workstream.id)
+        result.append(workstream)
+    return tuple(result)
+
+
+def _parse_workstream(value: Any, path: str) -> WorkstreamSpec:
+    mapping = _require_mapping(value, path)
+    _reject_unknown_keys(
+        mapping,
+        path,
+        {"id", "parent_workstream_id", "base_branch", "merge_target_branch"},
+    )
+
+    workstream_id = _require_non_empty_string(
+        _read_required(mapping, "id", path), path + ".id"
+    )
+    parent_workstream_id = _parse_optional_string(
+        mapping.get("parent_workstream_id"),
+        path + ".parent_workstream_id",
+    )
+    base_branch = _require_non_empty_string(
+        mapping.get("base_branch", "main"),
+        path + ".base_branch",
+    )
+    merge_target_branch = _require_non_empty_string(
+        mapping.get("merge_target_branch", "main"),
+        path + ".merge_target_branch",
+    )
+    return WorkstreamSpec(
+        id=workstream_id,
+        parent_workstream_id=parent_workstream_id,
+        base_branch=base_branch,
+        merge_target_branch=merge_target_branch,
     )
 
 
