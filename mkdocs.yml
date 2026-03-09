@@ -59,9 +59,8 @@ nav:
     - environments: api/core/environments.md
     - task_runner: api/core/task_runner.md
     - agent: api/agent/index.md
-    - task_graph:
-      - package: api/task_graph/index.md
-      - indexing.py: api/task_graph/indexing.md
-      - validation.py: api/task_graph/validation.md
+    - task_graph: api/task_graph/index.md
+    - task_graph.indexing: api/task_graph/indexing.md
+    - task_graph.validation: api/task_graph/validation.md
     - task_runtime: api/task_runtime/index.md
     - workstream: api/workstream/index.md

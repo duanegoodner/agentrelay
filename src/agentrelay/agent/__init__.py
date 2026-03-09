@@ -1,9 +1,8 @@
-"""Agent package: addressing types and live agent implementations.
+"""Agent abstractions for live coding-agent execution.
 
-Public exports preserve the stable import surface:
-
-- ``from agentrelay.agent import Agent, TmuxAgent``
-- ``from agentrelay.agent import AgentAddress, TmuxAddress``
+This package defines how orchestrator/runtime code interacts with running agents:
+addressing types for locating an agent process and agent interfaces for sending
+kickoff instructions in a concrete execution environment.
 """
 
 from agentrelay.agent.addressing import AgentAddress, TmuxAddress

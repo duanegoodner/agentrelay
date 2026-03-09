@@ -1,7 +1,8 @@
-"""Workstream package.
+"""Workstream model for lane-level execution and integration state.
 
-Public exports include the immutable workstream specification and runtime state
-types. Runtime builders are imported from ``agentrelay.workstream.runtime_builder``.
+This package defines immutable workstream specifications and mutable runtime
+state for each workstream lane, including runtime initialization helpers used
+during graph execution setup.
 """
 
 from agentrelay.workstream.runtime import (

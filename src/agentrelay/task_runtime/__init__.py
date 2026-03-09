@@ -1,7 +1,8 @@
-"""Task runtime package.
+"""Task runtime model for mutable per-task execution state.
 
-Public exports include mutable task runtime state types. The runtime builder is
-imported from ``agentrelay.task_runtime.builder``.
+This package contains runtime envelopes and lifecycle state for tasks derived
+from immutable task specs, plus initialization helpers used to create runtime
+objects from a validated task graph.
 """
 
 from agentrelay.task_runtime.builder import TaskRuntimeBuilder
