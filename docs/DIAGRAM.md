@@ -131,12 +131,6 @@ classDiagram
         }
     }
 
-    namespace task_runtime_builder_py {
-        class TaskRuntimeBuilder {
-            +from_graph(graph)$ dict[str, TaskRuntime]
-        }
-    }
-
     namespace task_runner_py {
         class TaskCompletionSignal {
             <<frozen dataclass>>
@@ -225,7 +219,7 @@ classDiagram
         }
     }
 
-    namespace addressing_py {
+    namespace agent {
         class AgentAddress {
             <<abstract>>
             +label() str
@@ -237,9 +231,7 @@ classDiagram
             pane_id : str
             +label() str
         }
-    }
 
-    namespace agent_py {
         class Agent {
             <<abstract>>
             +send_kickoff(instructions_path)* void
@@ -255,7 +247,11 @@ classDiagram
         }
     }
 
-    namespace task_runtime_py {
+    namespace task_runtime {
+        class TaskRuntimeBuilder {
+            +from_graph(graph)$ dict[str, TaskRuntime]
+        }
+
         class TaskStatus {
             <<enumeration>>
             PENDING
