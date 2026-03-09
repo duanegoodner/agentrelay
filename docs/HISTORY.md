@@ -4,6 +4,21 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-08
+
+### Fix Pylance/pyright config for test files — PR #TBD
+
+Updated `[tool.pyright]` in `pyproject.toml`:
+
+- Removed `test/**` from `exclude` so VS Code/Pylance resolves imports
+  in test files (previously excluded files are not analysed interactively)
+- Added `extraPaths = ["src"]` for reliable package discovery under the
+  `src/` layout regardless of editable-install detection
+
+Also updated `.gitignore`.
+
+---
+
 ## 2026-03-07
 
 ### Rename archive → prototypes/v01 — PR #58

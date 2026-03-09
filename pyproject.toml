@@ -31,4 +31,5 @@ skip_glob = [".pixi/*"]
 [tool.pyright]
 typeCheckingMode = "standard"
 pythonVersion = "3.12"
-exclude = ["test/**", ".pixi/**"]
+exclude = [".pixi/**"]
+extraPaths = ["src"]
