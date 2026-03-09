@@ -9,7 +9,7 @@ from agentrelay.task import (
     AgentRole,
     AgentVerbosity,
 )
-from agentrelay.task_graph_builder import TaskGraphBuilder
+from agentrelay.task_graph.builder import TaskGraphBuilder
 
 
 def _minimal_graph_dict() -> dict:
