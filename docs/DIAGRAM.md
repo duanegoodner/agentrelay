@@ -131,12 +131,6 @@ classDiagram
         }
     }
 
-    namespace task_runtime_builder_py {
-        class TaskRuntimeBuilder {
-            +from_graph(graph)$ dict[str, TaskRuntime]
-        }
-    }
-
     namespace task_runner_py {
         class TaskCompletionSignal {
             <<frozen dataclass>>
@@ -255,7 +249,11 @@ classDiagram
         }
     }
 
-    namespace task_runtime_py {
+    namespace task_runtime {
+        class TaskRuntimeBuilder {
+            +from_graph(graph)$ dict[str, TaskRuntime]
+        }
+
         class TaskStatus {
             <<enumeration>>
             PENDING

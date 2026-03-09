@@ -7,7 +7,7 @@ This module defines :class:`TaskRuntimeBuilder`, which creates initial
 from __future__ import annotations
 
 from agentrelay.task_graph import TaskGraph
-from agentrelay.task_runtime import TaskRuntime
+from agentrelay.task_runtime.runtime import TaskRuntime
 
 
 class TaskRuntimeBuilder:

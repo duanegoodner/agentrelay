@@ -5,7 +5,7 @@ from pathlib import Path
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runtime import TaskStatus
-from agentrelay.task_runtime_builder import TaskRuntimeBuilder
+from agentrelay.task_runtime.builder import TaskRuntimeBuilder
 
 
 def _task(task_id: str, dependencies: tuple[Task, ...] = ()) -> Task:
