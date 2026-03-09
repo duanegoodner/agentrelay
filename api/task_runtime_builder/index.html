@@ -10,8 +10,10 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/reviews/2026-03-03-GPT-53-Codex/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/task_runtime_builder/">
       
+      
+        <link rel="prev" href="../task_runtime/">
       
       
       
@@ -23,7 +25,7 @@
     
     
       
-        <title>Review Findings (ordered by severity) - agentrelay</title>
+        <title>task_runtime_builder - agentrelay</title>
       
     
     
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#review-findings-ordered-by-severity" class="md-skip">
+        <a href="#agentrelay.task_runtime_builder" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Review Findings (ordered by severity)
+              task_runtime_builder
             
           </span>
         </div>
@@ -643,18 +645,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
         
           
           <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
@@ -675,7 +679,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_10">
             <span class="md-nav__icon md-icon"></span>
             
@@ -693,7 +697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/agent/" class="md-nav__link">
+      <a href="../agent/" class="md-nav__link">
         
   
   
@@ -721,7 +725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/environments/" class="md-nav__link">
+      <a href="../environments/" class="md-nav__link">
         
   
   
@@ -749,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/task/" class="md-nav__link">
+      <a href="../task/" class="md-nav__link">
         
   
   
@@ -777,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/task_graph/" class="md-nav__link">
+      <a href="../task_graph/" class="md-nav__link">
         
   
   
@@ -805,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/task_graph_builder/" class="md-nav__link">
+      <a href="../task_graph_builder/" class="md-nav__link">
         
   
   
@@ -833,7 +837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/task_runtime/" class="md-nav__link">
+      <a href="../task_runtime/" class="md-nav__link">
         
   
   
@@ -858,10 +862,35 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../api/task_runtime_builder/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime_builder
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -877,6 +906,63 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        task_runtime_builder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -906,8 +992,53 @@
   
   
   
-    
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        task_runtime_builder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -924,70 +1055,260 @@
 
 
 
-<h1 id="review-findings-ordered-by-severity">Review Findings (ordered by severity)</h1>
-<ol>
-<li>
-<p><strong>Critical:</strong> Tasks can be marked <code>DONE</code> without any merge if <code>.done</code> lacks a PR URL.<br />
-   In <code>_run_task</code>, <code>task.state.status = DONE</code> is set even when <code>pr_url</code> is empty, so no merge or <code>.merged</code> signal occurs. This can unblock dependents with missing code.<br />
-   Reference: <a href="/data/git/agentrelay/main/src/agentrelay/run_graph.py:747">run_graph.py:747</a>, <a href="/data/git/agentrelay/main/src/agentrelay/run_graph.py:779">run_graph.py:779</a>, <a href="/data/git/agentrelay/main/src/agentrelay/run_graph.py:829">run_graph.py:829</a></p>
-</li>
-<li>
-<p><strong>Critical:</strong> If graph branch refresh fails after merge, downstream tasks can still start from stale code.<br />
-<code>pull_graph_branch()</code> failure only logs a warning, but task is still marked <code>DONE</code>. Since new worktrees are based on local <code>graph/&lt;name&gt;</code>, dependents may run from outdated branch state.<br />
-   Reference: <a href="/data/git/agentrelay/main/src/agentrelay/run_graph.py:820">run_graph.py:820</a>, <a href="/data/git/agentrelay/main/src/agentrelay/run_graph.py:829">run_graph.py:829</a>, <a href="/data/git/agentrelay/main/src/agentrelay/task_launcher.py:78">task_launcher.py:78</a></p>
-</li>
-<li>
-<p><strong>High:</strong> <code>create_graph_branch()</code> can hard-reset working tree unexpectedly.<br />
-   Fallback path runs <code>git reset --hard &lt;base_branch&gt;</code> if <code>git branch -f</code> fails, which can discard local changes in target repo.<br />
-   Reference: <a href="/data/git/agentrelay/main/src/agentrelay/task_launcher.py:50">task_launcher.py:50</a>, <a href="/data/git/agentrelay/main/src/agentrelay/task_launcher.py:57">task_launcher.py:57</a></p>
-</li>
-<li>
-<p><strong>High:</strong> Resume behavior for <code>.done</code> is not implemented (doc/code mismatch).<br />
-   Docs say <code>.done</code> without <code>.merged</code> should attempt merge on startup; code only hydrates from <code>.merged</code>/<code>.failed</code>.<br />
-   Reference: <a href="/data/git/agentrelay/main/src/agentrelay/agent_task_graph.py:80">agent_task_graph.py:80</a>, <a href="/data/git/agentrelay/main/docs/WORKFLOW_DESCRIPTION.md:60">WORKFLOW_DESCRIPTION.md:60</a></p>
-</li>
-<li>
-<p><strong>Medium:</strong> Dependency graph validation is incomplete.<br />
-<code>_topo_sort</code> doesn’t detect cycles or unknown deps explicitly, which can produce silent/incomplete scheduling or unclear errors.<br />
-   Reference: <a href="/data/git/agentrelay/main/src/agentrelay/agent_task_graph.py:90">agent_task_graph.py:90</a></p>
-</li>
-<li>
-<p><strong>Medium:</strong> Packaging metadata is incomplete for runtime install outside Pixi.<br />
-<code>pyproject.toml</code> has empty dependencies, but runtime imports <code>yaml</code>.<br />
-   Reference: <a href="/data/git/agentrelay/main/pyproject.toml:3">pyproject.toml:3</a>, <a href="/data/git/agentrelay/main/src/agentrelay/agent_task_graph.py:7">agent_task_graph.py:7</a></p>
-</li>
-<li>
-<p><strong>Medium (architecture):</strong> Assistant backend is tightly coupled to Claude+tmux.<br />
-<code>claude</code>, <code>--dangerously-skip-permissions</code>, tmux lifecycle, and Claude-TUI readiness checks are hardcoded, making Open/Closed and DIP weak for backend expansion (Copilot/Codex/Gemini).<br />
-   Reference: <a href="/data/git/agentrelay/main/src/agentrelay/task_launcher.py:176">task_launcher.py:176</a>, <a href="/data/git/agentrelay/main/src/agentrelay/task_launcher.py:183">task_launcher.py:183</a>, <a href="/data/git/agentrelay/main/src/agentrelay/task_launcher.py:719">task_launcher.py:719</a>, <a href="/data/git/agentrelay/main/docs/BACKLOG.md:32">docs/BACKLOG.md:32</a></p>
-</li>
-</ol>
-<h1 id="solid-oriented-cleanup-opportunities-for-pluggable-assistants">SOLID-oriented Cleanup Opportunities (for pluggable assistants)</h1>
-<ol>
-<li>Split orchestration into ports/adapters:
-   <code>AgentHarness</code>, <code>RepoOps</code>, <code>PullRequestOps</code>, <code>SignalStore</code>, <code>InstructionBuilder</code>.</li>
-<li>Keep current behavior behind adapters first:
-   <code>ClaudeTmuxHarness</code>, <code>GitCliRepoOps</code>, <code>GhCliPullRequestOps</code>, <code>FileSignalStore</code>.</li>
-<li>Add <code>backend</code> selection at graph/task level:
-   default backend at graph level; task override for routing.</li>
-<li>Make orchestrator state explicit:
-   use durable <code>run_state.json</code> with states like <code>WAITING_AGENT</code>, <code>WAITING_MERGE</code>, <code>DONE</code>.</li>
-<li>Refactor <code>task_launcher.py</code> (1105 LOC) by responsibility:
-   split into <code>git_ops.py</code>, <code>gh_ops.py</code>, <code>tmux_harness.py</code>, <code>signals.py</code>.</li>
-<li>Add contract tests for each port and one fake end-to-end orchestrator test.</li>
-</ol>
-<h1 id="testing-status">Testing status</h1>
-<ul>
-<li><code>pixi run pytest -q</code>: <strong>375 passed</strong>.</li>
-<li>
-<p>Plain <code>pytest -q</code> in non-pixi shell fails due environment/package setup mismatch.</p>
-</li>
-<li>
-<p>If you want, I can implement the first refactor slice now: introduce <code>AgentHarness</code> interface and move current Claude/tmux logic behind <code>ClaudeTmuxHarness</code> without changing behavior.  </p>
-</li>
-<li>I can also patch the two critical correctness issues first (<code>DONE</code> without merge, stale-branch progression) before structural refactor.  </li>
-<li>If preferred, I can draft the YAML/schema changes for <code>backend</code> and adapter registry next.</li>
-</ul>
+  <h1>task_runtime_builder</h1>
+
+<div class="api-page"><div class="doc doc-object doc-module">
+
+
+
+<a id="agentrelay.task_runtime_builder"></a>
+    <div class="doc doc-contents first">
+
+        <p>Runtime builders for task graph execution state.</p>
+<p>This module defines :class:<code>TaskRuntimeBuilder</code>, which creates initial
+<code>TaskRuntime</code> objects for every task in a :class:<code>agentrelay.task_graph.TaskGraph</code>.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.task_runtime_builder.TaskRuntimeBuilder" class="doc doc-heading">
+            <code>TaskRuntimeBuilder</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Builder for initializing per-task runtime envelopes from a task graph.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runtime_builder.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-task runtime envelopes from a task graph.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
+
+<span class="sd">        Runtimes are returned in the graph&#39;s stable topological task order.</span>
+<span class="sd">        Each runtime starts with default mutable state/artifacts and no agent.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph: Validated immutable task graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, TaskRuntime]: Task runtimes keyed by task ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">():</span>
+            <span class="n">runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskRuntime</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_id</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.task_runtime_builder.TaskRuntimeBuilder.from_graph" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build initial runtimes for all tasks in a graph.</p>
+<p>Runtimes are returned in the graph's stable topological task order.
+Each runtime starts with default mutable state/artifacts and no agent.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskGraph
+
+
+  
+      dataclass
+   (agentrelay.task_graph.TaskGraph)" href="../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Validated immutable task graph.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>dict[str, TaskRuntime]: Task runtimes keyed by task ID.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_runtime_builder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
+
+<span class="sd">    Runtimes are returned in the graph&#39;s stable topological task order.</span>
+<span class="sd">    Each runtime starts with default mutable state/artifacts and no agent.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph: Validated immutable task graph.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, TaskRuntime]: Task runtimes keyed by task ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">():</span>
+        <span class="n">runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskRuntime</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_id</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div></div>
 
 
 

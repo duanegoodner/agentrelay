@@ -822,34 +822,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_graph_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_graph_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../api/task/" class="md-nav__link">
         
   
@@ -906,6 +878,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/task_graph_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/task_runtime/" class="md-nav__link">
         
   
@@ -914,6 +914,34 @@
     
   
     task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/task_runtime_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime_builder
   
 
     
@@ -1100,6 +1128,12 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
+    namespace task_runtime_builder_py {
+        class TaskRuntimeBuilder {
+            +from_graph(graph)$ dict[str, TaskRuntime]
+        }
+    }
+
     namespace environments_py {
         class AgentEnvironment {
             &lt;&lt;type alias&gt;&gt;
@@ -1185,6 +1219,8 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     TaskGraph --&gt; Task : contains
     TaskGraphBuilder --&gt; TaskGraph : builds
     TaskGraphBuilder --&gt; Task : constructs
+    TaskRuntimeBuilder --&gt; TaskGraph : reads
+    TaskRuntimeBuilder --&gt; TaskRuntime : builds
     AgentConfig --&gt; AgentEnvironment : environment
     TmuxEnvironment ..|&gt; AgentEnvironment
     TmuxAddress --|&gt; AgentAddress

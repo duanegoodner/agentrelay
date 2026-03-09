@@ -434,6 +434,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-pylancepyright-config-for-test-files-pr-63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix Pylance/pyright config for test files — PR #63
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-07" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -878,34 +906,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_graph_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_graph_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../api/task/" class="md-nav__link">
         
   
@@ -962,6 +962,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/task_graph_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/task_runtime/" class="md-nav__link">
         
   
@@ -970,6 +998,34 @@
     
   
     task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/task_runtime_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime_builder
   
 
     
@@ -1015,6 +1071,34 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#2026-03-08" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-08
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-08">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-pylancepyright-config-for-test-files-pr-63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix Pylance/pyright config for test files — PR #63
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#2026-03-07" class="md-nav__link">
@@ -1113,6 +1197,17 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-08">2026-03-08</h2>
+<h3 id="fix-pylancepyright-config-for-test-files-pr-63">Fix Pylance/pyright config for test files — PR #63</h3>
+<p>Updated <code>[tool.pyright]</code> in <code>pyproject.toml</code>:</p>
+<ul>
+<li>Removed <code>test/**</code> from <code>exclude</code> so VS Code/Pylance resolves imports
+  in test files (previously excluded files are not analysed interactively)</li>
+<li>Added <code>extraPaths = ["src"]</code> for reliable package discovery under the
+  <code>src/</code> layout regardless of editable-install detection</li>
+</ul>
+<p>Also updated <code>.gitignore</code>.</p>
 <hr />
 <h2 id="2026-03-07">2026-03-07</h2>
 <h3 id="rename-archive-prototypesv01-pr-58">Rename archive → prototypes/v01 — PR #58</h3>
