@@ -87,6 +87,7 @@ classDiagram
         class TaskGraph {
             <<frozen dataclass>>
             name : str | None
+            max_workstream_depth : int
             +task(task_id) Task
             +task_ids() tuple[str, ...]
             +dependency_ids(task_id) tuple[str, ...]
@@ -95,6 +96,10 @@ classDiagram
             +leaves() tuple[str, ...]
             +topological_order() tuple[str, ...]
             +ready_ids(completed_ids, running_ids) tuple[str, ...]
+            +workstream_ids() tuple[str, ...]
+            +workstream(workstream_id) WorkstreamSpec
+            +tasks_in_workstream(workstream_id) tuple[str, ...]
+            +child_workstream_ids(workstream_id) tuple[str, ...]
         }
     }
 
@@ -238,6 +243,7 @@ classDiagram
     AgentConfig --> AgentVerbosity : adr_verbosity
     ReviewConfig --> AgentConfig : agent
     TaskGraph --> Task : contains
+    TaskGraph --> WorkstreamSpec : contains
     TaskGraphBuilder --> TaskGraph : builds
     TaskGraphBuilder --> Task : constructs
     TaskRuntimeBuilder --> TaskGraph : reads

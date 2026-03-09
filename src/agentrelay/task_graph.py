@@ -15,6 +15,7 @@ from types import MappingProxyType
 from typing import Optional
 
 from agentrelay.task import Task
+from agentrelay.workstream import WorkstreamSpec
 
 
 @dataclass(frozen=True)
@@ -23,10 +24,15 @@ class TaskGraph:
 
     Attributes:
         name: Optional human-readable graph name.
+        max_workstream_depth: Maximum allowed parent-depth for workstream
+            hierarchies. ``1`` allows parent -> child only.
         _tasks_by_id: Canonical task objects keyed by task ID.
         _dependency_ids: Dependency IDs for each task ID.
         _dependent_ids: Reverse dependency IDs for each task ID.
         _topological_order: Dependency-first stable task ordering.
+        _workstreams_by_id: Workstream specs keyed by workstream ID.
+        _task_ids_by_workstream: Task IDs grouped by workstream ID.
+        _child_workstream_ids: Child workstream IDs grouped by parent workstream ID.
     """
 
     name: Optional[str]
@@ -34,20 +40,39 @@ class TaskGraph:
     _dependency_ids: Mapping[str, tuple[str, ...]]
     _dependent_ids: Mapping[str, tuple[str, ...]]
     _topological_order: tuple[str, ...]
+    max_workstream_depth: int
+    _workstreams_by_id: Mapping[str, WorkstreamSpec]
+    _task_ids_by_workstream: Mapping[str, tuple[str, ...]]
+    _child_workstream_ids: Mapping[str, tuple[str, ...]]
 
-    def __init__(self, tasks_by_id: Mapping[str, Task], name: Optional[str] = None):
+    def __init__(
+        self,
+        tasks_by_id: Mapping[str, Task],
+        name: Optional[str] = None,
+        workstreams_by_id: Optional[Mapping[str, WorkstreamSpec]] = None,
+        max_workstream_depth: int = 1,
+    ):
         """Initialize and validate an immutable task graph.
 
         Args:
             tasks_by_id: Mapping of task IDs to canonical :class:`Task` objects.
                 Each key must match its corresponding ``Task.id``.
             name: Optional human-readable name for this graph.
+            workstreams_by_id: Optional mapping of workstream IDs to
+                :class:`WorkstreamSpec`. If omitted, a default single workstream
+                ``"default"`` is assumed.
+            max_workstream_depth: Maximum parent-depth allowed for workstream
+                hierarchies. ``1`` allows parent -> child only.
 
         Raises:
             ValueError: If the graph is empty, contains mismatched key/ID pairs,
                 contains conflicting task definitions for a shared task ID, contains
-                invalid dependency declarations, or contains dependency cycles.
+                invalid dependency declarations, contains dependency cycles, or
+                contains invalid workstream declarations.
         """
+        if max_workstream_depth < 1:
+            raise ValueError("max_workstream_depth must be >= 1.")
+
         if not tasks_by_id:
             raise ValueError("TaskGraph requires at least one task.")
 
@@ -63,27 +88,54 @@ class TaskGraph:
         _validate_dependencies_exist(canonical, dependency_ids)
         dependent_ids = _build_dependent_ids(canonical, dependency_ids)
         topo = _topological_order_or_raise(dependency_ids, dependent_ids)
+        workstreams = _normalize_workstreams(workstreams_by_id)
+        _validate_task_workstream_ids(canonical, workstreams)
+        _validate_workstream_parent_ids_exist(workstreams)
+        _validate_workstream_hierarchy_acyclic(workstreams)
+        _validate_workstream_max_depth(workstreams, max_depth=max_workstream_depth)
+        task_ids_by_workstream = _build_task_ids_by_workstream(
+            canonical, topo, workstreams
+        )
+        child_workstream_ids = _build_child_workstream_ids(workstreams)
 
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "_tasks_by_id", MappingProxyType(canonical))
         object.__setattr__(self, "_dependency_ids", MappingProxyType(dependency_ids))
         object.__setattr__(self, "_dependent_ids", MappingProxyType(dependent_ids))
         object.__setattr__(self, "_topological_order", topo)
+        object.__setattr__(self, "max_workstream_depth", max_workstream_depth)
+        object.__setattr__(self, "_workstreams_by_id", MappingProxyType(workstreams))
+        object.__setattr__(
+            self,
+            "_task_ids_by_workstream",
+            MappingProxyType(task_ids_by_workstream),
+        )
+        object.__setattr__(
+            self,
+            "_child_workstream_ids",
+            MappingProxyType(child_workstream_ids),
+        )
 
     @classmethod
     def from_tasks(
         cls,
         tasks: Iterable[Task],
         name: Optional[str] = None,
+        workstreams: Optional[Iterable[WorkstreamSpec]] = None,
+        max_workstream_depth: int = 1,
     ) -> "TaskGraph":
         """Build a :class:`TaskGraph` from an iterable of tasks.
 
         Args:
             tasks: Iterable of canonical graph tasks.
             name: Optional human-readable name for this graph.
+            workstreams: Optional iterable of workstream specifications.
+            max_workstream_depth: Maximum parent-depth allowed for workstream
+                hierarchies. ``1`` allows parent -> child only.
 
         Raises:
-            ValueError: If duplicate task IDs are provided in ``tasks``.
+            ValueError: If duplicate task IDs or duplicate workstream IDs are
+                provided in input iterables.
 
         Returns:
             TaskGraph: A validated immutable task graph.
@@ -93,7 +145,21 @@ class TaskGraph:
             if task.id in tasks_by_id:
                 raise ValueError(f"Duplicate task id '{task.id}' in input tasks.")
             tasks_by_id[task.id] = task
-        return cls(tasks_by_id=tasks_by_id, name=name)
+        workstreams_by_id: Optional[dict[str, WorkstreamSpec]] = None
+        if workstreams is not None:
+            workstreams_by_id = {}
+            for workstream in workstreams:
+                if workstream.id in workstreams_by_id:
+                    raise ValueError(
+                        f"Duplicate workstream id '{workstream.id}' in input workstreams."
+                    )
+                workstreams_by_id[workstream.id] = workstream
+        return cls(
+            tasks_by_id=tasks_by_id,
+            name=name,
+            workstreams_by_id=workstreams_by_id,
+            max_workstream_depth=max_workstream_depth,
+        )
 
     def task(self, task_id: str) -> Task:
         """Return the task specification for a task ID.
@@ -218,6 +284,59 @@ class TaskGraph:
                 ready.append(task_id)
         return tuple(ready)
 
+    def workstream_ids(self) -> tuple[str, ...]:
+        """Return all workstream IDs in stable sorted order.
+
+        Returns:
+            tuple[str, ...]: All workstream IDs in sorted order.
+        """
+        return tuple(sorted(self._workstreams_by_id))
+
+    def workstream(self, workstream_id: str) -> WorkstreamSpec:
+        """Return workstream specification for a workstream ID.
+
+        Args:
+            workstream_id: Workstream identifier to retrieve.
+
+        Raises:
+            KeyError: If ``workstream_id`` is not present in this graph.
+
+        Returns:
+            WorkstreamSpec: Immutable workstream specification.
+        """
+        self._require_workstream_id(workstream_id)
+        return self._workstreams_by_id[workstream_id]
+
+    def tasks_in_workstream(self, workstream_id: str) -> tuple[str, ...]:
+        """Return task IDs in a workstream in graph topological order.
+
+        Args:
+            workstream_id: Workstream identifier to inspect.
+
+        Raises:
+            KeyError: If ``workstream_id`` is not present in this graph.
+
+        Returns:
+            tuple[str, ...]: Task IDs in the given workstream.
+        """
+        self._require_workstream_id(workstream_id)
+        return self._task_ids_by_workstream[workstream_id]
+
+    def child_workstream_ids(self, workstream_id: str) -> tuple[str, ...]:
+        """Return child workstream IDs for a parent workstream.
+
+        Args:
+            workstream_id: Parent workstream identifier.
+
+        Raises:
+            KeyError: If ``workstream_id`` is not present in this graph.
+
+        Returns:
+            tuple[str, ...]: Child workstream IDs in stable sorted order.
+        """
+        self._require_workstream_id(workstream_id)
+        return self._child_workstream_ids[workstream_id]
+
     def _require_task_id(self, task_id: str) -> None:
         """Assert that a task ID exists in this graph.
 
@@ -229,6 +348,202 @@ class TaskGraph:
         """
         if task_id not in self._tasks_by_id:
             raise KeyError(f"Unknown task id '{task_id}'.")
+
+    def _require_workstream_id(self, workstream_id: str) -> None:
+        """Assert that a workstream ID exists in this graph.
+
+        Args:
+            workstream_id: Workstream identifier to validate.
+
+        Raises:
+            KeyError: If ``workstream_id`` is not present in this graph.
+        """
+        if workstream_id not in self._workstreams_by_id:
+            raise KeyError(f"Unknown workstream id '{workstream_id}'.")
+
+
+def _normalize_workstreams(
+    workstreams_by_id: Optional[Mapping[str, WorkstreamSpec]],
+) -> dict[str, WorkstreamSpec]:
+    """Normalize input workstream mapping with compatibility defaults.
+
+    Args:
+        workstreams_by_id: Optional input mapping of workstreams.
+
+    Raises:
+        ValueError: If workstream mapping keys mismatch ``WorkstreamSpec.id``.
+
+    Returns:
+        dict[str, WorkstreamSpec]: Canonical workstream mapping.
+    """
+    if workstreams_by_id is None:
+        return {"default": WorkstreamSpec(id="default")}
+
+    canonical = dict(workstreams_by_id)
+    for key, spec in canonical.items():
+        if key != spec.id:
+            raise ValueError(
+                f"TaskGraph workstream key '{key}' does not match "
+                f"WorkstreamSpec.id '{spec.id}'."
+            )
+    return canonical
+
+
+def _validate_task_workstream_ids(
+    tasks_by_id: Mapping[str, Task],
+    workstreams_by_id: Mapping[str, WorkstreamSpec],
+) -> None:
+    """Validate that every task references a known workstream ID.
+
+    Args:
+        tasks_by_id: Canonical mapping of graph task IDs to tasks.
+        workstreams_by_id: Canonical mapping of workstream IDs to specs.
+
+    Raises:
+        ValueError: If one or more task workstream IDs are unknown.
+    """
+    known = set(workstreams_by_id)
+    unknown = {
+        task.workstream_id
+        for task in tasks_by_id.values()
+        if task.workstream_id not in known
+    }
+    if unknown:
+        unknown_str = ", ".join(sorted(unknown))
+        raise ValueError(
+            f"Unknown workstream id(s) referenced by tasks: {unknown_str}."
+        )
+
+
+def _validate_workstream_parent_ids_exist(
+    workstreams_by_id: Mapping[str, WorkstreamSpec],
+) -> None:
+    """Validate that each parent workstream reference exists.
+
+    Args:
+        workstreams_by_id: Canonical mapping of workstream IDs to specs.
+
+    Raises:
+        ValueError: If any ``parent_workstream_id`` is unknown.
+    """
+    known = set(workstreams_by_id)
+    for workstream in workstreams_by_id.values():
+        parent_id = workstream.parent_workstream_id
+        if parent_id is not None and parent_id not in known:
+            raise ValueError(
+                f"Workstream '{workstream.id}' references unknown parent_workstream_id "
+                f"'{parent_id}'."
+            )
+
+
+def _validate_workstream_hierarchy_acyclic(
+    workstreams_by_id: Mapping[str, WorkstreamSpec],
+) -> None:
+    """Validate that the workstream parent hierarchy has no cycles.
+
+    Args:
+        workstreams_by_id: Canonical mapping of workstream IDs to specs.
+
+    Raises:
+        ValueError: If a parent cycle exists.
+    """
+    done: set[str] = set()
+    for workstream_id in sorted(workstreams_by_id):
+        if workstream_id in done:
+            continue
+        path: list[str] = []
+        index_by_id: dict[str, int] = {}
+        current: Optional[str] = workstream_id
+
+        while current is not None:
+            if current in index_by_id:
+                start = index_by_id[current]
+                cycle = path[start:] + [current]
+                raise ValueError(
+                    "Workstream hierarchy contains a cycle: " f"{' -> '.join(cycle)}"
+                )
+            if current in done:
+                break
+            index_by_id[current] = len(path)
+            path.append(current)
+            current = workstreams_by_id[current].parent_workstream_id
+
+        done.update(path)
+
+
+def _validate_workstream_max_depth(
+    workstreams_by_id: Mapping[str, WorkstreamSpec],
+    max_depth: int,
+) -> None:
+    """Validate that workstream hierarchy depth does not exceed ``max_depth``.
+
+    Args:
+        workstreams_by_id: Canonical mapping of workstream IDs to specs.
+        max_depth: Maximum allowed ancestry depth.
+
+    Raises:
+        ValueError: If any workstream has ancestry depth greater than ``max_depth``.
+    """
+    for workstream in workstreams_by_id.values():
+        depth = 0
+        current = workstream.parent_workstream_id
+        while current is not None:
+            depth += 1
+            if depth > max_depth:
+                raise ValueError(
+                    f"Workstream '{workstream.id}' exceeds maximum supported depth "
+                    f"of {max_depth}."
+                )
+            current = workstreams_by_id[current].parent_workstream_id
+
+
+def _build_task_ids_by_workstream(
+    tasks_by_id: Mapping[str, Task],
+    topological_order: tuple[str, ...],
+    workstreams_by_id: Mapping[str, WorkstreamSpec],
+) -> dict[str, tuple[str, ...]]:
+    """Build a topological-order task ID index for each workstream.
+
+    Args:
+        tasks_by_id: Canonical mapping of graph task IDs to tasks.
+        topological_order: Graph topological task ID order.
+        workstreams_by_id: Canonical mapping of workstream IDs to specs.
+
+    Returns:
+        dict[str, tuple[str, ...]]: Task IDs keyed by workstream ID.
+    """
+    grouped: dict[str, list[str]] = {
+        workstream_id: [] for workstream_id in workstreams_by_id
+    }
+    for task_id in topological_order:
+        grouped[tasks_by_id[task_id].workstream_id].append(task_id)
+    return {
+        workstream_id: tuple(task_ids) for workstream_id, task_ids in grouped.items()
+    }
+
+
+def _build_child_workstream_ids(
+    workstreams_by_id: Mapping[str, WorkstreamSpec],
+) -> dict[str, tuple[str, ...]]:
+    """Build an index of child workstream IDs for each workstream.
+
+    Args:
+        workstreams_by_id: Canonical mapping of workstream IDs to specs.
+
+    Returns:
+        dict[str, tuple[str, ...]]: Child IDs keyed by parent workstream ID.
+    """
+    children: dict[str, list[str]] = {
+        workstream_id: [] for workstream_id in workstreams_by_id
+    }
+    for workstream in workstreams_by_id.values():
+        parent_id = workstream.parent_workstream_id
+        if parent_id is not None:
+            children[parent_id].append(workstream.id)
+    return {
+        workstream_id: tuple(sorted(child_ids))
+        for workstream_id, child_ids in children.items()
+    }
 
 
 def _validate_task_identity_consistency(tasks_by_id: Mapping[str, Task]) -> None:

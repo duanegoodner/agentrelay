@@ -17,7 +17,7 @@ Implemented today:
 
 - Core architecture types in `src/agentrelay/` (`TaskGraph`, `TaskGraphBuilder`, `TaskRuntimeBuilder`, `TaskRunner`, `WorkstreamSpec`, `Task`, `TaskRuntime`, `Agent`, `AgentEnvironment`)
 - A runnable prototype orchestrator in `src/agentrelay/prototypes/v01/`
-- Test coverage for both layers (`506` tests collected)
+- Test coverage for both layers (`516` tests collected)
 
 Not implemented yet in the current architecture layer:
 
