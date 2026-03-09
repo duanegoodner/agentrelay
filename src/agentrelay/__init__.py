@@ -4,8 +4,8 @@ This package contains the core abstractions for multi-agent orchestration,
 designed with careful architectural consideration rather than incremental refactoring.
 
 Core types:
-- TaskGraph: immutable DAG of Task specs                     [task_graph.py]
-- TaskGraphBuilder: YAML/dict -> TaskGraph builder           [task_graph_builder.py]
+- TaskGraph: immutable DAG of Task specs                     [task_graph/graph.py]
+- TaskGraphBuilder: YAML/dict -> TaskGraph builder           [task_graph/builder.py]
 - TaskRuntimeBuilder: TaskGraph -> TaskRuntime map builder   [task_runtime_builder.py]
 - TaskRunner: one-task lifecycle state machine               [task_runner.py]
 - WorkstreamSpec: immutable workstream configuration          [workstream.py]

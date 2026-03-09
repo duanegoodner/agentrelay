@@ -83,10 +83,11 @@ classDiagram
         }
     }
 
-    namespace task_graph_py {
+    namespace task_graph {
         class TaskGraph {
             <<frozen dataclass>>
             name : str | None
+            max_workstream_depth : int
             +task(task_id) Task
             +task_ids() tuple[str, ...]
             +dependency_ids(task_id) tuple[str, ...]
@@ -95,10 +96,35 @@ classDiagram
             +leaves() tuple[str, ...]
             +topological_order() tuple[str, ...]
             +ready_ids(completed_ids, running_ids) tuple[str, ...]
+            +workstream_ids() tuple[str, ...]
+            +workstream(workstream_id) WorkstreamSpec
+            +tasks_in_workstream(workstream_id) tuple[str, ...]
+            +child_workstream_ids(workstream_id) tuple[str, ...]
         }
-    }
 
-    namespace task_graph_builder_py {
+        class validation {
+            <<module>>
+            module_path : task_graph.validation
+            +normalize_workstreams(workstreams_by_id)$ dict[str, WorkstreamSpec]
+            +validate_task_workstream_ids(tasks_by_id, workstreams_by_id)$ void
+            +validate_workstream_parent_ids_exist(workstreams_by_id)$ void
+            +validate_workstream_hierarchy_acyclic(workstreams_by_id)$ void
+            +validate_workstream_max_depth(workstreams_by_id, max_depth)$ void
+            +validate_task_identity_consistency(tasks_by_id)$ void
+            +validate_dependencies_exist(tasks_by_id, dependency_ids)$ void
+            +validate_known_ids(ids, tasks_by_id, source_name)$ void
+        }
+
+        class indexing {
+            <<module>>
+            module_path : task_graph.indexing
+            +build_dependency_ids(tasks_by_id)$ dict[str, tuple[str, ...]]
+            +build_dependent_ids(tasks_by_id, dependency_ids)$ dict[str, tuple[str, ...]]
+            +topological_order_or_raise(dependency_ids, dependent_ids)$ tuple[str, ...]
+            +build_task_ids_by_workstream(tasks_by_id, topological_order, workstreams_by_id)$ dict[str, tuple[str, ...]]
+            +build_child_workstream_ids(workstreams_by_id)$ dict[str, tuple[str, ...]]
+        }
+
         class TaskGraphBuilder {
             +from_yaml(path)$ TaskGraph
             +from_dict(data)$ TaskGraph
@@ -238,6 +264,9 @@ classDiagram
     AgentConfig --> AgentVerbosity : adr_verbosity
     ReviewConfig --> AgentConfig : agent
     TaskGraph --> Task : contains
+    TaskGraph --> WorkstreamSpec : contains
+    validation --> TaskGraph : validates inputs for
+    indexing --> TaskGraph : builds indexes for
     TaskGraphBuilder --> TaskGraph : builds
     TaskGraphBuilder --> Task : constructs
     TaskRuntimeBuilder --> TaskGraph : reads

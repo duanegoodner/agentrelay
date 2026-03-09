@@ -15,7 +15,7 @@ truth for concrete implementation details.
 
 ## Core Abstractions
 
-- `TaskGraph`: immutable DAG of `Task` specifications
+- `TaskGraph`: immutable DAG of `Task` specifications plus workstream metadata
 - `TaskGraphBuilder`: YAML/dict schema parser that builds validated `TaskGraph`
 - `TaskRuntimeBuilder`: graph-to-runtime initializer for task execution state
 - `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`

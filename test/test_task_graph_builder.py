@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from agentrelay.task_graph_builder import TaskGraphBuilder
 from agentrelay.task import (
     AgentFramework,
     AgentRole,
     AgentVerbosity,
 )
+from agentrelay.task_graph.builder import TaskGraphBuilder
 
 
 def _minimal_graph_dict() -> dict:

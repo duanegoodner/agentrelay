@@ -28,4 +28,4 @@ Show collected test cases without executing:
 pixi run pytest --collect-only -q
 ```
 
-At present, collection reports **506 tests**.
+At present, collection reports **516 tests**.

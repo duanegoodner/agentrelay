@@ -24,7 +24,7 @@ from agentrelay.task import (
     Task,
     TaskPaths,
 )
-from agentrelay.task_graph import TaskGraph
+from agentrelay.task_graph.graph import TaskGraph
 
 
 @dataclass(frozen=True)
