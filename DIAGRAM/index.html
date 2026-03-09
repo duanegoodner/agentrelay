@@ -1267,12 +1267,6 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
-    namespace task_runtime_builder_py {
-        class TaskRuntimeBuilder {
-            +from_graph(graph)$ dict[str, TaskRuntime]
-        }
-    }
-
     namespace task_runner_py {
         class TaskCompletionSignal {
             &lt;&lt;frozen dataclass&gt;&gt;
@@ -1361,7 +1355,7 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
-    namespace addressing_py {
+    namespace agent {
         class AgentAddress {
             &lt;&lt;abstract&gt;&gt;
             +label() str
@@ -1373,9 +1367,7 @@ needs to preserve the concrete environment type; it has no class-diagram represe
             pane_id : str
             +label() str
         }
-    }
 
-    namespace agent_py {
         class Agent {
             &lt;&lt;abstract&gt;&gt;
             +send_kickoff(instructions_path)* void
@@ -1391,7 +1383,11 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
-    namespace task_runtime_py {
+    namespace task_runtime {
+        class TaskRuntimeBuilder {
+            +from_graph(graph)$ dict[str, TaskRuntime]
+        }
+
         class TaskStatus {
             &lt;&lt;enumeration&gt;&gt;
             PENDING

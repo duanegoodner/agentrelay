@@ -934,10 +934,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime.TaskStatus" class="md-nav__link">
+  <a href="#agentrelay.task_runtime.TaskArtifacts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskStatus
+        TaskArtifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime.TaskRuntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskRuntime
       
     </span>
   </a>
@@ -956,21 +967,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime.TaskArtifacts" class="md-nav__link">
+  <a href="#agentrelay.task_runtime.TaskStatus" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskArtifacts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime.TaskRuntime" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TaskRuntime
+        TaskStatus
       
     </span>
   </a>
@@ -1141,10 +1141,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime.TaskStatus" class="md-nav__link">
+  <a href="#agentrelay.task_runtime.TaskArtifacts" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskStatus
+        TaskArtifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runtime.TaskRuntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskRuntime
       
     </span>
   </a>
@@ -1163,21 +1174,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime.TaskArtifacts" class="md-nav__link">
+  <a href="#agentrelay.task_runtime.TaskStatus" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskArtifacts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime.TaskRuntime" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TaskRuntime
+        TaskStatus
       
     </span>
   </a>
@@ -1210,66 +1210,9 @@
 <a id="agentrelay.task_runtime"></a>
     <div class="doc doc-contents first">
 
-        <p>Runtime state and artifacts for task execution.</p>
-<p>This module defines the execution state enum and mutable types for tracking
-task execution state and accumulating work artifacts.</p>
-
-
-<details class="enums" open>
-  <summary>Enums</summary>
-  <p>TaskStatus: Execution state of a task (PENDING, RUNNING, PR_CREATED, PR_MERGED, FAILED).</p>
-</details>
-
-<p><span class="doc-section-title">Classes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="TaskState
-
-
-  
-      dataclass
-   (agentrelay.task_runtime.TaskState)" href="#agentrelay.task_runtime.TaskState">TaskState</a></code></td>
-            <td>
-              <div class="doc-md-description">
-                <p>Mutable operational state of a running task.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="TaskArtifacts
-
-
-  
-      dataclass
-   (agentrelay.task_runtime.TaskArtifacts)" href="#agentrelay.task_runtime.TaskArtifacts">TaskArtifacts</a></code></td>
-            <td>
-              <div class="doc-md-description">
-                <p>Outputs produced by a task's agent.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="TaskRuntime
-
-
-  
-      dataclass
-   (agentrelay.task_runtime.TaskRuntime)" href="#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a></code></td>
-            <td>
-              <div class="doc-md-description">
-                <p>Mutable runtime envelope grouping Task spec and state.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+        <p>Task runtime package.</p>
+<p>Public exports include mutable task runtime state types. The runtime builder is
+imported from <code>agentrelay.task_runtime.builder</code>.</p>
 
 
 
@@ -1289,326 +1232,6 @@ task execution state and accumulating work artifacts.</p>
 
 
 
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.task_runtime.TaskStatus" class="doc doc-heading">
-            <code>TaskStatus</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
-
-
-
-        <p>Execution state of a task during orchestration.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskStatus.PENDING">PENDING</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Task is waiting to be executed.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskStatus.RUNNING">RUNNING</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Task is currently being executed by an agent.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskStatus.PR_CREATED">PR_CREATED</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Agent completed work; pull request exists against worktree branch.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskStatus.PR_MERGED">PR_MERGED</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Pull request has been merged into the worktree primary branch.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskStatus.FAILED">FAILED</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Task execution failed.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution state of a task during orchestration.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        PENDING: Task is waiting to be executed.</span>
-<span class="sd">        RUNNING: Task is currently being executed by an agent.</span>
-<span class="sd">        PR_CREATED: Agent completed work; pull request exists against worktree branch.</span>
-<span class="sd">        PR_MERGED: Pull request has been merged into the worktree primary branch.</span>
-<span class="sd">        FAILED: Task execution failed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">PENDING</span> <span class="o">=</span> <span class="s2">&quot;pending&quot;</span>
-    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">&quot;running&quot;</span>
-    <span class="n">PR_CREATED</span> <span class="o">=</span> <span class="s2">&quot;pr_created&quot;</span>  <span class="c1"># Agent done; PR exists against worktree branch</span>
-    <span class="n">PR_MERGED</span> <span class="o">=</span> <span class="s2">&quot;pr_merged&quot;</span>  <span class="c1"># PR merged into worktree primary branch</span>
-    <span class="n">FAILED</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.task_runtime.TaskState" class="doc doc-heading">
-            <code>TaskState</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Mutable operational state of a running task.</p>
-<p>This tracks the execution progress and infrastructure of a task
-as managed by the orchestrator.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskState.status">status</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskStatus (agentrelay.task_runtime.TaskStatus)" href="#agentrelay.task_runtime.TaskStatus">TaskStatus</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Current execution state (TaskStatus enum).</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskState.worktree_path">worktree_path</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Filesystem path to the git worktree where the agent works,
-or None if not yet created.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskState.branch_name">branch_name</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Name of the feature branch in the worktree,
-or None if not yet created.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskState.error">error</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Error message if the task failed, or None if no error.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskState.attempt_num">attempt_num</span></code></td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The current attempt number (0-indexed). Used to track
-retries and conditional logic like when to start self-review.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TaskState</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable operational state of a running task.</span>
-
-<span class="sd">    This tracks the execution progress and infrastructure of a task</span>
-<span class="sd">    as managed by the orchestrator.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        status: Current execution state (TaskStatus enum).</span>
-<span class="sd">        worktree_path: Filesystem path to the git worktree where the agent works,</span>
-<span class="sd">            or None if not yet created.</span>
-<span class="sd">        branch_name: Name of the feature branch in the worktree,</span>
-<span class="sd">            or None if not yet created.</span>
-<span class="sd">        error: Error message if the task failed, or None if no error.</span>
-<span class="sd">        attempt_num: The current attempt number (0-indexed). Used to track</span>
-<span class="sd">            retries and conditional logic like when to start self-review.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">status</span><span class="p">:</span> <span class="n">TaskStatus</span> <span class="o">=</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PENDING</span>
-    <span class="n">worktree_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">branch_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">attempt_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
 
 <div class="doc doc-object doc-class">
 
@@ -1679,7 +1302,7 @@ during execution. Defaults to empty list.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runtime/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
@@ -1794,7 +1417,7 @@ how that spec is being executed.</p>
 
   
       dataclass
-   (agentrelay.task_runtime.TaskState)" href="#agentrelay.task_runtime.TaskState">TaskState</a></code>
+   (agentrelay.task_runtime.runtime.TaskState)" href="#agentrelay.task_runtime.TaskState">TaskState</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1811,7 +1434,7 @@ Defaults to a new TaskState (PENDING, no paths, no error, attempt 0).</p>
 
   
       dataclass
-   (agentrelay.task_runtime.TaskArtifacts)" href="#agentrelay.task_runtime.TaskArtifacts">TaskArtifacts</a></code>
+   (agentrelay.task_runtime.runtime.TaskArtifacts)" href="#agentrelay.task_runtime.TaskArtifacts">TaskArtifacts</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1843,7 +1466,7 @@ spawns the agent.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runtime/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
 <span class="normal"> 93</span>
 <span class="normal"> 94</span>
@@ -1887,6 +1510,326 @@ spawns the agent.</p>
     <span class="n">state</span><span class="p">:</span> <span class="n">TaskState</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TaskState</span><span class="p">)</span>
     <span class="n">artifacts</span><span class="p">:</span> <span class="n">TaskArtifacts</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TaskArtifacts</span><span class="p">)</span>
     <span class="n">agent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Agent</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.task_runtime.TaskState" class="doc doc-heading">
+            <code>TaskState</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Mutable operational state of a running task.</p>
+<p>This tracks the execution progress and infrastructure of a task
+as managed by the orchestrator.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskState.status">status</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskStatus (agentrelay.task_runtime.runtime.TaskStatus)" href="#agentrelay.task_runtime.TaskStatus">TaskStatus</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Current execution state (TaskStatus enum).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskState.worktree_path">worktree_path</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filesystem path to the git worktree where the agent works,
+or None if not yet created.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskState.branch_name">branch_name</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the feature branch in the worktree,
+or None if not yet created.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskState.error">error</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Error message if the task failed, or None if no error.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskState.attempt_num">attempt_num</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The current attempt number (0-indexed). Used to track
+retries and conditional logic like when to start self-review.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runtime/runtime.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskState</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable operational state of a running task.</span>
+
+<span class="sd">    This tracks the execution progress and infrastructure of a task</span>
+<span class="sd">    as managed by the orchestrator.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        status: Current execution state (TaskStatus enum).</span>
+<span class="sd">        worktree_path: Filesystem path to the git worktree where the agent works,</span>
+<span class="sd">            or None if not yet created.</span>
+<span class="sd">        branch_name: Name of the feature branch in the worktree,</span>
+<span class="sd">            or None if not yet created.</span>
+<span class="sd">        error: Error message if the task failed, or None if no error.</span>
+<span class="sd">        attempt_num: The current attempt number (0-indexed). Used to track</span>
+<span class="sd">            retries and conditional logic like when to start self-review.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">TaskStatus</span> <span class="o">=</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PENDING</span>
+    <span class="n">worktree_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">attempt_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.task_runtime.TaskStatus" class="doc doc-heading">
+            <code>TaskStatus</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Execution state of a task during orchestration.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskStatus.PENDING">PENDING</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task is waiting to be executed.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskStatus.RUNNING">RUNNING</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task is currently being executed by an agent.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskStatus.PR_CREATED">PR_CREATED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Agent completed work; pull request exists against worktree branch.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskStatus.PR_MERGED">PR_MERGED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pull request has been merged into the worktree primary branch.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskStatus.FAILED">FAILED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task execution failed.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runtime/runtime.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution state of a task during orchestration.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        PENDING: Task is waiting to be executed.</span>
+<span class="sd">        RUNNING: Task is currently being executed by an agent.</span>
+<span class="sd">        PR_CREATED: Agent completed work; pull request exists against worktree branch.</span>
+<span class="sd">        PR_MERGED: Pull request has been merged into the worktree primary branch.</span>
+<span class="sd">        FAILED: Task execution failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="s2">&quot;pending&quot;</span>
+    <span class="n">RUNNING</span> <span class="o">=</span> <span class="s2">&quot;running&quot;</span>
+    <span class="n">PR_CREATED</span> <span class="o">=</span> <span class="s2">&quot;pr_created&quot;</span>  <span class="c1"># Agent done; PR exists against worktree branch</span>
+    <span class="n">PR_MERGED</span> <span class="o">=</span> <span class="s2">&quot;pr_merged&quot;</span>  <span class="c1"># PR merged into worktree primary branch</span>
+    <span class="n">FAILED</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 

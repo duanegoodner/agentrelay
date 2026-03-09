@@ -1119,7 +1119,7 @@
 </li>
 <li>
 <p>Agent launch/kickoff in the non-prototype layer is still stubbed, so an orchestrator cannot yet dispatch real work there.<br />
-<a href="/data/git/agentrelay/main/src/agentrelay/agent.py:83">src/agentrelay/agent.py:83</a>, <a href="/data/git/agentrelay/main/src/agentrelay/agent.py:116">src/agentrelay/agent.py:116</a></p>
+<a href="/data/git/agentrelay/main/src/agentrelay/agent/agent.py:83">src/agentrelay/agent/agent.py:83</a>, <a href="/data/git/agentrelay/main/src/agentrelay/agent/agent.py:116">src/agentrelay/agent/agent.py:116</a></p>
 </li>
 <li>
 <p>There is no non-prototype <code>TaskGraph</code>/YAML loader yet; only v01 has that (<code>AgentTaskGraphBuilder</code>).<br />
@@ -1158,7 +1158,7 @@
 <ol>
 <li><code>task_graph.py</code>: <code>TaskGraph</code> + validation/query APIs (<code>ready</code>, <code>dependents</code>, topo/cycle checks).</li>
 <li><code>task_graph/builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
-<li><code>task_runtime_builder.py</code>: initialize <code>TaskRuntime</code> objects from graph.</li>
+<li><code>task_runtime/builder.py</code>: initialize <code>TaskRuntime</code> objects from graph.</li>
 <li><code>task_runner.py</code>: one-task lifecycle state machine (<code>PENDING -&gt; RUNNING -&gt; PR_CREATED -&gt; PR_MERGED/FAILED</code>).</li>
 <li><code>orchestrator.py</code>: async dispatch loop + dependency scheduling + resume hooks.</li>
 <li>Adapter layer for side effects (git/worktree, signals, PR, agent launch), then wire <code>TmuxAgent</code> real implementation.</li>

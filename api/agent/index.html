@@ -766,6 +766,62 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.agent.AgentAddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AgentAddress
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AgentAddress">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent.AgentAddress.label" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        label
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent.TmuxAddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TmuxAddress
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TmuxAddress">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent.TmuxAddress.label" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        label
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.agent.Agent" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1186,6 +1242,62 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.agent.AgentAddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AgentAddress
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AgentAddress">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent.AgentAddress.label" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        label
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent.TmuxAddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TmuxAddress
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TmuxAddress">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent.TmuxAddress.label" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        label
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.agent.Agent" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1300,49 +1412,12 @@
 <a id="agentrelay.agent"></a>
     <div class="doc doc-contents first">
 
-        <p>Agent interface and concrete implementations.</p>
-<p>This module defines the Agent abstract base class and concrete implementations
-for different execution environments. An Agent represents a running coding
-assistant (e.g., Claude Code in a tmux pane) and can be told to begin work.</p>
-
-
-<details class="see-also" open>
-  <summary>See also</summary>
-  <p>addressing: AgentAddress and concrete address types (TmuxAddress, etc.)</p>
-</details>
-
-<p><span class="doc-section-title">Classes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="Agent (agentrelay.agent.Agent)" href="#agentrelay.agent.Agent">Agent</a></code></td>
-            <td>
-              <div class="doc-md-description">
-                <p>Abstract base for a live running agent instance.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="TmuxAgent
-
-
-  
-      dataclass
-   (agentrelay.agent.TmuxAgent)" href="#agentrelay.agent.TmuxAgent">TmuxAgent</a></code></td>
-            <td>
-              <div class="doc-md-description">
-                <p>Concrete agent running in a tmux pane.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+        <p>Agent package: addressing types and live agent implementations.</p>
+<p>Public exports preserve the stable import surface:</p>
+<ul>
+<li><code>from agentrelay.agent import Agent, TmuxAgent</code></li>
+<li><code>from agentrelay.agent import AgentAddress, TmuxAddress</code></li>
+</ul>
 
 
 
@@ -1362,6 +1437,352 @@ assistant (e.g., Claude Code in a tmux pane) and can be told to begin work.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent.AgentAddress" class="doc doc-heading">
+            <code>AgentAddress</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="abc.ABC">ABC</span></code></p>
+
+
+
+        <p>Abstract base for addressing a running agent instance.</p>
+<p>Defines the interface for locating a live agent regardless of execution
+environment. Concrete subclasses carry the environment-specific connection
+details needed to communicate with the agent (pane IDs, endpoints, etc.).</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="label
+
+  
+      abstractmethod
+      property
+   (agentrelay.agent.AgentAddress.label)" href="#agentrelay.agent.AgentAddress.label">label</a></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A human-readable string identifier for the agent's location.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent/addressing.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgentAddress</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base for addressing a running agent instance.</span>
+
+<span class="sd">    Defines the interface for locating a live agent regardless of execution</span>
+<span class="sd">    environment. Concrete subclasses carry the environment-specific connection</span>
+<span class="sd">    details needed to communicate with the agent (pane IDs, endpoints, etc.).</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        label: A human-readable string identifier for the agent&#39;s location.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a human-readable identifier for this agent&#39;s location.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String representation of the agent&#39;s address/location.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="agentrelay.agent.AgentAddress.label" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">label</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a human-readable identifier for this agent's location.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>String representation of the agent's address/location.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent.TmuxAddress" class="doc doc-heading">
+            <code>TmuxAddress</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="AgentAddress (agentrelay.agent.addressing.AgentAddress)" href="#agentrelay.agent.AgentAddress">AgentAddress</a></code></p>
+
+
+
+        <p>Address of an agent running in a tmux pane.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent.TmuxAddress.session">session</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the tmux session.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent.TmuxAddress.pane_id">pane_id</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The identifier of the tmux pane (e.g., "%1", "%2").</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent/addressing.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TmuxAddress</span><span class="p">(</span><span class="n">AgentAddress</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Address of an agent running in a tmux pane.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        session: The name of the tmux session.</span>
+<span class="sd">        pane_id: The identifier of the tmux pane (e.g., &quot;%1&quot;, &quot;%2&quot;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">session</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">pane_id</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a human-readable identifier combining session and pane.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String in format &quot;session:pane_id&quot; (e.g., &quot;agentrelay:%1&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pane_id</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="agentrelay.agent.TmuxAddress.label" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">label</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return a human-readable identifier combining session and pane.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>String in format "session:pane_id" (e.g., "agentrelay:%1").</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -1396,7 +1817,7 @@ a single source of truth.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/agent.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/agent/agent.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
@@ -1508,7 +1929,7 @@ a single source of truth.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="agentrelay.addressing.AgentAddress">AgentAddress</span></code>
+                  <code><a class="autorefs autorefs-internal" title="AgentAddress (agentrelay.agent.addressing.AgentAddress)" href="#agentrelay.agent.AgentAddress">AgentAddress</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1518,7 +1939,7 @@ a single source of truth.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                  <code><span title="agentrelay.addressing.AgentAddress">AgentAddress</span></code>
+                  <code><a class="autorefs autorefs-internal" title="AgentAddress (agentrelay.agent.addressing.AgentAddress)" href="#agentrelay.agent.AgentAddress">AgentAddress</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1588,7 +2009,7 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/agent.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/agent/agent.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
@@ -1641,7 +2062,7 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="Agent (agentrelay.agent.Agent)" href="#agentrelay.agent.Agent">Agent</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="Agent (agentrelay.agent.agent.Agent)" href="#agentrelay.agent.Agent">Agent</a></code></p>
 
 
 
@@ -1663,7 +2084,12 @@ the TmuxAddress (session + pane_id) of its running process.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.agent.TmuxAgent._address">_address</span></code></td>
             <td>
-                  <code><span title="agentrelay.addressing.TmuxAddress">TmuxAddress</span></code>
+                  <code><a class="autorefs autorefs-internal" title="TmuxAddress
+
+
+  
+      dataclass
+   (agentrelay.agent.addressing.TmuxAddress)" href="#agentrelay.agent.TmuxAddress">TmuxAddress</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1682,7 +2108,7 @@ the TmuxAddress (session + pane_id) of its running process.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/agent.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/agent/agent.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 65</span>
 <span class="normal"> 66</span>
 <span class="normal"> 67</span>
@@ -1983,7 +2409,7 @@ config.model is passed as --model flag (None = framework default).</p>
 
   
       dataclass
-   (agentrelay.agent.TmuxAgent)" href="#agentrelay.agent.TmuxAgent">TmuxAgent</a></code>
+   (agentrelay.agent.agent.TmuxAgent)" href="#agentrelay.agent.TmuxAgent">TmuxAgent</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2019,7 +2445,7 @@ config.model is passed as --model flag (None = framework default).</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/agent.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/agent/agent.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
 <span class="normal"> 84</span>
 <span class="normal"> 85</span>
@@ -2162,7 +2588,7 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/agent.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/agent/agent.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
