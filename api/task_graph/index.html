@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/task_graph/">
       
       
-        <link rel="prev" href="../task/">
+        <link rel="prev" href="../agent/">
       
       
-        <link rel="next" href="../task_graph_builder/">
+        <link rel="next" href="indexing/">
       
       
         
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agentrelay.task_graph" class="md-skip">
+        <a href="#task_graph" class="md-skip">
           Skip to content
         </a>
       
@@ -699,14 +699,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../agent/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
+    Overview
   
 
     
@@ -727,7 +727,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../environments/" class="md-nav__link">
+      <a href="../core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/environments/" class="md-nav__link">
         
   
   
@@ -755,14 +783,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../task/" class="md-nav__link">
+      <a href="../core/task_runner/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
   
 
     
@@ -788,6 +844,8 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
+      
+        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -830,6 +888,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -1075,14 +1135,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_graph_builder/" class="md-nav__link">
+      <a href="indexing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_graph_builder
+    task_graph.indexing
   
 
     
@@ -1103,14 +1163,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runner/" class="md-nav__link">
+      <a href="validation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_runner
+    task_graph.validation
   
 
     
@@ -1159,34 +1219,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../workstream/" class="md-nav__link">
         
   
@@ -1195,62 +1227,6 @@
     
   
     workstream
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime_builder
   
 
     
@@ -1287,6 +1263,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -1533,19 +1511,20 @@
 
 
 
-  <h1>task_graph</h1>
+<div class="api-page"><h1 id="task_graph">task_graph</h1>
 
-<div class="api-page"><div class="doc doc-object doc-module">
+
+<div class="doc doc-object doc-module">
 
 
 
 <a id="agentrelay.task_graph"></a>
     <div class="doc doc-contents first">
 
-        <p>Task graph package.</p>
-<p>Backward-compatible public exports are provided here so existing imports like
-<code>from agentrelay.task_graph import TaskGraph, TaskGraphBuilder</code> continue to
-work after the module-to-package refactor.</p>
+        <p>Task graph model and construction surface.</p>
+<p>This package exposes the class-based task-graph API used by orchestration code:
+an immutable <code>TaskGraph</code> plus <code>TaskGraphBuilder</code> for loading and validating
+graph definitions. Utility indexing/validation helpers live in submodules.</p>
 
 
 
@@ -2268,7 +2247,7 @@ hierarchies. <code>1</code> allows parent -&gt; child only.</p>
 
   
       dataclass
-   (agentrelay.task.Task)" href="../task/#agentrelay.task.Task">Task</a>]</code>
+   (agentrelay.task.Task)" href="../core/task/#agentrelay.task.Task">Task</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2317,7 +2296,7 @@ hierarchies. <code>1</code> allows parent -&gt; child only.</p>
 
   
       dataclass
-   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.workstream.WorkstreamSpec">WorkstreamSpec</a>]</code>
+   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3093,7 +3072,7 @@ hierarchies. <code>1</code> allows parent -&gt; child only.</p>
 
   
       dataclass
-   (agentrelay.task.Task)" href="../task/#agentrelay.task.Task">Task</a>]</code>
+   (agentrelay.task.Task)" href="../core/task/#agentrelay.task.Task">Task</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3131,7 +3110,7 @@ Each key must match its corresponding <code>Task.id</code>.</p>
 
   
       dataclass
-   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.workstream.WorkstreamSpec">WorkstreamSpec</a>]]</code>
+   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3377,7 +3356,7 @@ contains invalid workstream declarations.</p>
 
   
       dataclass
-   (agentrelay.task.Task)" href="../task/#agentrelay.task.Task">Task</a>]</code>
+   (agentrelay.task.Task)" href="../core/task/#agentrelay.task.Task">Task</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3414,7 +3393,7 @@ contains invalid workstream declarations.</p>
 
   
       dataclass
-   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.workstream.WorkstreamSpec">WorkstreamSpec</a>]]</code>
+   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3672,7 +3651,7 @@ provided in input iterables.</p>
 
   
       dataclass
-   (agentrelay.task.Task)" href="../task/#agentrelay.task.Task">Task</a></code>
+   (agentrelay.task.Task)" href="../core/task/#agentrelay.task.Task">Task</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4554,7 +4533,7 @@ unknown task ID.</p>
 
   
       dataclass
-   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.workstream.WorkstreamSpec">WorkstreamSpec</a></code>
+   (agentrelay.workstream.WorkstreamSpec)" href="../workstream/#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a></code>
             </td>
             <td>
               <div class="doc-md-description">

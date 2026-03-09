@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/agent/">
       
       
-        <link rel="prev" href="../../prototypes/v01/BACKLOG/">
+        <link rel="prev" href="../core/task_runner/">
       
       
-        <link rel="next" href="../environments/">
+        <link rel="next" href="../task_graph/">
       
       
         
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agentrelay.agent" class="md-skip">
+        <a href="#agent" class="md-skip">
           Skip to content
         </a>
       
@@ -696,6 +696,118 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -704,6 +816,8 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
+      
+        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -746,6 +860,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -926,62 +1042,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../environments/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    environments
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../task_graph/" class="md-nav__link">
         
   
@@ -1010,14 +1070,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_graph_builder/" class="md-nav__link">
+      <a href="../task_graph/indexing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_graph_builder
+    task_graph.indexing
   
 
     
@@ -1038,14 +1098,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runner/" class="md-nav__link">
+      <a href="../task_graph/validation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_runner
+    task_graph.validation
   
 
     
@@ -1094,34 +1154,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../workstream/" class="md-nav__link">
         
   
@@ -1130,62 +1162,6 @@
     
   
     workstream
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime_builder
   
 
     
@@ -1222,6 +1198,8 @@
 <nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
+  
+    
   
   
     <label class="md-nav__title" for="__toc">
@@ -1403,21 +1381,20 @@
 
 
 
-  <h1>agent</h1>
+<div class="api-page"><h1 id="agent">agent</h1>
 
-<div class="api-page"><div class="doc doc-object doc-module">
+
+<div class="doc doc-object doc-module">
 
 
 
 <a id="agentrelay.agent"></a>
     <div class="doc doc-contents first">
 
-        <p>Agent package: addressing types and live agent implementations.</p>
-<p>Public exports preserve the stable import surface:</p>
-<ul>
-<li><code>from agentrelay.agent import Agent, TmuxAgent</code></li>
-<li><code>from agentrelay.agent import AgentAddress, TmuxAddress</code></li>
-</ul>
+        <p>Agent abstractions for live coding-agent execution.</p>
+<p>This package defines how orchestrator/runtime code interacts with running agents:
+addressing types for locating an agent process and agent interfaces for sending
+kickoff instructions in a concrete execution environment.</p>
 
 
 
@@ -2328,7 +2305,7 @@ a TmuxAgent object that can be used to communicate with the running process.</p>
 
   
       dataclass
-   (agentrelay.task.AgentConfig)" href="../task/#agentrelay.task.AgentConfig">AgentConfig</a></code>
+   (agentrelay.task.AgentConfig)" href="../core/task/#agentrelay.task.AgentConfig">AgentConfig</a></code>
             </td>
             <td>
               <div class="doc-md-description">

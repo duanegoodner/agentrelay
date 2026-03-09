@@ -33,15 +33,23 @@
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/</loc>
+         <lastmod>2026-03-09</lastmod>
+    </url>
+    <url>
          <loc>https://duanegoodner.github.io/agentrelay/api/agent/</loc>
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/environments/</loc>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/environments/</loc>
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/task/</loc>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/task/</loc>
+         <lastmod>2026-03-09</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/task_runner/</loc>
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
@@ -49,11 +57,11 @@
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/task_graph_builder/</loc>
+         <loc>https://duanegoodner.github.io/agentrelay/api/task_graph/indexing/</loc>
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/task_runner/</loc>
+         <loc>https://duanegoodner.github.io/agentrelay/api/task_graph/validation/</loc>
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
@@ -61,19 +69,7 @@
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/task_runtime_builder/</loc>
-         <lastmod>2026-03-09</lastmod>
-    </url>
-    <url>
          <loc>https://duanegoodner.github.io/agentrelay/api/workstream/</loc>
-         <lastmod>2026-03-09</lastmod>
-    </url>
-    <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/workstream_runtime/</loc>
-         <lastmod>2026-03-09</lastmod>
-    </url>
-    <url>
-         <loc>https://duanegoodner.github.io/agentrelay/api/workstream_runtime_builder/</loc>
          <lastmod>2026-03-09</lastmod>
     </url>
     <url>

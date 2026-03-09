@@ -10,29 +10,31 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/workstream_runtime_builder/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/core/environments/">
       
       
-        <link rel="prev" href="../workstream_runtime/">
+        <link rel="prev" href="../task/">
       
+      
+        <link rel="next" href="../task_runner/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>workstream_runtime_builder - agentrelay</title>
+        <title>environments - agentrelay</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,11 +53,11 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agentrelay.workstream.runtime_builder" class="md-skip">
+        <a href="#environments" class="md-skip">
           Skip to content
         </a>
       
@@ -94,7 +96,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -114,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              workstream_runtime_builder
+              environments
             
           </span>
         </div>
@@ -192,7 +194,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -210,7 +212,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -237,7 +239,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ARCHITECTURE/" class="md-nav__link">
+      <a href="../../../ARCHITECTURE/" class="md-nav__link">
         
   
   
@@ -264,7 +266,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../DIAGRAM/" class="md-nav__link">
+      <a href="../../../DIAGRAM/" class="md-nav__link">
         
   
   
@@ -291,7 +293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../WORKFLOW/" class="md-nav__link">
+      <a href="../../../WORKFLOW/" class="md-nav__link">
         
   
   
@@ -318,7 +320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../GUIDE/" class="md-nav__link">
+      <a href="../../../GUIDE/" class="md-nav__link">
         
   
   
@@ -345,7 +347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../TESTING/" class="md-nav__link">
+      <a href="../../../TESTING/" class="md-nav__link">
         
   
   
@@ -372,7 +374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../HISTORY/" class="md-nav__link">
+      <a href="../../../HISTORY/" class="md-nav__link">
         
   
   
@@ -399,7 +401,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../BACKLOG/" class="md-nav__link">
+      <a href="../../../BACKLOG/" class="md-nav__link">
         
   
   
@@ -473,7 +475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prototypes/v01/" class="md-nav__link">
+      <a href="../../../prototypes/v01/" class="md-nav__link">
         
   
   
@@ -501,7 +503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+      <a href="../../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
         
   
   
@@ -529,7 +531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+      <a href="../../../prototypes/v01/OPERATIONS/" class="md-nav__link">
         
   
   
@@ -557,7 +559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+      <a href="../../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
         
   
   
@@ -585,7 +587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+      <a href="../../../prototypes/v01/HISTORY/" class="md-nav__link">
         
   
   
@@ -613,7 +615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+      <a href="../../../prototypes/v01/BACKLOG/" class="md-nav__link">
         
   
   
@@ -697,42 +699,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../agent/" class="md-nav__link">
+      <a href="../../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../environments/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    environments
+    Overview
   
 
     
@@ -778,17 +752,44 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../task_graph/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_graph
+    environments
   
 
     
@@ -797,34 +798,48 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_graph_builder/" class="md-nav__link">
+      
         
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
   
   
-  <span class="md-ellipsis">
+  
     
   
-    task_graph_builder
   
-
-    
-  </span>
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.environments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        environments
+      
+    </span>
+  </a>
   
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.environments.TmuxEnvironment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TmuxEnvironment
+      
+    </span>
+  </a>
   
-
-      </a>
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -865,7 +880,119 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runtime/" class="md-nav__link">
+      <a href="../../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../task_graph/indexing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph.indexing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../task_graph/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph.validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../task_runtime/" class="md-nav__link">
         
   
   
@@ -893,35 +1020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream/" class="md-nav__link">
+      <a href="../../workstream/" class="md-nav__link">
         
   
   
@@ -937,144 +1036,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.workstream.runtime_builder" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        runtime_builder
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.workstream.runtime_builder.WorkstreamRuntimeBuilder" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRuntimeBuilder
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.workstream.runtime_builder.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        from_graph
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1104,6 +1065,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1112,10 +1075,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.runtime_builder" class="md-nav__link">
+  <a href="#agentrelay.environments" class="md-nav__link">
     <span class="md-ellipsis">
       
-        runtime_builder
+        environments
       
     </span>
   </a>
@@ -1123,30 +1086,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.runtime_builder.WorkstreamRuntimeBuilder" class="md-nav__link">
+  <a href="#agentrelay.environments.TmuxEnvironment" class="md-nav__link">
     <span class="md-ellipsis">
       
-        WorkstreamRuntimeBuilder
+        TmuxEnvironment
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.workstream.runtime_builder.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        from_graph
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1167,20 +1113,36 @@
 
 
 
-  <h1>workstream_runtime_builder</h1>
-
-<div class="api-page"><div class="doc doc-object doc-module">
+<div class="api-page"><h1 id="environments">environments</h1>
 
 
+<div class="doc doc-object doc-module">
 
-<a id="agentrelay.workstream.runtime_builder"></a>
+
+
+<a id="agentrelay.environments"></a>
     <div class="doc doc-contents first">
 
-        <p>Runtime builders for workstream graph execution state.</p>
-<p>This module defines :class:<code>WorkstreamRuntimeBuilder</code>, which creates initial
-<code>WorkstreamRuntime</code> objects for every workstream in a
-:class:<code>agentrelay.task_graph.TaskGraph</code>.</p>
+        <p>Execution environment configuration types for v2 agents.</p>
+<p>Concrete environment types determine where and how an agent process is deployed
+(tmux pane, cloud API, etc.) and the communication protocol used (file-based signals
+vs HTTP-based). Each concrete type is a frozen dataclass.</p>
 
+
+<details class="type-alias" open>
+  <summary>Type alias</summary>
+  <p>AgentEnvironment: Union of all supported environment config types.
+    Add new types here as they are implemented.
+    If a behavioral contract (shared method or attribute) is ever identified that
+    all environments must satisfy, replace this alias with an ABC or Protocol.</p>
+</details>
+
+<details class="typevar" open>
+  <summary>TypeVar</summary>
+  <p>AgentEnvironmentT: Bound to AgentEnvironment. Use in generic code that needs
+    to preserve the concrete environment type through a function signature.
+    Update the bound here whenever AgentEnvironment gains a new member.</p>
+</details>
 
 
 
@@ -1204,9 +1166,13 @@
 
 
 
-<h2 id="agentrelay.workstream.runtime_builder.WorkstreamRuntimeBuilder" class="doc doc-heading">
-            <code>WorkstreamRuntimeBuilder</code>
+<h2 id="agentrelay.environments.TmuxEnvironment" class="doc doc-heading">
+            <code>TmuxEnvironment</code>
 
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
 
 </h2>
 
@@ -1215,7 +1181,33 @@
 
 
 
-        <p>Builder for initializing per-workstream runtime envelopes from a graph.</p>
+        <p>Deploy agent as a Claude Code process in a tmux pane.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.environments.TmuxEnvironment.session">session</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The tmux session name where the pane will be created.
+Defaults to "agentrelay".</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 
@@ -1225,17 +1217,8 @@
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime_builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
+                <summary>Source code in <code>src/agentrelay/environments.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
 <span class="normal">26</span>
@@ -1244,31 +1227,16 @@
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TmuxEnvironment</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deploy agent as a Claude Code process in a tmux pane.</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        session: The tmux session name where the pane will be created.</span>
+<span class="sd">            Defaults to &quot;agentrelay&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-<span class="sd">        Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
-<span class="sd">        Each runtime starts with default mutable state/artifacts.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            graph: Validated immutable task graph.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
-            <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
-                <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">runtimes</span>
+    <span class="n">session</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;agentrelay&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1284,135 +1252,6 @@
 
 
 
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="agentrelay.workstream.runtime_builder.WorkstreamRuntimeBuilder.from_graph" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
-  </span>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Build initial runtimes for all workstreams in a graph.</p>
-<p>Runtimes are returned in the graph's stable sorted workstream order.
-Each runtime starts with default mutable state/artifacts.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>graph</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskGraph
-
-
-  
-      dataclass
-   (agentrelay.task_graph.TaskGraph)" href="../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Validated immutable task graph.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="WorkstreamRuntime
-
-
-  
-      dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="../workstream_runtime/#agentrelay.workstream.runtime.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runtime_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
-
-<span class="sd">    Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
-<span class="sd">    Each runtime starts with default mutable state/artifacts.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        graph: Validated immutable task graph.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
-        <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
-            <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">runtimes</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
 
 
 
@@ -1479,10 +1318,10 @@ Each runtime starts with default mutable state/artifacts.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

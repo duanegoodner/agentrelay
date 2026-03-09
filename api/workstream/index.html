@@ -13,10 +13,8 @@
         <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/workstream/">
       
       
-        <link rel="prev" href="../task_runtime_builder/">
+        <link rel="prev" href="../task_runtime/">
       
-      
-        <link rel="next" href="../workstream_runtime/">
       
       
         
@@ -80,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agentrelay.workstream.workstream" class="md-skip">
+        <a href="#workstream" class="md-skip">
           Skip to content
         </a>
       
@@ -699,14 +697,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../agent/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
+    Overview
   
 
     
@@ -727,7 +725,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../environments/" class="md-nav__link">
+      <a href="../core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core/environments/" class="md-nav__link">
         
   
   
@@ -755,14 +781,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../task/" class="md-nav__link">
+      <a href="../core/task_runner/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
   
 
     
@@ -811,14 +865,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_graph_builder/" class="md-nav__link">
+      <a href="../task_graph/indexing/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_graph_builder
+    task_graph.indexing
   
 
     
@@ -839,14 +893,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runner/" class="md-nav__link">
+      <a href="../task_graph/validation/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task_runner
+    task_graph.validation
   
 
     
@@ -892,34 +946,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -928,6 +954,8 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
+      
+        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -971,6 +999,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -979,7 +1009,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.workstream" class="md-nav__link">
+  <a href="#agentrelay.workstream" class="md-nav__link">
     <span class="md-ellipsis">
       
         workstream
@@ -990,7 +1020,79 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.workstream.WorkstreamSpec" class="md-nav__link">
+  <a href="#agentrelay.workstream.WorkstreamArtifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamArtifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamRuntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamRuntime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamState" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamState
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamStatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamStatus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamSpec" class="md-nav__link">
     <span class="md-ellipsis">
       
         WorkstreamSpec
@@ -1004,62 +1106,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream_runtime_builder/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream_runtime_builder
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1089,6 +1135,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1097,7 +1145,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.workstream" class="md-nav__link">
+  <a href="#agentrelay.workstream" class="md-nav__link">
     <span class="md-ellipsis">
       
         workstream
@@ -1108,7 +1156,79 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.workstream.WorkstreamSpec" class="md-nav__link">
+  <a href="#agentrelay.workstream.WorkstreamArtifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamArtifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamRuntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamRuntime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamState" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamState
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamStatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamStatus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.WorkstreamSpec" class="md-nav__link">
     <span class="md-ellipsis">
       
         WorkstreamSpec
@@ -1135,19 +1255,20 @@
 
 
 
-  <h1>workstream</h1>
-
-<div class="api-page"><div class="doc doc-object doc-module">
+<div class="api-page"><h1 id="workstream">workstream</h1>
 
 
+<div class="doc doc-object doc-module">
 
-<a id="agentrelay.workstream.workstream"></a>
+
+
+<a id="agentrelay.workstream"></a>
     <div class="doc doc-contents first">
 
-        <p>Workstream specifications for grouping related task execution.</p>
-<p>This module defines :class:<code>WorkstreamSpec</code>, an immutable configuration object
-for a logical stream of related tasks that typically share a worktree and
-integration branch strategy.</p>
+        <p>Workstream model for lane-level execution and integration state.</p>
+<p>This package defines immutable workstream specifications and mutable runtime
+state for each workstream lane, including runtime initialization helpers used
+during graph execution setup.</p>
 
 
 
@@ -1172,7 +1293,773 @@ integration branch strategy.</p>
 
 
 
-<h2 id="agentrelay.workstream.workstream.WorkstreamSpec" class="doc doc-heading">
+<h2 id="agentrelay.workstream.WorkstreamArtifacts" class="doc doc-heading">
+            <code>WorkstreamArtifacts</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Outputs and observations produced while advancing a workstream.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamArtifacts.merge_pr_url">merge_pr_url</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>URL of the workstream integration PR, or <code>None</code> if absent.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamArtifacts.concerns">concerns</span></code></td>
+            <td>
+                  <code><span title="list">list</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of notable observations or concerns for this lane.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamArtifacts</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Outputs and observations produced while advancing a workstream.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        merge_pr_url: URL of the workstream integration PR, or ``None`` if absent.</span>
+<span class="sd">        concerns: List of notable observations or concerns for this lane.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">merge_pr_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">concerns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.WorkstreamRuntime" class="doc doc-heading">
+            <code>WorkstreamRuntime</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Mutable runtime envelope for a :class:<code>WorkstreamSpec</code>.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamRuntime.spec">spec</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamSpec
+
+
+  
+      dataclass
+   (agentrelay.workstream.workstream.WorkstreamSpec)" href="#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Immutable workstream specification for this lane.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamRuntime.state">state</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamState
+
+
+  
+      dataclass
+   (agentrelay.workstream.runtime.WorkstreamState)" href="#agentrelay.workstream.WorkstreamState">WorkstreamState</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mutable lane operational state.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamRuntime.artifacts">artifacts</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamArtifacts
+
+
+  
+      dataclass
+   (agentrelay.workstream.runtime.WorkstreamArtifacts)" href="#agentrelay.workstream.WorkstreamArtifacts">WorkstreamArtifacts</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mutable lane output artifacts.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntime</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable runtime envelope for a :class:`WorkstreamSpec`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        spec: Immutable workstream specification for this lane.</span>
+<span class="sd">        state: Mutable lane operational state.</span>
+<span class="sd">        artifacts: Mutable lane output artifacts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spec</span><span class="p">:</span> <span class="n">WorkstreamSpec</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">WorkstreamState</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">WorkstreamState</span><span class="p">)</span>
+    <span class="n">artifacts</span><span class="p">:</span> <span class="n">WorkstreamArtifacts</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">WorkstreamArtifacts</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.WorkstreamState" class="doc doc-heading">
+            <code>WorkstreamState</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Mutable operational state of a workstream lane.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamState.status">status</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamStatus (agentrelay.workstream.runtime.WorkstreamStatus)" href="#agentrelay.workstream.WorkstreamStatus">WorkstreamStatus</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Current lane lifecycle status.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamState.worktree_path">worktree_path</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filesystem path to the worktree used for this lane, or
+<code>None</code> if not provisioned yet.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamState.branch_name">branch_name</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Primary branch name used for this lane, or <code>None</code> until set.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamState.error">error</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Error message if lane execution failed, else <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamState.active_task_id">active_task_id</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task ID currently active in this lane, else <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamState</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable operational state of a workstream lane.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        status: Current lane lifecycle status.</span>
+<span class="sd">        worktree_path: Filesystem path to the worktree used for this lane, or</span>
+<span class="sd">            ``None`` if not provisioned yet.</span>
+<span class="sd">        branch_name: Primary branch name used for this lane, or ``None`` until set.</span>
+<span class="sd">        error: Error message if lane execution failed, else ``None``.</span>
+<span class="sd">        active_task_id: Task ID currently active in this lane, else ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">WorkstreamStatus</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">PENDING</span>
+    <span class="n">worktree_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">active_task_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.WorkstreamStatus" class="doc doc-heading">
+            <code>WorkstreamStatus</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Execution state of a workstream during orchestration.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamStatus.PENDING">PENDING</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream has not started provisioning/execution.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamStatus.ACTIVE">ACTIVE</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream is currently active (for example has running tasks).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamStatus.MERGED">MERGED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream integration flow is complete and merged.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamStatus.FAILED">FAILED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream execution failed.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution state of a workstream during orchestration.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        PENDING: Workstream has not started provisioning/execution.</span>
+<span class="sd">        ACTIVE: Workstream is currently active (for example has running tasks).</span>
+<span class="sd">        MERGED: Workstream integration flow is complete and merged.</span>
+<span class="sd">        FAILED: Workstream execution failed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PENDING</span> <span class="o">=</span> <span class="s2">&quot;pending&quot;</span>
+    <span class="n">ACTIVE</span> <span class="o">=</span> <span class="s2">&quot;active&quot;</span>
+    <span class="n">MERGED</span> <span class="o">=</span> <span class="s2">&quot;merged&quot;</span>
+    <span class="n">FAILED</span> <span class="o">=</span> <span class="s2">&quot;failed&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.WorkstreamRuntimeBuilder" class="doc doc-heading">
+            <code>WorkstreamRuntimeBuilder</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Builder for initializing per-workstream runtime envelopes from a graph.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/runtime_builder.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
+
+<span class="sd">        Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
+<span class="sd">        Each runtime starts with default mutable state/artifacts.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph: Validated immutable task graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
+            <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
+                <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.WorkstreamRuntimeBuilder.from_graph" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build initial runtimes for all workstreams in a graph.</p>
+<p>Runtimes are returned in the graph's stable sorted workstream order.
+Each runtime starts with default mutable state/artifacts.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskGraph
+
+
+  
+      dataclass
+   (agentrelay.task_graph.TaskGraph)" href="../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Validated immutable task graph.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/runtime_builder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
+
+<span class="sd">    Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
+<span class="sd">    Each runtime starts with default mutable state/artifacts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph: Validated immutable task graph.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
+        <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
+            <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.WorkstreamSpec" class="doc doc-heading">
             <code>WorkstreamSpec</code>
 
 
@@ -1204,7 +2091,7 @@ level and validated by graph-building layers.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.workstream.WorkstreamSpec.id">id</span></code></td>
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.id">id</span></code></td>
             <td>
                   <code><span title="str">str</span></code>
             </td>
@@ -1215,7 +2102,7 @@ level and validated by graph-building layers.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.workstream.WorkstreamSpec.parent_workstream_id">parent_workstream_id</span></code></td>
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.parent_workstream_id">parent_workstream_id</span></code></td>
             <td>
                   <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
             </td>
@@ -1227,7 +2114,7 @@ stream topologies (for example <code>A</code> -&gt; <code>A.1</code> and <code>A
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.workstream.WorkstreamSpec.base_branch">base_branch</span></code></td>
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.base_branch">base_branch</span></code></td>
             <td>
                   <code><span title="str">str</span></code>
             </td>
@@ -1239,7 +2126,7 @@ integration branches or worktrees. Defaults to <code>"main"</code>.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.workstream.WorkstreamSpec.merge_target_branch">merge_target_branch</span></code></td>
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.merge_target_branch">merge_target_branch</span></code></td>
             <td>
                   <code><span title="str">str</span></code>
             </td>
