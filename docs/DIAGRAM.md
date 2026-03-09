@@ -104,6 +104,12 @@ classDiagram
         }
     }
 
+    namespace task_runtime_builder_py {
+        class TaskRuntimeBuilder {
+            +from_graph(graph)$ dict[str, TaskRuntime]
+        }
+    }
+
     namespace environments_py {
         class AgentEnvironment {
             <<type alias>>
@@ -189,6 +195,8 @@ classDiagram
     TaskGraph --> Task : contains
     TaskGraphBuilder --> TaskGraph : builds
     TaskGraphBuilder --> Task : constructs
+    TaskRuntimeBuilder --> TaskGraph : reads
+    TaskRuntimeBuilder --> TaskRuntime : builds
     AgentConfig --> AgentEnvironment : environment
     TmuxEnvironment ..|> AgentEnvironment
     TmuxAddress --|> AgentAddress
