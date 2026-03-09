@@ -10,13 +10,11 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/task_runtime_builder/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/workstream/">
       
       
-        <link rel="prev" href="../task_runtime/">
+        <link rel="prev" href="../task_runtime_builder/">
       
-      
-        <link rel="next" href="../workstream/">
       
       
         
@@ -27,7 +25,7 @@
     
     
       
-        <title>task_runtime_builder - agentrelay</title>
+        <title>workstream - agentrelay</title>
       
     
     
@@ -80,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#agentrelay.task_runtime_builder" class="md-skip">
+        <a href="#agentrelay.workstream" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              task_runtime_builder
+              workstream
             
           </span>
         </div>
@@ -892,6 +890,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_runtime_builder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime_builder
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -909,7 +935,7 @@
   <span class="md-ellipsis">
     
   
-    task_runtime_builder
+    workstream
   
 
     
@@ -927,7 +953,7 @@
   <span class="md-ellipsis">
     
   
-    task_runtime_builder
+    workstream
   
 
     
@@ -951,10 +977,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime_builder" class="md-nav__link">
+  <a href="#agentrelay.workstream" class="md-nav__link">
     <span class="md-ellipsis">
       
-        task_runtime_builder
+        workstream
       
     </span>
   </a>
@@ -962,30 +988,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder" class="md-nav__link">
+  <a href="#agentrelay.workstream.WorkstreamSpec" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskRuntimeBuilder
+        WorkstreamSpec
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="TaskRuntimeBuilder">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder.from_graph" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        from_graph
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -993,34 +1002,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workstream/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workstream
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1058,10 +1039,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime_builder" class="md-nav__link">
+  <a href="#agentrelay.workstream" class="md-nav__link">
     <span class="md-ellipsis">
       
-        task_runtime_builder
+        workstream
       
     </span>
   </a>
@@ -1069,30 +1050,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder" class="md-nav__link">
+  <a href="#agentrelay.workstream.WorkstreamSpec" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskRuntimeBuilder
+        WorkstreamSpec
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="TaskRuntimeBuilder">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.task_runtime_builder.TaskRuntimeBuilder.from_graph" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        from_graph
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1113,18 +1077,19 @@
 
 
 
-  <h1>task_runtime_builder</h1>
+  <h1>workstream</h1>
 
 <div class="api-page"><div class="doc doc-object doc-module">
 
 
 
-<a id="agentrelay.task_runtime_builder"></a>
+<a id="agentrelay.workstream"></a>
     <div class="doc doc-contents first">
 
-        <p>Runtime builders for task graph execution state.</p>
-<p>This module defines :class:<code>TaskRuntimeBuilder</code>, which creates initial
-<code>TaskRuntime</code> objects for every task in a :class:<code>agentrelay.task_graph.TaskGraph</code>.</p>
+        <p>Workstream specifications for grouping related task execution.</p>
+<p>This module defines :class:<code>WorkstreamSpec</code>, an immutable configuration object
+for a logical stream of related tasks that typically share a worktree and
+integration branch strategy.</p>
 
 
 
@@ -1149,9 +1114,13 @@
 
 
 
-<h2 id="agentrelay.task_runtime_builder.TaskRuntimeBuilder" class="doc doc-heading">
-            <code>TaskRuntimeBuilder</code>
+<h2 id="agentrelay.workstream.WorkstreamSpec" class="doc doc-heading">
+            <code>WorkstreamSpec</code>
 
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
 
 </h2>
 
@@ -1160,7 +1129,71 @@
 
 
 
-        <p>Builder for initializing per-task runtime envelopes from a task graph.</p>
+        <p>Immutable specification for a task workstream.</p>
+<p>A workstream models a branch/worktree execution lane that one or more tasks
+can target. Parent/child workstream relationships are defined at the spec
+level and validated by graph-building layers.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.id">id</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unique workstream identifier within a task graph.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.parent_workstream_id">parent_workstream_id</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional parent workstream ID for hierarchical
+stream topologies (for example <code>A</code> -&gt; <code>A.1</code> and <code>A.2</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.base_branch">base_branch</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Branch name used as the base when creating workstream
+integration branches or worktrees. Defaults to <code>"main"</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamSpec.merge_target_branch">merge_target_branch</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Branch name the workstream ultimately merges into.
+Defaults to <code>"main"</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 
@@ -1170,8 +1203,9 @@
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runtime_builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">13</span>
+                <summary>Source code in <code>src/agentrelay/workstream.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
+<span class="normal">13</span>
 <span class="normal">14</span>
 <span class="normal">15</span>
 <span class="normal">16</span>
@@ -1190,26 +1224,29 @@
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-task runtime envelopes from a task graph.&quot;&quot;&quot;</span>
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Immutable specification for a task workstream.</span>
 
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
+<span class="sd">    A workstream models a branch/worktree execution lane that one or more tasks</span>
+<span class="sd">    can target. Parent/child workstream relationships are defined at the spec</span>
+<span class="sd">    level and validated by graph-building layers.</span>
 
-<span class="sd">        Runtimes are returned in the graph&#39;s stable topological task order.</span>
-<span class="sd">        Each runtime starts with default mutable state/artifacts and no agent.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        id: Unique workstream identifier within a task graph.</span>
+<span class="sd">        parent_workstream_id: Optional parent workstream ID for hierarchical</span>
+<span class="sd">            stream topologies (for example ``A`` -&gt; ``A.1`` and ``A.2``).</span>
+<span class="sd">        base_branch: Branch name used as the base when creating workstream</span>
+<span class="sd">            integration branches or worktrees. Defaults to ``&quot;main&quot;``.</span>
+<span class="sd">        merge_target_branch: Branch name the workstream ultimately merges into.</span>
+<span class="sd">            Defaults to ``&quot;main&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            graph: Validated immutable task graph.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            dict[str, TaskRuntime]: Task runtimes keyed by task ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">():</span>
-            <span class="n">runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskRuntime</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_id</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">runtimes</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">parent_workstream_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">base_branch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;main&quot;</span>
+    <span class="n">merge_target_branch</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;main&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1225,131 +1262,6 @@
 
 
 
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="agentrelay.task_runtime_builder.TaskRuntimeBuilder.from_graph" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
-  </span>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Build initial runtimes for all tasks in a graph.</p>
-<p>Runtimes are returned in the graph's stable topological task order.
-Each runtime starts with default mutable state/artifacts and no agent.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>graph</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskGraph
-
-
-  
-      dataclass
-   (agentrelay.task_graph.TaskGraph)" href="../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Validated immutable task graph.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="TaskRuntime
-
-
-  
-      dataclass
-   (agentrelay.task_runtime.TaskRuntime)" href="../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>dict[str, TaskRuntime]: Task runtimes keyed by task ID.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runtime_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
-
-<span class="sd">    Runtimes are returned in the graph&#39;s stable topological task order.</span>
-<span class="sd">    Each runtime starts with default mutable state/artifacts and no agent.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        graph: Validated immutable task graph.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        dict[str, TaskRuntime]: Task runtimes keyed by task ID.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">():</span>
-        <span class="n">runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskRuntime</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_id</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">runtimes</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
 
 
 

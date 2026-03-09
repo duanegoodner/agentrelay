@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-06-07/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-07/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Sprint Notes — 2026-06-07 - agentrelay</title>
+        <title>Sprint Notes — 2026-03-07 - agentrelay</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sprint-notes-2026-06-07" class="md-skip">
+        <a href="#sprint-notes-2026-03-07" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Sprint Notes — 2026-06-07
+              Sprint Notes — 2026-03-07
             
           </span>
         </div>
@@ -910,6 +910,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -966,10 +994,43 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#recommended-implementation-order-non-prototype" class="md-nav__link">
+  <a href="#original-recommended-implementation-order-non-prototype-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Recommended implementation order (non-prototype)
+        Original recommended implementation order (non-prototype, reference)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revised-implementation-plan-pr-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revised implementation plan (PR-based)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mapping-revised-plan-to-original-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mapping revised plan to original items
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clarification-on-completion-of-original-item-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clarification on completion of original item 5
       
     </span>
   </a>
@@ -993,7 +1054,7 @@
 
 
 
-<h1 id="sprint-notes-2026-06-07">Sprint Notes — 2026-06-07</h1>
+<h1 id="sprint-notes-2026-03-07">Sprint Notes — 2026-03-07</h1>
 <h2 id="review-findings-non-prototype-track-highest-impact-first">Review Findings (non-prototype track, highest impact first)</h2>
 <ol>
 <li>
@@ -1013,7 +1074,7 @@
 <a href="/data/git/agentrelay/main/src/agentrelay/prototypes/v01/run_graph.py:697">src/agentrelay/prototypes/v01/run_graph.py:697</a>, <a href="/data/git/agentrelay/main/src/agentrelay/prototypes/v01/task_launcher.py:135">src/agentrelay/prototypes/v01/task_launcher.py:135</a></p>
 </li>
 </ol>
-<p><code>pixi run test</code> passes (<code>467 passed</code>), so baseline is clean.</p>
+<p><code>pixi run test</code> currently passes (<code>500 passed</code>), so baseline is clean.</p>
 <h2 id="your-specific-questions">Your specific questions</h2>
 <ul>
 <li>
@@ -1037,7 +1098,7 @@
   Yes, but as a thin scheduler over <code>TaskRuntime</code>; delegate per-task lifecycle to <code>TaskRunner</code>.</p>
 </li>
 </ul>
-<h2 id="recommended-implementation-order-non-prototype">Recommended implementation order (non-prototype)</h2>
+<h2 id="original-recommended-implementation-order-non-prototype-reference">Original recommended implementation order (non-prototype, reference)</h2>
 <ol>
 <li><code>task_graph.py</code>: <code>TaskGraph</code> + validation/query APIs (<code>ready</code>, <code>dependents</code>, topo/cycle checks).</li>
 <li><code>task_graph_builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
@@ -1045,6 +1106,29 @@
 <li><code>task_runner.py</code>: one-task lifecycle state machine (<code>PENDING -&gt; RUNNING -&gt; PR_CREATED -&gt; PR_MERGED/FAILED</code>).</li>
 <li><code>orchestrator.py</code>: async dispatch loop + dependency scheduling + resume hooks.</li>
 <li>Adapter layer for side effects (git/worktree, signals, PR, agent launch), then wire <code>TmuxAgent</code> real implementation.</li>
+</ol>
+<h2 id="revised-implementation-plan-pr-based">Revised implementation plan (PR-based)</h2>
+<ol>
+<li>PR A: lock <code>TaskRunner</code> API contract (interface-only) and docs/diagram wiring.<br />
+   Status: merged on March 9, 2026 (<code>task_runner.py</code> exists, <code>run(...)</code> still stubbed).</li>
+<li>PR B: add workstream domain model + task reference (<code>workstream_id</code> with compatibility defaults).</li>
+<li>PR C: extend <code>TaskGraph</code> to include workstreams + validation/query APIs.</li>
+<li>PR D: extend YAML schema and <code>TaskGraphBuilder</code> for top-level <code>workstreams</code> + task mapping.</li>
+<li>PR E: add workstream runtime model + builder initialization from graph.</li>
+<li>PR F: implement <code>TaskRunner</code> lifecycle behavior against <code>TaskRunnerIO</code>.</li>
+<li>PR G: implement <code>orchestrator.py</code> scheduling loop with dependency + workstream rules.</li>
+<li>PR H: docs/examples/migration pass for new schema + orchestrator behavior.</li>
+</ol>
+<h2 id="mapping-revised-plan-to-original-items">Mapping revised plan to original items</h2>
+<ol>
+<li>Original item 4 (<code>task_runner.py</code>) is split across PR A (contract) and PR F (behavior).</li>
+<li>Original item 5 (<code>orchestrator.py</code>) is primarily PR G, with dependencies delivered in PRs B-F.</li>
+<li>Original item 6 (side-effect adapters + real <code>TmuxAgent</code>) is partially prepared by PRs F-G and then completed in follow-on adapter/agent implementation work.</li>
+</ol>
+<h2 id="clarification-on-completion-of-original-item-5">Clarification on completion of original item 5</h2>
+<ol>
+<li>Yes: once PRs A-H are complete, we should be effectively done with the original item 5 scope (<code>orchestrator.py</code> async dispatch + dependency scheduling + resume hooks).</li>
+<li>Note: full production side-effect integration (original item 6) remains a distinct follow-up track.</li>
 </ol>
 
 

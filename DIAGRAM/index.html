@@ -983,6 +983,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1131,6 +1159,7 @@ needs to preserve the concrete environment type; it has no class-diagram represe
             max_gate_attempts : int | None
             primary_agent : AgentConfig
             review : ReviewConfig | None
+            workstream_id : str
         }
     }
 
@@ -1192,6 +1221,16 @@ needs to preserve the concrete environment type; it has no class-diagram represe
             &lt;&lt;mutable dataclass&gt;&gt;
             io : TaskRunnerIO
             +run(runtime)$ TaskRunResult [stub]
+        }
+    }
+
+    namespace workstream_py {
+        class WorkstreamSpec {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            id : str
+            parent_workstream_id : str | None
+            base_branch : str
+            merge_target_branch : str
         }
     }
 
@@ -1274,6 +1313,7 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     Task --&gt; TaskPaths : paths
     Task --&gt; AgentConfig : primary_agent
     Task --&gt; ReviewConfig : review (optional)
+    Task ..&gt; WorkstreamSpec : workstream_id (ref)
     AgentConfig --&gt; AgentFramework : framework
     AgentConfig --&gt; AgentVerbosity : adr_verbosity
     ReviewConfig --&gt; AgentConfig : agent
