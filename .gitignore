@@ -16,3 +16,5 @@ site/
 # Workflow/graph definitions should live in a top-level directory (e.g. graphs/)
 # rather than here, to keep the gitignore simple.
 .workflow/
+
+.vscode/
