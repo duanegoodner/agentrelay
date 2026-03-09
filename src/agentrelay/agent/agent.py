@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from agentrelay.addressing import AgentAddress, TmuxAddress
+from agentrelay.agent.addressing import AgentAddress, TmuxAddress
 
 if TYPE_CHECKING:
     from agentrelay.environments import TmuxEnvironment

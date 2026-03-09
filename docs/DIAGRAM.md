@@ -219,7 +219,7 @@ classDiagram
         }
     }
 
-    namespace addressing_py {
+    namespace agent {
         class AgentAddress {
             <<abstract>>
             +label() str
@@ -231,9 +231,7 @@ classDiagram
             pane_id : str
             +label() str
         }
-    }
 
-    namespace agent_py {
         class Agent {
             <<abstract>>
             +send_kickoff(instructions_path)* void

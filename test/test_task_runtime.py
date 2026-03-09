@@ -4,8 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from agentrelay.addressing import AgentAddress, TmuxAddress
-from agentrelay.agent import TmuxAgent
+from agentrelay.agent import AgentAddress, TmuxAddress, TmuxAgent
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_runtime import (
     TaskArtifacts,
