@@ -132,6 +132,13 @@ classDiagram
     }
 
     namespace task_runner_py {
+        class TearDownMode {
+            <<enumeration>>
+            ALWAYS
+            NEVER
+            ON_SUCCESS
+        }
+
         class TaskCompletionSignal {
             <<frozen dataclass>>
             outcome : "done" | "failed"
@@ -160,7 +167,7 @@ classDiagram
         class TaskRunner {
             <<mutable dataclass>>
             io : TaskRunnerIO
-            +run(runtime)$ TaskRunResult [stub]
+            +run(runtime, teardown_mode)$ TaskRunResult
         }
     }
 
@@ -306,6 +313,7 @@ classDiagram
     TaskRunner --> TaskRunnerIO : uses
     TaskRunner --> TaskRuntime : mutates
     TaskRunner --> TaskRunResult : returns
+    TaskRunner --> TearDownMode : teardown policy
     TaskRunnerIO --> Agent : launches
     TaskRunnerIO --> TaskCompletionSignal : returns
     TaskRunResult --> TaskStatus : status
