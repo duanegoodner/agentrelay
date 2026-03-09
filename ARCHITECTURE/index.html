@@ -1184,7 +1184,7 @@ by module/file listing. The API reference and design diagram are the source of
 truth for concrete implementation details.</p>
 <h2 id="core-abstractions">Core Abstractions</h2>
 <ul>
-<li><code>TaskGraph</code>: immutable DAG of <code>Task</code> specifications</li>
+<li><code>TaskGraph</code>: immutable DAG of <code>Task</code> specifications plus workstream metadata</li>
 <li><code>TaskGraphBuilder</code>: YAML/dict schema parser that builds validated <code>TaskGraph</code></li>
 <li><code>TaskRuntimeBuilder</code>: graph-to-runtime initializer for task execution state</li>
 <li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>

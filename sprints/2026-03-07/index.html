@@ -1101,7 +1101,7 @@
 <h2 id="original-recommended-implementation-order-non-prototype-reference">Original recommended implementation order (non-prototype, reference)</h2>
 <ol>
 <li><code>task_graph.py</code>: <code>TaskGraph</code> + validation/query APIs (<code>ready</code>, <code>dependents</code>, topo/cycle checks).</li>
-<li><code>task_graph_builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
+<li><code>task_graph/builder.py</code>: YAML schema + <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
 <li><code>task_runtime_builder.py</code>: initialize <code>TaskRuntime</code> objects from graph.</li>
 <li><code>task_runner.py</code>: one-task lifecycle state machine (<code>PENDING -&gt; RUNNING -&gt; PR_CREATED -&gt; PR_MERGED/FAILED</code>).</li>
 <li><code>orchestrator.py</code>: async dispatch loop + dependency scheduling + resume hooks.</li>
