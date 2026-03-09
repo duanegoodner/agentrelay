@@ -110,6 +110,39 @@ classDiagram
         }
     }
 
+    namespace task_runner_py {
+        class TaskCompletionSignal {
+            <<frozen dataclass>>
+            outcome : "done" | "failed"
+            pr_url : str | None
+            error : str | None
+        }
+
+        class TaskRunnerIO {
+            <<protocol>>
+            +prepare(runtime) void
+            +launch(runtime) Agent
+            +kickoff(runtime) void
+            +wait_for_completion(runtime) TaskCompletionSignal
+            +merge_pr(runtime, pr_url) void
+            +teardown(runtime) void
+        }
+
+        class TaskRunResult {
+            <<frozen dataclass>>
+            task_id : str
+            status : TaskStatus
+            pr_url : str | None
+            error : str | None
+        }
+
+        class TaskRunner {
+            <<mutable dataclass>>
+            io : TaskRunnerIO
+            +run(runtime)$ TaskRunResult [stub]
+        }
+    }
+
     namespace environments_py {
         class AgentEnvironment {
             <<type alias>>
@@ -197,6 +230,12 @@ classDiagram
     TaskGraphBuilder --> Task : constructs
     TaskRuntimeBuilder --> TaskGraph : reads
     TaskRuntimeBuilder --> TaskRuntime : builds
+    TaskRunner --> TaskRunnerIO : uses
+    TaskRunner --> TaskRuntime : mutates
+    TaskRunner --> TaskRunResult : returns
+    TaskRunnerIO --> Agent : launches
+    TaskRunnerIO --> TaskCompletionSignal : returns
+    TaskRunResult --> TaskStatus : status
     AgentConfig --> AgentEnvironment : environment
     TmuxEnvironment ..|> AgentEnvironment
     TmuxAddress --|> AgentAddress

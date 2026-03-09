@@ -18,6 +18,8 @@ truth for concrete implementation details.
 - `TaskGraph`: immutable DAG of `Task` specifications
 - `TaskGraphBuilder`: YAML/dict schema parser that builds validated `TaskGraph`
 - `TaskRuntimeBuilder`: graph-to-runtime initializer for task execution state
+- `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`
+- `TaskRunnerIO`: side-effect boundary used by `TaskRunner` (launch/poll/merge/teardown)
 - `Task`: immutable specification of a unit of work
 - `TaskRuntime`: mutable execution envelope attached to a `Task`
 - `TaskState`: operational task state (status, worktree/branch, attempts, errors)
