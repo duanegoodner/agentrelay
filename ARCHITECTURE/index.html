@@ -950,6 +950,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/task_runtime/" class="md-nav__link">
         
   
@@ -1131,6 +1159,8 @@ truth for concrete implementation details.</p>
 <li><code>TaskGraph</code>: immutable DAG of <code>Task</code> specifications</li>
 <li><code>TaskGraphBuilder</code>: YAML/dict schema parser that builds validated <code>TaskGraph</code></li>
 <li><code>TaskRuntimeBuilder</code>: graph-to-runtime initializer for task execution state</li>
+<li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>
+<li><code>TaskRunnerIO</code>: side-effect boundary used by <code>TaskRunner</code> (launch/poll/merge/teardown)</li>
 <li><code>Task</code>: immutable specification of a unit of work</li>
 <li><code>TaskRuntime</code>: mutable execution envelope attached to a <code>Task</code></li>
 <li><code>TaskState</code>: operational task state (status, worktree/branch, attempts, errors)</li>

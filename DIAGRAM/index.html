@@ -906,6 +906,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/task_runtime/" class="md-nav__link">
         
   
@@ -1134,6 +1162,39 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
+    namespace task_runner_py {
+        class TaskCompletionSignal {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            outcome : "done" | "failed"
+            pr_url : str | None
+            error : str | None
+        }
+
+        class TaskRunnerIO {
+            &lt;&lt;protocol&gt;&gt;
+            +prepare(runtime) void
+            +launch(runtime) Agent
+            +kickoff(runtime) void
+            +wait_for_completion(runtime) TaskCompletionSignal
+            +merge_pr(runtime, pr_url) void
+            +teardown(runtime) void
+        }
+
+        class TaskRunResult {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            task_id : str
+            status : TaskStatus
+            pr_url : str | None
+            error : str | None
+        }
+
+        class TaskRunner {
+            &lt;&lt;mutable dataclass&gt;&gt;
+            io : TaskRunnerIO
+            +run(runtime)$ TaskRunResult [stub]
+        }
+    }
+
     namespace environments_py {
         class AgentEnvironment {
             &lt;&lt;type alias&gt;&gt;
@@ -1221,6 +1282,12 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     TaskGraphBuilder --&gt; Task : constructs
     TaskRuntimeBuilder --&gt; TaskGraph : reads
     TaskRuntimeBuilder --&gt; TaskRuntime : builds
+    TaskRunner --&gt; TaskRunnerIO : uses
+    TaskRunner --&gt; TaskRuntime : mutates
+    TaskRunner --&gt; TaskRunResult : returns
+    TaskRunnerIO --&gt; Agent : launches
+    TaskRunnerIO --&gt; TaskCompletionSignal : returns
+    TaskRunResult --&gt; TaskStatus : status
     AgentConfig --&gt; AgentEnvironment : environment
     TmuxEnvironment ..|&gt; AgentEnvironment
     TmuxAddress --|&gt; AgentAddress
