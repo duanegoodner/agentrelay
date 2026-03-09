@@ -357,6 +357,7 @@ class TestTask:
         assert task.completion_gate is None
         assert task.max_gate_attempts is None
         assert task.review is None
+        assert task.workstream_id == "default"
 
     def test_task_with_description(self) -> None:
         """Task can have a description."""
@@ -430,6 +431,15 @@ class TestTask:
         )
         assert task.review == review_config
 
+    def test_task_with_custom_workstream_id(self) -> None:
+        """Task can specify a non-default workstream ID."""
+        task = Task(
+            id="feature_a_impl",
+            role=AgentRole.IMPLEMENTER,
+            workstream_id="feature_a",
+        )
+        assert task.workstream_id == "feature_a"
+
     def test_task_with_all_fields(self) -> None:
         """Task can be created with all fields specified."""
         spec_task = Task(id="spec", role=AgentRole.SPEC_WRITER)
@@ -447,6 +457,7 @@ class TestTask:
             max_gate_attempts=5,
             primary_agent=AgentConfig(model="claude-sonnet-4-6"),
             review=review_config,
+            workstream_id="feature_a",
         )
 
         assert task.id == "impl"
@@ -457,6 +468,7 @@ class TestTask:
         assert task.completion_gate == "pytest"
         assert task.max_gate_attempts == 5
         assert task.review == review_config
+        assert task.workstream_id == "feature_a"
 
     def test_task_is_frozen(self) -> None:
         """Task is immutable."""
