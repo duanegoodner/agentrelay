@@ -1,0 +1,9 @@
+name: minimal
+
+tasks:
+  - id: plan
+    description: Write a short implementation plan.
+
+  - id: implement
+    dependencies: [plan]
+    description: Implement the planned changes.

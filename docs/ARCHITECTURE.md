@@ -55,6 +55,21 @@ but production side-effect integrations remain incomplete. End-to-end behavior f
 launch, prompt dispatch, signal polling, and PR integration still primarily lives in
 `src/agentrelay/prototypes/v01/`.
 
+## Orchestrator Behavior Contract
+
+The orchestrator currently enforces:
+
+- Dependency-aware scheduling (`TaskGraph.ready_ids(...)`).
+- Workstream constraints:
+  - one active task per workstream,
+  - child workstreams wait for parent workstream `MERGED`,
+  - ancestor workstream failure blocks descendants.
+- Retry policy for expected task failures (`TaskRunner.run(...)` returns `FAILED`).
+- Internal/system failure boundary for raised task-run exceptions:
+  - traceback recorded in orchestrator result,
+  - fail-fast path may cancel in-flight work (configurable).
+- Task teardown policy forwarding through `OrchestratorConfig.task_teardown_mode`.
+
 ## Relationship To Prototype v01
 
 Prototype docs and historical decisions are under `docs/prototypes/v01/`.

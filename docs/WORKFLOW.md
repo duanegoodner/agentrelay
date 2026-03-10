@@ -2,21 +2,21 @@
 
 ## Current Architecture Layer (`src/agentrelay/`)
 
-Implemented workflow behavior in the current architecture is intentionally minimal:
+Implemented workflow behavior in the current architecture now includes:
 
-1. Define immutable work with `Task`
-2. Wrap task execution state in `TaskRuntime`
-3. Track lifecycle state through `TaskStatus`
-4. Attach a live `Agent` instance when one exists
+1. Define immutable work with `Task` and `TaskGraph`.
+2. Load graph YAML with `TaskGraphBuilder`.
+3. Initialize runtime state with `TaskRuntimeBuilder` and `WorkstreamRuntimeBuilder`.
+4. Execute one task lifecycle with `TaskRunner`.
+5. Schedule the graph with `Orchestrator` using dependency + workstream rules.
 
-This gives us a clean execution model, but not a full orchestrator loop yet.
+This gives us a full in-process orchestration model and execution-state model.
 
 ## What Is Not Yet Implemented In This Layer
 
-- Task graph scheduler/dispatcher
-- Worktree creation + teardown orchestration
-- Signal directory polling/merge automation
-- Non-stub tmux agent launch and kickoff logic
+- Non-stub `TmuxAgent.from_config()` and `TmuxAgent.send_kickoff()`
+- Production `TaskRunnerIO` adapter for side effects (worktree setup, signal polling, PR operations)
+- End-user CLI flow that runs the non-prototype orchestrator with real side-effect integrations
 
 ## Where End-To-End Workflow Exists Today
 

@@ -36,6 +36,19 @@ pixi run check
 pixi run docs
 ```
 
+## Current Architecture Smoke Check
+
+Validate one of the checked-in TaskGraph schema examples:
+
+```bash
+pixi run python -c "from pathlib import Path; from agentrelay.task_graph import TaskGraphBuilder; g = TaskGraphBuilder.from_yaml(Path('docs/examples/workstreams.yaml')); print(g.name, g.task_ids())"
+```
+
+Schema and migration references:
+
+- [Task Graph Schema](SCHEMA.md)
+- [Migration Guide](MIGRATION.md)
+
 ## Prototype v01 Commands
 
 Run a graph:
