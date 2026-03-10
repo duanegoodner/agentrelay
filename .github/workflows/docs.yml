@@ -18,4 +18,8 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.8.4
         with:
           pixi-version: latest
+      - name: Verify diagram SVG is up to date
+        run: |
+          pixi run diagram
+          git diff --exit-code docs/diagram.svg || (echo "ERROR: docs/diagram.svg is stale. Run 'pixi run diagram' and commit the result." && exit 1)
       - run: pixi run docs-deploy

@@ -1,0 +1,530 @@
+@startuml diagram
+left to right direction
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam packageFontSize 13
+skinparam defaultFontName Monospaced
+skinparam nodesep 20
+skinparam ranksep 20
+
+' ─────────────────────────────────────────────
+'  task.py — immutable task specifications
+' ─────────────────────────────────────────────
+package "task.py" as task_py {
+    enum AgentRole <<enumeration>> {
+        SPEC_WRITER
+        TEST_WRITER
+        TEST_REVIEWER
+        IMPLEMENTER
+        GENERIC
+    }
+
+    enum AgentFramework <<enumeration>> {
+        CLAUDE_CODE
+    }
+
+    enum AgentVerbosity <<enumeration>> {
+        NONE
+        STANDARD
+        DETAILED
+        EDUCATIONAL
+    }
+
+    class TaskPaths <<frozen dataclass>> {
+        src : tuple[str, ...]
+        test : tuple[str, ...]
+        spec : str | None
+    }
+
+    class AgentConfig <<frozen dataclass>> {
+        framework : AgentFramework
+        model : str | None
+        adr_verbosity : AgentVerbosity
+        environment : AgentEnvironment
+    }
+
+    class ReviewConfig <<frozen dataclass>> {
+        agent : AgentConfig
+        review_on_attempt : int
+    }
+
+    class Task <<frozen dataclass>> {
+        id : str
+        role : AgentRole
+        description : str | None
+        paths : TaskPaths
+        dependencies : tuple[Task, ...]
+        completion_gate : str | None
+        max_gate_attempts : int | None
+        primary_agent : AgentConfig
+        review : ReviewConfig | None
+        workstream_id : str
+    }
+}
+
+' ─────────────────────────────────────────────
+'  environments.py — execution environments
+' ─────────────────────────────────────────────
+package "environments.py" as environments_py {
+    class AgentEnvironment <<type alias>> {
+    }
+
+    class TmuxEnvironment <<frozen dataclass>> {
+        session : str
+    }
+}
+
+' ─────────────────────────────────────────────
+'  agent/ — agent abstractions
+' ─────────────────────────────────────────────
+package "agent/" as agent_pkg {
+    abstract class AgentAddress <<abstract>> {
+        +{abstract} label() : str
+    }
+
+    class TmuxAddress <<frozen dataclass>> {
+        session : str
+        pane_id : str
+        +label() : str
+    }
+
+    abstract class Agent <<abstract>> {
+        +{abstract} send_kickoff(instructions_path) : void
+        +{abstract} address() : AgentAddress
+    }
+
+    class TmuxAgent <<mutable dataclass>> {
+        -_address : TmuxAddress
+        +address() : TmuxAddress
+        +{static} from_config() : TmuxAgent  [stub]
+        +send_kickoff(instructions_path)  [stub]
+    }
+}
+
+' ─────────────────────────────────────────────
+'  workstream/ — workstream specs and runtime
+' ─────────────────────────────────────────────
+package "workstream/" as workstream_pkg {
+    class WorkstreamSpec <<frozen dataclass>> {
+        id : str
+        parent_workstream_id : str | None
+        base_branch : str
+        merge_target_branch : str
+    }
+
+    class WorkstreamRuntimeBuilder {
+        +{static} from_graph(graph) : dict[str, WorkstreamRuntime]
+    }
+
+    enum WorkstreamStatus <<enumeration>> {
+        PENDING
+        ACTIVE
+        MERGED
+        FAILED
+    }
+
+    class WorkstreamState <<mutable dataclass>> {
+        status : WorkstreamStatus
+        worktree_path : Path | None
+        branch_name : str | None
+        error : str | None
+        active_task_id : str | None
+    }
+
+    class WorkstreamArtifacts <<mutable dataclass>> {
+        merge_pr_url : str | None
+        concerns : list[str]
+    }
+
+    class WorkstreamRuntime <<mutable dataclass>> {
+        spec : WorkstreamSpec
+        state : WorkstreamState
+        artifacts : WorkstreamArtifacts
+    }
+}
+
+' ─────────────────────────────────────────────
+'  task_graph/ — DAG structure and queries
+' ─────────────────────────────────────────────
+package "task_graph/" as task_graph_pkg {
+    class TaskGraph <<frozen dataclass>> {
+        name : str | None
+        max_workstream_depth : int
+        __
+        +task(task_id) : Task
+        +task_ids() : tuple[str, ...]
+        +dependency_ids(task_id) : tuple[str, ...]
+        +dependent_ids(task_id) : tuple[str, ...]
+        +roots() : tuple[str, ...]
+        +leaves() : tuple[str, ...]
+        +topological_order() : tuple[str, ...]
+        +ready_ids(completed_ids, running_ids) : tuple[str, ...]
+        +workstream_ids() : tuple[str, ...]
+        +workstream(workstream_id) : WorkstreamSpec
+        +tasks_in_workstream(workstream_id) : tuple[str, ...]
+        +child_workstream_ids(workstream_id) : tuple[str, ...]
+    }
+
+    class _validation <<module>> {
+        module_path : task_graph._validation
+        __
+        +{static} normalize_workstreams(workstreams_by_id) : dict[str, WorkstreamSpec]
+        +{static} validate_task_workstream_ids(tasks_by_id, workstreams_by_id) : void
+        +{static} validate_workstream_parent_ids_exist(workstreams_by_id) : void
+        +{static} validate_workstream_hierarchy_acyclic(workstreams_by_id) : void
+        +{static} validate_workstream_max_depth(workstreams_by_id, max_depth) : void
+        +{static} validate_task_identity_consistency(tasks_by_id) : void
+        +{static} validate_dependencies_exist(tasks_by_id, dependency_ids) : void
+        +{static} validate_known_ids(ids, tasks_by_id, source_name) : void
+    }
+
+    class _indexing <<module>> {
+        module_path : task_graph._indexing
+        __
+        +{static} build_dependency_ids(tasks_by_id) : dict[str, tuple[str, ...]]
+        +{static} build_dependent_ids(tasks_by_id, dependency_ids) : dict[str, tuple[str, ...]]
+        +{static} topological_order_or_raise(dependency_ids, dependent_ids) : tuple[str, ...]
+        +{static} build_task_ids_by_workstream(tasks_by_id, topological_order, workstreams_by_id) : dict[str, tuple[str, ...]]
+        +{static} build_child_workstream_ids(workstreams_by_id) : dict[str, tuple[str, ...]]
+    }
+
+    class TaskGraphBuilder {
+        +{static} from_yaml(path) : TaskGraph
+        +{static} from_dict(data) : TaskGraph
+    }
+}
+
+' ─────────────────────────────────────────────
+'  task_runtime/ — mutable execution state
+' ─────────────────────────────────────────────
+package "task_runtime/" as task_runtime_pkg {
+    class TaskRuntimeBuilder {
+        +{static} from_graph(graph) : dict[str, TaskRuntime]
+    }
+
+    enum TaskStatus <<enumeration>> {
+        PENDING
+        RUNNING
+        PR_CREATED
+        PR_MERGED
+        FAILED
+    }
+
+    class TaskState <<mutable dataclass>> {
+        status : TaskStatus
+        worktree_path : Path | None
+        branch_name : str | None
+        error : str | None
+        attempt_num : int
+    }
+
+    class TaskArtifacts <<mutable dataclass>> {
+        pr_url : str | None
+        concerns : list[str]
+    }
+
+    class TaskRuntime <<mutable dataclass>> {
+        task : Task
+        state : TaskState
+        artifacts : TaskArtifacts
+        agent : Agent | None
+    }
+}
+
+' ─────────────────────────────────────────────
+'  task_runner.py — one-task lifecycle
+' ─────────────────────────────────────────────
+package "task_runner.py" as task_runner_py {
+    enum TearDownMode <<enumeration>> {
+        ALWAYS
+        NEVER
+        ON_SUCCESS
+    }
+
+    class TaskCompletionSignal <<frozen dataclass>> {
+        outcome : "done" | "failed"
+        pr_url : str | None
+        error : str | None
+    }
+
+    interface TaskRunnerIO <<protocol>> {
+        +prepare(runtime) : void
+        +launch(runtime) : Agent
+        +kickoff(runtime) : void
+        +wait_for_completion(runtime) : TaskCompletionSignal
+        +merge_pr(runtime, pr_url) : void
+        +teardown(runtime) : void
+    }
+
+    class TaskRunResult <<frozen dataclass>> {
+        task_id : str
+        status : TaskStatus
+        pr_url : str | None
+        error : str | None
+    }
+
+    class TaskRunner <<mutable dataclass>> {
+        io : TaskRunnerIO
+        __
+        +run(runtime, teardown_mode) : TaskRunResult
+    }
+}
+
+' ─────────────────────────────────────────────
+'  orchestrator.py — async scheduling loop
+' ─────────────────────────────────────────────
+package "orchestrator.py" as orchestrator_py {
+    enum TaskOutcomeClass <<enumeration>> {
+        SUCCESS
+        EXPECTED_FAILURE
+        INTERNAL_ERROR
+    }
+
+    enum OrchestratorOutcome <<enumeration>> {
+        SUCCEEDED
+        COMPLETED_WITH_FAILURES
+        FATAL_INTERNAL_ERROR
+    }
+
+    class OrchestratorConfig <<frozen dataclass>> {
+        max_concurrency : int
+        max_task_attempts : int
+        task_teardown_mode : TearDownMode
+        fail_fast_on_internal_error : bool
+    }
+
+    class OrchestratorEvent <<frozen dataclass>> {
+        kind : str
+        task_id : str | None
+        workstream_id : str | None
+        attempt_num : int | None
+        outcome_class : TaskOutcomeClass | None
+        message : str | None
+    }
+
+    class OrchestratorResult <<frozen dataclass>> {
+        outcome : OrchestratorOutcome
+        task_runtimes : Mapping[str, TaskRuntime]
+        workstream_runtimes : Mapping[str, WorkstreamRuntime]
+        events : tuple[OrchestratorEvent, ...]
+        fatal_error : str | None
+    }
+
+    class Orchestrator <<mutable dataclass>> {
+        graph : TaskGraph
+        task_runner : TaskRunner
+        config : OrchestratorConfig
+        __
+        +run(task_runtimes, workstream_runtimes) : OrchestratorResult
+    }
+}
+
+' ─────────────────────────────────────────────
+'  integration_contracts/ — adapter protocols
+' ─────────────────────────────────────────────
+package "integration_contracts/" as integration_contracts_pkg {
+    class LocalWorkspaceRef <<frozen dataclass>> {
+        worktree_path : Path
+        branch_name : str
+        kind : "local"
+    }
+
+    class RemoteWorkspaceRef <<frozen dataclass>> {
+        workspace_id : str
+        branch_name : str
+        workspace_uri : str | None
+        repo_ref : str | None
+        execution_target : str | None
+        artifacts_uri : str | None
+        kind : "remote"
+    }
+
+    class WorkspaceRef <<type alias>> {
+    }
+
+    class CompletionSignal <<frozen dataclass>> {
+        outcome : "done" | "failed"
+        pr_url : str | None
+        error : str | None
+        concerns : tuple[str, ...]
+    }
+
+    interface WorkspaceAdapter <<protocol>> {
+        +ensure_workspace(runtime, workstream) : WorkspaceRef
+        +cleanup_workspace(runtime, workstream) : void
+    }
+
+    interface SignalAdapter <<protocol>> {
+        +write_instructions(runtime, instructions_text) : Path
+        +wait_for_completion(runtime, timeout_seconds) : CompletionSignal
+    }
+
+    interface PullRequestAdapter <<protocol>> {
+        +merge_task_pr(runtime, pr_url) : void
+    }
+
+    interface AgentLauncher <<protocol>> {
+        +launch_task_agent(runtime) : Agent
+        +send_kickoff(agent, instructions_path) : void
+    }
+
+    class IntegrationAdapters <<frozen dataclass>> {
+        workspace : WorkspaceAdapter
+        signals : SignalAdapter
+        pull_requests : PullRequestAdapter
+        agent_launcher : AgentLauncher
+    }
+}
+
+' ─────────────────────────────────────────────
+'  integration_errors/ — error hierarchy
+' ─────────────────────────────────────────────
+package "integration_errors/" as integration_errors_pkg {
+    enum IntegrationBoundary <<enumeration>> {
+        WORKSPACE
+        SIGNAL
+        PULL_REQUEST
+        AGENT_LAUNCH
+    }
+
+    enum IntegrationFailureClass <<enumeration>> {
+        EXPECTED_TASK_FAILURE
+        INTERNAL_ERROR
+    }
+
+    class IntegrationError <<exception>> {
+        boundary : IntegrationBoundary
+        failure_class : IntegrationFailureClass
+        cause : BaseException | None
+    }
+
+    class ExpectedTaskFailureError <<exception>> {
+    }
+
+    class InternalIntegrationError <<exception>> {
+    }
+
+    class WorkspaceIntegrationError <<exception>> {
+    }
+
+    class WorktreeIntegrationError <<exception>> {
+    }
+
+    class SignalIntegrationError <<exception>> {
+    }
+
+    class PullRequestIntegrationError <<exception>> {
+    }
+
+    class AgentLaunchIntegrationError <<exception>> {
+    }
+
+    class error_functions <<module>> {
+        module_path : integration_errors
+        __
+        +{static} classify_integration_error(exc) : IntegrationFailureClass
+    }
+}
+
+' ═════════════════════════════════════════════
+'  Relationships
+' ═════════════════════════════════════════════
+
+' --- task.py internal ---
+Task --> AgentRole : role
+Task --> TaskPaths : paths
+Task --> AgentConfig : primary_agent
+Task --> ReviewConfig : review (optional)
+Task ..> WorkstreamSpec : workstream_id (ref)
+AgentConfig --> AgentFramework : framework
+AgentConfig --> AgentVerbosity : adr_verbosity
+ReviewConfig --> AgentConfig : agent
+
+' --- environments ---
+AgentConfig --> AgentEnvironment : environment
+TmuxEnvironment ..|> AgentEnvironment
+
+' --- agent ---
+TmuxAddress --|> AgentAddress
+TmuxAgent --|> Agent
+TmuxAgent --> TmuxAddress : _address
+Agent --> AgentAddress : address
+
+' --- task_graph ---
+TaskGraph --> Task : contains
+TaskGraph --> WorkstreamSpec : contains
+TaskGraph ..> _validation : uses
+TaskGraph ..> _indexing : uses
+TaskGraphBuilder --> TaskGraph : builds
+
+' --- builders ---
+TaskRuntimeBuilder --> TaskGraph : reads
+TaskRuntimeBuilder --> TaskRuntime : builds
+WorkstreamRuntimeBuilder --> TaskGraph : reads
+WorkstreamRuntimeBuilder --> WorkstreamRuntime : builds
+
+' --- task_runner ---
+TaskRunner --> TaskRunnerIO : uses
+TaskRunner --> TaskRuntime : mutates
+TaskRunner --> TaskRunResult : returns
+TaskRunner --> TearDownMode : teardown policy
+TaskRunnerIO ..> TaskRuntime : uses
+TaskRunnerIO --> Agent : launches
+TaskRunnerIO --> TaskCompletionSignal : returns
+TaskRunResult --> TaskStatus : status
+
+' --- task_runtime internal ---
+TaskState --> TaskStatus : status
+TaskRuntime --> Task : task
+TaskRuntime --> TaskState : state
+TaskRuntime --> TaskArtifacts : artifacts
+TaskRuntime --> Agent : agent (optional)
+
+' --- workstream internal ---
+WorkstreamState --> WorkstreamStatus : status
+WorkstreamRuntime --> WorkstreamSpec : spec
+WorkstreamRuntime --> WorkstreamState : state
+WorkstreamRuntime --> WorkstreamArtifacts : artifacts
+
+' --- orchestrator ---
+Orchestrator --> TaskGraph : reads
+Orchestrator --> TaskRunner : delegates task runs
+Orchestrator --> OrchestratorConfig : uses
+Orchestrator --> OrchestratorResult : returns
+OrchestratorResult --> OrchestratorOutcome : outcome
+OrchestratorResult --> OrchestratorEvent : events
+OrchestratorEvent --> TaskOutcomeClass : classification
+OrchestratorConfig --> TearDownMode : teardown policy
+Orchestrator --> TaskRuntime : mutates
+Orchestrator --> WorkstreamRuntime : mutates
+
+' --- integration_contracts ---
+WorkspaceRef --> LocalWorkspaceRef : union member
+WorkspaceRef --> RemoteWorkspaceRef : union member
+WorkspaceAdapter --> WorkspaceRef : returns
+WorkspaceAdapter --> TaskRuntime : uses
+WorkspaceAdapter --> WorkstreamRuntime : uses
+SignalAdapter --> CompletionSignal : returns
+SignalAdapter --> TaskRuntime : uses
+PullRequestAdapter --> TaskRuntime : uses
+AgentLauncher --> TaskRuntime : uses
+AgentLauncher --> Agent : launches
+IntegrationAdapters --> WorkspaceAdapter : workspace
+IntegrationAdapters --> SignalAdapter : signals
+IntegrationAdapters --> PullRequestAdapter : pull_requests
+IntegrationAdapters --> AgentLauncher : agent_launcher
+
+' --- integration_errors ---
+ExpectedTaskFailureError --|> IntegrationError
+InternalIntegrationError --|> IntegrationError
+WorkspaceIntegrationError --|> InternalIntegrationError
+WorktreeIntegrationError --|> WorkspaceIntegrationError
+SignalIntegrationError --|> InternalIntegrationError
+PullRequestIntegrationError --|> InternalIntegrationError
+AgentLaunchIntegrationError --|> InternalIntegrationError
+IntegrationError --> IntegrationBoundary : boundary
+IntegrationError --> IntegrationFailureClass : failure_class
+error_functions --> IntegrationFailureClass : returns
+
+@enduml

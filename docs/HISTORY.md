@@ -4,6 +4,27 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-10
+
+### PlantUML diagram infrastructure and conventions cleanup
+
+- Replaced Mermaid class diagram with PlantUML source (`docs/diagram.puml`) +
+  rendered SVG (`docs/diagram.svg`), giving full layout control
+- Added `plantuml` conda dependency and `pixi run diagram` task
+- Added CI freshness check in `docs.yml` to keep SVG in sync with `.puml`
+- Renamed `task_graph/indexing.py` → `_indexing.py` and `validation.py` →
+  `_validation.py` (underscore prefix for internal-only modules)
+- Updated `CLAUDE.md` coding conventions: public API uses classes; private
+  submodules may use free functions with `<<module>>` diagram stereotype
+- Audited diagram connectors: removed redundant `TaskGraphBuilder → Task`
+  and `error_functions → IntegrationError`; added missing
+  `TaskRunnerIO ..> TaskRuntime`
+- Simplified `DIAGRAM.md` to link-only SVG view with streamlined PR policy
+- Fixed mkdocs API docs and nav for renamed modules; added `md_in_html` and
+  `attr_list` markdown extensions
+
+---
+
 ## 2026-03-08
 
 ### Fix Pylance/pyright config for test files — PR #63

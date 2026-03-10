@@ -16,6 +16,7 @@ mkdocs = "*"
 mkdocs-material = "*"
 mkdocstrings = "*"
 mkdocstrings-python = "*"
+plantuml = "*"
 
 [pypi-dependencies]
 agentrelay = { path = ".", editable = true }
@@ -26,6 +27,7 @@ test = "python -m pytest"
 typecheck = "pyright src/agentrelay/"
 format = "black . --extend-exclude '\\.pixi/' && isort . --skip .pixi --skip-glob '.pixi/*'"
 check = "black . --extend-exclude '\\.pixi/' && isort . --skip .pixi --skip-glob '.pixi/*' && pyright src/agentrelay/ && python -m pytest"
+diagram = "plantuml --format svg docs/diagram.puml"
 docs = "mkdocs serve"
 docs-build = "mkdocs build"
 docs-deploy = "mkdocs gh-deploy --force"
