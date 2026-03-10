@@ -922,6 +922,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/agent/" class="md-nav__link">
         
   
@@ -1218,6 +1246,8 @@ truth for concrete implementation details.</p>
 <li><code>WorkstreamRuntimeBuilder</code>: graph-to-runtime initializer for workstream lane state</li>
 <li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>
 <li><code>TaskRunnerIO</code>: side-effect boundary used by <code>TaskRunner</code> (launch/poll/merge/teardown)</li>
+<li><code>Orchestrator</code>: async dependency/workstream scheduler over graph runtimes</li>
+<li><code>OrchestratorConfig</code>: run-level scheduling, retry, and teardown policy</li>
 <li><code>WorkstreamSpec</code>: immutable definition of a task workstream lane</li>
 <li><code>Task</code>: immutable specification of a unit of work</li>
 <li><code>TaskRuntime</code>: mutable execution envelope attached to a <code>Task</code></li>
@@ -1244,8 +1274,10 @@ truth for concrete implementation details.</p>
 <li><strong>Narrow interfaces</strong>: <code>Agent</code>, <code>AgentAddress</code>, and environment typing keep launcher logic decoupled.</li>
 </ul>
 <h2 id="execution-boundary-what-is-not-implemented-here-yet">Execution Boundary (What Is Not Implemented Here Yet)</h2>
-<p>The current architecture layer does not yet include a real orchestrator/launcher implementation.
-End-to-end behavior (tmux launch, prompt dispatch, signal polling, PR merge flow) still lives in <code>src/agentrelay/prototypes/v01/</code>.</p>
+<p>The current architecture layer includes a real orchestrator and task lifecycle runner,
+but production side-effect integrations remain incomplete. End-to-end behavior for tmux
+launch, prompt dispatch, signal polling, and PR integration still primarily lives in
+<code>src/agentrelay/prototypes/v01/</code>.</p>
 <h2 id="relationship-to-prototype-v01">Relationship To Prototype v01</h2>
 <p>Prototype docs and historical decisions are under <code>docs/prototypes/v01/</code>.
 Use those docs for runnable workflow behavior today; use this page for the target architecture model.</p>

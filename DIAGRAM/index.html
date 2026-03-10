@@ -878,6 +878,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/agent/" class="md-nav__link">
         
   
@@ -1279,6 +1307,57 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
+    namespace orchestrator_py {
+        class TaskOutcomeClass {
+            &lt;&lt;enumeration&gt;&gt;
+            SUCCESS
+            EXPECTED_FAILURE
+            INTERNAL_ERROR
+        }
+
+        class OrchestratorOutcome {
+            &lt;&lt;enumeration&gt;&gt;
+            SUCCEEDED
+            COMPLETED_WITH_FAILURES
+            FATAL_INTERNAL_ERROR
+        }
+
+        class OrchestratorConfig {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            max_concurrency : int
+            max_task_attempts : int
+            task_teardown_mode : TearDownMode
+            fail_fast_on_internal_error : bool
+        }
+
+        class OrchestratorEvent {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            kind : str
+            task_id : str | None
+            workstream_id : str | None
+            attempt_num : int | None
+            outcome_class : TaskOutcomeClass | None
+            message : str | None
+        }
+
+        class OrchestratorResult {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            outcome : OrchestratorOutcome
+            task_runtimes : Mapping[str, TaskRuntime]
+            workstream_runtimes : Mapping[str, WorkstreamRuntime]
+            events : tuple[OrchestratorEvent, ...]
+            fatal_error : str | None
+        }
+
+        class Orchestrator {
+            &lt;&lt;mutable dataclass&gt;&gt;
+            graph : TaskGraph
+            task_runner : TaskRunner
+            config : OrchestratorConfig
+            +run(task_runtimes, workstream_runtimes)$ OrchestratorResult
+        }
+    }
+
     namespace workstream {
         class WorkstreamSpec {
             &lt;&lt;frozen dataclass&gt;&gt;
@@ -1424,6 +1503,16 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     TaskRunner --&gt; TearDownMode : teardown policy
     TaskRunnerIO --&gt; Agent : launches
     TaskRunnerIO --&gt; TaskCompletionSignal : returns
+    Orchestrator --&gt; TaskGraph : reads
+    Orchestrator --&gt; TaskRunner : delegates task runs
+    Orchestrator --&gt; OrchestratorConfig : uses
+    Orchestrator --&gt; OrchestratorResult : returns
+    OrchestratorResult --&gt; OrchestratorOutcome : outcome
+    OrchestratorResult --&gt; OrchestratorEvent : events
+    OrchestratorEvent --&gt; TaskOutcomeClass : classification
+    OrchestratorConfig --&gt; TearDownMode : teardown policy
+    Orchestrator --&gt; TaskRuntime : mutates
+    Orchestrator --&gt; WorkstreamRuntime : mutates
     TaskRunResult --&gt; TaskStatus : status
     AgentConfig --&gt; AgentEnvironment : environment
     TmuxEnvironment ..|&gt; AgentEnvironment

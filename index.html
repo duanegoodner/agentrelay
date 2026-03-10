@@ -887,6 +887,34 @@
   
   
     <li class="md-nav__item">
+      <a href="api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api/agent/" class="md-nav__link">
         
   
@@ -1143,14 +1171,12 @@ additional coding-agent frameworks and cloud execution environments.</p>
 <h2 id="current-scope">Current Scope</h2>
 <p>Implemented today:</p>
 <ul>
-<li>Core architecture types in <code>src/agentrelay/</code> (<code>TaskGraph</code>, <code>TaskGraphBuilder</code>, <code>TaskRuntimeBuilder</code>, <code>WorkstreamRuntimeBuilder</code>, <code>TaskRunner</code>, <code>WorkstreamSpec</code>, <code>Task</code>, <code>TaskRuntime</code>, <code>WorkstreamRuntime</code>, <code>Agent</code>, <code>AgentEnvironment</code>)</li>
+<li>Core architecture types in <code>src/agentrelay/</code> (<code>TaskGraph</code>, <code>TaskGraphBuilder</code>, <code>TaskRuntimeBuilder</code>, <code>WorkstreamRuntimeBuilder</code>, <code>TaskRunner</code>, <code>Orchestrator</code>, <code>WorkstreamSpec</code>, <code>Task</code>, <code>TaskRuntime</code>, <code>WorkstreamRuntime</code>, <code>Agent</code>, <code>AgentEnvironment</code>)</li>
 <li>A runnable prototype orchestrator in <code>src/agentrelay/prototypes/v01/</code></li>
 <li>Test coverage for both layers (<code>516</code> tests collected)</li>
 </ul>
 <p>Not implemented yet in the current architecture layer:</p>
 <ul>
-<li>A production orchestrator loop</li>
-<li><code>TaskRunner.run(...)</code> behavior (interface contract exists; execution logic pending)</li>
 <li>Non-stub <code>TmuxAgent.from_config()</code> and <code>TmuxAgent.send_kickoff()</code></li>
 </ul>
 <h2 id="quick-links">Quick Links</h2>
