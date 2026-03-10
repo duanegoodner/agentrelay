@@ -23,6 +23,8 @@ truth for concrete implementation details.
 - `TaskRunnerIO`: side-effect boundary used by `TaskRunner` (launch/poll/merge/teardown)
 - `Orchestrator`: async dependency/workstream scheduler over graph runtimes
 - `OrchestratorConfig`: run-level scheduling, retry, and teardown policy
+- `integration_contracts`: protocol layer for workspace/signal/PR/agent-launch boundaries
+- `integration_errors`: typed integration failure model + expected/internal classification helper
 - `WorkstreamSpec`: immutable definition of a task workstream lane
 - `Task`: immutable specification of a unit of work
 - `TaskRuntime`: mutable execution envelope attached to a `Task`
@@ -47,6 +49,7 @@ truth for concrete implementation details.
 - **Immutable spec vs mutable runtime**: execution never mutates the task definition.
 - **Pluggable configuration**: framework and environment are explicit config fields.
 - **Narrow interfaces**: `Agent`, `AgentAddress`, and environment typing keep launcher logic decoupled.
+- **Contract-first integrations**: external side effects are modeled as typed protocols/errors before concrete implementations.
 
 ## Execution Boundary (What Is Not Implemented Here Yet)
 

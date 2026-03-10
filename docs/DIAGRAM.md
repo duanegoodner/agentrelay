@@ -343,6 +343,126 @@ classDiagram
         }
     }
 
+    namespace integration_contracts {
+        class LocalWorkspaceRef {
+            <<frozen dataclass>>
+            worktree_path : Path
+            branch_name : str
+            kind : "local"
+        }
+
+        class RemoteWorkspaceRef {
+            <<frozen dataclass>>
+            workspace_id : str
+            branch_name : str
+            workspace_uri : str | None
+            repo_ref : str | None
+            execution_target : str | None
+            artifacts_uri : str | None
+            kind : "remote"
+        }
+
+        class WorkspaceRef {
+            <<type alias>>
+        }
+
+        class CompletionSignal {
+            <<frozen dataclass>>
+            outcome : "done" | "failed"
+            pr_url : str | None
+            error : str | None
+            concerns : tuple[str, ...]
+        }
+
+        class WorkspaceAdapter {
+            <<protocol>>
+            +ensure_workspace(runtime, workstream) WorkspaceRef
+            +cleanup_workspace(runtime, workstream) void
+        }
+
+        class SignalAdapter {
+            <<protocol>>
+            +write_instructions(runtime, instructions_text) Path
+            +wait_for_completion(runtime, timeout_seconds) CompletionSignal
+        }
+
+        class PullRequestAdapter {
+            <<protocol>>
+            +merge_task_pr(runtime, pr_url) void
+        }
+
+        class AgentLauncher {
+            <<protocol>>
+            +launch_task_agent(runtime) Agent
+            +send_kickoff(agent, instructions_path) void
+        }
+
+        class IntegrationAdapters {
+            <<frozen dataclass>>
+            workspace : WorkspaceAdapter
+            signals : SignalAdapter
+            pull_requests : PullRequestAdapter
+            agent_launcher : AgentLauncher
+        }
+    }
+
+    namespace integration_errors {
+        class IntegrationBoundary {
+            <<enumeration>>
+            WORKSPACE
+            SIGNAL
+            PULL_REQUEST
+            AGENT_LAUNCH
+        }
+
+        class IntegrationFailureClass {
+            <<enumeration>>
+            EXPECTED_TASK_FAILURE
+            INTERNAL_ERROR
+        }
+
+        class IntegrationError {
+            <<exception>>
+            boundary : IntegrationBoundary
+            failure_class : IntegrationFailureClass
+            cause : BaseException | None
+        }
+
+        class ExpectedTaskFailureError {
+            <<exception>>
+        }
+
+        class InternalIntegrationError {
+            <<exception>>
+        }
+
+        class WorkspaceIntegrationError {
+            <<exception>>
+        }
+
+        class WorktreeIntegrationError {
+            <<exception>>
+        }
+
+        class SignalIntegrationError {
+            <<exception>>
+        }
+
+        class PullRequestIntegrationError {
+            <<exception>>
+        }
+
+        class AgentLaunchIntegrationError {
+            <<exception>>
+        }
+
+        class error_functions {
+            <<module>>
+            module_path : integration_errors
+            +classify_integration_error(exc)$ IntegrationFailureClass
+        }
+    }
+
     Task --> AgentRole : role
     Task --> TaskPaths : paths
     Task --> AgentConfig : primary_agent
@@ -393,6 +513,31 @@ classDiagram
     WorkstreamRuntime --> WorkstreamSpec : spec
     WorkstreamRuntime --> WorkstreamState : state
     WorkstreamRuntime --> WorkstreamArtifacts : artifacts
+    WorkspaceRef --> LocalWorkspaceRef : union member
+    WorkspaceRef --> RemoteWorkspaceRef : union member
+    WorkspaceAdapter --> WorkspaceRef : returns
+    WorkspaceAdapter --> TaskRuntime : uses
+    WorkspaceAdapter --> WorkstreamRuntime : uses
+    SignalAdapter --> CompletionSignal : returns
+    SignalAdapter --> TaskRuntime : uses
+    PullRequestAdapter --> TaskRuntime : uses
+    AgentLauncher --> TaskRuntime : uses
+    AgentLauncher --> Agent : launches
+    IntegrationAdapters --> WorkspaceAdapter : workspace
+    IntegrationAdapters --> SignalAdapter : signals
+    IntegrationAdapters --> PullRequestAdapter : pull_requests
+    IntegrationAdapters --> AgentLauncher : agent_launcher
+    ExpectedTaskFailureError --|> IntegrationError
+    InternalIntegrationError --|> IntegrationError
+    WorkspaceIntegrationError --|> InternalIntegrationError
+    WorktreeIntegrationError --|> WorkspaceIntegrationError
+    SignalIntegrationError --|> InternalIntegrationError
+    PullRequestIntegrationError --|> InternalIntegrationError
+    AgentLaunchIntegrationError --|> InternalIntegrationError
+    IntegrationError --> IntegrationBoundary : boundary
+    IntegrationError --> IntegrationFailureClass : failure_class
+    error_functions --> IntegrationError : classifies
+    error_functions --> IntegrationFailureClass : returns
 ```
 
 ---
