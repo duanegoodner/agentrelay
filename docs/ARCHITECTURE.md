@@ -21,6 +21,8 @@ truth for concrete implementation details.
 - `WorkstreamRuntimeBuilder`: graph-to-runtime initializer for workstream lane state
 - `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`
 - `TaskRunnerIO`: side-effect boundary used by `TaskRunner` (launch/poll/merge/teardown)
+- `Orchestrator`: async dependency/workstream scheduler over graph runtimes
+- `OrchestratorConfig`: run-level scheduling, retry, and teardown policy
 - `WorkstreamSpec`: immutable definition of a task workstream lane
 - `Task`: immutable specification of a unit of work
 - `TaskRuntime`: mutable execution envelope attached to a `Task`
@@ -48,8 +50,10 @@ truth for concrete implementation details.
 
 ## Execution Boundary (What Is Not Implemented Here Yet)
 
-The current architecture layer does not yet include a real orchestrator/launcher implementation.
-End-to-end behavior (tmux launch, prompt dispatch, signal polling, PR merge flow) still lives in `src/agentrelay/prototypes/v01/`.
+The current architecture layer includes a real orchestrator and task lifecycle runner,
+but production side-effect integrations remain incomplete. End-to-end behavior for tmux
+launch, prompt dispatch, signal polling, and PR integration still primarily lives in
+`src/agentrelay/prototypes/v01/`.
 
 ## Relationship To Prototype v01
 
