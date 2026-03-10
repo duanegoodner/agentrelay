@@ -931,6 +931,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/core/integration_contracts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    integration_contracts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/integration_errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    integration_errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/core/task_runner/" class="md-nav__link">
         
   
@@ -1560,6 +1616,126 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         }
     }
 
+    namespace integration_contracts {
+        class LocalWorkspaceRef {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            worktree_path : Path
+            branch_name : str
+            kind : "local"
+        }
+
+        class RemoteWorkspaceRef {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            workspace_id : str
+            branch_name : str
+            workspace_uri : str | None
+            repo_ref : str | None
+            execution_target : str | None
+            artifacts_uri : str | None
+            kind : "remote"
+        }
+
+        class WorkspaceRef {
+            &lt;&lt;type alias&gt;&gt;
+        }
+
+        class CompletionSignal {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            outcome : "done" | "failed"
+            pr_url : str | None
+            error : str | None
+            concerns : tuple[str, ...]
+        }
+
+        class WorkspaceAdapter {
+            &lt;&lt;protocol&gt;&gt;
+            +ensure_workspace(runtime, workstream) WorkspaceRef
+            +cleanup_workspace(runtime, workstream) void
+        }
+
+        class SignalAdapter {
+            &lt;&lt;protocol&gt;&gt;
+            +write_instructions(runtime, instructions_text) Path
+            +wait_for_completion(runtime, timeout_seconds) CompletionSignal
+        }
+
+        class PullRequestAdapter {
+            &lt;&lt;protocol&gt;&gt;
+            +merge_task_pr(runtime, pr_url) void
+        }
+
+        class AgentLauncher {
+            &lt;&lt;protocol&gt;&gt;
+            +launch_task_agent(runtime) Agent
+            +send_kickoff(agent, instructions_path) void
+        }
+
+        class IntegrationAdapters {
+            &lt;&lt;frozen dataclass&gt;&gt;
+            workspace : WorkspaceAdapter
+            signals : SignalAdapter
+            pull_requests : PullRequestAdapter
+            agent_launcher : AgentLauncher
+        }
+    }
+
+    namespace integration_errors {
+        class IntegrationBoundary {
+            &lt;&lt;enumeration&gt;&gt;
+            WORKSPACE
+            SIGNAL
+            PULL_REQUEST
+            AGENT_LAUNCH
+        }
+
+        class IntegrationFailureClass {
+            &lt;&lt;enumeration&gt;&gt;
+            EXPECTED_TASK_FAILURE
+            INTERNAL_ERROR
+        }
+
+        class IntegrationError {
+            &lt;&lt;exception&gt;&gt;
+            boundary : IntegrationBoundary
+            failure_class : IntegrationFailureClass
+            cause : BaseException | None
+        }
+
+        class ExpectedTaskFailureError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class InternalIntegrationError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class WorkspaceIntegrationError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class WorktreeIntegrationError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class SignalIntegrationError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class PullRequestIntegrationError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class AgentLaunchIntegrationError {
+            &lt;&lt;exception&gt;&gt;
+        }
+
+        class error_functions {
+            &lt;&lt;module&gt;&gt;
+            module_path : integration_errors
+            +classify_integration_error(exc)$ IntegrationFailureClass
+        }
+    }
+
     Task --&gt; AgentRole : role
     Task --&gt; TaskPaths : paths
     Task --&gt; AgentConfig : primary_agent
@@ -1609,7 +1785,32 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     WorkstreamState --&gt; WorkstreamStatus : status
     WorkstreamRuntime --&gt; WorkstreamSpec : spec
     WorkstreamRuntime --&gt; WorkstreamState : state
-    WorkstreamRuntime --&gt; WorkstreamArtifacts : artifacts</code></pre>
+    WorkstreamRuntime --&gt; WorkstreamArtifacts : artifacts
+    WorkspaceRef --&gt; LocalWorkspaceRef : union member
+    WorkspaceRef --&gt; RemoteWorkspaceRef : union member
+    WorkspaceAdapter --&gt; WorkspaceRef : returns
+    WorkspaceAdapter --&gt; TaskRuntime : uses
+    WorkspaceAdapter --&gt; WorkstreamRuntime : uses
+    SignalAdapter --&gt; CompletionSignal : returns
+    SignalAdapter --&gt; TaskRuntime : uses
+    PullRequestAdapter --&gt; TaskRuntime : uses
+    AgentLauncher --&gt; TaskRuntime : uses
+    AgentLauncher --&gt; Agent : launches
+    IntegrationAdapters --&gt; WorkspaceAdapter : workspace
+    IntegrationAdapters --&gt; SignalAdapter : signals
+    IntegrationAdapters --&gt; PullRequestAdapter : pull_requests
+    IntegrationAdapters --&gt; AgentLauncher : agent_launcher
+    ExpectedTaskFailureError --|&gt; IntegrationError
+    InternalIntegrationError --|&gt; IntegrationError
+    WorkspaceIntegrationError --|&gt; InternalIntegrationError
+    WorktreeIntegrationError --|&gt; WorkspaceIntegrationError
+    SignalIntegrationError --|&gt; InternalIntegrationError
+    PullRequestIntegrationError --|&gt; InternalIntegrationError
+    AgentLaunchIntegrationError --|&gt; InternalIntegrationError
+    IntegrationError --&gt; IntegrationBoundary : boundary
+    IntegrationError --&gt; IntegrationFailureClass : failure_class
+    error_functions --&gt; IntegrationError : classifies
+    error_functions --&gt; IntegrationFailureClass : returns</code></pre>
 <hr />
 <p><em>PR docs/mkdocs-design: No architectural changes. <code>src/agentrelay/my_package/</code> is a
 docs-only example module demonstrating mkdocstrings; it is not part of the core design.</em></p>
