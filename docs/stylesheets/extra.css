@@ -2,3 +2,8 @@
 .md-content__inner:has(.api-page) h1 {
     font-family: var(--md-code-font-family);
 }
+
+/* Hide the h1 (page title) entry from the right-sidebar TOC */
+.md-nav--secondary > .md-nav__list > li:first-child > .md-nav__link {
+    display: none;
+}

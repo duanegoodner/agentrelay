@@ -68,7 +68,5 @@ nav:
     - orchestrator: api/core/orchestrator.md
     - agent: api/agent/index.md
     - task_graph: api/task_graph/index.md
-    - task_graph._indexing: api/task_graph/indexing.md
-    - task_graph._validation: api/task_graph/validation.md
     - task_runtime: api/task_runtime/index.md
     - workstream: api/workstream/index.md
