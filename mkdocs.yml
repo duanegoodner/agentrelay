@@ -58,6 +58,7 @@ nav:
     - task: api/core/task.md
     - environments: api/core/environments.md
     - task_runner: api/core/task_runner.md
+    - orchestrator: api/core/orchestrator.md
     - agent: api/agent/index.md
     - task_graph: api/task_graph/index.md
     - task_graph.indexing: api/task_graph/indexing.md

@@ -171,6 +171,57 @@ classDiagram
         }
     }
 
+    namespace orchestrator_py {
+        class TaskOutcomeClass {
+            <<enumeration>>
+            SUCCESS
+            EXPECTED_FAILURE
+            INTERNAL_ERROR
+        }
+
+        class OrchestratorOutcome {
+            <<enumeration>>
+            SUCCEEDED
+            COMPLETED_WITH_FAILURES
+            FATAL_INTERNAL_ERROR
+        }
+
+        class OrchestratorConfig {
+            <<frozen dataclass>>
+            max_concurrency : int
+            max_task_attempts : int
+            task_teardown_mode : TearDownMode
+            fail_fast_on_internal_error : bool
+        }
+
+        class OrchestratorEvent {
+            <<frozen dataclass>>
+            kind : str
+            task_id : str | None
+            workstream_id : str | None
+            attempt_num : int | None
+            outcome_class : TaskOutcomeClass | None
+            message : str | None
+        }
+
+        class OrchestratorResult {
+            <<frozen dataclass>>
+            outcome : OrchestratorOutcome
+            task_runtimes : Mapping[str, TaskRuntime]
+            workstream_runtimes : Mapping[str, WorkstreamRuntime]
+            events : tuple[OrchestratorEvent, ...]
+            fatal_error : str | None
+        }
+
+        class Orchestrator {
+            <<mutable dataclass>>
+            graph : TaskGraph
+            task_runner : TaskRunner
+            config : OrchestratorConfig
+            +run(task_runtimes, workstream_runtimes)$ OrchestratorResult
+        }
+    }
+
     namespace workstream {
         class WorkstreamSpec {
             <<frozen dataclass>>
@@ -316,6 +367,16 @@ classDiagram
     TaskRunner --> TearDownMode : teardown policy
     TaskRunnerIO --> Agent : launches
     TaskRunnerIO --> TaskCompletionSignal : returns
+    Orchestrator --> TaskGraph : reads
+    Orchestrator --> TaskRunner : delegates task runs
+    Orchestrator --> OrchestratorConfig : uses
+    Orchestrator --> OrchestratorResult : returns
+    OrchestratorResult --> OrchestratorOutcome : outcome
+    OrchestratorResult --> OrchestratorEvent : events
+    OrchestratorEvent --> TaskOutcomeClass : classification
+    OrchestratorConfig --> TearDownMode : teardown policy
+    Orchestrator --> TaskRuntime : mutates
+    Orchestrator --> WorkstreamRuntime : mutates
     TaskRunResult --> TaskStatus : status
     AgentConfig --> AgentEnvironment : environment
     TmuxEnvironment ..|> AgentEnvironment
