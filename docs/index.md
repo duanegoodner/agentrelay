@@ -17,7 +17,7 @@ Implemented today:
 
 - Core architecture types in `src/agentrelay/` (`TaskGraph`, `TaskGraphBuilder`, `TaskRuntimeBuilder`, `WorkstreamRuntimeBuilder`, `TaskRunner`, `Orchestrator`, `WorkstreamSpec`, `Task`, `TaskRuntime`, `WorkstreamRuntime`, `Agent`, `AgentEnvironment`)
 - A runnable prototype orchestrator in `src/agentrelay/prototypes/v01/`
-- Test coverage for both layers (`516` tests collected)
+- Test coverage for both layers (`test/` plus prototype tests)
 
 Not implemented yet in the current architecture layer:
 
@@ -27,6 +27,8 @@ Not implemented yet in the current architecture layer:
 
 - **[Architecture](ARCHITECTURE.md)** - Core abstractions and design intent
 - **[Workflow](WORKFLOW.md)** - What workflow behavior is implemented today
+- **[Task Graph Schema](SCHEMA.md)** - YAML schema and defaults for `TaskGraphBuilder`
+- **[Migration Guide](MIGRATION.md)** - Moving older graph YAML to current schema/behavior
 - **[Guide](GUIDE.md)** - Setup and common development/prototype commands
 - **[Testing](TESTING.md)** - Test scope and validation commands
 - **[Prototype v01](prototypes/v01/index.md)** - Historical/runnable prototype docs

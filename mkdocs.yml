@@ -42,6 +42,9 @@ nav:
   - Architecture: ARCHITECTURE.md
   - Design Diagram: DIAGRAM.md
   - Workflow: WORKFLOW.md
+  - Task Graph Schema: SCHEMA.md
+  - Migration Guide: MIGRATION.md
+  - Examples: examples/index.md
   - Guide: GUIDE.md
   - Testing: TESTING.md
   - Changelog: HISTORY.md

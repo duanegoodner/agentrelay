@@ -1,0 +1,29 @@
+name: feature-a-with-child-workstreams
+max_workstream_depth: 2
+
+workstreams:
+  - id: feature_a
+    base_branch: main
+    merge_target_branch: main
+
+  - id: feature_a_spec
+    parent_workstream_id: feature_a
+    base_branch: feature_a
+    merge_target_branch: feature_a
+
+  - id: feature_a_impl
+    parent_workstream_id: feature_a
+    base_branch: feature_a
+    merge_target_branch: feature_a
+
+tasks:
+  - id: write_spec
+    workstream_id: feature_a_spec
+
+  - id: write_tests
+    dependencies: [write_spec]
+    workstream_id: feature_a_impl
+
+  - id: implement
+    dependencies: [write_tests]
+    workstream_id: feature_a_impl

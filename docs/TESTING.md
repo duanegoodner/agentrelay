@@ -28,4 +28,10 @@ Show collected test cases without executing:
 pixi run pytest --collect-only -q
 ```
 
-At present, collection reports **516 tests**.
+Validate schema examples used in docs:
+
+```bash
+pixi run pytest test/test_docs_examples.py
+```
+
+Use `pixi run pytest --collect-only -q` at any time for the current test count.
