@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/SCHEMA/">
       
       
-        <link rel="prev" href="../prototypes/v01/BACKLOG/">
+        <link rel="prev" href="../WORKFLOW/">
       
       
-        <link rel="next" href="core/task/">
+        <link rel="next" href="../MIGRATION/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Overview - agentrelay</title>
+        <title>Task Graph Schema - agentrelay</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-reference" class="md-skip">
+        <a href="#task-graph-yaml-schema" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Task Graph Schema
             
           </span>
         </div>
@@ -317,10 +317,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../SCHEMA/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -336,6 +363,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-level object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workstream-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workstream object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-defaulting-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important defaulting behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentreview-defaults-current-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent/review defaults (current implementation)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -728,20 +841,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -762,7 +873,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
@@ -777,19 +888,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
         
   
   
@@ -805,7 +907,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -818,7 +919,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/task/" class="md-nav__link">
+      <a href="../api/core/task/" class="md-nav__link">
         
   
   
@@ -846,7 +947,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/environments/" class="md-nav__link">
+      <a href="../api/core/environments/" class="md-nav__link">
         
   
   
@@ -874,7 +975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/task_runner/" class="md-nav__link">
+      <a href="../api/core/task_runner/" class="md-nav__link">
         
   
   
@@ -902,7 +1003,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/orchestrator/" class="md-nav__link">
+      <a href="../api/core/orchestrator/" class="md-nav__link">
         
   
   
@@ -930,7 +1031,7 @@
   
   
     <li class="md-nav__item">
-      <a href="agent/" class="md-nav__link">
+      <a href="../api/agent/" class="md-nav__link">
         
   
   
@@ -958,7 +1059,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/" class="md-nav__link">
+      <a href="../api/task_graph/" class="md-nav__link">
         
   
   
@@ -986,7 +1087,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/indexing/" class="md-nav__link">
+      <a href="../api/task_graph/indexing/" class="md-nav__link">
         
   
   
@@ -1014,7 +1115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/validation/" class="md-nav__link">
+      <a href="../api/task_graph/validation/" class="md-nav__link">
         
   
   
@@ -1042,7 +1143,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_runtime/" class="md-nav__link">
+      <a href="../api/task_runtime/" class="md-nav__link">
         
   
   
@@ -1070,7 +1171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="workstream/" class="md-nav__link">
+      <a href="../api/workstream/" class="md-nav__link">
         
   
   
@@ -1118,6 +1219,80 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#top-level-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-level object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workstream-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workstream object
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#important-defaulting-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Important defaulting behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentreview-defaults-current-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent/review defaults (current implementation)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canonical-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Canonical examples
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1133,13 +1308,82 @@
 
 
 
-<div class="api-page"><h1 id="api-reference">API Reference</h1>
-<p>Package-oriented API documentation for <code>agentrelay</code>.</p>
-<p>Conventions used here:</p>
+<h1 id="task-graph-yaml-schema">Task Graph YAML Schema</h1>
+<p>This page documents the YAML schema accepted by
+<code>agentrelay.task_graph.TaskGraphBuilder.from_yaml(...)</code>.</p>
+<h2 id="top-level-object">Top-level object</h2>
+<p>Required keys:</p>
 <ul>
-<li>Package entries document each package <code>__init__.py</code> surface (<code>agent</code>, <code>task_graph</code>, <code>task_runtime</code>, <code>workstream</code>).</li>
-<li>Module pages are only listed when the module exposes symbols that are not part of the package-level exports.</li>
-</ul></div>
+<li><code>name</code>: non-empty string.</li>
+<li><code>tasks</code>: non-empty list of task objects.</li>
+</ul>
+<p>Optional keys:</p>
+<ul>
+<li><code>workstreams</code>: non-empty list of workstream objects.</li>
+<li><code>max_workstream_depth</code>: integer &gt; 0. Default: <code>1</code>.</li>
+</ul>
+<p>Unknown top-level keys are rejected.</p>
+<h2 id="task-object">Task object</h2>
+<p>Required keys:</p>
+<ul>
+<li><code>id</code>: non-empty string, unique within <code>tasks</code>.</li>
+</ul>
+<p>Optional keys:</p>
+<ul>
+<li><code>role</code>: string. Defaults to <code>generic</code>. Accepts enum value (<code>implementer</code>) or enum name (<code>IMPLEMENTER</code>).</li>
+<li><code>description</code>: string or <code>null</code>.</li>
+<li><code>dependencies</code>: list of task IDs. Default: <code>[]</code>.</li>
+<li><code>paths</code>: object with optional <code>src</code>, <code>test</code>, <code>spec</code>.</li>
+<li><code>completion_gate</code>: string or <code>null</code>.</li>
+<li><code>max_gate_attempts</code>: integer &gt; 0 or <code>null</code>.</li>
+<li><code>primary_agent</code>: object with optional <code>framework</code>, <code>model</code>, <code>adr_verbosity</code>, <code>environment</code>.</li>
+<li><code>review</code>: object with required <code>agent</code> and optional <code>review_on_attempt</code> (default <code>1</code>).</li>
+<li><code>workstream_id</code>: string or <code>null</code>. Defaults to <code>default</code>.</li>
+</ul>
+<p>Validation rules:</p>
+<ul>
+<li>Dependency IDs must exist in <code>tasks</code>.</li>
+<li>Dependency graph must be acyclic.</li>
+<li>Duplicate dependency IDs in one task are rejected.</li>
+<li>Unknown task keys are rejected.</li>
+</ul>
+<h2 id="workstream-object">Workstream object</h2>
+<p>Required keys:</p>
+<ul>
+<li><code>id</code>: non-empty string, unique within <code>workstreams</code>.</li>
+</ul>
+<p>Optional keys:</p>
+<ul>
+<li><code>parent_workstream_id</code>: string or <code>null</code>.</li>
+<li><code>base_branch</code>: non-empty string. Default: <code>main</code>.</li>
+<li><code>merge_target_branch</code>: non-empty string. Default: <code>main</code>.</li>
+</ul>
+<p>Validation rules:</p>
+<ul>
+<li><code>parent_workstream_id</code> must reference an existing workstream ID.</li>
+<li>Workstream parent hierarchy must be acyclic.</li>
+<li>Workstream parent depth must be <code>&lt;= max_workstream_depth</code>.</li>
+</ul>
+<h2 id="important-defaulting-behavior">Important defaulting behavior</h2>
+<ol>
+<li>If <code>workstreams</code> is omitted, a synthetic <code>default</code> workstream is used.</li>
+<li><code>task.workstream_id</code> defaults to <code>default</code>.</li>
+<li>If <code>workstreams</code> is provided and tasks omit <code>workstream_id</code>, those tasks still resolve to <code>default</code>.</li>
+<li>That means if you provide explicit <code>workstreams</code>, include <code>id: default</code> when you want omitted <code>workstream_id</code> tasks to remain valid.</li>
+</ol>
+<h2 id="agentreview-defaults-current-implementation">Agent/review defaults (current implementation)</h2>
+<ul>
+<li><code>primary_agent.framework</code>: <code>claude_code</code></li>
+<li><code>primary_agent.adr_verbosity</code>: <code>none</code></li>
+<li><code>primary_agent.environment</code>: tmux session <code>agentrelay</code></li>
+<li><code>review.review_on_attempt</code>: <code>1</code></li>
+</ul>
+<h2 id="canonical-examples">Canonical examples</h2>
+<ul>
+<li>Minimal graph: <a href="../examples/minimal.yaml">docs/examples/minimal.yaml</a></li>
+<li>Parent/child workstreams: <a href="../examples/workstreams.yaml">docs/examples/workstreams.yaml</a></li>
+<li>Mixed default + explicit workstreams: <a href="../examples/mixed-default-and-explicit-workstreams.yaml">docs/examples/mixed-default-and-explicit-workstreams.yaml</a></li>
+</ul>
 
 
 

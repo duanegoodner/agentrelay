@@ -398,6 +398,87 @@
   
   
     <li class="md-nav__item">
+      <a href="SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="GUIDE/" class="md-nav__link">
         
   
@@ -514,10 +595,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
             
   
   
@@ -535,8 +616,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -736,10 +817,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
             
   
   
@@ -757,8 +838,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1173,7 +1254,7 @@ additional coding-agent frameworks and cloud execution environments.</p>
 <ul>
 <li>Core architecture types in <code>src/agentrelay/</code> (<code>TaskGraph</code>, <code>TaskGraphBuilder</code>, <code>TaskRuntimeBuilder</code>, <code>WorkstreamRuntimeBuilder</code>, <code>TaskRunner</code>, <code>Orchestrator</code>, <code>WorkstreamSpec</code>, <code>Task</code>, <code>TaskRuntime</code>, <code>WorkstreamRuntime</code>, <code>Agent</code>, <code>AgentEnvironment</code>)</li>
 <li>A runnable prototype orchestrator in <code>src/agentrelay/prototypes/v01/</code></li>
-<li>Test coverage for both layers (<code>516</code> tests collected)</li>
+<li>Test coverage for both layers (<code>test/</code> plus prototype tests)</li>
 </ul>
 <p>Not implemented yet in the current architecture layer:</p>
 <ul>
@@ -1183,6 +1264,8 @@ additional coding-agent frameworks and cloud execution environments.</p>
 <ul>
 <li><strong><a href="ARCHITECTURE/">Architecture</a></strong> - Core abstractions and design intent</li>
 <li><strong><a href="WORKFLOW/">Workflow</a></strong> - What workflow behavior is implemented today</li>
+<li><strong><a href="SCHEMA/">Task Graph Schema</a></strong> - YAML schema and defaults for <code>TaskGraphBuilder</code></li>
+<li><strong><a href="MIGRATION/">Migration Guide</a></strong> - Moving older graph YAML to current schema/behavior</li>
 <li><strong><a href="GUIDE/">Guide</a></strong> - Setup and common development/prototype commands</li>
 <li><strong><a href="TESTING/">Testing</a></strong> - Test scope and validation commands</li>
 <li><strong><a href="prototypes/v01/">Prototype v01</a></strong> - Historical/runnable prototype docs</li>

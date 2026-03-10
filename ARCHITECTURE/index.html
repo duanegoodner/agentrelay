@@ -354,6 +354,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#orchestrator-behavior-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orchestrator Behavior Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#relationship-to-prototype-v01" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -414,6 +425,87 @@
     
   
     Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
   
 
     
@@ -549,10 +641,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
             
   
   
@@ -570,8 +662,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -771,10 +863,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
             
   
   
@@ -792,8 +884,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1200,6 +1292,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#orchestrator-behavior-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orchestrator Behavior Contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#relationship-to-prototype-v01" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1278,6 +1381,20 @@ truth for concrete implementation details.</p>
 but production side-effect integrations remain incomplete. End-to-end behavior for tmux
 launch, prompt dispatch, signal polling, and PR integration still primarily lives in
 <code>src/agentrelay/prototypes/v01/</code>.</p>
+<h2 id="orchestrator-behavior-contract">Orchestrator Behavior Contract</h2>
+<p>The orchestrator currently enforces:</p>
+<ul>
+<li>Dependency-aware scheduling (<code>TaskGraph.ready_ids(...)</code>).</li>
+<li>Workstream constraints:</li>
+<li>one active task per workstream,</li>
+<li>child workstreams wait for parent workstream <code>MERGED</code>,</li>
+<li>ancestor workstream failure blocks descendants.</li>
+<li>Retry policy for expected task failures (<code>TaskRunner.run(...)</code> returns <code>FAILED</code>).</li>
+<li>Internal/system failure boundary for raised task-run exceptions:</li>
+<li>traceback recorded in orchestrator result,</li>
+<li>fail-fast path may cancel in-flight work (configurable).</li>
+<li>Task teardown policy forwarding through <code>OrchestratorConfig.task_teardown_mode</code>.</li>
+</ul>
 <h2 id="relationship-to-prototype-v01">Relationship To Prototype v01</h2>
 <p>Prototype docs and historical decisions are under <code>docs/prototypes/v01/</code>.
 Use those docs for runnable workflow behavior today; use this page for the target architecture model.</p>

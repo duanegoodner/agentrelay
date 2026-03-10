@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/examples/">
       
       
-        <link rel="prev" href="../prototypes/v01/BACKLOG/">
+        <link rel="prev" href="../MIGRATION/">
       
       
-        <link rel="next" href="core/task/">
+        <link rel="next" href="../GUIDE/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Overview - agentrelay</title>
+        <title>Examples - agentrelay</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-reference" class="md-skip">
+        <a href="#examples" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Examples
             
           </span>
         </div>
@@ -371,10 +371,19 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -390,6 +399,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -728,20 +738,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -762,7 +770,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
@@ -777,19 +785,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
         
   
   
@@ -805,7 +804,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -818,7 +816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/task/" class="md-nav__link">
+      <a href="../api/core/task/" class="md-nav__link">
         
   
   
@@ -846,7 +844,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/environments/" class="md-nav__link">
+      <a href="../api/core/environments/" class="md-nav__link">
         
   
   
@@ -874,7 +872,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/task_runner/" class="md-nav__link">
+      <a href="../api/core/task_runner/" class="md-nav__link">
         
   
   
@@ -902,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/orchestrator/" class="md-nav__link">
+      <a href="../api/core/orchestrator/" class="md-nav__link">
         
   
   
@@ -930,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="agent/" class="md-nav__link">
+      <a href="../api/agent/" class="md-nav__link">
         
   
   
@@ -958,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/" class="md-nav__link">
+      <a href="../api/task_graph/" class="md-nav__link">
         
   
   
@@ -986,7 +984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/indexing/" class="md-nav__link">
+      <a href="../api/task_graph/indexing/" class="md-nav__link">
         
   
   
@@ -1014,7 +1012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/validation/" class="md-nav__link">
+      <a href="../api/task_graph/validation/" class="md-nav__link">
         
   
   
@@ -1042,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_runtime/" class="md-nav__link">
+      <a href="../api/task_runtime/" class="md-nav__link">
         
   
   
@@ -1070,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="workstream/" class="md-nav__link">
+      <a href="../api/workstream/" class="md-nav__link">
         
   
   
@@ -1133,13 +1131,14 @@
 
 
 
-<div class="api-page"><h1 id="api-reference">API Reference</h1>
-<p>Package-oriented API documentation for <code>agentrelay</code>.</p>
-<p>Conventions used here:</p>
+<h1 id="examples">Examples</h1>
+<p>These YAML files are validated in tests so they stay in sync with the current
+<code>TaskGraphBuilder</code> schema.</p>
 <ul>
-<li>Package entries document each package <code>__init__.py</code> surface (<code>agent</code>, <code>task_graph</code>, <code>task_runtime</code>, <code>workstream</code>).</li>
-<li>Module pages are only listed when the module exposes symbols that are not part of the package-level exports.</li>
-</ul></div>
+<li><a href="minimal.yaml">minimal.yaml</a>: minimal linear graph.</li>
+<li><a href="workstreams.yaml">workstreams.yaml</a>: parent/child workstreams with explicit mapping.</li>
+<li><a href="mixed-default-and-explicit-workstreams.yaml">mixed-default-and-explicit-workstreams.yaml</a>: explicit <code>default</code> plus additional workstream.</li>
+</ul>
 
 
 

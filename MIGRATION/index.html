@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/MIGRATION/">
       
       
-        <link rel="prev" href="../prototypes/v01/BACKLOG/">
+        <link rel="prev" href="../SCHEMA/">
       
       
-        <link rel="next" href="core/task/">
+        <link rel="next" href="../examples/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Overview - agentrelay</title>
+        <title>Migration Guide - agentrelay</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-reference" class="md-skip">
+        <a href="#migration-guide" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Migration Guide
             
           </span>
         </div>
@@ -344,10 +344,37 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../MIGRATION/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -363,6 +390,103 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beforeafter-task-only-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before/after: task-only graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beforeafter-introducing-workstreams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before/after: introducing workstreams
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orchestrator-behavior-to-account-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orchestrator behavior to account for
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tear-down-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tear down policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-tip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation tip
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -728,20 +852,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -762,7 +884,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
@@ -777,19 +899,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
         
   
   
@@ -805,7 +918,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -818,7 +930,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/task/" class="md-nav__link">
+      <a href="../api/core/task/" class="md-nav__link">
         
   
   
@@ -846,7 +958,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/environments/" class="md-nav__link">
+      <a href="../api/core/environments/" class="md-nav__link">
         
   
   
@@ -874,7 +986,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/task_runner/" class="md-nav__link">
+      <a href="../api/core/task_runner/" class="md-nav__link">
         
   
   
@@ -902,7 +1014,7 @@
   
   
     <li class="md-nav__item">
-      <a href="core/orchestrator/" class="md-nav__link">
+      <a href="../api/core/orchestrator/" class="md-nav__link">
         
   
   
@@ -930,7 +1042,7 @@
   
   
     <li class="md-nav__item">
-      <a href="agent/" class="md-nav__link">
+      <a href="../api/agent/" class="md-nav__link">
         
   
   
@@ -958,7 +1070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/" class="md-nav__link">
+      <a href="../api/task_graph/" class="md-nav__link">
         
   
   
@@ -986,7 +1098,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/indexing/" class="md-nav__link">
+      <a href="../api/task_graph/indexing/" class="md-nav__link">
         
   
   
@@ -1014,7 +1126,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_graph/validation/" class="md-nav__link">
+      <a href="../api/task_graph/validation/" class="md-nav__link">
         
   
   
@@ -1042,7 +1154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="task_runtime/" class="md-nav__link">
+      <a href="../api/task_runtime/" class="md-nav__link">
         
   
   
@@ -1070,7 +1182,7 @@
   
   
     <li class="md-nav__item">
-      <a href="workstream/" class="md-nav__link">
+      <a href="../api/workstream/" class="md-nav__link">
         
   
   
@@ -1118,6 +1230,91 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beforeafter-task-only-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before/after: task-only graph
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beforeafter-introducing-workstreams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before/after: introducing workstreams
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#orchestrator-behavior-to-account-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Orchestrator behavior to account for
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tear-down-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tear down policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#validation-tip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation tip
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1133,13 +1330,88 @@
 
 
 
-<div class="api-page"><h1 id="api-reference">API Reference</h1>
-<p>Package-oriented API documentation for <code>agentrelay</code>.</p>
-<p>Conventions used here:</p>
+<h1 id="migration-guide">Migration Guide</h1>
+<p>This guide explains how to move from older task-only YAML files to the current
+TaskGraph schema with workstreams and orchestrator-aware behavior.</p>
+<h2 id="scope">Scope</h2>
+<p>This migration guide targets <code>TaskGraphBuilder</code> YAML consumed by the current
+architecture layer (<code>src/agentrelay/</code>).</p>
+<p>It does not describe all prototype v01 runner fields. Prototype-only top-level
+fields (for example <code>tmux_session</code>, <code>keep_panes</code>) are not accepted by
+<code>TaskGraphBuilder</code>.</p>
+<h2 id="migration-checklist">Migration checklist</h2>
+<ol>
+<li>Keep top-level <code>name</code> and <code>tasks</code>.</li>
+<li>Optionally add top-level <code>workstreams</code>.</li>
+<li>Add <code>workstream_id</code> per task when tasks should run in non-default workstreams.</li>
+<li>Add <code>max_workstream_depth</code> if you need hierarchy depth &gt; 1.</li>
+<li>Remove unknown keys not in the current schema.</li>
+</ol>
+<h2 id="beforeafter-task-only-graph">Before/after: task-only graph</h2>
+<p>Before (already valid in current schema):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">simple</span>
+
+<span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write_spec</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implement</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">write_spec</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>After: unchanged required for migration. This is still supported and maps to a
+synthetic <code>default</code> workstream.</p>
+<h2 id="beforeafter-introducing-workstreams">Before/after: introducing workstreams</h2>
+<p>Before:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-a</span>
+
+<span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write_spec</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implement</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">write_spec</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>After:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature-a</span>
+<span class="nt">max_workstream_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+
+<span class="nt">workstreams</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a</span>
+<span class="w">    </span><span class="nt">base_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">    </span><span class="nt">merge_target_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a_impl</span>
+<span class="w">    </span><span class="nt">parent_workstream_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a</span>
+<span class="w">    </span><span class="nt">base_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a</span>
+<span class="w">    </span><span class="nt">merge_target_branch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a</span>
+
+<span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write_spec</span>
+<span class="w">    </span><span class="nt">workstream_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implement</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">write_spec</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">workstream_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">feature_a_impl</span>
+</code></pre></div>
+<h2 id="orchestrator-behavior-to-account-for">Orchestrator behavior to account for</h2>
+<p>When migrating YAML, keep these execution rules in mind:</p>
+<ol>
+<li>Dependency scheduling is still task-DAG based.</li>
+<li>Workstream gate: only one active task per workstream at a time.</li>
+<li>Parent/child gate: child workstream tasks wait until parent workstream is <code>MERGED</code>.</li>
+<li><code>TaskRunner.run(...)</code> returns <code>FAILED</code>: expected task-level failure. Retry policy may apply (<code>max_task_attempts</code>).</li>
+<li><code>TaskRunner.run(...)</code> raises: internal/system failure. Orchestrator records traceback and fail-fast behavior applies.</li>
+</ol>
+<h2 id="tear-down-policy">Tear down policy</h2>
+<p><code>OrchestratorConfig.task_teardown_mode</code> forwards directly to <code>TaskRunner.run(...)</code>:</p>
 <ul>
-<li>Package entries document each package <code>__init__.py</code> surface (<code>agent</code>, <code>task_graph</code>, <code>task_runtime</code>, <code>workstream</code>).</li>
-<li>Module pages are only listed when the module exposes symbols that are not part of the package-level exports.</li>
-</ul></div>
+<li><code>always</code></li>
+<li><code>on_success</code></li>
+<li><code>never</code></li>
+</ul>
+<p>Use <code>never</code> for debugging sessions where agent resources (for example tmux panes)
+should remain available after a run.</p>
+<h2 id="validation-tip">Validation tip</h2>
+<p>Use these commands after migration:</p>
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>test/test_task_graph_builder.py
+pixi<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>test/test_orchestrator.py
+pixi<span class="w"> </span>run<span class="w"> </span>docs-build
+</code></pre></div>
 
 
 

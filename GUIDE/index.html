@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/GUIDE/">
       
       
-        <link rel="prev" href="../WORKFLOW/">
+        <link rel="prev" href="../examples/">
       
       
         <link rel="next" href="../TESTING/">
@@ -317,6 +317,87 @@
       
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
     
   
   
@@ -417,6 +498,17 @@
     <span class="md-ellipsis">
       
         Development Commands
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#current-architecture-smoke-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Architecture Smoke Check
       
     </span>
   </a>
@@ -549,10 +641,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
             
   
   
@@ -570,8 +662,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -771,10 +863,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
             
   
   
@@ -792,8 +884,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1189,6 +1281,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#current-architecture-smoke-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current Architecture Smoke Check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prototype-v01-commands" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1255,6 +1358,15 @@ pixi<span class="w"> </span>run<span class="w"> </span>format
 pixi<span class="w"> </span>run<span class="w"> </span>check
 pixi<span class="w"> </span>run<span class="w"> </span>docs
 </code></pre></div>
+<h2 id="current-architecture-smoke-check">Current Architecture Smoke Check</h2>
+<p>Validate one of the checked-in TaskGraph schema examples:</p>
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from pathlib import Path; from agentrelay.task_graph import TaskGraphBuilder; g = TaskGraphBuilder.from_yaml(Path(&#39;docs/examples/workstreams.yaml&#39;)); print(g.name, g.task_ids())&quot;</span>
+</code></pre></div>
+<p>Schema and migration references:</p>
+<ul>
+<li><a href="../SCHEMA/">Task Graph Schema</a></li>
+<li><a href="../MIGRATION/">Migration Guide</a></li>
+</ul>
 <h2 id="prototype-v01-commands">Prototype v01 Commands</h2>
 <p>Run a graph:</p>
 <div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.prototypes.v01.run_graph<span class="w"> </span>graphs/&lt;name&gt;.yaml

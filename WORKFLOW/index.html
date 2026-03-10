@@ -16,7 +16,7 @@
         <link rel="prev" href="../DIAGRAM/">
       
       
-        <link rel="next" href="../GUIDE/">
+        <link rel="next" href="../SCHEMA/">
       
       
         
@@ -400,6 +400,87 @@
   
   
     <li class="md-nav__item">
+      <a href="../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../GUIDE/" class="md-nav__link">
         
   
@@ -516,10 +597,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
         
           
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
             
   
   
@@ -537,8 +618,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -738,10 +819,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
         
           
-          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
             
   
   
@@ -759,8 +840,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_10">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1163,20 +1244,20 @@
 
 <h1 id="workflow">Workflow</h1>
 <h2 id="current-architecture-layer-srcagentrelay">Current Architecture Layer (<code>src/agentrelay/</code>)</h2>
-<p>Implemented workflow behavior in the current architecture is intentionally minimal:</p>
+<p>Implemented workflow behavior in the current architecture now includes:</p>
 <ol>
-<li>Define immutable work with <code>Task</code></li>
-<li>Wrap task execution state in <code>TaskRuntime</code></li>
-<li>Track lifecycle state through <code>TaskStatus</code></li>
-<li>Attach a live <code>Agent</code> instance when one exists</li>
+<li>Define immutable work with <code>Task</code> and <code>TaskGraph</code>.</li>
+<li>Load graph YAML with <code>TaskGraphBuilder</code>.</li>
+<li>Initialize runtime state with <code>TaskRuntimeBuilder</code> and <code>WorkstreamRuntimeBuilder</code>.</li>
+<li>Execute one task lifecycle with <code>TaskRunner</code>.</li>
+<li>Schedule the graph with <code>Orchestrator</code> using dependency + workstream rules.</li>
 </ol>
-<p>This gives us a clean execution model, but not a full orchestrator loop yet.</p>
+<p>This gives us a full in-process orchestration model and execution-state model.</p>
 <h2 id="what-is-not-yet-implemented-in-this-layer">What Is Not Yet Implemented In This Layer</h2>
 <ul>
-<li>Task graph scheduler/dispatcher</li>
-<li>Worktree creation + teardown orchestration</li>
-<li>Signal directory polling/merge automation</li>
-<li>Non-stub tmux agent launch and kickoff logic</li>
+<li>Non-stub <code>TmuxAgent.from_config()</code> and <code>TmuxAgent.send_kickoff()</code></li>
+<li>Production <code>TaskRunnerIO</code> adapter for side effects (worktree setup, signal polling, PR operations)</li>
+<li>End-user CLI flow that runs the non-prototype orchestrator with real side-effect integrations</li>
 </ul>
 <h2 id="where-end-to-end-workflow-exists-today">Where End-To-End Workflow Exists Today</h2>
 <p>The runnable orchestration flow is in the v01 prototype:</p>
