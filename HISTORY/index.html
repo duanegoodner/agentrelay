@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plantuml-diagram-infrastructure-and-conventions-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PlantUML diagram infrastructure and conventions cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-08" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1183,62 +1211,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_graph/indexing/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_graph.indexing
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../api/task_graph/validation/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_graph.validation
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../api/task_runtime/" class="md-nav__link">
         
   
@@ -1320,6 +1292,34 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#2026-03-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-10
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-10">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plantuml-diagram-infrastructure-and-conventions-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PlantUML diagram infrastructure and conventions cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#2026-03-08" class="md-nav__link">
@@ -1446,6 +1446,25 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-10">2026-03-10</h2>
+<h3 id="plantuml-diagram-infrastructure-and-conventions-cleanup">PlantUML diagram infrastructure and conventions cleanup</h3>
+<ul>
+<li>Replaced Mermaid class diagram with PlantUML source (<code>docs/diagram.puml</code>) +
+  rendered SVG (<code>docs/diagram.svg</code>), giving full layout control</li>
+<li>Added <code>plantuml</code> conda dependency and <code>pixi run diagram</code> task</li>
+<li>Added CI freshness check in <code>docs.yml</code> to keep SVG in sync with <code>.puml</code></li>
+<li>Renamed <code>task_graph/indexing.py</code> → <code>_indexing.py</code> and <code>validation.py</code> →
+  <code>_validation.py</code> (underscore prefix for internal-only modules)</li>
+<li>Updated <code>CLAUDE.md</code> coding conventions: public API uses classes; private
+  submodules may use free functions with <code>&lt;&lt;module&gt;&gt;</code> diagram stereotype</li>
+<li>Audited diagram connectors: removed redundant <code>TaskGraphBuilder → Task</code>
+  and <code>error_functions → IntegrationError</code>; added missing
+  <code>TaskRunnerIO ..&gt; TaskRuntime</code></li>
+<li>Simplified <code>DIAGRAM.md</code> to link-only SVG view with streamlined PR policy</li>
+<li>Fixed mkdocs API docs and nav for renamed modules; added <code>md_in_html</code> and
+  <code>attr_list</code> markdown extensions</li>
+</ul>
 <hr />
 <h2 id="2026-03-08">2026-03-08</h2>
 <h3 id="fix-pylancepyright-config-for-test-files-pr-63">Fix Pylance/pyright config for test files — PR #63</h3>
