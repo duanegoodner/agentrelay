@@ -1144,7 +1144,10 @@
 <li>PR D: extend YAML schema and <code>TaskGraphBuilder</code> for top-level <code>workstreams</code> + task mapping.</li>
 <li>PR E: add workstream runtime model + builder initialization from graph.</li>
 <li>PR F: implement <code>TaskRunner</code> lifecycle behavior against <code>TaskRunnerIO</code>.</li>
-<li>PR G: implement <code>orchestrator.py</code> scheduling loop with dependency + workstream rules.</li>
+<li>PR G: implement <code>orchestrator.py</code> scheduling loop with dependency + workstream rules.
+   Note: in PR G, classify <code>TaskRunner</code> outcomes so orchestrator retry/logging behavior is explicit:</li>
+<li><code>TaskRunner.run(...)</code> returns with <code>FAILED</code> status =&gt; expected task-level failure (retry policy may apply).</li>
+<li><code>TaskRunner.run(...)</code> raises =&gt; internal/system failure (log traceback, fail-fast, no automatic retry).</li>
 <li>PR H: docs/examples/migration pass for new schema + orchestrator behavior.</li>
 </ol>
 <h2 id="mapping-revised-plan-to-original-items">Mapping revised plan to original items</h2>

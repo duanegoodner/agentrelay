@@ -1240,6 +1240,13 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     }
 
     namespace task_runner_py {
+        class TearDownMode {
+            &lt;&lt;enumeration&gt;&gt;
+            ALWAYS
+            NEVER
+            ON_SUCCESS
+        }
+
         class TaskCompletionSignal {
             &lt;&lt;frozen dataclass&gt;&gt;
             outcome : "done" | "failed"
@@ -1268,7 +1275,7 @@ needs to preserve the concrete environment type; it has no class-diagram represe
         class TaskRunner {
             &lt;&lt;mutable dataclass&gt;&gt;
             io : TaskRunnerIO
-            +run(runtime)$ TaskRunResult [stub]
+            +run(runtime, teardown_mode)$ TaskRunResult
         }
     }
 
@@ -1414,6 +1421,7 @@ needs to preserve the concrete environment type; it has no class-diagram represe
     TaskRunner --&gt; TaskRunnerIO : uses
     TaskRunner --&gt; TaskRuntime : mutates
     TaskRunner --&gt; TaskRunResult : returns
+    TaskRunner --&gt; TearDownMode : teardown policy
     TaskRunnerIO --&gt; Agent : launches
     TaskRunnerIO --&gt; TaskCompletionSignal : returns
     TaskRunResult --&gt; TaskStatus : status
