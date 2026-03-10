@@ -1,3 +1,3 @@
-# task_graph.indexing
+# task_graph._indexing
 
-::: agentrelay.task_graph.indexing
+::: agentrelay.task_graph._indexing

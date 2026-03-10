@@ -14,37 +14,39 @@ from types import MappingProxyType
 from typing import Optional
 
 from agentrelay.task import Task
-from agentrelay.task_graph.indexing import (
+from agentrelay.task_graph._indexing import (
     build_child_workstream_ids as _build_child_workstream_ids,
 )
-from agentrelay.task_graph.indexing import build_dependency_ids as _build_dependency_ids
-from agentrelay.task_graph.indexing import build_dependent_ids as _build_dependent_ids
-from agentrelay.task_graph.indexing import (
+from agentrelay.task_graph._indexing import (
+    build_dependency_ids as _build_dependency_ids,
+)
+from agentrelay.task_graph._indexing import build_dependent_ids as _build_dependent_ids
+from agentrelay.task_graph._indexing import (
     build_task_ids_by_workstream as _build_task_ids_by_workstream,
 )
-from agentrelay.task_graph.indexing import (
+from agentrelay.task_graph._indexing import (
     topological_order_or_raise as _topological_order_or_raise,
 )
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import (
     normalize_workstreams as _normalize_workstreams,
 )
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import (
     validate_dependencies_exist as _validate_dependencies_exist,
 )
-from agentrelay.task_graph.validation import validate_known_ids as _validate_known_ids
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import validate_known_ids as _validate_known_ids
+from agentrelay.task_graph._validation import (
     validate_task_identity_consistency as _validate_task_identity_consistency,
 )
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import (
     validate_task_workstream_ids as _validate_task_workstream_ids,
 )
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import (
     validate_workstream_hierarchy_acyclic as _validate_workstream_hierarchy_acyclic,
 )
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import (
     validate_workstream_max_depth as _validate_workstream_max_depth,
 )
-from agentrelay.task_graph.validation import (
+from agentrelay.task_graph._validation import (
     validate_workstream_parent_ids_exist as _validate_workstream_parent_ids_exist,
 )
 from agentrelay.workstream import WorkstreamSpec
