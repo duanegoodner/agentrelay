@@ -14,10 +14,11 @@ Classes:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.workstream.workstream import WorkstreamSpec
 
@@ -84,3 +85,66 @@ class WorkstreamRuntime:
     spec: WorkstreamSpec
     state: WorkstreamState = field(default_factory=WorkstreamState)
     artifacts: WorkstreamArtifacts = field(default_factory=WorkstreamArtifacts)
+
+
+# ── Read-only view protocols ──
+
+
+@runtime_checkable
+class WorkstreamStateView(Protocol):
+    """Read-only view of WorkstreamState.
+
+    A Protocol satisfied structurally by WorkstreamState. Exposes all fields
+    as read-only properties so that holders of a WorkstreamStateView reference
+    cannot mutate the underlying state.
+    """
+
+    @property
+    def status(self) -> WorkstreamStatus: ...
+
+    @property
+    def worktree_path(self) -> Optional[Path]: ...
+
+    @property
+    def branch_name(self) -> Optional[str]: ...
+
+    @property
+    def error(self) -> Optional[str]: ...
+
+    @property
+    def active_task_id(self) -> Optional[str]: ...
+
+
+@runtime_checkable
+class WorkstreamArtifactsView(Protocol):
+    """Read-only view of WorkstreamArtifacts.
+
+    A Protocol satisfied structurally by WorkstreamArtifacts. The ``concerns``
+    property returns ``Sequence[str]`` (not ``list[str]``) so that callers
+    cannot mutate the list through the view.
+    """
+
+    @property
+    def merge_pr_url(self) -> Optional[str]: ...
+
+    @property
+    def concerns(self) -> Sequence[str]: ...
+
+
+@runtime_checkable
+class WorkstreamRuntimeView(Protocol):
+    """Read-only view of WorkstreamRuntime.
+
+    A Protocol satisfied structurally by WorkstreamRuntime. Nested state and
+    artifacts are exposed as their respective view protocols, ensuring
+    read-only enforcement propagates through the object graph.
+    """
+
+    @property
+    def spec(self) -> WorkstreamSpec: ...
+
+    @property
+    def state(self) -> WorkstreamStateView: ...
+
+    @property
+    def artifacts(self) -> WorkstreamArtifactsView: ...
