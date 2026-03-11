@@ -275,6 +275,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -291,6 +309,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1116,6 +1164,25 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1138,6 +1205,21 @@ types and their relationships, organized by source module. Archive types are exc
 <code>src/agentrelay/</code> must update the diagram to reflect any new or changed types and
 relationships, then re-render <code>docs/diagram.svg</code> via <code>pixi run diagram</code>.</p>
 <p><a href="../diagram.svg" target="_blank">View full diagram (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
+<h2 id="conventions">Conventions</h2>
+<p><strong>Connector lines</strong> represent relationships that are not already obvious from the
+class body or visual proximity. Guidelines:</p>
+<ul>
+<li><strong>Always add connectors</strong> for composition/ownership (e.g. <code>TaskRuntime --&gt; TaskState : state</code>)
+  and inheritance/implementation (e.g. <code>TaskState ..|&gt; TaskStateView : satisfies</code>).</li>
+<li><strong>Omit connectors</strong> when a Protocol's property return types reference other protocols
+  or types that are already visually adjacent and connected via other relationships.
+  For example, <code>TaskRuntimeView</code> has properties returning <code>TaskStateView</code> and
+  <code>TaskArtifactsView</code>, but connectors for these are omitted because the "satisfies"
+  arrows from the concrete dataclasses already establish the grouping, and the return
+  types are readable in the protocol's class body.</li>
+<li>When in doubt, prefer fewer connectors — the diagram should highlight structural
+  relationships, not restate every type signature.</li>
+</ul>
 
 
 

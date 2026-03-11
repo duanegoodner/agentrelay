@@ -167,6 +167,25 @@ package "workstream/" as workstream_pkg {
         artifacts : WorkstreamArtifacts
     }
 
+    interface WorkstreamStateView <<protocol>> {
+        +status() : WorkstreamStatus
+        +worktree_path() : Path | None
+        +branch_name() : str | None
+        +error() : str | None
+        +active_task_id() : str | None
+    }
+
+    interface WorkstreamArtifactsView <<protocol>> {
+        +merge_pr_url() : str | None
+        +concerns() : Sequence[str]
+    }
+
+    interface WorkstreamRuntimeView <<protocol>> {
+        +spec() : WorkstreamSpec
+        +state() : WorkstreamStateView
+        +artifacts() : WorkstreamArtifactsView
+    }
+
     interface WorkstreamPreparer <<protocol>> {
         +prepare_workstream(workstream_runtime) : void
     }
@@ -284,6 +303,26 @@ package "task_runtime/" as task_runtime_pkg {
         task : Task
         state : TaskState
         artifacts : TaskArtifacts
+    }
+
+    interface TaskStateView <<protocol>> {
+        +status() : TaskStatus
+        +worktree_path() : Path | None
+        +branch_name() : str | None
+        +error() : str | None
+        +attempt_num() : int
+    }
+
+    interface TaskArtifactsView <<protocol>> {
+        +pr_url() : str | None
+        +concerns() : Sequence[str]
+        +agent_address() : AgentAddress | None
+    }
+
+    interface TaskRuntimeView <<protocol>> {
+        +task() : Task
+        +state() : TaskStateView
+        +artifacts() : TaskArtifactsView
     }
 }
 
@@ -512,12 +551,18 @@ TaskRuntime --> Task : task
 TaskRuntime --> TaskState : state
 TaskRuntime --> TaskArtifacts : artifacts
 TaskArtifacts --> AgentAddress : agent_address (optional)
+TaskState ..|> TaskStateView : satisfies
+TaskArtifacts ..|> TaskArtifactsView : satisfies
+TaskRuntime ..|> TaskRuntimeView : satisfies
 
 ' --- workstream internal ---
 WorkstreamState --> WorkstreamStatus : status
 WorkstreamRuntime --> WorkstreamSpec : spec
 WorkstreamRuntime --> WorkstreamState : state
 WorkstreamRuntime --> WorkstreamArtifacts : artifacts
+WorkstreamState ..|> WorkstreamStateView : satisfies
+WorkstreamArtifacts ..|> WorkstreamArtifactsView : satisfies
+WorkstreamRuntime ..|> WorkstreamRuntimeView : satisfies
 
 ' --- workstream runner ---
 WorkstreamRunner --> WorkstreamRunnerIO : uses

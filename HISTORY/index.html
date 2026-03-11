@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-read-only-view-protocols-for-task-and-workstream-runtimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add read-only view protocols for task and workstream runtimes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remove-agent-from-taskruntime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1356,6 +1367,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-read-only-view-protocols-for-task-and-workstream-runtimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add read-only view protocols for task and workstream runtimes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remove-agent-from-taskruntime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1548,6 +1570,18 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-11">2026-03-11</h2>
+<h3 id="add-read-only-view-protocols-for-task-and-workstream-runtimes">Add read-only view protocols for task and workstream runtimes</h3>
+<ul>
+<li>Added <code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code> protocols to
+  <code>task_runtime/runtime.py</code> — read-only interfaces structurally satisfied by the
+  mutable dataclasses</li>
+<li>Added <code>WorkstreamStateView</code>, <code>WorkstreamArtifactsView</code>, <code>WorkstreamRuntimeView</code>
+  protocols to <code>workstream/runtime.py</code></li>
+<li><code>concerns</code> fields exposed as <code>Sequence[str]</code> on views (prevents <code>.append()</code>
+  through the view while <code>list[str]</code> still satisfies it structurally)</li>
+<li>Pure additions — no behavioral changes; protocols will be used in a follow-up
+  PR to enforce single-writer discipline in the orchestrator</li>
+</ul>
 <h3 id="remove-agent-from-taskruntime">Remove Agent from TaskRuntime</h3>
 <ul>
 <li>Removed live <code>Agent</code> field from <code>TaskRuntime</code> — agent is now a local variable
