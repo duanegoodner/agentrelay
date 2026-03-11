@@ -103,7 +103,31 @@ package "agent/" as agent_pkg {
 }
 
 ' ─────────────────────────────────────────────
-'  workstream/ — workstream specs and runtime
+'  workspace.py — resolved workspace references
+' ─────────────────────────────────────────────
+package "workspace.py" as workspace_py {
+    class LocalWorkspaceRef <<frozen dataclass>> {
+        worktree_path : Path
+        branch_name : str
+        kind : "local"
+    }
+
+    class RemoteWorkspaceRef <<frozen dataclass>> {
+        workspace_id : str
+        branch_name : str
+        workspace_uri : str | None
+        repo_ref : str | None
+        execution_target : str | None
+        artifacts_uri : str | None
+        kind : "remote"
+    }
+
+    class WorkspaceRef <<type alias>> {
+    }
+}
+
+' ─────────────────────────────────────────────
+'  workstream/ — workstream specs, runtime, and runner
 ' ─────────────────────────────────────────────
 package "workstream/" as workstream_pkg {
     class WorkstreamSpec <<frozen dataclass>> {
@@ -141,6 +165,38 @@ package "workstream/" as workstream_pkg {
         spec : WorkstreamSpec
         state : WorkstreamState
         artifacts : WorkstreamArtifacts
+    }
+
+    interface WorkstreamPreparer <<protocol>> {
+        +prepare_workstream(workstream_runtime) : void
+    }
+
+    interface WorkstreamMerger <<protocol>> {
+        +merge_workstream(workstream_runtime) : void
+    }
+
+    interface WorkstreamTeardown <<protocol>> {
+        +teardown_workstream(workstream_runtime) : void
+    }
+
+    class WorkstreamRunnerIO <<frozen dataclass>> {
+        preparer : WorkstreamPreparer
+        merger : WorkstreamMerger
+        teardown_handler : WorkstreamTeardown
+    }
+
+    class WorkstreamRunResult <<frozen dataclass>> {
+        workstream_id : str
+        status : WorkstreamStatus
+        error : str | None
+    }
+
+    class WorkstreamRunner <<mutable dataclass>> {
+        io : WorkstreamRunnerIO
+        __
+        +prepare(workstream_runtime) : void
+        +merge(workstream_runtime) : WorkstreamRunResult
+        +teardown(workstream_runtime) : void
     }
 }
 
@@ -233,9 +289,9 @@ package "task_runtime/" as task_runtime_pkg {
 }
 
 ' ─────────────────────────────────────────────
-'  task_runner.py — one-task lifecycle
+'  task_runner/ — one-task lifecycle and I/O protocols
 ' ─────────────────────────────────────────────
-package "task_runner.py" as task_runner_py {
+package "task_runner/" as task_runner_pkg {
     enum TearDownMode <<enumeration>> {
         ALWAYS
         NEVER
@@ -246,15 +302,40 @@ package "task_runner.py" as task_runner_py {
         outcome : "done" | "failed"
         pr_url : str | None
         error : str | None
+        concerns : tuple[str, ...]
     }
 
-    interface TaskRunnerIO <<protocol>> {
+    interface TaskPreparer <<protocol>> {
         +prepare(runtime) : void
+    }
+
+    interface TaskLauncher <<protocol>> {
         +launch(runtime) : Agent
+    }
+
+    interface TaskKickoff <<protocol>> {
         +kickoff(runtime) : void
+    }
+
+    interface TaskCompletionChecker <<protocol>> {
         +wait_for_completion(runtime) : TaskCompletionSignal
+    }
+
+    interface TaskMerger <<protocol>> {
         +merge_pr(runtime, pr_url) : void
+    }
+
+    interface TaskTeardown <<protocol>> {
         +teardown(runtime) : void
+    }
+
+    class TaskRunnerIO <<frozen dataclass>> {
+        preparer : TaskPreparer
+        launcher : TaskLauncher
+        kickoff_sender : TaskKickoff
+        completion_checker : TaskCompletionChecker
+        merger : TaskMerger
+        teardown_handler : TaskTeardown
     }
 
     class TaskRunResult <<frozen dataclass>> {
@@ -317,63 +398,6 @@ package "orchestrator.py" as orchestrator_py {
         config : OrchestratorConfig
         __
         +run(task_runtimes, workstream_runtimes) : OrchestratorResult
-    }
-}
-
-' ─────────────────────────────────────────────
-'  integration_contracts/ — adapter protocols
-' ─────────────────────────────────────────────
-package "integration_contracts/" as integration_contracts_pkg {
-    class LocalWorkspaceRef <<frozen dataclass>> {
-        worktree_path : Path
-        branch_name : str
-        kind : "local"
-    }
-
-    class RemoteWorkspaceRef <<frozen dataclass>> {
-        workspace_id : str
-        branch_name : str
-        workspace_uri : str | None
-        repo_ref : str | None
-        execution_target : str | None
-        artifacts_uri : str | None
-        kind : "remote"
-    }
-
-    class WorkspaceRef <<type alias>> {
-    }
-
-    class CompletionSignal <<frozen dataclass>> {
-        outcome : "done" | "failed"
-        pr_url : str | None
-        error : str | None
-        concerns : tuple[str, ...]
-    }
-
-    interface WorkspaceAdapter <<protocol>> {
-        +ensure_workspace(runtime, workstream) : WorkspaceRef
-        +cleanup_workspace(runtime, workstream) : void
-    }
-
-    interface SignalAdapter <<protocol>> {
-        +write_instructions(runtime, instructions_text) : Path
-        +wait_for_completion(runtime, timeout_seconds) : CompletionSignal
-    }
-
-    interface PullRequestAdapter <<protocol>> {
-        +merge_task_pr(runtime, pr_url) : void
-    }
-
-    interface AgentLauncher <<protocol>> {
-        +launch_task_agent(runtime) : Agent
-        +send_kickoff(agent, instructions_path) : void
-    }
-
-    class IntegrationAdapters <<frozen dataclass>> {
-        workspace : WorkspaceAdapter
-        signals : SignalAdapter
-        pull_requests : PullRequestAdapter
-        agent_launcher : AgentLauncher
     }
 }
 
@@ -451,6 +475,10 @@ TmuxAgent --|> Agent
 TmuxAgent --> TmuxAddress : _address
 Agent --> AgentAddress : address
 
+' --- workspace ---
+WorkspaceRef --> LocalWorkspaceRef : union member
+WorkspaceRef --> RemoteWorkspaceRef : union member
+
 ' --- task_graph ---
 TaskGraph --> Task : contains
 TaskGraph --> WorkstreamSpec : contains
@@ -466,12 +494,17 @@ WorkstreamRuntimeBuilder --> WorkstreamRuntime : builds
 
 ' --- task_runner ---
 TaskRunner --> TaskRunnerIO : uses
+TaskRunnerIO --> TaskPreparer : preparer
+TaskRunnerIO --> TaskLauncher : launcher
+TaskRunnerIO --> TaskKickoff : kickoff_sender
+TaskRunnerIO --> TaskCompletionChecker : completion_checker
+TaskRunnerIO --> TaskMerger : merger
+TaskRunnerIO --> TaskTeardown : teardown_handler
 TaskRunner --> TaskRuntime : mutates
 TaskRunner --> TaskRunResult : returns
 TaskRunner --> TearDownMode : teardown policy
-TaskRunnerIO ..> TaskRuntime : uses
-TaskRunnerIO --> Agent : launches
-TaskRunnerIO --> TaskCompletionSignal : returns
+TaskCompletionChecker --> TaskCompletionSignal : returns
+TaskLauncher --> Agent : launches
 TaskRunResult --> TaskStatus : status
 
 ' --- task_runtime internal ---
@@ -487,6 +520,15 @@ WorkstreamRuntime --> WorkstreamSpec : spec
 WorkstreamRuntime --> WorkstreamState : state
 WorkstreamRuntime --> WorkstreamArtifacts : artifacts
 
+' --- workstream runner ---
+WorkstreamRunner --> WorkstreamRunnerIO : uses
+WorkstreamRunnerIO --> WorkstreamPreparer : preparer
+WorkstreamRunnerIO --> WorkstreamMerger : merger
+WorkstreamRunnerIO --> WorkstreamTeardown : teardown_handler
+WorkstreamRunner --> WorkstreamRuntime : mutates
+WorkstreamRunner --> WorkstreamRunResult : returns
+WorkstreamRunResult --> WorkstreamStatus : status
+
 ' --- orchestrator ---
 Orchestrator --> TaskGraph : reads
 Orchestrator --> TaskRunner : delegates task runs
@@ -498,22 +540,6 @@ OrchestratorEvent --> TaskOutcomeClass : classification
 OrchestratorConfig --> TearDownMode : teardown policy
 Orchestrator --> TaskRuntime : mutates
 Orchestrator --> WorkstreamRuntime : mutates
-
-' --- integration_contracts ---
-WorkspaceRef --> LocalWorkspaceRef : union member
-WorkspaceRef --> RemoteWorkspaceRef : union member
-WorkspaceAdapter --> WorkspaceRef : returns
-WorkspaceAdapter --> TaskRuntime : uses
-WorkspaceAdapter --> WorkstreamRuntime : uses
-SignalAdapter --> CompletionSignal : returns
-SignalAdapter --> TaskRuntime : uses
-PullRequestAdapter --> TaskRuntime : uses
-AgentLauncher --> TaskRuntime : uses
-AgentLauncher --> Agent : launches
-IntegrationAdapters --> WorkspaceAdapter : workspace
-IntegrationAdapters --> SignalAdapter : signals
-IntegrationAdapters --> PullRequestAdapter : pull_requests
-IntegrationAdapters --> AgentLauncher : agent_launcher
 
 ' --- integration_errors ---
 ExpectedTaskFailureError --|> IntegrationError

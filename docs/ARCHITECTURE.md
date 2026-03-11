@@ -20,10 +20,11 @@ truth for concrete implementation details.
 - `TaskRuntimeBuilder`: graph-to-runtime initializer for task execution state
 - `WorkstreamRuntimeBuilder`: graph-to-runtime initializer for workstream lane state
 - `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`
-- `TaskRunnerIO`: side-effect boundary used by `TaskRunner` (launch/poll/merge/teardown)
+- `TaskRunnerIO`: composed per-step I/O boundary used by `TaskRunner`
+- `WorkstreamRunner`: workstream-level lifecycle runner
+- `WorkstreamRunnerIO`: composed per-step I/O boundary used by `WorkstreamRunner`
 - `Orchestrator`: async dependency/workstream scheduler over graph runtimes
 - `OrchestratorConfig`: run-level scheduling, retry, and teardown policy
-- `integration_contracts`: protocol layer for workspace/signal/PR/agent-launch boundaries
 - `integration_errors`: typed integration failure model + expected/internal classification helper
 - `WorkstreamSpec`: immutable definition of a task workstream lane
 - `Task`: immutable specification of a unit of work
