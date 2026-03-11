@@ -1775,8 +1775,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
-<span class="normal"> 95</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 95</span>
 <span class="normal"> 96</span>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
@@ -1788,7 +1787,8 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">107</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskCompletionChecker</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait for a terminal task completion signal.&quot;&quot;&quot;</span>
 
@@ -1902,8 +1902,7 @@ continues to work after promotion from a single module to a package.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
-<span class="normal"> 99</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
@@ -1911,7 +1910,8 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionSignal</span><span class="p">:</span>
+<span class="normal">107</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionSignal</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait for terminal task signal from the execution boundary.</span>
 
 <span class="sd">    Args:</span>
@@ -2120,15 +2120,17 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">91</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskKickoff</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Send kickoff instructions to a launched agent.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">kickoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kickoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Send kickoff instructions to the launched task agent.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            runtime: Runtime envelope whose agent should be activated.</span>
+<span class="sd">            runtime: Runtime envelope for the task being kicked off.</span>
+<span class="sd">            agent: Live agent handle to send instructions to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -2151,7 +2153,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
 <h3 id="agentrelay.task_runner.TaskKickoff.kickoff" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2186,7 +2188,23 @@ continues to work after promotion from a single module to a package.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Runtime envelope whose agent should be activated.</p>
+                <p>Runtime envelope for the task being kicked off.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>agent</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="Agent (agentrelay.agent.Agent)" href="../../agent/#agentrelay.agent.Agent">Agent</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Live agent handle to send instructions to.</p>
               </div>
             </td>
             <td>
@@ -2205,11 +2223,13 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">kickoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">91</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">kickoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Send kickoff instructions to the launched task agent.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        runtime: Runtime envelope whose agent should be activated.</span>
+<span class="sd">        runtime: Runtime envelope for the task being kicked off.</span>
+<span class="sd">        agent: Live agent handle to send instructions to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
@@ -2433,8 +2453,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
-<span class="normal">111</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
@@ -2444,7 +2463,8 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
-<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">121</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskMerger</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge the completed task PR into the integration target.&quot;&quot;&quot;</span>
 
@@ -2540,14 +2560,14 @@ continues to work after promotion from a single module to a package.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">114</span>
-<span class="normal">115</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
-<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">121</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge the completed task PR.</span>
 
 <span class="sd">    Args:</span>
@@ -2827,8 +2847,7 @@ testing, and swapping of each step.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">140</span>
-<span class="normal">141</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
@@ -2850,7 +2869,8 @@ testing, and swapping of each step.</p>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
-<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">163</span>
+<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunnerIO</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Composed I/O boundary for :class:`TaskRunner`.</span>
 
@@ -2926,8 +2946,7 @@ testing, and swapping of each step.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
-<span class="normal">125</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
@@ -2936,7 +2955,8 @@ testing, and swapping of each step.</p>
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
-<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">134</span>
+<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskTeardown</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Release runtime resources after terminal completion.&quot;&quot;&quot;</span>
 
@@ -3015,13 +3035,13 @@ testing, and swapping of each step.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
-<span class="normal">129</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
-<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">134</span>
+<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Release runtime resources after terminal completion.</span>
 
 <span class="sd">    Args:</span>
@@ -3235,7 +3255,8 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 <span class="normal">214</span>
 <span class="normal">215</span>
 <span class="normal">216</span>
-<span class="normal">217</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">217</span>
+<span class="normal">218</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;One-task lifecycle state machine executor.</span>
 
@@ -3283,13 +3304,14 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">runtime</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">address</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">kickoff_sender</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">kickoff_sender</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
@@ -3588,7 +3610,8 @@ state.</p>
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span>
-<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">183</span>
+<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3622,13 +3645,14 @@ state.</p>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">runtime</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">address</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">kickoff_sender</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">kickoff_sender</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>

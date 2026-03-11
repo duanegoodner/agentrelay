@@ -1650,6 +1650,19 @@ during execution. Defaults to empty list.</p>
               </div>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runtime.TaskArtifacts.agent_address">agent_address</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="AgentAddress (agentrelay.agent.AgentAddress)" href="../agent/#agentrelay.agent.AgentAddress">AgentAddress</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Address of the agent that executed this task (e.g. tmux
+session + pane), or None if no agent has been launched yet. Stored
+as an immutable audit trail after agent teardown.</p>
+              </div>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -1677,7 +1690,11 @@ during execution. Defaults to empty list.</p>
 <span class="normal">86</span>
 <span class="normal">87</span>
 <span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskArtifacts</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Outputs and observations produced by a task&#39;s agent.</span>
 
@@ -1689,10 +1706,14 @@ during execution. Defaults to empty list.</p>
 <span class="sd">            or None if no PR has been created yet.</span>
 <span class="sd">        concerns: List of design concerns or observations noted by the agent</span>
 <span class="sd">            during execution. Defaults to empty list.</span>
+<span class="sd">        agent_address: Address of the agent that executed this task (e.g. tmux</span>
+<span class="sd">            session + pane), or None if no agent has been launched yet. Stored</span>
+<span class="sd">            as an immutable audit trail after agent teardown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">pr_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">concerns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">agent_address</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AgentAddress</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -1797,20 +1818,8 @@ Defaults to a new TaskState (PENDING, no paths, no error, attempt 0).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Work outputs and observations (PR URL, concerns).
-Defaults to a new TaskArtifacts (no PR, no concerns).</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runtime.TaskRuntime.agent">agent</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="Agent (agentrelay.agent.Agent)" href="../agent/#agentrelay.agent.Agent">Agent</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The live running agent instance, or None until the orchestrator
-spawns the agent.</p>
+                <p>Work outputs and observations (PR URL, concerns, agent address).
+Defaults to a new TaskArtifacts (no PR, no concerns, no agent address).</p>
               </div>
             </td>
           </tr>
@@ -1826,11 +1835,7 @@ spawns the agent.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runtime/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
@@ -1847,7 +1852,8 @@ spawns the agent.</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">113</span>
+<span class="normal">114</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntime</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable runtime envelope for a Task.</span>
 
@@ -1859,16 +1865,13 @@ spawns the agent.</p>
 <span class="sd">        task: The immutable Task specification being executed.</span>
 <span class="sd">        state: Operational state (status, worktree, branch, error, attempts).</span>
 <span class="sd">            Defaults to a new TaskState (PENDING, no paths, no error, attempt 0).</span>
-<span class="sd">        artifacts: Work outputs and observations (PR URL, concerns).</span>
-<span class="sd">            Defaults to a new TaskArtifacts (no PR, no concerns).</span>
-<span class="sd">        agent: The live running agent instance, or None until the orchestrator</span>
-<span class="sd">            spawns the agent.</span>
+<span class="sd">        artifacts: Work outputs and observations (PR URL, concerns, agent address).</span>
+<span class="sd">            Defaults to a new TaskArtifacts (no PR, no concerns, no agent address).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">task</span><span class="p">:</span> <span class="n">Task</span>
     <span class="n">state</span><span class="p">:</span> <span class="n">TaskState</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TaskState</span><span class="p">)</span>
     <span class="n">artifacts</span><span class="p">:</span> <span class="n">TaskArtifacts</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TaskArtifacts</span><span class="p">)</span>
-    <span class="n">agent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Agent</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
