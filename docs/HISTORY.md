@@ -6,6 +6,18 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-11
 
+### Add read-only view protocols for task and workstream runtimes
+
+- Added `TaskStateView`, `TaskArtifactsView`, `TaskRuntimeView` protocols to
+  `task_runtime/runtime.py` — read-only interfaces structurally satisfied by the
+  mutable dataclasses
+- Added `WorkstreamStateView`, `WorkstreamArtifactsView`, `WorkstreamRuntimeView`
+  protocols to `workstream/runtime.py`
+- `concerns` fields exposed as `Sequence[str]` on views (prevents `.append()`
+  through the view while `list[str]` still satisfies it structurally)
+- Pure additions — no behavioral changes; protocols will be used in a follow-up
+  PR to enforce single-writer discipline in the orchestrator
+
 ### Remove Agent from TaskRuntime
 
 - Removed live `Agent` field from `TaskRuntime` — agent is now a local variable

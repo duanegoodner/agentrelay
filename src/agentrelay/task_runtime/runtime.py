@@ -14,10 +14,11 @@ Classes:
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.agent import AgentAddress
 from agentrelay.task import Task
@@ -112,3 +113,69 @@ class TaskRuntime:
     task: Task
     state: TaskState = field(default_factory=TaskState)
     artifacts: TaskArtifacts = field(default_factory=TaskArtifacts)
+
+
+# ── Read-only view protocols ──
+
+
+@runtime_checkable
+class TaskStateView(Protocol):
+    """Read-only view of TaskState.
+
+    A Protocol satisfied structurally by TaskState. Exposes all fields as
+    read-only properties so that holders of a TaskStateView reference cannot
+    mutate the underlying state.
+    """
+
+    @property
+    def status(self) -> TaskStatus: ...
+
+    @property
+    def worktree_path(self) -> Optional[Path]: ...
+
+    @property
+    def branch_name(self) -> Optional[str]: ...
+
+    @property
+    def error(self) -> Optional[str]: ...
+
+    @property
+    def attempt_num(self) -> int: ...
+
+
+@runtime_checkable
+class TaskArtifactsView(Protocol):
+    """Read-only view of TaskArtifacts.
+
+    A Protocol satisfied structurally by TaskArtifacts. The ``concerns``
+    property returns ``Sequence[str]`` (not ``list[str]``) so that callers
+    cannot mutate the list through the view.
+    """
+
+    @property
+    def pr_url(self) -> Optional[str]: ...
+
+    @property
+    def concerns(self) -> Sequence[str]: ...
+
+    @property
+    def agent_address(self) -> Optional[AgentAddress]: ...
+
+
+@runtime_checkable
+class TaskRuntimeView(Protocol):
+    """Read-only view of TaskRuntime.
+
+    A Protocol satisfied structurally by TaskRuntime. Nested state and
+    artifacts are exposed as their respective view protocols, ensuring
+    read-only enforcement propagates through the object graph.
+    """
+
+    @property
+    def task(self) -> Task: ...
+
+    @property
+    def state(self) -> TaskStateView: ...
+
+    @property
+    def artifacts(self) -> TaskArtifactsView: ...
