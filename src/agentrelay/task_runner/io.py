@@ -82,11 +82,12 @@ class TaskLauncher(Protocol):
 class TaskKickoff(Protocol):
     """Send kickoff instructions to a launched agent."""
 
-    def kickoff(self, runtime: TaskRuntime) -> None:
+    def kickoff(self, runtime: TaskRuntime, agent: Agent) -> None:
         """Send kickoff instructions to the launched task agent.
 
         Args:
-            runtime: Runtime envelope whose agent should be activated.
+            runtime: Runtime envelope for the task being kicked off.
+            agent: Live agent handle to send instructions to.
         """
         ...
 

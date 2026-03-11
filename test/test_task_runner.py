@@ -61,7 +61,7 @@ class FakeIO:
         self._maybe_fail("launch")
         return self.agent
 
-    def kickoff(self, runtime: TaskRuntime) -> None:
+    def kickoff(self, runtime: TaskRuntime, agent: Agent) -> None:
         self.calls.append("kickoff")
         self._maybe_fail("kickoff")
 
@@ -111,7 +111,7 @@ def test_run_success_path() -> None:
     assert runtime.state.status == TaskStatus.PR_MERGED
     assert runtime.state.error is None
     assert runtime.artifacts.pr_url == "https://github.com/org/repo/pull/1"
-    assert runtime.agent == fake.agent
+    assert runtime.artifacts.agent_address == fake.agent.address
 
     assert result.task_id == runtime.task.id
     assert result.status == TaskStatus.PR_MERGED

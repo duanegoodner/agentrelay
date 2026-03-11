@@ -132,13 +132,14 @@ class TaskRunner:
                 return TaskRunResult.from_runtime(runtime)
 
             try:
-                runtime.agent = self.io.launcher.launch(runtime)
+                agent = self.io.launcher.launch(runtime)
+                runtime.artifacts.agent_address = agent.address
             except Exception as exc:
                 self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime)
 
             try:
-                self.io.kickoff_sender.kickoff(runtime)
+                self.io.kickoff_sender.kickoff(runtime, agent)
             except Exception as exc:
                 self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime)
