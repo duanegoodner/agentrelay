@@ -9,7 +9,7 @@ from agentrelay.workstream import WorkstreamSpec
 
 def _task(
     task_id: str,
-    dependencies: tuple[Task, ...] = (),
+    dependencies: tuple[str, ...] = (),
     workstream_id: str = "default",
 ) -> Task:
     return Task(
@@ -32,7 +32,7 @@ def _workstream(
 
 def test_default_workstream_is_implicit_when_not_provided() -> None:
     task_a = _task("a")
-    task_b = _task("b", dependencies=(task_a,))
+    task_b = _task("b", dependencies=("a",))
 
     graph = TaskGraph.from_tasks([task_b, task_a])
 
@@ -54,8 +54,8 @@ def test_custom_task_workstream_requires_explicit_workstream_specs() -> None:
 
 def test_explicit_workstreams_are_exposed_by_queries() -> None:
     task_a = _task("a", workstream_id="feature_a")
-    task_b = _task("b", dependencies=(task_a,), workstream_id="feature_b")
-    task_c = _task("c", dependencies=(task_a,), workstream_id="feature_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="feature_b")
+    task_c = _task("c", dependencies=("a",), workstream_id="feature_a")
 
     graph = TaskGraph.from_tasks(
         [task_c, task_b, task_a],

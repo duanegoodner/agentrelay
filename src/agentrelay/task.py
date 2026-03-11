@@ -159,8 +159,8 @@ class Task:
         description: Optional human-readable description of the task.
         paths: File paths the task operates on (source, test, spec).
             Defaults to empty paths.
-        dependencies: Tuple of Task objects that must complete before this
-            task can run. Defaults to empty tuple.
+        dependencies: Tuple of dependency task IDs that must complete before
+            this task can run. Defaults to empty tuple.
         completion_gate: Optional shell command (exit code 0 = success)
             that determines if the task is complete. None = no gate.
         max_gate_attempts: Maximum number of gate execution attempts
@@ -177,7 +177,7 @@ class Task:
     role: AgentRole
     description: Optional[str] = None
     paths: TaskPaths = field(default_factory=TaskPaths)
-    dependencies: tuple["Task", ...] = ()
+    dependencies: tuple[str, ...] = ()
     completion_gate: Optional[str] = None
     max_gate_attempts: Optional[int] = None
     primary_agent: AgentConfig = field(default_factory=AgentConfig)

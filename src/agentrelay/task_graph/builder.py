@@ -133,13 +133,12 @@ class TaskGraphBuilder:
         built_tasks: dict[str, Task] = {}
         for task_id in task_ids:
             spec = raw_by_id[task_id]
-            deps = tuple(built_tasks[dep_id] for dep_id in spec.dependency_ids)
             built_tasks[task_id] = Task(
                 id=spec.id,
                 role=spec.role,
                 description=spec.description,
                 paths=spec.paths,
-                dependencies=deps,
+                dependencies=spec.dependency_ids,
                 completion_gate=spec.completion_gate,
                 max_gate_attempts=spec.max_gate_attempts,
                 primary_agent=spec.primary_agent,

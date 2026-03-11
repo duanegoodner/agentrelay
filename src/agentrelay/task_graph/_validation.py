@@ -149,41 +149,6 @@ def validate_workstream_max_depth(
             current = workstreams_by_id[current].parent_workstream_id
 
 
-def validate_task_identity_consistency(tasks_by_id: Mapping[str, Task]) -> None:
-    """Validate shared-ID task references are definition-consistent.
-
-    Args:
-        tasks_by_id: Canonical mapping of graph task IDs to tasks.
-
-    Raises:
-        ValueError: If a dependency reference uses an existing task ID with
-            different task content.
-    """
-    seen: dict[str, Task] = {}
-    visited_objects: set[int] = set()
-
-    def visit(task: Task) -> None:
-        existing = seen.get(task.id)
-        if existing is None:
-            seen[task.id] = task
-        elif existing != task:
-            raise ValueError(
-                f"Conflicting task definitions for id '{task.id}'. "
-                "All references to a task ID must be equal."
-            )
-
-        obj_id = id(task)
-        if obj_id in visited_objects:
-            return
-        visited_objects.add(obj_id)
-
-        for dep in task.dependencies:
-            visit(dep)
-
-    for task in tasks_by_id.values():
-        visit(task)
-
-
 def validate_dependencies_exist(
     tasks_by_id: Mapping[str, Task],
     dependency_ids: Mapping[str, tuple[str, ...]],

@@ -377,17 +377,10 @@ class TestTaskRuntime:
 
     def test_runtime_with_complex_task(self) -> None:
         """TaskRuntime works with complex Task specifications."""
-        # Create a multi-level dependency tree
-        spec_task = Task(id="spec", role=AgentRole.SPEC_WRITER)
-        test_task = Task(
-            id="tests",
-            role=AgentRole.TEST_WRITER,
-            dependencies=(spec_task,),
-        )
         impl_task = Task(
             id="impl",
             role=AgentRole.IMPLEMENTER,
-            dependencies=(spec_task, test_task),
+            dependencies=("spec", "tests"),
             completion_gate="pytest",
             primary_agent=AgentConfig(model="claude-opus-4-6"),
         )
