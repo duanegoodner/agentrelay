@@ -86,6 +86,24 @@ class WorkstreamRuntime:
     state: WorkstreamState = field(default_factory=WorkstreamState)
     artifacts: WorkstreamArtifacts = field(default_factory=WorkstreamArtifacts)
 
+    def activate(self, task_id: str) -> None:
+        """Transition to ACTIVE and record the running task."""
+        self.state.status = WorkstreamStatus.ACTIVE
+        self.state.active_task_id = task_id
+
+    def deactivate(self) -> None:
+        """Clear the active task without changing status."""
+        self.state.active_task_id = None
+
+    def mark_failed(self, error: str) -> None:
+        """Transition to FAILED with an error message."""
+        self.state.status = WorkstreamStatus.FAILED
+        self.state.error = error
+
+    def mark_merged(self) -> None:
+        """Transition to MERGED."""
+        self.state.status = WorkstreamStatus.MERGED
+
 
 # ── Read-only view protocols ──
 
