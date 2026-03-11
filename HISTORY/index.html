@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-mutation-methods-to-taskruntime-and-workstreamruntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add mutation methods to TaskRuntime and WorkstreamRuntime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-read-only-view-protocols-for-task-and-workstream-runtimes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1367,6 +1378,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-mutation-methods-to-taskruntime-and-workstreamruntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add mutation methods to TaskRuntime and WorkstreamRuntime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-read-only-view-protocols-for-task-and-workstream-runtimes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1570,6 +1592,16 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-11">2026-03-11</h2>
+<h3 id="add-mutation-methods-to-taskruntime-and-workstreamruntime">Add mutation methods to TaskRuntime and WorkstreamRuntime</h3>
+<ul>
+<li>Added <code>prepare_for_attempt</code>, <code>mark_failed</code>, <code>reset_for_retry</code>, <code>mark_pending</code>
+  methods to <code>TaskRuntime</code> — encapsulate orchestrator-level state transitions</li>
+<li>Added <code>activate</code>, <code>deactivate</code>, <code>mark_failed</code>, <code>mark_merged</code> methods to
+  <code>WorkstreamRuntime</code></li>
+<li>Replaced all direct field assignments in <code>orchestrator.py</code> with method calls
+  (~15 mutation sites), eliminating the dual-writer pattern identified in the
+  architecture review (concern #4, part B)</li>
+</ul>
 <h3 id="add-read-only-view-protocols-for-task-and-workstream-runtimes">Add read-only view protocols for task and workstream runtimes</h3>
 <ul>
 <li>Added <code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code> protocols to
