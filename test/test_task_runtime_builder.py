@@ -49,7 +49,7 @@ def test_runtime_defaults_state_artifacts_and_agent() -> None:
         assert runtime.state.attempt_num == 0
         assert runtime.artifacts.pr_url is None
         assert runtime.artifacts.concerns == []
-        assert runtime.agent is None
+        assert runtime.artifacts.agent_address is None
 
 
 def test_runtime_mutation_isolated_per_task_state() -> None:

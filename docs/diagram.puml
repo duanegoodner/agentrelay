@@ -277,13 +277,13 @@ package "task_runtime/" as task_runtime_pkg {
     class TaskArtifacts <<mutable dataclass>> {
         pr_url : str | None
         concerns : list[str]
+        agent_address : AgentAddress | None
     }
 
     class TaskRuntime <<mutable dataclass>> {
         task : Task
         state : TaskState
         artifacts : TaskArtifacts
-        agent : Agent | None
     }
 }
 
@@ -313,7 +313,7 @@ package "task_runner/" as task_runner_pkg {
     }
 
     interface TaskKickoff <<protocol>> {
-        +kickoff(runtime) : void
+        +kickoff(runtime, agent) : void
     }
 
     interface TaskCompletionChecker <<protocol>> {
@@ -511,7 +511,7 @@ TaskState --> TaskStatus : status
 TaskRuntime --> Task : task
 TaskRuntime --> TaskState : state
 TaskRuntime --> TaskArtifacts : artifacts
-TaskRuntime --> Agent : agent (optional)
+TaskArtifacts --> AgentAddress : agent_address (optional)
 
 ' --- workstream internal ---
 WorkstreamState --> WorkstreamStatus : status

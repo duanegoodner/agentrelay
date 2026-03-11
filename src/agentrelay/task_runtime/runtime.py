@@ -19,7 +19,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-from agentrelay.agent import Agent
+from agentrelay.agent import AgentAddress
 from agentrelay.task import Task
 
 # ── Enums ──
@@ -83,10 +83,14 @@ class TaskArtifacts:
             or None if no PR has been created yet.
         concerns: List of design concerns or observations noted by the agent
             during execution. Defaults to empty list.
+        agent_address: Address of the agent that executed this task (e.g. tmux
+            session + pane), or None if no agent has been launched yet. Stored
+            as an immutable audit trail after agent teardown.
     """
 
     pr_url: Optional[str] = None
     concerns: list[str] = field(default_factory=list)
+    agent_address: Optional[AgentAddress] = None
 
 
 @dataclass
@@ -101,13 +105,10 @@ class TaskRuntime:
         task: The immutable Task specification being executed.
         state: Operational state (status, worktree, branch, error, attempts).
             Defaults to a new TaskState (PENDING, no paths, no error, attempt 0).
-        artifacts: Work outputs and observations (PR URL, concerns).
-            Defaults to a new TaskArtifacts (no PR, no concerns).
-        agent: The live running agent instance, or None until the orchestrator
-            spawns the agent.
+        artifacts: Work outputs and observations (PR URL, concerns, agent address).
+            Defaults to a new TaskArtifacts (no PR, no concerns, no agent address).
     """
 
     task: Task
     state: TaskState = field(default_factory=TaskState)
     artifacts: TaskArtifacts = field(default_factory=TaskArtifacts)
-    agent: Optional[Agent] = None

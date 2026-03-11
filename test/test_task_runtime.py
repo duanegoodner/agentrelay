@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from agentrelay.agent import AgentAddress, TmuxAddress, TmuxAgent
+from agentrelay.agent import AgentAddress, TmuxAddress
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_runtime import (
     TaskArtifacts,
@@ -230,7 +230,7 @@ class TestTaskRuntime:
         assert runtime.task == task
         assert isinstance(runtime.state, TaskState)
         assert isinstance(runtime.artifacts, TaskArtifacts)
-        assert runtime.agent is None
+        assert runtime.artifacts.agent_address is None
 
     def test_default_state_created(self) -> None:
         """TaskRuntime creates default TaskState if not provided."""
@@ -267,22 +267,22 @@ class TestTaskRuntime:
         assert runtime.artifacts == artifacts
         assert runtime.artifacts.pr_url == "https://github.com/user/repo/pull/1"
 
-    def test_agent_initially_none(self) -> None:
-        """TaskRuntime.agent is None until agent is launched."""
+    def test_agent_address_initially_none(self) -> None:
+        """TaskArtifacts.agent_address is None until agent is launched."""
         task = Task(id="task", role=AgentRole.GENERIC)
         runtime = TaskRuntime(task=task)
-        assert runtime.agent is None
+        assert runtime.artifacts.agent_address is None
 
-    def test_set_agent(self) -> None:
-        """TaskRuntime.agent can be set after creation."""
+    def test_set_agent_address(self) -> None:
+        """TaskArtifacts.agent_address can be set after creation."""
         task = Task(id="task", role=AgentRole.GENERIC)
         runtime = TaskRuntime(task=task)
 
-        assert runtime.agent is None
-        agent = TmuxAgent(_address=TmuxAddress(session="agentrelay", pane_id="%1"))
-        runtime.agent = agent
-        assert runtime.agent is not None
-        assert runtime.agent.address.label == "agentrelay:%1"
+        assert runtime.artifacts.agent_address is None
+        address = TmuxAddress(session="agentrelay", pane_id="%1")
+        runtime.artifacts.agent_address = address
+        assert runtime.artifacts.agent_address is not None
+        assert runtime.artifacts.agent_address.label == "agentrelay:%1"
 
     def test_modify_state_in_runtime(self) -> None:
         """TaskRuntime.state can be modified."""
@@ -319,8 +319,9 @@ class TestTaskRuntime:
         runtime = TaskRuntime(task=task)
 
         # Agent is launched
-        agent = TmuxAgent(_address=TmuxAddress(session="agentrelay", pane_id="%2"))
-        runtime.agent = agent
+        runtime.artifacts.agent_address = TmuxAddress(
+            session="agentrelay", pane_id="%2"
+        )
         runtime.state.status = TaskStatus.RUNNING
 
         # Agent starts working
@@ -338,7 +339,7 @@ class TestTaskRuntime:
         runtime.state.status = TaskStatus.PR_MERGED
 
         # Verify final state
-        assert runtime.agent.address.label == "agentrelay:%2"
+        assert runtime.artifacts.agent_address.label == "agentrelay:%2"
         assert runtime.state.status == TaskStatus.PR_MERGED
         assert runtime.state.worktree_path == Path("/tmp/worktree-abc")
         assert runtime.state.branch_name == "feat/impl"
@@ -391,4 +392,4 @@ class TestTaskRuntime:
         assert len(runtime.task.dependencies) == 2
         assert runtime.task.completion_gate == "pytest"
         assert runtime.state.status == TaskStatus.PENDING
-        assert runtime.agent is None
+        assert runtime.artifacts.agent_address is None

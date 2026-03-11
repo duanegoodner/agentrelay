@@ -4,6 +4,17 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-11
+
+### Remove Agent from TaskRuntime
+
+- Removed live `Agent` field from `TaskRuntime` — agent is now a local variable
+  in `TaskRunner.run()`, not stored on the data record
+- Added `agent_address: AgentAddress | None` to `TaskArtifacts` as an immutable
+  audit trail of where the agent ran
+- Changed `TaskKickoff.kickoff()` to accept `agent` as an explicit parameter
+  instead of reading it from `runtime.agent`
+
 ## 2026-03-10
 
 ### Simplify Task.dependencies to store IDs instead of Task objects
