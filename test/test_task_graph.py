@@ -6,7 +6,7 @@ from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 
 
-def _task(task_id: str, dependencies: tuple[Task, ...] = (), desc: str = "") -> Task:
+def _task(task_id: str, dependencies: tuple[str, ...] = (), desc: str = "") -> Task:
     return Task(
         id=task_id,
         role=AgentRole.GENERIC,
@@ -17,8 +17,8 @@ def _task(task_id: str, dependencies: tuple[Task, ...] = (), desc: str = "") -> 
 
 def test_graph_basic_queries_and_topological_order() -> None:
     task_a = _task("a")
-    task_b = _task("b", dependencies=(task_a,))
-    task_c = _task("c", dependencies=(task_a,))
+    task_b = _task("b", dependencies=("a",))
+    task_c = _task("c", dependencies=("a",))
 
     graph = TaskGraph.from_tasks([task_c, task_b, task_a], name="demo")
 
@@ -35,9 +35,9 @@ def test_graph_basic_queries_and_topological_order() -> None:
 
 def test_topological_order_is_deterministic_for_same_graph() -> None:
     task_a = _task("a")
-    task_b = _task("b", dependencies=(task_a,))
-    task_c = _task("c", dependencies=(task_a,))
-    task_d = _task("d", dependencies=(task_b, task_c))
+    task_b = _task("b", dependencies=("a",))
+    task_c = _task("c", dependencies=("a",))
+    task_d = _task("d", dependencies=("b", "c"))
 
     graph_1 = TaskGraph.from_tasks([task_d, task_c, task_b, task_a])
     graph_2 = TaskGraph.from_tasks([task_a, task_b, task_c, task_d])
@@ -48,8 +48,8 @@ def test_topological_order_is_deterministic_for_same_graph() -> None:
 
 def test_ready_ids_is_pure_from_completed_and_running_sets() -> None:
     task_a = _task("a")
-    task_b = _task("b", dependencies=(task_a,))
-    task_c = _task("c", dependencies=(task_a,))
+    task_b = _task("b", dependencies=("a",))
+    task_c = _task("c", dependencies=("a",))
 
     graph = TaskGraph.from_tasks([task_a, task_b, task_c])
 
@@ -59,38 +59,23 @@ def test_ready_ids_is_pure_from_completed_and_running_sets() -> None:
 
 
 def test_missing_dependency_raises() -> None:
-    missing = _task("missing")
-    task_a = _task("a", dependencies=(missing,))
+    task_a = _task("a", dependencies=("missing",))
 
     with pytest.raises(ValueError, match="Unknown dependency id\\(s\\): missing"):
         TaskGraph.from_tasks([task_a])
 
 
-def test_conflicting_task_definitions_for_same_id_raises() -> None:
-    canonical_a = _task("a", desc="canonical")
-    alternate_a = _task("a", desc="different")
-    task_b = _task("b", dependencies=(alternate_a,))
-
-    with pytest.raises(ValueError, match="Conflicting task definitions for id 'a'"):
-        TaskGraph.from_tasks([canonical_a, task_b])
-
-
 def test_self_dependency_raises() -> None:
-    task_a = _task("a")
-    object.__setattr__(task_a, "dependencies", (task_a,))
+    task_a = _task("a", dependencies=("a",))
 
     with pytest.raises(ValueError, match="self-dependency"):
         TaskGraph.from_tasks([task_a])
 
 
 def test_cycle_raises_with_cycle_path() -> None:
-    task_a = _task("a")
-    task_b = _task("b")
-    task_c = _task("c")
-
-    object.__setattr__(task_a, "dependencies", (task_b,))
-    object.__setattr__(task_b, "dependencies", (task_c,))
-    object.__setattr__(task_c, "dependencies", (task_a,))
+    task_a = _task("a", dependencies=("b",))
+    task_b = _task("b", dependencies=("c",))
+    task_c = _task("c", dependencies=("a",))
 
     with pytest.raises(ValueError, match="Task graph contains a cycle:"):
         TaskGraph.from_tasks([task_a, task_b, task_c])

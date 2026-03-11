@@ -8,14 +8,14 @@ from agentrelay.task_runtime import TaskStatus
 from agentrelay.task_runtime.builder import TaskRuntimeBuilder
 
 
-def _task(task_id: str, dependencies: tuple[Task, ...] = ()) -> Task:
+def _task(task_id: str, dependencies: tuple[str, ...] = ()) -> Task:
     return Task(id=task_id, role=AgentRole.GENERIC, dependencies=dependencies)
 
 
 def _graph() -> TaskGraph:
     task_a = _task("a")
-    task_b = _task("b", dependencies=(task_a,))
-    task_c = _task("c", dependencies=(task_a,))
+    task_b = _task("b", dependencies=("a",))
+    task_c = _task("c", dependencies=("a",))
     return TaskGraph.from_tasks([task_c, task_b, task_a], name="demo")
 
 

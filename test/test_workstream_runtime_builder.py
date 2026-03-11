@@ -11,7 +11,7 @@ from agentrelay.workstream.runtime_builder import WorkstreamRuntimeBuilder
 
 def _task(
     task_id: str,
-    dependencies: tuple[Task, ...] = (),
+    dependencies: tuple[str, ...] = (),
     workstream_id: str = "default",
 ) -> Task:
     return Task(
@@ -24,7 +24,7 @@ def _task(
 
 def _graph() -> TaskGraph:
     task_a = _task("a", workstream_id="feature_a")
-    task_b = _task("b", dependencies=(task_a,), workstream_id="feature_b")
+    task_b = _task("b", dependencies=("a",), workstream_id="feature_b")
     return TaskGraph.from_tasks(
         [task_b, task_a],
         workstreams=[

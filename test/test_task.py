@@ -379,15 +379,13 @@ class TestTask:
         assert task.paths == paths
 
     def test_task_with_dependencies(self) -> None:
-        """Task can specify dependencies on other tasks."""
-        dep1 = Task(id="spec", role=AgentRole.SPEC_WRITER)
-        dep2 = Task(id="tests", role=AgentRole.TEST_WRITER)
+        """Task can specify dependency IDs."""
         task = Task(
             id="implement",
             role=AgentRole.IMPLEMENTER,
-            dependencies=(dep1, dep2),
+            dependencies=("spec", "tests"),
         )
-        assert task.dependencies == (dep1, dep2)
+        assert task.dependencies == ("spec", "tests")
         assert len(task.dependencies) == 2
 
     def test_task_with_completion_gate(self) -> None:
@@ -442,7 +440,6 @@ class TestTask:
 
     def test_task_with_all_fields(self) -> None:
         """Task can be created with all fields specified."""
-        spec_task = Task(id="spec", role=AgentRole.SPEC_WRITER)
         review_agent = AgentConfig(model="claude-opus-4-6")
         review_config = ReviewConfig(agent=review_agent, review_on_attempt=1)
         paths = TaskPaths(src=("main.py",), test=("test_main.py",))
@@ -452,7 +449,7 @@ class TestTask:
             role=AgentRole.IMPLEMENTER,
             description="Implement the feature",
             paths=paths,
-            dependencies=(spec_task,),
+            dependencies=("spec",),
             completion_gate="pytest",
             max_gate_attempts=5,
             primary_agent=AgentConfig(model="claude-sonnet-4-6"),
@@ -464,7 +461,7 @@ class TestTask:
         assert task.role == AgentRole.IMPLEMENTER
         assert task.description == "Implement the feature"
         assert task.paths == paths
-        assert task.dependencies == (spec_task,)
+        assert task.dependencies == ("spec",)
         assert task.completion_gate == "pytest"
         assert task.max_gate_attempts == 5
         assert task.review == review_config
@@ -503,18 +500,16 @@ class TestTask:
         assert task1 != task2
 
     def test_dependency_chain(self) -> None:
-        """Tasks can form a dependency chain."""
-        task1 = Task(id="task1", role=AgentRole.SPEC_WRITER)
-        task2 = Task(id="task2", role=AgentRole.TEST_WRITER, dependencies=(task1,))
+        """Tasks can form a dependency chain via IDs."""
         task3 = Task(
             id="task3",
             role=AgentRole.IMPLEMENTER,
-            dependencies=(task1, task2),
+            dependencies=("task1", "task2"),
         )
 
         assert len(task3.dependencies) == 2
-        assert task1 in task3.dependencies
-        assert task2 in task3.dependencies
+        assert "task1" in task3.dependencies
+        assert "task2" in task3.dependencies
 
     def test_task_as_dict_key(self) -> None:
         """Tasks can be used as dictionary keys (they are hashable)."""

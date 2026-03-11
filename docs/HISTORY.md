@@ -6,6 +6,16 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-10
 
+### Simplify Task.dependencies to store IDs instead of Task objects
+
+- Changed `Task.dependencies` from `tuple[Task, ...]` to `tuple[str, ...]`,
+  eliminating the dual representation where the builder converted IDs to objects
+  and `TaskGraph` extracted IDs back out
+- Removed `validate_task_identity_consistency` (no longer needed — string IDs
+  have no object-graph identity to validate)
+- Simplified `TaskGraphBuilder` construction loop (no longer requires topological
+  order to thread object references)
+
 ### Decompose TaskRunnerIO and remove integration_contracts
 
 - Promoted `task_runner.py` to `task_runner/` package with per-step Protocol

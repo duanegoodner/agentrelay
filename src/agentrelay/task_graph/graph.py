@@ -35,9 +35,6 @@ from agentrelay.task_graph._validation import (
 )
 from agentrelay.task_graph._validation import validate_known_ids as _validate_known_ids
 from agentrelay.task_graph._validation import (
-    validate_task_identity_consistency as _validate_task_identity_consistency,
-)
-from agentrelay.task_graph._validation import (
     validate_task_workstream_ids as _validate_task_workstream_ids,
 )
 from agentrelay.task_graph._validation import (
@@ -117,7 +114,6 @@ class TaskGraph:
                     f"TaskGraph key '{key}' does not match task.id '{task.id}'."
                 )
 
-        _validate_task_identity_consistency(canonical)
         dependency_ids = _build_dependency_ids(canonical)
         _validate_dependencies_exist(canonical, dependency_ids)
         dependent_ids = _build_dependent_ids(canonical, dependency_ids)

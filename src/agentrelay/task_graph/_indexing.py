@@ -29,7 +29,7 @@ def build_dependency_ids(
     """
     dependency_ids: dict[str, tuple[str, ...]] = {}
     for task_id, task in tasks_by_id.items():
-        dep_ids = tuple(dep.id for dep in task.dependencies)
+        dep_ids = task.dependencies
         if task_id in dep_ids:
             raise ValueError(f"Task '{task_id}' has a self-dependency.")
         if len(dep_ids) != len(set(dep_ids)):

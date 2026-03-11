@@ -21,7 +21,7 @@ from agentrelay.workstream import WorkstreamSpec, WorkstreamStatus
 def _task(
     task_id: str,
     *,
-    dependencies: tuple[Task, ...] = (),
+    dependencies: tuple[str, ...] = (),
     workstream_id: str = "default",
 ) -> Task:
     return Task(

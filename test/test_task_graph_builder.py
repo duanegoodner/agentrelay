@@ -48,7 +48,7 @@ def test_from_dict_dependencies_are_wired_in_order() -> None:
 
     assert graph.task_ids() == ("base", "mid", "top")
     top = graph.task("top")
-    assert tuple(dep.id for dep in top.dependencies) == ("base", "mid")
+    assert top.dependencies == ("base", "mid")
 
 
 def test_from_dict_role_accepts_value_or_enum_name() -> None:
