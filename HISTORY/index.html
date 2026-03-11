@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#simplify-taskdependencies-to-store-ids-instead-of-task-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simplify Task.dependencies to store IDs instead of Task objects
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#decompose-taskrunnerio-and-remove-integration_contracts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1317,6 +1328,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#simplify-taskdependencies-to-store-ids-instead-of-task-objects" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Simplify Task.dependencies to store IDs instead of Task objects
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#decompose-taskrunnerio-and-remove-integration_contracts" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1470,6 +1492,16 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-10">2026-03-10</h2>
+<h3 id="simplify-taskdependencies-to-store-ids-instead-of-task-objects">Simplify Task.dependencies to store IDs instead of Task objects</h3>
+<ul>
+<li>Changed <code>Task.dependencies</code> from <code>tuple[Task, ...]</code> to <code>tuple[str, ...]</code>,
+  eliminating the dual representation where the builder converted IDs to objects
+  and <code>TaskGraph</code> extracted IDs back out</li>
+<li>Removed <code>validate_task_identity_consistency</code> (no longer needed — string IDs
+  have no object-graph identity to validate)</li>
+<li>Simplified <code>TaskGraphBuilder</code> construction loop (no longer requires topological
+  order to thread object references)</li>
+</ul>
 <h3 id="decompose-taskrunnerio-and-remove-integration_contracts">Decompose TaskRunnerIO and remove integration_contracts</h3>
 <ul>
 <li>Promoted <code>task_runner.py</code> to <code>task_runner/</code> package with per-step Protocol

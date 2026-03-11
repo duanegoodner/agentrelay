@@ -2357,17 +2357,12 @@ Defaults to empty paths.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task.Task.dependencies">dependencies</span></code></td>
             <td>
-                  <code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="Task
-
-
-  
-      dataclass
-   (agentrelay.task.Task)" href="#agentrelay.task.Task">Task</a>, ...]</code>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, ...]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Tuple of Task objects that must complete before this
-task can run. Defaults to empty tuple.</p>
+                <p>Tuple of dependency task IDs that must complete before
+this task can run. Defaults to empty tuple.</p>
               </div>
             </td>
           </tr>
@@ -2510,8 +2505,8 @@ Defaults to <code>"default"</code> for backward compatibility.</p>
 <span class="sd">        description: Optional human-readable description of the task.</span>
 <span class="sd">        paths: File paths the task operates on (source, test, spec).</span>
 <span class="sd">            Defaults to empty paths.</span>
-<span class="sd">        dependencies: Tuple of Task objects that must complete before this</span>
-<span class="sd">            task can run. Defaults to empty tuple.</span>
+<span class="sd">        dependencies: Tuple of dependency task IDs that must complete before</span>
+<span class="sd">            this task can run. Defaults to empty tuple.</span>
 <span class="sd">        completion_gate: Optional shell command (exit code 0 = success)</span>
 <span class="sd">            that determines if the task is complete. None = no gate.</span>
 <span class="sd">        max_gate_attempts: Maximum number of gate execution attempts</span>
@@ -2528,7 +2523,7 @@ Defaults to <code>"default"</code> for backward compatibility.</p>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">paths</span><span class="p">:</span> <span class="n">TaskPaths</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TaskPaths</span><span class="p">)</span>
-    <span class="n">dependencies</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">&quot;Task&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">dependencies</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">completion_gate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">max_gate_attempts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">primary_agent</span><span class="p">:</span> <span class="n">AgentConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">AgentConfig</span><span class="p">)</span>

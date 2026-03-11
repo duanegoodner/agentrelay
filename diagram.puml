@@ -54,7 +54,7 @@ package "task.py" as task_py {
         role : AgentRole
         description : str | None
         paths : TaskPaths
-        dependencies : tuple[Task, ...]
+        dependencies : tuple[str, ...]
         completion_gate : str | None
         max_gate_attempts : int | None
         primary_agent : AgentConfig
@@ -230,7 +230,6 @@ package "task_graph/" as task_graph_pkg {
         +{static} validate_workstream_parent_ids_exist(workstreams_by_id) : void
         +{static} validate_workstream_hierarchy_acyclic(workstreams_by_id) : void
         +{static} validate_workstream_max_depth(workstreams_by_id, max_depth) : void
-        +{static} validate_task_identity_consistency(tasks_by_id) : void
         +{static} validate_dependencies_exist(tasks_by_id, dependency_ids) : void
         +{static} validate_known_ids(ids, tasks_by_id, source_name) : void
     }
