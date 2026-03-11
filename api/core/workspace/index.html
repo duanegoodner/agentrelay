@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/core/environments/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/core/workspace/">
       
       
-        <link rel="prev" href="../task/">
+        <link rel="prev" href="../environments/">
       
       
-        <link rel="next" href="../workspace/">
+        <link rel="next" href="../integration_errors/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>environments - agentrelay</title>
+        <title>workspace - agentrelay</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#environments" class="md-skip">
+        <a href="#workspace" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              environments
+              workspace
             
           </span>
         </div>
@@ -833,6 +833,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -852,7 +880,7 @@
   <span class="md-ellipsis">
     
   
-    environments
+    workspace
   
 
     
@@ -870,7 +898,7 @@
   <span class="md-ellipsis">
     
   
-    environments
+    workspace
   
 
     
@@ -896,10 +924,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.environments" class="md-nav__link">
+  <a href="#agentrelay.workspace" class="md-nav__link">
     <span class="md-ellipsis">
       
-        environments
+        workspace
       
     </span>
   </a>
@@ -907,10 +935,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.environments.TmuxEnvironment" class="md-nav__link">
+  <a href="#agentrelay.workspace.WorkspaceRef" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TmuxEnvironment
+        WorkspaceRef
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workspace.LocalWorkspaceRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LocalWorkspaceRef
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workspace.RemoteWorkspaceRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RemoteWorkspaceRef
       
     </span>
   </a>
@@ -921,34 +971,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workspace/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workspace
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1184,10 +1206,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.environments" class="md-nav__link">
+  <a href="#agentrelay.workspace" class="md-nav__link">
     <span class="md-ellipsis">
       
-        environments
+        workspace
       
     </span>
   </a>
@@ -1195,10 +1217,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.environments.TmuxEnvironment" class="md-nav__link">
+  <a href="#agentrelay.workspace.WorkspaceRef" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TmuxEnvironment
+        WorkspaceRef
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workspace.LocalWorkspaceRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LocalWorkspaceRef
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workspace.RemoteWorkspaceRef" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RemoteWorkspaceRef
       
     </span>
   </a>
@@ -1222,36 +1266,84 @@
 
 
 
-<div class="api-page"><h1 id="environments">environments</h1>
+<div class="api-page"><h1 id="workspace">workspace</h1>
 
 
 <div class="doc doc-object doc-module">
 
 
 
-<a id="agentrelay.environments"></a>
+<a id="agentrelay.workspace"></a>
     <div class="doc doc-contents first">
 
-        <p>Execution environment configuration types for v2 agents.</p>
-<p>Concrete environment types determine where and how an agent process is deployed
-(tmux pane, cloud API, etc.) and the communication protocol used (file-based signals
-vs HTTP-based). Each concrete type is a frozen dataclass.</p>
+        <p>Workspace reference types for resolved task and workstream execution contexts.</p>
+<p>These types describe the resolved workspace details (paths, branches, identifiers)
+produced when workspace infrastructure is provisioned for execution.</p>
 
 
-<details class="type-alias" open>
-  <summary>Type alias</summary>
-  <p>AgentEnvironment: Union of all supported environment config types.
-    Add new types here as they are implemented.
-    If a behavioral contract (shared method or attribute) is ever identified that
-    all environments must satisfy, replace this alias with an ABC or Protocol.</p>
-</details>
+<p><span class="doc-section-title">Classes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="LocalWorkspaceRef
 
-<details class="typevar" open>
-  <summary>TypeVar</summary>
-  <p>AgentEnvironmentT: Bound to AgentEnvironment. Use in generic code that needs
-    to preserve the concrete environment type through a function signature.
-    Update the bound here whenever AgentEnvironment gains a new member.</p>
-</details>
+
+  
+      dataclass
+   (agentrelay.workspace.LocalWorkspaceRef)" href="#agentrelay.workspace.LocalWorkspaceRef">LocalWorkspaceRef</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>Resolved local workspace (worktree path + branch).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="RemoteWorkspaceRef
+
+
+  
+      dataclass
+   (agentrelay.workspace.RemoteWorkspaceRef)" href="#agentrelay.workspace.RemoteWorkspaceRef">RemoteWorkspaceRef</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>Resolved remote workspace (opaque ID + branch + URIs).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Type Aliases:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="WorkspaceRef = LocalWorkspaceRef | RemoteWorkspaceRef
+
+  
+      module-attribute
+   (agentrelay.workspace.WorkspaceRef)" href="#agentrelay.workspace.WorkspaceRef">WorkspaceRef</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>Union of local and remote workspace references.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
 
 
 
@@ -1269,14 +1361,36 @@ vs HTTP-based). Each concrete type is a frozen dataclass.</p>
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h2 id="agentrelay.workspace.WorkspaceRef" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">WorkspaceRef</span> <span class="o">=</span> <span class="n">LocalWorkspaceRef</span> <span class="o">|</span> <span class="n">RemoteWorkspaceRef</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-module-attribute"><code>module-attribute</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Union of all supported workspace reference types.</p>
+
+    </div>
+
+</div>
+
 
 
 <div class="doc doc-object doc-class">
 
 
 
-<h2 id="agentrelay.environments.TmuxEnvironment" class="doc doc-heading">
-            <code>TmuxEnvironment</code>
+<h2 id="agentrelay.workspace.LocalWorkspaceRef" class="doc doc-heading">
+            <code>LocalWorkspaceRef</code>
 
 
   <span class="doc doc-labels">
@@ -1290,7 +1404,7 @@ vs HTTP-based). Each concrete type is a frozen dataclass.</p>
 
 
 
-        <p>Deploy agent as a Claude Code process in a tmux pane.</p>
+        <p>Resolved local workspace details for one execution attempt.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -1304,14 +1418,35 @@ vs HTTP-based). Each concrete type is a frozen dataclass.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.environments.TmuxEnvironment.session">session</span></code></td>
+            <td><code><span title="agentrelay.workspace.LocalWorkspaceRef.worktree_path">worktree_path</span></code></td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Filesystem path where task work should run.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.LocalWorkspaceRef.branch_name">branch_name</span></code></td>
             <td>
                   <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The tmux session name where the pane will be created.
-Defaults to "agentrelay".</p>
+                <p>Branch name used for this attempt.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.LocalWorkspaceRef.kind">kind</span></code></td>
+            <td>
+                  <code><span title="typing.Literal">Literal</span>[&#39;local&#39;]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Discriminator for local workspace refs.</p>
               </div>
             </td>
           </tr>
@@ -1326,8 +1461,12 @@ Defaults to "agentrelay".</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/environments.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
+                <summary>Source code in <code>src/agentrelay/workspace.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
 <span class="normal">26</span>
@@ -1335,17 +1474,205 @@ Defaults to "agentrelay".</p>
 <span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TmuxEnvironment</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deploy agent as a Claude Code process in a tmux pane.</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LocalWorkspaceRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolved local workspace details for one execution attempt.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        session: The tmux session name where the pane will be created.</span>
-<span class="sd">            Defaults to &quot;agentrelay&quot;.</span>
+<span class="sd">        worktree_path: Filesystem path where task work should run.</span>
+<span class="sd">        branch_name: Branch name used for this attempt.</span>
+<span class="sd">        kind: Discriminator for local workspace refs.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">session</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;agentrelay&quot;</span>
+    <span class="n">worktree_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;local&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;local&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workspace.RemoteWorkspaceRef" class="doc doc-heading">
+            <code>RemoteWorkspaceRef</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Resolved remote workspace details for one execution attempt.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.workspace_id">workspace_id</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Opaque workspace identifier from remote execution backend.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.branch_name">branch_name</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Branch name used for this attempt.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.workspace_uri">workspace_uri</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional backend URI for this workspace.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.repo_ref">repo_ref</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional repository/revision reference used by this workspace.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.execution_target">execution_target</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional run/job/pod identifier for active execution.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.artifacts_uri">artifacts_uri</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional URI where task artifacts/signals are written.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workspace.RemoteWorkspaceRef.kind">kind</span></code></td>
+            <td>
+                  <code><span title="typing.Literal">Literal</span>[&#39;remote&#39;]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Discriminator for remote workspace refs.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workspace.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RemoteWorkspaceRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolved remote workspace details for one execution attempt.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        workspace_id: Opaque workspace identifier from remote execution backend.</span>
+<span class="sd">        branch_name: Branch name used for this attempt.</span>
+<span class="sd">        workspace_uri: Optional backend URI for this workspace.</span>
+<span class="sd">        repo_ref: Optional repository/revision reference used by this workspace.</span>
+<span class="sd">        execution_target: Optional run/job/pod identifier for active execution.</span>
+<span class="sd">        artifacts_uri: Optional URI where task artifacts/signals are written.</span>
+<span class="sd">        kind: Discriminator for remote workspace refs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">workspace_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">workspace_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">repo_ref</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">execution_target</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">artifacts_uri</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;remote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;remote&quot;</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 

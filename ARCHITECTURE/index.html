@@ -986,14 +986,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/integration_contracts/" class="md-nav__link">
+      <a href="../api/core/workspace/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    integration_contracts
+    workspace
   
 
     
@@ -1348,10 +1348,11 @@ truth for concrete implementation details.</p>
 <li><code>TaskRuntimeBuilder</code>: graph-to-runtime initializer for task execution state</li>
 <li><code>WorkstreamRuntimeBuilder</code>: graph-to-runtime initializer for workstream lane state</li>
 <li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>
-<li><code>TaskRunnerIO</code>: side-effect boundary used by <code>TaskRunner</code> (launch/poll/merge/teardown)</li>
+<li><code>TaskRunnerIO</code>: composed per-step I/O boundary used by <code>TaskRunner</code></li>
+<li><code>WorkstreamRunner</code>: workstream-level lifecycle runner</li>
+<li><code>WorkstreamRunnerIO</code>: composed per-step I/O boundary used by <code>WorkstreamRunner</code></li>
 <li><code>Orchestrator</code>: async dependency/workstream scheduler over graph runtimes</li>
 <li><code>OrchestratorConfig</code>: run-level scheduling, retry, and teardown policy</li>
-<li><code>integration_contracts</code>: protocol layer for workspace/signal/PR/agent-launch boundaries</li>
 <li><code>integration_errors</code>: typed integration failure model + expected/internal classification helper</li>
 <li><code>WorkstreamSpec</code>: immutable definition of a task workstream lane</li>
 <li><code>Task</code>: immutable specification of a unit of work</li>

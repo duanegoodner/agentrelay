@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#decompose-taskrunnerio-and-remove-integration_contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decompose TaskRunnerIO and remove integration_contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#plantuml-diagram-infrastructure-and-conventions-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1043,14 +1054,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/integration_contracts/" class="md-nav__link">
+      <a href="../api/core/workspace/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    integration_contracts
+    workspace
   
 
     
@@ -1306,6 +1317,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#decompose-taskrunnerio-and-remove-integration_contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decompose TaskRunnerIO and remove integration_contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#plantuml-diagram-infrastructure-and-conventions-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1448,6 +1470,23 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-10">2026-03-10</h2>
+<h3 id="decompose-taskrunnerio-and-remove-integration_contracts">Decompose TaskRunnerIO and remove integration_contracts</h3>
+<ul>
+<li>Promoted <code>task_runner.py</code> to <code>task_runner/</code> package with per-step Protocol
+  interfaces (<code>TaskPreparer</code>, <code>TaskLauncher</code>, <code>TaskKickoff</code>,
+  <code>TaskCompletionChecker</code>, <code>TaskMerger</code>, <code>TaskTeardown</code>) composed into a
+  <code>TaskRunnerIO</code> frozen dataclass</li>
+<li>Added <code>WorkstreamRunner</code> and <code>WorkstreamRunnerIO</code> to <code>workstream/</code> package
+  with per-step Protocols (<code>WorkstreamPreparer</code>, <code>WorkstreamMerger</code>,
+  <code>WorkstreamTeardown</code>) for the workstream lifecycle</li>
+<li>Created <code>workspace.py</code> module for <code>LocalWorkspaceRef</code>, <code>RemoteWorkspaceRef</code>,
+  and <code>WorkspaceRef</code> type alias</li>
+<li>Added <code>concerns: tuple[str, ...]</code> field to <code>TaskCompletionSignal</code></li>
+<li>Deleted <code>integration_contracts/</code> package — its protocols and data types were
+  absorbed into <code>task_runner/io.py</code>, <code>workstream/io.py</code>, and <code>workspace.py</code></li>
+<li>Updated PlantUML diagram to reflect new package structure</li>
+</ul>
+<hr />
 <h3 id="plantuml-diagram-infrastructure-and-conventions-cleanup">PlantUML diagram infrastructure and conventions cleanup</h3>
 <ul>
 <li>Replaced Mermaid class diagram with PlantUML source (<code>docs/diagram.puml</code>) +
