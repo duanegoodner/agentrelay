@@ -62,7 +62,7 @@ nav:
     - Overview: api/index.md
     - task: api/core/task.md
     - environments: api/core/environments.md
-    - integration_contracts: api/core/integration_contracts.md
+    - workspace: api/core/workspace.md
     - integration_errors: api/core/integration_errors.md
     - task_runner: api/core/task_runner.md
     - orchestrator: api/core/orchestrator.md

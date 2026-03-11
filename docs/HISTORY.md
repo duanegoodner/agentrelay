@@ -6,6 +6,24 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-10
 
+### Decompose TaskRunnerIO and remove integration_contracts
+
+- Promoted `task_runner.py` to `task_runner/` package with per-step Protocol
+  interfaces (`TaskPreparer`, `TaskLauncher`, `TaskKickoff`,
+  `TaskCompletionChecker`, `TaskMerger`, `TaskTeardown`) composed into a
+  `TaskRunnerIO` frozen dataclass
+- Added `WorkstreamRunner` and `WorkstreamRunnerIO` to `workstream/` package
+  with per-step Protocols (`WorkstreamPreparer`, `WorkstreamMerger`,
+  `WorkstreamTeardown`) for the workstream lifecycle
+- Created `workspace.py` module for `LocalWorkspaceRef`, `RemoteWorkspaceRef`,
+  and `WorkspaceRef` type alias
+- Added `concerns: tuple[str, ...]` field to `TaskCompletionSignal`
+- Deleted `integration_contracts/` package — its protocols and data types were
+  absorbed into `task_runner/io.py`, `workstream/io.py`, and `workspace.py`
+- Updated PlantUML diagram to reflect new package structure
+
+---
+
 ### PlantUML diagram infrastructure and conventions cleanup
 
 - Replaced Mermaid class diagram with PlantUML source (`docs/diagram.puml`) +

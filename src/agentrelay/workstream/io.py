@@ -1,0 +1,89 @@
+"""Per-step protocols and composed I/O boundary for workstream execution.
+
+This module defines fine-grained protocol interfaces for each step of the
+workstream lifecycle and a :class:`WorkstreamRunnerIO` dataclass that
+composes them into a single I/O boundary used by
+:class:`~agentrelay.workstream.runner.WorkstreamRunner`.
+
+Protocols:
+    WorkstreamPreparer: Provision worktree and integration branch.
+    WorkstreamMerger: Merge integration branch into target.
+    WorkstreamTeardown: Clean up worktree and integration branch.
+
+Classes:
+    WorkstreamRunnerIO: Frozen composition of per-step protocol implementations.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Protocol, runtime_checkable
+
+from agentrelay.workstream.runtime import WorkstreamRuntime
+
+
+@runtime_checkable
+class WorkstreamPreparer(Protocol):
+    """Provision workspace infrastructure for a workstream lane."""
+
+    def prepare_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Provision worktree and integration branch for this workstream.
+
+        Args:
+            workstream_runtime: Workstream runtime to provision.
+        """
+        ...
+
+
+@runtime_checkable
+class WorkstreamMerger(Protocol):
+    """Merge workstream integration branch into its target."""
+
+    def merge_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Merge the workstream integration branch into its merge target.
+
+        Args:
+            workstream_runtime: Workstream runtime whose integration branch
+                should be merged.
+        """
+        ...
+
+
+@runtime_checkable
+class WorkstreamTeardown(Protocol):
+    """Clean up workstream workspace infrastructure."""
+
+    def teardown_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Delete worktree and integration branch for this workstream.
+
+        Args:
+            workstream_runtime: Workstream runtime whose resources should be
+                cleaned up.
+        """
+        ...
+
+
+@dataclass(frozen=True)
+class WorkstreamRunnerIO:
+    """Composed I/O boundary for :class:`WorkstreamRunner`.
+
+    Each field holds a protocol implementation for one step of the
+    workstream lifecycle.
+
+    Attributes:
+        preparer: Provision worktree and integration branch.
+        merger: Merge integration branch into target.
+        teardown_handler: Clean up worktree and integration branch.
+    """
+
+    preparer: WorkstreamPreparer
+    merger: WorkstreamMerger
+    teardown_handler: WorkstreamTeardown
+
+
+__all__ = [
+    "WorkstreamMerger",
+    "WorkstreamPreparer",
+    "WorkstreamRunnerIO",
+    "WorkstreamTeardown",
+]
