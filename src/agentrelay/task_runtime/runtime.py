@@ -114,6 +114,29 @@ class TaskRuntime:
     state: TaskState = field(default_factory=TaskState)
     artifacts: TaskArtifacts = field(default_factory=TaskArtifacts)
 
+    def prepare_for_attempt(self, attempt_num: int) -> None:
+        """Reset error and set attempt number before a task attempt."""
+        self.state.attempt_num = attempt_num
+        self.state.error = None
+
+    def mark_failed(self, error: str) -> None:
+        """Transition to FAILED with an error message."""
+        self.state.status = TaskStatus.FAILED
+        self.state.error = error
+
+    def reset_for_retry(self) -> None:
+        """Archive current error to concerns and reset to PENDING for retry."""
+        if self.state.error:
+            self.artifacts.concerns.append(
+                f"attempt_{self.state.attempt_num}_error: {self.state.error}"
+            )
+        self.state.status = TaskStatus.PENDING
+        self.state.error = None
+
+    def mark_pending(self) -> None:
+        """Set status to PENDING (used for retry normalization)."""
+        self.state.status = TaskStatus.PENDING
+
 
 # ── Read-only view protocols ──
 

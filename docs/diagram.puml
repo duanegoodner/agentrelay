@@ -165,6 +165,10 @@ package "workstream/" as workstream_pkg {
         spec : WorkstreamSpec
         state : WorkstreamState
         artifacts : WorkstreamArtifacts
+        +activate(task_id) : void
+        +deactivate() : void
+        +mark_failed(error) : void
+        +mark_merged() : void
     }
 
     interface WorkstreamStateView <<protocol>> {
@@ -303,6 +307,10 @@ package "task_runtime/" as task_runtime_pkg {
         task : Task
         state : TaskState
         artifacts : TaskArtifacts
+        +prepare_for_attempt(attempt_num) : void
+        +mark_failed(error) : void
+        +reset_for_retry() : void
+        +mark_pending() : void
     }
 
     interface TaskStateView <<protocol>> {

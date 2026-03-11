@@ -200,11 +200,9 @@ class Orchestrator:
                     continue
 
                 attempt_num = attempts_used[task_id]
-                runtime.state.attempt_num = attempt_num
-                runtime.state.error = None
+                runtime.prepare_for_attempt(attempt_num)
                 ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
-                ws_runtime.state.status = WorkstreamStatus.ACTIVE
-                ws_runtime.state.active_task_id = task_id
+                ws_runtime.activate(task_id)
                 events.append(
                     OrchestratorEvent(
                         kind="task_started",
@@ -244,16 +242,15 @@ class Orchestrator:
 
                 runtime = mutable_task_runtimes[task_id]
                 ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
-                ws_runtime.state.active_task_id = None
+                ws_runtime.deactivate()
 
                 try:
                     result = done_task.result()
                 except Exception:
                     fatal_error = traceback.format_exc()
-                    runtime.state.status = TaskStatus.FAILED
-                    runtime.state.error = fatal_error.strip().splitlines()[-1]
-                    ws_runtime.state.status = WorkstreamStatus.FAILED
-                    ws_runtime.state.error = runtime.state.error
+                    error_line = fatal_error.strip().splitlines()[-1]
+                    runtime.mark_failed(error_line)
+                    ws_runtime.mark_failed(error_line)
                     events.append(
                         OrchestratorEvent(
                             kind="task_finished",
@@ -311,25 +308,17 @@ class Orchestrator:
                         )
                     )
                     if should_retry:
-                        if runtime.state.error:
-                            runtime.artifacts.concerns.append(
-                                f"attempt_{attempt_num}_error: {runtime.state.error}"
-                            )
-                        runtime.state.status = TaskStatus.PENDING
-                        runtime.state.error = None
+                        runtime.reset_for_retry()
                     else:
-                        ws_runtime.state.status = WorkstreamStatus.FAILED
-                        ws_runtime.state.error = runtime.state.error
+                        ws_runtime.mark_failed(runtime.state.error or "task failed")
                     self._refresh_workstream_terminal_states(
                         mutable_task_runtimes, mutable_workstream_runtimes
                     )
                     continue
 
                 fatal_error = f"RuntimeError: unexpected TaskRunner result status {result.status!r}"
-                runtime.state.status = TaskStatus.FAILED
-                runtime.state.error = fatal_error
-                ws_runtime.state.status = WorkstreamStatus.FAILED
-                ws_runtime.state.error = runtime.state.error
+                runtime.mark_failed(fatal_error)
+                ws_runtime.mark_failed(fatal_error)
                 events.append(
                     OrchestratorEvent(
                         kind="task_finished",
@@ -431,7 +420,7 @@ class Orchestrator:
             if runtime.state.status != TaskStatus.FAILED:
                 continue
             if attempts_used[task_id] < self.config.max_task_attempts:
-                runtime.state.status = TaskStatus.PENDING
+                runtime.mark_pending()
 
     def _all_tasks_terminal(self, task_runtimes: Mapping[str, TaskRuntime]) -> bool:
         return all(
@@ -479,12 +468,11 @@ class Orchestrator:
             reason = self._blocked_reason(task_id, task_runtimes, workstream_runtimes)
             if reason is None:
                 continue
-            runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = f"Blocked by orchestration rules: {reason}"
+            error = f"Blocked by orchestration rules: {reason}"
+            runtime.mark_failed(error)
             ws_runtime = workstream_runtimes[runtime.task.workstream_id]
             if ws_runtime.state.status != WorkstreamStatus.FAILED:
-                ws_runtime.state.status = WorkstreamStatus.FAILED
-                ws_runtime.state.error = runtime.state.error
+                ws_runtime.mark_failed(error)
             events.append(
                 OrchestratorEvent(
                     kind="task_blocked",
@@ -537,7 +525,7 @@ class Orchestrator:
                 task_runtimes[task_id].state.status == TaskStatus.PR_MERGED
                 for task_id in task_ids
             ):
-                ws_runtime.state.status = WorkstreamStatus.MERGED
+                ws_runtime.mark_merged()
 
     async def _cancel_running_tasks(
         self, running: Mapping[str, asyncio.Task[TaskRunResult]]
@@ -569,10 +557,10 @@ class Orchestrator:
         for task_id in running_task_ids:
             runtime = task_runtimes[task_id]
             if runtime.state.status not in (TaskStatus.PR_MERGED, TaskStatus.FAILED):
-                runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = reason
+                runtime.mark_failed(reason)
+            else:
+                runtime.state.error = reason
             ws_runtime = workstream_runtimes[runtime.task.workstream_id]
-            ws_runtime.state.active_task_id = None
+            ws_runtime.deactivate()
             if ws_runtime.state.status != WorkstreamStatus.FAILED:
-                ws_runtime.state.status = WorkstreamStatus.FAILED
-                ws_runtime.state.error = reason
+                ws_runtime.mark_failed(reason)

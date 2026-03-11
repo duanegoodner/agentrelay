@@ -6,6 +6,16 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-11
 
+### Add mutation methods to TaskRuntime and WorkstreamRuntime
+
+- Added `prepare_for_attempt`, `mark_failed`, `reset_for_retry`, `mark_pending`
+  methods to `TaskRuntime` — encapsulate orchestrator-level state transitions
+- Added `activate`, `deactivate`, `mark_failed`, `mark_merged` methods to
+  `WorkstreamRuntime`
+- Replaced all direct field assignments in `orchestrator.py` with method calls
+  (~15 mutation sites), eliminating the dual-writer pattern identified in the
+  architecture review (concern #4, part B)
+
 ### Add read-only view protocols for task and workstream runtimes
 
 - Added `TaskStateView`, `TaskArtifactsView`, `TaskRuntimeView` protocols to
