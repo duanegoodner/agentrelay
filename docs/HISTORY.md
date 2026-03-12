@@ -6,6 +6,17 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-11
 
+### Wire integration errors into TaskRunner and orchestrator
+
+- Renamed `integration_errors/` → `errors/` (shorter; class names are self-descriptive)
+- Removed `WorktreeIntegrationError` (unused alias) and custom `cause` field
+  (use standard `raise ... from` and `__cause__` instead)
+- Wired `classify_integration_error()` into `TaskRunner._record_io_failure()` —
+  IO boundary failures are now classified as expected-task-failure vs internal-error
+- Added `failure_class: Optional[IntegrationFailureClass]` to `TaskRunResult`
+- Orchestrator now inspects `failure_class` to distinguish internal adapter errors
+  (fail-fast, no retry) from expected task failures (retry eligible)
+
 ### Add mutation methods to TaskRuntime and WorkstreamRuntime
 
 - Added `prepare_for_attempt`, `mark_failed`, `reset_for_retry`, `mark_pending`

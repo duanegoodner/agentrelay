@@ -8,7 +8,6 @@ internal/system integration failures.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
 
 
 class IntegrationBoundary(str, Enum):
@@ -42,10 +41,12 @@ class IntegrationFailureClass(str, Enum):
 class IntegrationError(Exception):
     """Base integration error carrying boundary and failure classification.
 
+    Use ``raise IntegrationError(...) from original_exc`` to chain the
+    underlying cause (accessible via ``__cause__``).
+
     Attributes:
         boundary: Integration boundary where failure originated.
         failure_class: Classification used by orchestration policy.
-        cause: Optional underlying exception from the integration boundary.
     """
 
     def __init__(
@@ -54,7 +55,6 @@ class IntegrationError(Exception):
         *,
         boundary: IntegrationBoundary,
         failure_class: IntegrationFailureClass,
-        cause: Optional[BaseException] = None,
     ) -> None:
         """Initialize a boundary-aware integration error.
 
@@ -62,12 +62,10 @@ class IntegrationError(Exception):
             message: Human-readable error message.
             boundary: Boundary where the failure originated.
             failure_class: Classification for orchestration policy.
-            cause: Optional underlying exception.
         """
         super().__init__(message)
         self.boundary = boundary
         self.failure_class = failure_class
-        self.cause = cause
 
 
 class ExpectedTaskFailureError(IntegrationError):
@@ -78,20 +76,17 @@ class ExpectedTaskFailureError(IntegrationError):
         message: str,
         *,
         boundary: IntegrationBoundary,
-        cause: Optional[BaseException] = None,
     ) -> None:
         """Initialize an expected task-level failure.
 
         Args:
             message: Human-readable error message.
             boundary: Boundary where the failure originated.
-            cause: Optional underlying exception.
         """
         super().__init__(
             message,
             boundary=boundary,
             failure_class=IntegrationFailureClass.EXPECTED_TASK_FAILURE,
-            cause=cause,
         )
 
 
@@ -103,84 +98,71 @@ class InternalIntegrationError(IntegrationError):
         message: str,
         *,
         boundary: IntegrationBoundary,
-        cause: Optional[BaseException] = None,
     ) -> None:
         """Initialize an internal/system integration failure.
 
         Args:
             message: Human-readable error message.
             boundary: Boundary where the failure originated.
-            cause: Optional underlying exception.
         """
         super().__init__(
             message,
             boundary=boundary,
             failure_class=IntegrationFailureClass.INTERNAL_ERROR,
-            cause=cause,
         )
 
 
 class WorkspaceIntegrationError(InternalIntegrationError):
     """Internal workspace integration failure."""
 
-    def __init__(self, message: str, *, cause: Optional[BaseException] = None) -> None:
+    def __init__(self, message: str) -> None:
         """Initialize a workspace integration failure.
 
         Args:
             message: Human-readable error message.
-            cause: Optional underlying exception.
         """
-        super().__init__(message, boundary=IntegrationBoundary.WORKSPACE, cause=cause)
-
-
-class WorktreeIntegrationError(WorkspaceIntegrationError):
-    """Backward-compatible alias for local worktree integration failures."""
+        super().__init__(message, boundary=IntegrationBoundary.WORKSPACE)
 
 
 class SignalIntegrationError(InternalIntegrationError):
     """Internal signal boundary integration failure."""
 
-    def __init__(self, message: str, *, cause: Optional[BaseException] = None) -> None:
+    def __init__(self, message: str) -> None:
         """Initialize a signal integration failure.
 
         Args:
             message: Human-readable error message.
-            cause: Optional underlying exception.
         """
-        super().__init__(message, boundary=IntegrationBoundary.SIGNAL, cause=cause)
+        super().__init__(message, boundary=IntegrationBoundary.SIGNAL)
 
 
 class PullRequestIntegrationError(InternalIntegrationError):
     """Internal pull-request boundary integration failure."""
 
-    def __init__(self, message: str, *, cause: Optional[BaseException] = None) -> None:
+    def __init__(self, message: str) -> None:
         """Initialize a pull-request integration failure.
 
         Args:
             message: Human-readable error message.
-            cause: Optional underlying exception.
         """
         super().__init__(
             message,
             boundary=IntegrationBoundary.PULL_REQUEST,
-            cause=cause,
         )
 
 
 class AgentLaunchIntegrationError(InternalIntegrationError):
     """Internal agent launch/kickoff integration failure."""
 
-    def __init__(self, message: str, *, cause: Optional[BaseException] = None) -> None:
+    def __init__(self, message: str) -> None:
         """Initialize an agent-launch integration failure.
 
         Args:
             message: Human-readable error message.
-            cause: Optional underlying exception.
         """
         super().__init__(
             message,
             boundary=IntegrationBoundary.AGENT_LAUNCH,
-            cause=cause,
         )
 
 
@@ -209,6 +191,5 @@ __all__ = [
     "PullRequestIntegrationError",
     "SignalIntegrationError",
     "WorkspaceIntegrationError",
-    "WorktreeIntegrationError",
     "classify_integration_error",
 ]

@@ -38,6 +38,6 @@ Core types:
 - RemoteWorkspaceRef: resolved remote workspace details      [workspace.py]
 
 See also:
-- integration_errors: typed integration failure model + classification helper
+- errors: typed integration failure model + classification helper
 - prototypes.v01: v1 prototype implementation (reference only)
 """

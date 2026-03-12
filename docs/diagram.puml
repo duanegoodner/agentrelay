@@ -389,6 +389,7 @@ package "task_runner/" as task_runner_pkg {
         status : TaskStatus
         pr_url : str | None
         error : str | None
+        failure_class : IntegrationFailureClass | None
     }
 
     class TaskRunner <<mutable dataclass>> {
@@ -448,9 +449,9 @@ package "orchestrator.py" as orchestrator_py {
 }
 
 ' ─────────────────────────────────────────────
-'  integration_errors/ — error hierarchy
+'  errors/ — error hierarchy
 ' ─────────────────────────────────────────────
-package "integration_errors/" as integration_errors_pkg {
+package "errors/" as errors_pkg {
     enum IntegrationBoundary <<enumeration>> {
         WORKSPACE
         SIGNAL
@@ -466,7 +467,6 @@ package "integration_errors/" as integration_errors_pkg {
     class IntegrationError <<exception>> {
         boundary : IntegrationBoundary
         failure_class : IntegrationFailureClass
-        cause : BaseException | None
     }
 
     class ExpectedTaskFailureError <<exception>> {
@@ -476,9 +476,6 @@ package "integration_errors/" as integration_errors_pkg {
     }
 
     class WorkspaceIntegrationError <<exception>> {
-    }
-
-    class WorktreeIntegrationError <<exception>> {
     }
 
     class SignalIntegrationError <<exception>> {
@@ -491,7 +488,7 @@ package "integration_errors/" as integration_errors_pkg {
     }
 
     class error_functions <<module>> {
-        module_path : integration_errors
+        module_path : errors
         __
         +{static} classify_integration_error(exc) : IntegrationFailureClass
     }
@@ -552,6 +549,7 @@ TaskRunner --> TearDownMode : teardown policy
 TaskCompletionChecker --> TaskCompletionSignal : returns
 TaskLauncher --> Agent : launches
 TaskRunResult --> TaskStatus : status
+TaskRunResult --> IntegrationFailureClass : failure_class (optional)
 
 ' --- task_runtime internal ---
 TaskState --> TaskStatus : status
@@ -593,11 +591,10 @@ OrchestratorConfig --> TearDownMode : teardown policy
 Orchestrator --> TaskRuntime : mutates
 Orchestrator --> WorkstreamRuntime : mutates
 
-' --- integration_errors ---
+' --- errors ---
 ExpectedTaskFailureError --|> IntegrationError
 InternalIntegrationError --|> IntegrationError
 WorkspaceIntegrationError --|> InternalIntegrationError
-WorktreeIntegrationError --|> WorkspaceIntegrationError
 SignalIntegrationError --|> InternalIntegrationError
 PullRequestIntegrationError --|> InternalIntegrationError
 AgentLaunchIntegrationError --|> InternalIntegrationError

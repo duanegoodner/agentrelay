@@ -15,6 +15,7 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Optional, Protocol, runtime_checkable
 
+from agentrelay.errors import IntegrationFailureClass
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskRuntimeBuilder, TaskStatus
@@ -290,8 +291,17 @@ class Orchestrator:
                     continue
 
                 if result.status == TaskStatus.FAILED:
+                    is_internal = (
+                        result.failure_class == IntegrationFailureClass.INTERNAL_ERROR
+                    )
+                    outcome_class = (
+                        TaskOutcomeClass.INTERNAL_ERROR
+                        if is_internal
+                        else TaskOutcomeClass.EXPECTED_FAILURE
+                    )
                     should_retry = (
-                        attempts_used[task_id] < self.config.max_task_attempts
+                        not is_internal
+                        and attempts_used[task_id] < self.config.max_task_attempts
                     )
                     events.append(
                         OrchestratorEvent(
@@ -299,7 +309,7 @@ class Orchestrator:
                             task_id=task_id,
                             workstream_id=runtime.task.workstream_id,
                             attempt_num=attempt_num,
-                            outcome_class=TaskOutcomeClass.EXPECTED_FAILURE,
+                            outcome_class=outcome_class,
                             message=(
                                 "retry_scheduled"
                                 if should_retry
@@ -311,6 +321,19 @@ class Orchestrator:
                         runtime.reset_for_retry()
                     else:
                         ws_runtime.mark_failed(runtime.state.error or "task failed")
+                    if is_internal and self.config.fail_fast_on_internal_error:
+                        self._mark_inflight_tasks_failed(
+                            running_task_ids=running.keys(),
+                            task_runtimes=mutable_task_runtimes,
+                            workstream_runtimes=mutable_workstream_runtimes,
+                            reason="canceled due to internal integration error",
+                        )
+                        await self._cancel_running_tasks(running)
+                        running.clear()
+                        fatal_error = (
+                            runtime.state.error or "internal integration error"
+                        )
+                        break
                     self._refresh_workstream_terminal_states(
                         mutable_task_runtimes, mutable_workstream_runtimes
                     )

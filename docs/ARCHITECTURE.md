@@ -25,7 +25,7 @@ truth for concrete implementation details.
 - `WorkstreamRunnerIO`: composed per-step I/O boundary used by `WorkstreamRunner`
 - `Orchestrator`: async dependency/workstream scheduler over graph runtimes
 - `OrchestratorConfig`: run-level scheduling, retry, and teardown policy
-- `integration_errors`: typed integration failure model + expected/internal classification helper
+- `errors`: typed integration failure model + expected/internal classification helper
 - `WorkstreamSpec`: immutable definition of a task workstream lane
 - `Task`: immutable specification of a unit of work
 - `TaskRuntime`: mutable execution envelope attached to a `Task`
