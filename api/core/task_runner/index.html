@@ -1726,8 +1726,14 @@
 
         <p>Task runner package — one-task lifecycle state machine and I/O protocols.</p>
 <p>Re-exports all public names so that <code>from agentrelay.task_runner import X</code>
-continues to work after promotion from a single module to a package.</p>
+continues to work.</p>
 
+
+<details class="subpackages" open>
+  <summary>Subpackages</summary>
+  <p>core: Protocols, state machine, I/O boundary composition.
+implementations: Concrete protocol implementations (added in later PRs).</p>
+</details>
 
 
 
@@ -1774,7 +1780,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 95</span>
 <span class="normal"> 96</span>
 <span class="normal"> 97</span>
@@ -1888,7 +1894,7 @@ continues to work after promotion from a single module to a package.</p>
 
   
       dataclass
-   (agentrelay.task_runner.io.TaskCompletionSignal)" href="#agentrelay.task_runner.TaskCompletionSignal">TaskCompletionSignal</a></code>
+   (agentrelay.task_runner.core.io.TaskCompletionSignal)" href="#agentrelay.task_runner.TaskCompletionSignal">TaskCompletionSignal</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1901,7 +1907,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
@@ -2024,7 +2030,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
@@ -2109,7 +2115,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
@@ -2216,7 +2222,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
@@ -2273,7 +2279,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
@@ -2391,7 +2397,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
@@ -2452,7 +2458,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -2559,7 +2565,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
@@ -2616,7 +2622,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
@@ -2705,7 +2711,7 @@ continues to work after promotion from a single module to a package.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -2772,7 +2778,7 @@ testing, and swapping of each step.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TaskRunnerIO.preparer">preparer</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskPreparer (agentrelay.task_runner.io.TaskPreparer)" href="#agentrelay.task_runner.TaskPreparer">TaskPreparer</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TaskPreparer (agentrelay.task_runner.core.io.TaskPreparer)" href="#agentrelay.task_runner.TaskPreparer">TaskPreparer</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2783,7 +2789,7 @@ testing, and swapping of each step.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TaskRunnerIO.launcher">launcher</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskLauncher (agentrelay.task_runner.io.TaskLauncher)" href="#agentrelay.task_runner.TaskLauncher">TaskLauncher</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TaskLauncher (agentrelay.task_runner.core.io.TaskLauncher)" href="#agentrelay.task_runner.TaskLauncher">TaskLauncher</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2794,7 +2800,7 @@ testing, and swapping of each step.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TaskRunnerIO.kickoff_sender">kickoff_sender</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskKickoff (agentrelay.task_runner.io.TaskKickoff)" href="#agentrelay.task_runner.TaskKickoff">TaskKickoff</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TaskKickoff (agentrelay.task_runner.core.io.TaskKickoff)" href="#agentrelay.task_runner.TaskKickoff">TaskKickoff</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2805,7 +2811,7 @@ testing, and swapping of each step.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TaskRunnerIO.completion_checker">completion_checker</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskCompletionChecker (agentrelay.task_runner.io.TaskCompletionChecker)" href="#agentrelay.task_runner.TaskCompletionChecker">TaskCompletionChecker</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TaskCompletionChecker (agentrelay.task_runner.core.io.TaskCompletionChecker)" href="#agentrelay.task_runner.TaskCompletionChecker">TaskCompletionChecker</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2816,7 +2822,7 @@ testing, and swapping of each step.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TaskRunnerIO.merger">merger</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskMerger (agentrelay.task_runner.io.TaskMerger)" href="#agentrelay.task_runner.TaskMerger">TaskMerger</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TaskMerger (agentrelay.task_runner.core.io.TaskMerger)" href="#agentrelay.task_runner.TaskMerger">TaskMerger</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2827,7 +2833,7 @@ testing, and swapping of each step.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TaskRunnerIO.teardown_handler">teardown_handler</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskTeardown (agentrelay.task_runner.io.TaskTeardown)" href="#agentrelay.task_runner.TaskTeardown">TaskTeardown</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TaskTeardown (agentrelay.task_runner.core.io.TaskTeardown)" href="#agentrelay.task_runner.TaskTeardown">TaskTeardown</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2846,7 +2852,7 @@ testing, and swapping of each step.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
 <span class="normal">142</span>
 <span class="normal">143</span>
@@ -2945,7 +2951,7 @@ testing, and swapping of each step.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
@@ -3034,7 +3040,7 @@ testing, and swapping of each step.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
@@ -3105,7 +3111,7 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 
   
       dataclass
-   (agentrelay.task_runner.io.TaskRunnerIO)" href="#agentrelay.task_runner.TaskRunnerIO">TaskRunnerIO</a></code>
+   (agentrelay.task_runner.core.io.TaskRunnerIO)" href="#agentrelay.task_runner.TaskRunnerIO">TaskRunnerIO</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3124,7 +3130,7 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/runner.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
@@ -3460,7 +3466,7 @@ state.</p>
                 <code>teardown_mode</code>
             </td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TearDownMode (agentrelay.task_runner.runner.TearDownMode)" href="#agentrelay.task_runner.TearDownMode">TearDownMode</a></code>
+                  <code><a class="autorefs autorefs-internal" title="TearDownMode (agentrelay.task_runner.core.runner.TearDownMode)" href="#agentrelay.task_runner.TearDownMode">TearDownMode</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3468,7 +3474,7 @@ state.</p>
               </div>
             </td>
             <td>
-                  <code><span title="agentrelay.task_runner.runner.TearDownMode.ALWAYS">ALWAYS</span></code>
+                  <code><span title="agentrelay.task_runner.core.runner.TearDownMode.ALWAYS">ALWAYS</span></code>
             </td>
           </tr>
       </tbody>
@@ -3491,7 +3497,7 @@ state.</p>
 
   
       dataclass
-   (agentrelay.task_runner.runner.TaskRunResult)" href="#agentrelay.task_runner.TaskRunResult">TaskRunResult</a></code>
+   (agentrelay.task_runner.core.runner.TaskRunResult)" href="#agentrelay.task_runner.TaskRunResult">TaskRunResult</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3527,7 +3533,7 @@ state.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/runner.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -3810,7 +3816,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/runner.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
@@ -4000,7 +4006,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
   
       dataclass
-   (agentrelay.task_runner.runner.TaskRunResult)" href="#agentrelay.task_runner.TaskRunResult">TaskRunResult</a></code>
+   (agentrelay.task_runner.core.runner.TaskRunResult)" href="#agentrelay.task_runner.TaskRunResult">TaskRunResult</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4013,7 +4019,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/task_runner/runner.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
@@ -4142,7 +4148,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/task_runner/runner.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>

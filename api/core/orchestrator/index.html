@@ -1019,24 +1019,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.TaskOutcomeClass" class="md-nav__link">
+  <a href="#agentrelay.orchestrator.Orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskOutcomeClass
+        Orchestrator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Orchestrator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.Orchestrator.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.OrchestratorOutcome" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OrchestratorOutcome
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1091,10 +1097,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.OrchestratorOutcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrchestratorOutcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.orchestrator.OrchestratorResult" class="md-nav__link">
     <span class="md-ellipsis">
       
         OrchestratorResult
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.TaskOutcomeClass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskOutcomeClass
       
     </span>
   </a>
@@ -1115,34 +1143,6 @@
         
           <li class="md-nav__item">
   <a href="#agentrelay.orchestrator.TaskRunnerLike.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        run
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.Orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Orchestrator
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Orchestrator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.Orchestrator.run" class="md-nav__link">
     <span class="md-ellipsis">
       
         run
@@ -1323,24 +1323,30 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.TaskOutcomeClass" class="md-nav__link">
+  <a href="#agentrelay.orchestrator.Orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskOutcomeClass
+        Orchestrator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Orchestrator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.Orchestrator.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.OrchestratorOutcome" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OrchestratorOutcome
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1395,10 +1401,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.OrchestratorOutcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OrchestratorOutcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.orchestrator.OrchestratorResult" class="md-nav__link">
     <span class="md-ellipsis">
       
         OrchestratorResult
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.TaskOutcomeClass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskOutcomeClass
       
     </span>
   </a>
@@ -1419,34 +1447,6 @@
         
           <li class="md-nav__item">
   <a href="#agentrelay.orchestrator.TaskRunnerLike.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        run
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.Orchestrator" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Orchestrator
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Orchestrator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.Orchestrator.run" class="md-nav__link">
     <span class="md-ellipsis">
       
         run
@@ -1488,10 +1488,9 @@
 <a id="agentrelay.orchestrator"></a>
     <div class="doc doc-contents first">
 
-        <p>Graph-level orchestration loop for task and workstream runtimes.</p>
-<p>This module schedules tasks from a :class:<code>agentrelay.task_graph.TaskGraph</code>
-using dependency readiness and workstream constraints, then delegates one-task
-execution to :class:<code>agentrelay.task_runner.TaskRunner</code>.</p>
+        <p>Orchestrator package — async graph scheduling over task and workstream runtimes.</p>
+<p>Re-exports all public names so that <code>from agentrelay.orchestrator import X</code>
+continues to work after promotion from a single module to a package.</p>
 
 
 
@@ -1511,993 +1510,6 @@ execution to :class:<code>agentrelay.task_runner.TaskRunner</code>.</p>
 
 
 
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.TaskOutcomeClass" class="doc doc-heading">
-            <code>TaskOutcomeClass</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
-
-
-
-        <p>Classification of one task attempt outcome from the orchestrator boundary.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.TaskOutcomeClass.SUCCESS">SUCCESS</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Task reached <code>PR_MERGED</code>.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.TaskOutcomeClass.EXPECTED_FAILURE">EXPECTED_FAILURE</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Task run returned <code>FAILED</code>.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.TaskOutcomeClass.INTERNAL_ERROR">INTERNAL_ERROR</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Task run raised an exception.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classification of one task attempt outcome from the orchestrator boundary.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        SUCCESS: Task reached ``PR_MERGED``.</span>
-<span class="sd">        EXPECTED_FAILURE: Task run returned ``FAILED``.</span>
-<span class="sd">        INTERNAL_ERROR: Task run raised an exception.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>
-    <span class="n">EXPECTED_FAILURE</span> <span class="o">=</span> <span class="s2">&quot;expected_failure&quot;</span>
-    <span class="n">INTERNAL_ERROR</span> <span class="o">=</span> <span class="s2">&quot;internal_error&quot;</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.OrchestratorOutcome" class="doc doc-heading">
-            <code>OrchestratorOutcome</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
-
-
-
-        <p>Terminal outcome for one orchestrator run.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorOutcome.SUCCEEDED">SUCCEEDED</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>All tasks reached <code>PR_MERGED</code>.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorOutcome.COMPLETED_WITH_FAILURES">COMPLETED_WITH_FAILURES</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>No fatal internal error, but one or more tasks
-ended <code>FAILED</code>.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorOutcome.FATAL_INTERNAL_ERROR">FATAL_INTERNAL_ERROR</span></code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A task run raised and orchestration failed fast.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal outcome for one orchestrator run.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        SUCCEEDED: All tasks reached ``PR_MERGED``.</span>
-<span class="sd">        COMPLETED_WITH_FAILURES: No fatal internal error, but one or more tasks</span>
-<span class="sd">            ended ``FAILED``.</span>
-<span class="sd">        FATAL_INTERNAL_ERROR: A task run raised and orchestration failed fast.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">SUCCEEDED</span> <span class="o">=</span> <span class="s2">&quot;succeeded&quot;</span>
-    <span class="n">COMPLETED_WITH_FAILURES</span> <span class="o">=</span> <span class="s2">&quot;completed_with_failures&quot;</span>
-    <span class="n">FATAL_INTERNAL_ERROR</span> <span class="o">=</span> <span class="s2">&quot;fatal_internal_error&quot;</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.OrchestratorConfig" class="doc doc-heading">
-            <code>OrchestratorConfig</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Configuration for one orchestrator scheduling run.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.max_concurrency">max_concurrency</span></code></td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Maximum number of task attempts to run concurrently.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.max_task_attempts">max_task_attempts</span></code></td>
-            <td>
-                  <code><span title="int">int</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Maximum attempts per task (including first attempt).</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.task_teardown_mode">task_teardown_mode</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="TearDownMode (agentrelay.task_runner.TearDownMode)" href="../task_runner/#agentrelay.task_runner.TearDownMode">TearDownMode</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Teardown policy forwarded to <code>TaskRunner.run(...)</code>.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.fail_fast_on_internal_error">fail_fast_on_internal_error</span></code></td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Stop scheduling immediately when a task run
-raises (internal/system failure).</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for one orchestrator scheduling run.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        max_concurrency: Maximum number of task attempts to run concurrently.</span>
-<span class="sd">        max_task_attempts: Maximum attempts per task (including first attempt).</span>
-<span class="sd">        task_teardown_mode: Teardown policy forwarded to ``TaskRunner.run(...)``.</span>
-<span class="sd">        fail_fast_on_internal_error: Stop scheduling immediately when a task run</span>
-<span class="sd">            raises (internal/system failure).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">max_concurrency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">max_task_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">task_teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ON_SUCCESS</span>
-    <span class="n">fail_fast_on_internal_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.OrchestratorEvent" class="doc doc-heading">
-            <code>OrchestratorEvent</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Structured event emitted by the orchestration loop.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.kind">kind</span></code></td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Event type identifier.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.task_id">task_id</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Optional task ID associated with the event.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.workstream_id">workstream_id</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Optional workstream ID associated with the event.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.attempt_num">attempt_num</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Optional 0-indexed attempt number for task-run events.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.outcome_class">outcome_class</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="TaskOutcomeClass (agentrelay.orchestrator.TaskOutcomeClass)" href="#agentrelay.orchestrator.TaskOutcomeClass">TaskOutcomeClass</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Optional classified task outcome.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.message">message</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Optional event detail.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorEvent</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured event emitted by the orchestration loop.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        kind: Event type identifier.</span>
-<span class="sd">        task_id: Optional task ID associated with the event.</span>
-<span class="sd">        workstream_id: Optional workstream ID associated with the event.</span>
-<span class="sd">        attempt_num: Optional 0-indexed attempt number for task-run events.</span>
-<span class="sd">        outcome_class: Optional classified task outcome.</span>
-<span class="sd">        message: Optional event detail.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">task_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">workstream_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">attempt_num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">outcome_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskOutcomeClass</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">message</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.OrchestratorListener" class="doc doc-heading">
-            <code>OrchestratorListener</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
-
-
-
-        <p>Callback protocol for real-time orchestration event observation.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorListener</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback protocol for real-time orchestration event observation.&quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called each time the orchestrator produces an event.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            event: The event that was just produced.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="agentrelay.orchestrator.OrchestratorListener.on_event" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">on_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Called each time the orchestrator produces an event.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>event</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="OrchestratorEvent
-
-
-  
-      dataclass
-   (agentrelay.orchestrator.OrchestratorEvent)" href="#agentrelay.orchestrator.OrchestratorEvent">OrchestratorEvent</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The event that was just produced.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Called each time the orchestrator produces an event.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        event: The event that was just produced.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.OrchestratorResult" class="doc doc-heading">
-            <code>OrchestratorResult</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Terminal result for one orchestrator run.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.outcome">outcome</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="OrchestratorOutcome (agentrelay.orchestrator.OrchestratorOutcome)" href="#agentrelay.orchestrator.OrchestratorOutcome">OrchestratorOutcome</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Overall run outcome classification.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.task_runtimes">task_runtimes</span></code></td>
-            <td>
-                  <code><span title="collections.abc.Mapping">Mapping</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="TaskRuntime
-
-
-  
-      dataclass
-   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Final task runtimes keyed by task ID.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.workstream_runtimes">workstream_runtimes</span></code></td>
-            <td>
-                  <code><span title="collections.abc.Mapping">Mapping</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="WorkstreamRuntime
-
-
-  
-      dataclass
-   (agentrelay.workstream.WorkstreamRuntime)" href="../../workstream/#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Final workstream runtimes keyed by workstream ID.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.events">events</span></code></td>
-            <td>
-                  <code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="OrchestratorEvent
-
-
-  
-      dataclass
-   (agentrelay.orchestrator.OrchestratorEvent)" href="#agentrelay.orchestrator.OrchestratorEvent">OrchestratorEvent</a>, ...]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Ordered structured events produced during scheduling/execution.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.fatal_error">fatal_error</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Traceback text for fatal internal errors, if any.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal result for one orchestrator run.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        outcome: Overall run outcome classification.</span>
-<span class="sd">        task_runtimes: Final task runtimes keyed by task ID.</span>
-<span class="sd">        workstream_runtimes: Final workstream runtimes keyed by workstream ID.</span>
-<span class="sd">        events: Ordered structured events produced during scheduling/execution.</span>
-<span class="sd">        fatal_error: Traceback text for fatal internal errors, if any.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">outcome</span><span class="p">:</span> <span class="n">OrchestratorOutcome</span>
-    <span class="n">task_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span>
-    <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span>
-    <span class="n">events</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OrchestratorEvent</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-    <span class="n">fatal_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.TaskRunnerLike" class="doc doc-heading">
-            <code>TaskRunnerLike</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
-
-
-
-        <p>Protocol for the task runner boundary used by :class:<code>Orchestrator</code>.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TaskRunnerLike</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by :class:`Orchestrator`.&quot;&quot;&quot;</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
-        <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="agentrelay.orchestrator.TaskRunnerLike.run" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">teardown_mode</span><span class="o">=</span><span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Execute one task attempt and return terminal task fields.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
-    <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
 
 <div class="doc doc-object doc-class">
 
@@ -2528,7 +1540,7 @@ raises (internal/system failure).</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span>
@@ -3591,7 +2603,7 @@ resume-like runs. If omitted, built fresh from graph.</p>
 
   
       dataclass
-   (agentrelay.orchestrator.OrchestratorResult)" href="#agentrelay.orchestrator.OrchestratorResult">OrchestratorResult</a></code>
+   (agentrelay.orchestrator.orchestrator.OrchestratorResult)" href="#agentrelay.orchestrator.OrchestratorResult">OrchestratorResult</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3628,7 +2640,7 @@ align with graph IDs.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
@@ -4128,6 +3140,993 @@ align with graph IDs.</p>
         <span class="n">events</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">events</span><span class="p">),</span>
         <span class="n">fatal_error</span><span class="o">=</span><span class="n">fatal_error</span><span class="p">,</span>
     <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.OrchestratorConfig" class="doc doc-heading">
+            <code>OrchestratorConfig</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Configuration for one orchestrator scheduling run.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.max_concurrency">max_concurrency</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Maximum number of task attempts to run concurrently.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.max_task_attempts">max_task_attempts</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Maximum attempts per task (including first attempt).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.task_teardown_mode">task_teardown_mode</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TearDownMode (agentrelay.task_runner.TearDownMode)" href="../task_runner/#agentrelay.task_runner.TearDownMode">TearDownMode</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Teardown policy forwarded to <code>TaskRunner.run(...)</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.fail_fast_on_internal_error">fail_fast_on_internal_error</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Stop scheduling immediately when a task run
+raises (internal/system failure).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for one orchestrator scheduling run.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        max_concurrency: Maximum number of task attempts to run concurrently.</span>
+<span class="sd">        max_task_attempts: Maximum attempts per task (including first attempt).</span>
+<span class="sd">        task_teardown_mode: Teardown policy forwarded to ``TaskRunner.run(...)``.</span>
+<span class="sd">        fail_fast_on_internal_error: Stop scheduling immediately when a task run</span>
+<span class="sd">            raises (internal/system failure).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">max_concurrency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">max_task_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">task_teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ON_SUCCESS</span>
+    <span class="n">fail_fast_on_internal_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.OrchestratorEvent" class="doc doc-heading">
+            <code>OrchestratorEvent</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Structured event emitted by the orchestration loop.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.kind">kind</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Event type identifier.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.task_id">task_id</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional task ID associated with the event.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.workstream_id">workstream_id</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional workstream ID associated with the event.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.attempt_num">attempt_num</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="int">int</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional 0-indexed attempt number for task-run events.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.outcome_class">outcome_class</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="TaskOutcomeClass (agentrelay.orchestrator.orchestrator.TaskOutcomeClass)" href="#agentrelay.orchestrator.TaskOutcomeClass">TaskOutcomeClass</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional classified task outcome.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorEvent.message">message</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional event detail.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorEvent</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured event emitted by the orchestration loop.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        kind: Event type identifier.</span>
+<span class="sd">        task_id: Optional task ID associated with the event.</span>
+<span class="sd">        workstream_id: Optional workstream ID associated with the event.</span>
+<span class="sd">        attempt_num: Optional 0-indexed attempt number for task-run events.</span>
+<span class="sd">        outcome_class: Optional classified task outcome.</span>
+<span class="sd">        message: Optional event detail.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">task_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">workstream_id</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">attempt_num</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">outcome_class</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskOutcomeClass</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">message</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.OrchestratorListener" class="doc doc-heading">
+            <code>OrchestratorListener</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Callback protocol for real-time orchestration event observation.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorListener</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback protocol for real-time orchestration event observation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Called each time the orchestrator produces an event.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            event: The event that was just produced.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.orchestrator.OrchestratorListener.on_event" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">on_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Called each time the orchestrator produces an event.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>event</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OrchestratorEvent
+
+
+  
+      dataclass
+   (agentrelay.orchestrator.orchestrator.OrchestratorEvent)" href="#agentrelay.orchestrator.OrchestratorEvent">OrchestratorEvent</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The event that was just produced.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Called each time the orchestrator produces an event.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        event: The event that was just produced.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.OrchestratorOutcome" class="doc doc-heading">
+            <code>OrchestratorOutcome</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Terminal outcome for one orchestrator run.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorOutcome.SUCCEEDED">SUCCEEDED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>All tasks reached <code>PR_MERGED</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorOutcome.COMPLETED_WITH_FAILURES">COMPLETED_WITH_FAILURES</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>No fatal internal error, but one or more tasks
+ended <code>FAILED</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorOutcome.FATAL_INTERNAL_ERROR">FATAL_INTERNAL_ERROR</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A task run raised and orchestration failed fast.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal outcome for one orchestrator run.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        SUCCEEDED: All tasks reached ``PR_MERGED``.</span>
+<span class="sd">        COMPLETED_WITH_FAILURES: No fatal internal error, but one or more tasks</span>
+<span class="sd">            ended ``FAILED``.</span>
+<span class="sd">        FATAL_INTERNAL_ERROR: A task run raised and orchestration failed fast.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SUCCEEDED</span> <span class="o">=</span> <span class="s2">&quot;succeeded&quot;</span>
+    <span class="n">COMPLETED_WITH_FAILURES</span> <span class="o">=</span> <span class="s2">&quot;completed_with_failures&quot;</span>
+    <span class="n">FATAL_INTERNAL_ERROR</span> <span class="o">=</span> <span class="s2">&quot;fatal_internal_error&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.OrchestratorResult" class="doc doc-heading">
+            <code>OrchestratorResult</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Terminal result for one orchestrator run.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.outcome">outcome</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OrchestratorOutcome (agentrelay.orchestrator.orchestrator.OrchestratorOutcome)" href="#agentrelay.orchestrator.OrchestratorOutcome">OrchestratorOutcome</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Overall run outcome classification.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.task_runtimes">task_runtimes</span></code></td>
+            <td>
+                  <code><span title="collections.abc.Mapping">Mapping</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Final task runtimes keyed by task ID.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.workstream_runtimes">workstream_runtimes</span></code></td>
+            <td>
+                  <code><span title="collections.abc.Mapping">Mapping</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.WorkstreamRuntime)" href="../../workstream/#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Final workstream runtimes keyed by workstream ID.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.events">events</span></code></td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="OrchestratorEvent
+
+
+  
+      dataclass
+   (agentrelay.orchestrator.orchestrator.OrchestratorEvent)" href="#agentrelay.orchestrator.OrchestratorEvent">OrchestratorEvent</a>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Ordered structured events produced during scheduling/execution.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorResult.fatal_error">fatal_error</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Traceback text for fatal internal errors, if any.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal result for one orchestrator run.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        outcome: Overall run outcome classification.</span>
+<span class="sd">        task_runtimes: Final task runtimes keyed by task ID.</span>
+<span class="sd">        workstream_runtimes: Final workstream runtimes keyed by workstream ID.</span>
+<span class="sd">        events: Ordered structured events produced during scheduling/execution.</span>
+<span class="sd">        fatal_error: Traceback text for fatal internal errors, if any.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">outcome</span><span class="p">:</span> <span class="n">OrchestratorOutcome</span>
+    <span class="n">task_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span>
+    <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span>
+    <span class="n">events</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OrchestratorEvent</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">fatal_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.TaskOutcomeClass" class="doc doc-heading">
+            <code>TaskOutcomeClass</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Classification of one task attempt outcome from the orchestrator boundary.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.TaskOutcomeClass.SUCCESS">SUCCESS</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task reached <code>PR_MERGED</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.TaskOutcomeClass.EXPECTED_FAILURE">EXPECTED_FAILURE</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task run returned <code>FAILED</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.TaskOutcomeClass.INTERNAL_ERROR">INTERNAL_ERROR</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task run raised an exception.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classification of one task attempt outcome from the orchestrator boundary.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        SUCCESS: Task reached ``PR_MERGED``.</span>
+<span class="sd">        EXPECTED_FAILURE: Task run returned ``FAILED``.</span>
+<span class="sd">        INTERNAL_ERROR: Task run raised an exception.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>
+    <span class="n">EXPECTED_FAILURE</span> <span class="o">=</span> <span class="s2">&quot;expected_failure&quot;</span>
+    <span class="n">INTERNAL_ERROR</span> <span class="o">=</span> <span class="s2">&quot;internal_error&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.TaskRunnerLike" class="doc doc-heading">
+            <code>TaskRunnerLike</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Protocol for the task runner boundary used by :class:<code>Orchestrator</code>.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskRunnerLike</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by :class:`Orchestrator`.&quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.orchestrator.TaskRunnerLike.run" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">teardown_mode</span><span class="o">=</span><span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Execute one task attempt and return terminal task fields.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
+    <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

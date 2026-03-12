@@ -1892,6 +1892,12 @@ state for each workstream lane, runtime initialization helpers, and the
 workstream-level lifecycle runner with its I/O protocols.</p>
 
 
+<details class="subpackages" open>
+  <summary>Subpackages</summary>
+  <p>core: Specs, runtime state, protocols, and runner.
+implementations: Concrete protocol implementations (added in later PRs).</p>
+</details>
+
 
 
 
@@ -1937,7 +1943,7 @@ workstream-level lifecycle runner with its I/O protocols.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -2012,7 +2018,7 @@ workstream-level lifecycle runner with its I/O protocols.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2029,7 +2035,7 @@ should be merged.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
@@ -2086,7 +2092,7 @@ should be merged.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
 <span class="normal">26</span>
 <span class="normal">27</span>
@@ -2159,7 +2165,7 @@ should be merged.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2175,7 +2181,7 @@ should be merged.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
@@ -2240,7 +2246,7 @@ workstream lifecycle.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.workstream.WorkstreamRunnerIO.preparer">preparer</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamPreparer (agentrelay.workstream.io.WorkstreamPreparer)" href="#agentrelay.workstream.WorkstreamPreparer">WorkstreamPreparer</a></code>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamPreparer (agentrelay.workstream.core.io.WorkstreamPreparer)" href="#agentrelay.workstream.WorkstreamPreparer">WorkstreamPreparer</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2251,7 +2257,7 @@ workstream lifecycle.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.workstream.WorkstreamRunnerIO.merger">merger</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamMerger (agentrelay.workstream.io.WorkstreamMerger)" href="#agentrelay.workstream.WorkstreamMerger">WorkstreamMerger</a></code>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamMerger (agentrelay.workstream.core.io.WorkstreamMerger)" href="#agentrelay.workstream.WorkstreamMerger">WorkstreamMerger</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2262,7 +2268,7 @@ workstream lifecycle.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.workstream.WorkstreamRunnerIO.teardown_handler">teardown_handler</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamTeardown (agentrelay.workstream.io.WorkstreamTeardown)" href="#agentrelay.workstream.WorkstreamTeardown">WorkstreamTeardown</a></code>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamTeardown (agentrelay.workstream.core.io.WorkstreamTeardown)" href="#agentrelay.workstream.WorkstreamTeardown">WorkstreamTeardown</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2281,7 +2287,7 @@ workstream lifecycle.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
@@ -2364,7 +2370,7 @@ workstream lifecycle.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
@@ -2439,7 +2445,7 @@ workstream lifecycle.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2456,7 +2462,7 @@ cleaned up.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/io.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -2529,7 +2535,7 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 
   
       dataclass
-   (agentrelay.workstream.io.WorkstreamRunnerIO)" href="#agentrelay.workstream.WorkstreamRunnerIO">WorkstreamRunnerIO</a></code>
+   (agentrelay.workstream.core.io.WorkstreamRunnerIO)" href="#agentrelay.workstream.WorkstreamRunnerIO">WorkstreamRunnerIO</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2548,7 +2554,7 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runner.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 53</span>
 <span class="normal"> 54</span>
 <span class="normal"> 55</span>
@@ -2729,7 +2735,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2745,7 +2751,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runner.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
 <span class="normal">68</span>
 <span class="normal">69</span>
@@ -2817,7 +2823,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2848,7 +2854,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
   
       dataclass
-   (agentrelay.workstream.runner.WorkstreamRunResult)" href="#agentrelay.workstream.WorkstreamRunResult">WorkstreamRunResult</a></code>
+   (agentrelay.workstream.core.runner.WorkstreamRunResult)" href="#agentrelay.workstream.WorkstreamRunResult">WorkstreamRunResult</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2861,7 +2867,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runner.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
 <span class="normal"> 84</span>
 <span class="normal"> 85</span>
@@ -2944,7 +2950,7 @@ as concerns rather than changing workstream status.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2960,7 +2966,7 @@ as concerns rather than changing workstream status.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runner.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
@@ -3046,7 +3052,7 @@ as concerns rather than changing workstream status.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.workstream.WorkstreamRunResult.status">status</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamStatus (agentrelay.workstream.runtime.WorkstreamStatus)" href="#agentrelay.workstream.WorkstreamStatus">WorkstreamStatus</a></code>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamStatus (agentrelay.workstream.core.runtime.WorkstreamStatus)" href="#agentrelay.workstream.WorkstreamStatus">WorkstreamStatus</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3076,7 +3082,7 @@ as concerns rather than changing workstream status.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runner.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
@@ -3189,7 +3195,7 @@ as concerns rather than changing workstream status.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3220,7 +3226,7 @@ as concerns rather than changing workstream status.</p>
 
   
       dataclass
-   (agentrelay.workstream.runner.WorkstreamRunResult)" href="#agentrelay.workstream.WorkstreamRunResult">WorkstreamRunResult</a></code>
+   (agentrelay.workstream.core.runner.WorkstreamRunResult)" href="#agentrelay.workstream.WorkstreamRunResult">WorkstreamRunResult</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3233,7 +3239,7 @@ as concerns rather than changing workstream status.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runner.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -3342,7 +3348,7 @@ as concerns rather than changing workstream status.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
@@ -3418,7 +3424,7 @@ cannot mutate the list through the view.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
@@ -3510,7 +3516,7 @@ cannot mutate the list through the view.</p>
 
   
       dataclass
-   (agentrelay.workstream.workstream.WorkstreamSpec)" href="#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a></code>
+   (agentrelay.workstream.core.workstream.WorkstreamSpec)" href="#agentrelay.workstream.WorkstreamSpec">WorkstreamSpec</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3526,7 +3532,7 @@ cannot mutate the list through the view.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamState)" href="#agentrelay.workstream.WorkstreamState">WorkstreamState</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamState)" href="#agentrelay.workstream.WorkstreamState">WorkstreamState</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3542,7 +3548,7 @@ cannot mutate the list through the view.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamArtifacts)" href="#agentrelay.workstream.WorkstreamArtifacts">WorkstreamArtifacts</a></code>
+   (agentrelay.workstream.core.runtime.WorkstreamArtifacts)" href="#agentrelay.workstream.WorkstreamArtifacts">WorkstreamArtifacts</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3561,7 +3567,7 @@ cannot mutate the list through the view.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
 <span class="normal"> 76</span>
 <span class="normal"> 77</span>
@@ -3654,7 +3660,7 @@ cannot mutate the list through the view.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
@@ -3683,7 +3689,7 @@ cannot mutate the list through the view.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">94</span>
 <span class="normal">95</span>
 <span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">deactivate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -3710,7 +3716,7 @@ cannot mutate the list through the view.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
@@ -3739,7 +3745,7 @@ cannot mutate the list through the view.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -3789,7 +3795,7 @@ read-only enforcement propagates through the object graph.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
@@ -3882,7 +3888,7 @@ read-only enforcement propagates through the object graph.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.workstream.WorkstreamState.status">status</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamStatus (agentrelay.workstream.runtime.WorkstreamStatus)" href="#agentrelay.workstream.WorkstreamStatus">WorkstreamStatus</a></code>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamStatus (agentrelay.workstream.core.runtime.WorkstreamStatus)" href="#agentrelay.workstream.WorkstreamStatus">WorkstreamStatus</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3946,7 +3952,7 @@ read-only enforcement propagates through the object graph.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
 <span class="normal">43</span>
 <span class="normal">44</span>
@@ -4036,7 +4042,7 @@ cannot mutate the underlying state.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -4187,7 +4193,7 @@ cannot mutate the underlying state.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
@@ -4264,7 +4270,7 @@ cannot mutate the underlying state.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/runtime_builder.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/runtime_builder.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
@@ -4396,7 +4402,7 @@ Each runtime starts with default mutable state/artifacts.</p>
 
   
       dataclass
-   (agentrelay.workstream.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4409,7 +4415,7 @@ Each runtime starts with default mutable state/artifacts.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/runtime_builder.py</code></summary>
+              <summary>Source code in <code>src/agentrelay/workstream/core/runtime_builder.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
 <span class="normal">22</span>
 <span class="normal">23</span>
@@ -4554,7 +4560,7 @@ Defaults to <code>"main"</code>.</p>
 
 
               <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/workstream.py</code></summary>
+                <summary>Source code in <code>src/agentrelay/workstream/core/workstream.py</code></summary>
                 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
 <span class="normal">13</span>
 <span class="normal">14</span>

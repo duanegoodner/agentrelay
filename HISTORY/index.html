@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#restructure-packages-into-core-implementations-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restructure packages into core/ + implementations/ layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-orchestratorlistener-protocol-for-real-time-event-observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1439,6 +1450,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#restructure-packages-into-core-implementations-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restructure packages into core/ + implementations/ layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-orchestratorlistener-protocol-for-real-time-event-observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1714,6 +1736,17 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-12">2026-03-12</h2>
+<h3 id="restructure-packages-into-core-implementations-layout">Restructure packages into core/ + implementations/ layout</h3>
+<ul>
+<li>Split <code>agent/</code>, <code>task_runner/</code>, and <code>workstream/</code> into <code>core/</code> (ABCs,
+  protocols, state machines) and <code>implementations/</code> (concrete environment-
+  specific code) subpackages</li>
+<li>Promoted <code>orchestrator.py</code> module to <code>orchestrator/</code> package</li>
+<li>All external import paths unchanged — package-level <code>__init__.py</code> re-exports
+  maintain backward compatibility</li>
+<li>Updated PlantUML diagram to reflect new package structure</li>
+<li>624 tests pass, 0 pyright errors</li>
+</ul>
 <h3 id="add-orchestratorlistener-protocol-for-real-time-event-observability">Add OrchestratorListener protocol for real-time event observability</h3>
 <ul>
 <li>Added <code>OrchestratorListener</code> protocol with single <code>on_event(event)</code> method</li>
