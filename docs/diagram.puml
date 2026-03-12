@@ -109,17 +109,6 @@ package "workspace.py" as workspace_py {
     class LocalWorkspaceRef <<frozen dataclass>> {
         worktree_path : Path
         branch_name : str
-        kind : "local"
-    }
-
-    class RemoteWorkspaceRef <<frozen dataclass>> {
-        workspace_id : str
-        branch_name : str
-        workspace_uri : str | None
-        repo_ref : str | None
-        execution_target : str | None
-        artifacts_uri : str | None
-        kind : "remote"
     }
 
     class WorkspaceRef <<type alias>> {
@@ -519,8 +508,7 @@ TmuxAgent --> TmuxAddress : _address
 Agent --> AgentAddress : address
 
 ' --- workspace ---
-WorkspaceRef --> LocalWorkspaceRef : union member
-WorkspaceRef --> RemoteWorkspaceRef : union member
+WorkspaceRef --> LocalWorkspaceRef : alias (extend to union for additional backends)
 
 ' --- task_graph ---
 TaskGraph --> Task : contains
