@@ -4,9 +4,11 @@ from pathlib import Path
 
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
-from agentrelay.workstream import WorkstreamSpec
-from agentrelay.workstream.runtime import WorkstreamStatus
-from agentrelay.workstream.runtime_builder import WorkstreamRuntimeBuilder
+from agentrelay.workstream import (
+    WorkstreamRuntimeBuilder,
+    WorkstreamSpec,
+    WorkstreamStatus,
+)
 
 
 def _task(

@@ -79,26 +79,30 @@ package "environments.py" as environments_py {
 '  agent/ — agent abstractions
 ' ─────────────────────────────────────────────
 package "agent/" as agent_pkg {
-    abstract class AgentAddress <<abstract>> {
-        +{abstract} label() : str
+    package "core/" as agent_core_pkg {
+        abstract class AgentAddress <<abstract>> {
+            +{abstract} label() : str
+        }
+
+        abstract class Agent <<abstract>> {
+            +{abstract} send_kickoff(instructions_path) : void
+            +{abstract} address() : AgentAddress
+        }
     }
 
-    class TmuxAddress <<frozen dataclass>> {
-        session : str
-        pane_id : str
-        +label() : str
-    }
+    package "implementations/" as agent_impl_pkg {
+        class TmuxAddress <<frozen dataclass>> {
+            session : str
+            pane_id : str
+            +label() : str
+        }
 
-    abstract class Agent <<abstract>> {
-        +{abstract} send_kickoff(instructions_path) : void
-        +{abstract} address() : AgentAddress
-    }
-
-    class TmuxAgent <<mutable dataclass>> {
-        -_address : TmuxAddress
-        +address() : TmuxAddress
-        +{static} from_config() : TmuxAgent  [stub]
-        +send_kickoff(instructions_path)  [stub]
+        class TmuxAgent <<mutable dataclass>> {
+            -_address : TmuxAddress
+            +address() : TmuxAddress
+            +{static} from_config() : TmuxAgent  [stub]
+            +send_kickoff(instructions_path)  [stub]
+        }
     }
 }
 
@@ -119,96 +123,101 @@ package "workspace.py" as workspace_py {
 '  workstream/ — workstream specs, runtime, and runner
 ' ─────────────────────────────────────────────
 package "workstream/" as workstream_pkg {
-    class WorkstreamSpec <<frozen dataclass>> {
-        id : str
-        parent_workstream_id : str | None
-        base_branch : str
-        merge_target_branch : str
+    package "core/" as workstream_core_pkg {
+        class WorkstreamSpec <<frozen dataclass>> {
+            id : str
+            parent_workstream_id : str | None
+            base_branch : str
+            merge_target_branch : str
+        }
+
+        class WorkstreamRuntimeBuilder {
+            +{static} from_graph(graph) : dict[str, WorkstreamRuntime]
+        }
+
+        enum WorkstreamStatus <<enumeration>> {
+            PENDING
+            ACTIVE
+            MERGED
+            FAILED
+        }
+
+        class WorkstreamState <<mutable dataclass>> {
+            status : WorkstreamStatus
+            worktree_path : Path | None
+            branch_name : str | None
+            error : str | None
+            active_task_id : str | None
+        }
+
+        class WorkstreamArtifacts <<mutable dataclass>> {
+            merge_pr_url : str | None
+            concerns : list[str]
+        }
+
+        class WorkstreamRuntime <<mutable dataclass>> {
+            spec : WorkstreamSpec
+            state : WorkstreamState
+            artifacts : WorkstreamArtifacts
+            +activate(task_id) : void
+            +deactivate() : void
+            +mark_failed(error) : void
+            +mark_merged() : void
+        }
+
+        interface WorkstreamStateView <<protocol>> {
+            +status() : WorkstreamStatus
+            +worktree_path() : Path | None
+            +branch_name() : str | None
+            +error() : str | None
+            +active_task_id() : str | None
+        }
+
+        interface WorkstreamArtifactsView <<protocol>> {
+            +merge_pr_url() : str | None
+            +concerns() : Sequence[str]
+        }
+
+        interface WorkstreamRuntimeView <<protocol>> {
+            +spec() : WorkstreamSpec
+            +state() : WorkstreamStateView
+            +artifacts() : WorkstreamArtifactsView
+        }
+
+        interface WorkstreamPreparer <<protocol>> {
+            +prepare_workstream(workstream_runtime) : void
+        }
+
+        interface WorkstreamMerger <<protocol>> {
+            +merge_workstream(workstream_runtime) : void
+        }
+
+        interface WorkstreamTeardown <<protocol>> {
+            +teardown_workstream(workstream_runtime) : void
+        }
+
+        class WorkstreamRunnerIO <<frozen dataclass>> {
+            preparer : WorkstreamPreparer
+            merger : WorkstreamMerger
+            teardown_handler : WorkstreamTeardown
+        }
+
+        class WorkstreamRunResult <<frozen dataclass>> {
+            workstream_id : str
+            status : WorkstreamStatus
+            error : str | None
+        }
+
+        class WorkstreamRunner <<mutable dataclass>> {
+            io : WorkstreamRunnerIO
+            __
+            +prepare(workstream_runtime) : void
+            +merge(workstream_runtime) : WorkstreamRunResult
+            +teardown(workstream_runtime) : void
+        }
     }
 
-    class WorkstreamRuntimeBuilder {
-        +{static} from_graph(graph) : dict[str, WorkstreamRuntime]
-    }
-
-    enum WorkstreamStatus <<enumeration>> {
-        PENDING
-        ACTIVE
-        MERGED
-        FAILED
-    }
-
-    class WorkstreamState <<mutable dataclass>> {
-        status : WorkstreamStatus
-        worktree_path : Path | None
-        branch_name : str | None
-        error : str | None
-        active_task_id : str | None
-    }
-
-    class WorkstreamArtifacts <<mutable dataclass>> {
-        merge_pr_url : str | None
-        concerns : list[str]
-    }
-
-    class WorkstreamRuntime <<mutable dataclass>> {
-        spec : WorkstreamSpec
-        state : WorkstreamState
-        artifacts : WorkstreamArtifacts
-        +activate(task_id) : void
-        +deactivate() : void
-        +mark_failed(error) : void
-        +mark_merged() : void
-    }
-
-    interface WorkstreamStateView <<protocol>> {
-        +status() : WorkstreamStatus
-        +worktree_path() : Path | None
-        +branch_name() : str | None
-        +error() : str | None
-        +active_task_id() : str | None
-    }
-
-    interface WorkstreamArtifactsView <<protocol>> {
-        +merge_pr_url() : str | None
-        +concerns() : Sequence[str]
-    }
-
-    interface WorkstreamRuntimeView <<protocol>> {
-        +spec() : WorkstreamSpec
-        +state() : WorkstreamStateView
-        +artifacts() : WorkstreamArtifactsView
-    }
-
-    interface WorkstreamPreparer <<protocol>> {
-        +prepare_workstream(workstream_runtime) : void
-    }
-
-    interface WorkstreamMerger <<protocol>> {
-        +merge_workstream(workstream_runtime) : void
-    }
-
-    interface WorkstreamTeardown <<protocol>> {
-        +teardown_workstream(workstream_runtime) : void
-    }
-
-    class WorkstreamRunnerIO <<frozen dataclass>> {
-        preparer : WorkstreamPreparer
-        merger : WorkstreamMerger
-        teardown_handler : WorkstreamTeardown
-    }
-
-    class WorkstreamRunResult <<frozen dataclass>> {
-        workstream_id : str
-        status : WorkstreamStatus
-        error : str | None
-    }
-
-    class WorkstreamRunner <<mutable dataclass>> {
-        io : WorkstreamRunnerIO
-        __
-        +prepare(workstream_runtime) : void
-        +merge(workstream_runtime) : WorkstreamRunResult
-        +teardown(workstream_runtime) : void
+    package "implementations/" as workstream_impl_pkg {
     }
 }
 
@@ -327,71 +336,76 @@ package "task_runtime/" as task_runtime_pkg {
 '  task_runner/ — one-task lifecycle and I/O protocols
 ' ─────────────────────────────────────────────
 package "task_runner/" as task_runner_pkg {
-    enum TearDownMode <<enumeration>> {
-        ALWAYS
-        NEVER
-        ON_SUCCESS
+    package "core/" as task_runner_core_pkg {
+        enum TearDownMode <<enumeration>> {
+            ALWAYS
+            NEVER
+            ON_SUCCESS
+        }
+
+        class TaskCompletionSignal <<frozen dataclass>> {
+            outcome : "done" | "failed"
+            pr_url : str | None
+            error : str | None
+            concerns : tuple[str, ...]
+        }
+
+        interface TaskPreparer <<protocol>> {
+            +prepare(runtime) : void
+        }
+
+        interface TaskLauncher <<protocol>> {
+            +launch(runtime) : Agent
+        }
+
+        interface TaskKickoff <<protocol>> {
+            +kickoff(runtime, agent) : void
+        }
+
+        interface TaskCompletionChecker <<protocol>> {
+            +wait_for_completion(runtime) : TaskCompletionSignal
+        }
+
+        interface TaskMerger <<protocol>> {
+            +merge_pr(runtime, pr_url) : void
+        }
+
+        interface TaskTeardown <<protocol>> {
+            +teardown(runtime) : void
+        }
+
+        class TaskRunnerIO <<frozen dataclass>> {
+            preparer : TaskPreparer
+            launcher : TaskLauncher
+            kickoff_sender : TaskKickoff
+            completion_checker : TaskCompletionChecker
+            merger : TaskMerger
+            teardown_handler : TaskTeardown
+        }
+
+        class TaskRunResult <<frozen dataclass>> {
+            task_id : str
+            status : TaskStatus
+            pr_url : str | None
+            error : str | None
+            failure_class : IntegrationFailureClass | None
+        }
+
+        class TaskRunner <<mutable dataclass>> {
+            io : TaskRunnerIO
+            __
+            +run(runtime, teardown_mode) : TaskRunResult
+        }
     }
 
-    class TaskCompletionSignal <<frozen dataclass>> {
-        outcome : "done" | "failed"
-        pr_url : str | None
-        error : str | None
-        concerns : tuple[str, ...]
-    }
-
-    interface TaskPreparer <<protocol>> {
-        +prepare(runtime) : void
-    }
-
-    interface TaskLauncher <<protocol>> {
-        +launch(runtime) : Agent
-    }
-
-    interface TaskKickoff <<protocol>> {
-        +kickoff(runtime, agent) : void
-    }
-
-    interface TaskCompletionChecker <<protocol>> {
-        +wait_for_completion(runtime) : TaskCompletionSignal
-    }
-
-    interface TaskMerger <<protocol>> {
-        +merge_pr(runtime, pr_url) : void
-    }
-
-    interface TaskTeardown <<protocol>> {
-        +teardown(runtime) : void
-    }
-
-    class TaskRunnerIO <<frozen dataclass>> {
-        preparer : TaskPreparer
-        launcher : TaskLauncher
-        kickoff_sender : TaskKickoff
-        completion_checker : TaskCompletionChecker
-        merger : TaskMerger
-        teardown_handler : TaskTeardown
-    }
-
-    class TaskRunResult <<frozen dataclass>> {
-        task_id : str
-        status : TaskStatus
-        pr_url : str | None
-        error : str | None
-        failure_class : IntegrationFailureClass | None
-    }
-
-    class TaskRunner <<mutable dataclass>> {
-        io : TaskRunnerIO
-        __
-        +run(runtime, teardown_mode) : TaskRunResult
+    package "implementations/" as task_runner_impl_pkg {
     }
 }
 
 ' ─────────────────────────────────────────────
-'  orchestrator.py — async scheduling loop
+'  orchestrator/ — async scheduling loop
 ' ─────────────────────────────────────────────
-package "orchestrator.py" as orchestrator_py {
+package "orchestrator/" as orchestrator_pkg {
     enum TaskOutcomeClass <<enumeration>> {
         SUCCESS
         EXPECTED_FAILURE

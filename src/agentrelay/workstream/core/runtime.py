@@ -20,7 +20,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional, Protocol, runtime_checkable
 
-from agentrelay.workstream.workstream import WorkstreamSpec
+from agentrelay.workstream.core.workstream import WorkstreamSpec
 
 
 class WorkstreamStatus(str, Enum):

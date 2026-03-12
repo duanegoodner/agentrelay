@@ -3,7 +3,7 @@
 This module defines fine-grained protocol interfaces for each step of the
 workstream lifecycle and a :class:`WorkstreamRunnerIO` dataclass that
 composes them into a single I/O boundary used by
-:class:`~agentrelay.workstream.runner.WorkstreamRunner`.
+:class:`~agentrelay.workstream.core.runner.WorkstreamRunner`.
 
 Protocols:
     WorkstreamPreparer: Provision worktree and integration branch.
@@ -19,7 +19,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
-from agentrelay.workstream.runtime import WorkstreamRuntime
+from agentrelay.workstream.core.runtime import WorkstreamRuntime
 
 
 @runtime_checkable

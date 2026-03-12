@@ -17,7 +17,7 @@ from types import MappingProxyType
 from typing import Optional
 
 from agentrelay.errors import IntegrationFailureClass, classify_integration_error
-from agentrelay.task_runner.io import TaskRunnerIO
+from agentrelay.task_runner.core.io import TaskRunnerIO
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 
 # Allowed lifecycle transitions for one task execution.

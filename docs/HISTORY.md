@@ -6,6 +6,17 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-12
 
+### Restructure packages into core/ + implementations/ layout
+
+- Split `agent/`, `task_runner/`, and `workstream/` into `core/` (ABCs,
+  protocols, state machines) and `implementations/` (concrete environment-
+  specific code) subpackages
+- Promoted `orchestrator.py` module to `orchestrator/` package
+- All external import paths unchanged — package-level `__init__.py` re-exports
+  maintain backward compatibility
+- Updated PlantUML diagram to reflect new package structure
+- 624 tests pass, 0 pyright errors
+
 ### Add OrchestratorListener protocol for real-time event observability
 
 - Added `OrchestratorListener` protocol with single `on_event(event)` method
