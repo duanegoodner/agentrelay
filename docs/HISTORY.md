@@ -4,6 +4,16 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-12
+
+### Remove _transition_to_failed escape hatch
+
+- Removed silent fallback in `TaskRunner._transition_to_failed` that bypassed the
+  transition table when FAILED wasn't a legal target from the current status
+- The method now delegates to `_transition()` unconditionally (after idempotency
+  check), making `ALLOWED_TASK_TRANSITIONS` the single authoritative source of
+  legal state edges
+
 ## 2026-03-11
 
 ### Remove speculative RemoteWorkspaceRef

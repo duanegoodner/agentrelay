@@ -204,13 +204,10 @@ class TaskRunner:
         runtime.state.status = target
 
     def _transition_to_failed(self, runtime: TaskRuntime) -> None:
-        """Move runtime to ``FAILED`` from a non-terminal in-progress state."""
+        """Move runtime to ``FAILED``, enforcing the transition table."""
         if runtime.state.status == TaskStatus.FAILED:
             return
-        if TaskStatus.FAILED in ALLOWED_TASK_TRANSITIONS[runtime.state.status]:
-            self._transition(runtime, TaskStatus.FAILED)
-            return
-        runtime.state.status = TaskStatus.FAILED
+        self._transition(runtime, TaskStatus.FAILED)
 
     def _record_io_failure(
         self, runtime: TaskRuntime, exc: Exception
