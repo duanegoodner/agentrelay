@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#remove-speculative-remoteworkspaceref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remove speculative RemoteWorkspaceRef
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#wire-integration-errors-into-taskrunner-and-orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1389,6 +1400,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#remove-speculative-remoteworkspaceref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remove speculative RemoteWorkspaceRef
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#wire-integration-errors-into-taskrunner-and-orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1614,6 +1636,15 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-11">2026-03-11</h2>
+<h3 id="remove-speculative-remoteworkspaceref">Remove speculative RemoteWorkspaceRef</h3>
+<ul>
+<li>Removed <code>RemoteWorkspaceRef</code> (6 optional placeholder fields for a remote execution
+  model that doesn't exist yet)</li>
+<li>Removed <code>kind</code> discriminator from <code>LocalWorkspaceRef</code> (unnecessary without a union
+  to dispatch over; <code>isinstance</code> suffices)</li>
+<li><code>WorkspaceRef</code> type alias now points to <code>LocalWorkspaceRef</code> alone, with docstring
+  documenting how to extend it to a union when additional backends are needed</li>
+</ul>
 <h3 id="wire-integration-errors-into-taskrunner-and-orchestrator">Wire integration errors into TaskRunner and orchestrator</h3>
 <ul>
 <li>Renamed <code>integration_errors/</code> → <code>errors/</code> (shorter; class names are self-descriptive)</li>
