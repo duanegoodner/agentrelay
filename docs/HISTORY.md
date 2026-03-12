@@ -6,6 +6,15 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-11
 
+### Remove speculative RemoteWorkspaceRef
+
+- Removed `RemoteWorkspaceRef` (6 optional placeholder fields for a remote execution
+  model that doesn't exist yet)
+- Removed `kind` discriminator from `LocalWorkspaceRef` (unnecessary without a union
+  to dispatch over; `isinstance` suffices)
+- `WorkspaceRef` type alias now points to `LocalWorkspaceRef` alone, with docstring
+  documenting how to extend it to a union when additional backends are needed
+
 ### Wire integration errors into TaskRunner and orchestrator
 
 - Renamed `integration_errors/` → `errors/` (shorter; class names are self-descriptive)

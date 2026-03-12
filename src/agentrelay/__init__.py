@@ -35,7 +35,7 @@ Core types:
 - WorkstreamArtifacts: outputs of lane execution             [workstream/runtime.py]
 - WorkstreamRuntime: mutable lane envelope                   [workstream/runtime.py]
 - LocalWorkspaceRef: resolved local workspace details        [workspace.py]
-- RemoteWorkspaceRef: resolved remote workspace details      [workspace.py]
+- WorkspaceRef: type alias for workspace references          [workspace.py]
 
 See also:
 - errors: typed integration failure model + classification helper
