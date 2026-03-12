@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-orchestratorlistener-protocol-for-real-time-event-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add OrchestratorListener protocol for real-time event observability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remove-_transition_to_failed-escape-hatch" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1428,6 +1439,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-orchestratorlistener-protocol-for-real-time-event-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add OrchestratorListener protocol for real-time event observability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#remove-_transition_to_failed-escape-hatch" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1692,6 +1714,14 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-12">2026-03-12</h2>
+<h3 id="add-orchestratorlistener-protocol-for-real-time-event-observability">Add OrchestratorListener protocol for real-time event observability</h3>
+<ul>
+<li>Added <code>OrchestratorListener</code> protocol with single <code>on_event(event)</code> method</li>
+<li><code>Orchestrator</code> accepts an optional <code>listener</code> field (default <code>None</code>)</li>
+<li>All 6 event emission sites now notify the listener in addition to accumulating
+  events in the result list</li>
+<li>No behavioral change when listener is omitted — existing tests pass unchanged</li>
+</ul>
 <h3 id="remove-_transition_to_failed-escape-hatch">Remove _transition_to_failed escape hatch</h3>
 <ul>
 <li>Removed silent fallback in <code>TaskRunner._transition_to_failed</code> that bypassed the
