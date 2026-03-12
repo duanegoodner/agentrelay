@@ -6,6 +6,14 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-12
 
+### Add OrchestratorListener protocol for real-time event observability
+
+- Added `OrchestratorListener` protocol with single `on_event(event)` method
+- `Orchestrator` accepts an optional `listener` field (default `None`)
+- All 6 event emission sites now notify the listener in addition to accumulating
+  events in the result list
+- No behavioral change when listener is omitted — existing tests pass unchanged
+
 ### Remove _transition_to_failed escape hatch
 
 - Removed silent fallback in `TaskRunner._transition_to_failed` that bypassed the

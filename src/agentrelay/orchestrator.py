@@ -94,6 +94,19 @@ class OrchestratorEvent:
     message: Optional[str] = None
 
 
+@runtime_checkable
+class OrchestratorListener(Protocol):
+    """Callback protocol for real-time orchestration event observation."""
+
+    def on_event(self, event: OrchestratorEvent) -> None:
+        """Called each time the orchestrator produces an event.
+
+        Args:
+            event: The event that was just produced.
+        """
+        ...
+
+
 @dataclass(frozen=True)
 class OrchestratorResult:
     """Terminal result for one orchestrator run.
@@ -134,6 +147,7 @@ class Orchestrator:
     graph: TaskGraph
     task_runner: TaskRunnerLike
     config: OrchestratorConfig = field(default_factory=OrchestratorConfig)
+    listener: Optional[OrchestratorListener] = None
 
     async def run(
         self,
@@ -204,13 +218,14 @@ class Orchestrator:
                 runtime.prepare_for_attempt(attempt_num)
                 ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
                 ws_runtime.activate(task_id)
-                events.append(
+                self._emit(
+                    events,
                     OrchestratorEvent(
                         kind="task_started",
                         task_id=task_id,
                         workstream_id=runtime.task.workstream_id,
                         attempt_num=attempt_num,
-                    )
+                    ),
                 )
                 running[task_id] = asyncio.create_task(
                     self.task_runner.run(
@@ -252,7 +267,8 @@ class Orchestrator:
                     error_line = fatal_error.strip().splitlines()[-1]
                     runtime.mark_failed(error_line)
                     ws_runtime.mark_failed(error_line)
-                    events.append(
+                    self._emit(
+                        events,
                         OrchestratorEvent(
                             kind="task_finished",
                             task_id=task_id,
@@ -260,7 +276,7 @@ class Orchestrator:
                             attempt_num=attempt_num,
                             outcome_class=TaskOutcomeClass.INTERNAL_ERROR,
                             message="task_runner.run raised; fail-fast",
-                        )
+                        ),
                     )
                     if self.config.fail_fast_on_internal_error:
                         self._mark_inflight_tasks_failed(
@@ -276,14 +292,15 @@ class Orchestrator:
 
                 if result.status == TaskStatus.PR_MERGED:
                     completed_ids.add(task_id)
-                    events.append(
+                    self._emit(
+                        events,
                         OrchestratorEvent(
                             kind="task_finished",
                             task_id=task_id,
                             workstream_id=runtime.task.workstream_id,
                             attempt_num=attempt_num,
                             outcome_class=TaskOutcomeClass.SUCCESS,
-                        )
+                        ),
                     )
                     self._refresh_workstream_terminal_states(
                         mutable_task_runtimes, mutable_workstream_runtimes
@@ -303,7 +320,8 @@ class Orchestrator:
                         not is_internal
                         and attempts_used[task_id] < self.config.max_task_attempts
                     )
-                    events.append(
+                    self._emit(
+                        events,
                         OrchestratorEvent(
                             kind="task_finished",
                             task_id=task_id,
@@ -315,7 +333,7 @@ class Orchestrator:
                                 if should_retry
                                 else "max_attempts_reached"
                             ),
-                        )
+                        ),
                     )
                     if should_retry:
                         runtime.reset_for_retry()
@@ -342,7 +360,8 @@ class Orchestrator:
                 fatal_error = f"RuntimeError: unexpected TaskRunner result status {result.status!r}"
                 runtime.mark_failed(fatal_error)
                 ws_runtime.mark_failed(fatal_error)
-                events.append(
+                self._emit(
+                    events,
                     OrchestratorEvent(
                         kind="task_finished",
                         task_id=task_id,
@@ -350,7 +369,7 @@ class Orchestrator:
                         attempt_num=attempt_num,
                         outcome_class=TaskOutcomeClass.INTERNAL_ERROR,
                         message="unexpected non-terminal TaskRunner result",
-                    )
+                    ),
                 )
                 if self.config.fail_fast_on_internal_error:
                     self._mark_inflight_tasks_failed(
@@ -386,6 +405,16 @@ class Orchestrator:
             raise ValueError("OrchestratorConfig.max_concurrency must be >= 1.")
         if self.config.max_task_attempts < 1:
             raise ValueError("OrchestratorConfig.max_task_attempts must be >= 1.")
+
+    def _emit(
+        self,
+        events: list[OrchestratorEvent],
+        event: OrchestratorEvent,
+    ) -> None:
+        """Append event to the log and notify the listener, if any."""
+        events.append(event)
+        if self.listener is not None:
+            self.listener.on_event(event)
 
     def _init_task_runtimes(
         self, task_runtimes: Optional[Mapping[str, TaskRuntime]]
@@ -496,14 +525,15 @@ class Orchestrator:
             ws_runtime = workstream_runtimes[runtime.task.workstream_id]
             if ws_runtime.state.status != WorkstreamStatus.FAILED:
                 ws_runtime.mark_failed(error)
-            events.append(
+            self._emit(
+                events,
                 OrchestratorEvent(
                     kind="task_blocked",
                     task_id=task_id,
                     workstream_id=runtime.task.workstream_id,
                     outcome_class=TaskOutcomeClass.EXPECTED_FAILURE,
                     message=reason,
-                )
+                ),
             )
             changed = True
         return changed
