@@ -428,10 +428,15 @@ package "orchestrator.py" as orchestrator_py {
         fatal_error : str | None
     }
 
+    interface OrchestratorListener <<protocol>> {
+        +on_event(event) : void
+    }
+
     class Orchestrator <<mutable dataclass>> {
         graph : TaskGraph
         task_runner : TaskRunner
         config : OrchestratorConfig
+        listener : OrchestratorListener | None
         __
         +run(task_runtimes, workstream_runtimes) : OrchestratorResult
     }
@@ -576,6 +581,8 @@ OrchestratorResult --> OrchestratorOutcome : outcome
 OrchestratorResult --> OrchestratorEvent : events
 OrchestratorEvent --> TaskOutcomeClass : classification
 OrchestratorConfig --> TearDownMode : teardown policy
+Orchestrator --> OrchestratorListener : listener (optional)
+OrchestratorListener --> OrchestratorEvent : receives
 Orchestrator --> TaskRuntime : mutates
 Orchestrator --> WorkstreamRuntime : mutates
 
