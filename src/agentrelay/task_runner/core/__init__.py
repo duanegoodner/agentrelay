@@ -1,11 +1,7 @@
-"""Task runner package — one-task lifecycle state machine and I/O protocols.
+"""Core task runner abstractions — protocols, state machine, and I/O boundary.
 
-Re-exports all public names so that ``from agentrelay.task_runner import X``
-continues to work.
-
-Subpackages:
-    core: Protocols, state machine, I/O boundary composition.
-    implementations: Concrete protocol implementations (added in later PRs).
+This subpackage defines the task lifecycle protocols, completion signal type,
+composed I/O boundary, and the TaskRunner state machine.
 """
 
 from agentrelay.task_runner.core.io import (

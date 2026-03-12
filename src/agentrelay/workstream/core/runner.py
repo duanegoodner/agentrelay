@@ -15,8 +15,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from agentrelay.workstream.io import WorkstreamRunnerIO
-from agentrelay.workstream.runtime import WorkstreamRuntime, WorkstreamStatus
+from agentrelay.workstream.core.io import WorkstreamRunnerIO
+from agentrelay.workstream.core.runtime import WorkstreamRuntime, WorkstreamStatus
 
 
 @dataclass(frozen=True)

@@ -1,12 +1,7 @@
-"""Workstream model for lane-level execution and integration state.
+"""Core workstream abstractions — specs, runtime state, protocols, and runners.
 
-This package defines immutable workstream specifications, mutable runtime
-state for each workstream lane, runtime initialization helpers, and the
-workstream-level lifecycle runner with its I/O protocols.
-
-Subpackages:
-    core: Specs, runtime state, protocols, and runner.
-    implementations: Concrete protocol implementations (added in later PRs).
+This subpackage defines the immutable workstream specifications, mutable runtime
+state, lifecycle protocols, and the workstream runner state machine.
 """
 
 from agentrelay.workstream.core.io import (

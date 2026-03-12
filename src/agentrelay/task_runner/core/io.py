@@ -3,7 +3,7 @@
 This module defines fine-grained protocol interfaces for each step of the
 task lifecycle, a completion signal type, and a :class:`TaskRunnerIO`
 dataclass that composes them into a single I/O boundary used by
-:class:`~agentrelay.task_runner.runner.TaskRunner`.
+:class:`~agentrelay.task_runner.core.runner.TaskRunner`.
 
 Protocols:
     TaskPreparer: Prepare runtime prerequisites before agent launch.

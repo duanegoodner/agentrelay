@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from agentrelay.workstream.runtime import WorkstreamRuntime
+from agentrelay.workstream.core.runtime import WorkstreamRuntime
 
 if TYPE_CHECKING:
     from agentrelay.task_graph import TaskGraph
