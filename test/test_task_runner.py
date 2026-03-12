@@ -6,6 +6,11 @@ from dataclasses import dataclass, field
 import pytest
 
 from agentrelay.agent import Agent, TmuxAddress, TmuxAgent
+from agentrelay.errors import (
+    ExpectedTaskFailureError,
+    IntegrationBoundary,
+    IntegrationFailureClass,
+)
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_runner import (
     TaskCompletionChecker,
@@ -184,6 +189,7 @@ def test_run_io_exception_marks_failed_and_still_tears_down(fail_stage: str) -> 
     assert runtime.state.status == TaskStatus.FAILED
     assert f"{fail_stage} boom" in (runtime.state.error or "")
     assert result.status == TaskStatus.FAILED
+    assert result.failure_class == IntegrationFailureClass.INTERNAL_ERROR
 
 
 def test_run_requires_pending_entry_status() -> None:
@@ -292,3 +298,41 @@ def test_protocol_runtime_checkable_instances() -> None:
     assert isinstance(fake, TaskCompletionChecker)
     assert isinstance(fake, TaskMerger)
     assert isinstance(fake, TaskTeardown)
+
+
+def test_success_result_has_no_failure_class() -> None:
+    result = asyncio.run(TaskRunner(io=_make_io()).run(_make_runtime()))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert result.failure_class is None
+
+
+def test_agent_signaled_failure_has_no_failure_class() -> None:
+    fake = FakeIO(signal=TaskCompletionSignal(outcome="failed", error="agent failed"))
+    result = asyncio.run(TaskRunner(io=_make_io(fake)).run(_make_runtime()))
+
+    assert result.status == TaskStatus.FAILED
+    assert result.failure_class is None
+
+
+def test_expected_task_failure_error_classified_as_expected() -> None:
+    @dataclass
+    class FailingPreparer:
+        def prepare(self, runtime: TaskRuntime) -> None:
+            raise ExpectedTaskFailureError(
+                "gate check failed", boundary=IntegrationBoundary.SIGNAL
+            )
+
+    fake = FakeIO()
+    io = TaskRunnerIO(
+        preparer=FailingPreparer(),
+        launcher=fake,
+        kickoff_sender=fake,
+        completion_checker=fake,
+        merger=fake,
+        teardown_handler=fake,
+    )
+    result = asyncio.run(TaskRunner(io=io).run(_make_runtime()))
+
+    assert result.status == TaskStatus.FAILED
+    assert result.failure_class == IntegrationFailureClass.EXPECTED_TASK_FAILURE

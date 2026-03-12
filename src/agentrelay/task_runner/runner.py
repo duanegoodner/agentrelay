@@ -16,6 +16,7 @@ from enum import Enum
 from types import MappingProxyType
 from typing import Optional
 
+from agentrelay.errors import IntegrationFailureClass, classify_integration_error
 from agentrelay.task_runner.io import TaskRunnerIO
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 
@@ -59,19 +60,27 @@ class TaskRunResult:
         status: Terminal task status after ``TaskRunner.run(...)``.
         pr_url: Task PR URL, if one was recorded.
         error: Task failure message, if one was recorded.
+        failure_class: Integration error classification for I/O boundary
+            failures.  ``None`` for agent-signaled failures and successes.
     """
 
     task_id: str
     status: TaskStatus
     pr_url: Optional[str]
     error: Optional[str]
+    failure_class: Optional[IntegrationFailureClass] = None
 
     @classmethod
-    def from_runtime(cls, runtime: TaskRuntime) -> TaskRunResult:
+    def from_runtime(
+        cls,
+        runtime: TaskRuntime,
+        failure_class: Optional[IntegrationFailureClass] = None,
+    ) -> TaskRunResult:
         """Build a result snapshot from the current runtime state.
 
         Args:
             runtime: Runtime envelope to snapshot.
+            failure_class: Optional integration error classification.
 
         Returns:
             TaskRunResult: Snapshot of task ID, status, PR URL, and error.
@@ -81,6 +90,7 @@ class TaskRunResult:
             status=runtime.state.status,
             pr_url=runtime.artifacts.pr_url,
             error=runtime.state.error,
+            failure_class=failure_class,
         )
 
 
@@ -128,27 +138,27 @@ class TaskRunner:
             try:
                 self.io.preparer.prepare(runtime)
             except Exception as exc:
-                self._record_io_failure(runtime, exc)
-                return TaskRunResult.from_runtime(runtime)
+                fc = self._record_io_failure(runtime, exc)
+                return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             try:
                 agent = self.io.launcher.launch(runtime)
                 runtime.artifacts.agent_address = agent.address
             except Exception as exc:
-                self._record_io_failure(runtime, exc)
-                return TaskRunResult.from_runtime(runtime)
+                fc = self._record_io_failure(runtime, exc)
+                return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             try:
                 self.io.kickoff_sender.kickoff(runtime, agent)
             except Exception as exc:
-                self._record_io_failure(runtime, exc)
-                return TaskRunResult.from_runtime(runtime)
+                fc = self._record_io_failure(runtime, exc)
+                return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             try:
                 signal = await self.io.completion_checker.wait_for_completion(runtime)
             except Exception as exc:
-                self._record_io_failure(runtime, exc)
-                return TaskRunResult.from_runtime(runtime)
+                fc = self._record_io_failure(runtime, exc)
+                return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             if signal.outcome == "failed":
                 self._transition(runtime, TaskStatus.FAILED)
@@ -170,8 +180,8 @@ class TaskRunner:
             try:
                 self.io.merger.merge_pr(runtime, signal.pr_url)
             except Exception as exc:
-                self._record_io_failure(runtime, exc)
-                return TaskRunResult.from_runtime(runtime)
+                fc = self._record_io_failure(runtime, exc)
+                return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             self._transition(runtime, TaskStatus.PR_MERGED)
         finally:
@@ -202,10 +212,13 @@ class TaskRunner:
             return
         runtime.state.status = TaskStatus.FAILED
 
-    def _record_io_failure(self, runtime: TaskRuntime, exc: Exception) -> None:
-        """Record an I/O boundary failure on the runtime."""
+    def _record_io_failure(
+        self, runtime: TaskRuntime, exc: Exception
+    ) -> IntegrationFailureClass:
+        """Record an I/O boundary failure and return its classification."""
         self._transition_to_failed(runtime)
         runtime.state.error = f"{type(exc).__name__}: {exc}"
+        return classify_integration_error(exc)
 
     def _should_teardown(
         self, teardown_mode: TearDownMode, terminal_status: TaskStatus

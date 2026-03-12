@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
+from agentrelay.errors import IntegrationFailureClass
 from agentrelay.orchestrator import (
     Orchestrator,
     OrchestratorConfig,
@@ -58,6 +59,20 @@ class ScriptedTaskRunner:
             runtime.state.status = TaskStatus.FAILED
             runtime.state.error = f"{task_id} failed"
             return TaskRunResult.from_runtime(runtime)
+        if action == "fail_internal":
+            runtime.state.status = TaskStatus.FAILED
+            runtime.state.error = f"{task_id} internal adapter error"
+            return TaskRunResult.from_runtime(
+                runtime,
+                failure_class=IntegrationFailureClass.INTERNAL_ERROR,
+            )
+        if action == "fail_expected":
+            runtime.state.status = TaskStatus.FAILED
+            runtime.state.error = f"{task_id} expected adapter failure"
+            return TaskRunResult.from_runtime(
+                runtime,
+                failure_class=IntegrationFailureClass.EXPECTED_TASK_FAILURE,
+            )
 
         runtime.artifacts.pr_url = f"https://example.com/{task_id}/{attempt_num}"
         runtime.state.status = TaskStatus.PR_MERGED
@@ -283,3 +298,73 @@ def test_invalid_config_raises(config: OrchestratorConfig) -> None:
 
     with pytest.raises(ValueError):
         asyncio.run(orchestrator.run())
+
+
+def test_internal_failure_class_triggers_fail_fast() -> None:
+    task = _task("adapter_fails")
+    graph = TaskGraph.from_tasks((task,))
+    runner = ScriptedTaskRunner(script={("adapter_fails", 0): "fail_internal"})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            config=OrchestratorConfig(
+                max_task_attempts=3, fail_fast_on_internal_error=True
+            ),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.FATAL_INTERNAL_ERROR
+    assert len(runner.calls) == 1
+    assert result.task_runtimes["adapter_fails"].state.status == TaskStatus.FAILED
+    assert any(
+        event.outcome_class == TaskOutcomeClass.INTERNAL_ERROR
+        for event in result.events
+    )
+
+
+def test_internal_failure_class_is_not_retried() -> None:
+    task = _task("no_retry")
+    graph = TaskGraph.from_tasks((task,))
+    runner = ScriptedTaskRunner(script={("no_retry", 0): "fail_internal"})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            config=OrchestratorConfig(
+                max_task_attempts=3, fail_fast_on_internal_error=False
+            ),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
+    assert len(runner.calls) == 1
+
+
+def test_expected_failure_class_allows_retry() -> None:
+    task = _task("retry_expected")
+    graph = TaskGraph.from_tasks((task,))
+    runner = ScriptedTaskRunner(
+        script={
+            ("retry_expected", 0): "fail_expected",
+            ("retry_expected", 1): "success",
+        }
+    )
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            config=OrchestratorConfig(max_task_attempts=2),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert len(runner.calls) == 2
+    assert any(
+        event.outcome_class == TaskOutcomeClass.EXPECTED_FAILURE
+        and event.message == "retry_scheduled"
+        for event in result.events
+    )
