@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#wire-integration-errors-into-taskrunner-and-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire integration errors into TaskRunner and orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-mutation-methods-to-taskruntime-and-workstreamruntime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1143,14 +1154,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/integration_errors/" class="md-nav__link">
+      <a href="../api/core/errors/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    integration_errors
+    errors
   
 
     
@@ -1378,6 +1389,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#wire-integration-errors-into-taskrunner-and-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire integration errors into TaskRunner and orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-mutation-methods-to-taskruntime-and-workstreamruntime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1592,6 +1614,17 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-11">2026-03-11</h2>
+<h3 id="wire-integration-errors-into-taskrunner-and-orchestrator">Wire integration errors into TaskRunner and orchestrator</h3>
+<ul>
+<li>Renamed <code>integration_errors/</code> → <code>errors/</code> (shorter; class names are self-descriptive)</li>
+<li>Removed <code>WorktreeIntegrationError</code> (unused alias) and custom <code>cause</code> field
+  (use standard <code>raise ... from</code> and <code>__cause__</code> instead)</li>
+<li>Wired <code>classify_integration_error()</code> into <code>TaskRunner._record_io_failure()</code> —
+  IO boundary failures are now classified as expected-task-failure vs internal-error</li>
+<li>Added <code>failure_class: Optional[IntegrationFailureClass]</code> to <code>TaskRunResult</code></li>
+<li>Orchestrator now inspects <code>failure_class</code> to distinguish internal adapter errors
+  (fail-fast, no retry) from expected task failures (retry eligible)</li>
+</ul>
 <h3 id="add-mutation-methods-to-taskruntime-and-workstreamruntime">Add mutation methods to TaskRuntime and WorkstreamRuntime</h3>
 <ul>
 <li>Added <code>prepare_for_attempt</code>, <code>mark_failed</code>, <code>reset_for_retry</code>, <code>mark_pending</code>

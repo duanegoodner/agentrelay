@@ -892,14 +892,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../integration_errors/" class="md-nav__link">
+      <a href="../errors/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    integration_errors
+    errors
   
 
     
@@ -1528,8 +1528,7 @@ execution to :class:<code>agentrelay.task_runner.TaskRunner</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
-<span class="normal">29</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
@@ -1539,7 +1538,8 @@ execution to :class:<code>agentrelay.task_runner.TaskRunner</code>.</p>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
-<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">39</span>
+<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Classification of one task attempt outcome from the orchestrator boundary.</span>
 
 <span class="sd">    Attributes:</span>
@@ -1648,8 +1648,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
-<span class="normal">43</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
@@ -1660,7 +1659,8 @@ ended <code>FAILED</code>.</p>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
-<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal outcome for one orchestrator run.</span>
 
 <span class="sd">    Attributes:</span>
@@ -1786,8 +1786,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
-<span class="normal">58</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
@@ -1801,7 +1800,8 @@ raises (internal/system failure).</p>
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
-<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for one orchestrator scheduling run.</span>
 
@@ -1951,8 +1951,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">75</span>
-<span class="normal">76</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
 <span class="normal">79</span>
@@ -1969,7 +1968,8 @@ raises (internal/system failure).</p>
 <span class="normal">90</span>
 <span class="normal">91</span>
 <span class="normal">92</span>
-<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">93</span>
+<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorEvent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured event emitted by the orchestration loop.</span>
 
@@ -2126,8 +2126,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
@@ -2142,7 +2141,8 @@ raises (internal/system failure).</p>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal result for one orchestrator run.</span>
 
@@ -2211,8 +2211,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
-<span class="normal">116</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
@@ -2222,7 +2221,8 @@ raises (internal/system failure).</p>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">126</span>
+<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunnerLike</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by :class:`Orchestrator`.&quot;&quot;&quot;</span>
 
@@ -2270,14 +2270,14 @@ raises (internal/system failure).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
-<span class="normal">120</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">126</span>
+<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -2329,8 +2329,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
-<span class="normal">130</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
@@ -2766,7 +2765,30 @@ raises (internal/system failure).</p>
 <span class="normal">563</span>
 <span class="normal">564</span>
 <span class="normal">565</span>
-<span class="normal">566</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Orchestrator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Async graph scheduler using dependency + workstream constraints.&quot;&quot;&quot;</span>
 
@@ -2930,8 +2952,17 @@ raises (internal/system failure).</p>
                     <span class="k">continue</span>
 
                 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
+                    <span class="n">is_internal</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">failure_class</span> <span class="o">==</span> <span class="n">IntegrationFailureClass</span><span class="o">.</span><span class="n">INTERNAL_ERROR</span>
+                    <span class="p">)</span>
+                    <span class="n">outcome_class</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">TaskOutcomeClass</span><span class="o">.</span><span class="n">INTERNAL_ERROR</span>
+                        <span class="k">if</span> <span class="n">is_internal</span>
+                        <span class="k">else</span> <span class="n">TaskOutcomeClass</span><span class="o">.</span><span class="n">EXPECTED_FAILURE</span>
+                    <span class="p">)</span>
                     <span class="n">should_retry</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">attempts_used</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_task_attempts</span>
+                        <span class="ow">not</span> <span class="n">is_internal</span>
+                        <span class="ow">and</span> <span class="n">attempts_used</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_task_attempts</span>
                     <span class="p">)</span>
                     <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="n">OrchestratorEvent</span><span class="p">(</span>
@@ -2939,7 +2970,7 @@ raises (internal/system failure).</p>
                             <span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">,</span>
                             <span class="n">workstream_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">,</span>
                             <span class="n">attempt_num</span><span class="o">=</span><span class="n">attempt_num</span><span class="p">,</span>
-                            <span class="n">outcome_class</span><span class="o">=</span><span class="n">TaskOutcomeClass</span><span class="o">.</span><span class="n">EXPECTED_FAILURE</span><span class="p">,</span>
+                            <span class="n">outcome_class</span><span class="o">=</span><span class="n">outcome_class</span><span class="p">,</span>
                             <span class="n">message</span><span class="o">=</span><span class="p">(</span>
                                 <span class="s2">&quot;retry_scheduled&quot;</span>
                                 <span class="k">if</span> <span class="n">should_retry</span>
@@ -2951,6 +2982,19 @@ raises (internal/system failure).</p>
                         <span class="n">runtime</span><span class="o">.</span><span class="n">reset_for_retry</span><span class="p">()</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">ws_runtime</span><span class="o">.</span><span class="n">mark_failed</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;task failed&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">is_internal</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fail_fast_on_internal_error</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_mark_inflight_tasks_failed</span><span class="p">(</span>
+                            <span class="n">running_task_ids</span><span class="o">=</span><span class="n">running</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                            <span class="n">task_runtimes</span><span class="o">=</span><span class="n">mutable_task_runtimes</span><span class="p">,</span>
+                            <span class="n">workstream_runtimes</span><span class="o">=</span><span class="n">mutable_workstream_runtimes</span><span class="p">,</span>
+                            <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;canceled due to internal integration error&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_running_tasks</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
+                        <span class="n">running</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                        <span class="n">fatal_error</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;internal integration error&quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">break</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                         <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
                     <span class="p">)</span>
@@ -3351,8 +3395,7 @@ align with graph IDs.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
-<span class="normal">138</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
 <span class="normal">141</span>
@@ -3573,7 +3616,30 @@ align with graph IDs.</p>
 <span class="normal">356</span>
 <span class="normal">357</span>
 <span class="normal">358</span>
-<span class="normal">359</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">task_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3729,8 +3795,17 @@ align with graph IDs.</p>
                 <span class="k">continue</span>
 
             <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
+                <span class="n">is_internal</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">failure_class</span> <span class="o">==</span> <span class="n">IntegrationFailureClass</span><span class="o">.</span><span class="n">INTERNAL_ERROR</span>
+                <span class="p">)</span>
+                <span class="n">outcome_class</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">TaskOutcomeClass</span><span class="o">.</span><span class="n">INTERNAL_ERROR</span>
+                    <span class="k">if</span> <span class="n">is_internal</span>
+                    <span class="k">else</span> <span class="n">TaskOutcomeClass</span><span class="o">.</span><span class="n">EXPECTED_FAILURE</span>
+                <span class="p">)</span>
                 <span class="n">should_retry</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">attempts_used</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_task_attempts</span>
+                    <span class="ow">not</span> <span class="n">is_internal</span>
+                    <span class="ow">and</span> <span class="n">attempts_used</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_task_attempts</span>
                 <span class="p">)</span>
                 <span class="n">events</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="n">OrchestratorEvent</span><span class="p">(</span>
@@ -3738,7 +3813,7 @@ align with graph IDs.</p>
                         <span class="n">task_id</span><span class="o">=</span><span class="n">task_id</span><span class="p">,</span>
                         <span class="n">workstream_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">,</span>
                         <span class="n">attempt_num</span><span class="o">=</span><span class="n">attempt_num</span><span class="p">,</span>
-                        <span class="n">outcome_class</span><span class="o">=</span><span class="n">TaskOutcomeClass</span><span class="o">.</span><span class="n">EXPECTED_FAILURE</span><span class="p">,</span>
+                        <span class="n">outcome_class</span><span class="o">=</span><span class="n">outcome_class</span><span class="p">,</span>
                         <span class="n">message</span><span class="o">=</span><span class="p">(</span>
                             <span class="s2">&quot;retry_scheduled&quot;</span>
                             <span class="k">if</span> <span class="n">should_retry</span>
@@ -3750,6 +3825,19 @@ align with graph IDs.</p>
                     <span class="n">runtime</span><span class="o">.</span><span class="n">reset_for_retry</span><span class="p">()</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">ws_runtime</span><span class="o">.</span><span class="n">mark_failed</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;task failed&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_internal</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fail_fast_on_internal_error</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_mark_inflight_tasks_failed</span><span class="p">(</span>
+                        <span class="n">running_task_ids</span><span class="o">=</span><span class="n">running</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
+                        <span class="n">task_runtimes</span><span class="o">=</span><span class="n">mutable_task_runtimes</span><span class="p">,</span>
+                        <span class="n">workstream_runtimes</span><span class="o">=</span><span class="n">mutable_workstream_runtimes</span><span class="p">,</span>
+                        <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;canceled due to internal integration error&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_running_tasks</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
+                    <span class="n">running</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                    <span class="n">fatal_error</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="ow">or</span> <span class="s2">&quot;internal integration error&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">break</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                     <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
                 <span class="p">)</span>
