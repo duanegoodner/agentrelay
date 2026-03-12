@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-09/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-10-arch-improvements/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Sprint Notes — 2026-03-09 - agentrelay</title>
+        <title>Sprint Notes — 2026-03-10: Architecture Improvements - agentrelay</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sprint-notes-2026-03-09" class="md-skip">
+        <a href="#sprint-notes-2026-03-10-architecture-improvements" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Sprint Notes — 2026-03-09
+              Sprint Notes — 2026-03-10: Architecture Improvements
             
           </span>
         </div>
@@ -1109,22 +1109,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#phase-2-plan-original-item-6-adapter-layer-real-runner" class="md-nav__link">
+  <a href="#review-findings-and-resolutions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2 plan: original item 6 (adapter layer + real runner)
+        Review findings and resolutions
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Phase 2 plan: original item 6 (adapter layer + real runner)">
+    <nav class="md-nav" aria-label="Review findings and resolutions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#external-testbed-assumptions" class="md-nav__link">
+  <a href="#strengths-identified-no-action-needed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        External testbed assumptions
+        Strengths identified (no action needed)
       
     </span>
   </a>
@@ -1132,22 +1132,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-i-integration-contracts-error-model" class="md-nav__link">
+  <a href="#concerns-addressed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR I: integration contracts + error model
+        Concerns addressed
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="PR I: integration contracts + error model">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#pr-i-implementation-plan-detailed" class="md-nav__link">
+  <a href="#supporting-prs-pre-review-same-sprint" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR I implementation plan (detailed)
+        Supporting PRs (pre-review, same sprint)
       
     </span>
   </a>
@@ -1158,108 +1157,15 @@
     </nav>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-j-gitworktree-adapter" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR J: git/worktree adapter
+        Summary
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-k-signal-adapter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR K: signal adapter
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-l-tmux-launcher-real-tmuxagent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR L: tmux launcher + real TmuxAgent
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-m-pr-operations-adapter" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR M: PR operations adapter
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-n-concrete-taskrunnerio-composition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR N: concrete TaskRunnerIO composition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-o-non-prototype-runner-entrypoint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR O: non-prototype runner entrypoint
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-p-non-prototype-reset-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR P: non-prototype reset tool
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-q-e2e-docsexamples-migration-hardening" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR Q: E2E docs/examples + migration hardening
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#merge-discipline-for-phase-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Merge discipline for phase 2
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1280,213 +1186,126 @@
 
 
 
-<h1 id="sprint-notes-2026-03-09">Sprint Notes — 2026-03-09</h1>
-<blockquote>
-<p><strong>Status: On hold.</strong> This sprint was paused after PR I (#75) to conduct an
-architecture review and improvement pass (see
-<code>docs/sprints/2026-03-10-arch-improvements.md</code>). Remaining work planned here
-(PRs J–Q) will be covered by a new sprint document.</p>
-</blockquote>
-<h2 id="phase-2-plan-original-item-6-adapter-layer-real-runner">Phase 2 plan: original item 6 (adapter layer + real runner)</h2>
-<h3 id="external-testbed-assumptions">External testbed assumptions</h3>
+<h1 id="sprint-notes-2026-03-10-architecture-improvements">Sprint Notes — 2026-03-10: Architecture Improvements</h1>
+<p>Paused the phase 2 adapter work (sprint 2026-03-09) to address findings from an
+architecture review of the non-prototype codebase. The review was conducted by
+Opus 4.6 and documented in <code>docs/reviews/2026-03-10-Opus-46.md</code>.</p>
+<hr />
+<h2 id="review-findings-and-resolutions">Review findings and resolutions</h2>
+<h3 id="strengths-identified-no-action-needed">Strengths identified (no action needed)</h3>
 <ol>
-<li>External repo for manual integration/E2E work: <code>/data/git/agentrelaydemos/main/</code>.</li>
-<li>New-style YAML graphs for non-prototype runner tests will live under <code>/data/git/agentrelaydemos/main/graphs/</code>.</li>
-<li>Old prototype graph files remain archived under <code>/data/git/agentrelaydemos/main/graphs/archived/</code>.</li>
-<li>During early PRs, it is acceptable to use synthetic temp repos for deterministic tests and use <code>agentrelaydemos</code> for manual smoke checks.</li>
-</ol>
-<h3 id="pr-i-integration-contracts-error-model">PR I: integration contracts + error model</h3>
-<ul>
-<li>Branch: <code>feat/integration-contracts</code></li>
-<li>Scope:</li>
-<li>Define non-prototype adapter interfaces for workspace, signal I/O, PR ops, and agent launch boundaries.</li>
-<li>Define typed exceptions and error classification mapping (expected task failure vs internal/system failure).</li>
-<li>Document invariants in architecture/diagram.</li>
-<li>Acceptance-test checklist:</li>
-<li>[x] New contracts compile cleanly (<code>pixi run typecheck</code>).</li>
-<li>[x] Unit tests cover classification and exception mapping behavior.</li>
-<li>[x] No behavioral changes to existing task/orchestrator tests.</li>
-</ul>
-<h4 id="pr-i-implementation-plan-detailed">PR I implementation plan (detailed)</h4>
-<ol>
-<li>Create a new integration package (contracts only)</li>
-<li>Add:<ul>
-<li><code>src/agentrelay/integration_contracts/__init__.py</code></li>
-<li><code>src/agentrelay/integration_errors/__init__.py</code></li>
-</ul>
+<li>
+<p><strong>Immutable spec / mutable runtime split</strong> — <code>Task</code>, <code>TaskGraph</code>,
+   <code>WorkstreamSpec</code> are frozen; <code>TaskRuntime</code>, <code>WorkstreamRuntime</code> are mutable
+   envelopes. Clean data flow.</p>
 </li>
 <li>
-<p>Purpose: define stable side-effect boundaries without changing runtime behavior.</p>
+<p><strong>TaskRunner state machine</strong> — linear lifecycle with explicit transition table.
+   Repetitive try/except around each IO call is correct.</p>
 </li>
 <li>
-<p>Define adapter contracts (Protocol interfaces)</p>
-</li>
-<li>In <code>integration_contracts</code>, define protocols for four boundaries:<ul>
-<li><code>WorkspaceAdapter</code> (generalized from local worktree-specific naming)</li>
-<li><code>SignalAdapter</code></li>
-<li><code>PullRequestAdapter</code></li>
-<li><code>AgentLauncher</code></li>
-</ul>
-</li>
-<li>Define generalized workspace refs for local/remote execution:<ul>
-<li><code>LocalWorkspaceRef</code></li>
-<li><code>RemoteWorkspaceRef</code></li>
-<li><code>WorkspaceRef</code> (union of local/remote refs)</li>
-</ul>
+<p><strong>TaskGraph eager validation</strong> — no invalid graph can exist. Cycle detection,
+   hierarchy checks, dependency existence all enforced at construction.</p>
 </li>
 <li>
-<p>Add <code>IntegrationAdapters</code> dataclass to bundle boundaries for later <code>TaskRunnerIO</code> composition (PR N).</p>
-</li>
-<li>
-<p>Define typed error model + classification</p>
-</li>
-<li>In <code>integration_errors</code>, define:<ul>
-<li><code>IntegrationError</code> (base)</li>
-<li>Boundary-specific subclasses (<code>WorkspaceIntegrationError</code>, <code>SignalIntegrationError</code>, <code>PullRequestIntegrationError</code>, <code>AgentLaunchIntegrationError</code>)</li>
-<li>Compatibility alias <code>WorktreeIntegrationError</code> (transitional)</li>
-<li><code>ExpectedTaskFailureError</code> vs <code>InternalIntegrationError</code></li>
-<li><code>classify_integration_error(exc)</code> returning <code>IntegrationFailureClass</code></li>
-</ul>
-</li>
-<li>
-<p>Goal: make expected task failure vs internal/system failure explicit before concrete adapters.</p>
-</li>
-<li>
-<p>Keep behavior unchanged in existing runtime code</p>
-</li>
-<li>No real wiring into <code>TaskRunner</code>/<code>Orchestrator</code> in PR I.</li>
-<li>
-<p>This PR remains contract-and-model only so downstream adapter PRs can implement against a stable API.</p>
-</li>
-<li>
-<p>Docs + diagram updates</p>
-</li>
-<li>
-<p>Update:</p>
-<ul>
-<li><code>docs/ARCHITECTURE.md</code> (integration boundary layer)</li>
-<li><code>docs/DIAGRAM.md</code> (integration package/module block)</li>
-<li>API docs/nav entries for <code>integration</code> package as needed.</li>
-</ul>
-</li>
-<li>
-<p>Tests + validation</p>
-</li>
-<li>Add unit tests:<ul>
-<li><code>test/test_integration_errors.py</code></li>
-<li><code>test/test_integration_contracts.py</code></li>
-</ul>
-</li>
-<li>Cover:<ul>
-<li>error class hierarchy</li>
-<li>classification helper behavior</li>
-<li>immutability/shape of contract dataclasses</li>
-</ul>
-</li>
-<li>Run:<ul>
-<li><code>pixi run pytest test/test_integration_errors.py test/test_integration_contracts.py</code></li>
-<li><code>pixi run typecheck</code></li>
-<li><code>pixi run docs-build</code></li>
-</ul>
+<p><strong>Clean protocol boundaries</strong> — <code>TaskRunnerIO</code> and adapter protocols map to real
+   operational boundaries.</p>
 </li>
 </ol>
-<h3 id="pr-j-gitworktree-adapter">PR J: git/worktree adapter</h3>
+<h3 id="concerns-addressed">Concerns addressed</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Concern</th>
+<th>Resolution</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Two parallel protocol layers (<code>TaskRunnerIO</code> vs <code>integration_contracts</code>)</td>
+<td>Decomposed <code>TaskRunnerIO</code> into per-step protocols (<code>TaskPreparer</code>, <code>TaskLauncher</code>, etc.), added <code>WorkstreamRunner</code>/<code>WorkstreamRunnerIO</code>, deleted <code>integration_contracts/</code></td>
+<td>#78</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Task.dependencies</code> stores <code>Task</code> objects, not IDs</td>
+<td>Changed to <code>tuple[str, ...]</code>, removed redundant validation, simplified builder</td>
+<td>#79</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Agent</code> on <code>TaskRuntime</code> is an odd fit</td>
+<td>Removed live <code>Agent</code> field, added <code>agent_address: AgentAddress</code> to <code>TaskArtifacts</code> as audit trail</td>
+<td>#80</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Orchestrator does a lot of direct state mutation</td>
+<td>Added read-only view protocols (part A), then added mutation methods to runtimes and replaced ~15 direct field assignments in orchestrator (part B)</td>
+<td>#81, #82</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>integration_errors</code> elaborate but not consumed</td>
+<td>Renamed to <code>errors/</code>, wired <code>classify_integration_error()</code> into <code>TaskRunner._record_io_failure()</code>, added <code>failure_class</code> to <code>TaskRunResult</code>, orchestrator now distinguishes internal vs expected failures</td>
+<td>#83</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>RemoteWorkspaceRef</code> is speculative</td>
+<td>Removed <code>RemoteWorkspaceRef</code> and <code>kind</code> discriminator from <code>LocalWorkspaceRef</code></td>
+<td>#84</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Workstream hierarchy depth — is it needed?</td>
+<td>Kept as-is. The hierarchy validation and orchestrator ancestor-chain logic will be used when we create nested workstreams. No code change.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>_transition_to_failed</code> escape hatch</td>
+<td>Removed silent fallback that bypassed transition table; method now delegates to <code>_transition()</code> unconditionally after idempotency check</td>
+<td>#85</td>
+</tr>
+<tr>
+<td>9</td>
+<td>No logging or observability hooks</td>
+<td>Added <code>OrchestratorListener</code> protocol with <code>on_event()</code> callback; orchestrator accepts optional listener, notifies at all 6 event emission sites</td>
+<td>#86</td>
+</tr>
+</tbody>
+</table>
+<h3 id="supporting-prs-pre-review-same-sprint">Supporting PRs (pre-review, same sprint)</h3>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#76</td>
+<td>PlantUML diagram infrastructure and conventions cleanup</td>
+</tr>
+<tr>
+<td>#77</td>
+<td>Fix docs deploy: regenerate SVG instead of staleness check</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary">Summary</h2>
 <ul>
-<li>Branch: <code>feat/git-worktree-adapter</code></li>
-<li>Scope:</li>
-<li>Implement git/worktree operations behind adapter interface.</li>
-<li>Support worktree create/switch/delete and branch setup primitives needed by <code>TaskRunnerIO</code>.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] Adapter tested against temp git repo fixtures.</li>
-<li>[ ] Idempotent cleanup behavior covered by tests.</li>
-<li>[ ] Error mapping for git command failures is deterministic.</li>
+<li>9 review concerns addressed across PRs #78–#86</li>
+<li>Test count grew from ~600 to 624</li>
+<li>All changes backward-compatible (no public API removals that affect callers)</li>
+<li>Codebase is now ready to resume adapter/runner implementation work</li>
 </ul>
-<h3 id="pr-k-signal-adapter">PR K: signal adapter</h3>
-<ul>
-<li>Branch: <code>feat/signal-adapter</code></li>
-<li>Scope:</li>
-<li>Implement instruction write + completion polling + timeout handling.</li>
-<li>Parse completion signals into <code>TaskCompletionSignal</code> with strict validation.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] Tests cover <code>done</code>, <code>failed</code>, timeout, malformed payload, missing fields.</li>
-<li>[ ] Poll interval/timeout behavior is configurable and documented.</li>
-<li>[ ] No busy-loop behavior under normal polling cadence.</li>
-</ul>
-<h3 id="pr-l-tmux-launcher-real-tmuxagent">PR L: tmux launcher + real <code>TmuxAgent</code></h3>
-<ul>
-<li>Branch: <code>feat/tmux-agent-implementation</code></li>
-<li>Scope:</li>
-<li>Implement <code>TmuxAgent.from_config(...)</code>.</li>
-<li>Implement <code>TmuxAgent.send_kickoff(...)</code>.</li>
-<li>Add readiness/command-injection behavior required by current workflow.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] Unit tests for tmux command construction and argument handling.</li>
-<li>[ ] Failure modes (missing tmux session, command failure) raise typed errors.</li>
-<li>[ ] Optional local smoke command (env-flag gated) documented.</li>
-</ul>
-<h3 id="pr-m-pr-operations-adapter">PR M: PR operations adapter</h3>
-<ul>
-<li>Branch: <code>feat/pr-ops-adapter</code></li>
-<li>Scope:</li>
-<li>Implement PR create/merge/status boundary (likely <code>gh</code>-backed).</li>
-<li>Normalize command failures into typed adapter errors.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] Unit tests with subprocess command doubles.</li>
-<li>[ ] Merge failure paths map to expected failure vs internal error per contract.</li>
-<li>[ ] Adapter API is framework/environment-agnostic.</li>
-</ul>
-<h3 id="pr-n-concrete-taskrunnerio-composition">PR N: concrete <code>TaskRunnerIO</code> composition</h3>
-<ul>
-<li>Branch: <code>feat/task-runner-io-concrete</code></li>
-<li>Scope:</li>
-<li>Compose adapters from PRs J/K/L/M into a concrete <code>TaskRunnerIO</code>.</li>
-<li>Wire task runtime fields (worktree path, branch, agent, PR URL, errors, concerns).</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] <code>TaskRunner</code> integration tests run against concrete <code>TaskRunnerIO</code> using fakes/temp dirs.</li>
-<li>[ ] Teardown modes (<code>always</code>, <code>on_success</code>, <code>never</code>) behave as expected.</li>
-<li>[ ] Task failure and internal-error boundaries remain consistent with PR G policy.</li>
-</ul>
-<h3 id="pr-o-non-prototype-runner-entrypoint">PR O: non-prototype runner entrypoint</h3>
-<ul>
-<li>Branch: <code>feat/nonprototype-run-graph-cli</code></li>
-<li>Scope:</li>
-<li>Add non-prototype <code>run_graph</code> executable/module.</li>
-<li>Support external graph paths (including <code>agentrelaydemos</code>), runtime config flags, and orchestrator wiring.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] CLI can parse and run new-style graph YAML via <code>TaskGraphBuilder.from_yaml(...)</code>.</li>
-<li>[ ] CLI supports configurable teardown/retry/concurrency flags.</li>
-<li>[ ] Dry-run/validation-only mode exists for quick schema checks.</li>
-</ul>
-<h3 id="pr-p-non-prototype-reset-tool">PR P: non-prototype reset tool</h3>
-<ul>
-<li>Branch: <code>feat/nonprototype-reset-graph</code></li>
-<li>Scope:</li>
-<li>Implement a clean non-prototype <code>reset_graph</code> command for run cleanup.</li>
-<li>Reset artifacts needed by new flow (worktrees, branches, signal/run-state files) safely and predictably.</li>
-<li>Keep prototype reset tooling separate and unchanged.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] Reset is idempotent when rerun.</li>
-<li>[ ] <code>--yes</code> (non-interactive) and interactive confirmation both supported.</li>
-<li>[ ] Cleanup verified against local sandbox repo and manual <code>agentrelaydemos</code> smoke.</li>
-</ul>
-<h3 id="pr-q-e2e-docsexamples-migration-hardening">PR Q: E2E docs/examples + migration hardening</h3>
-<ul>
-<li>Branch: <code>feat/e2e-runbook-and-graphs</code></li>
-<li>Scope:</li>
-<li>Add new-style E2E graph examples for <code>/data/git/agentrelaydemos/main/graphs/</code>.</li>
-<li>Document full run + reset workflow for non-prototype stack.</li>
-<li>Capture known operational caveats and troubleshooting notes.</li>
-<li>Acceptance-test checklist:</li>
-<li>[ ] At least one documented end-to-end run/cleanup cycle succeeds on <code>agentrelaydemos</code>.</li>
-<li>[ ] Docs point users away from <code>graphs/archived/</code> for new runner tests.</li>
-<li>[ ] Workflow, guide, and migration docs are mutually consistent.</li>
-</ul>
-<h3 id="merge-discipline-for-phase-2">Merge discipline for phase 2</h3>
-<ol>
-<li>Complete each PR and merge to <code>main</code> before starting the next PR.</li>
-<li>Keep each PR vertically scoped with runnable/testable acceptance criteria.</li>
-<li>Do not collapse PR P (reset tooling) into PR O; reset ergonomics are first-class operational requirements.</li>
-</ol>
 
 
 
