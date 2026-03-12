@@ -457,6 +457,53 @@ package "orchestrator/" as orchestrator_pkg {
 }
 
 ' ─────────────────────────────────────────────
+'  ops/ — infrastructure primitives (private)
+' ─────────────────────────────────────────────
+package "ops/" as ops_pkg {
+    class git <<module>> {
+        module_path : ops.git
+        __
+        +{static} worktree_add(repo, path, branch, start_point) : void
+        +{static} worktree_remove(repo, path) : void
+        +{static} branch_create(repo, branch, start_point, force) : void
+        +{static} branch_delete(repo, branch) : void
+        +{static} pull_ff_only(repo) : bool
+        +{static} fetch_branch(repo, branch) : void
+        +{static} update_local_ref(repo, branch, remote_ref) : void
+        +{static} push_branch(repo, branch, set_upstream) : void
+        +{static} ls_remote_branch_exists(repo, branch) : bool
+    }
+
+    class tmux <<module>> {
+        module_path : ops.tmux
+        __
+        +{static} new_window(session, name, cwd) : str
+        +{static} send_keys(pane_id, keys, press_enter) : void
+        +{static} capture_pane(pane_id, full_history) : str
+        +{static} kill_window(pane_id) : void
+        +{static} wait_for_tui_ready(pane_id, marker, timeout) : bool
+    }
+
+    class gh <<module>> {
+        module_path : ops.gh
+        __
+        +{static} pr_create(repo_dir, title, body, base, head) : str
+        +{static} pr_merge(pr_url) : void
+        +{static} pr_body(pr_url) : str
+    }
+
+    class signals <<module>> {
+        module_path : ops.signals
+        __
+        +{static} ensure_signal_dir(signal_dir) : Path
+        +{static} write_json(signal_dir, filename, data) : void
+        +{static} write_text(signal_dir, filename, content) : void
+        +{static} read_signal_file(signal_dir, filename) : str | None
+        +{static} poll_signal_files(signal_dir, filenames, interval) : str
+    }
+}
+
+' ─────────────────────────────────────────────
 '  errors/ — error hierarchy
 ' ─────────────────────────────────────────────
 package "errors/" as errors_pkg {
