@@ -6,6 +6,20 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-12
 
+### Add infrastructure primitives package (ops/)
+
+- New `ops/` package with thin, stateless subprocess and filesystem wrappers
+  for the four infrastructure domains: git, tmux, gh CLI, and signal files
+- `ops/git.py` — 9 functions: worktree, branch, fetch/push, ls-remote
+- `ops/tmux.py` — 5 functions: window management, keys, capture, TUI readiness poll
+- `ops/gh.py` — 3 functions: PR create, merge, body fetch
+- `ops/signals.py` — 5 functions: signal dir management, JSON/text I/O, async poll
+- Private implementation detail — not part of public API; protocol implementations
+  (PRs L/M) will compose these primitives
+- Added shared `test/conftest.py` with git repo fixtures for real-subprocess tests
+- 47 new tests (git tests use real temp repos, tmux/gh use subprocess mocks,
+  signals use real filesystem)
+
 ### Restructure packages into core/ + implementations/ layout
 
 - Split `agent/`, `task_runner/`, and `workstream/` into `core/` (ABCs,
