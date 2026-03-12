@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-infrastructure-primitives-package-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add infrastructure primitives package (ops/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#restructure-packages-into-core-implementations-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1450,6 +1461,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-infrastructure-primitives-package-ops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add infrastructure primitives package (ops/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#restructure-packages-into-core-implementations-layout" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1736,6 +1758,20 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-12">2026-03-12</h2>
+<h3 id="add-infrastructure-primitives-package-ops">Add infrastructure primitives package (ops/)</h3>
+<ul>
+<li>New <code>ops/</code> package with thin, stateless subprocess and filesystem wrappers
+  for the four infrastructure domains: git, tmux, gh CLI, and signal files</li>
+<li><code>ops/git.py</code> — 9 functions: worktree, branch, fetch/push, ls-remote</li>
+<li><code>ops/tmux.py</code> — 5 functions: window management, keys, capture, TUI readiness poll</li>
+<li><code>ops/gh.py</code> — 3 functions: PR create, merge, body fetch</li>
+<li><code>ops/signals.py</code> — 5 functions: signal dir management, JSON/text I/O, async poll</li>
+<li>Private implementation detail — not part of public API; protocol implementations
+  (PRs L/M) will compose these primitives</li>
+<li>Added shared <code>test/conftest.py</code> with git repo fixtures for real-subprocess tests</li>
+<li>47 new tests (git tests use real temp repos, tmux/gh use subprocess mocks,
+  signals use real filesystem)</li>
+</ul>
 <h3 id="restructure-packages-into-core-implementations-layout">Restructure packages into core/ + implementations/ layout</h3>
 <ul>
 <li>Split <code>agent/</code>, <code>task_runner/</code>, and <code>workstream/</code> into <code>core/</code> (ABCs,

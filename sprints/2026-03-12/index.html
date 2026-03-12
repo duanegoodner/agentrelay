@@ -1226,6 +1226,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pr-n12-wire-workstreamrunner-into-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR N½: Wire WorkstreamRunner into Orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pr-o-reset-tool" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1264,10 +1275,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#open-questions" class="md-nav__link">
+  <a href="#resolved-questions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Open questions
+        Resolved questions
       
     </span>
   </a>
@@ -1604,6 +1615,27 @@ delegate to <code>TmuxAgent</code> methods.</p>
       wiring from graph YAML → orchestrator result.
 - [ ] <code>pixi run check</code> passes.</p>
 <hr />
+<h3 id="pr-n12-wire-workstreamrunner-into-orchestrator">PR N½: Wire WorkstreamRunner into Orchestrator</h3>
+<ul>
+<li>Branch: <code>feat/orchestrator-workstream-runner</code></li>
+</ul>
+<p>The current <code>Orchestrator</code> manages workstream prepare/merge/teardown state
+directly via inline logic. This PR refactors the orchestrator to delegate
+workstream lifecycle operations to <code>WorkstreamRunner</code>, mirroring how it already
+delegates task lifecycle to <code>TaskRunnerLike</code>.</p>
+<p><strong>Scope:</strong>
+1. <code>Orchestrator</code> accepts a <code>WorkstreamRunner</code> (or a factory/protocol for one)
+   in addition to <code>TaskRunnerLike</code>.
+2. Workstream prepare, merge, and teardown calls go through <code>WorkstreamRunner</code>
+   instead of being handled inline.
+3. Existing orchestrator tests updated to supply a <code>WorkstreamRunner</code> (can use
+   in-memory fakes, same pattern as <code>TaskRunnerLike</code> tests).</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>Orchestrator</code> delegates workstream lifecycle to <code>WorkstreamRunner</code>.
+- [ ] All existing orchestrator tests pass (updated to provide <code>WorkstreamRunner</code>).
+- [ ] No change to external <code>Orchestrator</code> behavior — purely an internal refactor.
+- [ ] <code>pixi run check</code> passes.</p>
+<hr />
 <h3 id="pr-o-reset-tool">PR O: Reset tool</h3>
 <ul>
 <li>Branch: <code>feat/reset-graph</code></li>
@@ -1647,32 +1679,34 @@ delegate to <code>TmuxAgent</code> methods.</p>
 <li>Do not collapse PR O (reset tool) into PR N (CLI) — reset ergonomics are
    first-class operational requirements.</li>
 </ol>
-<h2 id="open-questions">Open questions</h2>
+<h2 id="resolved-questions">Resolved questions</h2>
 <ol>
 <li>
-<p><strong>Package name for protocol implementations.</strong> The plan uses <code>execution/</code>
-   but alternatives include <code>impl/</code>, <code>adapters/</code>, or placing implementations
-   alongside their protocol definitions (e.g. <code>task_runner/preparer.py</code>). The
-   latter has the advantage of co-location but may bloat existing packages.</p>
+<p><strong>Package name for protocol implementations.</strong> → Resolved in PR #88: each
+   package uses <code>core/</code> + <code>implementations/</code> subpackages. Protocol
+   implementations land in <code>&lt;package&gt;/implementations/</code>.</p>
 </li>
 <li>
-<p><strong>Instruction builder scope.</strong> The prototype's prompt construction in
-   <code>run_graph.py</code> is ~300 lines with significant role-specific logic. How much
-   of this should be ported vs. simplified for the first pass?</p>
+<p><strong>Instruction builder scope.</strong> → Port full logic/functionality from
+   prototype but refactor cleanly. Clean architecture takes priority over 1:1
+   prototype fidelity — if maintaining clean code means modifying logic, do
+   that rather than producing messy code. Factor signal file protocol
+   instructions into a shared fragment.</p>
 </li>
 <li>
-<p><strong>WorkstreamRunner integration into Orchestrator.</strong> The current
-   <code>Orchestrator</code> does not call <code>WorkstreamRunner.prepare()</code> /
-   <code>WorkstreamRunner.merge()</code> — it manages workstream state directly. Should
-   PR N wire <code>WorkstreamRunner</code> into the orchestrator loop, or is that a
-   separate follow-up?</p>
+<p><strong>WorkstreamRunner integration into Orchestrator.</strong> → Separate PR (not
+   part of PR N). Added as PR N½ between composition/CLI and reset tool.</p>
 </li>
 <li>
-<p><strong><code>infra/</code> testing strategy.</strong> Git operations can be tested against real
-   temp repos. Tmux and gh operations need subprocess mocks. Is there value in
-   optional live-tmux integration tests (behind a marker like <code>@pytest.mark.
-   integration</code>)?</p>
+<p><strong><code>infra/</code> testing strategy.</strong> → Layered approach:</p>
 </li>
+<li><code>git.py</code> — real temp repos (no mocks)</li>
+<li><code>tmux.py</code> — subprocess mock for unit tests + <code>@pytest.mark.integration</code>
+     for live tmux</li>
+<li><code>gh.py</code> — subprocess mock only</li>
+<li><code>signals.py</code> — real filesystem via <code>tmp_path</code></li>
+<li>E2E testing uses <code>/data/git/agentrelaydemos</code> as target repo with
+     <code>run_graph</code> + <code>reset_graph</code> cycle.</li>
 </ol>
 
 
