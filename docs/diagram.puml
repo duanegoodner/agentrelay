@@ -504,6 +504,45 @@ package "ops/" as ops_pkg {
 }
 
 ' ─────────────────────────────────────────────
+'  instructions/ — per-role instruction builders
+' ─────────────────────────────────────────────
+package "instructions/" as instructions_pkg {
+    class InstructionContext <<frozen dataclass>> {
+        task : Task
+        graph_branch : str
+        graph_name : str | None
+        dependency_descriptions : dict[str, str | None]
+        effective_gate_attempts : int
+        attempt_num : int
+        agent_api_module : str
+    }
+
+    class _context <<module>> {
+        module_path : instructions._context
+        __
+        +{static} build_context_content(context) : str | None
+        +{static} instruction_context_from_runtime(runtime, graph, ...) : InstructionContext
+    }
+
+    class _common <<module>> {
+        module_path : instructions._common
+        __
+        +{static} adr_step(context) : str
+        +{static} spec_reading_step(task) : str
+        +{static} mark_done_cmd(context, pr_url_var) : str
+        +{static} mark_failed_cmd(context, reason) : str
+        +{static} commit_push_step(task, step_num, paths) : tuple
+        +{static} pr_create_step(context, step_num, hint) : tuple
+    }
+
+    class instructions_init <<module>> {
+        module_path : instructions
+        __
+        +{static} build_instructions(context) : str
+    }
+}
+
+' ─────────────────────────────────────────────
 '  errors/ — error hierarchy
 ' ─────────────────────────────────────────────
 package "errors/" as errors_pkg {
@@ -657,5 +696,13 @@ AgentLaunchIntegrationError --|> InternalIntegrationError
 IntegrationError --> IntegrationBoundary : boundary
 IntegrationError --> IntegrationFailureClass : failure_class
 error_functions --> IntegrationFailureClass : returns
+
+' --- instructions ---
+InstructionContext --> Task : task
+instructions_init --> InstructionContext : reads
+_context ..> TaskRuntime : factory input
+_context ..> TaskGraph : factory input
+instructions_init ..> _common : uses
+instructions_init ..> _context : uses
 
 @enduml

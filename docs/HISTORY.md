@@ -6,6 +6,22 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-12
 
+### Add per-role instruction builders (instructions/)
+
+- New `instructions/` package with pure-function builders that produce
+  `instructions.md` content for each task agent role
+- `InstructionContext` frozen dataclass decouples builders from runtime/graph
+  types — builders are pure `InstructionContext → str` functions
+- Five role-specific builders: generic, spec_writer, test_writer,
+  test_reviewer, implementer — ported from prototype with clean architecture
+- Shared helpers in `_common.py`: ADR step, spec reading, signal commands,
+  commit/push/PR step generators
+- `build_context_content()` produces `context.md` text from dependency
+  descriptions
+- `instruction_context_from_runtime()` convenience factory for PR L integration
+- `agent_api_module` field parameterizes agent-side API import path
+- 46 new tests (pure unit tests, no subprocess or filesystem needed)
+
 ### Add infrastructure primitives package (ops/)
 
 - New `ops/` package with thin, stateless subprocess and filesystem wrappers
