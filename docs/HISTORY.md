@@ -6,6 +6,29 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-13
 
+### Add task-level protocol implementations
+
+- Six concrete classes implementing the `TaskRunnerIO` per-step protocols,
+  composing `ops/` primitives and protocol builders from the `agent_comm_protocol/`
+  package:
+  - `WorktreeTaskPreparer` — creates git worktree, writes `manifest.json`,
+    `policies.json`, and `instructions.md` to the signal directory
+  - `TmuxTaskLauncher` — delegates to `TmuxAgent.from_config()` to launch
+    Claude Code in a tmux pane
+  - `TmuxTaskKickoff` — sends kickoff instructions to the launched agent
+  - `SignalCompletionChecker` — async-polls for `.done`/`.failed` signal
+    files and parses them into `TaskCompletionSignal`
+  - `GhTaskMerger` — merges task PR via `gh`, updates local integration
+    branch ref, writes `.merged` signal
+  - `WorktreeTaskTeardown` — captures agent log, kills tmux window, removes
+    worktree and branch (best-effort cleanup)
+- Completed `TmuxAgent` stubs: `from_config()` creates tmux window and
+  launches Claude Code; `send_kickoff()` waits for TUI ready then sends prompt
+- Added `signal_dir: Optional[Path]` to `TaskState` and `TaskStateView`
+- Implementation modules named after their protocol (`task_preparer.py`
+  implements `TaskPreparer`, etc.) with docstrings cross-referencing the protocol
+- 768 tests pass, 0 pyright errors
+
 ### Mirror src/agentrelay/ package structure in test/
 
 - Restructured flat `test/` directory (29 files at root) into subdirectories

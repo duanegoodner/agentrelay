@@ -5,7 +5,7 @@ continues to work.
 
 Subpackages:
     core: Protocols, state machine, I/O boundary composition.
-    implementations: Concrete protocol implementations (added in later PRs).
+    implementations: Concrete protocol implementations.
 """
 
 from agentrelay.task_runner.core.io import (
@@ -24,9 +24,19 @@ from agentrelay.task_runner.core.runner import (
     TaskRunResult,
     TearDownMode,
 )
+from agentrelay.task_runner.implementations import (
+    GhTaskMerger,
+    SignalCompletionChecker,
+    TmuxTaskKickoff,
+    TmuxTaskLauncher,
+    WorktreeTaskPreparer,
+    WorktreeTaskTeardown,
+)
 
 __all__ = [
     "ALLOWED_TASK_TRANSITIONS",
+    "GhTaskMerger",
+    "SignalCompletionChecker",
     "TaskCompletionChecker",
     "TaskCompletionSignal",
     "TaskKickoff",
@@ -38,4 +48,8 @@ __all__ = [
     "TaskRunnerIO",
     "TaskTeardown",
     "TearDownMode",
+    "TmuxTaskKickoff",
+    "TmuxTaskLauncher",
+    "WorktreeTaskPreparer",
+    "WorktreeTaskTeardown",
 ]
