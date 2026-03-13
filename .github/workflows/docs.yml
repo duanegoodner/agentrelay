@@ -11,6 +11,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: docs-site
+      url: https://duanegoodner.github.io/agentrelay/
     steps:
       - uses: actions/checkout@v4
         with:
