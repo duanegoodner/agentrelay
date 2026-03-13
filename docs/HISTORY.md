@@ -6,6 +6,21 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-13
 
+### Mirror src/agentrelay/ package structure in test/
+
+- Restructured flat `test/` directory (29 files at root) into subdirectories
+  matching `src/agentrelay/` package layout: `agent/`, `agent_comm_protocol/`,
+  `errors/`, `ops/`, `orchestrator/`, `spec/`, `task_graph/`, `task_runner/`,
+  `task_runtime/`, `workstream/`
+- Renamed files where subdirectory makes prefix redundant (e.g.
+  `test_ops_git.py` → `ops/test_git.py`, `test_protocol_manifest.py` →
+  `agent_comm_protocol/test_manifest.py`)
+- Top-level modules (`test_task.py`, `test_environments.py`, `test_workspace.py`)
+  and cross-cutting `test_docs_examples.py` remain at `test/` root
+- No source edits — all imports are absolute; `conftest.py` stays at root;
+  pytest discovers subdirectories recursively
+- 731 tests pass, 0 pyright errors
+
 ### Add protocol schemas, builders, and templates
 
 - New `agent_comm_protocol/` package implementing Layers 1-3 of the agent
