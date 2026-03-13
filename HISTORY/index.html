@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-13
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-13">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-agent-communication-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define agent communication protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-12" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1449,6 +1477,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-13
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-13">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#define-agent-communication-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Define agent communication protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-12" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1757,6 +1813,21 @@
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
+<h2 id="2026-03-13">2026-03-13</h2>
+<h3 id="define-agent-communication-protocol">Define agent communication protocol</h3>
+<ul>
+<li>Added <code>docs/AGENT_COMM_PROTOCOL.md</code> — specification for orchestrator-agent
+  communication, replacing the monolithic instruction builder approach from
+  PR #90 (closed)</li>
+<li>Five-layer protocol: task manifest (structured facts), work instructions
+  (natural language, template-driven), workflow policies (composable JSON),
+  signaling contract (abstract), and framework adapter (environment-specific)</li>
+<li>Role templates for formulaic tasks (test_writer, implementer, etc.) avoid
+  duplicating instructions across identical task types</li>
+<li>Abstract workflow step vocabulary (commit_and_push, create_pr,
+  run_completion_gate, etc.) decouples instruction content from framework-
+  specific commands</li>
+</ul>
 <h2 id="2026-03-12">2026-03-12</h2>
 <h3 id="add-infrastructure-primitives-package-ops">Add infrastructure primitives package (ops/)</h3>
 <ul>
