@@ -1,6 +1,9 @@
 """Tests for agentrelay.v2.agent: live agent instances."""
 
+from __future__ import annotations
+
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -46,33 +49,6 @@ class TestTmuxAgent:
 
         assert agent.address.label == "work:%42"
 
-    def test_from_config_not_implemented(self) -> None:
-        """TmuxAgent.from_config() raises NotImplementedError (stub)."""
-        config = AgentConfig(
-            framework=AgentFramework.CLAUDE_CODE,
-            model="claude-opus-4-6",
-            environment=TmuxEnvironment(session="agentrelay"),
-        )
-        task_id = "my_task"
-        worktree_path = Path("/tmp/worktree-123")
-        signal_dir = Path("/tmp/signals")
-
-        with pytest.raises(NotImplementedError):
-            TmuxAgent.from_config(
-                config=config,
-                task_id=task_id,
-                worktree_path=worktree_path,
-                signal_dir=signal_dir,
-            )
-
-    def test_send_kickoff_not_implemented(self) -> None:
-        """TmuxAgent.send_kickoff() raises NotImplementedError (stub)."""
-        address = TmuxAddress(session="agentrelay", pane_id="%1")
-        agent = TmuxAgent(_address=address)
-
-        with pytest.raises(NotImplementedError):
-            agent.send_kickoff(instructions_path="/tmp/instructions.md")
-
     def test_multiple_tmux_agents_independent(self) -> None:
         """Multiple TmuxAgent instances are independent."""
         agent1 = TmuxAgent(_address=TmuxAddress(session="s1", pane_id="%1"))
@@ -82,31 +58,6 @@ class TestTmuxAgent:
         assert agent2.address.label == "s2:%2"
         assert agent1.address != agent2.address
 
-    def test_from_config_accepts_all_parameters(self) -> None:
-        """TmuxAgent.from_config() accepts all required parameters."""
-        config = AgentConfig(model="claude-opus-4-6")
-        task_id = "task"
-        worktree_path = Path("/tmp/work")
-        signal_dir = Path("/tmp/signals")
-
-        # Should raise NotImplementedError, not TypeError from bad signature
-        with pytest.raises(NotImplementedError):
-            TmuxAgent.from_config(
-                config=config,
-                task_id=task_id,
-                worktree_path=worktree_path,
-                signal_dir=signal_dir,
-            )
-
-    def test_send_kickoff_accepts_instructions_path(self) -> None:
-        """TmuxAgent.send_kickoff() accepts instructions_path parameter."""
-        address = TmuxAddress(session="agentrelay", pane_id="%1")
-        agent = TmuxAgent(_address=address)
-
-        # Should raise NotImplementedError, not TypeError from bad signature
-        with pytest.raises(NotImplementedError):
-            agent.send_kickoff(instructions_path="/signal/instructions.md")
-
     def test_tmux_agent_equality(self) -> None:
         """TmuxAgents with same address are equal."""
         address1 = TmuxAddress(session="agentrelay", pane_id="%1")
@@ -115,7 +66,6 @@ class TestTmuxAgent:
         agent1 = TmuxAgent(_address=address1)
         agent2 = TmuxAgent(_address=address2)
 
-        # Frozen dataclass: equality is based on field values
         assert agent1 == agent2
 
     def test_tmux_agent_inequality(self) -> None:
@@ -131,3 +81,136 @@ class TestTmuxAgent:
         agent = TmuxAgent(_address=address)
 
         assert isinstance(agent, Agent)
+
+
+# ── Tests for TmuxAgent.from_config ──
+
+
+class TestTmuxAgentFromConfig:
+    """Tests for TmuxAgent.from_config class method."""
+
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.new_window")
+    def test_creates_window_with_correct_args(
+        self, mock_new_window: MagicMock, _mock_send_keys: MagicMock
+    ) -> None:
+        """Creates a tmux window using session, task_id, and worktree_path."""
+        mock_new_window.return_value = "%42"
+        config = AgentConfig(
+            framework=AgentFramework.CLAUDE_CODE,
+            environment=TmuxEnvironment(session="mysession"),
+        )
+
+        TmuxAgent.from_config(
+            config=config,
+            task_id="task_1",
+            worktree_path=Path("/tmp/worktree"),
+            signal_dir=Path("/tmp/signals"),
+        )
+
+        mock_new_window.assert_called_once_with(
+            "mysession", "task_1", Path("/tmp/worktree")
+        )
+
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.new_window")
+    def test_returns_agent_with_correct_address(
+        self, mock_new_window: MagicMock, _mock_send_keys: MagicMock
+    ) -> None:
+        """Returns a TmuxAgent with the correct session and pane_id."""
+        mock_new_window.return_value = "%42"
+        config = AgentConfig(
+            environment=TmuxEnvironment(session="mysession"),
+        )
+
+        agent = TmuxAgent.from_config(
+            config=config,
+            task_id="task_1",
+            worktree_path=Path("/tmp/worktree"),
+            signal_dir=Path("/tmp/signals"),
+        )
+
+        assert isinstance(agent, TmuxAgent)
+        assert agent.address.session == "mysession"
+        assert agent.address.pane_id == "%42"
+
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.new_window")
+    def test_sends_claude_command_with_model(
+        self, mock_new_window: MagicMock, mock_send_keys: MagicMock
+    ) -> None:
+        """Sends claude command with --model flag when model is set."""
+        mock_new_window.return_value = "%42"
+        config = AgentConfig(model="claude-opus-4-6")
+
+        TmuxAgent.from_config(
+            config=config,
+            task_id="task_1",
+            worktree_path=Path("/tmp/worktree"),
+            signal_dir=Path("/tmp/signals"),
+        )
+
+        cmd = mock_send_keys.call_args[0][1]
+        assert "AGENTRELAY_SIGNAL_DIR=" in cmd
+        assert "/tmp/signals" in cmd
+        assert "--model claude-opus-4-6" in cmd
+        assert "--dangerously-skip-permissions" in cmd
+
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.new_window")
+    def test_sends_claude_command_without_model(
+        self, mock_new_window: MagicMock, mock_send_keys: MagicMock
+    ) -> None:
+        """Sends claude command without --model flag when model is None."""
+        mock_new_window.return_value = "%42"
+        config = AgentConfig(model=None)
+
+        TmuxAgent.from_config(
+            config=config,
+            task_id="task_1",
+            worktree_path=Path("/tmp/worktree"),
+            signal_dir=Path("/tmp/signals"),
+        )
+
+        cmd = mock_send_keys.call_args[0][1]
+        assert "--model" not in cmd
+        assert "claude" in cmd
+        assert "--dangerously-skip-permissions" in cmd
+
+
+# ── Tests for TmuxAgent.send_kickoff ──
+
+
+class TestTmuxAgentSendKickoff:
+    """Tests for TmuxAgent.send_kickoff method."""
+
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.wait_for_tui_ready")
+    def test_waits_for_tui_then_sends_prompt(
+        self, mock_wait: MagicMock, mock_send_keys: MagicMock
+    ) -> None:
+        """Waits for TUI ready, then sends the kickoff prompt."""
+        mock_wait.return_value = True
+        agent = TmuxAgent(_address=TmuxAddress(session="s", pane_id="%42"))
+
+        agent.send_kickoff("/tmp/signals/instructions.md")
+
+        mock_wait.assert_called_once_with("%42")
+        mock_send_keys.assert_called_once_with(
+            "%42",
+            "Read /tmp/signals/instructions.md and follow the steps exactly.",
+        )
+
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
+    @patch("agentrelay.agent.implementations.tmux_agent.tmux.wait_for_tui_ready")
+    def test_uses_correct_pane_id(
+        self, mock_wait: MagicMock, mock_send_keys: MagicMock
+    ) -> None:
+        """Uses the agent's pane_id for both wait and send."""
+        mock_wait.return_value = True
+        agent = TmuxAgent(_address=TmuxAddress(session="s", pane_id="%99"))
+
+        agent.send_kickoff("/path/to/instructions.md")
+
+        assert mock_wait.call_args[0][0] == "%99"
+        assert mock_send_keys.call_args[0][0] == "%99"

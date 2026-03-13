@@ -100,8 +100,8 @@ package "agent/" as agent_pkg {
         class TmuxAgent <<mutable dataclass>> {
             -_address : TmuxAddress
             +address() : TmuxAddress
-            +{static} from_config() : TmuxAgent  [stub]
-            +send_kickoff(instructions_path)  [stub]
+            +{static} from_config(config, task_id, worktree_path, signal_dir) : TmuxAgent
+            +send_kickoff(instructions_path) : void
         }
     }
 }
@@ -291,6 +291,7 @@ package "task_runtime/" as task_runtime_pkg {
         status : TaskStatus
         worktree_path : Path | None
         branch_name : str | None
+        signal_dir : Path | None
         error : str | None
         attempt_num : int
     }
@@ -315,6 +316,7 @@ package "task_runtime/" as task_runtime_pkg {
         +status() : TaskStatus
         +worktree_path() : Path | None
         +branch_name() : str | None
+        +signal_dir() : Path | None
         +error() : str | None
         +attempt_num() : int
     }
@@ -399,6 +401,39 @@ package "task_runner/" as task_runner_pkg {
     }
 
     package "implementations/" as task_runner_impl_pkg {
+        class WorktreeTaskPreparer <<dataclass>> {
+            repo_path : Path
+            graph_name : str
+            integration_branch : str
+            dependency_descriptions : dict
+            context_content : str | None
+            +prepare(runtime) : void
+        }
+
+        class TmuxTaskLauncher <<dataclass>> {
+            +launch(runtime) : Agent
+        }
+
+        class TmuxTaskKickoff <<dataclass>> {
+            +kickoff(runtime, agent) : void
+        }
+
+        class SignalCompletionChecker <<dataclass>> {
+            poll_interval : float
+            +wait_for_completion(runtime) : TaskCompletionSignal
+        }
+
+        class GhTaskMerger <<dataclass>> {
+            repo_path : Path
+            integration_branch : str
+            +merge_pr(runtime, pr_url) : void
+        }
+
+        class WorktreeTaskTeardown <<dataclass>> {
+            repo_path : Path
+            keep_panes : bool
+            +teardown(runtime) : void
+        }
     }
 }
 
@@ -797,6 +832,25 @@ policies_functions --> Task : reads
 policies_functions --> WorkflowPolicies : builds
 templates_functions --> AgentRole : reads
 templates_functions --> TaskManifest : reads
+
+' --- task_runner implementations ---
+WorktreeTaskPreparer ..|> TaskPreparer : satisfies
+TmuxTaskLauncher ..|> TaskLauncher : satisfies
+TmuxTaskKickoff ..|> TaskKickoff : satisfies
+SignalCompletionChecker ..|> TaskCompletionChecker : satisfies
+GhTaskMerger ..|> TaskMerger : satisfies
+WorktreeTaskTeardown ..|> TaskTeardown : satisfies
+WorktreeTaskPreparer ..> git : uses
+WorktreeTaskPreparer ..> signals : uses
+WorktreeTaskPreparer ..> manifest_functions : uses
+WorktreeTaskPreparer ..> policies_functions : uses
+WorktreeTaskPreparer ..> templates_functions : uses
+TmuxTaskLauncher ..> TmuxAgent : uses
+SignalCompletionChecker ..> signals : uses
+GhTaskMerger ..> gh : uses
+GhTaskMerger ..> git : uses
+WorktreeTaskTeardown ..> tmux : uses
+WorktreeTaskTeardown ..> git : uses
 
 ' --- spec ---
 PythonStubSpec ..|> SpecRepresentation : satisfies

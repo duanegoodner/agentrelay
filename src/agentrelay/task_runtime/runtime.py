@@ -68,6 +68,7 @@ class TaskState:
     status: TaskStatus = TaskStatus.PENDING
     worktree_path: Optional[Path] = None
     branch_name: Optional[str] = None
+    signal_dir: Optional[Path] = None
     error: Optional[str] = None
     attempt_num: int = 0
 
@@ -158,6 +159,9 @@ class TaskStateView(Protocol):
 
     @property
     def branch_name(self) -> Optional[str]: ...
+
+    @property
+    def signal_dir(self) -> Optional[Path]: ...
 
     @property
     def error(self) -> Optional[str]: ...
