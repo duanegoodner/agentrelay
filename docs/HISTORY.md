@@ -4,6 +4,22 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-13
+
+### Define agent communication protocol
+
+- Added `docs/AGENT_COMM_PROTOCOL.md` — specification for orchestrator-agent
+  communication, replacing the monolithic instruction builder approach from
+  PR #90 (closed)
+- Five-layer protocol: task manifest (structured facts), work instructions
+  (natural language, template-driven), workflow policies (composable JSON),
+  signaling contract (abstract), and framework adapter (environment-specific)
+- Role templates for formulaic tasks (test_writer, implementer, etc.) avoid
+  duplicating instructions across identical task types
+- Abstract workflow step vocabulary (commit_and_push, create_pr,
+  run_completion_gate, etc.) decouples instruction content from framework-
+  specific commands
+
 ## 2026-03-12
 
 ### Add infrastructure primitives package (ops/)
