@@ -6,6 +6,27 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-13
 
+### Add protocol schemas, builders, and templates
+
+- New `agent_comm_protocol/` package implementing Layers 1-3 of the agent
+  communication protocol defined in `AGENT_COMM_PROTOCOL.md`
+- `agent_comm_protocol/manifest.py` — `TaskManifest` frozen dataclass +
+  `build_manifest()` builder + `manifest_to_dict()` serializer (Layer 1:
+  structured task facts). Uses `AgentRole` enum and `pathlib.Path` for type safety.
+- `agent_comm_protocol/policies.py` — `WorkflowPolicies` frozen dataclass +
+  `build_policies()` builder + `policies_to_dict()` serializer (Layer 3:
+  composable workflow config). Introduces `WorkflowAction` and `PrBodySection`
+  enums for type-safe policy actions.
+- `agent_comm_protocol/templates.py` — `resolve_instructions()` loads and
+  parameterizes role templates using `string.Template` (Layer 2: work instructions)
+- New `spec/` package with `SpecRepresentation` protocol and `PythonStubSpec`
+  implementation (spec format abstraction)
+- Four role templates in `src/agentrelay/templates/`: `spec_writer.md`,
+  `test_writer.md`, `test_reviewer.md`, `implementer.md`
+- `TaskPaths` fields changed from `str` to `pathlib.Path` for type-safe path handling
+- Builder functions accept explicit parameters (not TaskGraph/TaskRuntime) to
+  keep the protocol layer decoupled from graph and runtime layers
+
 ### Define agent communication protocol
 
 - Added `docs/AGENT_COMM_PROTOCOL.md` — specification for orchestrator-agent

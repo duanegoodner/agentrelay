@@ -32,9 +32,9 @@ package "task.py" as task_py {
     }
 
     class TaskPaths <<frozen dataclass>> {
-        src : tuple[str, ...]
-        test : tuple[str, ...]
-        spec : str | None
+        src : tuple[Path, ...]
+        test : tuple[Path, ...]
+        spec : Path | None
     }
 
     class AgentConfig <<frozen dataclass>> {
@@ -549,6 +549,126 @@ package "errors/" as errors_pkg {
     }
 }
 
+' ─────────────────────────────────────────────
+'  agent_comm_protocol/ — agent communication protocol layers 1-3
+' ─────────────────────────────────────────────
+package "agent_comm_protocol/" as agent_comm_protocol_pkg {
+    class TaskManifest <<frozen dataclass>> {
+        schema_version : str
+        task_id : str
+        role : AgentRole
+        description : str | None
+        src_paths : tuple[Path, ...]
+        test_paths : tuple[Path, ...]
+        spec_path : Path | None
+        branch_name : str
+        integration_branch : str
+        attempt_num : int
+        graph_name : str | None
+        dependencies : dict[str, DependencyInfo]
+    }
+
+    class DependencyInfo <<frozen dataclass>> {
+        description : str | None
+    }
+
+    class WorkflowPolicies <<frozen dataclass>> {
+        schema_version : str
+        commit_policy : CommitPolicy | None
+        pr_policy : PrPolicy | None
+        completion_gate : CompletionGatePolicy | None
+        review : ReviewPolicy | None
+        adr : AdrPolicy | None
+        verification : VerificationPolicy | None
+    }
+
+    enum WorkflowAction <<str>> {
+        COMMIT_AND_PUSH
+        CREATE_PR
+        SIGNAL_DONE
+        SIGNAL_FAILED
+        RUN_COMPLETION_GATE
+        RECORD_CONCERN
+        WRITE_ADR
+        RUN_VERIFICATION
+    }
+
+    enum PrBodySection <<str>> {
+        SUMMARY
+        FILES_CHANGED
+    }
+
+    class CommitPolicy <<frozen dataclass>> {
+        action : WorkflowAction
+    }
+
+    class PrPolicy <<frozen dataclass>> {
+        action : WorkflowAction
+        base_branch : str
+        title_template : str
+        body_sections : tuple[PrBodySection, ...]
+    }
+
+    class CompletionGatePolicy <<frozen dataclass>> {
+        command : str
+        max_attempts : int
+        output_file : str
+    }
+
+    class VerificationPolicy <<frozen dataclass>> {
+        commands : tuple[str, ...]
+    }
+
+    class AdrPolicy <<frozen dataclass>> {
+        verbosity : AgentVerbosity
+    }
+
+    class ReviewPolicy <<frozen dataclass>> {
+        model : str | None
+        review_on_attempt : int
+    }
+
+    class manifest_functions <<module>> {
+        module_path : agent_comm_protocol.manifest
+        __
+        +{static} build_manifest(task, branch_name, integration_branch, graph_name, attempt_num, dependency_descriptions) : TaskManifest
+        +{static} manifest_to_dict(manifest) : dict
+    }
+
+    class policies_functions <<module>> {
+        module_path : agent_comm_protocol.policies
+        __
+        +{static} build_policies(task, integration_branch, default_max_gate_attempts) : WorkflowPolicies
+        +{static} policies_to_dict(policies) : dict
+    }
+
+    class templates_functions <<module>> {
+        module_path : agent_comm_protocol.templates
+        __
+        +{static} resolve_instructions(role, manifest, adapter_name) : str
+    }
+}
+
+' ─────────────────────────────────────────────
+'  spec/ — spec representation abstractions
+' ─────────────────────────────────────────────
+package "spec/" as spec_pkg {
+    interface SpecRepresentation <<protocol>> {
+        +name() : str
+        +file_extensions() : tuple[str, ...]
+        +describe_for_spec_writer() : str
+        +describe_for_consumer() : str
+    }
+
+    class PythonStubSpec <<frozen dataclass>> {
+        include_type_hints : bool
+        +name() : str
+        +file_extensions() : tuple[str, ...]
+        +describe_for_spec_writer() : str
+        +describe_for_consumer() : str
+    }
+}
+
 ' ═════════════════════════════════════════════
 '  Relationships
 ' ═════════════════════════════════════════════
@@ -657,5 +777,28 @@ AgentLaunchIntegrationError --|> InternalIntegrationError
 IntegrationError --> IntegrationBoundary : boundary
 IntegrationError --> IntegrationFailureClass : failure_class
 error_functions --> IntegrationFailureClass : returns
+
+' --- agent_comm_protocol ---
+TaskManifest --> DependencyInfo : dependencies
+TaskManifest --> AgentRole : role
+WorkflowPolicies --> CommitPolicy : commit_policy (optional)
+WorkflowPolicies --> PrPolicy : pr_policy (optional)
+WorkflowPolicies --> CompletionGatePolicy : completion_gate (optional)
+WorkflowPolicies --> ReviewPolicy : review (optional)
+WorkflowPolicies --> AdrPolicy : adr (optional)
+WorkflowPolicies --> VerificationPolicy : verification (optional)
+CommitPolicy --> WorkflowAction : action
+PrPolicy --> WorkflowAction : action
+PrPolicy --> PrBodySection : body_sections
+AdrPolicy --> AgentVerbosity : verbosity
+manifest_functions --> Task : reads
+manifest_functions --> TaskManifest : builds
+policies_functions --> Task : reads
+policies_functions --> WorkflowPolicies : builds
+templates_functions --> AgentRole : reads
+templates_functions --> TaskManifest : reads
+
+' --- spec ---
+PythonStubSpec ..|> SpecRepresentation : satisfies
 
 @enduml

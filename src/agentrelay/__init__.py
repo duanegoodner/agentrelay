@@ -37,6 +37,13 @@ Core types:
 - LocalWorkspaceRef: resolved local workspace details        [workspace.py]
 - WorkspaceRef: type alias for workspace references          [workspace.py]
 
+Protocol types:
+- TaskManifest: Layer-1 structured task facts                   [agent_comm_protocol/manifest.py]
+- WorkflowPolicies: Layer-3 composable workflow config          [agent_comm_protocol/policies.py]
+- resolve_instructions: Layer-2 role template resolution        [agent_comm_protocol/templates.py]
+- SpecRepresentation: abstract spec format protocol             [spec/spec.py]
+- PythonStubSpec: Python stub spec implementation               [spec/spec.py]
+
 See also:
 - errors: typed integration failure model + classification helper
 - prototypes.v01: v1 prototype implementation (reference only)

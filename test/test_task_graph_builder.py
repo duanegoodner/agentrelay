@@ -101,9 +101,9 @@ def test_from_dict_parses_paths_agent_and_review_configs() -> None:
     graph = TaskGraphBuilder.from_dict(data)
     task = graph.task("t1")
 
-    assert task.paths.src == ("src/app.py",)
-    assert task.paths.test == ("test/test_app.py",)
-    assert task.paths.spec == "docs/spec.md"
+    assert task.paths.src == (Path("src/app.py"),)
+    assert task.paths.test == (Path("test/test_app.py"),)
+    assert task.paths.spec == Path("docs/spec.md")
 
     assert task.primary_agent.framework == AgentFramework.CLAUDE_CODE
     assert task.primary_agent.model == "claude-opus-4-6"
