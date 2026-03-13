@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-12/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-13/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Sprint Notes — 2026-03-12 - agentrelay</title>
+        <title>Sprint Notes — 2026-03-13 - agentrelay</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sprint-notes-2026-03-12" class="md-skip">
+        <a href="#sprint-notes-2026-03-13" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Sprint Notes — 2026-03-12
+              Sprint Notes — 2026-03-13
             
           </span>
         </div>
@@ -1132,10 +1132,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#protocol-concrete-operation-mapping" class="md-nav__link">
+  <a href="#completed-prerequisites" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Protocol → concrete operation mapping
+        Completed prerequisites
       
     </span>
   </a>
@@ -1143,10 +1143,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#what-this-means-for-pr-structure" class="md-nav__link">
+  <a href="#what-the-protocol-changes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What this means for PR structure
+        What the protocol changes
       
     </span>
   </a>
@@ -1171,21 +1171,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-j-infrastructure-primitives" class="md-nav__link">
+  <a href="#pr-k-protocol-schemas-builders-and-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR J: Infrastructure primitives
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-k-instruction-builders" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR K: Instruction builders
+        PR K: Protocol schemas, builders, and templates
       
     </span>
   </a>
@@ -1302,205 +1291,159 @@
 
 
 
-<h1 id="sprint-notes-2026-03-12">Sprint Notes — 2026-03-12</h1>
+<h1 id="sprint-notes-2026-03-13">Sprint Notes — 2026-03-13</h1>
 <blockquote>
-<p><strong>Status: Superseded by <a href="../2026-03-13/">2026-03-13</a>.</strong> PR J shipped; remaining
-PRs revised after defining the agent communication protocol
-(<code>docs/AGENT_COMM_PROTOCOL.md</code>).</p>
+<p><strong>Status: Planning.</strong></p>
 </blockquote>
 <h2 id="goal">Goal</h2>
-<p>Implement concrete classes that satisfy the protocol boundaries already defined
-in <code>task_runner/io.py</code> and <code>workstream/io.py</code>, complete the <code>TmuxAgent</code> stubs,
-and provide a CLI entry point — making the current architecture runnable
-end-to-end.</p>
+<p>Same end goal as the 2026-03-12 sprint — make the current architecture
+runnable end-to-end — but with PR K and onward redesigned around the agent
+communication protocol defined in <code>docs/AGENT_COMM_PROTOCOL.md</code>.</p>
 <h2 id="context">Context</h2>
-<p>The current architecture defines a complete scheduling and lifecycle layer:</p>
-<ul>
-<li><strong><code>Orchestrator</code></strong> schedules tasks via dependency + workstream constraints,
-  delegating one-task execution to anything satisfying <code>TaskRunnerLike</code>.</li>
-<li><strong><code>TaskRunner</code></strong> drives the <code>PENDING → RUNNING → PR_CREATED → PR_MERGED</code>
-  state machine, delegating each lifecycle step to the six per-step protocols
-  composed in <strong><code>TaskRunnerIO</code></strong>.</li>
-<li><strong><code>WorkstreamRunner</code></strong> drives workstream prepare/merge/teardown, delegating
-  to the three per-step protocols in <strong><code>WorkstreamRunnerIO</code></strong>.</li>
-</ul>
-<p>All of this is tested (~624 tests) against in-memory fakes. What's missing are
-<strong>concrete implementations of the nine per-step protocols</strong> and a CLI that wires
-everything together.</p>
-<h3 id="protocol-concrete-operation-mapping">Protocol → concrete operation mapping</h3>
-<p>Each protocol maps to a small set of subprocess operations already proven in the
-v01 prototype (<code>prototypes/v01/task_launcher.py</code>, <code>run_graph.py</code>):</p>
+<p>The 2026-03-12 sprint shipped PR J (<code>ops/</code> infrastructure primitives) and
+began work on PR K (instruction builders). During PR K development, we
+identified that the instruction builders were porting the prototype's
+monolithic approach — mixing role-specific work with git commands, signaling
+logic, and framework-specific actions in a single text blob.</p>
+<p>We paused to design a clean communication protocol from first principles
+(PR #91, <code>docs/AGENT_COMM_PROTOCOL.md</code>). The protocol defines five layers:</p>
+<ol>
+<li><strong>Task manifest</strong> (<code>manifest.json</code>) — structured facts about the task</li>
+<li><strong>Work instructions</strong> (<code>instructions.md</code>) — role-specific work only,
+   template-driven for formulaic roles</li>
+<li><strong>Workflow policies</strong> (<code>policies.json</code>) — composable JSON, abstract
+   vocabulary that adapters translate</li>
+<li><strong>Signaling contract</strong> — abstract signal definitions (done, failed,
+   concern, gate_attempt)</li>
+<li><strong>Framework adapter</strong> — maps onto existing <code>TaskRunnerIO</code> protocol
+   implementations</li>
+</ol>
+<p>This sprint picks up from where 2026-03-12 left off, with the protocol as
+the foundation for all remaining work.</p>
+<h3 id="completed-prerequisites">Completed prerequisites</h3>
 <table>
 <thead>
 <tr>
-<th>Protocol</th>
-<th>What the implementation does</th>
-<th>Infrastructure needed</th>
+<th>PR</th>
+<th>What</th>
+<th>Branch/PR</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong><code>TaskPreparer</code></strong></td>
-<td>Create git worktree + branch, create signal dir, write <code>task_context.json</code> and <code>instructions.md</code></td>
-<td>git worktree ops, signal file I/O, prompt/instruction builders</td>
+<td>PR J</td>
+<td><code>ops/</code> infrastructure primitives package</td>
+<td>PR #88, merged</td>
 </tr>
 <tr>
-<td><strong><code>TaskLauncher</code></strong></td>
-<td>Create tmux window, launch Claude Code in it, return <code>TmuxAgent</code></td>
-<td>tmux ops, <code>TmuxAgent.from_config()</code></td>
-</tr>
-<tr>
-<td><strong><code>TaskKickoff</code></strong></td>
-<td>Wait for Claude TUI readiness, send kickoff prompt via tmux</td>
-<td>tmux ops, <code>TmuxAgent.send_kickoff()</code></td>
-</tr>
-<tr>
-<td><strong><code>TaskCompletionChecker</code></strong></td>
-<td>Poll signal dir for <code>.done</code> / <code>.failed</code>, parse into <code>TaskCompletionSignal</code></td>
-<td>signal file I/O</td>
-</tr>
-<tr>
-<td><strong><code>TaskMerger</code></strong></td>
-<td><code>gh pr merge</code>, pull main / graph branch to sync local refs</td>
-<td>gh CLI ops, git fetch/pull</td>
-</tr>
-<tr>
-<td><strong><code>TaskTeardown</code></strong></td>
-<td>Capture agent log, close tmux pane, remove worktree + branch</td>
-<td>tmux ops, git worktree ops</td>
-</tr>
-<tr>
-<td><strong><code>WorkstreamPreparer</code></strong></td>
-<td>Create <code>graph/&lt;name&gt;</code> integration branch, push to origin</td>
-<td>git branch ops</td>
-</tr>
-<tr>
-<td><strong><code>WorkstreamMerger</code></strong></td>
-<td>Create PR from graph branch → main, merge it</td>
-<td>gh CLI ops</td>
-</tr>
-<tr>
-<td><strong><code>WorkstreamTeardown</code></strong></td>
-<td>Delete graph branch (local + remote)</td>
-<td>git branch ops</td>
+<td>Protocol</td>
+<td><code>docs/AGENT_COMM_PROTOCOL.md</code></td>
+<td>PR #91, merged</td>
 </tr>
 </tbody>
 </table>
-<h3 id="what-this-means-for-pr-structure">What this means for PR structure</h3>
-<p>The previous sprint plan (2026-03-09) organized PRs around "adapters" — one per
-infrastructure domain (git adapter, signal adapter, tmux adapter, PR adapter).
-That framing was vague about how the adapters plugged into the existing
-protocols. This plan instead organizes work around the protocol implementations
-themselves, with infrastructure modules as supporting internals.</p>
-<p>The natural layers are:</p>
-<ol>
-<li>
-<p><strong>Infrastructure primitives</strong> — thin subprocess wrappers for git, tmux, and
-   gh operations. No agentrelay domain types — just <code>Path</code>, <code>str</code>, and
-   subprocess calls. These are internal implementation details, not public API.</p>
-</li>
-<li>
-<p><strong>Protocol implementations</strong> — classes that satisfy <code>TaskPreparer</code>,
-   <code>TaskLauncher</code>, etc. by composing infrastructure primitives and operating on
-   <code>TaskRuntime</code> / <code>WorkstreamRuntime</code>. This is where the design connects.</p>
-</li>
-<li>
-<p><strong>Instruction builders</strong> — per-role text generators that produce the
-   <code>instructions.md</code> content the <code>TaskPreparer</code> writes to the signal directory.</p>
-</li>
-<li>
-<p><strong>Composition + CLI</strong> — a factory that assembles <code>TaskRunnerIO</code> /
-   <code>WorkstreamRunnerIO</code> from the concrete implementations, and a CLI entry
-   point that wires <code>Orchestrator</code> + <code>TaskRunner</code> + <code>TaskGraphBuilder</code>.</p>
-</li>
-</ol>
+<h3 id="what-the-protocol-changes">What the protocol changes</h3>
+<ul>
+<li><strong>PR K</strong> is no longer "port prototype instruction builders." It's now
+  "build the framework-agnostic protocol layers (manifest, policies,
+  templates, spec representation)."</li>
+<li><strong>PR L's <code>TaskPreparer</code></strong> now writes <code>manifest.json</code> + <code>policies.json</code> +
+  resolved <code>instructions.md</code> (via template or custom), not monolithic
+  instruction text.</li>
+<li><strong>PRs M–P</strong> are mostly unchanged.</li>
+</ul>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
-<h3 id="pr-j-infrastructure-primitives">PR J: Infrastructure primitives</h3>
+<h3 id="pr-k-protocol-schemas-builders-and-templates">PR K: Protocol schemas, builders, and templates</h3>
 <ul>
-<li>Branch: <code>feat/infra-primitives</code></li>
-<li>New package: <code>src/agentrelay/infra/</code></li>
+<li>Branch: <code>feat/protocol-schemas</code></li>
 </ul>
-<p>Thin, stateless subprocess wrappers. No domain types — just paths and strings.
-These are the building blocks that protocol implementations will compose.</p>
+<p>Framework-agnostic data types and builders for protocol layers 1-3. No shell
+commands, no framework-specific data anywhere in this PR.</p>
 <p><strong>Modules:</strong></p>
 <table>
 <thead>
 <tr>
 <th>Module</th>
-<th>Functions</th>
-<th>Used by protocols</th>
+<th>Responsibility</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>git.py</code></td>
-<td><code>worktree_add()</code>, <code>worktree_remove()</code>, <code>branch_create()</code>, <code>branch_delete()</code>, <code>pull_ff_only()</code>, <code>fetch_branch()</code>, <code>update_local_ref()</code>, <code>push_branch()</code>, <code>ls_remote_branch_exists()</code></td>
-<td>TaskPreparer, TaskTeardown, TaskMerger, WorkstreamPreparer, WorkstreamMerger, WorkstreamTeardown</td>
+<td><code>protocol/manifest.py</code></td>
+<td><code>TaskManifest</code> dataclass + <code>build_manifest(task, runtime) → dict</code></td>
 </tr>
 <tr>
-<td><code>tmux.py</code></td>
-<td><code>new_window()</code>, <code>send_keys()</code>, <code>capture_pane()</code>, <code>kill_window()</code>, <code>wait_for_tui_ready()</code></td>
-<td>TaskLauncher, TaskKickoff, TaskTeardown</td>
+<td><code>protocol/policies.py</code></td>
+<td><code>WorkflowPolicies</code> dataclass + <code>build_policies(task, runtime) → dict</code></td>
 </tr>
 <tr>
-<td><code>gh.py</code></td>
-<td><code>pr_merge()</code>, <code>pr_create()</code>, <code>pr_body()</code></td>
-<td>TaskMerger, WorkstreamMerger</td>
+<td><code>protocol/templates.py</code></td>
+<td><code>resolve_instructions(role, manifest, adapter_name?) → str</code> — loads and parameterizes role templates</td>
 </tr>
 <tr>
-<td><code>signals.py</code></td>
-<td><code>ensure_signal_dir()</code>, <code>write_json()</code>, <code>write_text()</code>, <code>read_signal_file()</code>, <code>poll_signal_files()</code></td>
-<td>TaskPreparer, TaskCompletionChecker, TaskTeardown</td>
+<td><code>spec/</code> package</td>
+<td><code>SpecRepresentation</code> protocol + <code>PythonStubSpec</code> first impl</td>
 </tr>
 </tbody>
 </table>
+<p><strong>Templates directory:</strong> <code>src/agentrelay/templates/</code></p>
+<p>Shared role templates as markdown files:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>spec_writer.md</code></td>
+<td>Creative spec writing — parameterized by spec representation type</td>
+</tr>
+<tr>
+<td><code>test_writer.md</code></td>
+<td>Write tests against specs — parameterized by paths</td>
+</tr>
+<tr>
+<td><code>test_reviewer.md</code></td>
+<td>Review tests — parameterized by paths</td>
+</tr>
+<tr>
+<td><code>implementer.md</code></td>
+<td>Implement code, pass tests — parameterized by paths + gate</td>
+</tr>
+</tbody>
+</table>
+<p>Adapter-specific overrides go in <code>templates/&lt;adapter_name&gt;/</code> (e.g.,
+<code>templates/claude_code/test_writer.md</code>). Resolution order:
+adapter-specific &gt; shared &gt; per-task custom.</p>
 <p><strong>Design notes:</strong>
-- Functions in <code>infra/</code> are pure wrappers: they take paths/strings and call
-  subprocess. They raise <code>subprocess.CalledProcessError</code> on failure — the
-  protocol implementations handle error mapping.
-- <code>infra/</code> is a private implementation detail (prefixed with <code>_</code> in imports
-  or excluded from <code>__init__.py</code> re-exports). It is not part of the public API
-  and does not appear in the design diagram as a first-class package.
-- The <code>&lt;&lt;module&gt;&gt;</code> stereotype convention from <code>CLAUDE.md</code> applies here.</p>
+- Manifest builder extracts data from <code>Task</code> + <code>TaskRuntime</code> and produces
+  the JSON structure defined in <code>AGENT_COMM_PROTOCOL.md</code> Layer 1.
+- Policies builder reads <code>Task.completion_gate</code>, <code>Task.review</code>, etc. and
+  produces the composable JSON structure from Layer 3.
+- Template resolver uses <code>Task.role</code> to select template, substitutes
+  <code>{src_paths}</code>, <code>{test_paths}</code>, etc. from manifest data. Falls back to
+  per-task <code>instructions.md</code> for <code>generic</code> role.
+- <code>SpecRepresentation</code> protocol defines how spec formats are described to
+  agents. <code>PythonStubSpec</code> = Python files with docstrings and
+  <code>raise NotImplementedError</code>.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Each function tested against temp git repo fixtures (real git, not mocked).
-- [ ] tmux functions tested via subprocess mock (no live tmux session required).
-- [ ] <code>gh</code> functions tested via subprocess mock.
-- [ ] Signal functions tested against temp directories.
-- [ ] <code>pixi run check</code> passes.</p>
-<hr />
-<h3 id="pr-k-instruction-builders">PR K: Instruction builders</h3>
-<ul>
-<li>Branch: <code>feat/instruction-builders</code></li>
-<li>New module: <code>src/agentrelay/instructions.py</code> (or package if needed)</li>
-</ul>
-<p>Per-role instruction text generators. The <code>TaskPreparer</code> will call these to
-produce the <code>instructions.md</code> content written to the signal directory. Each
-builder takes a <code>Task</code> (and optionally <code>TaskRuntime</code> for attempt-aware
-instructions) and returns a string.</p>
-<p><strong>Scope:</strong>
-- Builder functions for each <code>AgentRole</code>: <code>generic</code>, <code>spec_writer</code>,
-  <code>test_writer</code>, <code>test_reviewer</code>, <code>implementer</code>.
-- Incorporate completion gate instructions, review-on-attempt logic, and
-  signal file write instructions (how the agent should write <code>.done</code>/<code>.failed</code>).
-- Reference prototype: <code>prototypes/v01/run_graph.py</code> prompt construction.</p>
-<p><strong>Acceptance criteria:</strong>
-- [ ] Each role produces well-formed instruction text.
-- [ ] Instructions include signal file protocol (write <code>.done</code> with PR URL on
-      line 2, or <code>.failed</code> with reason on line 2).
-- [ ] Completion gate instructions included when <code>task.completion_gate</code> is set.
+- [ ] Manifest builder produces valid JSON matching the protocol schema.
+- [ ] Policies builder produces valid JSON matching the protocol schema.
+- [ ] Template resolver loads templates, substitutes parameters correctly.
+- [ ] <code>generic</code> role falls back to custom instructions.
+- [ ] <code>SpecRepresentation</code> protocol and <code>PythonStubSpec</code> are defined.
 - [ ] <code>pixi run check</code> passes.</p>
 <hr />
 <h3 id="pr-l-task-level-protocol-implementations">PR L: Task-level protocol implementations</h3>
 <ul>
 <li>Branch: <code>feat/task-protocol-impls</code></li>
-<li>New package: <code>src/agentrelay/execution/</code> (or similar)</li>
+<li>Package: <code>src/agentrelay/task_runner/implementations/</code></li>
 </ul>
 <p>Concrete classes implementing all six <code>TaskRunnerIO</code> protocols. Each class
-composes infrastructure primitives from <code>infra/</code> and instruction builders from
-PR K.</p>
-<p><strong>Classes and the protocols they satisfy:</strong></p>
+composes <code>ops/</code> primitives and protocol builders from PR K.</p>
 <table>
 <thead>
 <tr>
@@ -1513,54 +1456,49 @@ PR K.</p>
 <tr>
 <td><code>WorktreeTaskPreparer</code></td>
 <td><code>TaskPreparer</code></td>
-<td><code>git.worktree_add()</code>, <code>signals.ensure_signal_dir()</code>, <code>signals.write_json()</code> (task_context), <code>signals.write_text()</code> (instructions.md via builder)</td>
+<td><code>git.worktree_add()</code>, write <code>manifest.json</code> (via manifest builder), write <code>policies.json</code> (via policies builder), write <code>instructions.md</code> (via template resolver), optionally write <code>context.md</code></td>
 </tr>
 <tr>
 <td><code>TmuxTaskLauncher</code></td>
 <td><code>TaskLauncher</code></td>
-<td><code>tmux.new_window()</code>, launches Claude Code, returns <code>TmuxAgent</code></td>
+<td><code>tmux.new_window()</code>, launch Claude Code, return <code>TmuxAgent</code></td>
 </tr>
 <tr>
 <td><code>TmuxTaskKickoff</code></td>
 <td><code>TaskKickoff</code></td>
-<td>Delegates to <code>agent.send_kickoff()</code> (which uses <code>tmux.wait_for_tui_ready()</code> + <code>tmux.send_keys()</code>)</td>
+<td>Delegate to <code>agent.send_kickoff()</code></td>
 </tr>
 <tr>
 <td><code>SignalCompletionChecker</code></td>
 <td><code>TaskCompletionChecker</code></td>
-<td><code>signals.poll_signal_files()</code>, parses <code>.done</code>/<code>.failed</code> into <code>TaskCompletionSignal</code></td>
+<td><code>signals.poll_signal_files()</code>, parse into <code>TaskCompletionSignal</code></td>
 </tr>
 <tr>
 <td><code>GhTaskMerger</code></td>
 <td><code>TaskMerger</code></td>
-<td><code>gh.pr_merge()</code>, <code>git.pull_ff_only()</code> or <code>git.fetch_branch()</code> + <code>git.update_local_ref()</code></td>
+<td><code>gh.pr_merge()</code>, <code>git.pull_ff_only()</code></td>
 </tr>
 <tr>
 <td><code>WorktreeTaskTeardown</code></td>
 <td><code>TaskTeardown</code></td>
-<td><code>tmux.capture_pane()</code> (agent log), <code>tmux.kill_window()</code>, <code>git.worktree_remove()</code>, <code>git.branch_delete()</code></td>
+<td><code>tmux.capture_pane()</code>, <code>tmux.kill_window()</code>, <code>git.worktree_remove()</code></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Also in this PR: complete the <code>TmuxAgent</code> stubs.</strong></p>
-<p><code>TmuxAgent.from_config()</code> and <code>TmuxAgent.send_kickoff()</code> are currently
-<code>NotImplementedError</code> stubs. This PR implements them using <code>infra/tmux.py</code>
-functions. The <code>TaskLauncher</code> and <code>TaskKickoff</code> protocol implementations
-delegate to <code>TmuxAgent</code> methods.</p>
+<p><strong>Also in this PR:</strong> Complete <code>TmuxAgent</code> stubs (<code>from_config()</code> and
+<code>send_kickoff()</code>) using <code>ops/tmux.py</code>.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Each class satisfies its protocol (verified by <code>isinstance</code> checks with
-      <code>runtime_checkable</code> protocols).
-- [ ] Unit tests with mocked <code>infra/</code> functions cover success and failure paths.
-- [ ] Error mapping: <code>subprocess.CalledProcessError</code> from infra functions is
-      wrapped in appropriate <code>IntegrationError</code> subclasses.
+- [ ] Each class satisfies its protocol (<code>isinstance</code> check).
+- [ ] Unit tests with mocked <code>ops/</code> functions cover success and failure paths.
+- [ ] <code>TaskPreparer</code> writes all three protocol files to the signal directory.
 - [ ] <code>TaskRunnerIO</code> can be constructed from all six implementations.
 - [ ] <code>pixi run check</code> passes.</p>
 <hr />
 <h3 id="pr-m-workstream-level-protocol-implementations">PR M: Workstream-level protocol implementations</h3>
 <ul>
 <li>Branch: <code>feat/workstream-protocol-impls</code></li>
+<li>Package: <code>src/agentrelay/workstream/implementations/</code></li>
 </ul>
-<p>Concrete classes implementing all three <code>WorkstreamRunnerIO</code> protocols.</p>
 <table>
 <thead>
 <tr>
@@ -1573,12 +1511,12 @@ delegate to <code>TmuxAgent</code> methods.</p>
 <tr>
 <td><code>GitWorkstreamPreparer</code></td>
 <td><code>WorkstreamPreparer</code></td>
-<td><code>git.branch_create()</code>, <code>git.push_branch()</code> (create <code>graph/&lt;name&gt;</code> integration branch)</td>
+<td><code>git.branch_create()</code>, <code>git.push_branch()</code></td>
 </tr>
 <tr>
 <td><code>GhWorkstreamMerger</code></td>
 <td><code>WorkstreamMerger</code></td>
-<td><code>gh.pr_create()</code> (graph branch → main), <code>gh.pr_merge()</code></td>
+<td><code>gh.pr_create()</code>, <code>gh.pr_merge()</code></td>
 </tr>
 <tr>
 <td><code>GitWorkstreamTeardown</code></td>
@@ -1597,45 +1535,27 @@ delegate to <code>TmuxAgent</code> methods.</p>
 <li>Branch: <code>feat/run-graph-cli</code></li>
 <li>New module: <code>src/agentrelay/run_graph.py</code></li>
 </ul>
-<p>This PR wires everything together.</p>
+<p>Wire everything together.</p>
 <p><strong>Scope:</strong>
-1. Factory function(s) that build <code>TaskRunnerIO</code> and <code>WorkstreamRunnerIO</code> from
-   concrete implementations, given a repo root path and tmux session name.
-2. Build <code>TaskRunner(io=...)</code> and <code>WorkstreamRunner(io=...)</code>.
-3. Build <code>Orchestrator(graph=..., task_runner=..., config=...)</code>.
-4. CLI via <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code> with flags:
-   - <code>--max-concurrency</code> (default 1)
-   - <code>--max-task-attempts</code> (default 1)
-   - <code>--teardown-mode</code> (always / never / on_success)
-   - <code>--tmux-session</code> (default from YAML or "agentrelay")
-   - <code>--model</code> (override graph-level default model)
-   - <code>--dry-run</code> (validate graph + build runtimes, don't execute)</p>
+1. Factory function(s) that build <code>TaskRunnerIO</code> and <code>WorkstreamRunnerIO</code>
+   from concrete implementations.
+2. CLI via <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code> with flags:
+   <code>--max-concurrency</code>, <code>--max-task-attempts</code>, <code>--teardown-mode</code>,
+   <code>--tmux-session</code>, <code>--model</code>, <code>--dry-run</code>.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>python -m agentrelay.run_graph graphs/demo.yaml --dry-run</code> validates and
-      prints the execution plan.
-- [ ] Integration test using temp git repo + mock tmux/gh verifies the full
-      wiring from graph YAML → orchestrator result.
+- [ ] <code>--dry-run</code> validates graph and prints execution plan.
+- [ ] Integration test verifies full wiring from graph YAML to orchestrator.
 - [ ] <code>pixi run check</code> passes.</p>
 <hr />
 <h3 id="pr-n12-wire-workstreamrunner-into-orchestrator">PR N½: Wire WorkstreamRunner into Orchestrator</h3>
 <ul>
 <li>Branch: <code>feat/orchestrator-workstream-runner</code></li>
 </ul>
-<p>The current <code>Orchestrator</code> manages workstream prepare/merge/teardown state
-directly via inline logic. This PR refactors the orchestrator to delegate
-workstream lifecycle operations to <code>WorkstreamRunner</code>, mirroring how it already
-delegates task lifecycle to <code>TaskRunnerLike</code>.</p>
-<p><strong>Scope:</strong>
-1. <code>Orchestrator</code> accepts a <code>WorkstreamRunner</code> (or a factory/protocol for one)
-   in addition to <code>TaskRunnerLike</code>.
-2. Workstream prepare, merge, and teardown calls go through <code>WorkstreamRunner</code>
-   instead of being handled inline.
-3. Existing orchestrator tests updated to supply a <code>WorkstreamRunner</code> (can use
-   in-memory fakes, same pattern as <code>TaskRunnerLike</code> tests).</p>
+<p>Refactor <code>Orchestrator</code> to delegate workstream lifecycle to
+<code>WorkstreamRunner</code> instead of handling inline.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>Orchestrator</code> delegates workstream lifecycle to <code>WorkstreamRunner</code>.
-- [ ] All existing orchestrator tests pass (updated to provide <code>WorkstreamRunner</code>).
-- [ ] No change to external <code>Orchestrator</code> behavior — purely an internal refactor.
+- [ ] All existing orchestrator tests pass.
+- [ ] No external behavior change.
 - [ ] <code>pixi run check</code> passes.</p>
 <hr />
 <h3 id="pr-o-reset-tool">PR O: Reset tool</h3>
@@ -1643,15 +1563,10 @@ delegates task lifecycle to <code>TaskRunnerLike</code>.</p>
 <li>Branch: <code>feat/reset-graph</code></li>
 <li>New module: <code>src/agentrelay/reset_graph.py</code></li>
 </ul>
-<p>Clean non-prototype <code>reset_graph</code> command. Resets a target repo to pre-run state.</p>
-<p><strong>Scope:</strong>
-1. Close open PRs from graph tasks.
-2. Delete task branches and worktrees.
-3. Delete graph integration branches.
-4. Remove signal directories.
-5. Interactive confirmation by default, <code>--yes</code> for non-interactive.</p>
+<p>Clean reset command: close PRs, delete branches/worktrees, remove signal
+dirs. Idempotent, interactive by default with <code>--yes</code> override.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Reset is idempotent when re-run.
+- [ ] Idempotent when re-run.
 - [ ] Tested against temp git repo fixture.
 - [ ] <code>pixi run check</code> passes.</p>
 <hr />
@@ -1659,18 +1574,11 @@ delegates task lifecycle to <code>TaskRunnerLike</code>.</p>
 <ul>
 <li>Branch: <code>feat/e2e-docs</code></li>
 </ul>
-<p><strong>Scope:</strong>
-1. Update <code>docs/diagram.puml</code> and <code>docs/diagram.svg</code> with new packages
-   (<code>infra/</code>, <code>execution/</code>, <code>instructions</code>).
-2. Update <code>docs/ARCHITECTURE.md</code> with execution layer description.
-3. Update <code>docs/WORKFLOW.md</code> to reflect the now-runnable architecture.
-4. Add end-to-end graph examples under a demos directory.
-5. Document full run + reset cycle.
-6. Update <code>docs/HISTORY.md</code> with entries for PRs J–P.</p>
+<p>Update diagram, architecture docs, and workflow docs. Add end-to-end
+demo cycle documentation.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] At least one documented end-to-end run/reset cycle succeeds on a test
-      repo.
-- [ ] Docs are internally consistent (WORKFLOW, ARCHITECTURE, GUIDE).
+- [ ] Documented end-to-end run/reset cycle.
+- [ ] Docs internally consistent.
 - [ ] <code>pixi run check</code> and <code>pixi run docs-build</code> pass.</p>
 <hr />
 <h2 id="merge-discipline">Merge discipline</h2>
@@ -1678,37 +1586,35 @@ delegates task lifecycle to <code>TaskRunnerLike</code>.</p>
 <li>Complete and merge each PR before starting the next.</li>
 <li><code>pixi run check</code> must pass before every PR.</li>
 <li>Each PR includes a <code>## Test plan</code> checklist in the PR body.</li>
-<li>Do not collapse PR O (reset tool) into PR N (CLI) — reset ergonomics are
-   first-class operational requirements.</li>
+<li>Update <code>docs/HISTORY.md</code> with each merged PR.</li>
 </ol>
 <h2 id="resolved-questions">Resolved questions</h2>
+<p>Carried forward from 2026-03-12 where still applicable:</p>
 <ol>
 <li>
-<p><strong>Package name for protocol implementations.</strong> → Resolved in PR #88: each
-   package uses <code>core/</code> + <code>implementations/</code> subpackages. Protocol
-   implementations land in <code>&lt;package&gt;/implementations/</code>.</p>
+<p><strong>Package name for protocol implementations.</strong> Resolved in PR #88: each
+   package uses <code>core/</code> + <code>implementations/</code> subpackages.</p>
 </li>
 <li>
-<p><strong>Instruction builder scope.</strong> → Port full logic/functionality from
-   prototype but refactor cleanly. Clean architecture takes priority over 1:1
-   prototype fidelity — if maintaining clean code means modifying logic, do
-   that rather than producing messy code. Factor signal file protocol
-   instructions into a shared fragment.</p>
+<p><strong>Instruction builder scope.</strong> Superseded: PR K now builds protocol
+   layers 1-3 per <code>AGENT_COMM_PROTOCOL.md</code>. Role-specific instructions use
+   templates; no shell commands or signaling in instruction content.</p>
 </li>
 <li>
-<p><strong>WorkstreamRunner integration into Orchestrator.</strong> → Separate PR (not
-   part of PR N). Added as PR N½ between composition/CLI and reset tool.</p>
+<p><strong>WorkstreamRunner integration into Orchestrator.</strong> Separate PR (N½).</p>
 </li>
 <li>
-<p><strong><code>infra/</code> testing strategy.</strong> → Layered approach:</p>
+<p><strong><code>ops/</code> testing strategy.</strong> Layered approach (real git repos, subprocess
+   mocks for tmux/gh, real filesystem for signals).</p>
 </li>
-<li><code>git.py</code> — real temp repos (no mocks)</li>
-<li><code>tmux.py</code> — subprocess mock for unit tests + <code>@pytest.mark.integration</code>
-     for live tmux</li>
-<li><code>gh.py</code> — subprocess mock only</li>
-<li><code>signals.py</code> — real filesystem via <code>tmp_path</code></li>
-<li>E2E testing uses <code>/data/git/agentrelaydemos</code> as target repo with
-     <code>run_graph</code> + <code>reset_graph</code> cycle.</li>
+<li>
+<p><strong>Where do role templates live?</strong> <code>src/agentrelay/templates/</code> with
+   adapter-specific overrides in <code>templates/&lt;adapter_name&gt;/</code>.</p>
+</li>
+<li>
+<p><strong>Protocol file format.</strong> Per <code>AGENT_COMM_PROTOCOL.md</code>: <code>manifest.json</code>
+   (Layer 1), <code>instructions.md</code> (Layer 2), <code>policies.json</code> (Layer 3).</p>
+</li>
 </ol>
 
 
