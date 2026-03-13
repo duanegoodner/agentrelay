@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#mirror-srcagentrelay-package-structure-in-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mirror src/agentrelay/ package structure in test/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-protocol-schemas-builders-and-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1500,6 +1511,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#mirror-srcagentrelay-package-structure-in-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mirror src/agentrelay/ package structure in test/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#add-protocol-schemas-builders-and-templates" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1836,6 +1858,21 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-13">2026-03-13</h2>
+<h3 id="mirror-srcagentrelay-package-structure-in-test">Mirror src/agentrelay/ package structure in test/</h3>
+<ul>
+<li>Restructured flat <code>test/</code> directory (29 files at root) into subdirectories
+  matching <code>src/agentrelay/</code> package layout: <code>agent/</code>, <code>agent_comm_protocol/</code>,
+  <code>errors/</code>, <code>ops/</code>, <code>orchestrator/</code>, <code>spec/</code>, <code>task_graph/</code>, <code>task_runner/</code>,
+  <code>task_runtime/</code>, <code>workstream/</code></li>
+<li>Renamed files where subdirectory makes prefix redundant (e.g.
+  <code>test_ops_git.py</code> → <code>ops/test_git.py</code>, <code>test_protocol_manifest.py</code> →
+  <code>agent_comm_protocol/test_manifest.py</code>)</li>
+<li>Top-level modules (<code>test_task.py</code>, <code>test_environments.py</code>, <code>test_workspace.py</code>)
+  and cross-cutting <code>test_docs_examples.py</code> remain at <code>test/</code> root</li>
+<li>No source edits — all imports are absolute; <code>conftest.py</code> stays at root;
+  pytest discovers subdirectories recursively</li>
+<li>731 tests pass, 0 pyright errors</li>
+</ul>
 <h3 id="add-protocol-schemas-builders-and-templates">Add protocol schemas, builders, and templates</h3>
 <ul>
 <li>New <code>agent_comm_protocol/</code> package implementing Layers 1-3 of the agent
