@@ -309,17 +309,18 @@ def _parse_paths(value: Any, path: str) -> TaskPaths:
 
     src = _parse_path_list(mapping.get("src", []), path + ".src")
     test = _parse_path_list(mapping.get("test", []), path + ".test")
-    spec = _parse_optional_string(mapping.get("spec"), path + ".spec")
+    spec_str = _parse_optional_string(mapping.get("spec"), path + ".spec")
+    spec = Path(spec_str) if spec_str is not None else None
     return TaskPaths(src=src, test=test, spec=spec)
 
 
-def _parse_path_list(value: Any, path: str) -> tuple[str, ...]:
+def _parse_path_list(value: Any, path: str) -> tuple[Path, ...]:
     if not isinstance(value, list):
         raise _schema_error(path, "must be a list of strings")
-    items: list[str] = []
+    items: list[Path] = []
     for idx, item in enumerate(value):
         item_path = f"{path}[{idx}]"
-        items.append(_require_non_empty_string(item, item_path))
+        items.append(Path(_require_non_empty_string(item, item_path)))
     return tuple(items)
 
 

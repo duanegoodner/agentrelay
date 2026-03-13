@@ -22,6 +22,7 @@ See also:
 
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import Optional
 
 from agentrelay.environments import AgentEnvironment, TmuxEnvironment
@@ -93,9 +94,9 @@ class TaskPaths:
         spec: Path to supplementary specification file, or None if not applicable.
     """
 
-    src: tuple[str, ...] = ()
-    test: tuple[str, ...] = ()
-    spec: Optional[str] = None
+    src: tuple[Path, ...] = ()
+    test: tuple[Path, ...] = ()
+    spec: Optional[Path] = None
 
 
 @dataclass(frozen=True)
