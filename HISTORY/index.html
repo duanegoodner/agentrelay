@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-task-level-protocol-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add task-level protocol implementations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#mirror-srcagentrelay-package-structure-in-test" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1511,6 +1522,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-task-level-protocol-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add task-level protocol implementations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#mirror-srcagentrelay-package-structure-in-test" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1858,6 +1880,29 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-13">2026-03-13</h2>
+<h3 id="add-task-level-protocol-implementations">Add task-level protocol implementations</h3>
+<ul>
+<li>Six concrete classes implementing the <code>TaskRunnerIO</code> per-step protocols,
+  composing <code>ops/</code> primitives and protocol builders from the <code>agent_comm_protocol/</code>
+  package:</li>
+<li><code>WorktreeTaskPreparer</code> — creates git worktree, writes <code>manifest.json</code>,
+    <code>policies.json</code>, and <code>instructions.md</code> to the signal directory</li>
+<li><code>TmuxTaskLauncher</code> — delegates to <code>TmuxAgent.from_config()</code> to launch
+    Claude Code in a tmux pane</li>
+<li><code>TmuxTaskKickoff</code> — sends kickoff instructions to the launched agent</li>
+<li><code>SignalCompletionChecker</code> — async-polls for <code>.done</code>/<code>.failed</code> signal
+    files and parses them into <code>TaskCompletionSignal</code></li>
+<li><code>GhTaskMerger</code> — merges task PR via <code>gh</code>, updates local integration
+    branch ref, writes <code>.merged</code> signal</li>
+<li><code>WorktreeTaskTeardown</code> — captures agent log, kills tmux window, removes
+    worktree and branch (best-effort cleanup)</li>
+<li>Completed <code>TmuxAgent</code> stubs: <code>from_config()</code> creates tmux window and
+  launches Claude Code; <code>send_kickoff()</code> waits for TUI ready then sends prompt</li>
+<li>Added <code>signal_dir: Optional[Path]</code> to <code>TaskState</code> and <code>TaskStateView</code></li>
+<li>Implementation modules named after their protocol (<code>task_preparer.py</code>
+  implements <code>TaskPreparer</code>, etc.) with docstrings cross-referencing the protocol</li>
+<li>768 tests pass, 0 pyright errors</li>
+</ul>
 <h3 id="mirror-srcagentrelay-package-structure-in-test">Mirror src/agentrelay/ package structure in test/</h3>
 <ul>
 <li>Restructured flat <code>test/</code> directory (29 files at root) into subdirectories
