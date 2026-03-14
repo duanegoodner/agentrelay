@@ -28,6 +28,7 @@ def _make_preparer(repo_path: Path = Path("/repo")) -> WorktreeTaskPreparer:
         repo_path=repo_path,
         graph_name="demo",
         integration_branch="agentrelay/demo",
+        workstream_worktree_path=Path("/worktrees/demo/ws-1"),
         dependency_descriptions={"dep_1": "A dependency"},
     )
 
@@ -42,7 +43,7 @@ class TestWorktreeTaskPreparer:
     @patch("agentrelay.task_runner.implementations.task_preparer.build_manifest")
     @patch("agentrelay.task_runner.implementations.task_preparer.signals")
     @patch("agentrelay.task_runner.implementations.task_preparer.git")
-    def test_creates_worktree_with_correct_args(
+    def test_creates_branch_and_checks_out(
         self,
         mock_git: MagicMock,
         mock_signals: MagicMock,
@@ -52,18 +53,21 @@ class TestWorktreeTaskPreparer:
         _mock_policies_to_dict: MagicMock,
         _mock_resolve: MagicMock,
     ) -> None:
-        """Calls git.worktree_add with derived branch and worktree path."""
+        """Calls git.branch_create and git.checkout in the workstream worktree."""
         preparer = _make_preparer(repo_path=Path("/repo"))
         runtime = _make_runtime()
         mock_build_manifest.return_value = MagicMock()
 
         preparer.prepare(runtime)
 
-        mock_git.worktree_add.assert_called_once_with(
-            Path("/repo"),
-            Path("/repo/.workflow/demo/worktrees/task_1"),
+        mock_git.branch_create.assert_called_once_with(
+            Path("/worktrees/demo/ws-1"),
             "agentrelay/demo/task_1",
             "agentrelay/demo",
+        )
+        mock_git.checkout.assert_called_once_with(
+            Path("/worktrees/demo/ws-1"),
+            "agentrelay/demo/task_1",
         )
 
     @patch("agentrelay.task_runner.implementations.task_preparer.resolve_instructions")
@@ -129,9 +133,7 @@ class TestWorktreeTaskPreparer:
 
         preparer.prepare(runtime)
 
-        assert runtime.state.worktree_path == Path(
-            "/repo/.workflow/demo/worktrees/task_1"
-        )
+        assert runtime.state.worktree_path == Path("/worktrees/demo/ws-1")
         assert runtime.state.branch_name == "agentrelay/demo/task_1"
         assert runtime.state.signal_dir == Path("/repo/.workflow/demo/signals/task_1")
 
@@ -202,8 +204,8 @@ class TestWorktreeTaskPreparer:
         _mock_signals: MagicMock,
     ) -> None:
         """Wraps CalledProcessError from git in WorkspaceIntegrationError."""
-        mock_git.worktree_add.side_effect = subprocess.CalledProcessError(
-            1, "git worktree add"
+        mock_git.branch_create.side_effect = subprocess.CalledProcessError(
+            1, "git branch"
         )
         preparer = _make_preparer()
         runtime = _make_runtime()

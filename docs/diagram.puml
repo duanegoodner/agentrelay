@@ -405,6 +405,7 @@ package "task_runner/" as task_runner_pkg {
             repo_path : Path
             graph_name : str
             integration_branch : str
+            workstream_worktree_path : Path
             dependency_descriptions : dict
             context_content : str | None
             +prepare(runtime) : void
@@ -500,6 +501,7 @@ package "ops/" as ops_pkg {
         __
         +{static} worktree_add(repo, path, branch, start_point) : void
         +{static} worktree_remove(repo, path) : void
+        +{static} checkout(repo, branch) : void
         +{static} branch_create(repo, branch, start_point, force) : void
         +{static} branch_delete(repo, branch) : void
         +{static} pull_ff_only(repo) : bool

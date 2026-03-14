@@ -6,6 +6,16 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-13
 
+### Fix task-level workspace model
+
+- `WorktreeTaskPreparer` no longer creates a per-task worktree. Instead it
+  creates a task branch in the shared workstream worktree via
+  `git.branch_create()` + `git.checkout()`. New `workstream_worktree_path`
+  config field points to the worktree owned by the workstream preparer.
+- `WorktreeTaskTeardown` no longer removes the worktree (owned by workstream
+  teardown). Still deletes the task branch and captures agent logs.
+- Added `git.checkout()` thin wrapper to `ops/git.py`.
+
 ### Add task-level protocol implementations
 
 - Six concrete classes implementing the `TaskRunnerIO` per-step protocols,
