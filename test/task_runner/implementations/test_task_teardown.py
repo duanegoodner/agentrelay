@@ -16,7 +16,7 @@ from agentrelay.task_runtime import TaskRuntime
 
 
 def _make_runtime(
-    worktree_path: Path | None = Path("/repo/.workflow/demo/worktrees/task_1"),
+    worktree_path: Path | None = Path("/worktrees/demo/ws-1"),
     branch_name: str | None = "agentrelay/demo/task_1",
     signal_dir: Path | None = Path("/repo/.workflow/demo/signals/task_1"),
     agent_address: TmuxAddress | None = TmuxAddress(session="s", pane_id="%42"),
@@ -92,25 +92,23 @@ class TestWorktreeTaskTeardown:
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
     @patch("agentrelay.task_runner.implementations.task_teardown.signals")
     @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
-    def test_removes_worktree_and_deletes_branch(
+    def test_deletes_branch(
         self,
         mock_tmux: MagicMock,
         _mock_signals: MagicMock,
         mock_git: MagicMock,
     ) -> None:
-        """Removes worktree and deletes branch."""
+        """Deletes the task branch but does not remove the worktree."""
         mock_tmux.capture_pane.return_value = ""
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
         teardown.teardown(runtime)
 
-        mock_git.worktree_remove.assert_called_once_with(
-            Path("/repo"), Path("/repo/.workflow/demo/worktrees/task_1")
-        )
         mock_git.branch_delete.assert_called_once_with(
             Path("/repo"), "agentrelay/demo/task_1"
         )
+        mock_git.worktree_remove.assert_not_called()
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
     @patch("agentrelay.task_runner.implementations.task_teardown.signals")
@@ -129,7 +127,7 @@ class TestWorktreeTaskTeardown:
 
         _mock_tmux.capture_pane.assert_not_called()
         _mock_tmux.kill_window.assert_not_called()
-        mock_git.worktree_remove.assert_called_once()
+        mock_git.branch_delete.assert_called_once()
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
     @patch("agentrelay.task_runner.implementations.task_teardown.signals")
@@ -147,7 +145,7 @@ class TestWorktreeTaskTeardown:
 
         teardown.teardown(runtime)  # Should not raise
 
-        mock_git.worktree_remove.assert_called_once()
+        mock_git.branch_delete.assert_called_once()
 
     def test_satisfies_task_teardown_protocol(self) -> None:
         """WorktreeTaskTeardown satisfies the TaskTeardown protocol."""

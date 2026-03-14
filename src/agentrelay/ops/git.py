@@ -50,6 +50,18 @@ def worktree_remove(repo: Path, worktree_path: Path) -> None:
     )
 
 
+def checkout(repo: Path, branch: str) -> None:
+    """Checkout an existing branch.
+
+    Runs ``git -C <repo> checkout <branch>``.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "checkout", branch],
+        check=True,
+        capture_output=True,
+    )
+
+
 def branch_create(
     repo: Path,
     branch: str,

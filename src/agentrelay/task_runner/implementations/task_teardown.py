@@ -1,7 +1,7 @@
 """Implementations of :class:`~agentrelay.task_runner.core.io.TaskTeardown`.
 
 Classes:
-    WorktreeTaskTeardown: Captures agent logs and removes worktree resources.
+    WorktreeTaskTeardown: Captures agent logs and cleans up task branch.
 """
 
 from __future__ import annotations
@@ -17,10 +17,11 @@ from agentrelay.task_runtime import TaskRuntime
 
 @dataclass
 class WorktreeTaskTeardown:
-    """Capture agent logs, kill tmux windows, and remove worktree resources.
+    """Capture agent logs, kill tmux windows, and delete the task branch.
 
     Performs best-effort cleanup: captures pane scrollback, optionally kills
-    the tmux window, removes the git worktree, and deletes the task branch.
+    the tmux window, and deletes the task branch. The workstream worktree is
+    owned by the workstream teardown handler and is not touched here.
     Errors during teardown are caught and not propagated.
     """
 
@@ -49,12 +50,6 @@ class WorktreeTaskTeardown:
                     tmux.kill_window(pane_id)
                 except subprocess.CalledProcessError:
                     pass  # Best-effort
-
-        if runtime.state.worktree_path is not None:
-            try:
-                git.worktree_remove(self.repo_path, runtime.state.worktree_path)
-            except subprocess.CalledProcessError:
-                pass  # Best-effort
 
         if runtime.state.branch_name is not None:
             try:

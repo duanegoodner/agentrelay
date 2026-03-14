@@ -1,7 +1,8 @@
 """Implementations of :class:`~agentrelay.task_runner.core.io.TaskPreparer`.
 
 Classes:
-    WorktreeTaskPreparer: Prepares a git worktree and writes protocol files.
+    WorktreeTaskPreparer: Creates a task branch in a shared workstream worktree
+    and writes protocol files.
 """
 
 from __future__ import annotations
@@ -21,39 +22,47 @@ from agentrelay.task_runtime import TaskRuntime
 
 @dataclass
 class WorktreeTaskPreparer:
-    """Prepare a git worktree, signal directory, and protocol files for a task.
+    """Create a task branch in a shared workstream worktree and write protocol files.
 
-    Creates the worktree branch, writes ``manifest.json``, ``policies.json``,
+    Creates a task-specific branch off the integration branch, checks it out
+    in the workstream worktree, writes ``manifest.json``, ``policies.json``,
     and ``instructions.md`` into the signal directory, and updates the runtime
     state with computed paths.
+
+    The worktree itself is owned by the workstream preparer — this class only
+    creates and checks out branches within it.
     """
 
     repo_path: Path
     graph_name: str
     integration_branch: str
+    workstream_worktree_path: Path
     dependency_descriptions: dict[str, Optional[str]] = field(default_factory=dict)
     context_content: Optional[str] = None
 
     def prepare(self, runtime: TaskRuntime) -> None:
         """Prepare runtime execution prerequisites.
 
+        Creates a task branch in the workstream worktree, checks it out,
+        and writes protocol files to the signal directory.
+
         Args:
             runtime: Runtime envelope to prepare (e.g. branch, signal files).
         """
         task = runtime.task
         branch_name = f"agentrelay/{self.graph_name}/{task.id}"
-        worktree_path = (
-            self.repo_path / f".workflow/{self.graph_name}/worktrees/{task.id}"
-        )
         signal_dir = self.repo_path / f".workflow/{self.graph_name}/signals/{task.id}"
 
         try:
-            git.worktree_add(
-                self.repo_path, worktree_path, branch_name, self.integration_branch
+            git.branch_create(
+                self.workstream_worktree_path,
+                branch_name,
+                self.integration_branch,
             )
+            git.checkout(self.workstream_worktree_path, branch_name)
         except subprocess.CalledProcessError as exc:
             raise WorkspaceIntegrationError(
-                f"Failed to create worktree for task {task.id!r}: {exc}",
+                f"Failed to create branch for task {task.id!r}: {exc}",
             ) from exc
 
         signals.ensure_signal_dir(signal_dir)
@@ -77,6 +86,6 @@ class WorktreeTaskPreparer:
         if self.context_content is not None:
             signals.write_text(signal_dir, "context.md", self.context_content)
 
-        runtime.state.worktree_path = worktree_path
+        runtime.state.worktree_path = self.workstream_worktree_path
         runtime.state.branch_name = branch_name
         runtime.state.signal_dir = signal_dir
