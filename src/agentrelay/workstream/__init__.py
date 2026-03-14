@@ -6,7 +6,7 @@ workstream-level lifecycle runner with its I/O protocols.
 
 Subpackages:
     core: Specs, runtime state, protocols, and runner.
-    implementations: Concrete protocol implementations (added in later PRs).
+    implementations: Concrete protocol implementations.
 """
 
 from agentrelay.workstream.core.io import (
@@ -27,8 +27,20 @@ from agentrelay.workstream.core.runtime import (
 )
 from agentrelay.workstream.core.runtime_builder import WorkstreamRuntimeBuilder
 from agentrelay.workstream.core.workstream import WorkstreamSpec
+from agentrelay.workstream.implementations.workstream_merger import (
+    GhWorkstreamMerger,
+)
+from agentrelay.workstream.implementations.workstream_preparer import (
+    GitWorkstreamPreparer,
+)
+from agentrelay.workstream.implementations.workstream_teardown import (
+    GitWorkstreamTeardown,
+)
 
 __all__ = [
+    "GhWorkstreamMerger",
+    "GitWorkstreamPreparer",
+    "GitWorkstreamTeardown",
     "WorkstreamArtifacts",
     "WorkstreamArtifactsView",
     "WorkstreamMerger",
