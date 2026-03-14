@@ -155,6 +155,18 @@ def push_branch(repo: Path, branch: str, *, set_upstream: bool = False) -> None:
     subprocess.run(cmd, check=True, capture_output=True)
 
 
+def push_delete_branch(repo: Path, branch: str) -> None:
+    """Delete a branch on the remote.
+
+    Runs ``git -C <repo> push origin --delete <branch>``.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "push", "origin", "--delete", branch],
+        check=True,
+        capture_output=True,
+    )
+
+
 def ls_remote_branch_exists(repo: Path, branch: str) -> bool:
     """Check whether *branch* exists on the remote.
 

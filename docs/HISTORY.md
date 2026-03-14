@@ -6,6 +6,18 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-13
 
+### Add workstream-level protocol implementations
+
+- Three concrete classes implementing the `WorkstreamRunnerIO` per-step
+  protocols, composing `ops/` primitives:
+  - `GitWorkstreamPreparer` — creates git worktree and integration branch,
+    pushes to origin with upstream tracking
+  - `GhWorkstreamMerger` — creates and merges workstream integration PR via
+    GitHub CLI, updates local merge-target ref
+  - `GitWorkstreamTeardown` — removes worktree, deletes local and remote
+    integration branch (best-effort cleanup)
+- Added `git.push_delete_branch()` thin wrapper to `ops/git.py`
+
 ### Fix task-level workspace model
 
 - `WorktreeTaskPreparer` no longer creates a per-task worktree. Instead it
