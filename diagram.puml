@@ -218,6 +218,24 @@ package "workstream/" as workstream_pkg {
     }
 
     package "implementations/" as workstream_impl_pkg {
+        class GitWorkstreamPreparer <<dataclass>> {
+            repo_path : Path
+            graph_name : str
+            __
+            +prepare_workstream(workstream_runtime) : void
+        }
+
+        class GhWorkstreamMerger <<dataclass>> {
+            repo_path : Path
+            __
+            +merge_workstream(workstream_runtime) : void
+        }
+
+        class GitWorkstreamTeardown <<dataclass>> {
+            repo_path : Path
+            __
+            +teardown_workstream(workstream_runtime) : void
+        }
     }
 }
 
@@ -508,6 +526,7 @@ package "ops/" as ops_pkg {
         +{static} fetch_branch(repo, branch) : void
         +{static} update_local_ref(repo, branch, remote_ref) : void
         +{static} push_branch(repo, branch, set_upstream) : void
+        +{static} push_delete_branch(repo, branch) : void
         +{static} ls_remote_branch_exists(repo, branch) : bool
     }
 
@@ -789,6 +808,15 @@ WorkstreamRunnerIO --> WorkstreamTeardown : teardown_handler
 WorkstreamRunner --> WorkstreamRuntime : mutates
 WorkstreamRunner --> WorkstreamRunResult : returns
 WorkstreamRunResult --> WorkstreamStatus : status
+
+' --- workstream implementations ---
+GitWorkstreamPreparer ..|> WorkstreamPreparer : satisfies
+GhWorkstreamMerger ..|> WorkstreamMerger : satisfies
+GitWorkstreamTeardown ..|> WorkstreamTeardown : satisfies
+GitWorkstreamPreparer --> git : uses
+GhWorkstreamMerger --> gh : uses
+GhWorkstreamMerger --> git : uses
+GitWorkstreamTeardown --> git : uses
 
 ' --- orchestrator ---
 Orchestrator --> TaskGraph : reads

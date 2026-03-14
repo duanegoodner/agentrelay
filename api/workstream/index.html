@@ -1467,6 +1467,90 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhWorkstreamMerger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GhWorkstreamMerger
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GhWorkstreamMerger">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhWorkstreamMerger.merge_workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        merge_workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamPreparer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitWorkstreamPreparer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitWorkstreamPreparer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamPreparer.prepare_workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prepare_workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamTeardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitWorkstreamTeardown
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitWorkstreamTeardown">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamTeardown.teardown_workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        teardown_workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1859,6 +1943,90 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhWorkstreamMerger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GhWorkstreamMerger
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GhWorkstreamMerger">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhWorkstreamMerger.merge_workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        merge_workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamPreparer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitWorkstreamPreparer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitWorkstreamPreparer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamPreparer.prepare_workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prepare_workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamTeardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitWorkstreamTeardown
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GitWorkstreamTeardown">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GitWorkstreamTeardown.teardown_workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        teardown_workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1895,7 +2063,7 @@ workstream-level lifecycle runner with its I/O protocols.</p>
 <details class="subpackages" open>
   <summary>Subpackages</summary>
   <p>core: Specs, runtime state, protocols, and runner.
-implementations: Concrete protocol implementations (added in later PRs).</p>
+implementations: Concrete protocol implementations.</p>
 </details>
 
 
@@ -4619,6 +4787,731 @@ Defaults to <code>"main"</code>.</p>
 
 
 
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.GhWorkstreamMerger" class="doc doc-heading">
+            <code>GhWorkstreamMerger</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Create and merge the workstream integration PR.</p>
+<p>Creates a pull request from the workstream's integration branch into
+its <code>merge_target_branch</code>, merges it, and updates the local ref to
+match.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/implementations/workstream_merger.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GhWorkstreamMerger</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create and merge the workstream integration PR.</span>
+
+<span class="sd">    Creates a pull request from the workstream&#39;s integration branch into</span>
+<span class="sd">    its ``merge_target_branch``, merges it, and updates the local ref to</span>
+<span class="sd">    match.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge the workstream integration branch into its merge target.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            workstream_runtime: Workstream runtime whose integration branch</span>
+<span class="sd">                should be merged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">spec</span>
+        <span class="n">branch_name</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
+        <span class="k">assert</span> <span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;branch_name must be set before merge&quot;</span>
+
+        <span class="n">pr_url</span> <span class="o">=</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_create</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Integrate workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">body</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Merge integration branch `</span><span class="si">{</span><span class="n">branch_name</span><span class="si">}</span><span class="s2">` into `</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="si">}</span><span class="s2">`.&quot;</span><span class="p">,</span>
+            <span class="n">base</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">,</span>
+            <span class="n">head</span><span class="o">=</span><span class="n">branch_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">gh</span><span class="o">.</span><span class="n">pr_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+
+        <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">merge_pr_url</span> <span class="o">=</span> <span class="n">pr_url</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.GhWorkstreamMerger.merge_workstream" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">merge_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Merge the workstream integration branch into its merge target.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>workstream_runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream runtime whose integration branch
+should be merged.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/implementations/workstream_merger.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge the workstream integration branch into its merge target.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        workstream_runtime: Workstream runtime whose integration branch</span>
+<span class="sd">            should be merged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">spec</span>
+    <span class="n">branch_name</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
+    <span class="k">assert</span> <span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;branch_name must be set before merge&quot;</span>
+
+    <span class="n">pr_url</span> <span class="o">=</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_create</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Integrate workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">body</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Merge integration branch `</span><span class="si">{</span><span class="n">branch_name</span><span class="si">}</span><span class="s2">` into `</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="si">}</span><span class="s2">`.&quot;</span><span class="p">,</span>
+        <span class="n">base</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">,</span>
+        <span class="n">head</span><span class="o">=</span><span class="n">branch_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">gh</span><span class="o">.</span><span class="n">pr_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+
+    <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+        <span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">merge_pr_url</span> <span class="o">=</span> <span class="n">pr_url</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.GitWorkstreamPreparer" class="doc doc-heading">
+            <code>GitWorkstreamPreparer</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Provision a worktree and integration branch for a workstream lane.</p>
+<p>Creates a git worktree rooted at
+<code>&lt;repo_path&gt;/.worktrees/&lt;graph_name&gt;/&lt;workstream_id&gt;</code> with a new
+integration branch
+<code>agentrelay/&lt;graph_name&gt;/&lt;workstream_id&gt;/integration</code> off the
+workstream's <code>base_branch</code>. Pushes the integration branch to origin
+so that task PRs can target it.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/implementations/workstream_preparer.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GitWorkstreamPreparer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision a worktree and integration branch for a workstream lane.</span>
+
+<span class="sd">    Creates a git worktree rooted at</span>
+<span class="sd">    ``&lt;repo_path&gt;/.worktrees/&lt;graph_name&gt;/&lt;workstream_id&gt;`` with a new</span>
+<span class="sd">    integration branch</span>
+<span class="sd">    ``agentrelay/&lt;graph_name&gt;/&lt;workstream_id&gt;/integration`` off the</span>
+<span class="sd">    workstream&#39;s ``base_branch``. Pushes the integration branch to origin</span>
+<span class="sd">    so that task PRs can target it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provision worktree and integration branch for this workstream.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            workstream_runtime: Workstream runtime to provision.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">spec</span>
+        <span class="n">branch_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">/integration&quot;</span>
+        <span class="n">worktree_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="s2">&quot;.worktrees&quot;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">id</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
+            <span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">WorkspaceIntegrationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Failed to provision workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+        <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span> <span class="o">=</span> <span class="n">worktree_path</span>
+        <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span> <span class="o">=</span> <span class="n">branch_name</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.GitWorkstreamPreparer.prepare_workstream" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">prepare_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Provision worktree and integration branch for this workstream.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>workstream_runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream runtime to provision.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/implementations/workstream_preparer.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision worktree and integration branch for this workstream.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        workstream_runtime: Workstream runtime to provision.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">spec</span>
+    <span class="n">branch_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">/integration&quot;</span>
+    <span class="n">worktree_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="s2">&quot;.worktrees&quot;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">id</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
+        <span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">WorkspaceIntegrationError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to provision workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span> <span class="o">=</span> <span class="n">worktree_path</span>
+    <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span> <span class="o">=</span> <span class="n">branch_name</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.GitWorkstreamTeardown" class="doc doc-heading">
+            <code>GitWorkstreamTeardown</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Clean up workstream worktree and integration branch.</p>
+<p>Performs best-effort cleanup: removes the worktree directory, deletes
+the local integration branch, and deletes the remote integration branch.
+Errors during any step are silently caught so that subsequent cleanup
+steps still execute.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/implementations/workstream_teardown.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GitWorkstreamTeardown</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean up workstream worktree and integration branch.</span>
+
+<span class="sd">    Performs best-effort cleanup: removes the worktree directory, deletes</span>
+<span class="sd">    the local integration branch, and deletes the remote integration branch.</span>
+<span class="sd">    Errors during any step are silently caught so that subsequent cleanup</span>
+<span class="sd">    steps still execute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">teardown_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete worktree and integration branch for this workstream.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            workstream_runtime: Workstream runtime whose resources should be</span>
+<span class="sd">                cleaned up.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">worktree_path</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span>
+        <span class="n">branch_name</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
+
+        <span class="k">if</span> <span class="n">worktree_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">worktree_remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Best-effort: worktree may already be gone</span>
+
+        <span class="k">if</span> <span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">branch_delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Best-effort: branch may already be deleted</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">push_delete_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Best-effort: remote branch may already be gone</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.GitWorkstreamTeardown.teardown_workstream" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">teardown_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Delete worktree and integration branch for this workstream.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>workstream_runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream runtime whose resources should be
+cleaned up.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/implementations/workstream_teardown.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete worktree and integration branch for this workstream.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        workstream_runtime: Workstream runtime whose resources should be</span>
+<span class="sd">            cleaned up.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">worktree_path</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span>
+    <span class="n">branch_name</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
+
+    <span class="k">if</span> <span class="n">worktree_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">worktree_remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># Best-effort: worktree may already be gone</span>
+
+    <span class="k">if</span> <span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">branch_delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># Best-effort: branch may already be deleted</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">push_delete_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># Best-effort: remote branch may already be gone</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 

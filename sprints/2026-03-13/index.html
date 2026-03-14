@@ -1340,6 +1340,21 @@ the foundation for all remaining work.</p>
 <td><code>docs/AGENT_COMM_PROTOCOL.md</code></td>
 <td>PR #91, merged</td>
 </tr>
+<tr>
+<td>PR K</td>
+<td>Protocol schemas, builders, and templates</td>
+<td>PR #92, merged</td>
+</tr>
+<tr>
+<td>PR L</td>
+<td>Task-level protocol implementations</td>
+<td>PR #96, merged</td>
+</tr>
+<tr>
+<td>Fix-up</td>
+<td>Task preparer: branch-only (no per-task worktree)</td>
+<td>PR #97, merged</td>
+</tr>
 </tbody>
 </table>
 <h3 id="what-the-protocol-changes">What the protocol changes</h3>
@@ -1456,7 +1471,7 @@ composes <code>ops/</code> primitives and protocol builders from PR K.</p>
 <tr>
 <td><code>WorktreeTaskPreparer</code></td>
 <td><code>TaskPreparer</code></td>
-<td><code>git.worktree_add()</code>, write <code>manifest.json</code> (via manifest builder), write <code>policies.json</code> (via policies builder), write <code>instructions.md</code> (via template resolver), optionally write <code>context.md</code></td>
+<td><code>git.branch_create()</code>, <code>git.checkout()</code> (in shared workstream worktree), write <code>manifest.json</code> (via manifest builder), write <code>policies.json</code> (via policies builder), write <code>instructions.md</code> (via template resolver), optionally write <code>context.md</code></td>
 </tr>
 <tr>
 <td><code>TmuxTaskLauncher</code></td>
@@ -1481,7 +1496,7 @@ composes <code>ops/</code> primitives and protocol builders from PR K.</p>
 <tr>
 <td><code>WorktreeTaskTeardown</code></td>
 <td><code>TaskTeardown</code></td>
-<td><code>tmux.capture_pane()</code>, <code>tmux.kill_window()</code>, <code>git.worktree_remove()</code></td>
+<td><code>tmux.capture_pane()</code>, <code>tmux.kill_window()</code>, <code>git.branch_delete()</code></td>
 </tr>
 </tbody>
 </table>
@@ -1511,7 +1526,7 @@ composes <code>ops/</code> primitives and protocol builders from PR K.</p>
 <tr>
 <td><code>GitWorkstreamPreparer</code></td>
 <td><code>WorkstreamPreparer</code></td>
-<td><code>git.branch_create()</code>, <code>git.push_branch()</code></td>
+<td><code>git.worktree_add()</code> (creates worktree + integration branch), <code>git.push_branch()</code></td>
 </tr>
 <tr>
 <td><code>GhWorkstreamMerger</code></td>
@@ -1521,7 +1536,7 @@ composes <code>ops/</code> primitives and protocol builders from PR K.</p>
 <tr>
 <td><code>GitWorkstreamTeardown</code></td>
 <td><code>WorkstreamTeardown</code></td>
-<td><code>git.branch_delete()</code> (local + remote)</td>
+<td><code>git.worktree_remove()</code>, <code>git.branch_delete()</code> (local + remote)</td>
 </tr>
 </tbody>
 </table>
