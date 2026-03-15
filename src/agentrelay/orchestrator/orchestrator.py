@@ -17,7 +17,7 @@ from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.errors import IntegrationFailureClass
 from agentrelay.task_graph import TaskGraph
-from agentrelay.task_runner import TaskRunResult, TearDownMode
+from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskRuntimeBuilder, TaskStatus
 from agentrelay.workstream import (
     WorkstreamRuntime,
@@ -126,26 +126,12 @@ class OrchestratorResult:
     fatal_error: Optional[str] = None
 
 
-@runtime_checkable
-class TaskRunnerLike(Protocol):
-    """Protocol for the task runner boundary used by :class:`Orchestrator`."""
-
-    async def run(
-        self,
-        runtime: TaskRuntime,
-        *,
-        teardown_mode: TearDownMode = TearDownMode.ALWAYS,
-    ) -> TaskRunResult:
-        """Execute one task attempt and return terminal task fields."""
-        ...
-
-
 @dataclass
 class Orchestrator:
     """Async graph scheduler using dependency + workstream constraints."""
 
     graph: TaskGraph
-    task_runner: TaskRunnerLike
+    task_runner: TaskRunner
     config: OrchestratorConfig = field(default_factory=OrchestratorConfig)
     listener: Optional[OrchestratorListener] = None
 
@@ -218,6 +204,8 @@ class Orchestrator:
                 runtime.prepare_for_attempt(attempt_num)
                 ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
                 ws_runtime.activate(task_id)
+                runtime.state.integration_branch = ws_runtime.state.branch_name
+                runtime.state.workstream_worktree_path = ws_runtime.state.worktree_path
                 self._emit(
                     events,
                     OrchestratorEvent(

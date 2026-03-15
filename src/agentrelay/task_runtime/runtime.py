@@ -63,6 +63,12 @@ class TaskState:
         error: Error message if the task failed, or None if no error.
         attempt_num: The current attempt number (0-indexed). Used to track
             retries and conditional logic like when to start self-review.
+        integration_branch: Name of the workstream integration branch this task
+            targets. Set by the orchestrator before dispatch from the workstream
+            runtime. None until set.
+        workstream_worktree_path: Filesystem path to the shared workstream worktree.
+            Set by the orchestrator before dispatch from the workstream runtime.
+            None until set.
     """
 
     status: TaskStatus = TaskStatus.PENDING
@@ -71,6 +77,8 @@ class TaskState:
     signal_dir: Optional[Path] = None
     error: Optional[str] = None
     attempt_num: int = 0
+    integration_branch: Optional[str] = None
+    workstream_worktree_path: Optional[Path] = None
 
 
 @dataclass
@@ -168,6 +176,12 @@ class TaskStateView(Protocol):
 
     @property
     def attempt_num(self) -> int: ...
+
+    @property
+    def integration_branch(self) -> Optional[str]: ...
+
+    @property
+    def workstream_worktree_path(self) -> Optional[Path]: ...
 
 
 @runtime_checkable

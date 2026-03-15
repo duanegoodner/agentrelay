@@ -1,11 +1,14 @@
-"""Task-level runtime execution state machine.
+"""Task-level runtime execution — protocol, state machine, and standard lifecycle.
 
-This module defines the runtime behavior for running one :class:`TaskRuntime`
-through its lifecycle:
+This module defines:
 
-``PENDING -> RUNNING -> PR_CREATED -> PR_MERGED``
+- :class:`TaskRunner` — the protocol boundary used by the orchestrator.
+- :class:`StandardTaskRunner` — the concrete standard lifecycle implementation
+  (prepare → launch → kickoff → wait → merge → teardown).
 
-with failure transitions to ``FAILED``.
+The orchestrator depends only on the :class:`TaskRunner` protocol. Different
+lifecycle variants (e.g., adding a review step) are separate classes satisfying
+the same protocol.
 """
 
 from __future__ import annotations
@@ -14,10 +17,18 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
 from types import MappingProxyType
-from typing import Optional
+from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.errors import IntegrationFailureClass, classify_integration_error
-from agentrelay.task_runner.core.io import TaskRunnerIO
+from agentrelay.task_runner.core.dispatch import StepDispatch
+from agentrelay.task_runner.core.io import (
+    TaskCompletionChecker,
+    TaskKickoff,
+    TaskLauncher,
+    TaskMerger,
+    TaskPreparer,
+    TaskTeardown,
+)
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 
 # Allowed lifecycle transitions for one task execution.
@@ -94,19 +105,73 @@ class TaskRunResult:
         )
 
 
-@dataclass
-class TaskRunner:
-    """One-task lifecycle state machine executor.
+@runtime_checkable
+class TaskRunner(Protocol):
+    """Protocol for the task runner boundary used by Orchestrator.
 
-    Drives a single ``TaskRuntime`` through legal transitions defined in
-    :data:`ALLOWED_TASK_TRANSITIONS`, delegating each lifecycle step to the
-    corresponding protocol implementation in :attr:`io`.
-
-    Attributes:
-        io: Composed I/O boundary for environment/framework operations.
+    Different lifecycle variants (standard, reviewing, dry-run) are
+    different classes satisfying this protocol. The orchestrator does
+    not know or care about internal step structure.
     """
 
-    io: TaskRunnerIO
+    async def run(
+        self,
+        runtime: TaskRuntime,
+        *,
+        teardown_mode: TearDownMode = TearDownMode.ALWAYS,
+    ) -> TaskRunResult:
+        """Execute one task attempt and return terminal task fields."""
+        ...
+
+
+@dataclass
+class StandardTaskRunner:
+    """Standard task lifecycle: prepare → launch → kickoff → wait → merge → teardown.
+
+    Uses :class:`StepDispatch` tables for per-step implementation selection
+    based on the task's ``AgentFramework`` and ``AgentEnvironment``.
+
+    Step sensitivity reference:
+
+    +-----------------------+----------------+----------------------+
+    | Step                  | Varies by env? | Varies by framework? |
+    +=======================+================+======================+
+    | preparer              | No             | No                   |
+    +-----------------------+----------------+----------------------+
+    | launcher              | Yes            | Yes                  |
+    +-----------------------+----------------+----------------------+
+    | kickoff               | Yes            | Yes                  |
+    +-----------------------+----------------+----------------------+
+    | completion_checker    | Maybe          | No                   |
+    +-----------------------+----------------+----------------------+
+    | merger                | No             | No                   |
+    +-----------------------+----------------+----------------------+
+    | teardown              | Partially      | No                   |
+    +-----------------------+----------------+----------------------+
+
+    Extension guide — adding a new framework or environment:
+      Add entries to the ``StepDispatch`` tables for steps that have distinct
+      implementations. Steps that don't vary can keep using ``default``.
+
+    Extension guide — different lifecycle (e.g., adding a review step):
+      Create a new class satisfying the :class:`TaskRunner` protocol. It can
+      reuse ``StepDispatch`` tables and per-step protocol implementations.
+
+    Attributes:
+        _preparer: Dispatch table for :class:`TaskPreparer` selection.
+        _launcher: Dispatch table for :class:`TaskLauncher` selection.
+        _kickoff: Dispatch table for :class:`TaskKickoff` selection.
+        _completion_checker: Dispatch table for :class:`TaskCompletionChecker` selection.
+        _merger: Dispatch table for :class:`TaskMerger` selection.
+        _teardown: Dispatch table for :class:`TaskTeardown` selection.
+    """
+
+    _preparer: StepDispatch[TaskPreparer]
+    _launcher: StepDispatch[TaskLauncher]
+    _kickoff: StepDispatch[TaskKickoff]
+    _completion_checker: StepDispatch[TaskCompletionChecker]
+    _merger: StepDispatch[TaskMerger]
+    _teardown: StepDispatch[TaskTeardown]
 
     async def run(
         self,
@@ -129,33 +194,35 @@ class TaskRunner:
         """
         if runtime.state.status != TaskStatus.PENDING:
             raise ValueError(
-                "TaskRunner.run() requires runtime.state.status == PENDING. "
+                "StandardTaskRunner.run() requires runtime.state.status == PENDING. "
                 f"Received {runtime.state.status!r}."
             )
 
         self._transition(runtime, TaskStatus.RUNNING)
         try:
             try:
-                self.io.preparer.prepare(runtime)
+                self._preparer(runtime).prepare(runtime)
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             try:
-                agent = self.io.launcher.launch(runtime)
+                agent = self._launcher(runtime).launch(runtime)
                 runtime.artifacts.agent_address = agent.address
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             try:
-                self.io.kickoff_sender.kickoff(runtime, agent)
+                self._kickoff(runtime).kickoff(runtime, agent)
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             try:
-                signal = await self.io.completion_checker.wait_for_completion(runtime)
+                signal = await self._completion_checker(runtime).wait_for_completion(
+                    runtime
+                )
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
@@ -178,7 +245,7 @@ class TaskRunner:
             self._transition(runtime, TaskStatus.PR_CREATED)
 
             try:
-                self.io.merger.merge_pr(runtime, signal.pr_url)
+                self._merger(runtime).merge_pr(runtime, signal.pr_url)
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
@@ -187,7 +254,7 @@ class TaskRunner:
         finally:
             if self._should_teardown(teardown_mode, runtime.state.status):
                 try:
-                    self.io.teardown_handler.teardown(runtime)
+                    self._teardown(runtime).teardown(runtime)
                 except Exception as exc:
                     runtime.artifacts.concerns.append(f"teardown_failed: {exc}")
 

@@ -35,8 +35,6 @@ class WorktreeTaskPreparer:
 
     repo_path: Path
     graph_name: str
-    integration_branch: str
-    workstream_worktree_path: Path
     dependency_descriptions: dict[str, Optional[str]] = field(default_factory=dict)
     context_content: Optional[str] = None
 
@@ -46,20 +44,38 @@ class WorktreeTaskPreparer:
         Creates a task branch in the workstream worktree, checks it out,
         and writes protocol files to the signal directory.
 
+        Reads ``integration_branch`` and ``workstream_worktree_path`` from
+        ``runtime.state`` (set by the orchestrator before dispatch).
+
         Args:
             runtime: Runtime envelope to prepare (e.g. branch, signal files).
+
+        Raises:
+            ValueError: If ``runtime.state.integration_branch`` or
+                ``runtime.state.workstream_worktree_path`` is None.
         """
+        integration_branch = runtime.state.integration_branch
+        workstream_worktree_path = runtime.state.workstream_worktree_path
+        if integration_branch is None:
+            raise ValueError(
+                "runtime.state.integration_branch must be set before prepare()"
+            )
+        if workstream_worktree_path is None:
+            raise ValueError(
+                "runtime.state.workstream_worktree_path must be set before prepare()"
+            )
+
         task = runtime.task
         branch_name = f"agentrelay/{self.graph_name}/{task.id}"
         signal_dir = self.repo_path / f".workflow/{self.graph_name}/signals/{task.id}"
 
         try:
             git.branch_create(
-                self.workstream_worktree_path,
+                workstream_worktree_path,
                 branch_name,
-                self.integration_branch,
+                integration_branch,
             )
-            git.checkout(self.workstream_worktree_path, branch_name)
+            git.checkout(workstream_worktree_path, branch_name)
         except subprocess.CalledProcessError as exc:
             raise WorkspaceIntegrationError(
                 f"Failed to create branch for task {task.id!r}: {exc}",
@@ -70,14 +86,14 @@ class WorktreeTaskPreparer:
         manifest = build_manifest(
             task=task,
             branch_name=branch_name,
-            integration_branch=self.integration_branch,
+            integration_branch=integration_branch,
             graph_name=self.graph_name,
             attempt_num=runtime.state.attempt_num,
             dependency_descriptions=self.dependency_descriptions,
         )
         signals.write_json(signal_dir, "manifest.json", manifest_to_dict(manifest))
 
-        policies = build_policies(task, self.integration_branch)
+        policies = build_policies(task, integration_branch)
         signals.write_json(signal_dir, "policies.json", policies_to_dict(policies))
 
         instructions = resolve_instructions(task.role, manifest)
@@ -86,6 +102,6 @@ class WorktreeTaskPreparer:
         if self.context_content is not None:
             signals.write_text(signal_dir, "context.md", self.context_content)
 
-        runtime.state.worktree_path = self.workstream_worktree_path
+        runtime.state.worktree_path = workstream_worktree_path
         runtime.state.branch_name = branch_name
         runtime.state.signal_dir = signal_dir

@@ -12,7 +12,6 @@ from agentrelay.orchestrator.orchestrator import (
     OrchestratorOutcome,
     OrchestratorResult,
     TaskOutcomeClass,
-    TaskRunnerLike,
 )
 
 __all__ = [
@@ -23,5 +22,4 @@ __all__ = [
     "OrchestratorOutcome",
     "OrchestratorResult",
     "TaskOutcomeClass",
-    "TaskRunnerLike",
 ]

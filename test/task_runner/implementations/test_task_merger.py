@@ -18,6 +18,7 @@ def _make_runtime(
 ) -> TaskRuntime:
     runtime = TaskRuntime(task=Task(id="task_1", role=AgentRole.GENERIC))
     runtime.state.signal_dir = signal_dir
+    runtime.state.integration_branch = "agentrelay/demo"
     return runtime
 
 
@@ -34,9 +35,7 @@ class TestGhTaskMerger:
         _mock_signals: MagicMock,
     ) -> None:
         """Calls gh.pr_merge, then fetches and updates local ref."""
-        merger = GhTaskMerger(
-            repo_path=Path("/repo"), integration_branch="agentrelay/demo"
-        )
+        merger = GhTaskMerger(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
         merger.merge_pr(runtime, "https://github.com/org/repo/pull/42")
@@ -57,9 +56,7 @@ class TestGhTaskMerger:
         mock_signals: MagicMock,
     ) -> None:
         """Writes .merged signal file with ISO timestamp."""
-        merger = GhTaskMerger(
-            repo_path=Path("/repo"), integration_branch="agentrelay/demo"
-        )
+        merger = GhTaskMerger(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
         merger.merge_pr(runtime, "https://github.com/org/repo/pull/42")
@@ -73,7 +70,5 @@ class TestGhTaskMerger:
 
     def test_satisfies_task_merger_protocol(self) -> None:
         """GhTaskMerger satisfies the TaskMerger protocol."""
-        merger = GhTaskMerger(
-            repo_path=Path("/repo"), integration_branch="agentrelay/demo"
-        )
+        merger = GhTaskMerger(repo_path=Path("/repo"))
         assert isinstance(merger, TaskMerger)

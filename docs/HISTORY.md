@@ -4,6 +4,32 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-14
+
+### StandardTaskRunner with per-step dispatch
+
+- **TaskRunner protocol**: Promoted `TaskRunnerLike` to `TaskRunner` (protocol in
+  `task_runner/core/runner.py`). The orchestrator depends only on this protocol.
+- **StandardTaskRunner**: Renamed the concrete `TaskRunner` class to
+  `StandardTaskRunner`. Replaced `io: TaskRunnerIO` with six `StepDispatch[T]`
+  fields that co-locate step sequencing and implementation dispatch.
+- **StepDispatch[T]**: New generic frozen dataclass in `task_runner/core/dispatch.py`.
+  Selects per-step protocol implementations based on `(AgentFramework, type[AgentEnvironment])`
+  dispatch key. Supports `entries` dict + `default` fallback.
+- **Workstream context via TaskState**: Added `integration_branch` and
+  `workstream_worktree_path` fields to `TaskState` and `TaskStateView`. The
+  orchestrator sets these from `WorkstreamRuntime.state` before dispatch, removing
+  workstream-specific constructor args from `WorktreeTaskPreparer` and `GhTaskMerger`.
+- **Builder**: New `build_standard_runner()` factory in
+  `task_runner/implementations/standard_runner_builder.py` wires the standard
+  worktree + tmux + Claude Code implementations via `StepDispatch` defaults.
+- **TaskRunnerIO**: Retained but marked deprecated; no longer the primary
+  composition mechanism.
+- **Removed `TaskRunnerLike`** from `orchestrator/` — replaced by imported
+  `TaskRunner` protocol from `task_runner`.
+
+---
+
 ## 2026-03-13
 
 ### Add workstream-level protocol implementations

@@ -6,6 +6,9 @@ after the protocol it implements (e.g. ``task_preparer.py`` contains
 implementations of :class:`~agentrelay.task_runner.core.io.TaskPreparer`).
 """
 
+from agentrelay.task_runner.implementations.standard_runner_builder import (
+    build_standard_runner,
+)
 from agentrelay.task_runner.implementations.task_completion_checker import (
     SignalCompletionChecker,
 )
@@ -26,4 +29,5 @@ __all__ = [
     "TmuxTaskLauncher",
     "WorktreeTaskPreparer",
     "WorktreeTaskTeardown",
+    "build_standard_runner",
 ]
