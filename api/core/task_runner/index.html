@@ -991,6 +991,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StepDispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StepDispatch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StepDispatch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StepDispatch.__call__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __call__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.task_runner.TaskCompletionChecker" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1169,6 +1197,34 @@
     <span class="md-ellipsis">
       
         teardown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StandardTaskRunner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StandardTaskRunner
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StandardTaskRunner">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StandardTaskRunner.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run
       
     </span>
   </a>
@@ -1412,6 +1468,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.build_standard_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_standard_runner
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1609,6 +1676,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StepDispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StepDispatch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StepDispatch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StepDispatch.__call__" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        __call__
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.task_runner.TaskCompletionChecker" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1787,6 +1882,34 @@
     <span class="md-ellipsis">
       
         teardown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StandardTaskRunner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StandardTaskRunner
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="StandardTaskRunner">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.StandardTaskRunner.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        run
       
     </span>
   </a>
@@ -2033,6 +2156,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.build_standard_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_standard_runner
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2060,15 +2194,15 @@
 <a id="agentrelay.task_runner"></a>
     <div class="doc doc-contents first">
 
-        <p>Task runner package — one-task lifecycle state machine and I/O protocols.</p>
+        <p>Task runner package — one-task lifecycle state machine, dispatch, and I/O protocols.</p>
 <p>Re-exports all public names so that <code>from agentrelay.task_runner import X</code>
 continues to work.</p>
 
 
 <details class="subpackages" open>
   <summary>Subpackages</summary>
-  <p>core: Protocols, state machine, I/O boundary composition.
-implementations: Concrete protocol implementations.</p>
+  <p>core: Protocols, state machine, dispatch, I/O boundary composition.
+implementations: Concrete protocol implementations and builder.</p>
 </details>
 
 
@@ -2088,6 +2222,408 @@ implementations: Concrete protocol implementations.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.task_runner.StepDispatch" class="doc doc-heading">
+            <code>StepDispatch</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Generic">Generic</span>[<span title="agentrelay.task_runner.core.dispatch.T">T</span>]</code></p>
+
+
+
+        <p>Per-step dispatch table for one lifecycle step.</p>
+<p>Selects the right protocol implementation based on the task's
+:class:<code>~agentrelay.task.AgentFramework</code> and
+:class:<code>~agentrelay.environments.AgentEnvironment</code> type. Each entry
+maps a <code>(framework, env_type)</code> key to a factory callable that
+receives the :class:<code>TaskRuntime</code> and returns a protocol implementation.
+The <code>default</code> fallback handles steps that don't vary by
+framework/environment.</p>
+<p>Callable — use as <code>self._preparer(runtime)</code> directly via
+:meth:<code>__call__</code>.</p>
+
+
+<details class="dispatch-resolution-order" open>
+  <summary>Dispatch resolution order</summary>
+  <ol>
+<li>Exact match in <code>entries</code> for <code>(framework, type(environment))</code></li>
+<li><code>default</code> fallback</li>
+<li><code>KeyError</code> if neither matches</li>
+</ol>
+</details>
+
+<details class="extension-guide" open>
+  <summary>Extension guide</summary>
+  <p>To add support for a new <code>AgentFramework</code> or <code>AgentEnvironment</code>,
+add an entry to the <code>entries</code> dict for each step that has a
+distinct implementation for that combo. Steps that don't vary
+(e.g. preparer, merger) can continue using <code>default</code>.</p>
+</details>
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StepDispatch.entries">entries</span></code></td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="agentrelay.task_runner.core.dispatch.DispatchKey">DispatchKey</span>, <span title="collections.abc.Callable">Callable</span>[[<a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>], <span title="agentrelay.task_runner.core.dispatch.T">T</span>]]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mapping of <code>(AgentFramework, type)</code> dispatch keys to
+factory callables returning protocol implementations.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StepDispatch.default">default</span></code></td>
+            <td>
+                  <code><span title="collections.abc.Callable">Callable</span>[[<a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>], <span title="agentrelay.task_runner.core.dispatch.T">T</span>] | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fallback factory used when no exact key match exists.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runner/core/dispatch.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StepDispatch</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Per-step dispatch table for one lifecycle step.</span>
+
+<span class="sd">    Selects the right protocol implementation based on the task&#39;s</span>
+<span class="sd">    :class:`~agentrelay.task.AgentFramework` and</span>
+<span class="sd">    :class:`~agentrelay.environments.AgentEnvironment` type. Each entry</span>
+<span class="sd">    maps a ``(framework, env_type)`` key to a factory callable that</span>
+<span class="sd">    receives the :class:`TaskRuntime` and returns a protocol implementation.</span>
+<span class="sd">    The ``default`` fallback handles steps that don&#39;t vary by</span>
+<span class="sd">    framework/environment.</span>
+
+<span class="sd">    Callable — use as ``self._preparer(runtime)`` directly via</span>
+<span class="sd">    :meth:`__call__`.</span>
+
+<span class="sd">    Dispatch resolution order:</span>
+<span class="sd">      1. Exact match in ``entries`` for ``(framework, type(environment))``</span>
+<span class="sd">      2. ``default`` fallback</span>
+<span class="sd">      3. ``KeyError`` if neither matches</span>
+
+<span class="sd">    Extension guide:</span>
+<span class="sd">      To add support for a new ``AgentFramework`` or ``AgentEnvironment``,</span>
+<span class="sd">      add an entry to the ``entries`` dict for each step that has a</span>
+<span class="sd">      distinct implementation for that combo. Steps that don&#39;t vary</span>
+<span class="sd">      (e.g. preparer, merger) can continue using ``default``.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        entries: Mapping of ``(AgentFramework, type)`` dispatch keys to</span>
+<span class="sd">            factory callables returning protocol implementations.</span>
+<span class="sd">        default: Fallback factory used when no exact key match exists.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">entries</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">DispatchKey</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">TaskRuntime</span><span class="p">],</span> <span class="n">T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">TaskRuntime</span><span class="p">],</span> <span class="n">T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve and return the protocol implementation for this runtime.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            runtime: Task runtime used to extract the dispatch key from</span>
+<span class="sd">                ``runtime.task.primary_agent``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The resolved protocol implementation instance.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If no entry matches and no default is provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">environment</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">factory</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;No implementation registered for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> and no default provided&quot;</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.task_runner.StepDispatch.__call__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__call__</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Resolve and return the protocol implementation for this runtime.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task runtime used to extract the dispatch key from
+<code>runtime.task.primary_agent</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="agentrelay.task_runner.core.dispatch.T">T</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The resolved protocol implementation instance.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="KeyError">KeyError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If no entry matches and no default is provided.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_runner/core/dispatch.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve and return the protocol implementation for this runtime.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        runtime: Task runtime used to extract the dispatch key from</span>
+<span class="sd">            ``runtime.task.primary_agent``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The resolved protocol implementation instance.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If no entry matches and no default is provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">environment</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">factory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entries</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">factory</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;No implementation registered for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> and no default provided&quot;</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -3094,11 +3630,13 @@ implementations: Concrete protocol implementations.</p>
 
 
 
-        <p>Composed I/O boundary for :class:<code>TaskRunner</code>.</p>
-<p>Each field holds a protocol implementation for one step of the task
-lifecycle.  This replaces the previous monolithic <code>TaskRunnerIO</code>
-Protocol with a dataclass that allows independent composition,
-testing, and swapping of each step.</p>
+        <p>Composed I/O boundary (deprecated — prefer :class:<code>StandardTaskRunner</code>).</p>
+<p>This dataclass bundles all six per-step protocol implementations into a
+single frozen object. It was the original composition mechanism for
+<code>TaskRunner</code> but has been superseded by :class:<code>StandardTaskRunner</code>
+which uses :class:<code>StepDispatch</code> tables directly.</p>
+<p>Retained for backward compatibility. Scheduled for removal once all
+call sites have migrated to <code>StandardTaskRunner</code>.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -3212,14 +3750,20 @@ testing, and swapping of each step.</p>
 <span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
-<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunnerIO</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composed I/O boundary for :class:`TaskRunner`.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composed I/O boundary (deprecated — prefer :class:`StandardTaskRunner`).</span>
 
-<span class="sd">    Each field holds a protocol implementation for one step of the task</span>
-<span class="sd">    lifecycle.  This replaces the previous monolithic ``TaskRunnerIO``</span>
-<span class="sd">    Protocol with a dataclass that allows independent composition,</span>
-<span class="sd">    testing, and swapping of each step.</span>
+<span class="sd">    This dataclass bundles all six per-step protocol implementations into a</span>
+<span class="sd">    single frozen object. It was the original composition mechanism for</span>
+<span class="sd">    ``TaskRunner`` but has been superseded by :class:`StandardTaskRunner`</span>
+<span class="sd">    which uses :class:`StepDispatch` tables directly.</span>
+
+<span class="sd">    Retained for backward compatibility. Scheduled for removal once all</span>
+<span class="sd">    call sites have migrated to ``StandardTaskRunner``.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        preparer: Prepare runtime prerequisites before launch.</span>
@@ -3408,8 +3952,8 @@ testing, and swapping of each step.</p>
 
 
 
-<h2 id="agentrelay.task_runner.TaskRunner" class="doc doc-heading">
-            <code>TaskRunner</code>
+<h2 id="agentrelay.task_runner.StandardTaskRunner" class="doc doc-heading">
+            <code>StandardTaskRunner</code>
 
 
   <span class="doc doc-labels">
@@ -3423,10 +3967,31 @@ testing, and swapping of each step.</p>
 
 
 
-        <p>One-task lifecycle state machine executor.</p>
-<p>Drives a single <code>TaskRuntime</code> through legal transitions defined in
-:data:<code>ALLOWED_TASK_TRANSITIONS</code>, delegating each lifecycle step to the
-corresponding protocol implementation in :attr:<code>io</code>.</p>
+        <p>Standard task lifecycle: prepare → launch → kickoff → wait → merge → teardown.</p>
+<p>Uses :class:<code>StepDispatch</code> tables for per-step implementation selection
+based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code>.</p>
+<p>Step sensitivity reference:</p>
+<p>+-----------------------+----------------+----------------------+
+| Step                  | Varies by env? | Varies by framework? |
++=======================+================+======================+
+| preparer              | No             | No                   |
++-----------------------+----------------+----------------------+
+| launcher              | Yes            | Yes                  |
++-----------------------+----------------+----------------------+
+| kickoff               | Yes            | Yes                  |
++-----------------------+----------------+----------------------+
+| completion_checker    | Maybe          | No                   |
++-----------------------+----------------+----------------------+
+| merger                | No             | No                   |
++-----------------------+----------------+----------------------+
+| teardown              | Partially      | No                   |
++-----------------------+----------------+----------------------+</p>
+<p>Extension guide — adding a new framework or environment:
+  Add entries to the <code>StepDispatch</code> tables for steps that have distinct
+  implementations. Steps that don't vary can keep using <code>default</code>.</p>
+<p>Extension guide — different lifecycle (e.g., adding a review step):
+  Create a new class satisfying the :class:<code>TaskRunner</code> protocol. It can
+  reuse <code>StepDispatch</code> tables and per-step protocol implementations.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -3440,18 +4005,98 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task_runner.TaskRunner.io">io</span></code></td>
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._preparer">_preparer</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskRunnerIO
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
 
 
   
       dataclass
-   (agentrelay.task_runner.core.io.TaskRunnerIO)" href="#agentrelay.task_runner.TaskRunnerIO">TaskRunnerIO</a></code>
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskPreparer (agentrelay.task_runner.core.io.TaskPreparer)" href="#agentrelay.task_runner.TaskPreparer">TaskPreparer</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Composed I/O boundary for environment/framework operations.</p>
+                <p>Dispatch table for :class:<code>TaskPreparer</code> selection.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._launcher">_launcher</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskLauncher (agentrelay.task_runner.core.io.TaskLauncher)" href="#agentrelay.task_runner.TaskLauncher">TaskLauncher</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dispatch table for :class:<code>TaskLauncher</code> selection.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._kickoff">_kickoff</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskKickoff (agentrelay.task_runner.core.io.TaskKickoff)" href="#agentrelay.task_runner.TaskKickoff">TaskKickoff</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dispatch table for :class:<code>TaskKickoff</code> selection.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._completion_checker">_completion_checker</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskCompletionChecker (agentrelay.task_runner.core.io.TaskCompletionChecker)" href="#agentrelay.task_runner.TaskCompletionChecker">TaskCompletionChecker</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dispatch table for :class:<code>TaskCompletionChecker</code> selection.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._merger">_merger</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskMerger (agentrelay.task_runner.core.io.TaskMerger)" href="#agentrelay.task_runner.TaskMerger">TaskMerger</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dispatch table for :class:<code>TaskMerger</code> selection.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._teardown">_teardown</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskTeardown (agentrelay.task_runner.core.io.TaskTeardown)" href="#agentrelay.task_runner.TaskTeardown">TaskTeardown</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dispatch table for :class:<code>TaskTeardown</code> selection.</p>
               </div>
             </td>
           </tr>
@@ -3467,37 +4112,7 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
@@ -3598,19 +4213,121 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 <span class="normal">225</span>
 <span class="normal">226</span>
 <span class="normal">227</span>
-<span class="normal">228</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TaskRunner</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;One-task lifecycle state machine executor.</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StandardTaskRunner</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard task lifecycle: prepare → launch → kickoff → wait → merge → teardown.</span>
 
-<span class="sd">    Drives a single ``TaskRuntime`` through legal transitions defined in</span>
-<span class="sd">    :data:`ALLOWED_TASK_TRANSITIONS`, delegating each lifecycle step to the</span>
-<span class="sd">    corresponding protocol implementation in :attr:`io`.</span>
+<span class="sd">    Uses :class:`StepDispatch` tables for per-step implementation selection</span>
+<span class="sd">    based on the task&#39;s ``AgentFramework`` and ``AgentEnvironment``.</span>
+
+<span class="sd">    Step sensitivity reference:</span>
+
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | Step                  | Varies by env? | Varies by framework? |</span>
+<span class="sd">    +=======================+================+======================+</span>
+<span class="sd">    | preparer              | No             | No                   |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | launcher              | Yes            | Yes                  |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | kickoff               | Yes            | Yes                  |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | completion_checker    | Maybe          | No                   |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | merger                | No             | No                   |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | teardown              | Partially      | No                   |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
+
+<span class="sd">    Extension guide — adding a new framework or environment:</span>
+<span class="sd">      Add entries to the ``StepDispatch`` tables for steps that have distinct</span>
+<span class="sd">      implementations. Steps that don&#39;t vary can keep using ``default``.</span>
+
+<span class="sd">    Extension guide — different lifecycle (e.g., adding a review step):</span>
+<span class="sd">      Create a new class satisfying the :class:`TaskRunner` protocol. It can</span>
+<span class="sd">      reuse ``StepDispatch`` tables and per-step protocol implementations.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        io: Composed I/O boundary for environment/framework operations.</span>
+<span class="sd">        _preparer: Dispatch table for :class:`TaskPreparer` selection.</span>
+<span class="sd">        _launcher: Dispatch table for :class:`TaskLauncher` selection.</span>
+<span class="sd">        _kickoff: Dispatch table for :class:`TaskKickoff` selection.</span>
+<span class="sd">        _completion_checker: Dispatch table for :class:`TaskCompletionChecker` selection.</span>
+<span class="sd">        _merger: Dispatch table for :class:`TaskMerger` selection.</span>
+<span class="sd">        _teardown: Dispatch table for :class:`TaskTeardown` selection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">io</span><span class="p">:</span> <span class="n">TaskRunnerIO</span>
+    <span class="n">_preparer</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskPreparer</span><span class="p">]</span>
+    <span class="n">_launcher</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskLauncher</span><span class="p">]</span>
+    <span class="n">_kickoff</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskKickoff</span><span class="p">]</span>
+    <span class="n">_completion_checker</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskCompletionChecker</span><span class="p">]</span>
+    <span class="n">_merger</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskMerger</span><span class="p">]</span>
+    <span class="n">_teardown</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskTeardown</span><span class="p">]</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -3633,33 +4350,35 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;TaskRunner.run() requires runtime.state.status == PENDING. &quot;</span>
+                <span class="s2">&quot;StandardTaskRunner.run() requires runtime.state.status == PENDING. &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Received </span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span><span class="si">!r}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preparer</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_preparer</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">address</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">kickoff_sender</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">signal</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">completion_checker</span><span class="o">.</span><span class="n">wait_for_completion</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="n">signal</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completion_checker</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">wait_for_completion</span><span class="p">(</span>
+                    <span class="n">runtime</span>
+                <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
@@ -3682,7 +4401,7 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
 
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">merger</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
@@ -3691,7 +4410,7 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_teardown</span><span class="p">(</span><span class="n">teardown_mode</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">teardown_handler</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                     <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;teardown_failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -3749,7 +4468,7 @@ corresponding protocol implementation in :attr:<code>io</code>.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="agentrelay.task_runner.TaskRunner.run" class="doc doc-heading">
+<h3 id="agentrelay.task_runner.StandardTaskRunner.run" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">teardown_mode</span><span class="o">=</span><span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
@@ -3870,72 +4589,7 @@ state.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span>
 <span class="normal">179</span>
@@ -3953,7 +4607,74 @@ state.</p>
 <span class="normal">191</span>
 <span class="normal">192</span>
 <span class="normal">193</span>
-<span class="normal">194</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -3974,33 +4695,35 @@ state.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;TaskRunner.run() requires runtime.state.status == PENDING. &quot;</span>
+            <span class="s2">&quot;StandardTaskRunner.run() requires runtime.state.status == PENDING. &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Received </span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span><span class="si">!r}</span><span class="s2">.&quot;</span>
         <span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preparer</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preparer</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">launcher</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_launcher</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
             <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">address</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">kickoff_sender</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">kickoff</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">signal</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">completion_checker</span><span class="o">.</span><span class="n">wait_for_completion</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="n">signal</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_completion_checker</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">wait_for_completion</span><span class="p">(</span>
+                <span class="n">runtime</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
@@ -4023,7 +4746,7 @@ state.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">merger</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
@@ -4032,11 +4755,140 @@ state.</p>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_teardown</span><span class="p">(</span><span class="n">teardown_mode</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">teardown_handler</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;teardown_failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.task_runner.TaskRunner" class="doc doc-heading">
+            <code>TaskRunner</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Protocol for the task runner boundary used by Orchestrator.</p>
+<p>Different lifecycle variants (standard, reviewing, dry-run) are
+different classes satisfying this protocol. The orchestrator does
+not know or care about internal step structure.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskRunner</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by Orchestrator.</span>
+
+<span class="sd">    Different lifecycle variants (standard, reviewing, dry-run) are</span>
+<span class="sd">    different classes satisfying this protocol. The orchestrator does</span>
+<span class="sd">    not know or care about internal step structure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.task_runner.TaskRunner.run" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">teardown_mode</span><span class="o">=</span><span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Execute one task attempt and return terminal task fields.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
+    <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4153,50 +5005,50 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience return value mirroring terminal fields on :class:`TaskRuntime`.</span>
 
@@ -4356,28 +5208,28 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_runtime</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
@@ -4485,18 +5337,18 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TearDownMode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TearDownMode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Policy controlling whether runtime resources are torn down after run.</span>
 
 <span class="sd">    Attributes:</span>
@@ -4554,6 +5406,8 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
         <p>Merge a task PR via GitHub CLI and update the local integration branch.</p>
 <p>After merging, fetches the updated integration branch and writes a
 <code>.merged</code> signal file to the task's signal directory.</p>
+<p>Reads <code>integration_branch</code> from <code>runtime.state</code> (set by the
+orchestrator before dispatch).</p>
 
 
 
@@ -4593,16 +5447,29 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GhTaskMerger</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge a task PR via GitHub CLI and update the local integration branch.</span>
 
 <span class="sd">    After merging, fetches the updated integration branch and writes a</span>
 <span class="sd">    ``.merged`` signal file to the task&#39;s signal directory.</span>
+
+<span class="sd">    Reads ``integration_branch`` from ``runtime.state`` (set by the</span>
+<span class="sd">    orchestrator before dispatch).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
-    <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge the completed task PR.</span>
@@ -4610,14 +5477,23 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            runtime: Runtime envelope being merged.</span>
 <span class="sd">            pr_url: Pull request URL to merge.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``runtime.state.integration_branch`` is None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">integration_branch</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span>
+        <span class="k">if</span> <span class="n">integration_branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;runtime.state.integration_branch must be set before merge_pr()&quot;</span>
+            <span class="p">)</span>
+
         <span class="n">gh</span><span class="o">.</span><span class="n">pr_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
 
-        <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">integration_branch</span><span class="p">)</span>
         <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
-            <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">integration_branch</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">integration_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -4705,11 +5581,32 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
     </table>
 
 
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>runtime.state.integration_branch</code> is None.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_merger.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
 <span class="normal">33</span>
@@ -4725,20 +5622,40 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge the completed task PR.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        runtime: Runtime envelope being merged.</span>
 <span class="sd">        pr_url: Pull request URL to merge.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``runtime.state.integration_branch`` is None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">integration_branch</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span>
+    <span class="k">if</span> <span class="n">integration_branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;runtime.state.integration_branch must be set before merge_pr()&quot;</span>
+        <span class="p">)</span>
+
     <span class="n">gh</span><span class="o">.</span><span class="n">pr_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
 
-    <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">integration_branch</span><span class="p">)</span>
     <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
-        <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">integration_branch</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">integration_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -5651,75 +6568,91 @@ creates and checks out branches within it.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_preparer.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorktreeTaskPreparer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a task branch in a shared workstream worktree and write protocol files.</span>
 
@@ -5734,8 +6667,6 @@ creates and checks out branches within it.</p>
 
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">workstream_worktree_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">dependency_descriptions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">context_content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -5745,20 +6676,38 @@ creates and checks out branches within it.</p>
 <span class="sd">        Creates a task branch in the workstream worktree, checks it out,</span>
 <span class="sd">        and writes protocol files to the signal directory.</span>
 
+<span class="sd">        Reads ``integration_branch`` and ``workstream_worktree_path`` from</span>
+<span class="sd">        ``runtime.state`` (set by the orchestrator before dispatch).</span>
+
 <span class="sd">        Args:</span>
 <span class="sd">            runtime: Runtime envelope to prepare (e.g. branch, signal files).</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``runtime.state.integration_branch`` or</span>
+<span class="sd">                ``runtime.state.workstream_worktree_path`` is None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">integration_branch</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span>
+        <span class="n">workstream_worktree_path</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">workstream_worktree_path</span>
+        <span class="k">if</span> <span class="n">integration_branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;runtime.state.integration_branch must be set before prepare()&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">workstream_worktree_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;runtime.state.workstream_worktree_path must be set before prepare()&quot;</span>
+            <span class="p">)</span>
+
         <span class="n">task</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span>
         <span class="n">branch_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">signal_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.workflow/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/signals/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">git</span><span class="o">.</span><span class="n">branch_create</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">workstream_worktree_path</span><span class="p">,</span>
+                <span class="n">workstream_worktree_path</span><span class="p">,</span>
                 <span class="n">branch_name</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
+                <span class="n">integration_branch</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workstream_worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">workstream_worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">WorkspaceIntegrationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to create branch for task </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -5769,14 +6718,14 @@ creates and checks out branches within it.</p>
         <span class="n">manifest</span> <span class="o">=</span> <span class="n">build_manifest</span><span class="p">(</span>
             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
             <span class="n">branch_name</span><span class="o">=</span><span class="n">branch_name</span><span class="p">,</span>
-            <span class="n">integration_branch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
+            <span class="n">integration_branch</span><span class="o">=</span><span class="n">integration_branch</span><span class="p">,</span>
             <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
             <span class="n">attempt_num</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
             <span class="n">dependency_descriptions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_descriptions</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span> <span class="n">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">))</span>
 
-        <span class="n">policies</span> <span class="o">=</span> <span class="n">build_policies</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">)</span>
+        <span class="n">policies</span> <span class="o">=</span> <span class="n">build_policies</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">integration_branch</span><span class="p">)</span>
         <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;policies.json&quot;</span><span class="p">,</span> <span class="n">policies_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="p">))</span>
 
         <span class="n">instructions</span> <span class="o">=</span> <span class="n">resolve_instructions</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">)</span>
@@ -5785,7 +6734,7 @@ creates and checks out branches within it.</p>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;context.md&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_content</span><span class="p">)</span>
 
-        <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workstream_worktree_path</span>
+        <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span> <span class="o">=</span> <span class="n">workstream_worktree_path</span>
         <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span> <span class="o">=</span> <span class="n">branch_name</span>
         <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">=</span> <span class="n">signal_dir</span>
 </code></pre></div></td></tr></table></div>
@@ -5818,6 +6767,8 @@ creates and checks out branches within it.</p>
         <p>Prepare runtime execution prerequisites.</p>
 <p>Creates a task branch in the workstream worktree, checks it out,
 and writes protocol files to the signal directory.</p>
+<p>Reads <code>integration_branch</code> and <code>workstream_worktree_path</code> from
+<code>runtime.state</code> (set by the orchestrator before dispatch).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -5856,76 +6807,136 @@ and writes protocol files to the signal directory.</p>
     </table>
 
 
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>runtime.state.integration_branch</code> or
+<code>runtime.state.workstream_worktree_path</code> is None.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_preparer.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare runtime execution prerequisites.</span>
 
 <span class="sd">    Creates a task branch in the workstream worktree, checks it out,</span>
 <span class="sd">    and writes protocol files to the signal directory.</span>
 
+<span class="sd">    Reads ``integration_branch`` and ``workstream_worktree_path`` from</span>
+<span class="sd">    ``runtime.state`` (set by the orchestrator before dispatch).</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        runtime: Runtime envelope to prepare (e.g. branch, signal files).</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``runtime.state.integration_branch`` or</span>
+<span class="sd">            ``runtime.state.workstream_worktree_path`` is None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">integration_branch</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span>
+    <span class="n">workstream_worktree_path</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">workstream_worktree_path</span>
+    <span class="k">if</span> <span class="n">integration_branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;runtime.state.integration_branch must be set before prepare()&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">workstream_worktree_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;runtime.state.workstream_worktree_path must be set before prepare()&quot;</span>
+        <span class="p">)</span>
+
     <span class="n">task</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span>
     <span class="n">branch_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">signal_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.workflow/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/signals/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">git</span><span class="o">.</span><span class="n">branch_create</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">workstream_worktree_path</span><span class="p">,</span>
+            <span class="n">workstream_worktree_path</span><span class="p">,</span>
             <span class="n">branch_name</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
+            <span class="n">integration_branch</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">workstream_worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">workstream_worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">WorkspaceIntegrationError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Failed to create branch for task </span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -5936,14 +6947,14 @@ and writes protocol files to the signal directory.</p>
     <span class="n">manifest</span> <span class="o">=</span> <span class="n">build_manifest</span><span class="p">(</span>
         <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
         <span class="n">branch_name</span><span class="o">=</span><span class="n">branch_name</span><span class="p">,</span>
-        <span class="n">integration_branch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
+        <span class="n">integration_branch</span><span class="o">=</span><span class="n">integration_branch</span><span class="p">,</span>
         <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
         <span class="n">attempt_num</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
         <span class="n">dependency_descriptions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_descriptions</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span> <span class="n">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">))</span>
 
-    <span class="n">policies</span> <span class="o">=</span> <span class="n">build_policies</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">)</span>
+    <span class="n">policies</span> <span class="o">=</span> <span class="n">build_policies</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">integration_branch</span><span class="p">)</span>
     <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;policies.json&quot;</span><span class="p">,</span> <span class="n">policies_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="p">))</span>
 
     <span class="n">instructions</span> <span class="o">=</span> <span class="n">resolve_instructions</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">)</span>
@@ -5952,7 +6963,7 @@ and writes protocol files to the signal directory.</p>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;context.md&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">context_content</span><span class="p">)</span>
 
-    <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workstream_worktree_path</span>
+    <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span> <span class="o">=</span> <span class="n">workstream_worktree_path</span>
     <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span> <span class="o">=</span> <span class="n">branch_name</span>
     <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">=</span> <span class="n">signal_dir</span>
 </code></pre></div></td></tr></table></div>
@@ -6221,6 +7232,347 @@ Errors during teardown are caught and not propagated.</p>
 
 </div>
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.task_runner.build_standard_runner" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_standard_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">context_content</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build the standard runner for worktree + tmux + Claude Code.</p>
+<p>All steps use <code>StepDispatch</code> <code>default</code> since only one
+framework/environment combo currently exists.</p>
+<p>When adding a new <code>AgentFramework</code> or <code>AgentEnvironment</code>, add keyed
+entries to the <code>StepDispatch</code> tables for steps that have distinct
+implementations. Refer to the sensitivity table in
+:class:<code>StandardTaskRunner</code>'s docstring.</p>
+<p>Dispatch table (current):</p>
+<p>+-----------------------+----------------------------+-----------------------+
+| Step                  | Implementation             | Notes                 |
++=======================+============================+=======================+
+| preparer              | WorktreeTaskPreparer       | env/fw agnostic       |
++-----------------------+----------------------------+-----------------------+
+| launcher              | TmuxTaskLauncher           | will need entries     |
++-----------------------+----------------------------+-----------------------+
+| kickoff               | TmuxTaskKickoff            | will need entries     |
++-----------------------+----------------------------+-----------------------+
+| completion_checker    | SignalCompletionChecker     | may need entries      |
++-----------------------+----------------------------+-----------------------+
+| merger                | GhTaskMerger               | env/fw agnostic       |
++-----------------------+----------------------------+-----------------------+
+| teardown              | WorktreeTaskTeardown       | will need entries     |
++-----------------------+----------------------------+-----------------------+</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>repo_path</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the bare/main repository.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the task graph being executed.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskGraph
+
+
+  
+      dataclass
+   (agentrelay.task_graph.TaskGraph)" href="../../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The task graph (used to compute dependency descriptions).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>keep_panes</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to keep tmux panes after teardown.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>poll_interval</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Seconds between completion signal polls.</p>
+              </div>
+            </td>
+            <td>
+                  <code>2.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context_content</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional context content to write to the signal dir.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StandardTaskRunner
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.runner.StandardTaskRunner)" href="#agentrelay.task_runner.StandardTaskRunner">StandardTaskRunner</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A fully wired :class:<code>StandardTaskRunner</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_runner/implementations/standard_runner_builder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
+    <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">context_content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardTaskRunner</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard runner for worktree + tmux + Claude Code.</span>
+
+<span class="sd">    All steps use ``StepDispatch`` ``default`` since only one</span>
+<span class="sd">    framework/environment combo currently exists.</span>
+
+<span class="sd">    When adding a new ``AgentFramework`` or ``AgentEnvironment``, add keyed</span>
+<span class="sd">    entries to the ``StepDispatch`` tables for steps that have distinct</span>
+<span class="sd">    implementations. Refer to the sensitivity table in</span>
+<span class="sd">    :class:`StandardTaskRunner`&#39;s docstring.</span>
+
+<span class="sd">    Dispatch table (current):</span>
+
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | Step                  | Implementation             | Notes                 |</span>
+<span class="sd">    +=======================+============================+=======================+</span>
+<span class="sd">    | preparer              | WorktreeTaskPreparer       | env/fw agnostic       |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | launcher              | TmuxTaskLauncher           | will need entries     |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | kickoff               | TmuxTaskKickoff            | will need entries     |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | completion_checker    | SignalCompletionChecker     | may need entries      |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | merger                | GhTaskMerger               | env/fw agnostic       |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | teardown              | WorktreeTaskTeardown       | will need entries     |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        repo_path: Path to the bare/main repository.</span>
+<span class="sd">        graph_name: Name of the task graph being executed.</span>
+<span class="sd">        graph: The task graph (used to compute dependency descriptions).</span>
+<span class="sd">        keep_panes: Whether to keep tmux panes after teardown.</span>
+<span class="sd">        poll_interval: Seconds between completion signal polls.</span>
+<span class="sd">        context_content: Optional context content to write to the signal dir.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A fully wired :class:`StandardTaskRunner`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tmux_launcher</span> <span class="o">=</span> <span class="n">TmuxTaskLauncher</span><span class="p">()</span>
+    <span class="n">tmux_kickoff</span> <span class="o">=</span> <span class="n">TmuxTaskKickoff</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_preparer</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskPreparer</span><span class="p">:</span>
+        <span class="n">dep_ids</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">dependency_ids</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">dep_descs</span> <span class="o">=</span> <span class="p">{</span><span class="n">did</span><span class="p">:</span> <span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">did</span><span class="p">)</span><span class="o">.</span><span class="n">description</span> <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="n">dep_ids</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">WorktreeTaskPreparer</span><span class="p">(</span>
+            <span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">,</span>
+            <span class="n">dependency_descriptions</span><span class="o">=</span><span class="n">dep_descs</span><span class="p">,</span>
+            <span class="n">context_content</span><span class="o">=</span><span class="n">context_content</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskMerger</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GhTaskMerger</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_completion_checker</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionChecker</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SignalCompletionChecker</span><span class="p">(</span><span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskTeardown</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WorktreeTaskTeardown</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="n">keep_panes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">StandardTaskRunner</span><span class="p">(</span>
+        <span class="n">_preparer</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_preparer</span><span class="p">),</span>
+        <span class="n">_launcher</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span> <span class="n">rt</span><span class="p">:</span> <span class="n">tmux_launcher</span><span class="p">),</span>
+        <span class="n">_kickoff</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span> <span class="n">rt</span><span class="p">:</span> <span class="n">tmux_kickoff</span><span class="p">),</span>
+        <span class="n">_completion_checker</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_completion_checker</span><span class="p">),</span>
+        <span class="n">_merger</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_merger</span><span class="p">),</span>
+        <span class="n">_teardown</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_teardown</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 

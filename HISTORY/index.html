@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-14
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-14">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standardtaskrunner-with-per-step-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StandardTaskRunner with per-step dispatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-13" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1532,6 +1560,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-14
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-14">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standardtaskrunner-with-per-step-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        StandardTaskRunner with per-step dispatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-13" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1922,6 +1978,30 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-14">2026-03-14</h2>
+<h3 id="standardtaskrunner-with-per-step-dispatch">StandardTaskRunner with per-step dispatch</h3>
+<ul>
+<li><strong>TaskRunner protocol</strong>: Promoted <code>TaskRunnerLike</code> to <code>TaskRunner</code> (protocol in
+  <code>task_runner/core/runner.py</code>). The orchestrator depends only on this protocol.</li>
+<li><strong>StandardTaskRunner</strong>: Renamed the concrete <code>TaskRunner</code> class to
+  <code>StandardTaskRunner</code>. Replaced <code>io: TaskRunnerIO</code> with six <code>StepDispatch[T]</code>
+  fields that co-locate step sequencing and implementation dispatch.</li>
+<li><strong>StepDispatch[T]</strong>: New generic frozen dataclass in <code>task_runner/core/dispatch.py</code>.
+  Selects per-step protocol implementations based on <code>(AgentFramework, type[AgentEnvironment])</code>
+  dispatch key. Supports <code>entries</code> dict + <code>default</code> fallback.</li>
+<li><strong>Workstream context via TaskState</strong>: Added <code>integration_branch</code> and
+  <code>workstream_worktree_path</code> fields to <code>TaskState</code> and <code>TaskStateView</code>. The
+  orchestrator sets these from <code>WorkstreamRuntime.state</code> before dispatch, removing
+  workstream-specific constructor args from <code>WorktreeTaskPreparer</code> and <code>GhTaskMerger</code>.</li>
+<li><strong>Builder</strong>: New <code>build_standard_runner()</code> factory in
+  <code>task_runner/implementations/standard_runner_builder.py</code> wires the standard
+  worktree + tmux + Claude Code implementations via <code>StepDispatch</code> defaults.</li>
+<li><strong>TaskRunnerIO</strong>: Retained but marked deprecated; no longer the primary
+  composition mechanism.</li>
+<li><strong>Removed <code>TaskRunnerLike</code></strong> from <code>orchestrator/</code> — replaced by imported
+  <code>TaskRunner</code> protocol from <code>task_runner</code>.</li>
+</ul>
 <hr />
 <h2 id="2026-03-13">2026-03-13</h2>
 <h3 id="add-workstream-level-protocol-implementations">Add workstream-level protocol implementations</h3>

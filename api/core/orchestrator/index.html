@@ -1129,34 +1129,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.TaskRunnerLike" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TaskRunnerLike
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="TaskRunnerLike">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.TaskRunnerLike.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        run
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1433,34 +1405,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.TaskRunnerLike" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        TaskRunnerLike
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="TaskRunnerLike">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.orchestrator.TaskRunnerLike.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        run
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1541,7 +1485,21 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span>
 <span class="normal">146</span>
@@ -2005,24 +1963,12 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">604</span>
 <span class="normal">605</span>
 <span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span>
-<span class="normal">618</span>
-<span class="normal">619</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">607</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Orchestrator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Async graph scheduler using dependency + workstream constraints.&quot;&quot;&quot;</span>
 
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span>
-    <span class="n">task_runner</span><span class="p">:</span> <span class="n">TaskRunnerLike</span>
+    <span class="n">task_runner</span><span class="p">:</span> <span class="n">TaskRunner</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">OrchestratorConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">OrchestratorConfig</span><span class="p">)</span>
     <span class="n">listener</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OrchestratorListener</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -2095,6 +2041,8 @@ continues to work after promotion from a single module to a package.</p>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">prepare_for_attempt</span><span class="p">(</span><span class="n">attempt_num</span><span class="p">)</span>
                 <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
                 <span class="n">ws_runtime</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+                <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
+                <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">workstream_worktree_path</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
                     <span class="n">events</span><span class="p">,</span>
                     <span class="n">OrchestratorEvent</span><span class="p">(</span>
@@ -2641,7 +2589,21 @@ align with graph IDs.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
@@ -2878,19 +2840,7 @@ align with graph IDs.</p>
 <span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span>
-<span class="normal">389</span>
-<span class="normal">390</span>
-<span class="normal">391</span>
-<span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">389</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">task_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2959,6 +2909,8 @@ align with graph IDs.</p>
             <span class="n">runtime</span><span class="o">.</span><span class="n">prepare_for_attempt</span><span class="p">(</span><span class="n">attempt_num</span><span class="p">)</span>
             <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
             <span class="n">ws_runtime</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+            <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
+            <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">workstream_worktree_path</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
                 <span class="n">events</span><span class="p">,</span>
                 <span class="n">OrchestratorEvent</span><span class="p">(</span>
@@ -4016,122 +3968,6 @@ ended <code>FAILED</code>.</p>
 
 
 
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.orchestrator.TaskRunnerLike" class="doc doc-heading">
-            <code>TaskRunnerLike</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
-
-
-
-        <p>Protocol for the task runner boundary used by :class:<code>Orchestrator</code>.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TaskRunnerLike</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by :class:`Orchestrator`.&quot;&quot;&quot;</span>
-
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
-        <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="agentrelay.orchestrator.TaskRunnerLike.run" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">run</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">teardown_mode</span><span class="o">=</span><span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Execute one task attempt and return terminal task fields.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span>
-    <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
-    <span class="o">*</span><span class="p">,</span>
-    <span class="n">teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ALWAYS</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute one task attempt and return terminal task fields.&quot;&quot;&quot;</span>
-    <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
 
 
 
