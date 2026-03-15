@@ -196,12 +196,6 @@ package "workstream/" as workstream_pkg {
             +teardown_workstream(workstream_runtime) : void
         }
 
-        class WorkstreamRunnerIO <<frozen dataclass>> {
-            preparer : WorkstreamPreparer
-            merger : WorkstreamMerger
-            teardown_handler : WorkstreamTeardown
-        }
-
         class WorkstreamRunResult <<frozen dataclass>> {
             workstream_id : str
             status : WorkstreamStatus
@@ -209,7 +203,9 @@ package "workstream/" as workstream_pkg {
         }
 
         class WorkstreamRunner <<mutable dataclass>> {
-            io : WorkstreamRunnerIO
+            _preparer : WorkstreamPreparer
+            _merger : WorkstreamMerger
+            _teardown : WorkstreamTeardown
             __
             +prepare(workstream_runtime) : void
             +merge(workstream_runtime) : WorkstreamRunResult
@@ -834,10 +830,9 @@ WorkstreamArtifacts ..|> WorkstreamArtifactsView : satisfies
 WorkstreamRuntime ..|> WorkstreamRuntimeView : satisfies
 
 ' --- workstream runner ---
-WorkstreamRunner --> WorkstreamRunnerIO : uses
-WorkstreamRunnerIO --> WorkstreamPreparer : preparer
-WorkstreamRunnerIO --> WorkstreamMerger : merger
-WorkstreamRunnerIO --> WorkstreamTeardown : teardown_handler
+WorkstreamRunner --> WorkstreamPreparer : _preparer
+WorkstreamRunner --> WorkstreamMerger : _merger
+WorkstreamRunner --> WorkstreamTeardown : _teardown
 WorkstreamRunner --> WorkstreamRuntime : mutates
 WorkstreamRunner --> WorkstreamRunResult : returns
 WorkstreamRunResult --> WorkstreamStatus : status

@@ -1185,17 +1185,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRunnerIO" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRunnerIO
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamTeardown" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1661,17 +1650,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRunnerIO" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRunnerIO
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamTeardown" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2112,18 +2090,18 @@ implementations: Concrete protocol implementations.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamMerger</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge workstream integration branch into its target.&quot;&quot;&quot;</span>
 
@@ -2204,14 +2182,14 @@ should be merged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge the workstream integration branch into its merge target.</span>
 
 <span class="sd">    Args:</span>
@@ -2261,17 +2239,17 @@ should be merged.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
 <span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamPreparer</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision workspace infrastructure for a workstream lane.&quot;&quot;&quot;</span>
 
@@ -2350,13 +2328,13 @@ should be merged.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision worktree and integration branch for this workstream.</span>
 
 <span class="sd">    Args:</span>
@@ -2368,140 +2346,6 @@ should be merged.</p>
     </div>
 
 </div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.workstream.WorkstreamRunnerIO" class="doc doc-heading">
-            <code>WorkstreamRunnerIO</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Composed I/O boundary for :class:<code>WorkstreamRunner</code>.</p>
-<p>Each field holds a protocol implementation for one step of the
-workstream lifecycle.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.WorkstreamRunnerIO.preparer">preparer</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamPreparer (agentrelay.workstream.core.io.WorkstreamPreparer)" href="#agentrelay.workstream.WorkstreamPreparer">WorkstreamPreparer</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Provision worktree and integration branch.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.WorkstreamRunnerIO.merger">merger</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamMerger (agentrelay.workstream.core.io.WorkstreamMerger)" href="#agentrelay.workstream.WorkstreamMerger">WorkstreamMerger</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Merge integration branch into target.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.WorkstreamRunnerIO.teardown_handler">teardown_handler</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamTeardown (agentrelay.workstream.core.io.WorkstreamTeardown)" href="#agentrelay.workstream.WorkstreamTeardown">WorkstreamTeardown</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Clean up worktree and integration branch.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRunnerIO</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Composed I/O boundary for :class:`WorkstreamRunner`.</span>
-
-<span class="sd">    Each field holds a protocol implementation for one step of the</span>
-<span class="sd">    workstream lifecycle.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        preparer: Provision worktree and integration branch.</span>
-<span class="sd">        merger: Merge integration branch into target.</span>
-<span class="sd">        teardown_handler: Clean up worktree and integration branch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">preparer</span><span class="p">:</span> <span class="n">WorkstreamPreparer</span>
-    <span class="n">merger</span><span class="p">:</span> <span class="n">WorkstreamMerger</span>
-    <span class="n">teardown_handler</span><span class="p">:</span> <span class="n">WorkstreamTeardown</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2539,18 +2383,18 @@ workstream lifecycle.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamTeardown</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean up workstream workspace infrastructure.&quot;&quot;&quot;</span>
 
@@ -2631,14 +2475,14 @@ cleaned up.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete worktree and integration branch for this workstream.</span>
 
 <span class="sd">    Args:</span>
@@ -2681,8 +2525,8 @@ cleaned up.</p>
 
         <p>Workstream lifecycle runner.</p>
 <p>Drives workstream-level operations (prepare, merge, teardown) by
-delegating to the per-step protocol implementations in :attr:<code>io</code>.
-The orchestrator calls these methods at appropriate scheduling points.</p>
+delegating to per-step protocol implementations. The orchestrator
+calls these methods at appropriate scheduling points.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -2696,18 +2540,35 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.workstream.WorkstreamRunner.io">io</span></code></td>
+            <td><code><span title="agentrelay.workstream.WorkstreamRunner._preparer">_preparer</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="WorkstreamRunnerIO
-
-
-  
-      dataclass
-   (agentrelay.workstream.core.io.WorkstreamRunnerIO)" href="#agentrelay.workstream.WorkstreamRunnerIO">WorkstreamRunnerIO</a></code>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamPreparer (agentrelay.workstream.core.io.WorkstreamPreparer)" href="#agentrelay.workstream.WorkstreamPreparer">WorkstreamPreparer</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Composed I/O boundary for workstream operations.</p>
+                <p>Provision worktree and integration branch.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamRunner._merger">_merger</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamMerger (agentrelay.workstream.core.io.WorkstreamMerger)" href="#agentrelay.workstream.WorkstreamMerger">WorkstreamMerger</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Merge integration branch into target.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.workstream.WorkstreamRunner._teardown">_teardown</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamTeardown (agentrelay.workstream.core.io.WorkstreamTeardown)" href="#agentrelay.workstream.WorkstreamTeardown">WorkstreamTeardown</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Clean up worktree and integration branch.</p>
               </div>
             </td>
           </tr>
@@ -2723,11 +2584,7 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 57</span>
 <span class="normal"> 58</span>
 <span class="normal"> 59</span>
 <span class="normal"> 60</span>
@@ -2786,19 +2643,31 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Workstream lifecycle runner.</span>
 
 <span class="sd">    Drives workstream-level operations (prepare, merge, teardown) by</span>
-<span class="sd">    delegating to the per-step protocol implementations in :attr:`io`.</span>
-<span class="sd">    The orchestrator calls these methods at appropriate scheduling points.</span>
+<span class="sd">    delegating to per-step protocol implementations. The orchestrator</span>
+<span class="sd">    calls these methods at appropriate scheduling points.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        io: Composed I/O boundary for workstream operations.</span>
+<span class="sd">        _preparer: Provision worktree and integration branch.</span>
+<span class="sd">        _merger: Merge integration branch into target.</span>
+<span class="sd">        _teardown: Clean up worktree and integration branch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">io</span><span class="p">:</span> <span class="n">WorkstreamRunnerIO</span>
+    <span class="n">_preparer</span><span class="p">:</span> <span class="n">WorkstreamPreparer</span>
+    <span class="n">_merger</span><span class="p">:</span> <span class="n">WorkstreamMerger</span>
+    <span class="n">_teardown</span><span class="p">:</span> <span class="n">WorkstreamTeardown</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Provision workspace infrastructure for a workstream.</span>
@@ -2810,7 +2679,7 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 <span class="sd">            workstream_runtime: Workstream runtime to provision.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preparer</span><span class="o">.</span><span class="n">prepare_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_preparer</span><span class="o">.</span><span class="n">prepare_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span>
             <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2828,7 +2697,7 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 <span class="sd">            WorkstreamRunResult: Snapshot of state after the operation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">merger</span><span class="o">.</span><span class="n">merge_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="o">.</span><span class="n">merge_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span>
             <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -2847,7 +2716,7 @@ The orchestrator calls these methods at appropriate scheduling points.</p>
 <span class="sd">            workstream_runtime: Workstream runtime to tear down.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">teardown_handler</span><span class="o">.</span><span class="n">teardown_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_teardown</span><span class="o">.</span><span class="n">teardown_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;teardown_failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2920,21 +2789,21 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span>
-<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision workspace infrastructure for a workstream.</span>
 
 <span class="sd">    Creates the worktree and integration branch. Transitions the</span>
@@ -2944,7 +2813,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 <span class="sd">        workstream_runtime: Workstream runtime to provision.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">preparer</span><span class="o">.</span><span class="n">prepare_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_preparer</span><span class="o">.</span><span class="n">prepare_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span>
         <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -3036,15 +2905,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
 <span class="normal"> 92</span>
 <span class="normal"> 93</span>
 <span class="normal"> 94</span>
@@ -3055,7 +2916,15 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamRunResult</span><span class="p">:</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamRunResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge the workstream integration branch into its target.</span>
 
 <span class="sd">    Transitions to ``MERGED`` on success, or ``FAILED`` on error.</span>
@@ -3067,7 +2936,7 @@ workstream to <code>ACTIVE</code> on success, or <code>FAILED</code> on error.</
 <span class="sd">        WorkstreamRunResult: Snapshot of state after the operation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">merger</span><span class="o">.</span><span class="n">merge_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="o">.</span><span class="n">merge_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span>
         <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -3135,19 +3004,19 @@ as concerns rather than changing workstream status.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean up workstream workspace infrastructure.</span>
 
 <span class="sd">    Deletes the worktree and integration branch. Failures are recorded</span>
@@ -3157,7 +3026,7 @@ as concerns rather than changing workstream status.</p>
 <span class="sd">        workstream_runtime: Workstream runtime to tear down.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">teardown_handler</span><span class="o">.</span><span class="n">teardown_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_teardown</span><span class="o">.</span><span class="n">teardown_workstream</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;teardown_failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -3251,11 +3120,7 @@ as concerns rather than changing workstream status.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
@@ -3279,7 +3144,11 @@ as concerns rather than changing workstream status.</p>
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
-<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRunResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Snapshot of workstream state after a lifecycle operation.</span>
 
@@ -3408,11 +3277,7 @@ as concerns rather than changing workstream status.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
@@ -3422,7 +3287,11 @@ as concerns rather than changing workstream status.</p>
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
-<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_runtime</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamRunResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a result snapshot from the current workstream runtime state.</span>
 

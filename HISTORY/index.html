@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#flatten-workstreamrunnerio-into-workstreamrunner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flatten WorkstreamRunnerIO into WorkstreamRunner
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#standardtaskrunner-with-per-step-dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1572,6 +1583,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#flatten-workstreamrunnerio-into-workstreamrunner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flatten WorkstreamRunnerIO into WorkstreamRunner
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#standardtaskrunner-with-per-step-dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1980,6 +2002,16 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-14">2026-03-14</h2>
+<h3 id="flatten-workstreamrunnerio-into-workstreamrunner">Flatten WorkstreamRunnerIO into WorkstreamRunner</h3>
+<ul>
+<li>Removed <code>WorkstreamRunnerIO</code> intermediate dataclass. <code>WorkstreamRunner</code> now
+  holds the three per-step protocol fields (<code>_preparer</code>, <code>_merger</code>, <code>_teardown</code>)
+  directly, matching the pattern established by <code>StandardTaskRunner</code> on the
+  task side.</li>
+<li>Deleted <code>test/workstream/implementations/test_workstream_runner_io.py</code> (tested
+  the removed composition class).</li>
+<li>Updated diagram, architecture docs, and exports.</li>
+</ul>
 <h3 id="standardtaskrunner-with-per-step-dispatch">StandardTaskRunner with per-step dispatch</h3>
 <ul>
 <li><strong>TaskRunner protocol</strong>: Promoted <code>TaskRunnerLike</code> to <code>TaskRunner</code> (protocol in

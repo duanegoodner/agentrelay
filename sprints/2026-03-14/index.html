@@ -10,31 +10,27 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/ARCHITECTURE/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-14/">
       
       
-        <link rel="prev" href="..">
-      
-      
-        <link rel="next" href="../DIAGRAM/">
       
       
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>Architecture - agentrelay</title>
+        <title>Sprint Notes — 2026-03-14 - agentrelay</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -53,11 +49,11 @@
       
     
     
-      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -80,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#sprint-notes-2026-03-14" class="md-skip">
           Skip to content
         </a>
       
@@ -96,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -116,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Sprint Notes — 2026-03-14
             
           </span>
         </div>
@@ -194,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -212,7 +208,7 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -236,37 +232,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
         
   
   
@@ -282,103 +251,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-abstractions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Core Abstractions
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#detailed-references" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Detailed References
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#execution-boundary-what-is-not-implemented-here-yet" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Execution Boundary (What Is Not Implemented Here Yet)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#orchestrator-behavior-contract" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Orchestrator Behavior Contract
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#relationship-to-prototype-v01" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relationship To Prototype v01
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -390,7 +262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../DIAGRAM/" class="md-nav__link">
+      <a href="../../DIAGRAM/" class="md-nav__link">
         
   
   
@@ -417,7 +289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../WORKFLOW/" class="md-nav__link">
+      <a href="../../WORKFLOW/" class="md-nav__link">
         
   
   
@@ -444,7 +316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../SCHEMA/" class="md-nav__link">
+      <a href="../../SCHEMA/" class="md-nav__link">
         
   
   
@@ -471,7 +343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../MIGRATION/" class="md-nav__link">
+      <a href="../../MIGRATION/" class="md-nav__link">
         
   
   
@@ -498,7 +370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../examples/" class="md-nav__link">
+      <a href="../../examples/" class="md-nav__link">
         
   
   
@@ -525,7 +397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../GUIDE/" class="md-nav__link">
+      <a href="../../GUIDE/" class="md-nav__link">
         
   
   
@@ -552,7 +424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../TESTING/" class="md-nav__link">
+      <a href="../../TESTING/" class="md-nav__link">
         
   
   
@@ -579,7 +451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../HISTORY/" class="md-nav__link">
+      <a href="../../HISTORY/" class="md-nav__link">
         
   
   
@@ -606,7 +478,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BACKLOG/" class="md-nav__link">
+      <a href="../../BACKLOG/" class="md-nav__link">
         
   
   
@@ -680,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/" class="md-nav__link">
+      <a href="../../prototypes/v01/" class="md-nav__link">
         
   
   
@@ -708,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
         
   
   
@@ -736,7 +608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/OPERATIONS/" class="md-nav__link">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
         
   
   
@@ -764,7 +636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
         
   
   
@@ -792,7 +664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/HISTORY/" class="md-nav__link">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
         
   
   
@@ -820,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../prototypes/v01/BACKLOG/" class="md-nav__link">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
         
   
   
@@ -902,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/" class="md-nav__link">
+      <a href="../../api/" class="md-nav__link">
         
   
   
@@ -930,7 +802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/task/" class="md-nav__link">
+      <a href="../../api/core/task/" class="md-nav__link">
         
   
   
@@ -958,7 +830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/environments/" class="md-nav__link">
+      <a href="../../api/core/environments/" class="md-nav__link">
         
   
   
@@ -986,7 +858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/workspace/" class="md-nav__link">
+      <a href="../../api/core/workspace/" class="md-nav__link">
         
   
   
@@ -1014,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/errors/" class="md-nav__link">
+      <a href="../../api/core/errors/" class="md-nav__link">
         
   
   
@@ -1042,7 +914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/task_runner/" class="md-nav__link">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
         
   
   
@@ -1070,7 +942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/orchestrator/" class="md-nav__link">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
         
   
   
@@ -1098,7 +970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/agent/" class="md-nav__link">
+      <a href="../../api/agent/" class="md-nav__link">
         
   
   
@@ -1126,7 +998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_graph/" class="md-nav__link">
+      <a href="../../api/task_graph/" class="md-nav__link">
         
   
   
@@ -1154,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/task_runtime/" class="md-nav__link">
+      <a href="../../api/task_runtime/" class="md-nav__link">
         
   
   
@@ -1182,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/workstream/" class="md-nav__link">
+      <a href="../../api/workstream/" class="md-nav__link">
         
   
   
@@ -1237,10 +1109,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#goal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Overview
+        Goal
       
     </span>
   </a>
@@ -1248,10 +1120,121 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#core-abstractions" class="md-nav__link">
+  <a href="#context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Core Abstractions
+        Context
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whats-done" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's done
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-exists-but-isnt-wired" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What exists but isn't wired
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-doesnt-exist-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What doesn't exist yet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-n1-wire-workstreamrunner-into-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR N1: Wire WorkstreamRunner into Orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-n2-composition-and-cli-entry-point" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR N2: Composition and CLI entry point
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-o-reset-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR O: Reset tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-p-docs-diagram-and-e2e-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR P: Docs, diagram, and E2E validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sprint-status-vs-2026-03-13-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sprint status vs. 2026-03-13 plan
       
     </span>
   </a>
@@ -1259,54 +1242,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#detailed-references" class="md-nav__link">
+  <a href="#merge-discipline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Detailed References
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design-principles" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design Principles
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#execution-boundary-what-is-not-implemented-here-yet" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Execution Boundary (What Is Not Implemented Here Yet)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#orchestrator-behavior-contract" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Orchestrator Behavior Contract
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#relationship-to-prototype-v01" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Relationship To Prototype v01
+        Merge discipline
       
     </span>
   </a>
@@ -1330,77 +1269,232 @@
 
 
 
-<h1 id="architecture">Architecture</h1>
-<h2 id="overview">Overview</h2>
-<p><code>agentrelay</code> currently has a clean architecture layer plus a legacy prototype layer:</p>
+<h1 id="sprint-notes-2026-03-14">Sprint Notes — 2026-03-14</h1>
+<blockquote>
+<p><strong>Status: Planning.</strong></p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>Complete the end-to-end wiring from graph YAML to running orchestrator. All
+protocol implementations exist; the remaining work is composition, CLI, and
+cleanup.</p>
+<h2 id="context">Context</h2>
+<p>The 2026-03-13 sprint built out all protocol implementations and the agent
+communication protocol. An unplanned architectural improvement (PR #99) then
+replaced <code>TaskRunnerIO</code> with per-step <code>StepDispatch[T]</code> dispatch tables on a
+new <code>StandardTaskRunner</code>, promoted <code>TaskRunner</code> to a protocol, and moved
+workstream context (<code>integration_branch</code>, <code>workstream_worktree_path</code>) from
+implementation constructors into <code>TaskState</code>.</p>
+<h3 id="whats-done">What's done</h3>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>What</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#88</td>
+<td><code>ops/</code> infrastructure primitives</td>
+<td>2026-03-12</td>
+</tr>
+<tr>
+<td>#91</td>
+<td>Agent communication protocol spec</td>
+<td>2026-03-13</td>
+</tr>
+<tr>
+<td>#92</td>
+<td>Protocol schemas, builders, templates (PR K)</td>
+<td>2026-03-13</td>
+</tr>
+<tr>
+<td>#96</td>
+<td>Task-level protocol implementations (PR L)</td>
+<td>2026-03-13</td>
+</tr>
+<tr>
+<td>#97</td>
+<td>Fix: task preparer uses shared workstream worktree</td>
+<td>2026-03-13</td>
+</tr>
+<tr>
+<td>#98</td>
+<td>Workstream-level protocol implementations (PR M)</td>
+<td>2026-03-13</td>
+</tr>
+<tr>
+<td>#99</td>
+<td><code>StandardTaskRunner</code> with <code>StepDispatch</code> (unplanned)</td>
+<td>2026-03-14</td>
+</tr>
+</tbody>
+</table>
+<h3 id="what-exists-but-isnt-wired">What exists but isn't wired</h3>
 <ul>
-<li><strong>Current architecture</strong>: <code>src/agentrelay/</code></li>
-<li><strong>Prototype reference/runner</strong>: <code>src/agentrelay/prototypes/v01/</code></li>
+<li>
+<p><strong><code>WorkstreamRunner</code></strong> — has <code>prepare()</code>, <code>merge()</code>, <code>teardown()</code> methods,
+  but the orchestrator doesn't call them. Workstream state transitions
+  (<code>activate</code>, <code>deactivate</code>, <code>mark_merged</code>, <code>mark_failed</code>) happen inline in
+  the orchestrator, but no actual I/O (creating worktrees, merging integration
+  PRs, tearing down worktrees) is dispatched.</p>
+</li>
+<li>
+<p><strong><code>build_standard_runner()</code></strong> — factory that wires all six <code>StepDispatch</code>
+  tables with default implementations, but nothing calls it yet.</p>
+</li>
+<li>
+<p><strong>Workstream implementations</strong> (<code>GitWorkstreamPreparer</code>, <code>GhWorkstreamMerger</code>,
+  <code>GitWorkstreamTeardown</code>) — concrete classes exist, not composed into anything.</p>
+</li>
 </ul>
-<p>This page documents the current architecture layer only.</p>
-<p>This page intentionally tracks architecture at the abstraction level rather than
-by module/file listing. The API reference and design diagram are the source of
-truth for concrete implementation details.</p>
-<h2 id="core-abstractions">Core Abstractions</h2>
+<h3 id="what-doesnt-exist-yet">What doesn't exist yet</h3>
 <ul>
-<li><code>TaskGraph</code>: immutable DAG of <code>Task</code> specifications plus workstream metadata</li>
-<li><code>TaskGraphBuilder</code>: YAML/dict schema parser that builds validated <code>TaskGraph</code></li>
-<li><code>TaskRuntimeBuilder</code>: graph-to-runtime initializer for task execution state</li>
-<li><code>WorkstreamRuntimeBuilder</code>: graph-to-runtime initializer for workstream lane state</li>
-<li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>
-<li><code>TaskRunnerIO</code>: composed per-step I/O boundary used by <code>TaskRunner</code></li>
-<li><code>WorkstreamRunner</code>: workstream-level lifecycle runner (holds per-step protocol fields directly)</li>
-<li><code>Orchestrator</code>: async dependency/workstream scheduler over graph runtimes</li>
-<li><code>OrchestratorConfig</code>: run-level scheduling, retry, and teardown policy</li>
-<li><code>errors</code>: typed integration failure model + expected/internal classification helper</li>
-<li><code>WorkstreamSpec</code>: immutable definition of a task workstream lane</li>
-<li><code>Task</code>: immutable specification of a unit of work</li>
-<li><code>TaskRuntime</code>: mutable execution envelope attached to a <code>Task</code></li>
-<li><code>TaskState</code>: operational task state (status, worktree/branch, attempts, errors)</li>
-<li><code>TaskArtifacts</code>: outputs produced during execution (for example PR URL and concerns)</li>
-<li><code>TaskStatus</code>: lifecycle state enum used by the runtime</li>
-<li><code>WorkstreamRuntime</code>: mutable execution envelope attached to a <code>WorkstreamSpec</code></li>
-<li><code>WorkstreamState</code>: operational lane state (status, worktree/branch, active task, errors)</li>
-<li><code>WorkstreamArtifacts</code>: outputs produced during lane execution (for example merge PR URL and concerns)</li>
-<li><code>WorkstreamStatus</code>: lifecycle state enum used by workstream runtime</li>
-<li><code>Agent</code>: abstract interface for a live running coding agent</li>
-<li><code>AgentAddress</code>: abstract location/identity for a running agent</li>
-<li><code>AgentEnvironment</code>: execution-environment abstraction (currently tmux)</li>
+<li><strong>CLI entry point</strong> (<code>run_graph.py</code>) — no way to run a graph from the command
+  line outside the prototype.</li>
+<li><strong>Reset tool</strong> (<code>reset_graph.py</code>) — no clean architecture version.</li>
 </ul>
-<h2 id="detailed-references">Detailed References</h2>
+<hr />
+<h2 id="pr-plan">PR plan</h2>
+<h3 id="pr-n1-wire-workstreamrunner-into-orchestrator">PR N1: Wire WorkstreamRunner into Orchestrator</h3>
 <ul>
-<li>API details: <a href="../api/">API Reference</a></li>
-<li>Structural view: <a href="../DIAGRAM/">DIAGRAM.md</a></li>
+<li>Branch: <code>feat/orchestrator-workstream-runner</code></li>
 </ul>
-<h2 id="design-principles">Design Principles</h2>
+<p>The orchestrator currently manages workstream state transitions inline but
+doesn't dispatch any workstream I/O. This PR adds <code>WorkstreamRunner</code> as a
+dependency of <code>Orchestrator</code> and inserts lifecycle calls at the right points
+in the scheduling loop.</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li>Add <code>workstream_runner: WorkstreamRunner</code> field to <code>Orchestrator</code>.</li>
+<li>Before first task in a workstream: call <code>workstream_runner.prepare(ws_runtime)</code>.</li>
+<li>After all tasks in a workstream succeed (when <code>mark_merged()</code> fires): call
+   <code>workstream_runner.merge(ws_runtime)</code>.</li>
+<li>At orchestration end (or on failure): call <code>workstream_runner.teardown(ws_runtime)</code>
+   for each workstream that was prepared.</li>
+</ol>
+<p>The existing workstream state machine (<code>activate</code>, <code>deactivate</code>, <code>mark_merged</code>,
+<code>mark_failed</code>) stays — those track scheduling state. The runner calls are the
+actual I/O operations.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Orchestrator accepts <code>workstream_runner</code> parameter.
+- [ ] Workstream prepare/merge/teardown are called at correct lifecycle points.
+- [ ] All existing orchestrator tests pass (with mock workstream runner).
+- [ ] <code>pixi run check</code> passes.</p>
+<hr />
+<h3 id="pr-n2-composition-and-cli-entry-point">PR N2: Composition and CLI entry point</h3>
 <ul>
-<li><strong>Immutable spec vs mutable runtime</strong>: execution never mutates the task definition.</li>
-<li><strong>Pluggable configuration</strong>: framework and environment are explicit config fields.</li>
-<li><strong>Narrow interfaces</strong>: <code>Agent</code>, <code>AgentAddress</code>, and environment typing keep launcher logic decoupled.</li>
-<li><strong>Contract-first integrations</strong>: external side effects are modeled as typed protocols/errors before concrete implementations.</li>
+<li>Branch: <code>feat/run-graph-cli</code></li>
+<li>New module: <code>src/agentrelay/run_graph.py</code></li>
 </ul>
-<h2 id="execution-boundary-what-is-not-implemented-here-yet">Execution Boundary (What Is Not Implemented Here Yet)</h2>
-<p>The current architecture layer includes a real orchestrator and task lifecycle runner,
-but production side-effect integrations remain incomplete. End-to-end behavior for tmux
-launch, prompt dispatch, signal polling, and PR integration still primarily lives in
-<code>src/agentrelay/prototypes/v01/</code>.</p>
-<h2 id="orchestrator-behavior-contract">Orchestrator Behavior Contract</h2>
-<p>The orchestrator currently enforces:</p>
+<p>Wire everything together and provide a CLI.</p>
+<p><strong>Scope:</strong>
+1. Top-level composition function that builds <code>Orchestrator</code>, <code>StandardTaskRunner</code>
+   (via <code>build_standard_runner()</code>), and <code>WorkstreamRunner</code> (via
+   <code>build_workstream_runner()</code> — new builder, mirrors the task runner pattern)
+   from a parsed graph YAML.
+2. CLI via <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code> with flags:
+   <code>--max-concurrency</code>, <code>--max-task-attempts</code>, <code>--teardown-mode</code>,
+   <code>--tmux-session</code>, <code>--model</code>, <code>--dry-run</code>.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>--dry-run</code> validates graph and prints execution plan.
+- [ ] Integration test verifies full wiring from graph YAML to orchestrator.
+- [ ] <code>pixi run check</code> passes.</p>
+<hr />
+<h3 id="pr-o-reset-tool">PR O: Reset tool</h3>
 <ul>
-<li>Dependency-aware scheduling (<code>TaskGraph.ready_ids(...)</code>).</li>
-<li>Workstream constraints:</li>
-<li>one active task per workstream,</li>
-<li>child workstreams wait for parent workstream <code>MERGED</code>,</li>
-<li>ancestor workstream failure blocks descendants.</li>
-<li>Retry policy for expected task failures (<code>TaskRunner.run(...)</code> returns <code>FAILED</code>).</li>
-<li>Internal/system failure boundary for raised task-run exceptions:</li>
-<li>traceback recorded in orchestrator result,</li>
-<li>fail-fast path may cancel in-flight work (configurable).</li>
-<li>Task teardown policy forwarding through <code>OrchestratorConfig.task_teardown_mode</code>.</li>
+<li>Branch: <code>feat/reset-graph</code></li>
+<li>New module: <code>src/agentrelay/reset_graph.py</code></li>
 </ul>
-<h2 id="relationship-to-prototype-v01">Relationship To Prototype v01</h2>
-<p>Prototype docs and historical decisions are under <code>docs/prototypes/v01/</code>.
-Use those docs for runnable workflow behavior today; use this page for the target architecture model.</p>
+<p>Clean reset command: close PRs, delete branches/worktrees, remove signal dirs.
+Idempotent, interactive by default with <code>--yes</code> override.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Idempotent when re-run.
+- [ ] Tested against temp git repo fixture.
+- [ ] <code>pixi run check</code> passes.</p>
+<hr />
+<h3 id="pr-p-docs-diagram-and-e2e-validation">PR P: Docs, diagram, and E2E validation</h3>
+<ul>
+<li>Branch: <code>feat/e2e-docs</code></li>
+</ul>
+<p>Update architecture docs, workflow docs, and add end-to-end demo cycle
+documentation. Final diagram updates for the full wiring.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Documented end-to-end run/reset cycle.
+- [ ] Docs internally consistent.
+- [ ] <code>pixi run check</code> passes.</p>
+<hr />
+<h2 id="sprint-status-vs-2026-03-13-plan">Sprint status vs. 2026-03-13 plan</h2>
+<p>The 2026-03-13 sprint defined PRs K through P. Here's the mapping:</p>
+<table>
+<thead>
+<tr>
+<th>2026-03-13 item</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR K: Protocol schemas, builders, templates</td>
+<td><strong>Done</strong> (PR #92)</td>
+<td></td>
+</tr>
+<tr>
+<td>PR L: Task-level protocol implementations</td>
+<td><strong>Done</strong> (PR #96)</td>
+<td></td>
+</tr>
+<tr>
+<td>Fix-up: Task preparer branch-only</td>
+<td><strong>Done</strong> (PR #97)</td>
+<td></td>
+</tr>
+<tr>
+<td>PR M: Workstream-level protocol implementations</td>
+<td><strong>Done</strong> (PR #98)</td>
+<td></td>
+</tr>
+<tr>
+<td>(unplanned) StandardTaskRunner dispatch</td>
+<td><strong>Done</strong> (PR #99)</td>
+<td>Architectural improvement</td>
+</tr>
+<tr>
+<td>PR N: Composition and CLI</td>
+<td><strong>Remaining</strong></td>
+<td>Split into N1 + N2 (below)</td>
+</tr>
+<tr>
+<td>PR N½: Wire WorkstreamRunner into Orchestrator</td>
+<td><strong>Remaining</strong></td>
+<td>Renamed to N1</td>
+</tr>
+<tr>
+<td>PR O: Reset tool</td>
+<td><strong>Remaining</strong></td>
+<td>Unchanged</td>
+</tr>
+<tr>
+<td>PR P: Docs and E2E validation</td>
+<td><strong>Remaining</strong></td>
+<td>Unchanged</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Renaming note:</strong> The old "PR N" (composition + CLI) and "PR N½" (workstream
+runner wiring) are now <strong>PR N1</strong> and <strong>PR N2</strong> respectively. N1 goes first
+because N2's composition layer depends on the orchestrator accepting a
+workstream runner.</p>
+<hr />
+<h2 id="merge-discipline">Merge discipline</h2>
+<ol>
+<li>Complete and merge each PR before starting the next.</li>
+<li><code>pixi run check</code> must pass before every PR.</li>
+<li>Each PR includes a <code>## Test plan</code> checklist in the PR body.</li>
+<li>Update <code>docs/HISTORY.md</code> with each merged PR.</li>
+</ol>
 
 
 
@@ -1450,10 +1544,10 @@ Use those docs for runnable workflow behavior today; use this page for the targe
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
