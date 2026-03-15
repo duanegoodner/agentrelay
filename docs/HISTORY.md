@@ -6,6 +6,16 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-14
 
+### Flatten WorkstreamRunnerIO into WorkstreamRunner
+
+- Removed `WorkstreamRunnerIO` intermediate dataclass. `WorkstreamRunner` now
+  holds the three per-step protocol fields (`_preparer`, `_merger`, `_teardown`)
+  directly, matching the pattern established by `StandardTaskRunner` on the
+  task side.
+- Deleted `test/workstream/implementations/test_workstream_runner_io.py` (tested
+  the removed composition class).
+- Updated diagram, architecture docs, and exports.
+
 ### StandardTaskRunner with per-step dispatch
 
 - **TaskRunner protocol**: Promoted `TaskRunnerLike` to `TaskRunner` (protocol in

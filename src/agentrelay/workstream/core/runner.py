@@ -3,7 +3,7 @@
 This module defines :class:`WorkstreamRunner`, which drives a single
 :class:`WorkstreamRuntime` through the workstream lifecycle steps
 (prepare, merge, teardown), delegating each step to the corresponding
-protocol implementation in its :attr:`io` boundary.
+per-step protocol implementation.
 
 The orchestrator calls these methods at the appropriate points in the
 scheduling loop — prepare before the first task in a workstream,
@@ -15,7 +15,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from agentrelay.workstream.core.io import WorkstreamRunnerIO
+from agentrelay.workstream.core.io import (
+    WorkstreamMerger,
+    WorkstreamPreparer,
+    WorkstreamTeardown,
+)
 from agentrelay.workstream.core.runtime import WorkstreamRuntime, WorkstreamStatus
 
 
@@ -55,14 +59,18 @@ class WorkstreamRunner:
     """Workstream lifecycle runner.
 
     Drives workstream-level operations (prepare, merge, teardown) by
-    delegating to the per-step protocol implementations in :attr:`io`.
-    The orchestrator calls these methods at appropriate scheduling points.
+    delegating to per-step protocol implementations. The orchestrator
+    calls these methods at appropriate scheduling points.
 
     Attributes:
-        io: Composed I/O boundary for workstream operations.
+        _preparer: Provision worktree and integration branch.
+        _merger: Merge integration branch into target.
+        _teardown: Clean up worktree and integration branch.
     """
 
-    io: WorkstreamRunnerIO
+    _preparer: WorkstreamPreparer
+    _merger: WorkstreamMerger
+    _teardown: WorkstreamTeardown
 
     def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
         """Provision workspace infrastructure for a workstream.
@@ -74,7 +82,7 @@ class WorkstreamRunner:
             workstream_runtime: Workstream runtime to provision.
         """
         try:
-            self.io.preparer.prepare_workstream(workstream_runtime)
+            self._preparer.prepare_workstream(workstream_runtime)
         except Exception as exc:
             workstream_runtime.state.status = WorkstreamStatus.FAILED
             workstream_runtime.state.error = f"{type(exc).__name__}: {exc}"
@@ -92,7 +100,7 @@ class WorkstreamRunner:
             WorkstreamRunResult: Snapshot of state after the operation.
         """
         try:
-            self.io.merger.merge_workstream(workstream_runtime)
+            self._merger.merge_workstream(workstream_runtime)
         except Exception as exc:
             workstream_runtime.state.status = WorkstreamStatus.FAILED
             workstream_runtime.state.error = f"{type(exc).__name__}: {exc}"
@@ -111,7 +119,7 @@ class WorkstreamRunner:
             workstream_runtime: Workstream runtime to tear down.
         """
         try:
-            self.io.teardown_handler.teardown_workstream(workstream_runtime)
+            self._teardown.teardown_workstream(workstream_runtime)
         except Exception as exc:
             workstream_runtime.artifacts.concerns.append(f"teardown_failed: {exc}")
 

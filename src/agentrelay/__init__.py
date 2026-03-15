@@ -11,7 +11,6 @@ Core types:
 - TaskRunner: one-task lifecycle state machine               [task_runner/core/runner.py]
 - TaskRunnerIO: composed I/O boundary for TaskRunner         [task_runner/core/io.py]
 - WorkstreamRunner: workstream lifecycle runner              [workstream/core/runner.py]
-- WorkstreamRunnerIO: composed I/O boundary for WorkstreamRunner [workstream/core/io.py]
 - Orchestrator: async graph scheduler over TaskRuntime        [orchestrator/orchestrator.py]
 - OrchestratorConfig: scheduler/retry/teardown configuration [orchestrator/orchestrator.py]
 - OrchestratorResult: terminal orchestration outcome         [orchestrator/orchestrator.py]
