@@ -312,6 +312,8 @@ package "task_runtime/" as task_runtime_pkg {
         signal_dir : Path | None
         error : str | None
         attempt_num : int
+        integration_branch : str | None
+        workstream_worktree_path : Path | None
     }
 
     class TaskArtifacts <<mutable dataclass>> {
@@ -337,6 +339,8 @@ package "task_runtime/" as task_runtime_pkg {
         +signal_dir() : Path | None
         +error() : str | None
         +attempt_num() : int
+        +integration_branch() : str | None
+        +workstream_worktree_path() : Path | None
     }
 
     interface TaskArtifactsView <<protocol>> {
@@ -394,13 +398,22 @@ package "task_runner/" as task_runner_pkg {
             +teardown(runtime) : void
         }
 
-        class TaskRunnerIO <<frozen dataclass>> {
+        class TaskRunnerIO <<frozen dataclass>> #LightGray {
             preparer : TaskPreparer
             launcher : TaskLauncher
             kickoff_sender : TaskKickoff
             completion_checker : TaskCompletionChecker
             merger : TaskMerger
             teardown_handler : TaskTeardown
+            ~~
+            <color:gray>deprecated — prefer StandardTaskRunner</color>
+        }
+
+        class "StepDispatch<T>" as StepDispatch <<frozen dataclass>> {
+            entries : dict[DispatchKey, Callable]
+            default : Callable | None
+            __
+            +__call__(runtime) : T
         }
 
         class TaskRunResult <<frozen dataclass>> {
@@ -411,8 +424,17 @@ package "task_runner/" as task_runner_pkg {
             failure_class : IntegrationFailureClass | None
         }
 
-        class TaskRunner <<mutable dataclass>> {
-            io : TaskRunnerIO
+        interface TaskRunner <<protocol>> {
+            +run(runtime, teardown_mode) : TaskRunResult
+        }
+
+        class StandardTaskRunner <<mutable dataclass>> {
+            _preparer : StepDispatch[TaskPreparer]
+            _launcher : StepDispatch[TaskLauncher]
+            _kickoff : StepDispatch[TaskKickoff]
+            _completion_checker : StepDispatch[TaskCompletionChecker]
+            _merger : StepDispatch[TaskMerger]
+            _teardown : StepDispatch[TaskTeardown]
             __
             +run(runtime, teardown_mode) : TaskRunResult
         }
@@ -422,8 +444,6 @@ package "task_runner/" as task_runner_pkg {
         class WorktreeTaskPreparer <<dataclass>> {
             repo_path : Path
             graph_name : str
-            integration_branch : str
-            workstream_worktree_path : Path
             dependency_descriptions : dict
             context_content : str | None
             +prepare(runtime) : void
@@ -444,8 +464,13 @@ package "task_runner/" as task_runner_pkg {
 
         class GhTaskMerger <<dataclass>> {
             repo_path : Path
-            integration_branch : str
             +merge_pr(runtime, pr_url) : void
+        }
+
+        class standard_runner_builder <<module>> {
+            module_path : implementations.standard_runner_builder
+            __
+            +{static} build_standard_runner(...) : StandardTaskRunner
         }
 
         class WorktreeTaskTeardown <<dataclass>> {
@@ -766,20 +791,28 @@ WorkstreamRuntimeBuilder --> TaskGraph : reads
 WorkstreamRuntimeBuilder --> WorkstreamRuntime : builds
 
 ' --- task_runner ---
-TaskRunner --> TaskRunnerIO : uses
-TaskRunnerIO --> TaskPreparer : preparer
-TaskRunnerIO --> TaskLauncher : launcher
-TaskRunnerIO --> TaskKickoff : kickoff_sender
-TaskRunnerIO --> TaskCompletionChecker : completion_checker
-TaskRunnerIO --> TaskMerger : merger
-TaskRunnerIO --> TaskTeardown : teardown_handler
-TaskRunner --> TaskRuntime : mutates
-TaskRunner --> TaskRunResult : returns
-TaskRunner --> TearDownMode : teardown policy
+StandardTaskRunner ..|> TaskRunner : satisfies
+StandardTaskRunner --> StepDispatch : 6 fields
+StepDispatch ..> TaskPreparer : resolves
+StepDispatch ..> TaskLauncher : resolves
+StepDispatch ..> TaskKickoff : resolves
+StepDispatch ..> TaskCompletionChecker : resolves
+StepDispatch ..> TaskMerger : resolves
+StepDispatch ..> TaskTeardown : resolves
+StandardTaskRunner --> TaskRuntime : mutates
+StandardTaskRunner --> TaskRunResult : returns
+StandardTaskRunner --> TearDownMode : teardown policy
 TaskCompletionChecker --> TaskCompletionSignal : returns
 TaskLauncher --> Agent : launches
 TaskRunResult --> TaskStatus : status
 TaskRunResult --> IntegrationFailureClass : failure_class (optional)
+standard_runner_builder ..> StandardTaskRunner : builds
+standard_runner_builder ..> WorktreeTaskPreparer : registers
+standard_runner_builder ..> TmuxTaskLauncher : registers
+standard_runner_builder ..> TmuxTaskKickoff : registers
+standard_runner_builder ..> SignalCompletionChecker : registers
+standard_runner_builder ..> GhTaskMerger : registers
+standard_runner_builder ..> WorktreeTaskTeardown : registers
 
 ' --- task_runtime internal ---
 TaskState --> TaskStatus : status

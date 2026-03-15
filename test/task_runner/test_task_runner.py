@@ -1,7 +1,8 @@
-"""Tests for TaskRunner lifecycle behavior."""
+"""Tests for StandardTaskRunner lifecycle behavior."""
 
 import asyncio
 from dataclasses import dataclass, field
+from typing import Any
 
 import pytest
 
@@ -13,14 +14,14 @@ from agentrelay.errors import (
 )
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_runner import (
+    StandardTaskRunner,
+    StepDispatch,
     TaskCompletionChecker,
     TaskCompletionSignal,
     TaskKickoff,
     TaskLauncher,
     TaskMerger,
     TaskPreparer,
-    TaskRunner,
-    TaskRunnerIO,
     TaskTeardown,
     TearDownMode,
 )
@@ -84,26 +85,27 @@ class FakeIO:
         self._maybe_fail("teardown")
 
 
-def _make_io(fake: FakeIO | None = None) -> TaskRunnerIO:
-    """Compose a FakeIO into a TaskRunnerIO dataclass."""
+def _make_runner(fake: FakeIO | None = None) -> StandardTaskRunner:
+    """Build a StandardTaskRunner wired to a single FakeIO via StepDispatch."""
     if fake is None:
         fake = FakeIO()
-    return TaskRunnerIO(
-        preparer=fake,
-        launcher=fake,
-        kickoff_sender=fake,
-        completion_checker=fake,
-        merger=fake,
-        teardown_handler=fake,
+    d: StepDispatch[Any] = StepDispatch(default=lambda rt: fake)
+    return StandardTaskRunner(
+        _preparer=d,
+        _launcher=d,
+        _kickoff=d,
+        _completion_checker=d,
+        _merger=d,
+        _teardown=d,
     )
 
 
 def test_run_success_path() -> None:
     fake = FakeIO()
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(TaskRunner(io=io).run(runtime))
+    result = asyncio.run(runner.run(runtime))
 
     assert fake.calls == [
         "prepare",
@@ -126,10 +128,10 @@ def test_run_success_path() -> None:
 
 def test_run_failed_signal_marks_runtime_failed() -> None:
     fake = FakeIO(signal=TaskCompletionSignal(outcome="failed", error="agent failed"))
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(TaskRunner(io=io).run(runtime))
+    result = asyncio.run(runner.run(runtime))
 
     assert fake.calls == [
         "prepare",
@@ -149,7 +151,7 @@ def test_run_failed_signal_without_error_sets_default_message() -> None:
     fake = FakeIO(signal=TaskCompletionSignal(outcome="failed"))
     runtime = _make_runtime()
 
-    asyncio.run(TaskRunner(io=_make_io(fake)).run(runtime))
+    asyncio.run(_make_runner(fake).run(runtime))
 
     assert runtime.state.status == TaskStatus.FAILED
     assert runtime.state.error == "Task failed without an error message."
@@ -157,10 +159,10 @@ def test_run_failed_signal_without_error_sets_default_message() -> None:
 
 def test_run_done_signal_without_pr_url_fails() -> None:
     fake = FakeIO(signal=TaskCompletionSignal(outcome="done", pr_url=None))
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(TaskRunner(io=io).run(runtime))
+    result = asyncio.run(runner.run(runtime))
 
     assert fake.calls == [
         "prepare",
@@ -180,10 +182,10 @@ def test_run_done_signal_without_pr_url_fails() -> None:
 )
 def test_run_io_exception_marks_failed_and_still_tears_down(fail_stage: str) -> None:
     fake = FakeIO(fail_stage=fail_stage)
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(TaskRunner(io=io).run(runtime))
+    result = asyncio.run(runner.run(runtime))
 
     assert fake.calls[-1] == "teardown"
     assert runtime.state.status == TaskStatus.FAILED
@@ -194,21 +196,21 @@ def test_run_io_exception_marks_failed_and_still_tears_down(fail_stage: str) -> 
 
 def test_run_requires_pending_entry_status() -> None:
     fake = FakeIO()
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime(status=TaskStatus.RUNNING)
 
     with pytest.raises(ValueError, match="requires runtime.state.status == PENDING"):
-        asyncio.run(TaskRunner(io=io).run(runtime))
+        asyncio.run(runner.run(runtime))
 
     assert fake.calls == []
 
 
 def test_teardown_failure_is_recorded_without_overwriting_success() -> None:
     fake = FakeIO(fail_stage="teardown")
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(TaskRunner(io=io).run(runtime))
+    result = asyncio.run(runner.run(runtime))
 
     assert runtime.state.status == TaskStatus.PR_MERGED
     assert result.status == TaskStatus.PR_MERGED
@@ -218,14 +220,13 @@ def test_teardown_failure_is_recorded_without_overwriting_success() -> None:
 
 def test_internal_logic_error_propagates() -> None:
     fake = FakeIO()
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
-    runner = TaskRunner(io=io)
 
     def _transition_with_bug(runtime_obj: TaskRuntime, target: TaskStatus) -> None:
         if target == TaskStatus.PR_CREATED:
             raise RuntimeError("internal transition bug")
-        TaskRunner._transition(runner, runtime_obj, target)
+        StandardTaskRunner._transition(runner, runtime_obj, target)
 
     runner._transition = _transition_with_bug  # type: ignore[method-assign]
 
@@ -238,12 +239,10 @@ def test_internal_logic_error_propagates() -> None:
 
 def test_teardown_mode_never_skips_teardown_on_success() -> None:
     fake = FakeIO()
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(
-        TaskRunner(io=io).run(runtime, teardown_mode=TearDownMode.NEVER)
-    )
+    result = asyncio.run(runner.run(runtime, teardown_mode=TearDownMode.NEVER))
 
     assert result.status == TaskStatus.PR_MERGED
     assert "teardown" not in fake.calls
@@ -251,12 +250,10 @@ def test_teardown_mode_never_skips_teardown_on_success() -> None:
 
 def test_teardown_mode_on_success_tears_down_after_success() -> None:
     fake = FakeIO()
-    io = _make_io(fake)
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = asyncio.run(
-        TaskRunner(io=io).run(runtime, teardown_mode=TearDownMode.ON_SUCCESS)
-    )
+    result = asyncio.run(runner.run(runtime, teardown_mode=TearDownMode.ON_SUCCESS))
 
     assert result.status == TaskStatus.PR_MERGED
     assert fake.calls[-1] == "teardown"
@@ -267,9 +264,7 @@ def test_teardown_mode_on_success_skips_teardown_after_failure() -> None:
     runtime = _make_runtime()
 
     result = asyncio.run(
-        TaskRunner(io=_make_io(fake)).run(
-            runtime, teardown_mode=TearDownMode.ON_SUCCESS
-        )
+        _make_runner(fake).run(runtime, teardown_mode=TearDownMode.ON_SUCCESS)
     )
 
     assert result.status == TaskStatus.FAILED
@@ -301,7 +296,7 @@ def test_protocol_runtime_checkable_instances() -> None:
 
 
 def test_success_result_has_no_failure_class() -> None:
-    result = asyncio.run(TaskRunner(io=_make_io()).run(_make_runtime()))
+    result = asyncio.run(_make_runner().run(_make_runtime()))
 
     assert result.status == TaskStatus.PR_MERGED
     assert result.failure_class is None
@@ -309,7 +304,7 @@ def test_success_result_has_no_failure_class() -> None:
 
 def test_agent_signaled_failure_has_no_failure_class() -> None:
     fake = FakeIO(signal=TaskCompletionSignal(outcome="failed", error="agent failed"))
-    result = asyncio.run(TaskRunner(io=_make_io(fake)).run(_make_runtime()))
+    result = asyncio.run(_make_runner(fake).run(_make_runtime()))
 
     assert result.status == TaskStatus.FAILED
     assert result.failure_class is None
@@ -324,15 +319,17 @@ def test_expected_task_failure_error_classified_as_expected() -> None:
             )
 
     fake = FakeIO()
-    io = TaskRunnerIO(
-        preparer=FailingPreparer(),
-        launcher=fake,
-        kickoff_sender=fake,
-        completion_checker=fake,
-        merger=fake,
-        teardown_handler=fake,
+    failing_preparer = FailingPreparer()
+    d_fake: StepDispatch[Any] = StepDispatch(default=lambda rt: fake)
+    runner = StandardTaskRunner(
+        _preparer=StepDispatch(default=lambda rt: failing_preparer),
+        _launcher=d_fake,
+        _kickoff=d_fake,
+        _completion_checker=d_fake,
+        _merger=d_fake,
+        _teardown=d_fake,
     )
-    result = asyncio.run(TaskRunner(io=io).run(_make_runtime()))
+    result = asyncio.run(runner.run(_make_runtime()))
 
     assert result.status == TaskStatus.FAILED
     assert result.failure_class == IntegrationFailureClass.EXPECTED_TASK_FAILURE

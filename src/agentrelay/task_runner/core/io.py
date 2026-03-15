@@ -140,12 +140,15 @@ class TaskTeardown(Protocol):
 
 @dataclass(frozen=True)
 class TaskRunnerIO:
-    """Composed I/O boundary for :class:`TaskRunner`.
+    """Composed I/O boundary (deprecated — prefer :class:`StandardTaskRunner`).
 
-    Each field holds a protocol implementation for one step of the task
-    lifecycle.  This replaces the previous monolithic ``TaskRunnerIO``
-    Protocol with a dataclass that allows independent composition,
-    testing, and swapping of each step.
+    This dataclass bundles all six per-step protocol implementations into a
+    single frozen object. It was the original composition mechanism for
+    ``TaskRunner`` but has been superseded by :class:`StandardTaskRunner`
+    which uses :class:`StepDispatch` tables directly.
+
+    Retained for backward compatibility. Scheduled for removal once all
+    call sites have migrated to ``StandardTaskRunner``.
 
     Attributes:
         preparer: Prepare runtime prerequisites before launch.

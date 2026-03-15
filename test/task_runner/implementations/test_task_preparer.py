@@ -20,15 +20,16 @@ from agentrelay.task_runtime import TaskRuntime
 def _make_runtime(
     task_id: str = "task_1", role: AgentRole = AgentRole.GENERIC
 ) -> TaskRuntime:
-    return TaskRuntime(task=Task(id=task_id, role=role, description="Do something"))
+    runtime = TaskRuntime(task=Task(id=task_id, role=role, description="Do something"))
+    runtime.state.integration_branch = "agentrelay/demo"
+    runtime.state.workstream_worktree_path = Path("/worktrees/demo/ws-1")
+    return runtime
 
 
 def _make_preparer(repo_path: Path = Path("/repo")) -> WorktreeTaskPreparer:
     return WorktreeTaskPreparer(
         repo_path=repo_path,
         graph_name="demo",
-        integration_branch="agentrelay/demo",
-        workstream_worktree_path=Path("/worktrees/demo/ws-1"),
         dependency_descriptions={"dep_1": "A dependency"},
     )
 
