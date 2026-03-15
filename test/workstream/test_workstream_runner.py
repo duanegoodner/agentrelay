@@ -8,7 +8,6 @@ from agentrelay.workstream import (
     WorkstreamMerger,
     WorkstreamPreparer,
     WorkstreamRunner,
-    WorkstreamRunnerIO,
     WorkstreamRunResult,
     WorkstreamRuntime,
     WorkstreamSpec,
@@ -45,19 +44,19 @@ class FakeWorkstreamIO:
         self._maybe_fail("teardown")
 
 
-def _make_io(fake: FakeWorkstreamIO | None = None) -> WorkstreamRunnerIO:
+def _make_runner(fake: FakeWorkstreamIO | None = None) -> WorkstreamRunner:
     if fake is None:
         fake = FakeWorkstreamIO()
-    return WorkstreamRunnerIO(
-        preparer=fake,
-        merger=fake,
-        teardown_handler=fake,
+    return WorkstreamRunner(
+        _preparer=fake,
+        _merger=fake,
+        _teardown=fake,
     )
 
 
 def test_prepare_calls_preparer() -> None:
     fake = FakeWorkstreamIO()
-    runner = WorkstreamRunner(io=_make_io(fake))
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
     runner.prepare(runtime)
@@ -67,7 +66,7 @@ def test_prepare_calls_preparer() -> None:
 
 def test_prepare_failure_records_error_and_raises() -> None:
     fake = FakeWorkstreamIO(fail_stage="prepare")
-    runner = WorkstreamRunner(io=_make_io(fake))
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
     with pytest.raises(RuntimeError, match="prepare boom"):
@@ -79,7 +78,7 @@ def test_prepare_failure_records_error_and_raises() -> None:
 
 def test_merge_success_transitions_to_merged() -> None:
     fake = FakeWorkstreamIO()
-    runner = WorkstreamRunner(io=_make_io(fake))
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
     result = runner.merge(runtime)
@@ -92,7 +91,7 @@ def test_merge_success_transitions_to_merged() -> None:
 
 def test_merge_failure_transitions_to_failed() -> None:
     fake = FakeWorkstreamIO(fail_stage="merge")
-    runner = WorkstreamRunner(io=_make_io(fake))
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
     result = runner.merge(runtime)
@@ -104,7 +103,7 @@ def test_merge_failure_transitions_to_failed() -> None:
 
 def test_teardown_calls_teardown_handler() -> None:
     fake = FakeWorkstreamIO()
-    runner = WorkstreamRunner(io=_make_io(fake))
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
     runner.teardown(runtime)
@@ -114,7 +113,7 @@ def test_teardown_calls_teardown_handler() -> None:
 
 def test_teardown_failure_records_concern() -> None:
     fake = FakeWorkstreamIO(fail_stage="teardown")
-    runner = WorkstreamRunner(io=_make_io(fake))
+    runner = _make_runner(fake)
     runtime = _make_runtime()
 
     runner.teardown(runtime)

@@ -21,8 +21,7 @@ truth for concrete implementation details.
 - `WorkstreamRuntimeBuilder`: graph-to-runtime initializer for workstream lane state
 - `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`
 - `TaskRunnerIO`: composed per-step I/O boundary used by `TaskRunner`
-- `WorkstreamRunner`: workstream-level lifecycle runner
-- `WorkstreamRunnerIO`: composed per-step I/O boundary used by `WorkstreamRunner`
+- `WorkstreamRunner`: workstream-level lifecycle runner (holds per-step protocol fields directly)
 - `Orchestrator`: async dependency/workstream scheduler over graph runtimes
 - `OrchestratorConfig`: run-level scheduling, retry, and teardown policy
 - `errors`: typed integration failure model + expected/internal classification helper

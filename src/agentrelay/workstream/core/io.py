@@ -1,22 +1,17 @@
-"""Per-step protocols and composed I/O boundary for workstream execution.
+"""Per-step protocols for workstream execution.
 
 This module defines fine-grained protocol interfaces for each step of the
-workstream lifecycle and a :class:`WorkstreamRunnerIO` dataclass that
-composes them into a single I/O boundary used by
-:class:`~agentrelay.workstream.core.runner.WorkstreamRunner`.
+workstream lifecycle. :class:`~agentrelay.workstream.core.runner.WorkstreamRunner`
+holds these protocol fields directly.
 
 Protocols:
     WorkstreamPreparer: Provision worktree and integration branch.
     WorkstreamMerger: Merge integration branch into target.
     WorkstreamTeardown: Clean up worktree and integration branch.
-
-Classes:
-    WorkstreamRunnerIO: Frozen composition of per-step protocol implementations.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
@@ -63,27 +58,8 @@ class WorkstreamTeardown(Protocol):
         ...
 
 
-@dataclass(frozen=True)
-class WorkstreamRunnerIO:
-    """Composed I/O boundary for :class:`WorkstreamRunner`.
-
-    Each field holds a protocol implementation for one step of the
-    workstream lifecycle.
-
-    Attributes:
-        preparer: Provision worktree and integration branch.
-        merger: Merge integration branch into target.
-        teardown_handler: Clean up worktree and integration branch.
-    """
-
-    preparer: WorkstreamPreparer
-    merger: WorkstreamMerger
-    teardown_handler: WorkstreamTeardown
-
-
 __all__ = [
     "WorkstreamMerger",
     "WorkstreamPreparer",
-    "WorkstreamRunnerIO",
     "WorkstreamTeardown",
 ]
