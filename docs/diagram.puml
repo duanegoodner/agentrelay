@@ -138,6 +138,7 @@ package "workstream/" as workstream_pkg {
         enum WorkstreamStatus <<enumeration>> {
             PENDING
             ACTIVE
+            MERGE_READY
             MERGED
             FAILED
         }
@@ -147,7 +148,6 @@ package "workstream/" as workstream_pkg {
             worktree_path : Path | None
             branch_name : str | None
             error : str | None
-            active_task_id : str | None
         }
 
         class WorkstreamArtifacts <<mutable dataclass>> {
@@ -159,9 +159,8 @@ package "workstream/" as workstream_pkg {
             spec : WorkstreamSpec
             state : WorkstreamState
             artifacts : WorkstreamArtifacts
-            +activate(task_id) : void
-            +deactivate() : void
             +mark_failed(error) : void
+            +mark_merge_ready() : void
             +mark_merged() : void
         }
 
@@ -170,7 +169,6 @@ package "workstream/" as workstream_pkg {
             +worktree_path() : Path | None
             +branch_name() : str | None
             +error() : str | None
-            +active_task_id() : str | None
         }
 
         interface WorkstreamArtifactsView <<protocol>> {
@@ -202,7 +200,13 @@ package "workstream/" as workstream_pkg {
             error : str | None
         }
 
-        class WorkstreamRunner <<mutable dataclass>> {
+        interface WorkstreamRunner <<protocol>> {
+            +prepare(workstream_runtime) : void
+            +merge(workstream_runtime) : WorkstreamRunResult
+            +teardown(workstream_runtime) : void
+        }
+
+        class StandardWorkstreamRunner <<mutable dataclass>> {
             _preparer : WorkstreamPreparer
             _merger : WorkstreamMerger
             _teardown : WorkstreamTeardown
@@ -498,6 +502,7 @@ package "orchestrator/" as orchestrator_pkg {
         max_task_attempts : int
         task_teardown_mode : TearDownMode
         fail_fast_on_internal_error : bool
+        fail_fast_on_workstream_error : bool
     }
 
     class OrchestratorEvent <<frozen dataclass>> {
@@ -524,6 +529,7 @@ package "orchestrator/" as orchestrator_pkg {
     class Orchestrator <<mutable dataclass>> {
         graph : TaskGraph
         task_runner : TaskRunner
+        workstream_runner : WorkstreamRunner
         config : OrchestratorConfig
         listener : OrchestratorListener | None
         __
@@ -830,9 +836,10 @@ WorkstreamArtifacts ..|> WorkstreamArtifactsView : satisfies
 WorkstreamRuntime ..|> WorkstreamRuntimeView : satisfies
 
 ' --- workstream runner ---
-WorkstreamRunner --> WorkstreamPreparer : _preparer
-WorkstreamRunner --> WorkstreamMerger : _merger
-WorkstreamRunner --> WorkstreamTeardown : _teardown
+StandardWorkstreamRunner ..|> WorkstreamRunner : satisfies
+StandardWorkstreamRunner --> WorkstreamPreparer : _preparer
+StandardWorkstreamRunner --> WorkstreamMerger : _merger
+StandardWorkstreamRunner --> WorkstreamTeardown : _teardown
 WorkstreamRunner --> WorkstreamRuntime : mutates
 WorkstreamRunner --> WorkstreamRunResult : returns
 WorkstreamRunResult --> WorkstreamStatus : status
@@ -849,6 +856,7 @@ GitWorkstreamTeardown --> git : uses
 ' --- orchestrator ---
 Orchestrator --> TaskGraph : reads
 Orchestrator --> TaskRunner : delegates task runs
+Orchestrator --> WorkstreamRunner : delegates workstream lifecycle
 Orchestrator --> OrchestratorConfig : uses
 Orchestrator --> OrchestratorResult : returns
 OrchestratorResult --> OrchestratorOutcome : outcome

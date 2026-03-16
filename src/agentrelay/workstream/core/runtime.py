@@ -29,12 +29,14 @@ class WorkstreamStatus(str, Enum):
     Attributes:
         PENDING: Workstream has not started provisioning/execution.
         ACTIVE: Workstream is currently active (for example has running tasks).
+        MERGE_READY: All tasks completed; workstream is ready to merge integration branch.
         MERGED: Workstream integration flow is complete and merged.
         FAILED: Workstream execution failed.
     """
 
     PENDING = "pending"
     ACTIVE = "active"
+    MERGE_READY = "merge_ready"
     MERGED = "merged"
     FAILED = "failed"
 
@@ -49,14 +51,12 @@ class WorkstreamState:
             ``None`` if not provisioned yet.
         branch_name: Primary branch name used for this lane, or ``None`` until set.
         error: Error message if lane execution failed, else ``None``.
-        active_task_id: Task ID currently active in this lane, else ``None``.
     """
 
     status: WorkstreamStatus = WorkstreamStatus.PENDING
     worktree_path: Optional[Path] = None
     branch_name: Optional[str] = None
     error: Optional[str] = None
-    active_task_id: Optional[str] = None
 
 
 @dataclass
@@ -86,19 +86,14 @@ class WorkstreamRuntime:
     state: WorkstreamState = field(default_factory=WorkstreamState)
     artifacts: WorkstreamArtifacts = field(default_factory=WorkstreamArtifacts)
 
-    def activate(self, task_id: str) -> None:
-        """Transition to ACTIVE and record the running task."""
-        self.state.status = WorkstreamStatus.ACTIVE
-        self.state.active_task_id = task_id
-
-    def deactivate(self) -> None:
-        """Clear the active task without changing status."""
-        self.state.active_task_id = None
-
     def mark_failed(self, error: str) -> None:
         """Transition to FAILED with an error message."""
         self.state.status = WorkstreamStatus.FAILED
         self.state.error = error
+
+    def mark_merge_ready(self) -> None:
+        """Transition to MERGE_READY."""
+        self.state.status = WorkstreamStatus.MERGE_READY
 
     def mark_merged(self) -> None:
         """Transition to MERGED."""
@@ -128,9 +123,6 @@ class WorkstreamStateView(Protocol):
 
     @property
     def error(self) -> Optional[str]: ...
-
-    @property
-    def active_task_id(self) -> Optional[str]: ...
 
 
 @runtime_checkable

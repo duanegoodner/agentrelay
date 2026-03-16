@@ -7,30 +7,13 @@ def _runtime() -> WorkstreamRuntime:
     return WorkstreamRuntime(spec=WorkstreamSpec(id="ws"))
 
 
-class TestActivate:
-    """Tests for WorkstreamRuntime.activate."""
+class TestMarkMergeReady:
+    """Tests for WorkstreamRuntime.mark_merge_ready."""
 
-    def test_sets_active_and_task_id(self) -> None:
+    def test_sets_merge_ready(self) -> None:
         rt = _runtime()
-        rt.activate("task_1")
-        assert rt.state.status == WorkstreamStatus.ACTIVE
-        assert rt.state.active_task_id == "task_1"
-
-
-class TestDeactivate:
-    """Tests for WorkstreamRuntime.deactivate."""
-
-    def test_clears_active_task_id(self) -> None:
-        rt = _runtime()
-        rt.activate("task_1")
-        rt.deactivate()
-        assert rt.state.active_task_id is None
-
-    def test_preserves_status(self) -> None:
-        rt = _runtime()
-        rt.activate("task_1")
-        rt.deactivate()
-        assert rt.state.status == WorkstreamStatus.ACTIVE
+        rt.mark_merge_ready()
+        assert rt.state.status == WorkstreamStatus.MERGE_READY
 
 
 class TestMarkFailed:

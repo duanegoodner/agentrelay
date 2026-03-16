@@ -31,14 +31,12 @@ class TestWorkstreamStateView:
             worktree_path=Path("/tmp/ws-work"),
             branch_name="ws/feature",
             error="something wrong",
-            active_task_id="task_1",
         )
         view: WorkstreamStateView = state
         assert view.status == WorkstreamStatus.ACTIVE
         assert view.worktree_path == Path("/tmp/ws-work")
         assert view.branch_name == "ws/feature"
         assert view.error == "something wrong"
-        assert view.active_task_id == "task_1"
 
     def test_default_fields_through_view(self) -> None:
         """Default WorkstreamState values are accessible through the view."""
@@ -47,7 +45,6 @@ class TestWorkstreamStateView:
         assert view.worktree_path is None
         assert view.branch_name is None
         assert view.error is None
-        assert view.active_task_id is None
 
 
 # ── Tests for WorkstreamArtifactsView ──
@@ -123,7 +120,6 @@ class TestWorkstreamRuntimeView:
                 status=WorkstreamStatus.ACTIVE,
                 worktree_path=Path("/tmp/ws"),
                 branch_name="ws/feature",
-                active_task_id="task_2",
             ),
             artifacts=WorkstreamArtifacts(
                 merge_pr_url="https://github.com/org/repo/pull/55",
@@ -137,6 +133,5 @@ class TestWorkstreamRuntimeView:
         assert view.state.status == WorkstreamStatus.ACTIVE
         assert view.state.worktree_path == Path("/tmp/ws")
         assert view.state.branch_name == "ws/feature"
-        assert view.state.active_task_id == "task_2"
         assert view.artifacts.merge_pr_url == "https://github.com/org/repo/pull/55"
         assert view.artifacts.concerns == ["performance"]

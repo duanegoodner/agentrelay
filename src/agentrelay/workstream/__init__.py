@@ -14,7 +14,11 @@ from agentrelay.workstream.core.io import (
     WorkstreamPreparer,
     WorkstreamTeardown,
 )
-from agentrelay.workstream.core.runner import WorkstreamRunner, WorkstreamRunResult
+from agentrelay.workstream.core.runner import (
+    StandardWorkstreamRunner,
+    WorkstreamRunner,
+    WorkstreamRunResult,
+)
 from agentrelay.workstream.core.runtime import (
     WorkstreamArtifacts,
     WorkstreamArtifactsView,
@@ -49,6 +53,7 @@ __all__ = [
     "WorkstreamRuntimeView",
     "WorkstreamRuntimeBuilder",
     "WorkstreamRunner",
+    "StandardWorkstreamRunner",
     "WorkstreamSpec",
     "WorkstreamState",
     "WorkstreamStateView",

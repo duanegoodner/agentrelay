@@ -4,6 +4,31 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-15
+
+### Wire WorkstreamRunner into Orchestrator
+
+- **WorkstreamRunner as Protocol**: Promoted `WorkstreamRunner` to a Protocol
+  (matching the `TaskRunner` pattern). Renamed the concrete implementation to
+  `StandardWorkstreamRunner`. The Orchestrator depends only on the protocol.
+- **Orchestrator lifecycle wiring**: Added `workstream_runner` as a required field
+  on `Orchestrator`. The orchestrator now calls `prepare()` before the first task
+  in a workstream, `merge()` when all tasks reach `PR_MERGED`, and `teardown()`
+  after the main loop exits.
+- **MERGE_READY status**: Added `WorkstreamStatus.MERGE_READY` as an intermediate
+  state between `ACTIVE` and `MERGED`. Enables future human-approval gates before
+  integration branch merge.
+- **Derived active-task check**: Removed `active_task_id` from `WorkstreamState`
+  and the `activate()`/`deactivate()` methods from `WorkstreamRuntime`. The
+  one-task-per-workstream constraint is now enforced by scanning task runtimes
+  for `RUNNING`/`PR_CREATED` status.
+- **fail_fast_on_workstream_error**: New `OrchestratorConfig` option (default
+  `True`). When a workstream fails during `prepare()`, prevents preparing new
+  workstreams but does not cancel in-flight work.
+- Updated diagram, exports, and all orchestrator tests.
+
+---
+
 ## 2026-03-14
 
 ### Flatten WorkstreamRunnerIO into WorkstreamRunner

@@ -1,9 +1,9 @@
 """Workstream-level lifecycle runner.
 
-This module defines :class:`WorkstreamRunner`, which drives a single
-:class:`WorkstreamRuntime` through the workstream lifecycle steps
-(prepare, merge, teardown), delegating each step to the corresponding
-per-step protocol implementation.
+This module defines :class:`WorkstreamRunner` (a Protocol) and
+:class:`StandardWorkstreamRunner` (the standard implementation),
+which drive a :class:`WorkstreamRuntime` through the workstream lifecycle
+steps (prepare, merge, teardown).
 
 The orchestrator calls these methods at the appropriate points in the
 scheduling loop — prepare before the first task in a workstream,
@@ -13,7 +13,7 @@ merge after all tasks succeed, and teardown at the end.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.workstream.core.io import (
     WorkstreamMerger,
@@ -54,9 +54,31 @@ class WorkstreamRunResult:
         )
 
 
+@runtime_checkable
+class WorkstreamRunner(Protocol):
+    """Protocol for the workstream runner boundary used by Orchestrator.
+
+    Different lifecycle variants (standard, dry-run) are different classes
+    satisfying this protocol. The orchestrator does not know or care about
+    internal step structure.
+    """
+
+    def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Provision workspace infrastructure for a workstream."""
+        ...
+
+    def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+        """Merge the workstream integration branch into its target."""
+        ...
+
+    def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Clean up workstream workspace infrastructure."""
+        ...
+
+
 @dataclass
-class WorkstreamRunner:
-    """Workstream lifecycle runner.
+class StandardWorkstreamRunner:
+    """Standard workstream lifecycle runner.
 
     Drives workstream-level operations (prepare, merge, teardown) by
     delegating to per-step protocol implementations. The orchestrator
@@ -75,8 +97,8 @@ class WorkstreamRunner:
     def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
         """Provision workspace infrastructure for a workstream.
 
-        Creates the worktree and integration branch. Transitions the
-        workstream to ``ACTIVE`` on success, or ``FAILED`` on error.
+        Creates the worktree and integration branch. Transitions from
+        ``PENDING`` to ``ACTIVE`` on success, or ``FAILED`` on error.
 
         Args:
             workstream_runtime: Workstream runtime to provision.
@@ -87,6 +109,7 @@ class WorkstreamRunner:
             workstream_runtime.state.status = WorkstreamStatus.FAILED
             workstream_runtime.state.error = f"{type(exc).__name__}: {exc}"
             raise
+        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
 
     def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
         """Merge the workstream integration branch into its target.
@@ -127,4 +150,5 @@ class WorkstreamRunner:
 __all__ = [
     "WorkstreamRunResult",
     "WorkstreamRunner",
+    "StandardWorkstreamRunner",
 ]
