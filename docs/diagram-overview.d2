@@ -1,0 +1,107 @@
+direction: down
+
+# ─────────────────────────────────────────────
+#  Auto-generated package overview diagram
+#  Source: docs/diagram.d2
+#  Generator: tools/generate_overview.py
+# ─────────────────────────────────────────────
+
+classes: {
+  composition: {
+    style.stroke: "#333333"
+  }
+  dependency: {
+    style.stroke-dash: 3
+  }
+}
+
+# ─────────────────────────────────────────────
+#  Packages
+# ─────────────────────────────────────────────
+task_py: "task.py" {
+  tooltip: "Classes: AgentRole, AgentFramework, AgentVerbosity, TaskPaths, AgentConfig, ReviewConfig, Task"
+  link: "diagram.svg"
+}
+
+environments_py: "environments.py" {
+  tooltip: "Classes: AgentEnvironment, TmuxEnvironment"
+  link: "diagram.svg"
+}
+
+agent_pkg: "agent/" {
+  tooltip: "Classes: AgentAddress, Agent, TmuxAddress, TmuxAgent"
+  link: "diagram.svg"
+}
+
+workspace_py: "workspace.py" {
+  tooltip: "Classes: LocalWorkspaceRef, WorkspaceRef"
+  link: "diagram.svg"
+}
+
+workstream_pkg: "workstream/" {
+  tooltip: "Classes: WorkstreamSpec, WorkstreamRuntimeBuilder, WorkstreamStatus, WorkstreamState, WorkstreamArtifacts, WorkstreamRuntime, WorkstreamStateView, WorkstreamArtifactsView, WorkstreamRuntimeView, WorkstreamPreparer, WorkstreamMerger, WorkstreamTeardown, WorkstreamRunResult, WorkstreamRunner, StandardWorkstreamRunner, GitWorkstreamPreparer, GhWorkstreamMerger, GitWorkstreamTeardown"
+  link: "diagram.svg"
+}
+
+task_graph_pkg: "task_graph/" {
+  tooltip: "Classes: TaskGraph, _validation, _indexing, TaskGraphBuilder"
+  link: "diagram.svg"
+}
+
+task_runtime_pkg: "task_runtime/" {
+  tooltip: "Classes: TaskRuntimeBuilder, TaskStatus, TaskState, TaskArtifacts, TaskRuntime, TaskStateView, TaskArtifactsView, TaskRuntimeView"
+  link: "diagram.svg"
+}
+
+task_runner_pkg: "task_runner/" {
+  tooltip: "Classes: TearDownMode, TaskCompletionSignal, TaskPreparer, TaskLauncher, TaskKickoff, TaskCompletionChecker, TaskMerger, TaskTeardown, TaskRunnerIO, StepDispatch, TaskRunResult, TaskRunner, StandardTaskRunner, WorktreeTaskPreparer, TmuxTaskLauncher, TmuxTaskKickoff, SignalCompletionChecker, GhTaskMerger, standard_runner_builder, WorktreeTaskTeardown"
+  link: "diagram.svg"
+}
+
+orchestrator_pkg: "orchestrator/" {
+  tooltip: "Classes: TaskOutcomeClass, OrchestratorOutcome, OrchestratorConfig, OrchestratorEvent, OrchestratorResult, OrchestratorListener, Orchestrator, _OrchestratorRun"
+  link: "diagram.svg"
+}
+
+ops_pkg: "ops/" {
+  tooltip: "Classes: git, tmux, gh, signals"
+  link: "diagram.svg"
+}
+
+errors_pkg: "errors/" {
+  tooltip: "Classes: IntegrationBoundary, IntegrationFailureClass, IntegrationError, ExpectedTaskFailureError, InternalIntegrationError, WorkspaceIntegrationError, SignalIntegrationError, PullRequestIntegrationError, AgentLaunchIntegrationError, error_functions"
+  link: "diagram.svg"
+}
+
+agent_comm_protocol_pkg: "agent_comm_protocol/" {
+  tooltip: "Classes: TaskManifest, DependencyInfo, WorkflowPolicies, WorkflowAction, PrBodySection, CommitPolicy, PrPolicy, CompletionGatePolicy, VerificationPolicy, AdrPolicy, ReviewPolicy, manifest_functions, policies_functions, templates_functions"
+  link: "diagram.svg"
+}
+
+spec_pkg: "spec/" {
+  tooltip: "Classes: SpecRepresentation, PythonStubSpec"
+  link: "diagram.svg"
+}
+
+# ─────────────────────────────────────────────
+#  Cross-package relationships
+# ─────────────────────────────────────────────
+agent_comm_protocol_pkg -> task_py: role, verbosity, reads { class: composition }
+orchestrator_pkg -> task_graph_pkg: reads { class: composition }
+orchestrator_pkg -> task_runner_pkg: delegates task runs, teardown policy { class: composition }
+orchestrator_pkg -> task_runtime_pkg: mutates { class: composition }
+orchestrator_pkg -> workstream_pkg: delegates workstream lifecycle, mutates { class: composition }
+task_graph_pkg -> task_py: contains { class: composition }
+task_graph_pkg -> workstream_pkg: contains { class: composition }
+task_py -> environments_py: environment { class: composition }
+task_py -> workstream_pkg: workstream_id (ref) { class: dependency }
+task_runner_pkg -> agent_comm_protocol_pkg: uses { class: dependency }
+task_runner_pkg -> agent_pkg: launches, uses { class: composition }
+task_runner_pkg -> errors_pkg: failure_class (optional) { class: composition }
+task_runner_pkg -> ops_pkg: uses { class: dependency }
+task_runner_pkg -> task_runtime_pkg: mutates, status { class: composition }
+task_runtime_pkg -> agent_pkg: agent_address (optional) { class: composition }
+task_runtime_pkg -> task_graph_pkg: reads { class: composition }
+task_runtime_pkg -> task_py: task { class: composition }
+workstream_pkg -> ops_pkg: uses { class: composition }
+workstream_pkg -> task_graph_pkg: reads { class: composition }

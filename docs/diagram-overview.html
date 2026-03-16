@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>agentrelay — Package Overview</title>
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 {
+    font-size: 18px;
+    color: #333;
+    margin: 0 0 12px 0;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+  .svg-container {
+    overflow: auto;
+  }
+  .svg-container svg {
+    max-width: 100%;
+    height: auto;
+  }
+  #tooltip {
+    display: none;
+    position: fixed;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    max-width: 420px;
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  #tooltip .tip-title {
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  #tooltip .tip-classes {
+    color: #b0b0c0;
+  }
+</style>
+</head>
+<body>
+<h1>Package Overview</h1>
+<p class="subtitle">
+  Hover over a package to see its classes. Click to open the
+  <a href="diagram.svg">detail diagram</a>.
+</p>
+<div class="svg-container">
+<?xml version="1.0" encoding="utf-8"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" data-d2-version="0.7.1" preserveAspectRatio="xMinYMin meet" viewBox="0 0 1232 1067" width="616" height="534"><svg class="d2-468585927 d2-svg" width="1232" height="1067" viewBox="-8 -26 1232 1067"><rect x="-8.000000" y="-26.000000" width="1232.000000" height="1067.000000" rx="0.000000" fill="#FFFFFF" class=" fill-N7" stroke-width="0" /><style type="text/css"><![CDATA[
+.appendix-icon {
+	filter: drop-shadow(0px 0px 32px rgba(31, 36, 58, 0.1));
+}
+.d2-468585927 .text-bold {
+	font-family: "d2-468585927-font-bold";
+}
+@font-face {
+	font-family: d2-468585927-font-bold;
+	src: url("data:application/font-woff;base64,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");
+}
+.d2-468585927 .text-italic {
+	font-family: "d2-468585927-font-italic";
+}
+@font-face {
+	font-family: d2-468585927-font-italic;
+	src: url("data:application/font-woff;base64,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");
+}]]></style><style type="text/css"><![CDATA[.shape {
+  shape-rendering: geometricPrecision;
+  stroke-linejoin: round;
+}
+.connection {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.blend {
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+}
+
+		.d2-468585927 .fill-N1{fill:#0A0F25;}
+		.d2-468585927 .fill-N2{fill:#676C7E;}
+		.d2-468585927 .fill-N3{fill:#9499AB;}
+		.d2-468585927 .fill-N4{fill:#CFD2DD;}
+		.d2-468585927 .fill-N5{fill:#DEE1EB;}
+		.d2-468585927 .fill-N6{fill:#EEF1F8;}
+		.d2-468585927 .fill-N7{fill:#FFFFFF;}
+		.d2-468585927 .fill-B1{fill:#0D32B2;}
+		.d2-468585927 .fill-B2{fill:#0D32B2;}
+		.d2-468585927 .fill-B3{fill:#E3E9FD;}
+		.d2-468585927 .fill-B4{fill:#E3E9FD;}
+		.d2-468585927 .fill-B5{fill:#EDF0FD;}
+		.d2-468585927 .fill-B6{fill:#F7F8FE;}
+		.d2-468585927 .fill-AA2{fill:#4A6FF3;}
+		.d2-468585927 .fill-AA4{fill:#EDF0FD;}
+		.d2-468585927 .fill-AA5{fill:#F7F8FE;}
+		.d2-468585927 .fill-AB4{fill:#EDF0FD;}
+		.d2-468585927 .fill-AB5{fill:#F7F8FE;}
+		.d2-468585927 .stroke-N1{stroke:#0A0F25;}
+		.d2-468585927 .stroke-N2{stroke:#676C7E;}
+		.d2-468585927 .stroke-N3{stroke:#9499AB;}
+		.d2-468585927 .stroke-N4{stroke:#CFD2DD;}
+		.d2-468585927 .stroke-N5{stroke:#DEE1EB;}
+		.d2-468585927 .stroke-N6{stroke:#EEF1F8;}
+		.d2-468585927 .stroke-N7{stroke:#FFFFFF;}
+		.d2-468585927 .stroke-B1{stroke:#0D32B2;}
+		.d2-468585927 .stroke-B2{stroke:#0D32B2;}
+		.d2-468585927 .stroke-B3{stroke:#E3E9FD;}
+		.d2-468585927 .stroke-B4{stroke:#E3E9FD;}
+		.d2-468585927 .stroke-B5{stroke:#EDF0FD;}
+		.d2-468585927 .stroke-B6{stroke:#F7F8FE;}
+		.d2-468585927 .stroke-AA2{stroke:#4A6FF3;}
+		.d2-468585927 .stroke-AA4{stroke:#EDF0FD;}
+		.d2-468585927 .stroke-AA5{stroke:#F7F8FE;}
+		.d2-468585927 .stroke-AB4{stroke:#EDF0FD;}
+		.d2-468585927 .stroke-AB5{stroke:#F7F8FE;}
+		.d2-468585927 .background-color-N1{background-color:#0A0F25;}
+		.d2-468585927 .background-color-N2{background-color:#676C7E;}
+		.d2-468585927 .background-color-N3{background-color:#9499AB;}
+		.d2-468585927 .background-color-N4{background-color:#CFD2DD;}
+		.d2-468585927 .background-color-N5{background-color:#DEE1EB;}
+		.d2-468585927 .background-color-N6{background-color:#EEF1F8;}
+		.d2-468585927 .background-color-N7{background-color:#FFFFFF;}
+		.d2-468585927 .background-color-B1{background-color:#0D32B2;}
+		.d2-468585927 .background-color-B2{background-color:#0D32B2;}
+		.d2-468585927 .background-color-B3{background-color:#E3E9FD;}
+		.d2-468585927 .background-color-B4{background-color:#E3E9FD;}
+		.d2-468585927 .background-color-B5{background-color:#EDF0FD;}
+		.d2-468585927 .background-color-B6{background-color:#F7F8FE;}
+		.d2-468585927 .background-color-AA2{background-color:#4A6FF3;}
+		.d2-468585927 .background-color-AA4{background-color:#EDF0FD;}
+		.d2-468585927 .background-color-AA5{background-color:#F7F8FE;}
+		.d2-468585927 .background-color-AB4{background-color:#EDF0FD;}
+		.d2-468585927 .background-color-AB5{background-color:#F7F8FE;}
+		.d2-468585927 .color-N1{color:#0A0F25;}
+		.d2-468585927 .color-N2{color:#676C7E;}
+		.d2-468585927 .color-N3{color:#9499AB;}
+		.d2-468585927 .color-N4{color:#CFD2DD;}
+		.d2-468585927 .color-N5{color:#DEE1EB;}
+		.d2-468585927 .color-N6{color:#EEF1F8;}
+		.d2-468585927 .color-N7{color:#FFFFFF;}
+		.d2-468585927 .color-B1{color:#0D32B2;}
+		.d2-468585927 .color-B2{color:#0D32B2;}
+		.d2-468585927 .color-B3{color:#E3E9FD;}
+		.d2-468585927 .color-B4{color:#E3E9FD;}
+		.d2-468585927 .color-B5{color:#EDF0FD;}
+		.d2-468585927 .color-B6{color:#F7F8FE;}
+		.d2-468585927 .color-AA2{color:#4A6FF3;}
+		.d2-468585927 .color-AA4{color:#EDF0FD;}
+		.d2-468585927 .color-AA5{color:#F7F8FE;}
+		.d2-468585927 .color-AB4{color:#EDF0FD;}
+		.d2-468585927 .color-AB5{color:#F7F8FE;}.appendix text.text{fill:#0A0F25}.md{--color-fg-default:#0A0F25;--color-fg-muted:#676C7E;--color-fg-subtle:#9499AB;--color-canvas-default:#FFFFFF;--color-canvas-subtle:#EEF1F8;--color-border-default:#0D32B2;--color-border-muted:#0D32B2;--color-neutral-muted:#EEF1F8;--color-accent-fg:#0D32B2;--color-accent-emphasis:#0D32B2;--color-attention-subtle:#676C7E;--color-danger-fg:red;}.sketch-overlay-B1{fill:url(#streaks-darker-d2-468585927);mix-blend-mode:lighten}.sketch-overlay-B2{fill:url(#streaks-darker-d2-468585927);mix-blend-mode:lighten}.sketch-overlay-B3{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-B4{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-B5{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-B6{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-AA2{fill:url(#streaks-dark-d2-468585927);mix-blend-mode:overlay}.sketch-overlay-AA4{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-AA5{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-AB4{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-AB5{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-N1{fill:url(#streaks-darker-d2-468585927);mix-blend-mode:lighten}.sketch-overlay-N2{fill:url(#streaks-dark-d2-468585927);mix-blend-mode:overlay}.sketch-overlay-N3{fill:url(#streaks-normal-d2-468585927);mix-blend-mode:color-burn}.sketch-overlay-N4{fill:url(#streaks-normal-d2-468585927);mix-blend-mode:color-burn}.sketch-overlay-N5{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-N6{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.sketch-overlay-N7{fill:url(#streaks-bright-d2-468585927);mix-blend-mode:darken}.light-code{display: block}.dark-code{display: none}]]></style><g class="dGFza19weQ=="><g class="shape" ><rect x="456.000000" y="690.000000" width="120.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="516.000000" y="728.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">task.py</text><title>Classes: AgentRole, AgentFramework, AgentVerbosity, TaskPaths, AgentConfig, ReviewConfig, Task</title></g><g class="ZW52aXJvbm1lbnRzX3B5"><g class="shape" ><rect x="530.000000" y="847.000000" width="167.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="613.500000" y="885.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">environments.py</text><title>Classes: AgentEnvironment, TmuxEnvironment</title></g><g class="YWdlbnRfcGtn"><g class="shape" ><rect x="974.000000" y="533.000000" width="91.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="1019.500000" y="571.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">agent/</text><title>Classes: AgentAddress, Agent, TmuxAddress, TmuxAgent</title></g><g class="d29ya3NwYWNlX3B5"><g class="shape" ><rect x="127.000000" y="12.000000" width="145.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="199.500000" y="50.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">workspace.py</text><title>Classes: LocalWorkspaceRef, WorkspaceRef</title></g><g class="d29ya3N0cmVhbV9wa2c="><g class="shape" ><rect x="216.000000" y="847.000000" width="137.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="284.500000" y="885.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">workstream/</text><title>Classes: WorkstreamSpec, WorkstreamRuntimeBuilder, WorkstreamStatus, WorkstreamState, WorkstreamArtifacts, WorkstreamRuntime, WorkstreamStateView, WorkstreamArtifactsView, WorkstreamRuntimeView, WorkstreamPreparer, WorkstreamMerger, WorkstreamTeardown, WorkstreamRunResult, WorkstreamRunner, StandardWorkstreamRunner, GitWorkstreamPreparer, GhWorkstreamMerger, GitWorkstreamTeardown</title></g><g class="dGFza19ncmFwaF9wa2c="><g class="shape" ><rect x="282.000000" y="533.000000" width="131.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="347.500000" y="571.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">task_graph/</text><title>Classes: TaskGraph, _validation, _indexing, TaskGraphBuilder</title></g><g class="dGFza19ydW50aW1lX3BrZw=="><g class="shape" ><rect x="427.000000" y="376.000000" width="146.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="500.000000" y="414.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">task_runtime/</text><title>Classes: TaskRuntimeBuilder, TaskStatus, TaskState, TaskArtifacts, TaskRuntime, TaskStateView, TaskArtifactsView, TaskRuntimeView</title></g><g class="dGFza19ydW5uZXJfcGtn"><g class="shape" ><rect x="756.000000" y="169.000000" width="200.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="856.000000" y="207.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">task_runner/</text><title>Classes: TearDownMode, TaskCompletionSignal, TaskPreparer, TaskLauncher, TaskKickoff, TaskCompletionChecker, TaskMerger, TaskTeardown, TaskRunnerIO, StepDispatch, TaskRunResult, TaskRunner, StandardTaskRunner, WorktreeTaskPreparer, TmuxTaskLauncher, TmuxTaskKickoff, SignalCompletionChecker, GhTaskMerger, standard_runner_builder, WorktreeTaskTeardown</title></g><g class="b3JjaGVzdHJhdG9yX3BrZw=="><g class="shape" ><rect x="292.000000" y="12.000000" width="160.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="372.000000" y="50.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">orchestrator/</text><title>Classes: TaskOutcomeClass, OrchestratorOutcome, OrchestratorConfig, OrchestratorEvent, OrchestratorResult, OrchestratorListener, Orchestrator, _OrchestratorRun</title></g><g class="b3BzX3BrZw=="><g class="shape" ><rect x="714.000000" y="954.000000" width="80.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="754.000000" y="992.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">ops/</text><title>Classes: git, tmux, gh, signals</title></g><g class="ZXJyb3JzX3BrZw=="><g class="shape" ><rect x="649.000000" y="376.000000" width="94.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="696.000000" y="414.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">errors/</text><title>Classes: IntegrationBoundary, IntegrationFailureClass, IntegrationError, ExpectedTaskFailureError, InternalIntegrationError, WorkspaceIntegrationError, SignalIntegrationError, PullRequestIntegrationError, AgentLaunchIntegrationError, error_functions</title></g><g class="YWdlbnRfY29tbV9wcm90b2NvbF9wa2c="><g class="shape" ><rect x="763.000000" y="376.000000" width="211.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="868.500000" y="414.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">agent_comm_protocol/</text><title>Classes: TaskManifest, DependencyInfo, WorkflowPolicies, WorkflowAction, PrBodySection, CommitPolicy, PrPolicy, CompletionGatePolicy, VerificationPolicy, AdrPolicy, ReviewPolicy, manifest_functions, policies_functions, templates_functions</title></g><g class="c3BlY19wa2c="><g class="shape" ><rect x="472.000000" y="12.000000" width="83.000000" height="66.000000" stroke="#0D32B2" fill="#F7F8FE" class=" stroke-B1 fill-B6" style="stroke-width:2;" /></g><text x="513.500000" y="50.500000" fill="#0A0F25" class="text-bold fill-N1" style="text-anchor:middle;font-size:16px">spec/</text><title>Classes: SpecRepresentation, PythonStubSpec</title></g><g class="KGFnZW50X2NvbW1fcHJvdG9jb2xfcGtnIC0mZ3Q7IHRhc2tfcHkpWzBd composition"><marker id="mk-d2-468585927-2347144802" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#333333" class="connection" stroke-width="2" /> </marker><path d="M 867.257954 442.599416 L 862.790310 444.002921 S 853.250000 447.000000 853.250000 457.000000 L 853.250000 625.000000 S 853.250000 635.000000 843.250000 635.000000 L 556.958008 635.000000 S 546.958008 635.000000 546.958008 645.000000 L 546.958008 686.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="774.500000" y="641.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">role, verbosity, reads</text></g><g class="KG9yY2hlc3RyYXRvcl9wa2cgLSZndDsgdGFza19ncmFwaF9wa2cpWzBd composition"><path d="M 356.500000 80.000000 L 356.500000 123.000000 S 356.500000 133.000000 355.541928 142.953999 L 318.383229 529.018400" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="340.000000" y="311.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">reads</text></g><g class="KG9yY2hlc3RyYXRvcl9wa2cgLSZndDsgdGFza19ydW5uZXJfcGtnKVswXQ== composition"><path d="M 422.499868 78.022961 L 846.000659 82.885197 S 856.000000 83.000000 856.000000 93.000000 L 856.000000 165.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="681.500000" y="86.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">delegates task runs, teardown policy</text></g><g class="KG9yY2hlc3RyYXRvcl9wa2cgLSZndDsgdGFza19ydW50aW1lX3BrZylbMF0= composition"><path d="M 388.500000 80.000000 L 388.500000 123.000000 S 388.500000 133.000000 391.520700 142.532858 L 464.291720 372.186857" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="418.500000" y="234.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">mutates</text></g><g class="KG9yY2hlc3RyYXRvcl9wa2cgLSZndDsgd29ya3N0cmVhbV9wa2cpWzBd composition"><path d="M 322.500771 78.055534 L 154.496144 82.722329 S 144.500000 83.000000 144.500000 93.000000 L 144.500000 832.000000 S 144.500000 842.000000 154.487484 842.500169 L 240.346010 846.799932" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="144.500000" y="428.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">delegates workstream lifecycle, mutates</text></g><g class="KHRhc2tfZ3JhcGhfcGtnIC0mZ3Q7IHRhc2tfcHkpWzBd composition"><path d="M 382.739874 599.200997 L 420.300628 602.995013 S 430.250000 604.000000 430.250000 614.000000 L 430.250000 675.000000 S 430.250000 685.000000 440.211355 685.878302 L 482.973466 689.648679" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="430.500000" y="654.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">contains</text></g><g class="KHRhc2tfZ3JhcGhfcGtnIC0mZ3Q7IHdvcmtzdHJlYW1fcGtnKVswXQ== composition"><path d="M 313.257044 599.167709 L 265.797773 603.161454 S 255.832993 604.000000 255.832993 614.000000 L 255.832993 843.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="255.500000" y="701.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">contains</text></g><g class="KHRhc2tfcHkgLSZndDsgZW52aXJvbm1lbnRzX3B5KVswXQ== composition"><path d="M 538.953858 756.128765 L 604.478755 760.356177 S 614.458008 761.000000 614.458008 771.000000 L 614.458008 843.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="614.500000" y="771.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">environment</text></g><g class="KHRhc2tfcHkgLSZndDsgd29ya3N0cmVhbV9wa2cpWzBd dependency"><marker id="mk-d2-468585927-2177206569" markerWidth="10.000000" markerHeight="12.000000" refX="7.000000" refY="6.000000" viewBox="0.000000 0.000000 10.000000 12.000000" orient="auto" markerUnits="userSpaceOnUse"> <polygon points="0.000000,0.000000 10.000000,6.000000 0.000000,12.000000" fill="#0D32B2" class="connection fill-B2" stroke-width="2" /> </marker><path d="M 496.958008 758.000000 L 496.958008 832.000000 S 496.958008 842.000000 486.962309 842.293272 L 330.539265 846.882691" stroke="#0D32B2" fill="none" class="connection stroke-B2" style="stroke-width:2;stroke-dasharray:6.000000,5.919384;" marker-end="url(#mk-d2-468585927-2177206569)" mask="url(#d2-468585927)" /><text x="455.000000" y="849.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">workstream_id (ref)</text></g><g class="KHRhc2tfcnVubmVyX3BrZyAtJmd0OyBhZ2VudF9jb21tX3Byb3RvY29sX3BrZylbMF0= dependency"><path d="M 869.166016 237.000000 L 869.166016 372.000000" stroke="#0D32B2" fill="none" class="connection stroke-B2" style="stroke-width:2;stroke-dasharray:6.000000,5.919384;" marker-end="url(#mk-d2-468585927-2177206569)" mask="url(#d2-468585927)" /><text x="869.000000" y="311.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">uses</text></g><g class="KHRhc2tfcnVubmVyX3BrZyAtJmd0OyBhZ2VudF9wa2cpWzBd composition"><path d="M 889.333008 237.000000 L 889.333008 280.000000 S 889.333008 290.000000 899.333008 290.000000 L 1090.250000 290.000000 S 1100.250000 290.000000 1100.250000 300.000000 L 1100.250000 518.000000 S 1100.250000 528.000000 1090.279758 528.770891 L 1039.571105 532.691644" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="1100.000000" y="314.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">launches, uses</text></g><g class="KHRhc2tfcnVubmVyX3BrZyAtJmd0OyBlcnJvcnNfcGtnKVswXQ== composition"><path d="M 822.666016 237.000000 L 822.666016 280.000000 S 822.666016 290.000000 812.666016 290.000000 L 706.666016 290.000000 S 696.666016 290.000000 696.666016 300.000000 L 696.666016 372.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="744.000000" y="296.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">failure_class (optional)</text></g><g class="KHRhc2tfcnVubmVyX3BrZyAtJmd0OyBvcHNfcGtnKVswXQ== dependency"><path d="M 924.665664 235.037505 L 1179.251758 239.812475 S 1189.250000 240.000000 1189.250000 250.000000 L 1189.250000 939.000000 S 1189.250000 949.000000 1179.250704 949.118655 L 771.890710 953.952538" stroke="#0D32B2" fill="none" class="connection stroke-B2" style="stroke-width:2;stroke-dasharray:6.000000,5.919384;" marker-end="url(#mk-d2-468585927-2177206569)" mask="url(#d2-468585927)" /><text x="1189.000000" y="677.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">uses</text></g><g class="KHRhc2tfcnVubmVyX3BrZyAtJmd0OyB0YXNrX3J1bnRpbWVfcGtnKVswXQ== composition"><path d="M 787.627574 236.044747 L 562.576883 373.910507" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="674.500000" y="311.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">mutates, status</text></g><g class="KHRhc2tfcnVudGltZV9wa2cgLSZndDsgYWdlbnRfcGtnKVswXQ== composition"><path d="M 536.916016 444.000000 L 536.916016 487.000000 S 536.916016 497.000000 546.916016 497.000000 L 966.750000 497.000000 S 976.750000 497.000000 976.750000 507.000000 L 976.750000 518.000000 S 976.750000 528.000000 986.599560 529.728052 L 1001.309199 532.308779" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="759.500000" y="503.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">agent_address (optional)</text></g><g class="KHRhc2tfcnVudGltZV9wa2cgLSZndDsgdGFza19ncmFwaF9wa2cpWzBd composition"><path d="M 462.542978 443.454253 L 380.746013 530.091493" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="421.000000" y="493.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">reads</text></g><g class="KHRhc2tfcnVudGltZV9wa2cgLSZndDsgdGFza19weSlbMF0= composition"><path d="M 499.927617 443.992097 L 516.069924 625.039513 S 516.958008 635.000000 516.958008 645.000000 L 516.958008 686.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="510.500000" y="571.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">task</text></g><g class="KHdvcmtzdHJlYW1fcGtnIC0mZ3Q7IG9wc19wa2cpWzBd composition"><path d="M 285.441010 915.000000 L 285.441010 939.000000 S 285.441010 949.000000 295.440408 949.109695 L 737.224240 953.956122" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="495.000000" y="957.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">uses</text></g><g class="KHdvcmtzdHJlYW1fcGtnIC0mZ3Q7IHRhc2tfZ3JhcGhfcGtnKVswXQ== composition"><path d="M 299.140991 845.000000 L 299.140991 802.000000 S 299.140991 792.000000 309.140991 792.000000 L 338.000000 792.000000 S 348.000000 792.000000 348.000000 782.000000 L 348.000000 603.000000" stroke="#333333" fill="none" class="connection" style="stroke-width:2;" marker-end="url(#mk-d2-468585927-2347144802)" mask="url(#d2-468585927)" /><text x="348.000000" y="753.000000" fill="#676C7E" class="text-italic fill-N2" style="text-anchor:middle;font-size:16px">reads</text></g><g transform="translate(560 674)" class="appendix-icon"><title>Classes: AgentRole, AgentFramework, AgentVerbosity, TaskPaths, AgentConfig, ReviewConfig, Task</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-ORQXG227OB4Q)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-ORQXG227OB4Q">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(681 831)" class="appendix-icon"><title>Classes: AgentEnvironment, TmuxEnvironment</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-MVXHM2LSN5XG2ZLOORZV64DZ)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-MVXHM2LSN5XG2ZLOORZV64DZ">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(1049 517)" class="appendix-icon"><title>Classes: AgentAddress, Agent, TmuxAddress, TmuxAgent</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-MFTWK3TUL5YGWZY)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-MFTWK3TUL5YGWZY">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(256 -4)" class="appendix-icon"><title>Classes: LocalWorkspaceRef, WorkspaceRef</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-O5XXE23TOBQWGZK7OB4Q)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-O5XXE23TOBQWGZK7OB4Q">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(337 831)" class="appendix-icon"><title>Classes: WorkstreamSpec, WorkstreamRuntimeBuilder, WorkstreamStatus, WorkstreamState, WorkstreamArtifacts, WorkstreamRuntime, WorkstreamStateView, WorkstreamArtifactsView, WorkstreamRuntimeView, WorkstreamPreparer, WorkstreamMerger, WorkstreamTeardown, WorkstreamRunResult, WorkstreamRunner, StandardWorkstreamRunner, GitWorkstreamPreparer, GhWorkstreamMerger, GitWorkstreamTeardown</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-O5XXE23TORZGKYLNL5YGWZY)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-O5XXE23TORZGKYLNL5YGWZY">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(397 517)" class="appendix-icon"><title>Classes: TaskGraph, _validation, _indexing, TaskGraphBuilder</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-ORQXG227M5ZGC4DIL5YGWZY)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-ORQXG227M5ZGC4DIL5YGWZY">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(557 360)" class="appendix-icon"><title>Classes: TaskRuntimeBuilder, TaskStatus, TaskState, TaskArtifacts, TaskRuntime, TaskStateView, TaskArtifactsView, TaskRuntimeView</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-ORQXG227OJ2W45DJNVSV64DLM4)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-ORQXG227OJ2W45DJNVSV64DLM4">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(940 153)" class="appendix-icon"><title>Classes: TearDownMode, TaskCompletionSignal, TaskPreparer, TaskLauncher, TaskKickoff, TaskCompletionChecker, TaskMerger, TaskTeardown, TaskRunnerIO, StepDispatch, TaskRunResult, TaskRunner, StandardTaskRunner, WorktreeTaskPreparer, TmuxTaskLauncher, TmuxTaskKickoff, SignalCompletionChecker, GhTaskMerger, standard_runner_builder, WorktreeTaskTeardown</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-ORQXG227OJ2W43TFOJPXA23H)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-ORQXG227OJ2W43TFOJPXA23H">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(436 -4)" class="appendix-icon"><title>Classes: TaskOutcomeClass, OrchestratorOutcome, OrchestratorConfig, OrchestratorEvent, OrchestratorResult, OrchestratorListener, Orchestrator, _OrchestratorRun</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-N5ZGG2DFON2HEYLUN5ZF64DLM4)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-N5ZGG2DFON2HEYLUN5ZF64DLM4">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(778 938)" class="appendix-icon"><title>Classes: git, tmux, gh, signals</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-N5YHGX3QNNTQ)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-N5YHGX3QNNTQ">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(727 360)" class="appendix-icon"><title>Classes: IntegrationBoundary, IntegrationFailureClass, IntegrationError, ExpectedTaskFailureError, InternalIntegrationError, WorkspaceIntegrationError, SignalIntegrationError, PullRequestIntegrationError, AgentLaunchIntegrationError, error_functions</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-MVZHE33SONPXA23H)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-MVZHE33SONPXA23H">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(958 360)" class="appendix-icon"><title>Classes: TaskManifest, DependencyInfo, WorkflowPolicies, WorkflowAction, PrBodySection, CommitPolicy, PrPolicy, CompletionGatePolicy, VerificationPolicy, AdrPolicy, ReviewPolicy, manifest_functions, policies_functions, templates_functions</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-MFTWK3TUL5RW63LNL5YHE33UN5RW63C7OBVWO)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-MFTWK3TUL5RW63LNL5YHE33UN5RW63C7OBVWO">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><g transform="translate(539 -4)" class="appendix-icon"><title>Classes: SpecRepresentation, PythonStubSpec</title><svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3427_35082111-d2-468585927-ONYGKY27OBVWO)">
+<path d="M16 31.1109C24.3456 31.1109 31.1111 24.3454 31.1111 15.9998C31.1111 7.65415 24.3456 0.888672 16 0.888672C7.65436 0.888672 0.888885 7.65415 0.888885 15.9998C0.888885 24.3454 7.65436 31.1109 16 31.1109Z" fill="white" stroke="#DEE1EB"/>
+<path d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 19.998V15.998" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M16 12H16.0098" stroke="#2E3346" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_3427_35082111-d2-468585927-ONYGKY27OBVWO">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+</g><mask id="d2-468585927" maskUnits="userSpaceOnUse" x="-8" y="-26" width="1232" height="1067">
+<rect x="-8" y="-26" width="1232" height="1067" fill="white"></rect>
+<rect x="704.000000" y="625.000000" width="141" height="21" fill="black"></rect>
+<rect x="319.000000" y="295.000000" width="42" height="21" fill="black"></rect>
+<rect x="559.000000" y="70.000000" width="245" height="21" fill="black"></rect>
+<rect x="389.000000" y="218.000000" width="59" height="21" fill="black"></rect>
+<rect x="10.000000" y="412.000000" width="269" height="21" fill="black"></rect>
+<rect x="400.000000" y="638.000000" width="61" height="21" fill="black"></rect>
+<rect x="225.000000" y="685.000000" width="61" height="21" fill="black"></rect>
+<rect x="570.000000" y="755.000000" width="89" height="21" fill="black"></rect>
+<rect x="389.000000" y="833.000000" width="132" height="21" fill="black"></rect>
+<rect x="852.000000" y="295.000000" width="34" height="21" fill="black"></rect>
+<rect x="1050.000000" y="298.000000" width="100" height="21" fill="black"></rect>
+<rect x="667.000000" y="280.000000" width="154" height="21" fill="black"></rect>
+<rect x="1172.000000" y="661.000000" width="34" height="21" fill="black"></rect>
+<rect x="621.000000" y="295.000000" width="107" height="21" fill="black"></rect>
+<rect x="675.000000" y="487.000000" width="169" height="21" fill="black"></rect>
+<rect x="400.000000" y="477.000000" width="42" height="21" fill="black"></rect>
+<rect x="494.000000" y="555.000000" width="33" height="21" fill="black"></rect>
+<rect x="478.000000" y="941.000000" width="34" height="21" fill="black"></rect>
+<rect x="327.000000" y="737.000000" width="42" height="21" fill="black"></rect>
+</mask></svg></svg>
+
+</div>
+<div id="tooltip"></div>
+<script>
+(function() {
+  const tooltip = document.getElementById('tooltip');
+  const svgEl = document.querySelector('.svg-container svg');
+  if (!svgEl) return;
+
+  // Find all groups that have a <title> child with tooltip content.
+  const groups = svgEl.querySelectorAll('g');
+  groups.forEach(function(g) {
+    const title = g.querySelector(':scope > title');
+    if (!title || !title.textContent) return;
+    const text = title.textContent.trim();
+    if (!text.startsWith('Classes:') && !text.startsWith('**Classes')) return;
+
+    // Find the display label from the <text> sibling.
+    const labelEl = g.querySelector(':scope > text');
+    const label = labelEl ? labelEl.textContent.trim() : '';
+
+    // Clean up the classes text.
+    let classes = text
+      .replace(/^\*\*Classes\/modules:\*\*\s*/, '')
+      .replace(/^Classes:\s*/, '');
+
+    g.style.cursor = 'pointer';
+
+    g.addEventListener('mouseenter', function(e) {
+      tooltip.innerHTML =
+        '<div class="tip-title">' + escapeHtml(label) + '</div>' +
+        '<div class="tip-classes">' + escapeHtml(classes) + '</div>';
+      tooltip.style.display = 'block';
+      positionTooltip(e);
+    });
+
+    g.addEventListener('mousemove', positionTooltip);
+
+    g.addEventListener('mouseleave', function() {
+      tooltip.style.display = 'none';
+    });
+  });
+
+  function positionTooltip(e) {
+    const pad = 12;
+    let x = e.clientX + pad;
+    let y = e.clientY + pad;
+    // Keep tooltip on screen.
+    const rect = tooltip.getBoundingClientRect();
+    if (x + rect.width > window.innerWidth - pad) {
+      x = e.clientX - rect.width - pad;
+    }
+    if (y + rect.height > window.innerHeight - pad) {
+      y = e.clientY - rect.height - pad;
+    }
+    tooltip.style.left = x + 'px';
+    tooltip.style.top = y + 'px';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+})();
+</script>
+</body>
+</html>

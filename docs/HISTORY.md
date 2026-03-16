@@ -6,6 +6,28 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-16
 
+### Add two-tier diagram system with auto-generated overview
+
+- **Overview generator**: New `tools/generate_overview.py` parses `docs/diagram.d2`,
+  extracts top-level packages and cross-package relationships, deduplicates arrows to
+  one per package pair, and writes `docs/diagram-overview.d2` with tooltips listing
+  each package's classes.
+- **Two rendered views**: `pixi run diagram` now generates both `diagram-overview.svg`
+  (13 package boxes, ~19 directional arrows) and `diagram.svg` (full class detail).
+- **Zero-drift**: Overview is derived from the detail diagram — single source of truth.
+- **27 new tests** covering parsing, deduplication, edge cases, and end-to-end
+  validation against the real diagram.
+
+### Migrate design diagram from PlantUML to D2
+
+- **Tool change**: Replaced PlantUML with D2 using the ELK layout engine for better
+  handling of nested containers and cross-package relationship arrows at scale.
+- **Faithful translation**: All ~80 classes/interfaces/enums across 12+ packages and
+  ~170 relationships preserved in the new `docs/diagram.d2` source.
+- **Dependency swap**: Replaced `plantuml` with `d2` in pixi.toml; `pixi run diagram`
+  now invokes `d2 --layout elk`.
+- Archived original PlantUML source as `docs/diagram.puml.archived` for reference.
+
 ### Extract _OrchestratorRun from Orchestrator
 
 - **Separation of concerns**: Split `Orchestrator` into an immutable config
