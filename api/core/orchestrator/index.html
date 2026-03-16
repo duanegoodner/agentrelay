@@ -1485,12 +1485,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
@@ -1963,12 +1958,103 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">604</span>
 <span class="normal">605</span>
 <span class="normal">606</span>
-<span class="normal">607</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span>
+<span class="normal">683</span>
+<span class="normal">684</span>
+<span class="normal">685</span>
+<span class="normal">686</span>
+<span class="normal">687</span>
+<span class="normal">688</span>
+<span class="normal">689</span>
+<span class="normal">690</span>
+<span class="normal">691</span>
+<span class="normal">692</span>
+<span class="normal">693</span>
+<span class="normal">694</span>
+<span class="normal">695</span>
+<span class="normal">696</span>
+<span class="normal">697</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Orchestrator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Async graph scheduler using dependency + workstream constraints.&quot;&quot;&quot;</span>
 
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span>
     <span class="n">task_runner</span><span class="p">:</span> <span class="n">TaskRunner</span>
+    <span class="n">workstream_runner</span><span class="p">:</span> <span class="n">WorkstreamRunner</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">OrchestratorConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">OrchestratorConfig</span><span class="p">)</span>
     <span class="n">listener</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OrchestratorListener</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -2010,6 +2096,7 @@ continues to work after promotion from a single module to a package.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
             <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
         <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span><span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span><span class="p">)</span>
 
         <span class="n">running</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">TaskRunResult</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">running_attempts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2037,10 +2124,25 @@ continues to work after promotion from a single module to a package.</p>
                 <span class="p">):</span>
                     <span class="k">continue</span>
 
+                <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_block_new_workstreams</span><span class="p">(</span><span class="n">mutable_workstream_runtimes</span><span class="p">):</span>
+                        <span class="k">continue</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">workstream_runner</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">ws_runtime</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                            <span class="n">events</span><span class="p">,</span>
+                            <span class="n">OrchestratorEvent</span><span class="p">(</span>
+                                <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;workstream_prepare_failed&quot;</span><span class="p">,</span>
+                                <span class="n">workstream_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">,</span>
+                                <span class="n">message</span><span class="o">=</span><span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="k">continue</span>
+
                 <span class="n">attempt_num</span> <span class="o">=</span> <span class="n">attempts_used</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">prepare_for_attempt</span><span class="p">(</span><span class="n">attempt_num</span><span class="p">)</span>
-                <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
-                <span class="n">ws_runtime</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">workstream_worktree_path</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
@@ -2070,6 +2172,9 @@ continues to work after promotion from a single module to a package.</p>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                     <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
                 <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span>
+                    <span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span>
+                <span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
@@ -2083,7 +2188,6 @@ continues to work after promotion from a single module to a package.</p>
 
                 <span class="n">runtime</span> <span class="o">=</span> <span class="n">mutable_task_runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span>
                 <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
-                <span class="n">ws_runtime</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">result</span> <span class="o">=</span> <span class="n">done_task</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
@@ -2129,6 +2233,9 @@ continues to work after promotion from a single module to a package.</p>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                         <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span>
+                        <span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span>
                     <span class="p">)</span>
                     <span class="k">continue</span>
 
@@ -2180,6 +2287,9 @@ continues to work after promotion from a single module to a package.</p>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                         <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
                     <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span>
+                        <span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span>
+                    <span class="p">)</span>
                     <span class="k">continue</span>
 
                 <span class="n">fatal_error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;RuntimeError: unexpected TaskRunner result status </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="si">!r}</span><span class="s2">&quot;</span>
@@ -2206,6 +2316,8 @@ continues to work after promotion from a single module to a package.</p>
                     <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_running_tasks</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
                     <span class="n">running</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
                     <span class="k">break</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_teardown_prepared_workstreams</span><span class="p">(</span><span class="n">mutable_workstream_runtimes</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">fatal_error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">outcome</span> <span class="o">=</span> <span class="n">OrchestratorOutcome</span><span class="o">.</span><span class="n">FATAL_INTERNAL_ERROR</span>
@@ -2315,9 +2427,19 @@ continues to work after promotion from a single module to a package.</p>
         <span class="n">workstream_id</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span>
         <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">workstream_runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+            <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGE_READY</span><span class="p">,</span>
+            <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGED</span><span class="p">,</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">active_task_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="n">task_ids_in_ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">tasks_in_workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">task_runtimes</span><span class="p">[</span><span class="n">tid</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span>
+            <span class="ow">in</span> <span class="p">(</span><span class="n">TaskStatus</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">tid</span> <span class="ow">in</span> <span class="n">task_ids_in_ws</span>
+        <span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="n">current</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span><span class="o">.</span><span class="n">parent_workstream_id</span>
@@ -2396,14 +2518,18 @@ continues to work after promotion from a single module to a package.</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
             <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">workstream_runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">,</span>
+                <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGE_READY</span><span class="p">,</span>
+                <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGED</span><span class="p">,</span>
+            <span class="p">):</span>
                 <span class="k">continue</span>
             <span class="n">task_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">tasks_in_workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">task_ids</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span>
                 <span class="n">task_runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span>
                 <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">task_ids</span>
             <span class="p">):</span>
-                <span class="n">ws_runtime</span><span class="o">.</span><span class="n">mark_merged</span><span class="p">()</span>
+                <span class="n">ws_runtime</span><span class="o">.</span><span class="n">mark_merge_ready</span><span class="p">()</span>
 
     <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_cancel_running_tasks</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">running</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">TaskRunResult</span><span class="p">]]</span>
@@ -2424,6 +2550,51 @@ continues to work after promotion from a single module to a package.</p>
                 <span class="k">return</span> <span class="n">task_id</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Orchestrator internal error: completed task not tracked.&quot;</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_block_new_workstreams</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether new workstream preparation should be blocked.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fail_fast_on_workstream_error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">ws</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span>
+            <span class="k">for</span> <span class="n">ws</span> <span class="ow">in</span> <span class="n">workstream_runtimes</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_merge_ready_workstreams</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OrchestratorEvent</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Merge workstreams that have reached MERGE_READY.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
+            <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">workstream_runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGE_READY</span><span class="p">:</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">workstream_runner</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ws_runtime</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                    <span class="n">events</span><span class="p">,</span>
+                    <span class="n">OrchestratorEvent</span><span class="p">(</span>
+                        <span class="n">kind</span><span class="o">=</span><span class="p">(</span>
+                            <span class="s2">&quot;workstream_merged&quot;</span>
+                            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGED</span>
+                            <span class="k">else</span> <span class="s2">&quot;workstream_merge_failed&quot;</span>
+                        <span class="p">),</span>
+                        <span class="n">workstream_id</span><span class="o">=</span><span class="n">workstream_id</span><span class="p">,</span>
+                        <span class="n">message</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_teardown_prepared_workstreams</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Teardown all workstreams that were prepared.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
+            <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">workstream_runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">workstream_runner</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">ws_runtime</span><span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_mark_inflight_tasks_failed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">running_task_ids</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -2439,7 +2610,6 @@ continues to work after promotion from a single module to a package.</p>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">reason</span>
             <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
-            <span class="n">ws_runtime</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span>
                 <span class="n">ws_runtime</span><span class="o">.</span><span class="n">mark_failed</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2589,13 +2759,7 @@ align with graph IDs.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
@@ -2840,7 +3004,39 @@ align with graph IDs.</p>
 <span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span>
-<span class="normal">389</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">task_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2878,6 +3074,7 @@ align with graph IDs.</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
         <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
     <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span><span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span><span class="p">)</span>
 
     <span class="n">running</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">TaskRunResult</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">running_attempts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2905,10 +3102,25 @@ align with graph IDs.</p>
             <span class="p">):</span>
                 <span class="k">continue</span>
 
+            <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">PENDING</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_block_new_workstreams</span><span class="p">(</span><span class="n">mutable_workstream_runtimes</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">workstream_runner</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">ws_runtime</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
+                        <span class="n">events</span><span class="p">,</span>
+                        <span class="n">OrchestratorEvent</span><span class="p">(</span>
+                            <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;workstream_prepare_failed&quot;</span><span class="p">,</span>
+                            <span class="n">workstream_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">,</span>
+                            <span class="n">message</span><span class="o">=</span><span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span><span class="p">,</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="k">continue</span>
+
             <span class="n">attempt_num</span> <span class="o">=</span> <span class="n">attempts_used</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span>
             <span class="n">runtime</span><span class="o">.</span><span class="n">prepare_for_attempt</span><span class="p">(</span><span class="n">attempt_num</span><span class="p">)</span>
-            <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
-            <span class="n">ws_runtime</span><span class="o">.</span><span class="n">activate</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
             <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">integration_branch</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
             <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">workstream_worktree_path</span> <span class="o">=</span> <span class="n">ws_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_emit</span><span class="p">(</span>
@@ -2938,6 +3150,9 @@ align with graph IDs.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                 <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span>
+                <span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span>
+            <span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="n">done</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
@@ -2951,7 +3166,6 @@ align with graph IDs.</p>
 
             <span class="n">runtime</span> <span class="o">=</span> <span class="n">mutable_task_runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span>
             <span class="n">ws_runtime</span> <span class="o">=</span> <span class="n">mutable_workstream_runtimes</span><span class="p">[</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">workstream_id</span><span class="p">]</span>
-            <span class="n">ws_runtime</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
 
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">done_task</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
@@ -2997,6 +3211,9 @@ align with graph IDs.</p>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                     <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span>
+                    <span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span>
                 <span class="p">)</span>
                 <span class="k">continue</span>
 
@@ -3048,6 +3265,9 @@ align with graph IDs.</p>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_refresh_workstream_terminal_states</span><span class="p">(</span>
                     <span class="n">mutable_task_runtimes</span><span class="p">,</span> <span class="n">mutable_workstream_runtimes</span>
                 <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_process_merge_ready_workstreams</span><span class="p">(</span>
+                    <span class="n">mutable_workstream_runtimes</span><span class="p">,</span> <span class="n">events</span>
+                <span class="p">)</span>
                 <span class="k">continue</span>
 
             <span class="n">fatal_error</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;RuntimeError: unexpected TaskRunner result status </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="si">!r}</span><span class="s2">&quot;</span>
@@ -3074,6 +3294,8 @@ align with graph IDs.</p>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cancel_running_tasks</span><span class="p">(</span><span class="n">running</span><span class="p">)</span>
                 <span class="n">running</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
                 <span class="k">break</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_teardown_prepared_workstreams</span><span class="p">(</span><span class="n">mutable_workstream_runtimes</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">fatal_error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">outcome</span> <span class="o">=</span> <span class="n">OrchestratorOutcome</span><span class="o">.</span><span class="n">FATAL_INTERNAL_ERROR</span>
@@ -3183,6 +3405,19 @@ raises (internal/system failure).</p>
               </div>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.orchestrator.OrchestratorConfig.fail_fast_on_workstream_error">fail_fast_on_workstream_error</span></code></td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>When <code>True</code>, a workstream-level failure
+prevents preparing any new (PENDING) workstreams. In-flight work
+in already-active workstreams is not cancelled.</p>
+              </div>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3195,8 +3430,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
-<span class="normal">59</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
@@ -3210,7 +3444,12 @@ raises (internal/system failure).</p>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for one orchestrator scheduling run.</span>
 
@@ -3220,12 +3459,16 @@ raises (internal/system failure).</p>
 <span class="sd">        task_teardown_mode: Teardown policy forwarded to ``TaskRunner.run(...)``.</span>
 <span class="sd">        fail_fast_on_internal_error: Stop scheduling immediately when a task run</span>
 <span class="sd">            raises (internal/system failure).</span>
+<span class="sd">        fail_fast_on_workstream_error: When ``True``, a workstream-level failure</span>
+<span class="sd">            prevents preparing any new (PENDING) workstreams. In-flight work</span>
+<span class="sd">            in already-active workstreams is not cancelled.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">max_concurrency</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">max_task_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">task_teardown_mode</span><span class="p">:</span> <span class="n">TearDownMode</span> <span class="o">=</span> <span class="n">TearDownMode</span><span class="o">.</span><span class="n">ON_SUCCESS</span>
     <span class="n">fail_fast_on_internal_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">fail_fast_on_workstream_error</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3360,12 +3603,7 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
@@ -3378,7 +3616,12 @@ raises (internal/system failure).</p>
 <span class="normal">91</span>
 <span class="normal">92</span>
 <span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorEvent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured event emitted by the orchestration loop.</span>
 
@@ -3449,17 +3692,17 @@ raises (internal/system failure).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorListener</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback protocol for real-time orchestration event observation.&quot;&quot;&quot;</span>
 
@@ -3538,13 +3781,13 @@ raises (internal/system failure).</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Called each time the orchestrator produces an event.</span>
 
 <span class="sd">    Args:</span>
@@ -3638,8 +3881,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
-<span class="normal">44</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
@@ -3650,7 +3892,8 @@ ended <code>FAILED</code>.</p>
 <span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
-<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">55</span>
+<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal outcome for one orchestrator run.</span>
 
 <span class="sd">    Attributes:</span>
@@ -3801,12 +4044,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
 <span class="normal">116</span>
 <span class="normal">117</span>
 <span class="normal">118</span>
@@ -3817,7 +4055,12 @@ ended <code>FAILED</code>.</p>
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal result for one orchestrator run.</span>
 
@@ -3930,8 +4173,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">29</span>
-<span class="normal">30</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
 <span class="normal">31</span>
 <span class="normal">32</span>
 <span class="normal">33</span>
@@ -3941,7 +4183,8 @@ ended <code>FAILED</code>.</p>
 <span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
-<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">40</span>
+<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Classification of one task attempt outcome from the orchestrator boundary.</span>
 
 <span class="sd">    Attributes:</span>

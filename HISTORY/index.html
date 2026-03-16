@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-15
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-15">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wire-workstreamrunner-into-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire WorkstreamRunner into Orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-14" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1571,6 +1599,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-15
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-15">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wire-workstreamrunner-into-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire WorkstreamRunner into Orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-14" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2000,6 +2056,29 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-15">2026-03-15</h2>
+<h3 id="wire-workstreamrunner-into-orchestrator">Wire WorkstreamRunner into Orchestrator</h3>
+<ul>
+<li><strong>WorkstreamRunner as Protocol</strong>: Promoted <code>WorkstreamRunner</code> to a Protocol
+  (matching the <code>TaskRunner</code> pattern). Renamed the concrete implementation to
+  <code>StandardWorkstreamRunner</code>. The Orchestrator depends only on the protocol.</li>
+<li><strong>Orchestrator lifecycle wiring</strong>: Added <code>workstream_runner</code> as a required field
+  on <code>Orchestrator</code>. The orchestrator now calls <code>prepare()</code> before the first task
+  in a workstream, <code>merge()</code> when all tasks reach <code>PR_MERGED</code>, and <code>teardown()</code>
+  after the main loop exits.</li>
+<li><strong>MERGE_READY status</strong>: Added <code>WorkstreamStatus.MERGE_READY</code> as an intermediate
+  state between <code>ACTIVE</code> and <code>MERGED</code>. Enables future human-approval gates before
+  integration branch merge.</li>
+<li><strong>Derived active-task check</strong>: Removed <code>active_task_id</code> from <code>WorkstreamState</code>
+  and the <code>activate()</code>/<code>deactivate()</code> methods from <code>WorkstreamRuntime</code>. The
+  one-task-per-workstream constraint is now enforced by scanning task runtimes
+  for <code>RUNNING</code>/<code>PR_CREATED</code> status.</li>
+<li><strong>fail_fast_on_workstream_error</strong>: New <code>OrchestratorConfig</code> option (default
+  <code>True</code>). When a workstream fails during <code>prepare()</code>, prevents preparing new
+  workstreams but does not cancel in-flight work.</li>
+<li>Updated diagram, exports, and all orchestrator tests.</li>
+</ul>
 <hr />
 <h2 id="2026-03-14">2026-03-14</h2>
 <h3 id="flatten-workstreamrunnerio-into-workstreamrunner">Flatten WorkstreamRunnerIO into WorkstreamRunner</h3>

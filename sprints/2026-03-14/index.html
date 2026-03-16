@@ -1362,26 +1362,39 @@ implementation constructors into <code>TaskState</code>.</p>
 <li>Branch: <code>feat/orchestrator-workstream-runner</code></li>
 </ul>
 <p>The orchestrator currently manages workstream state transitions inline but
-doesn't dispatch any workstream I/O. This PR adds <code>WorkstreamRunner</code> as a
-dependency of <code>Orchestrator</code> and inserts lifecycle calls at the right points
-in the scheduling loop.</p>
+doesn't dispatch any workstream I/O. This PR wires <code>WorkstreamRunner</code> into
+<code>Orchestrator</code>, cleans up redundant mutable state, adds <code>MERGE_READY</code> as an
+intermediate status for future human-approval gates, and adds a
+<code>fail_fast_on_workstream_error</code> config option.</p>
 <p><strong>Changes:</strong></p>
 <ol>
+<li>Promote <code>WorkstreamRunner</code> to a <code>@runtime_checkable Protocol</code>; rename the
+   concrete implementation to <code>StandardWorkstreamRunner</code>.</li>
 <li>Add <code>workstream_runner: WorkstreamRunner</code> field to <code>Orchestrator</code>.</li>
-<li>Before first task in a workstream: call <code>workstream_runner.prepare(ws_runtime)</code>.</li>
-<li>After all tasks in a workstream succeed (when <code>mark_merged()</code> fires): call
-   <code>workstream_runner.merge(ws_runtime)</code>.</li>
-<li>At orchestration end (or on failure): call <code>workstream_runner.teardown(ws_runtime)</code>
-   for each workstream that was prepared.</li>
+<li>Before first task in a workstream: call <code>workstream_runner.prepare()</code>.
+   <code>prepare()</code> owns the PENDING → ACTIVE transition.</li>
+<li>Add <code>MERGE_READY</code> status. <code>_refresh_workstream_terminal_states</code> transitions
+   to MERGE_READY; a new <code>_process_merge_ready_workstreams</code> helper calls
+   <code>workstream_runner.merge()</code> (decouples detection from I/O).</li>
+<li>After main loop exits: call <code>workstream_runner.teardown()</code> for each
+   workstream that was prepared.</li>
+<li>Remove <code>active_task_id</code> from <code>WorkstreamState</code> and <code>activate()</code>/<code>deactivate()</code>
+   from <code>WorkstreamRuntime</code>. Derive "has running task" by scanning task runtimes
+   for <code>RUNNING</code>/<code>PR_CREATED</code> status.</li>
+<li>Add <code>fail_fast_on_workstream_error: bool = True</code> to <code>OrchestratorConfig</code> —
+   blocks preparing new workstreams after any workstream fails; does not cancel
+   in-flight work.</li>
 </ol>
-<p>The existing workstream state machine (<code>activate</code>, <code>deactivate</code>, <code>mark_merged</code>,
-<code>mark_failed</code>) stays — those track scheduling state. The runner calls are the
-actual I/O operations.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Orchestrator accepts <code>workstream_runner</code> parameter.
-- [ ] Workstream prepare/merge/teardown are called at correct lifecycle points.
-- [ ] All existing orchestrator tests pass (with mock workstream runner).
-- [ ] <code>pixi run check</code> passes.</p>
+- [x] Orchestrator accepts <code>workstream_runner</code> parameter.
+- [x] Workstream prepare/merge/teardown are called at correct lifecycle points.
+- [x] <code>MERGE_READY</code> intermediate status decouples state detection from merge I/O.
+- [x] <code>active_task_id</code> removed; active-task constraint derived from task statuses.
+- [x] <code>fail_fast_on_workstream_error</code> config blocks new workstream preparation.
+- [x] <code>WorkstreamRunner</code> is a Protocol; <code>StandardWorkstreamRunner</code> is the impl.
+- [x] All existing orchestrator tests pass (with <code>NoOpWorkstreamRunner</code> double).
+- [x] Six new lifecycle tests added.
+- [x] <code>pixi run check</code> passes.</p>
 <hr />
 <h3 id="pr-n2-composition-and-cli-entry-point">PR N2: Composition and CLI entry point</h3>
 <ul>
