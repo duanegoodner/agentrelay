@@ -535,6 +535,12 @@ package "orchestrator/" as orchestrator_pkg {
         __
         +run(task_runtimes, workstream_runtimes) : OrchestratorResult
     }
+
+    class _OrchestratorRun <<internal>> {
+        -_orchestrator : Orchestrator
+        __
+        +execute() : OrchestratorResult
+    }
 }
 
 ' ─────────────────────────────────────────────
@@ -865,6 +871,7 @@ OrchestratorEvent --> TaskOutcomeClass : classification
 OrchestratorConfig --> TearDownMode : teardown policy
 Orchestrator --> OrchestratorListener : listener (optional)
 OrchestratorListener --> OrchestratorEvent : receives
+Orchestrator --> _OrchestratorRun : creates
 Orchestrator --> TaskRuntime : mutates
 Orchestrator --> WorkstreamRuntime : mutates
 

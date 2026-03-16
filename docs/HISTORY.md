@@ -4,6 +4,23 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-16
+
+### Extract _OrchestratorRun from Orchestrator
+
+- **Separation of concerns**: Split `Orchestrator` into an immutable config
+  holder and `_OrchestratorRun`, a module-private execution context that owns
+  all mutable state for one `run()` invocation.
+- **Readable main loop**: `execute()` is ~20 lines — initialize, dispatch,
+  handle deadlock, await, process completions, build result.
+- **Simplified helper signatures**: Helpers access `self._task_runtimes`,
+  `self._orchestrator.graph`, etc. directly instead of threading 3-6 parameters.
+- **Deduplicated fail-fast**: Extracted `_fail_fast_cancel()` to replace the
+  3 repeated cancel-mark-clear patterns.
+- Pure refactoring — no behavioral changes, all existing tests pass unchanged.
+
+---
+
 ## 2026-03-15
 
 ### Wire WorkstreamRunner into Orchestrator
