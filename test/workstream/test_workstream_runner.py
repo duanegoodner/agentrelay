@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 import pytest
 
 from agentrelay.workstream import (
+    StandardWorkstreamRunner,
     WorkstreamMerger,
     WorkstreamPreparer,
     WorkstreamRunner,
@@ -44,10 +45,10 @@ class FakeWorkstreamIO:
         self._maybe_fail("teardown")
 
 
-def _make_runner(fake: FakeWorkstreamIO | None = None) -> WorkstreamRunner:
+def _make_runner(fake: FakeWorkstreamIO | None = None) -> StandardWorkstreamRunner:
     if fake is None:
         fake = FakeWorkstreamIO()
-    return WorkstreamRunner(
+    return StandardWorkstreamRunner(
         _preparer=fake,
         _merger=fake,
         _teardown=fake,
@@ -62,6 +63,7 @@ def test_prepare_calls_preparer() -> None:
     runner.prepare(runtime)
 
     assert fake.calls == ["prepare"]
+    assert runtime.state.status == WorkstreamStatus.ACTIVE
 
 
 def test_prepare_failure_records_error_and_raises() -> None:
@@ -127,6 +129,11 @@ def test_protocol_runtime_checkable_instances() -> None:
     assert isinstance(fake, WorkstreamPreparer)
     assert isinstance(fake, WorkstreamMerger)
     assert isinstance(fake, WorkstreamTeardown)
+
+
+def test_standard_runner_satisfies_protocol() -> None:
+    runner = _make_runner()
+    assert isinstance(runner, WorkstreamRunner)
 
 
 def test_workstream_run_result_from_runtime() -> None:

@@ -14,6 +14,11 @@ from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
+from agentrelay.workstream import (
+    WorkstreamRunResult,
+    WorkstreamRuntime,
+    WorkstreamStatus,
+)
 
 
 def _task(
@@ -56,6 +61,21 @@ class SuccessRunner:
 
 
 @dataclass
+class NoOpWorkstreamRunner:
+    """WorkstreamRunner double that performs state transitions without I/O."""
+
+    def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
+        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+
+    def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+        workstream_runtime.state.status = WorkstreamStatus.MERGED
+        return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+    def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
+        pass
+
+
+@dataclass
 class FailRunner:
     """Task runner that always fails."""
 
@@ -78,6 +98,7 @@ def test_listener_receives_events_in_order() -> None:
         Orchestrator(
             graph=graph,
             task_runner=SuccessRunner(),
+            workstream_runner=NoOpWorkstreamRunner(),
             listener=listener,
         ).run()
     )
@@ -95,13 +116,15 @@ def test_no_listener_default_behavior_unchanged() -> None:
         Orchestrator(
             graph=graph,
             task_runner=SuccessRunner(),
+            workstream_runner=NoOpWorkstreamRunner(),
         ).run()
     )
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
-    assert len(result.events) == 2  # task_started + task_finished
+    assert len(result.events) == 3  # task_started + task_finished + workstream_merged
     assert result.events[0].kind == "task_started"
     assert result.events[1].kind == "task_finished"
+    assert result.events[2].kind == "workstream_merged"
 
 
 def test_listener_protocol_runtime_checkable() -> None:
@@ -119,6 +142,7 @@ def test_listener_called_for_blocked_events() -> None:
         Orchestrator(
             graph=graph,
             task_runner=FailRunner(),
+            workstream_runner=NoOpWorkstreamRunner(),
             config=OrchestratorConfig(max_task_attempts=1),
             listener=listener,
         ).run()

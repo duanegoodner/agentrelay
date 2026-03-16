@@ -20,6 +20,7 @@ from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskRuntimeBuilder, TaskStatus
 from agentrelay.workstream import (
+    WorkstreamRunner,
     WorkstreamRuntime,
     WorkstreamRuntimeBuilder,
     WorkstreamStatus,
@@ -65,12 +66,16 @@ class OrchestratorConfig:
         task_teardown_mode: Teardown policy forwarded to ``TaskRunner.run(...)``.
         fail_fast_on_internal_error: Stop scheduling immediately when a task run
             raises (internal/system failure).
+        fail_fast_on_workstream_error: When ``True``, a workstream-level failure
+            prevents preparing any new (PENDING) workstreams. In-flight work
+            in already-active workstreams is not cancelled.
     """
 
     max_concurrency: int = 1
     max_task_attempts: int = 1
     task_teardown_mode: TearDownMode = TearDownMode.ON_SUCCESS
     fail_fast_on_internal_error: bool = True
+    fail_fast_on_workstream_error: bool = True
 
 
 @dataclass(frozen=True)
@@ -132,6 +137,7 @@ class Orchestrator:
 
     graph: TaskGraph
     task_runner: TaskRunner
+    workstream_runner: WorkstreamRunner
     config: OrchestratorConfig = field(default_factory=OrchestratorConfig)
     listener: Optional[OrchestratorListener] = None
 
@@ -173,6 +179,7 @@ class Orchestrator:
         self._refresh_workstream_terminal_states(
             mutable_task_runtimes, mutable_workstream_runtimes
         )
+        self._process_merge_ready_workstreams(mutable_workstream_runtimes, events)
 
         running: dict[str, asyncio.Task[TaskRunResult]] = {}
         running_attempts: dict[str, int] = {}
@@ -200,10 +207,25 @@ class Orchestrator:
                 ):
                     continue
 
+                ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
+                if ws_runtime.state.status == WorkstreamStatus.PENDING:
+                    if self._should_block_new_workstreams(mutable_workstream_runtimes):
+                        continue
+                    try:
+                        self.workstream_runner.prepare(ws_runtime)
+                    except Exception:
+                        self._emit(
+                            events,
+                            OrchestratorEvent(
+                                kind="workstream_prepare_failed",
+                                workstream_id=runtime.task.workstream_id,
+                                message=ws_runtime.state.error,
+                            ),
+                        )
+                        continue
+
                 attempt_num = attempts_used[task_id]
                 runtime.prepare_for_attempt(attempt_num)
-                ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
-                ws_runtime.activate(task_id)
                 runtime.state.integration_branch = ws_runtime.state.branch_name
                 runtime.state.workstream_worktree_path = ws_runtime.state.worktree_path
                 self._emit(
@@ -233,6 +255,9 @@ class Orchestrator:
                 self._refresh_workstream_terminal_states(
                     mutable_task_runtimes, mutable_workstream_runtimes
                 )
+                self._process_merge_ready_workstreams(
+                    mutable_workstream_runtimes, events
+                )
                 continue
 
             done, _ = await asyncio.wait(
@@ -246,7 +271,6 @@ class Orchestrator:
 
                 runtime = mutable_task_runtimes[task_id]
                 ws_runtime = mutable_workstream_runtimes[runtime.task.workstream_id]
-                ws_runtime.deactivate()
 
                 try:
                     result = done_task.result()
@@ -292,6 +316,9 @@ class Orchestrator:
                     )
                     self._refresh_workstream_terminal_states(
                         mutable_task_runtimes, mutable_workstream_runtimes
+                    )
+                    self._process_merge_ready_workstreams(
+                        mutable_workstream_runtimes, events
                     )
                     continue
 
@@ -343,6 +370,9 @@ class Orchestrator:
                     self._refresh_workstream_terminal_states(
                         mutable_task_runtimes, mutable_workstream_runtimes
                     )
+                    self._process_merge_ready_workstreams(
+                        mutable_workstream_runtimes, events
+                    )
                     continue
 
                 fatal_error = f"RuntimeError: unexpected TaskRunner result status {result.status!r}"
@@ -369,6 +399,8 @@ class Orchestrator:
                     await self._cancel_running_tasks(running)
                     running.clear()
                     break
+
+        self._teardown_prepared_workstreams(mutable_workstream_runtimes)
 
         if fatal_error is not None:
             outcome = OrchestratorOutcome.FATAL_INTERNAL_ERROR
@@ -478,9 +510,19 @@ class Orchestrator:
         workstream_id = runtime.task.workstream_id
         ws_runtime = workstream_runtimes[workstream_id]
 
-        if ws_runtime.state.status == WorkstreamStatus.FAILED:
+        if ws_runtime.state.status in (
+            WorkstreamStatus.FAILED,
+            WorkstreamStatus.MERGE_READY,
+            WorkstreamStatus.MERGED,
+        ):
             return False
-        if ws_runtime.state.active_task_id is not None:
+
+        task_ids_in_ws = self.graph.tasks_in_workstream(workstream_id)
+        if any(
+            task_runtimes[tid].state.status
+            in (TaskStatus.RUNNING, TaskStatus.PR_CREATED)
+            for tid in task_ids_in_ws
+        ):
             return False
 
         current = self.graph.workstream(workstream_id).parent_workstream_id
@@ -559,14 +601,18 @@ class Orchestrator:
     ) -> None:
         for workstream_id in self.graph.workstream_ids():
             ws_runtime = workstream_runtimes[workstream_id]
-            if ws_runtime.state.status == WorkstreamStatus.FAILED:
+            if ws_runtime.state.status in (
+                WorkstreamStatus.FAILED,
+                WorkstreamStatus.MERGE_READY,
+                WorkstreamStatus.MERGED,
+            ):
                 continue
             task_ids = self.graph.tasks_in_workstream(workstream_id)
             if not task_ids or all(
                 task_runtimes[task_id].state.status == TaskStatus.PR_MERGED
                 for task_id in task_ids
             ):
-                ws_runtime.mark_merged()
+                ws_runtime.mark_merge_ready()
 
     async def _cancel_running_tasks(
         self, running: Mapping[str, asyncio.Task[TaskRunResult]]
@@ -587,6 +633,51 @@ class Orchestrator:
                 return task_id
         raise RuntimeError("Orchestrator internal error: completed task not tracked.")
 
+    def _should_block_new_workstreams(
+        self,
+        workstream_runtimes: Mapping[str, WorkstreamRuntime],
+    ) -> bool:
+        """Check whether new workstream preparation should be blocked."""
+        if not self.config.fail_fast_on_workstream_error:
+            return False
+        return any(
+            ws.state.status == WorkstreamStatus.FAILED
+            for ws in workstream_runtimes.values()
+        )
+
+    def _process_merge_ready_workstreams(
+        self,
+        workstream_runtimes: Mapping[str, WorkstreamRuntime],
+        events: list[OrchestratorEvent],
+    ) -> None:
+        """Merge workstreams that have reached MERGE_READY."""
+        for workstream_id in self.graph.workstream_ids():
+            ws_runtime = workstream_runtimes[workstream_id]
+            if ws_runtime.state.status == WorkstreamStatus.MERGE_READY:
+                result = self.workstream_runner.merge(ws_runtime)
+                self._emit(
+                    events,
+                    OrchestratorEvent(
+                        kind=(
+                            "workstream_merged"
+                            if result.status == WorkstreamStatus.MERGED
+                            else "workstream_merge_failed"
+                        ),
+                        workstream_id=workstream_id,
+                        message=result.error,
+                    ),
+                )
+
+    def _teardown_prepared_workstreams(
+        self,
+        workstream_runtimes: Mapping[str, WorkstreamRuntime],
+    ) -> None:
+        """Teardown all workstreams that were prepared."""
+        for workstream_id in self.graph.workstream_ids():
+            ws_runtime = workstream_runtimes[workstream_id]
+            if ws_runtime.state.status != WorkstreamStatus.PENDING:
+                self.workstream_runner.teardown(ws_runtime)
+
     def _mark_inflight_tasks_failed(
         self,
         running_task_ids: Iterable[str],
@@ -602,6 +693,5 @@ class Orchestrator:
             else:
                 runtime.state.error = reason
             ws_runtime = workstream_runtimes[runtime.task.workstream_id]
-            ws_runtime.deactivate()
             if ws_runtime.state.status != WorkstreamStatus.FAILED:
                 ws_runtime.mark_failed(reason)

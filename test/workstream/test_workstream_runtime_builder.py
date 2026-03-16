@@ -63,7 +63,6 @@ def test_runtime_defaults_state_and_artifacts() -> None:
         assert runtime.state.worktree_path is None
         assert runtime.state.branch_name is None
         assert runtime.state.error is None
-        assert runtime.state.active_task_id is None
         assert runtime.artifacts.merge_pr_url is None
         assert runtime.artifacts.concerns == []
 
@@ -74,11 +73,9 @@ def test_runtime_mutation_isolated_per_workstream_state() -> None:
 
     runtimes["feature_a"].state.status = WorkstreamStatus.ACTIVE
     runtimes["feature_a"].state.worktree_path = Path("/tmp/worktree-feature-a")
-    runtimes["feature_a"].state.active_task_id = "a"
 
     assert runtimes["feature_b"].state.status == WorkstreamStatus.PENDING
     assert runtimes["feature_b"].state.worktree_path is None
-    assert runtimes["feature_b"].state.active_task_id is None
 
 
 def test_runtime_mutation_isolated_per_workstream_artifacts() -> None:

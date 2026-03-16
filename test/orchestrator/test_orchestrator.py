@@ -16,7 +16,12 @@ from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
-from agentrelay.workstream import WorkstreamSpec, WorkstreamStatus
+from agentrelay.workstream import (
+    WorkstreamRunResult,
+    WorkstreamRuntime,
+    WorkstreamSpec,
+    WorkstreamStatus,
+)
 
 
 def _task(
@@ -80,6 +85,33 @@ class ScriptedTaskRunner:
         return TaskRunResult.from_runtime(runtime)
 
 
+@dataclass
+class NoOpWorkstreamRunner:
+    """WorkstreamRunner double that performs state transitions without I/O."""
+
+    prepare_calls: list[str] = field(default_factory=list)
+    merge_calls: list[str] = field(default_factory=list)
+    teardown_calls: list[str] = field(default_factory=list)
+
+    def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
+        self.prepare_calls.append(workstream_runtime.spec.id)
+        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+
+    def merge(  # noqa: D102
+        self, workstream_runtime: WorkstreamRuntime
+    ) -> WorkstreamRunResult:
+        self.merge_calls.append(workstream_runtime.spec.id)
+        workstream_runtime.state.status = WorkstreamStatus.MERGED
+        return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+    def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
+        self.teardown_calls.append(workstream_runtime.spec.id)
+
+
+def _noop_ws_runner() -> NoOpWorkstreamRunner:
+    return NoOpWorkstreamRunner()
+
+
 def test_one_active_task_per_workstream() -> None:
     task_a = _task("a")
     task_b = _task("b")
@@ -88,6 +120,7 @@ def test_one_active_task_per_workstream() -> None:
     orchestrator = Orchestrator(
         graph=graph,
         task_runner=runner,
+        workstream_runner=_noop_ws_runner(),
         config=OrchestratorConfig(max_concurrency=2),
     )
 
@@ -113,6 +146,7 @@ def test_parent_workstream_must_merge_before_child_tasks_run() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_concurrency=2),
         ).run()
     )
@@ -137,6 +171,7 @@ def test_expected_failure_is_retried_until_success() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_task_attempts=2),
         ).run()
     )
@@ -161,6 +196,7 @@ def test_expected_failure_without_retries_is_terminal() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_task_attempts=1),
         ).run()
     )
@@ -185,6 +221,7 @@ def test_raised_task_runner_error_is_internal_fail_fast() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_task_attempts=3),
         ).run()
     )
@@ -220,6 +257,7 @@ def test_fail_fast_internal_error_cancels_other_inflight_tasks() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_concurrency=2),
         ).run()
     )
@@ -231,7 +269,6 @@ def test_fail_fast_internal_error_cancels_other_inflight_tasks() -> None:
         result.task_runtimes["blocked"].state.error
         == "canceled due to fatal internal orchestrator error"
     )
-    assert result.workstream_runtimes["b"].state.active_task_id is None
     assert result.workstream_runtimes["b"].state.status == WorkstreamStatus.FAILED
 
 
@@ -244,6 +281,7 @@ def test_teardown_mode_is_forwarded_to_task_runner() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(task_teardown_mode=TearDownMode.NEVER),
         ).run()
     )
@@ -267,6 +305,7 @@ def test_descendant_workstream_task_is_blocked_after_parent_failure() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_task_attempts=1),
         ).run()
     )
@@ -294,7 +333,12 @@ def test_descendant_workstream_task_is_blocked_after_parent_failure() -> None:
 def test_invalid_config_raises(config: OrchestratorConfig) -> None:
     graph = TaskGraph.from_tasks((_task("a"),))
     runner = ScriptedTaskRunner()
-    orchestrator = Orchestrator(graph=graph, task_runner=runner, config=config)
+    orchestrator = Orchestrator(
+        graph=graph,
+        task_runner=runner,
+        workstream_runner=_noop_ws_runner(),
+        config=config,
+    )
 
     with pytest.raises(ValueError):
         asyncio.run(orchestrator.run())
@@ -309,6 +353,7 @@ def test_internal_failure_class_triggers_fail_fast() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(
                 max_task_attempts=3, fail_fast_on_internal_error=True
             ),
@@ -333,6 +378,7 @@ def test_internal_failure_class_is_not_retried() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(
                 max_task_attempts=3, fail_fast_on_internal_error=False
             ),
@@ -357,6 +403,7 @@ def test_expected_failure_class_allows_retry() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
             config=OrchestratorConfig(max_task_attempts=2),
         ).run()
     )
@@ -368,3 +415,190 @@ def test_expected_failure_class_allows_retry() -> None:
         and event.message == "retry_scheduled"
         for event in result.events
     )
+
+
+# ── WorkstreamRunner lifecycle tests ──
+
+
+def test_workstream_runner_prepare_called_before_first_task() -> None:
+    task_a = _task("a")
+    task_b = _task("b", dependencies=("a",))
+    graph = TaskGraph.from_tasks((task_a, task_b))
+    runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=ws_runner,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert ws_runner.prepare_calls == ["default"]
+
+
+def test_workstream_runner_merge_called_after_all_tasks_succeed() -> None:
+    task_a = _task("a")
+    task_b = _task("b", dependencies=("a",))
+    graph = TaskGraph.from_tasks((task_a, task_b))
+    runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=ws_runner,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert ws_runner.merge_calls == ["default"]
+    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.MERGED
+
+
+def test_workstream_runner_teardown_called_after_loop() -> None:
+    task = _task("a")
+    graph = TaskGraph.from_tasks((task,))
+    runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+
+    asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=ws_runner,
+        ).run()
+    )
+
+    assert ws_runner.teardown_calls == ["default"]
+
+
+def test_workstream_prepare_failure_marks_workstream_failed() -> None:
+    @dataclass
+    class FailingPrepareRunner:
+        def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
+            workstream_runtime.state.status = WorkstreamStatus.FAILED
+            workstream_runtime.state.error = "prepare boom"
+            raise RuntimeError("prepare boom")
+
+        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+            workstream_runtime.state.status = WorkstreamStatus.MERGED
+            return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+        def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
+            pass
+
+    task = _task("a")
+    graph = TaskGraph.from_tasks((task,))
+    runner = ScriptedTaskRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=FailingPrepareRunner(),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
+    assert len(runner.calls) == 0
+    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.FAILED
+    assert any(event.kind == "workstream_prepare_failed" for event in result.events)
+
+
+def test_fail_fast_on_workstream_error_blocks_new_workstreams() -> None:
+    stream_a = WorkstreamSpec(id="a")
+    stream_b = WorkstreamSpec(id="b")
+    task_a = _task("task_a", workstream_id="a")
+    task_b = _task("task_b", workstream_id="b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(stream_a, stream_b),
+    )
+
+    prepare_count = 0
+
+    @dataclass
+    class FailFirstPrepareRunner:
+        def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
+            nonlocal prepare_count
+            prepare_count += 1
+            if workstream_runtime.spec.id == "a":
+                workstream_runtime.state.status = WorkstreamStatus.FAILED
+                workstream_runtime.state.error = "prepare failed"
+                raise RuntimeError("prepare failed")
+            workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+
+        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+            workstream_runtime.state.status = WorkstreamStatus.MERGED
+            return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+        def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
+            pass
+
+    runner = ScriptedTaskRunner()
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=FailFirstPrepareRunner(),
+            config=OrchestratorConfig(
+                max_concurrency=2, fail_fast_on_workstream_error=True
+            ),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
+    assert prepare_count == 1
+    assert result.workstream_runtimes["a"].state.status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["b"].state.status != WorkstreamStatus.ACTIVE
+
+
+def test_fail_fast_on_workstream_error_false_allows_new_workstreams() -> None:
+    stream_a = WorkstreamSpec(id="a")
+    stream_b = WorkstreamSpec(id="b")
+    task_a = _task("task_a", workstream_id="a")
+    task_b = _task("task_b", workstream_id="b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(stream_a, stream_b),
+    )
+
+    prepare_calls: list[str] = []
+
+    @dataclass
+    class FailFirstPrepareRunner:
+        def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
+            prepare_calls.append(workstream_runtime.spec.id)
+            if workstream_runtime.spec.id == "a":
+                workstream_runtime.state.status = WorkstreamStatus.FAILED
+                workstream_runtime.state.error = "prepare failed"
+                raise RuntimeError("prepare failed")
+            workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+
+        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+            workstream_runtime.state.status = WorkstreamStatus.MERGED
+            return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+        def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
+            pass
+
+    runner = ScriptedTaskRunner()
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=FailFirstPrepareRunner(),
+            config=OrchestratorConfig(
+                max_concurrency=2, fail_fast_on_workstream_error=False
+            ),
+        ).run()
+    )
+
+    assert "a" in prepare_calls
+    assert "b" in prepare_calls
+    assert result.workstream_runtimes["a"].state.status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["b"].state.status == WorkstreamStatus.MERGED
