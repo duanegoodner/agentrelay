@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-16
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extract-_orchestratorrun-from-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extract _OrchestratorRun from Orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-15" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1599,6 +1627,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-16
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-16">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#extract-_orchestratorrun-from-orchestrator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extract _OrchestratorRun from Orchestrator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-15" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2056,6 +2112,21 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-16">2026-03-16</h2>
+<h3 id="extract-_orchestratorrun-from-orchestrator">Extract _OrchestratorRun from Orchestrator</h3>
+<ul>
+<li><strong>Separation of concerns</strong>: Split <code>Orchestrator</code> into an immutable config
+  holder and <code>_OrchestratorRun</code>, a module-private execution context that owns
+  all mutable state for one <code>run()</code> invocation.</li>
+<li><strong>Readable main loop</strong>: <code>execute()</code> is ~20 lines — initialize, dispatch,
+  handle deadlock, await, process completions, build result.</li>
+<li><strong>Simplified helper signatures</strong>: Helpers access <code>self._task_runtimes</code>,
+  <code>self._orchestrator.graph</code>, etc. directly instead of threading 3-6 parameters.</li>
+<li><strong>Deduplicated fail-fast</strong>: Extracted <code>_fail_fast_cancel()</code> to replace the
+  3 repeated cancel-mark-clear patterns.</li>
+<li>Pure refactoring — no behavioral changes, all existing tests pass unchanged.</li>
+</ul>
 <hr />
 <h2 id="2026-03-15">2026-03-15</h2>
 <h3 id="wire-workstreamrunner-into-orchestrator">Wire WorkstreamRunner into Orchestrator</h3>
