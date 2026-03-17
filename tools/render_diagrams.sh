@@ -10,22 +10,16 @@ OV_SELF_LOOP=20
 OV_SCALE=0.5
 OV_PAD=20
 
-# Midlevel diagram
-ML_ALGORITHM=stress
-ML_PADDING="[top=10,left=10,bottom=10,right=10]"
-ML_SCALE=1.0
-ML_PAD=20
-
 # Detail diagram
 DT_NODE_BETWEEN=10
 DT_EDGE_BETWEEN=5
 DT_PADDING="[top=10,left=10,bottom=10,right=10]"
 DT_SELF_LOOP=20
-DT_SCALE=1.0
+DT_SCALE=0.5
 DT_PAD=20
 
-# ── Generate D2 sources ─────────────────────────────────────────────
-# python tools/generate_overview.py
+# ── Generate overview D2 source ──────────────────────────────────────
+python tools/generate_overview.py
 
 # ── Render overview SVG ──────────────────────────────────────────────
 # d2 --layout elk \
@@ -37,23 +31,10 @@ DT_PAD=20
 #   --pad "$OV_PAD" \
 #   docs/diagram-overview.d2 docs/diagram-overview.svg
 
-# ── Generate per-package SVGs + overview HTML ────────────────────────
-# python tools/generate_overview.py --mode package-svgs
+# ── Generate overview HTML (requires overview SVG to exist) ──────────
+# python tools/generate_overview.py --html-only
 
-# ── Generate midlevel D2 + render SVG ───────────────────────────────
-# python tools/generate_overview.py --mode midlevel
-
-# d2 --layout elk \
-#   --elk-algorithm "$ML_ALGORITHM" \
-#   --elk-padding "$ML_PADDING" \
-#   --scale "$ML_SCALE" \
-#   --pad "$ML_PAD" \
-#   docs/diagram-midlevel.d2 docs/diagram-midlevel.svg
-
-# ── Generate midlevel HTML ──────────────────────────────────────────
-# python tools/generate_overview.py --mode midlevel --html-only
-
-# ── Render detail SVG ───────────────────────────────────────────────
+# ── Render detail SVG ────────────────────────────────────────────────
 d2 --layout elk \
   --elk-nodeNodeBetweenLayers "$DT_NODE_BETWEEN" \
   --elk-edgeNodeBetweenLayers "$DT_EDGE_BETWEEN" \
@@ -61,4 +42,4 @@ d2 --layout elk \
   --elk-nodeSelfLoop "$DT_SELF_LOOP" \
   --scale "$DT_SCALE" \
   --pad "$DT_PAD" \
-  docs/diagram.d2 docs/diagram.svg
+  docs/diagram-detailed.d2 docs/diagram-detailed.svg

@@ -1,5 +1,5 @@
 direction: down
-style.font-size: 22
+**.style.font-size: 20
 
 # ─────────────────────────────────────────────
 #  Style classes for relationship types
@@ -858,36 +858,58 @@ spec_pkg: "spec/" {
 #  Relationships
 # ═════════════════════════════════════════════
 
-# --- intra-package (unchanged) ---
+# --- task.py internal ---
 task_py.Task -> task_py.AgentRole: role { class: composition }
 task_py.Task -> task_py.TaskPaths: paths { class: composition }
 task_py.Task -> task_py.AgentConfig: primary_agent { class: composition }
-task_py.Task -> task_py.ReviewConfig: review (optional) { class: composition }
+task_py.Task -> task_py.ReviewConfig: "review (optional)" { class: composition }
+task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
 task_py.AgentConfig -> task_py.AgentFramework: framework { class: composition }
 task_py.AgentConfig -> task_py.AgentVerbosity: adr_verbosity { class: composition }
 task_py.ReviewConfig -> task_py.AgentConfig: agent { class: composition }
-environments_py.TmuxEnvironment -> environments_py.AgentEnvironment: { class: implementation }
-agent_pkg.agent_impl_pkg.TmuxAddress -> agent_pkg.agent_core_pkg.AgentAddress: { class: inheritance }
-agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_core_pkg.Agent: { class: inheritance }
+
+# --- environments ---
+task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
+environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }
+
+# --- agent ---
+agent_pkg.agent_impl_pkg.TmuxAddress -> agent_pkg.agent_core_pkg.AgentAddress { class: inheritance }
+agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_core_pkg.Agent { class: inheritance }
 agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_impl_pkg.TmuxAddress: _address { class: composition }
 agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address { class: composition }
-workspace_py.WorkspaceRef -> workspace_py.LocalWorkspaceRef: alias (extend to union for additional backends) { class: composition }
+
+# --- workspace ---
+workspace_py.WorkspaceRef -> workspace_py.LocalWorkspaceRef: "alias (extend to union for additional backends)" { class: composition }
+
+# --- task_graph ---
+task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
+task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
 task_graph_pkg.TaskGraph -> task_graph_pkg._validation: uses { class: dependency }
 task_graph_pkg.TaskGraph -> task_graph_pkg._indexing: uses { class: dependency }
 task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: composition }
+
+# --- builders ---
+task_runtime_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: composition }
 task_runtime_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: composition }
+
+# --- task_runner ---
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunner: satisfies { class: implementation }
-task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.StepDispatch: 6 fields { class: composition }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.StepDispatch: "6 fields" { class: composition }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskMerger: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runtime_pkg.TaskRuntime: mutates { class: composition }
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunResult: returns { class: composition }
-task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TearDownMode: teardown policy { class: composition }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
 task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionSignal: returns { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Agent: launches { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
 task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
@@ -895,12 +917,18 @@ task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.
 task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
+
+# --- task_runtime internal ---
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
+task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStateView: satisfies { class: implementation }
 task_runtime_pkg.TaskArtifacts -> task_runtime_pkg.TaskArtifactsView: satisfies { class: implementation }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskRuntimeView: satisfies { class: implementation }
+
+# --- workstream internal ---
 workstream_pkg.workstream_core_pkg.WorkstreamState -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: spec { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamState: state { class: composition }
@@ -908,6 +936,8 @@ workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstrea
 workstream_pkg.workstream_core_pkg.WorkstreamState -> workstream_pkg.workstream_core_pkg.WorkstreamStateView: satisfies { class: implementation }
 workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.WorkstreamArtifactsView: satisfies { class: implementation }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamRuntimeView: satisfies { class: implementation }
+
+# --- workstream runner ---
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: _preparer { class: composition }
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: _merger { class: composition }
@@ -915,64 +945,81 @@ workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.wo
 workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunResult: returns { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
+
+# --- workstream implementations ---
 workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: composition }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> ops_pkg.gh: uses { class: composition }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> ops_pkg.git: uses { class: composition }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: composition }
+
+# --- orchestrator ---
+orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: composition }
+orchestrator_pkg.Orchestrator -> task_runner_pkg.task_runner_core_pkg.TaskRunner: "delegates task runs" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: "delegates workstream lifecycle" { class: composition }
 orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorConfig: uses { class: composition }
 orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorResult: returns { class: composition }
 orchestrator_pkg.OrchestratorResult -> orchestrator_pkg.OrchestratorOutcome: outcome { class: composition }
 orchestrator_pkg.OrchestratorResult -> orchestrator_pkg.OrchestratorEvent: events { class: composition }
 orchestrator_pkg.OrchestratorEvent -> orchestrator_pkg.TaskOutcomeClass: classification { class: composition }
-orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: listener (optional) { class: composition }
+orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: "listener (optional)" { class: composition }
 orchestrator_pkg.OrchestratorListener -> orchestrator_pkg.OrchestratorEvent: receives { class: composition }
 orchestrator_pkg.Orchestrator -> orchestrator_pkg._OrchestratorRun: creates { class: composition }
-errors_pkg.ExpectedTaskFailureError -> errors_pkg.IntegrationError: { class: inheritance }
-errors_pkg.InternalIntegrationError -> errors_pkg.IntegrationError: { class: inheritance }
-errors_pkg.WorkspaceIntegrationError -> errors_pkg.InternalIntegrationError: { class: inheritance }
-errors_pkg.SignalIntegrationError -> errors_pkg.InternalIntegrationError: { class: inheritance }
-errors_pkg.PullRequestIntegrationError -> errors_pkg.InternalIntegrationError: { class: inheritance }
-errors_pkg.AgentLaunchIntegrationError -> errors_pkg.InternalIntegrationError: { class: inheritance }
+orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: composition }
+
+# --- errors ---
+errors_pkg.ExpectedTaskFailureError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg.InternalIntegrationError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg.WorkspaceIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg.SignalIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg.PullRequestIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg.AgentLaunchIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
 errors_pkg.IntegrationError -> errors_pkg.IntegrationBoundary: boundary { class: composition }
 errors_pkg.IntegrationError -> errors_pkg.IntegrationFailureClass: failure_class { class: composition }
 errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { class: composition }
+
+# --- agent_comm_protocol ---
 agent_comm_protocol_pkg.TaskManifest -> agent_comm_protocol_pkg.DependencyInfo: dependencies { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.CommitPolicy: commit_policy (optional) { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.PrPolicy: pr_policy (optional) { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.CompletionGatePolicy: completion_gate (optional) { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.ReviewPolicy: review (optional) { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.AdrPolicy: adr (optional) { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.VerificationPolicy: verification (optional) { class: composition }
+agent_comm_protocol_pkg.TaskManifest -> task_py.AgentRole: role { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.CommitPolicy: "commit_policy (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.PrPolicy: "pr_policy (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.CompletionGatePolicy: "completion_gate (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.ReviewPolicy: "review (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.AdrPolicy: "adr (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.VerificationPolicy: "verification (optional)" { class: composition }
 agent_comm_protocol_pkg.CommitPolicy -> agent_comm_protocol_pkg.WorkflowAction: action { class: composition }
 agent_comm_protocol_pkg.PrPolicy -> agent_comm_protocol_pkg.WorkflowAction: action { class: composition }
 agent_comm_protocol_pkg.PrPolicy -> agent_comm_protocol_pkg.PrBodySection: body_sections { class: composition }
+agent_comm_protocol_pkg.AdrPolicy -> task_py.AgentVerbosity: verbosity { class: composition }
+agent_comm_protocol_pkg.manifest_functions -> task_py.Task: reads { class: composition }
 agent_comm_protocol_pkg.manifest_functions -> agent_comm_protocol_pkg.TaskManifest: builds { class: composition }
+agent_comm_protocol_pkg.policies_functions -> task_py.Task: reads { class: composition }
 agent_comm_protocol_pkg.policies_functions -> agent_comm_protocol_pkg.WorkflowPolicies: builds { class: composition }
+agent_comm_protocol_pkg.templates_functions -> task_py.AgentRole: reads { class: composition }
 agent_comm_protocol_pkg.templates_functions -> agent_comm_protocol_pkg.TaskManifest: reads { class: composition }
+
+# --- task_runner implementations ---
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
-spec_pkg.PythonStubSpec -> spec_pkg.SpecRepresentation: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.manifest_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.policies_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.templates_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pkg.TmuxAgent: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.tmux: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
 
-# --- cross-package (collapsed) ---
-agent_comm_protocol_pkg -> task_py: "5 connections" { class: composition; tooltip: "TaskManifest → AgentRole (role)\nAdrPolicy → AgentVerbosity (verbosity)\nmanifest_functions → Task (reads)\npolicies_functions → Task (reads)\ntemplates_functions → AgentRole (reads)" }
-orchestrator_pkg -> task_graph_pkg: "1 connection" { class: composition; tooltip: "Orchestrator → TaskGraph (reads)" }
-orchestrator_pkg -> task_runner_pkg: "2 connections" { class: composition; tooltip: "Orchestrator → TaskRunner (delegates task runs)\nOrchestratorConfig → TearDownMode (teardown policy)" }
-orchestrator_pkg -> task_runtime_pkg: "1 connection" { class: composition; tooltip: "Orchestrator → TaskRuntime (mutates)" }
-orchestrator_pkg -> workstream_pkg: "2 connections" { class: composition; tooltip: "Orchestrator → WorkstreamRunner (delegates workstream lifecycle)\nOrchestrator → WorkstreamRuntime (mutates)" }
-task_graph_pkg -> task_py: "1 connection" { class: composition; tooltip: "TaskGraph → Task (contains)" }
-task_graph_pkg -> workstream_pkg: "1 connection" { class: composition; tooltip: "TaskGraph → WorkstreamSpec (contains)" }
-task_py -> environments_py: "1 connection" { class: composition; tooltip: "AgentConfig → AgentEnvironment (environment)" }
-task_py -> workstream_pkg: "1 connection" { class: dependency; tooltip: "Task → WorkstreamSpec (workstream_id (ref))" }
-task_runner_pkg -> agent_comm_protocol_pkg: "3 connections" { class: dependency; tooltip: "WorktreeTaskPreparer → manifest_functions (uses)\nWorktreeTaskPreparer → policies_functions (uses)\nWorktreeTaskPreparer → templates_functions (uses)" }
-task_runner_pkg -> agent_pkg: "2 connections" { class: composition; tooltip: "TaskLauncher → Agent (launches)\nTmuxTaskLauncher → TmuxAgent (uses)" }
-task_runner_pkg -> errors_pkg: "1 connection" { class: composition; tooltip: "TaskRunResult → IntegrationFailureClass (failure_class (optional))" }
-task_runner_pkg -> ops_pkg: "7 connections" { class: dependency; tooltip: "WorktreeTaskPreparer → git (uses)\nWorktreeTaskPreparer → signals (uses)\nSignalCompletionChecker → signals (uses)\nGhTaskMerger → gh (uses)\nGhTaskMerger → git (uses)\nWorktreeTaskTeardown → tmux (uses)\nWorktreeTaskTeardown → git (uses)" }
-task_runner_pkg -> task_runtime_pkg: "2 connections" { class: composition; tooltip: "StandardTaskRunner → TaskRuntime (mutates)\nTaskRunResult → TaskStatus (status)" }
-task_runtime_pkg -> agent_pkg: "1 connection" { class: composition; tooltip: "TaskArtifacts → AgentAddress (agent_address (optional))" }
-task_runtime_pkg -> task_graph_pkg: "1 connection" { class: composition; tooltip: "TaskRuntimeBuilder → TaskGraph (reads)" }
-task_runtime_pkg -> task_py: "1 connection" { class: composition; tooltip: "TaskRuntime → Task (task)" }
-workstream_pkg -> ops_pkg: "4 connections" { class: composition; tooltip: "GitWorkstreamPreparer → git (uses)\nGhWorkstreamMerger → gh (uses)\nGhWorkstreamMerger → git (uses)\nGitWorkstreamTeardown → git (uses)" }
-workstream_pkg -> task_graph_pkg: "1 connection" { class: composition; tooltip: "WorkstreamRuntimeBuilder → TaskGraph (reads)" }
+# --- spec ---
+spec_pkg.PythonStubSpec -> spec_pkg.SpecRepresentation: satisfies { class: implementation }

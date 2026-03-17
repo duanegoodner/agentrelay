@@ -3,29 +3,21 @@
 This diagram is a first-class project artifact. It shows all currently implemented
 types and their relationships, organized by source module. Archive types are excluded.
 
-The authoritative source is `docs/diagram.d2` (D2 with ELK layout engine). Every PR
+The authoritative source is `docs/diagram-detailed.d2` (D2 with ELK layout engine). Every PR
 that touches `src/agentrelay/` must update the diagram to reflect any new or changed
-types and relationships, then re-render `docs/diagram.svg` via `pixi run diagram`.
+types and relationships, then re-render `docs/diagram-detailed.svg` via `pixi run diagram`.
 
 ## Views
 
-**Overview** — package-level dependency diagram with graphical popups. Click a
-package to see its D2-rendered class diagram in a popup panel. Click a connection
-to see both endpoint packages side-by-side with a list of class-level connections.
+**Overview** — package-level dependency diagram with connector popups. Click a
+connection to see the list of class-level dependencies between two packages.
 Auto-generated from the detail diagram by `tools/generate_overview.py`.
 
-[View overview diagram](diagram-overview.html){: target="_blank" } — opens in a new tab; click packages or connections for detail popups.
-
-**Mid-level** — full package internals (classes, sub-packages, methods) with
-cross-package arrows collapsed to one per package pair. Hover over a collapsed
-arrow label to see the underlying class-to-class connections. Auto-generated
-from the detail diagram by `tools/generate_overview.py --mode midlevel`.
-
-[View mid-level diagram](diagram-midlevel.html){: target="_blank" } — opens in a new tab; hover over cross-package arrow labels for connection details.
+[View overview diagram](diagram-overview.html){: target="_blank" } — opens in a new tab; click connections for dependency details.
 
 **Detail** — full class-level diagram showing all types, relationships, and methods.
 
-[View detail diagram (SVG)](diagram.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
+[View detail diagram (SVG)](diagram-detailed.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
 
 ## Conventions
 
