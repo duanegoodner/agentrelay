@@ -9,11 +9,19 @@ types and relationships, then re-render `docs/diagram.svg` via `pixi run diagram
 
 ## Views
 
-**Overview** — package-level dependency diagram. Hover over a package to see its
-classes/modules in a tooltip. Auto-generated from the detail diagram by
-`tools/generate_overview.py`.
+**Overview** — package-level dependency diagram with graphical popups. Click a
+package to see its D2-rendered class diagram in a popup panel. Click a connection
+to see both endpoint packages side-by-side with a list of class-level connections.
+Auto-generated from the detail diagram by `tools/generate_overview.py`.
 
-[View overview diagram](diagram-overview.html){: target="_blank" } — opens in a new tab; hover over packages for class lists.
+[View overview diagram](diagram-overview.html){: target="_blank" } — opens in a new tab; click packages or connections for detail popups.
+
+**Mid-level** — full package internals (classes, sub-packages, methods) with
+cross-package arrows collapsed to one per package pair. Hover over a collapsed
+arrow label to see the underlying class-to-class connections. Auto-generated
+from the detail diagram by `tools/generate_overview.py --mode midlevel`.
+
+[View mid-level diagram](diagram-midlevel.html){: target="_blank" } — opens in a new tab; hover over cross-package arrow labels for connection details.
 
 **Detail** — full class-level diagram showing all types, relationships, and methods.
 

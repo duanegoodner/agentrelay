@@ -27,10 +27,7 @@ test = "python -m pytest"
 typecheck = "pyright src/agentrelay/"
 format = "black . --extend-exclude '\\.pixi/' && isort . --skip .pixi --skip-glob '.pixi/*'"
 check = "black . --extend-exclude '\\.pixi/' && isort . --skip .pixi --skip-glob '.pixi/*' && pyright src/agentrelay/ && python -m pytest"
-diagram = """python tools/generate_overview.py && \
-d2 --layout elk --elk-nodeNodeBetweenLayers 10 --elk-edgeNodeBetweenLayers 5 --elk-padding '[top=10,left=10,bottom=10,right=10]' --elk-nodeSelfLoop 20 --scale 0.5 --pad 20 docs/diagram-overview.d2 docs/diagram-overview.svg && \
-python tools/generate_overview.py --html-only && \
-d2 --layout elk --elk-nodeNodeBetweenLayers 10 --elk-edgeNodeBetweenLayers 5 --elk-padding '[top=10,left=10,bottom=10,right=10]' --elk-nodeSelfLoop 20 --scale 0.5 --pad 20 docs/diagram.d2 docs/diagram.svg"""
+diagram = "bash tools/render_diagrams.sh"
 docs = "mkdocs serve"
 docs-build = "mkdocs build"
 docs-deploy = "mkdocs gh-deploy --force"

@@ -6,6 +6,20 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-16
 
+### Add graphical popups to overview diagram
+
+- **Per-package mini SVGs**: `tools/generate_overview.py --mode package-svgs` extracts
+  each top-level package's D2 block from `docs/diagram.d2`, renders it as a standalone
+  SVG via `d2`, and embeds all 13 mini SVGs (base64-encoded) in the overview HTML.
+- **Click-to-open popups**: Clicking a package box opens a centered panel showing
+  that package's D2-rendered class diagram. Clicking an arrow shows both endpoint
+  packages side-by-side with a text list of class-level connections. Click outside
+  or press Escape to close.
+- **Build pipeline**: `pixi run diagram` now runs the `package-svgs` mode after
+  rendering the overview SVG, producing `docs/pkg-detail/*.d2` and `*.svg` files.
+- **21 new tests** covering D2 block extraction, per-package file generation,
+  SVG rendering (mocked subprocess), and popup HTML generation.
+
 ### Add two-tier diagram system with auto-generated overview
 
 - **Overview generator**: New `tools/generate_overview.py` parses `docs/diagram.d2`,

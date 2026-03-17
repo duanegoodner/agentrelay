@@ -1,0 +1,91 @@
+direction: down
+
+classes: {
+  composition: {
+    style.stroke: "#333333"
+  }
+  dependency: {
+    style.stroke-dash: 3
+  }
+  inheritance: {
+    target-arrowhead.shape: triangle
+    style.stroke: "#333333"
+  }
+  implementation: {
+    style.stroke-dash: 3
+    target-arrowhead.shape: triangle
+  }
+}
+
+TaskOutcomeClass: "TaskOutcomeClass <<enumeration>>" {
+  shape: class
+  SUCCESS
+  EXPECTED_FAILURE
+  INTERNAL_ERROR
+}
+
+OrchestratorOutcome: "OrchestratorOutcome <<enumeration>>" {
+  shape: class
+  SUCCEEDED
+  COMPLETED_WITH_FAILURES
+  FATAL_INTERNAL_ERROR
+}
+
+OrchestratorConfig: "OrchestratorConfig <<frozen dataclass>>" {
+  shape: class
+  max_concurrency: int
+  max_task_attempts: int
+  task_teardown_mode: TearDownMode
+  fail_fast_on_internal_error: bool
+  fail_fast_on_workstream_error: bool
+}
+
+OrchestratorEvent: "OrchestratorEvent <<frozen dataclass>>" {
+  shape: class
+  kind: str
+  task_id: "str | None"
+  workstream_id: "str | None"
+  attempt_num: "int | None"
+  outcome_class: "TaskOutcomeClass | None"
+  message: "str | None"
+}
+
+OrchestratorResult: "OrchestratorResult <<frozen dataclass>>" {
+  shape: class
+  outcome: OrchestratorOutcome
+  task_runtimes: "Mapping[str, TaskRuntime]"
+  workstream_runtimes: "Mapping[str, WorkstreamRuntime]"
+  events: "tuple[OrchestratorEvent, ...]"
+  fatal_error: "str | None"
+}
+
+OrchestratorListener: "OrchestratorListener <<protocol>>" {
+  shape: class
+  +on_event(event): void
+}
+
+Orchestrator: "Orchestrator <<mutable dataclass>>" {
+  shape: class
+  graph: TaskGraph
+  task_runner: TaskRunner
+  workstream_runner: WorkstreamRunner
+  config: OrchestratorConfig
+  listener: "OrchestratorListener | None"
+  +run(task_runtimes, workstream_runtimes): OrchestratorResult
+}
+
+_OrchestratorRun: "_OrchestratorRun <<internal>>" {
+  shape: class
+  -_orchestrator: Orchestrator
+  +execute(): OrchestratorResult
+}
+
+# Relationships
+Orchestrator -> OrchestratorConfig: uses { class: composition }
+Orchestrator -> OrchestratorResult: returns { class: composition }
+OrchestratorResult -> OrchestratorOutcome: outcome { class: composition }
+OrchestratorResult -> OrchestratorEvent: events { class: composition }
+OrchestratorEvent -> TaskOutcomeClass: classification { class: composition }
+Orchestrator -> OrchestratorListener: listener (optional) { class: composition }
+OrchestratorListener -> OrchestratorEvent: receives { class: composition }
+Orchestrator -> _OrchestratorRun: creates { class: composition }

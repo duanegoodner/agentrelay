@@ -1,0 +1,167 @@
+direction: down
+
+classes: {
+  composition: {
+    style.stroke: "#333333"
+  }
+  dependency: {
+    style.stroke-dash: 3
+  }
+  inheritance: {
+    target-arrowhead.shape: triangle
+    style.stroke: "#333333"
+  }
+  implementation: {
+    style.stroke-dash: 3
+    target-arrowhead.shape: triangle
+  }
+}
+
+workstream_core_pkg: "core/" {
+  WorkstreamSpec: "WorkstreamSpec <<frozen dataclass>>" {
+    shape: class
+    id: str
+    parent_workstream_id: "str | None"
+    base_branch: str
+    merge_target_branch: str
+  }
+
+  WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, WorkstreamRuntime]"
+  }
+
+  WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
+    shape: class
+    PENDING
+    ACTIVE
+    MERGE_READY
+    MERGED
+    FAILED
+  }
+
+  WorkstreamState: "WorkstreamState <<mutable dataclass>>" {
+    shape: class
+    status: WorkstreamStatus
+    worktree_path: "Path | None"
+    branch_name: "str | None"
+    error: "str | None"
+  }
+
+  WorkstreamArtifacts: "WorkstreamArtifacts <<mutable dataclass>>" {
+    shape: class
+    merge_pr_url: "str | None"
+    concerns: "list[str]"
+  }
+
+  WorkstreamRuntime: "WorkstreamRuntime <<mutable dataclass>>" {
+    shape: class
+    spec: WorkstreamSpec
+    state: WorkstreamState
+    artifacts: WorkstreamArtifacts
+    +mark_failed(error): void
+    +mark_merge_ready(): void
+    +mark_merged(): void
+  }
+
+  WorkstreamStateView: "WorkstreamStateView <<protocol>>" {
+    shape: class
+    +status(): WorkstreamStatus
+    +worktree_path(): "Path | None"
+    +branch_name(): "str | None"
+    +error(): "str | None"
+  }
+
+  WorkstreamArtifactsView: "WorkstreamArtifactsView <<protocol>>" {
+    shape: class
+    +merge_pr_url(): "str | None"
+    +concerns(): "Sequence[str]"
+  }
+
+  WorkstreamRuntimeView: "WorkstreamRuntimeView <<protocol>>" {
+    shape: class
+    +spec(): WorkstreamSpec
+    +state(): WorkstreamStateView
+    +artifacts(): WorkstreamArtifactsView
+  }
+
+  WorkstreamPreparer: "WorkstreamPreparer <<protocol>>" {
+    shape: class
+    +prepare_workstream(workstream_runtime): void
+  }
+
+  WorkstreamMerger: "WorkstreamMerger <<protocol>>" {
+    shape: class
+    +merge_workstream(workstream_runtime): void
+  }
+
+  WorkstreamTeardown: "WorkstreamTeardown <<protocol>>" {
+    shape: class
+    +teardown_workstream(workstream_runtime): void
+  }
+
+  WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
+    shape: class
+    workstream_id: str
+    status: WorkstreamStatus
+    error: "str | None"
+  }
+
+  WorkstreamRunner: "WorkstreamRunner <<protocol>>" {
+    shape: class
+    +prepare(workstream_runtime): void
+    +merge(workstream_runtime): WorkstreamRunResult
+    +teardown(workstream_runtime): void
+  }
+
+  StandardWorkstreamRunner: "StandardWorkstreamRunner <<mutable dataclass>>" {
+    shape: class
+    _preparer: WorkstreamPreparer
+    _merger: WorkstreamMerger
+    _teardown: WorkstreamTeardown
+    +prepare(workstream_runtime): void
+    +merge(workstream_runtime): WorkstreamRunResult
+    +teardown(workstream_runtime): void
+  }
+}
+
+workstream_impl_pkg: "implementations/" {
+  GitWorkstreamPreparer: "GitWorkstreamPreparer <<dataclass>>" {
+    shape: class
+    repo_path: Path
+    graph_name: str
+    +prepare_workstream(workstream_runtime): void
+  }
+
+  GhWorkstreamMerger: "GhWorkstreamMerger <<dataclass>>" {
+    shape: class
+    repo_path: Path
+    +merge_workstream(workstream_runtime): void
+  }
+
+  GitWorkstreamTeardown: "GitWorkstreamTeardown <<dataclass>>" {
+    shape: class
+    repo_path: Path
+    +teardown_workstream(workstream_runtime): void
+  }
+}
+
+# Relationships
+workstream_core_pkg.WorkstreamRuntimeBuilder -> workstream_core_pkg.WorkstreamRuntime: builds { class: composition }
+workstream_core_pkg.WorkstreamState -> workstream_core_pkg.WorkstreamStatus: status { class: composition }
+workstream_core_pkg.WorkstreamRuntime -> workstream_core_pkg.WorkstreamSpec: spec { class: composition }
+workstream_core_pkg.WorkstreamRuntime -> workstream_core_pkg.WorkstreamState: state { class: composition }
+workstream_core_pkg.WorkstreamRuntime -> workstream_core_pkg.WorkstreamArtifacts: artifacts { class: composition }
+workstream_core_pkg.WorkstreamState -> workstream_core_pkg.WorkstreamStateView: satisfies { class: implementation }
+workstream_core_pkg.WorkstreamArtifacts -> workstream_core_pkg.WorkstreamArtifactsView: satisfies { class: implementation }
+workstream_core_pkg.WorkstreamRuntime -> workstream_core_pkg.WorkstreamRuntimeView: satisfies { class: implementation }
+workstream_core_pkg.StandardWorkstreamRunner -> workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
+workstream_core_pkg.StandardWorkstreamRunner -> workstream_core_pkg.WorkstreamPreparer: _preparer { class: composition }
+workstream_core_pkg.StandardWorkstreamRunner -> workstream_core_pkg.WorkstreamMerger: _merger { class: composition }
+workstream_core_pkg.StandardWorkstreamRunner -> workstream_core_pkg.WorkstreamTeardown: _teardown { class: composition }
+workstream_core_pkg.WorkstreamRunner -> workstream_core_pkg.WorkstreamRuntime: mutates { class: composition }
+workstream_core_pkg.WorkstreamRunner -> workstream_core_pkg.WorkstreamRunResult: returns { class: composition }
+workstream_core_pkg.WorkstreamRunResult -> workstream_core_pkg.WorkstreamStatus: status { class: composition }
+workstream_impl_pkg.GitWorkstreamPreparer -> workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
+workstream_impl_pkg.GhWorkstreamMerger -> workstream_core_pkg.WorkstreamMerger: satisfies { class: implementation }
+workstream_impl_pkg.GitWorkstreamTeardown -> workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }

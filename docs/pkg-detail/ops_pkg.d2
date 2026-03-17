@@ -1,0 +1,62 @@
+direction: down
+
+classes: {
+  composition: {
+    style.stroke: "#333333"
+  }
+  dependency: {
+    style.stroke-dash: 3
+  }
+  inheritance: {
+    target-arrowhead.shape: triangle
+    style.stroke: "#333333"
+  }
+  implementation: {
+    style.stroke-dash: 3
+    target-arrowhead.shape: triangle
+  }
+}
+
+git: "git <<module>>" {
+  shape: class
+  module_path: ops.git
+  +worktree_add(repo, path, branch, start_point): void
+  +worktree_remove(repo, path): void
+  +checkout(repo, branch): void
+  +branch_create(repo, branch, start_point, force): void
+  +branch_delete(repo, branch): void
+  +pull_ff_only(repo): bool
+  +fetch_branch(repo, branch): void
+  +update_local_ref(repo, branch, remote_ref): void
+  +push_branch(repo, branch, set_upstream): void
+  +push_delete_branch(repo, branch): void
+  +ls_remote_branch_exists(repo, branch): bool
+}
+
+tmux: "tmux <<module>>" {
+  shape: class
+  module_path: ops.tmux
+  +new_window(session, name, cwd): str
+  +send_keys(pane_id, keys, press_enter): void
+  +capture_pane(pane_id, full_history): str
+  +kill_window(pane_id): void
+  +wait_for_tui_ready(pane_id, marker, timeout): bool
+}
+
+gh: "gh <<module>>" {
+  shape: class
+  module_path: ops.gh
+  +pr_create(repo_dir, title, body, base, head): str
+  +pr_merge(pr_url): void
+  +pr_body(pr_url): str
+}
+
+signals: "signals <<module>>" {
+  shape: class
+  module_path: ops.signals
+  +ensure_signal_dir(signal_dir): Path
+  +write_json(signal_dir, filename, data): void
+  +write_text(signal_dir, filename, content): void
+  +read_signal_file(signal_dir, filename): "str | None"
+  +poll_signal_files(signal_dir, filenames, interval): str
+}

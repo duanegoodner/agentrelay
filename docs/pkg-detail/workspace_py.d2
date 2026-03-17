@@ -1,0 +1,31 @@
+direction: down
+
+classes: {
+  composition: {
+    style.stroke: "#333333"
+  }
+  dependency: {
+    style.stroke-dash: 3
+  }
+  inheritance: {
+    target-arrowhead.shape: triangle
+    style.stroke: "#333333"
+  }
+  implementation: {
+    style.stroke-dash: 3
+    target-arrowhead.shape: triangle
+  }
+}
+
+LocalWorkspaceRef: "LocalWorkspaceRef <<frozen dataclass>>" {
+  shape: class
+  worktree_path: Path
+  branch_name: str
+}
+
+WorkspaceRef: "WorkspaceRef <<type alias>>" {
+  shape: class
+}
+
+# Relationships
+WorkspaceRef -> LocalWorkspaceRef: alias (extend to union for additional backends) { class: composition }
