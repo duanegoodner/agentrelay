@@ -6,6 +6,42 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-16
 
+### Add graphical popups to overview diagram
+
+- **Per-package mini SVGs**: `tools/generate_overview.py --mode package-svgs` extracts
+  each top-level package's D2 block from `docs/diagram.d2`, renders it as a standalone
+  SVG via `d2`, and embeds all 13 mini SVGs (base64-encoded) in the overview HTML.
+- **Click-to-open popups**: Clicking a package box opens a centered panel showing
+  that package's D2-rendered class diagram. Clicking an arrow shows both endpoint
+  packages side-by-side with a text list of class-level connections. Click outside
+  or press Escape to close.
+- **Build pipeline**: `pixi run diagram` now runs the `package-svgs` mode after
+  rendering the overview SVG, producing `docs/pkg-detail/*.d2` and `*.svg` files.
+- **21 new tests** covering D2 block extraction, per-package file generation,
+  SVG rendering (mocked subprocess), and popup HTML generation.
+
+### Add two-tier diagram system with auto-generated overview
+
+- **Overview generator**: New `tools/generate_overview.py` parses `docs/diagram.d2`,
+  extracts top-level packages and cross-package relationships, deduplicates arrows to
+  one per package pair, and writes `docs/diagram-overview.d2` with tooltips listing
+  each package's classes.
+- **Two rendered views**: `pixi run diagram` now generates both `diagram-overview.svg`
+  (13 package boxes, ~19 directional arrows) and `diagram.svg` (full class detail).
+- **Zero-drift**: Overview is derived from the detail diagram — single source of truth.
+- **27 new tests** covering parsing, deduplication, edge cases, and end-to-end
+  validation against the real diagram.
+
+### Migrate design diagram from PlantUML to D2
+
+- **Tool change**: Replaced PlantUML with D2 using the ELK layout engine for better
+  handling of nested containers and cross-package relationship arrows at scale.
+- **Faithful translation**: All ~80 classes/interfaces/enums across 12+ packages and
+  ~170 relationships preserved in the new `docs/diagram.d2` source.
+- **Dependency swap**: Replaced `plantuml` with `d2` in pixi.toml; `pixi run diagram`
+  now invokes `d2 --layout elk`.
+- Archived original PlantUML source as `docs/diagram.puml.archived` for reference.
+
 ### Extract _OrchestratorRun from Orchestrator
 
 - **Separation of concerns**: Split `Orchestrator` into an immutable config
