@@ -527,6 +527,39 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-graphical-popups-to-overview-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add graphical popups to overview diagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-two-tier-diagram-system-with-auto-generated-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add two-tier diagram system with auto-generated overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrate-design-diagram-from-plantuml-to-d2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migrate design diagram from PlantUML to D2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#extract-_orchestratorrun-from-orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1639,6 +1672,39 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#add-graphical-popups-to-overview-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add graphical popups to overview diagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-two-tier-diagram-system-with-auto-generated-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add two-tier diagram system with auto-generated overview
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#migrate-design-diagram-from-plantuml-to-d2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migrate design diagram from PlantUML to D2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#extract-_orchestratorrun-from-orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2114,6 +2180,42 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-16">2026-03-16</h2>
+<h3 id="add-graphical-popups-to-overview-diagram">Add graphical popups to overview diagram</h3>
+<ul>
+<li><strong>Per-package mini SVGs</strong>: <code>tools/generate_overview.py --mode package-svgs</code> extracts
+  each top-level package's D2 block from <code>docs/diagram.d2</code>, renders it as a standalone
+  SVG via <code>d2</code>, and embeds all 13 mini SVGs (base64-encoded) in the overview HTML.</li>
+<li><strong>Click-to-open popups</strong>: Clicking a package box opens a centered panel showing
+  that package's D2-rendered class diagram. Clicking an arrow shows both endpoint
+  packages side-by-side with a text list of class-level connections. Click outside
+  or press Escape to close.</li>
+<li><strong>Build pipeline</strong>: <code>pixi run diagram</code> now runs the <code>package-svgs</code> mode after
+  rendering the overview SVG, producing <code>docs/pkg-detail/*.d2</code> and <code>*.svg</code> files.</li>
+<li><strong>21 new tests</strong> covering D2 block extraction, per-package file generation,
+  SVG rendering (mocked subprocess), and popup HTML generation.</li>
+</ul>
+<h3 id="add-two-tier-diagram-system-with-auto-generated-overview">Add two-tier diagram system with auto-generated overview</h3>
+<ul>
+<li><strong>Overview generator</strong>: New <code>tools/generate_overview.py</code> parses <code>docs/diagram.d2</code>,
+  extracts top-level packages and cross-package relationships, deduplicates arrows to
+  one per package pair, and writes <code>docs/diagram-overview.d2</code> with tooltips listing
+  each package's classes.</li>
+<li><strong>Two rendered views</strong>: <code>pixi run diagram</code> now generates both <code>diagram-overview.svg</code>
+  (13 package boxes, ~19 directional arrows) and <code>diagram.svg</code> (full class detail).</li>
+<li><strong>Zero-drift</strong>: Overview is derived from the detail diagram — single source of truth.</li>
+<li><strong>27 new tests</strong> covering parsing, deduplication, edge cases, and end-to-end
+  validation against the real diagram.</li>
+</ul>
+<h3 id="migrate-design-diagram-from-plantuml-to-d2">Migrate design diagram from PlantUML to D2</h3>
+<ul>
+<li><strong>Tool change</strong>: Replaced PlantUML with D2 using the ELK layout engine for better
+  handling of nested containers and cross-package relationship arrows at scale.</li>
+<li><strong>Faithful translation</strong>: All ~80 classes/interfaces/enums across 12+ packages and
+  ~170 relationships preserved in the new <code>docs/diagram.d2</code> source.</li>
+<li><strong>Dependency swap</strong>: Replaced <code>plantuml</code> with <code>d2</code> in pixi.toml; <code>pixi run diagram</code>
+  now invokes <code>d2 --layout elk</code>.</li>
+<li>Archived original PlantUML source as <code>docs/diagram.puml.archived</code> for reference.</li>
+</ul>
 <h3 id="extract-_orchestratorrun-from-orchestrator">Extract _OrchestratorRun from Orchestrator</h3>
 <ul>
 <li><strong>Separation of concerns</strong>: Split <code>Orchestrator</code> into an immutable config
