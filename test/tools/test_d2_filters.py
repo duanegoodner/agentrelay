@@ -105,7 +105,7 @@ pkg: "pkg/" {
         assert "ConcreteB" not in joined
         assert "Protocol" in joined
 
-    def test_strips_impl_relationships(self) -> None:
+    def test_retargets_impl_relationships(self) -> None:
         d2 = """\
 pkg: "pkg/" {
   test_impl_pkg: "implementations/" {
@@ -114,12 +114,45 @@ pkg: "pkg/" {
     }
   }
 }
-pkg.test_impl_pkg.ConcreteA -> pkg.core_pkg.Protocol: satisfies { class: implementation }
-pkg.core_pkg.Protocol -> other.Foo: uses { class: dependency }"""
+pkg.test_impl_pkg.ConcreteA -> other.Protocol: satisfies { class: implementation }
+other.Protocol -> other.Foo: uses { class: dependency }"""
         result = _apply(collapse_impl_packages, d2)
         joined = "\n".join(result)
+        # Arrow retargeted to container, class name gone from arrow
+        assert "pkg.test_impl_pkg -> other.Protocol" in joined
         assert "ConcreteA" not in joined
-        assert "Foo" in joined
+        # Unrelated arrow survives
+        assert "other.Protocol -> other.Foo" in joined
+
+    def test_deduplicates_retargeted_arrows(self) -> None:
+        d2 = """\
+pkg: "pkg/" {
+  test_impl_pkg: "implementations/" {
+    A: "A" { shape: class }
+    B: "B" { shape: class }
+  }
+}
+pkg.test_impl_pkg.A -> ops.git: uses { class: dependency }
+pkg.test_impl_pkg.B -> ops.git: uses { class: dependency }"""
+        result = _apply(collapse_impl_packages, d2)
+        joined = "\n".join(result)
+        # Only one arrow to ops.git, not two
+        assert joined.count("-> ops.git") == 1
+        assert "pkg.test_impl_pkg -> ops.git" in joined
+
+    def test_drops_self_loop_arrows(self) -> None:
+        d2 = """\
+pkg: "pkg/" {
+  test_impl_pkg: "implementations/" {
+    A: "A" { shape: class }
+    B: "B" { shape: class }
+  }
+}
+pkg.test_impl_pkg.A -> pkg.test_impl_pkg.B: uses { class: dependency }"""
+        result = _apply(collapse_impl_packages, d2)
+        joined = "\n".join(result)
+        # Self-loop (impl_pkg -> impl_pkg) is dropped
+        assert "->" not in joined
 
     def test_preserves_core_contents(self) -> None:
         d2 = """\
@@ -173,12 +206,19 @@ pkg: "pkg/" {
         assert "TmuxAddress" not in joined  # contents removed
         assert "WorktreeTaskPreparer" not in joined
 
-    def test_real_diagram_strips_impl_relationships(self) -> None:
+    def test_real_diagram_retargets_impl_relationships(self) -> None:
         lines = _REAL_DIAGRAM.read_text().splitlines()
         result = collapse_impl_packages(lines)
         joined = "\n".join(result)
+        # Specific class names no longer appear in arrows
         assert "task_runner_impl_pkg.WorktreeTaskPreparer" not in joined
         assert "agent_impl_pkg.TmuxAgent" not in joined
+        # But retargeted container arrows exist (impl_pkg -> ops, etc.)
+        assert (
+            "task_runner_impl_pkg -> " in joined or "task_runner_impl_pkg ->" in joined
+        )
+        # ops_pkg should still have incoming arrows
+        assert "ops_pkg" in joined
 
 
 # ---------------------------------------------------------------------------
@@ -212,6 +252,8 @@ pkg.test_impl_pkg.Concrete -> pkg.Public: satisfies { class: implementation }"""
         assert "Concrete" not in joined
         assert "(1 class hidden)" in joined
         assert "Public" in joined
+        # Impl arrow retargeted to container
+        assert "pkg.test_impl_pkg -> pkg.Public" in joined
 
     def test_real_diagram_both_filters(self) -> None:
         lines = _REAL_DIAGRAM.read_text().splitlines()

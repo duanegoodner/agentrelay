@@ -735,6 +735,8 @@ task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: co
 environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }
 
 # --- agent ---
+agent_pkg.agent_impl_pkg -> agent_pkg.agent_core_pkg.AgentAddress { class: inheritance }
+agent_pkg.agent_impl_pkg -> agent_pkg.agent_core_pkg.Agent { class: inheritance }
 agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address { class: composition }
 
 
@@ -768,6 +770,7 @@ task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Ag
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg: registers { class: dependency }
 
 # --- task_runtime internal ---
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
@@ -792,6 +795,11 @@ workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream
 workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
 
 # --- workstream implementations ---
+workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg -> ops_pkg.gh: uses { class: dependency }
 
 # --- orchestrator ---
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
@@ -841,5 +849,20 @@ agent_comm_protocol_pkg.templates_functions -> task_py.AgentRole: reads { class:
 agent_comm_protocol_pkg.templates_functions -> agent_comm_protocol_pkg.TaskManifest: reads { class: dependency }
 
 # --- task_runner implementations ---
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg -> agent_comm_protocol_pkg.manifest_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg -> agent_comm_protocol_pkg.policies_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg -> agent_comm_protocol_pkg.templates_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg -> agent_pkg.agent_impl_pkg: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg -> ops_pkg.gh: uses { class: dependency }
+agent_pkg.agent_impl_pkg -> ops_pkg.tmux: uses { class: dependency }
+agent_pkg.agent_impl_pkg -> ops_pkg.signals: uses { class: dependency }
 
 # test

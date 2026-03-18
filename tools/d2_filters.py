@@ -98,6 +98,11 @@ def _count_members(lines: list[str], start: int) -> int:
     return count
 
 
+# Parses a relationship line into (source, arrow+label+class suffix).
+# e.g. ``pkg.Foo -> pkg.Bar: label { class: dep }`` → ("pkg.Foo", "pkg.Bar", ": label { class: dep }")
+_REL_PARSE_RE = re.compile(r"^([\w.]+)\s*->\s*([\w.]+)(.*?)$")
+
+
 def collapse_impl_packages(lines: list[str]) -> list[str]:
     """Replace ``*_impl_pkg`` contents with a count placeholder.
 
@@ -106,10 +111,12 @@ def collapse_impl_packages(lines: list[str]) -> list[str]:
     1. Keep the container opening line.
     2. Replace all contents with a single ``"(N classes hidden)"`` note.
     3. Keep the container closing brace.
-    4. Strip relationship lines referencing nodes inside any impl_pkg.
+    4. Retarget relationship arrows referencing nodes inside any impl_pkg
+       to point to/from the container itself, deduplicated by (source, target).
+       Self-loops (same container on both sides) are dropped.
 
     The impl_pkg identifiers are collected in a first pass so that the
-    relationship filter knows which dotted paths to strip.
+    relationship retargeting knows which dotted paths to collapse.
     """
     # First pass: collect impl_pkg identifiers and their member counts.
     impl_pkg_ids: set[str] = set()
@@ -126,10 +133,11 @@ def collapse_impl_packages(lines: list[str]) -> list[str]:
     if not impl_pkg_ids:
         return lines
 
-    # Second pass: collapse contents, filter relationships.
+    # Second pass: collapse contents, retarget relationships.
     result: list[str] = []
     skip_depth = 0
     current_impl_id: str | None = None
+    seen_arrows: set[tuple[str, str]] = set()
 
     for line in lines:
         stripped = line.rstrip()
@@ -157,9 +165,20 @@ def collapse_impl_packages(lines: list[str]) -> list[str]:
             skip_depth = stripped.count("{") - stripped.count("}")
             continue
 
-        # Filter relationship lines referencing nodes inside any impl_pkg.
+        # Retarget relationship lines referencing nodes inside any impl_pkg.
         if "->" in stripped:
-            if _references_impl_node(stripped, impl_pkg_ids):
+            retargeted = _retarget_impl_rel(stripped, impl_pkg_ids)
+            if retargeted is not None:
+                src, tgt, suffix = retargeted
+                # Drop self-loops (both sides retarget to same container).
+                if src == tgt:
+                    continue
+                # Deduplicate by (source, target).
+                key = (src, tgt)
+                if key in seen_arrows:
+                    continue
+                seen_arrows.add(key)
+                result.append(f"{src} -> {tgt}{suffix}")
                 continue
 
         result.append(line)
@@ -167,16 +186,42 @@ def collapse_impl_packages(lines: list[str]) -> list[str]:
     return result
 
 
-def _references_impl_node(rel_line: str, impl_pkg_ids: set[str]) -> bool:
-    """Check if a relationship line references a node inside an impl_pkg.
+def _retarget_impl_rel(
+    rel_line: str, impl_pkg_ids: set[str]
+) -> tuple[str, str, str] | None:
+    """Retarget a relationship line if it references nodes inside impl_pkgs.
+
+    Returns ``(retargeted_source, retargeted_target, suffix)`` if either side
+    was retargeted, or ``None`` if no impl_pkg node is referenced.
 
     A dotted path like ``task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer``
-    references a node inside ``task_runner_impl_pkg`` if the path contains an
-    impl_pkg ID followed by at least one more segment (the actual node).
+    is retargeted to ``task_runner_pkg.task_runner_impl_pkg`` (the container).
     """
-    for pkg_id in impl_pkg_ids:
-        # Pattern: pkg_id.SomeNode (node inside the impl package)
-        pattern = pkg_id + "."
-        if pattern in rel_line:
-            return True
-    return False
+    match = _REL_PARSE_RE.match(rel_line.strip())
+    if not match:
+        return None
+
+    source = match.group(1)
+    target = match.group(2)
+    suffix = match.group(3)
+
+    new_source = _retarget_path(source, impl_pkg_ids)
+    new_target = _retarget_path(target, impl_pkg_ids)
+
+    if new_source == source and new_target == target:
+        return None  # no retargeting needed
+
+    return new_source, new_target, suffix
+
+
+def _retarget_path(dotted_path: str, impl_pkg_ids: set[str]) -> str:
+    """Retarget a dotted D2 path, truncating at the impl_pkg container.
+
+    ``"task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer"``
+    → ``"task_runner_pkg.task_runner_impl_pkg"``
+    """
+    segments = dotted_path.split(".")
+    for i, seg in enumerate(segments):
+        if seg in impl_pkg_ids and i < len(segments) - 1:
+            return ".".join(segments[: i + 1])
+    return dotted_path
