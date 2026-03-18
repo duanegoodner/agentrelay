@@ -87,21 +87,21 @@ spec_pkg: "spec/" {
 #  Cross-package relationships
 # ─────────────────────────────────────────────
 agent_comm_protocol_pkg -> task_py: role, verbosity, reads { class: composition }
-orchestrator_pkg -> task_graph_pkg: reads { class: composition }
+orchestrator_pkg -> task_graph_pkg: reads { class: dependency }
 orchestrator_pkg -> task_runner_pkg: delegates task runs, teardown policy { class: composition }
-orchestrator_pkg -> task_runtime_pkg: mutates { class: composition }
+orchestrator_pkg -> task_runtime_pkg: mutates { class: dependency }
 orchestrator_pkg -> workstream_pkg: delegates workstream lifecycle, mutates { class: composition }
 task_graph_pkg -> task_py: contains { class: composition }
 task_graph_pkg -> workstream_pkg: contains { class: composition }
 task_py -> environments_py: environment { class: composition }
 task_py -> workstream_pkg: workstream_id (ref) { class: dependency }
 task_runner_pkg -> agent_comm_protocol_pkg: uses { class: dependency }
-task_runner_pkg -> agent_pkg: launches, uses { class: composition }
+task_runner_pkg -> agent_pkg: launches, uses { class: dependency }
 task_runner_pkg -> errors_pkg: failure_class (optional) { class: composition }
 task_runner_pkg -> ops_pkg: uses { class: dependency }
 task_runner_pkg -> task_runtime_pkg: mutates, status { class: composition }
 task_runtime_pkg -> agent_pkg: agent_address (optional) { class: composition }
-task_runtime_pkg -> task_graph_pkg: reads { class: composition }
+task_runtime_pkg -> task_graph_pkg: reads { class: dependency }
 task_runtime_pkg -> task_py: task { class: composition }
-workstream_pkg -> ops_pkg: uses { class: composition }
-workstream_pkg -> task_graph_pkg: reads { class: composition }
+workstream_pkg -> ops_pkg: uses { class: dependency }
+workstream_pkg -> task_graph_pkg: reads { class: dependency }

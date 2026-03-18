@@ -11,12 +11,8 @@ OV_SCALE=0.5
 OV_PAD=20
 
 # Detail diagram
-DT_NODE_BETWEEN=10
-DT_EDGE_BETWEEN=5
-DT_PADDING="[top=10,left=10,bottom=10,right=10]"
-DT_SELF_LOOP=20
-DT_SCALE=0.5
-DT_PAD=20
+DT_SCALE=0.1
+DT_PAD=50
 
 # ── Generate overview D2 source ──────────────────────────────────────
 python tools/generate_overview.py
@@ -35,11 +31,7 @@ python tools/generate_overview.py
 # python tools/generate_overview.py --html-only
 
 # ── Render detail SVG ────────────────────────────────────────────────
-d2 --layout elk \
-  --elk-nodeNodeBetweenLayers "$DT_NODE_BETWEEN" \
-  --elk-edgeNodeBetweenLayers "$DT_EDGE_BETWEEN" \
-  --elk-padding "$DT_PADDING" \
-  --elk-nodeSelfLoop "$DT_SELF_LOOP" \
+d2 --layout tala \
   --scale "$DT_SCALE" \
   --pad "$DT_PAD" \
   docs/diagram-detailed.d2 docs/diagram-detailed.svg
