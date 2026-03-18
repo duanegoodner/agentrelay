@@ -5,7 +5,7 @@ continues to work.
 
 Subpackages:
     core: Protocols, state machine, dispatch, I/O boundary composition.
-    implementations: Concrete protocol implementations and builder.
+    implementations: Concrete protocol implementations.
 """
 
 from agentrelay.task_runner.core.dispatch import DispatchKey, StepDispatch
@@ -32,7 +32,6 @@ from agentrelay.task_runner.implementations import (
     TmuxTaskLauncher,
     WorktreeTaskPreparer,
     WorktreeTaskTeardown,
-    build_standard_runner,
 )
 
 __all__ = [
@@ -56,5 +55,4 @@ __all__ = [
     "TmuxTaskLauncher",
     "WorktreeTaskPreparer",
     "WorktreeTaskTeardown",
-    "build_standard_runner",
 ]

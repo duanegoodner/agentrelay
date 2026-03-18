@@ -1,8 +1,8 @@
 """Workstream model for lane-level execution and integration state.
 
 This package defines immutable workstream specifications, mutable runtime
-state for each workstream lane, runtime initialization helpers, and the
-workstream-level lifecycle runner with its I/O protocols.
+state for each workstream lane, and the workstream-level lifecycle runner
+with its I/O protocols.
 
 Subpackages:
     core: Specs, runtime state, protocols, and runner.
@@ -21,14 +21,10 @@ from agentrelay.workstream.core.runner import (
 )
 from agentrelay.workstream.core.runtime import (
     WorkstreamArtifacts,
-    WorkstreamArtifactsView,
     WorkstreamRuntime,
-    WorkstreamRuntimeView,
     WorkstreamState,
-    WorkstreamStateView,
     WorkstreamStatus,
 )
-from agentrelay.workstream.core.runtime_builder import WorkstreamRuntimeBuilder
 from agentrelay.workstream.core.workstream import WorkstreamSpec
 from agentrelay.workstream.implementations.workstream_merger import (
     GhWorkstreamMerger,
@@ -45,18 +41,14 @@ __all__ = [
     "GitWorkstreamPreparer",
     "GitWorkstreamTeardown",
     "WorkstreamArtifacts",
-    "WorkstreamArtifactsView",
     "WorkstreamMerger",
     "WorkstreamPreparer",
     "WorkstreamRunResult",
     "WorkstreamRuntime",
-    "WorkstreamRuntimeView",
-    "WorkstreamRuntimeBuilder",
     "WorkstreamRunner",
     "StandardWorkstreamRunner",
     "WorkstreamSpec",
     "WorkstreamState",
-    "WorkstreamStateView",
     "WorkstreamStatus",
     "WorkstreamTeardown",
 ]

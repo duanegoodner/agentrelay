@@ -112,7 +112,7 @@ class InternalIntegrationError(IntegrationError):
         )
 
 
-class WorkspaceIntegrationError(InternalIntegrationError):
+class _WorkspaceIntegrationError(InternalIntegrationError):
     """Internal workspace integration failure."""
 
     def __init__(self, message: str) -> None:
@@ -124,7 +124,7 @@ class WorkspaceIntegrationError(InternalIntegrationError):
         super().__init__(message, boundary=IntegrationBoundary.WORKSPACE)
 
 
-class SignalIntegrationError(InternalIntegrationError):
+class _SignalIntegrationError(InternalIntegrationError):
     """Internal signal boundary integration failure."""
 
     def __init__(self, message: str) -> None:
@@ -136,7 +136,7 @@ class SignalIntegrationError(InternalIntegrationError):
         super().__init__(message, boundary=IntegrationBoundary.SIGNAL)
 
 
-class PullRequestIntegrationError(InternalIntegrationError):
+class _PullRequestIntegrationError(InternalIntegrationError):
     """Internal pull-request boundary integration failure."""
 
     def __init__(self, message: str) -> None:
@@ -151,7 +151,7 @@ class PullRequestIntegrationError(InternalIntegrationError):
         )
 
 
-class AgentLaunchIntegrationError(InternalIntegrationError):
+class _AgentLaunchIntegrationError(InternalIntegrationError):
     """Internal agent launch/kickoff integration failure."""
 
     def __init__(self, message: str) -> None:
@@ -182,14 +182,10 @@ def classify_integration_error(exc: BaseException) -> IntegrationFailureClass:
 
 
 __all__ = [
-    "AgentLaunchIntegrationError",
     "ExpectedTaskFailureError",
     "IntegrationBoundary",
     "IntegrationError",
     "IntegrationFailureClass",
     "InternalIntegrationError",
-    "PullRequestIntegrationError",
-    "SignalIntegrationError",
-    "WorkspaceIntegrationError",
     "classify_integration_error",
 ]

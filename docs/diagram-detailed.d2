@@ -1,5 +1,5 @@
-direction: down
-**.style.font-size: 55
+direction: right
+**.style.font-size: 50
 *.style.font-size: 100
 
 # ─────────────────────────────────────────────
@@ -168,11 +168,6 @@ workstream_pkg: "workstream/" {
       merge_target_branch: str
     }
 
-    WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" {
-      shape: class
-      +from_graph(graph): "dict[str, WorkstreamRuntime]"
-    }
-
     WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
       shape: class
       PENDING
@@ -204,27 +199,6 @@ workstream_pkg: "workstream/" {
       +mark_failed(error): void
       +mark_merge_ready(): void
       +mark_merged(): void
-    }
-
-    WorkstreamStateView: "WorkstreamStateView <<protocol>>" {
-      shape: class
-      +status(): WorkstreamStatus
-      +worktree_path(): "Path | None"
-      +branch_name(): "str | None"
-      +error(): "str | None"
-    }
-
-    WorkstreamArtifactsView: "WorkstreamArtifactsView <<protocol>>" {
-      shape: class
-      +merge_pr_url(): "str | None"
-      +concerns(): "Sequence[str]"
-    }
-
-    WorkstreamRuntimeView: "WorkstreamRuntimeView <<protocol>>" {
-      shape: class
-      +spec(): WorkstreamSpec
-      +state(): WorkstreamStateView
-      +artifacts(): WorkstreamArtifactsView
     }
 
     WorkstreamPreparer: "WorkstreamPreparer <<protocol>>" {
@@ -344,11 +318,6 @@ task_graph_pkg: "task_graph/" {
 #  task_runtime/ — mutable execution state
 # ─────────────────────────────────────────────
 task_runtime_pkg: "task_runtime/" {
-  TaskRuntimeBuilder: "TaskRuntimeBuilder" {
-    shape: class
-    +from_graph(graph): "dict[str, TaskRuntime]"
-  }
-
   TaskStatus: "TaskStatus <<enumeration>>" {
     shape: class
     PENDING
@@ -388,31 +357,6 @@ task_runtime_pkg: "task_runtime/" {
     +mark_pending(): void
   }
 
-  TaskStateView: "TaskStateView <<protocol>>" {
-    shape: class
-    +status(): TaskStatus
-    +worktree_path(): "Path | None"
-    +branch_name(): "str | None"
-    +signal_dir(): "Path | None"
-    +error(): "str | None"
-    +attempt_num(): int
-    +integration_branch(): "str | None"
-    +workstream_worktree_path(): "Path | None"
-  }
-
-  TaskArtifactsView: "TaskArtifactsView <<protocol>>" {
-    shape: class
-    +pr_url(): "str | None"
-    +concerns(): "Sequence[str]"
-    +agent_address(): "AgentAddress | None"
-  }
-
-  TaskRuntimeView: "TaskRuntimeView <<protocol>>" {
-    shape: class
-    +task(): Task
-    +state(): TaskStateView
-    +artifacts(): TaskArtifactsView
-  }
 }
 
 # ─────────────────────────────────────────────
@@ -530,12 +474,6 @@ task_runner_pkg: "task_runner/" {
       +merge_pr(runtime, pr_url): void
     }
 
-    standard_runner_builder: "standard_runner_builder <<module>>" {
-      shape: class
-      module_path: implementations.standard_runner_builder
-      "+build_standard_runner(...)": StandardTaskRunner
-    }
-
     WorktreeTaskTeardown: "WorktreeTaskTeardown <<dataclass>>" {
       shape: class
       repo_path: Path
@@ -610,6 +548,22 @@ orchestrator_pkg: "orchestrator/" {
     shape: class
     -_orchestrator: Orchestrator
     +execute(): OrchestratorResult
+  }
+
+  TaskRuntimeBuilder: "TaskRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, TaskRuntime]"
+  }
+
+  WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, WorkstreamRuntime]"
+  }
+
+  builders: "builders <<module>>" {
+    shape: class
+    module_path: orchestrator.builders
+    "+build_standard_runner(...)": StandardTaskRunner
   }
 }
 
@@ -694,19 +648,19 @@ errors_pkg: "errors/" {
     shape: class
   }
 
-  WorkspaceIntegrationError: "WorkspaceIntegrationError <<exception>>" {
+  _WorkspaceIntegrationError: "_WorkspaceIntegrationError <<exception>>" {
     shape: class
   }
 
-  SignalIntegrationError: "SignalIntegrationError <<exception>>" {
+  _SignalIntegrationError: "_SignalIntegrationError <<exception>>" {
     shape: class
   }
 
-  PullRequestIntegrationError: "PullRequestIntegrationError <<exception>>" {
+  _PullRequestIntegrationError: "_PullRequestIntegrationError <<exception>>" {
     shape: class
   }
 
-  AgentLaunchIntegrationError: "AgentLaunchIntegrationError <<exception>>" {
+  _AgentLaunchIntegrationError: "_AgentLaunchIntegrationError <<exception>>" {
     shape: class
   }
 
@@ -745,15 +699,15 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   WorkflowPolicies: "WorkflowPolicies <<frozen dataclass>>" {
     shape: class
     schema_version: str
-    commit_policy: "CommitPolicy | None"
-    pr_policy: "PrPolicy | None"
-    completion_gate: "CompletionGatePolicy | None"
-    review: "ReviewPolicy | None"
-    adr: "AdrPolicy | None"
-    verification: "VerificationPolicy | None"
+    commit_policy: "_CommitPolicy | None"
+    pr_policy: "_PrPolicy | None"
+    completion_gate: "_CompletionGatePolicy | None"
+    review: "_ReviewPolicy | None"
+    adr: "_AdrPolicy | None"
+    verification: "_VerificationPolicy | None"
   }
 
-  WorkflowAction: "WorkflowAction <<str>>" {
+  _WorkflowAction: "_WorkflowAction <<str>>" {
     shape: class
     COMMIT_AND_PUSH
     CREATE_PR
@@ -765,43 +719,43 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
     RUN_VERIFICATION
   }
 
-  PrBodySection: "PrBodySection <<str>>" {
+  _PrBodySection: "_PrBodySection <<str>>" {
     shape: class
     SUMMARY
     FILES_CHANGED
   }
 
-  CommitPolicy: "CommitPolicy <<frozen dataclass>>" {
+  _CommitPolicy: "_CommitPolicy <<frozen dataclass>>" {
     shape: class
-    action: WorkflowAction
+    action: _WorkflowAction
   }
 
-  PrPolicy: "PrPolicy <<frozen dataclass>>" {
+  _PrPolicy: "_PrPolicy <<frozen dataclass>>" {
     shape: class
-    action: WorkflowAction
+    action: _WorkflowAction
     base_branch: str
     title_template: str
-    body_sections: "tuple[PrBodySection, ...]"
+    body_sections: "tuple[_PrBodySection, ...]"
   }
 
-  CompletionGatePolicy: "CompletionGatePolicy <<frozen dataclass>>" {
+  _CompletionGatePolicy: "_CompletionGatePolicy <<frozen dataclass>>" {
     shape: class
     command: str
     max_attempts: int
     output_file: str
   }
 
-  VerificationPolicy: "VerificationPolicy <<frozen dataclass>>" {
+  _VerificationPolicy: "_VerificationPolicy <<frozen dataclass>>" {
     shape: class
     commands: "tuple[str, ...]"
   }
 
-  AdrPolicy: "AdrPolicy <<frozen dataclass>>" {
+  _AdrPolicy: "_AdrPolicy <<frozen dataclass>>" {
     shape: class
     verbosity: AgentVerbosity
   }
 
-  ReviewPolicy: "ReviewPolicy <<frozen dataclass>>" {
+  _ReviewPolicy: "_ReviewPolicy <<frozen dataclass>>" {
     shape: class
     model: "str | None"
     review_on_attempt: int
@@ -828,27 +782,6 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   }
 }
 
-# ─────────────────────────────────────────────
-#  spec/ — spec representation abstractions
-# ─────────────────────────────────────────────
-spec_pkg: "spec/" {
-  SpecRepresentation: "SpecRepresentation <<protocol>>" {
-    shape: class
-    +name(): str
-    +file_extensions(): "tuple[str, ...]"
-    +describe_for_spec_writer(): str
-    +describe_for_consumer(): str
-  }
-
-  PythonStubSpec: "PythonStubSpec <<frozen dataclass>>" {
-    shape: class
-    include_type_hints: bool
-    +name(): str
-    +file_extensions(): "tuple[str, ...]"
-    +describe_for_spec_writer(): str
-    +describe_for_consumer(): str
-  }
-}
 
 # ═════════════════════════════════════════════
 #  Relationships
@@ -882,11 +815,11 @@ task_graph_pkg.TaskGraph -> task_graph_pkg._validation: uses { class: dependency
 task_graph_pkg.TaskGraph -> task_graph_pkg._indexing: uses { class: dependency }
 task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: dependency }
 
-# --- builders ---
-task_runtime_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
-task_runtime_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: dependency }
-workstream_pkg.workstream_core_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
-workstream_pkg.workstream_core_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
+# --- builders (in orchestrator/) ---
+orchestrator_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
 
 # --- task_runner ---
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunner: satisfies { class: implementation }
@@ -904,13 +837,13 @@ task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker -> task_runner_pkg.ta
 task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Agent: launches { class: dependency }
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff: registers { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.standard_runner_builder -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
 
 # --- task_runtime internal ---
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
@@ -918,18 +851,12 @@ task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
 task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
-task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStateView: satisfies { class: implementation }
-task_runtime_pkg.TaskArtifacts -> task_runtime_pkg.TaskArtifactsView: satisfies { class: implementation }
-task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskRuntimeView: satisfies { class: implementation }
 
 # --- workstream internal ---
 workstream_pkg.workstream_core_pkg.WorkstreamState -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: spec { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamState: state { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamArtifacts: artifacts { class: composition }
-workstream_pkg.workstream_core_pkg.WorkstreamState -> workstream_pkg.workstream_core_pkg.WorkstreamStateView: satisfies { class: implementation }
-workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.WorkstreamArtifactsView: satisfies { class: implementation }
-workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamRuntimeView: satisfies { class: implementation }
 
 # --- workstream runner ---
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
@@ -968,10 +895,10 @@ orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRu
 # --- errors ---
 errors_pkg.ExpectedTaskFailureError -> errors_pkg.IntegrationError { class: inheritance }
 errors_pkg.InternalIntegrationError -> errors_pkg.IntegrationError { class: inheritance }
-errors_pkg.WorkspaceIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
-errors_pkg.SignalIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
-errors_pkg.PullRequestIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
-errors_pkg.AgentLaunchIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._WorkspaceIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._SignalIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._PullRequestIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._AgentLaunchIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
 errors_pkg.IntegrationError -> errors_pkg.IntegrationBoundary: boundary { class: composition }
 errors_pkg.IntegrationError -> errors_pkg.IntegrationFailureClass: failure_class { class: composition }
 errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { class: dependency }
@@ -979,16 +906,16 @@ errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { clas
 # --- agent_comm_protocol ---
 agent_comm_protocol_pkg.TaskManifest -> agent_comm_protocol_pkg.DependencyInfo: dependencies { class: composition }
 agent_comm_protocol_pkg.TaskManifest -> task_py.AgentRole: role { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.CommitPolicy: "commit_policy (optional)" { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.PrPolicy: "pr_policy (optional)" { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.CompletionGatePolicy: "completion_gate (optional)" { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.ReviewPolicy: "review (optional)" { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.AdrPolicy: "adr (optional)" { class: composition }
-agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg.VerificationPolicy: "verification (optional)" { class: composition }
-agent_comm_protocol_pkg.CommitPolicy -> agent_comm_protocol_pkg.WorkflowAction: action { class: composition }
-agent_comm_protocol_pkg.PrPolicy -> agent_comm_protocol_pkg.WorkflowAction: action { class: composition }
-agent_comm_protocol_pkg.PrPolicy -> agent_comm_protocol_pkg.PrBodySection: body_sections { class: composition }
-agent_comm_protocol_pkg.AdrPolicy -> task_py.AgentVerbosity: verbosity { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._CommitPolicy: "commit_policy (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._PrPolicy: "pr_policy (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._CompletionGatePolicy: "completion_gate (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._ReviewPolicy: "review (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._AdrPolicy: "adr (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._VerificationPolicy: "verification (optional)" { class: composition }
+agent_comm_protocol_pkg._CommitPolicy -> agent_comm_protocol_pkg._WorkflowAction: action { class: composition }
+agent_comm_protocol_pkg._PrPolicy -> agent_comm_protocol_pkg._WorkflowAction: action { class: composition }
+agent_comm_protocol_pkg._PrPolicy -> agent_comm_protocol_pkg._PrBodySection: body_sections { class: composition }
+agent_comm_protocol_pkg._AdrPolicy -> task_py.AgentVerbosity: verbosity { class: composition }
 agent_comm_protocol_pkg.manifest_functions -> task_py.Task: reads { class: dependency }
 agent_comm_protocol_pkg.manifest_functions -> agent_comm_protocol_pkg.TaskManifest: builds { class: dependency }
 agent_comm_protocol_pkg.policies_functions -> task_py.Task: reads { class: dependency }
@@ -1016,6 +943,4 @@ task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses {
 agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
 agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
 
-# --- spec ---
-spec_pkg.PythonStubSpec -> spec_pkg.SpecRepresentation: satisfies { class: implementation }
 # test

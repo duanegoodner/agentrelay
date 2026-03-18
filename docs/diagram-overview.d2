@@ -34,7 +34,7 @@ agent_pkg: "agent/" {
 }
 
 workstream_pkg: "workstream/" {
-  tooltip: "Classes: WorkstreamSpec, WorkstreamRuntimeBuilder, WorkstreamStatus, WorkstreamState, WorkstreamArtifacts, WorkstreamRuntime, WorkstreamStateView, WorkstreamArtifactsView, WorkstreamRuntimeView, WorkstreamPreparer, WorkstreamMerger, WorkstreamTeardown, WorkstreamRunResult, WorkstreamRunner, StandardWorkstreamRunner, GitWorkstreamPreparer, GhWorkstreamMerger, GitWorkstreamTeardown"
+  tooltip: "Classes: WorkstreamSpec, WorkstreamStatus, WorkstreamState, WorkstreamArtifacts, WorkstreamRuntime, WorkstreamPreparer, WorkstreamMerger, WorkstreamTeardown, WorkstreamRunResult, WorkstreamRunner, StandardWorkstreamRunner, GitWorkstreamPreparer, GhWorkstreamMerger, GitWorkstreamTeardown"
   link: "diagram-detailed.svg"
 }
 
@@ -44,17 +44,17 @@ task_graph_pkg: "task_graph/" {
 }
 
 task_runtime_pkg: "task_runtime/" {
-  tooltip: "Classes: TaskRuntimeBuilder, TaskStatus, TaskState, TaskArtifacts, TaskRuntime, TaskStateView, TaskArtifactsView, TaskRuntimeView"
+  tooltip: "Classes: TaskStatus, TaskState, TaskArtifacts, TaskRuntime"
   link: "diagram-detailed.svg"
 }
 
 task_runner_pkg: "task_runner/" {
-  tooltip: "Classes: TearDownMode, TaskCompletionSignal, TaskPreparer, TaskLauncher, TaskKickoff, TaskCompletionChecker, TaskMerger, TaskTeardown, StepDispatch, TaskRunResult, TaskRunner, StandardTaskRunner, WorktreeTaskPreparer, TmuxTaskLauncher, TmuxTaskKickoff, SignalCompletionChecker, GhTaskMerger, standard_runner_builder, WorktreeTaskTeardown"
+  tooltip: "Classes: TearDownMode, TaskCompletionSignal, TaskPreparer, TaskLauncher, TaskKickoff, TaskCompletionChecker, TaskMerger, TaskTeardown, StepDispatch, TaskRunResult, TaskRunner, StandardTaskRunner, WorktreeTaskPreparer, TmuxTaskLauncher, TmuxTaskKickoff, SignalCompletionChecker, GhTaskMerger, WorktreeTaskTeardown"
   link: "diagram-detailed.svg"
 }
 
 orchestrator_pkg: "orchestrator/" {
-  tooltip: "Classes: TaskOutcomeClass, OrchestratorOutcome, OrchestratorConfig, OrchestratorEvent, OrchestratorResult, OrchestratorListener, Orchestrator, _OrchestratorRun"
+  tooltip: "Classes: TaskOutcomeClass, OrchestratorOutcome, OrchestratorConfig, OrchestratorEvent, OrchestratorResult, OrchestratorListener, Orchestrator, _OrchestratorRun, TaskRuntimeBuilder, WorkstreamRuntimeBuilder, builders"
   link: "diagram-detailed.svg"
 }
 
@@ -64,17 +64,12 @@ ops_pkg: "ops/" {
 }
 
 errors_pkg: "errors/" {
-  tooltip: "Classes: IntegrationBoundary, IntegrationFailureClass, IntegrationError, ExpectedTaskFailureError, InternalIntegrationError, WorkspaceIntegrationError, SignalIntegrationError, PullRequestIntegrationError, AgentLaunchIntegrationError, error_functions"
+  tooltip: "Classes: IntegrationBoundary, IntegrationFailureClass, IntegrationError, ExpectedTaskFailureError, InternalIntegrationError, _WorkspaceIntegrationError, _SignalIntegrationError, _PullRequestIntegrationError, _AgentLaunchIntegrationError, error_functions"
   link: "diagram-detailed.svg"
 }
 
 agent_comm_protocol_pkg: "agent_comm_protocol/" {
-  tooltip: "Classes: TaskManifest, DependencyInfo, WorkflowPolicies, WorkflowAction, PrBodySection, CommitPolicy, PrPolicy, CompletionGatePolicy, VerificationPolicy, AdrPolicy, ReviewPolicy, manifest_functions, policies_functions, templates_functions"
-  link: "diagram-detailed.svg"
-}
-
-spec_pkg: "spec/" {
-  tooltip: "Classes: SpecRepresentation, PythonStubSpec"
+  tooltip: "Classes: TaskManifest, DependencyInfo, WorkflowPolicies, _WorkflowAction, _PrBodySection, _CommitPolicy, _PrPolicy, _CompletionGatePolicy, _VerificationPolicy, _AdrPolicy, _ReviewPolicy, manifest_functions, policies_functions, templates_functions"
   link: "diagram-detailed.svg"
 }
 
@@ -84,9 +79,9 @@ spec_pkg: "spec/" {
 agent_comm_protocol_pkg -> task_py: role, verbosity, reads { class: composition }
 agent_pkg -> ops_pkg: uses { class: dependency }
 orchestrator_pkg -> task_graph_pkg: reads { class: dependency }
-orchestrator_pkg -> task_runner_pkg: delegates task runs, teardown policy { class: composition }
-orchestrator_pkg -> task_runtime_pkg: mutates { class: dependency }
-orchestrator_pkg -> workstream_pkg: delegates workstream lifecycle, mutates { class: composition }
+orchestrator_pkg -> task_runner_pkg: builds, registers, delegates task runs, ... { class: composition }
+orchestrator_pkg -> task_runtime_pkg: builds, mutates { class: dependency }
+orchestrator_pkg -> workstream_pkg: builds, delegates workstream lifecycle, mutates { class: composition }
 task_graph_pkg -> task_py: contains { class: composition }
 task_graph_pkg -> workstream_pkg: contains { class: composition }
 task_py -> environments_py: environment { class: composition }
@@ -97,7 +92,5 @@ task_runner_pkg -> errors_pkg: failure_class (optional) { class: composition }
 task_runner_pkg -> ops_pkg: uses { class: dependency }
 task_runner_pkg -> task_runtime_pkg: mutates, status { class: composition }
 task_runtime_pkg -> agent_pkg: agent_address (optional) { class: composition }
-task_runtime_pkg -> task_graph_pkg: reads { class: dependency }
 task_runtime_pkg -> task_py: task { class: composition }
 workstream_pkg -> ops_pkg: uses { class: dependency }
-workstream_pkg -> task_graph_pkg: reads { class: dependency }

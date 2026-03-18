@@ -1,10 +1,18 @@
-"""Builder for :class:`StandardTaskRunner` with default implementations.
+"""Runtime and runner builders for graph execution.
+
+This module consolidates all builder logic that converts a
+:class:`~agentrelay.task_graph.TaskGraph` into runtime and runner objects.
+Builders live here (rather than in the packages they construct) because they
+depend on :class:`TaskGraph` — placing them in lower-level packages would
+create reverse dependency cycles.
+
+Classes:
+    TaskRuntimeBuilder: TaskGraph -> per-task TaskRuntime map.
+    WorkstreamRuntimeBuilder: TaskGraph -> per-workstream WorkstreamRuntime map.
 
 Functions:
     build_standard_runner: Build a StandardTaskRunner wired for worktree + tmux
         + Claude Code.
-
-.. module:: agentrelay.task_runner.implementations.standard_runner_builder
 """
 
 from __future__ import annotations
@@ -29,7 +37,54 @@ from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLaunche
 from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
 from agentrelay.task_runner.implementations.task_preparer import WorktreeTaskPreparer
 from agentrelay.task_runner.implementations.task_teardown import WorktreeTaskTeardown
-from agentrelay.task_runtime import TaskRuntime
+from agentrelay.task_runtime.runtime import TaskRuntime
+from agentrelay.workstream.core.runtime import WorkstreamRuntime
+
+
+class TaskRuntimeBuilder:
+    """Builder for initializing per-task runtime envelopes from a task graph."""
+
+    @classmethod
+    def from_graph(cls, graph: TaskGraph) -> dict[str, TaskRuntime]:
+        """Build initial runtimes for all tasks in a graph.
+
+        Runtimes are returned in the graph's stable topological task order.
+        Each runtime starts with default mutable state/artifacts and no agent.
+
+        Args:
+            graph: Validated immutable task graph.
+
+        Returns:
+            dict[str, TaskRuntime]: Task runtimes keyed by task ID.
+        """
+        runtimes: dict[str, TaskRuntime] = {}
+        for task_id in graph.task_ids():
+            runtimes[task_id] = TaskRuntime(task=graph.task(task_id))
+        return runtimes
+
+
+class WorkstreamRuntimeBuilder:
+    """Builder for initializing per-workstream runtime envelopes from a graph."""
+
+    @classmethod
+    def from_graph(cls, graph: TaskGraph) -> dict[str, WorkstreamRuntime]:
+        """Build initial runtimes for all workstreams in a graph.
+
+        Runtimes are returned in the graph's stable sorted workstream order.
+        Each runtime starts with default mutable state/artifacts.
+
+        Args:
+            graph: Validated immutable task graph.
+
+        Returns:
+            dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.
+        """
+        runtimes: dict[str, WorkstreamRuntime] = {}
+        for workstream_id in graph.workstream_ids():
+            runtimes[workstream_id] = WorkstreamRuntime(
+                spec=graph.workstream(workstream_id)
+            )
+        return runtimes
 
 
 def build_standard_runner(

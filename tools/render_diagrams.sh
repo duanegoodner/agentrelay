@@ -11,7 +11,7 @@ OV_SCALE=0.5
 OV_PAD=20
 
 # Detail diagram
-DT_SCALE=0.1
+DT_SCALE=0.3
 DT_PAD=50
 
 # ── Generate overview D2 source ──────────────────────────────────────
