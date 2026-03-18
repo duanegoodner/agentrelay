@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Block commits where a .d2 source changed but the matching .svg was not updated.
+d2_changed=$(git diff --cached --name-only -- '*.d2' || true)
+if [ -z "$d2_changed" ]; then
+  exit 0
+fi
+
+svg_changed=$(git diff --cached --name-only -- '*.svg' || true)
+if [ -z "$svg_changed" ]; then
+  echo "ERROR: D2 diagram source changed but no .svg files were updated."
+  echo "Run 'pixi run diagram' and stage the rendered SVGs before committing."
+  exit 1
+fi
