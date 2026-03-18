@@ -32,8 +32,6 @@ Core types:
 - WorkstreamState: mutable operational state of a lane       [workstream/core/runtime.py]
 - WorkstreamArtifacts: outputs of lane execution             [workstream/core/runtime.py]
 - WorkstreamRuntime: mutable lane envelope                   [workstream/core/runtime.py]
-- LocalWorkspaceRef: resolved local workspace details        [workspace.py]
-- WorkspaceRef: type alias for workspace references          [workspace.py]
 
 Protocol types:
 - TaskManifest: Layer-1 structured task facts                   [agent_comm_protocol/manifest.py]

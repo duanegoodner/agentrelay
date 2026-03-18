@@ -1,6 +1,6 @@
-direction: right
-**.style.font-size: 50
-*.style.font-size: 90
+direction: down
+**.style.font-size: 55
+*.style.font-size: 100
 
 # ─────────────────────────────────────────────
 #  Style classes for relationship types
@@ -10,7 +10,7 @@ classes: {
     # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
     style.stroke: "#333333"
     style.stroke-width: 12
-    style.font-size: 40
+    style.font-size: 55
   }
   dependency: {
     target-arrowhead: {
@@ -19,7 +19,7 @@ classes: {
     }
     style.stroke-dash: 3
     style.stroke-width: 12
-    style.font-size: 40
+    style.font-size: 55
   }
   inheritance: {
     target-arrowhead: {
@@ -28,7 +28,7 @@ classes: {
     }
     style.stroke: "#333333"
     style.stroke-width: 12
-    style.font-size: 40
+    style.font-size: 55
   }
   implementation: {
     target-arrowhead: {
@@ -37,7 +37,7 @@ classes: {
     }
     style.stroke-dash: 3
     style.stroke-width: 12
-    style.font-size: 40
+    style.font-size: 55
   }
 }
 
@@ -154,20 +154,6 @@ agent_pkg: "agent/" {
   }
 }
 
-# ─────────────────────────────────────────────
-#  workspace.py — resolved workspace references
-# ─────────────────────────────────────────────
-workspace_py: "workspace.py" {
-  LocalWorkspaceRef: "LocalWorkspaceRef <<frozen dataclass>>" {
-    shape: class
-    worktree_path: Path
-    branch_name: str
-  }
-
-  WorkspaceRef: "WorkspaceRef <<type alias>>" {
-    shape: class
-  }
-}
 
 # ─────────────────────────────────────────────
 #  workstream/ — workstream specs, runtime, and runner
@@ -888,8 +874,6 @@ agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_core_pkg.Agent { class: in
 agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_impl_pkg.TmuxAddress: _address { class: composition }
 agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address { class: composition }
 
-# --- workspace ---
-workspace_py.WorkspaceRef -> workspace_py.LocalWorkspaceRef: "alias (extend to union for additional backends)" { class: composition }
 
 # --- task_graph ---
 task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
