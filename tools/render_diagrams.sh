@@ -10,7 +10,7 @@ OV_SELF_LOOP=20
 OV_SCALE=0.5
 OV_PAD=20
 
-# Detail diagram
+# Detail + standard diagrams
 DT_SCALE=0.3
 DT_PAD=50
 
@@ -30,8 +30,17 @@ python tools/generate_overview.py
 # ── Generate overview HTML (requires overview SVG to exist) ──────────
 # python tools/generate_overview.py --html-only
 
+# ── Generate standard D2 source (filter private nodes) ───────────────
+python tools/generate_standard_diagram.py
+
 # ── Render detail SVG ────────────────────────────────────────────────
 d2 --layout tala \
   --scale "$DT_SCALE" \
   --pad "$DT_PAD" \
   docs/diagram-detailed.d2 docs/diagram-detailed.svg
+
+# ── Render standard SVG ─────────────────────────────────────────────
+d2 --layout tala \
+  --scale "$DT_SCALE" \
+  --pad "$DT_PAD" \
+  docs/diagram-standard.d2 docs/diagram-standard.svg

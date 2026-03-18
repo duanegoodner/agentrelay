@@ -22,7 +22,7 @@ Near-term items for the current architecture track.
 
 ## Removed Modules (revisit when needed)
 
-- `spec/` (`SpecRepresentation` protocol, `PythonStubSpec`) — removed in PR #??? (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.
+- `spec/` (`SpecRepresentation` protocol, `PythonStubSpec`) — removed in PR #106 (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.
 - `workspace.py` (`LocalWorkspaceRef`, `WorkspaceRef`) — removed in the same PR. Was intended to model workspace/repo references.
 - View protocols (`TaskStateView`, `TaskArtifactsView`, `TaskRuntimeView`, `WorkstreamStateView`, `WorkstreamArtifactsView`, `WorkstreamRuntimeView`) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.
 

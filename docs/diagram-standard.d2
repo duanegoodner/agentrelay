@@ -1,0 +1,833 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+# ─────────────────────────────────────────────
+#  Style classes for relationship types
+# ─────────────────────────────────────────────
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  task.py — immutable task specifications
+# ─────────────────────────────────────────────
+task_py: "task.py" {
+  AgentRole: "AgentRole <<enumeration>>" {
+    shape: class
+    SPEC_WRITER
+    TEST_WRITER
+    TEST_REVIEWER
+    IMPLEMENTER
+    GENERIC
+  }
+
+  AgentFramework: "AgentFramework <<enumeration>>" {
+    shape: class
+    CLAUDE_CODE
+  }
+
+  AgentVerbosity: "AgentVerbosity <<enumeration>>" {
+    shape: class
+    NONE
+    STANDARD
+    DETAILED
+    EDUCATIONAL
+  }
+
+  TaskPaths: "TaskPaths <<frozen dataclass>>" {
+    shape: class
+    src: "tuple[Path, ...]"
+    test: "tuple[Path, ...]"
+    spec: "Path | None"
+  }
+
+  AgentConfig: "AgentConfig <<frozen dataclass>>" {
+    shape: class
+    framework: AgentFramework
+    model: "str | None"
+    adr_verbosity: AgentVerbosity
+    environment: AgentEnvironment
+  }
+
+  ReviewConfig: "ReviewConfig <<frozen dataclass>>" {
+    shape: class
+    agent: AgentConfig
+    review_on_attempt: int
+  }
+
+  Task: "Task <<frozen dataclass>>" {
+    shape: class
+    id: str
+    role: AgentRole
+    description: "str | None"
+    paths: TaskPaths
+    dependencies: "tuple[str, ...]"
+    completion_gate: "str | None"
+    max_gate_attempts: "int | None"
+    primary_agent: AgentConfig
+    review: "ReviewConfig | None"
+    workstream_id: str
+  }
+}
+
+# ─────────────────────────────────────────────
+#  environments.py — execution environments
+# ─────────────────────────────────────────────
+environments_py: "environments.py" {
+  AgentEnvironment: "AgentEnvironment <<type alias>>" {
+    shape: class
+  }
+
+  TmuxEnvironment: "TmuxEnvironment <<frozen dataclass>>" {
+    shape: class
+    session: str
+  }
+}
+
+# ─────────────────────────────────────────────
+#  agent/ — agent abstractions
+# ─────────────────────────────────────────────
+agent_pkg: "agent/" {
+  agent_core_pkg: "core/" {
+    AgentAddress: "AgentAddress <<abstract>>" {
+      shape: class
+      +label(): str
+      +teardown(signal_dir, keep_panes): void
+    }
+
+    Agent: "Agent <<abstract>>" {
+      shape: class
+      +send_kickoff(instructions_path): void
+      +address(): AgentAddress
+    }
+  }
+
+  agent_impl_pkg: "implementations/" {
+    TmuxAddress: "TmuxAddress <<frozen dataclass>>" {
+      shape: class
+      session: str
+      pane_id: str
+      +label(): str
+      +teardown(signal_dir, keep_panes): void
+    }
+
+    TmuxAgent: "TmuxAgent <<mutable dataclass>>" {
+      shape: class
+      -_address: TmuxAddress
+      +address(): TmuxAddress
+      +from_config(config, task_id, worktree_path, signal_dir): TmuxAgent
+      +send_kickoff(instructions_path): void
+    }
+  }
+}
+
+
+# ─────────────────────────────────────────────
+#  workstream/ — workstream specs, runtime, and runner
+# ─────────────────────────────────────────────
+workstream_pkg: "workstream/" {
+  workstream_core_pkg: "core/" {
+    WorkstreamSpec: "WorkstreamSpec <<frozen dataclass>>" {
+      shape: class
+      id: str
+      parent_workstream_id: "str | None"
+      base_branch: str
+      merge_target_branch: str
+    }
+
+    WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
+      shape: class
+      PENDING
+      ACTIVE
+      MERGE_READY
+      MERGED
+      FAILED
+    }
+
+    WorkstreamState: "WorkstreamState <<mutable dataclass>>" {
+      shape: class
+      status: WorkstreamStatus
+      worktree_path: "Path | None"
+      branch_name: "str | None"
+      error: "str | None"
+    }
+
+    WorkstreamArtifacts: "WorkstreamArtifacts <<mutable dataclass>>" {
+      shape: class
+      merge_pr_url: "str | None"
+      concerns: "list[str]"
+    }
+
+    WorkstreamRuntime: "WorkstreamRuntime <<mutable dataclass>>" {
+      shape: class
+      spec: WorkstreamSpec
+      state: WorkstreamState
+      artifacts: WorkstreamArtifacts
+      +mark_failed(error): void
+      +mark_merge_ready(): void
+      +mark_merged(): void
+    }
+
+    WorkstreamPreparer: "WorkstreamPreparer <<protocol>>" {
+      shape: class
+      +prepare_workstream(workstream_runtime): void
+    }
+
+    WorkstreamMerger: "WorkstreamMerger <<protocol>>" {
+      shape: class
+      +merge_workstream(workstream_runtime): void
+    }
+
+    WorkstreamTeardown: "WorkstreamTeardown <<protocol>>" {
+      shape: class
+      +teardown_workstream(workstream_runtime): void
+    }
+
+    WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
+      shape: class
+      workstream_id: str
+      status: WorkstreamStatus
+      error: "str | None"
+    }
+
+    WorkstreamRunner: "WorkstreamRunner <<protocol>>" {
+      shape: class
+      +prepare(workstream_runtime): void
+      +merge(workstream_runtime): WorkstreamRunResult
+      +teardown(workstream_runtime): void
+    }
+
+    StandardWorkstreamRunner: "StandardWorkstreamRunner <<mutable dataclass>>" {
+      shape: class
+      +prepare(workstream_runtime): void
+      +merge(workstream_runtime): WorkstreamRunResult
+      +teardown(workstream_runtime): void
+    }
+  }
+
+  workstream_impl_pkg: "implementations/" {
+    GitWorkstreamPreparer: "GitWorkstreamPreparer <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      graph_name: str
+      +prepare_workstream(workstream_runtime): void
+    }
+
+    GhWorkstreamMerger: "GhWorkstreamMerger <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +merge_workstream(workstream_runtime): void
+    }
+
+    GitWorkstreamTeardown: "GitWorkstreamTeardown <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +teardown_workstream(workstream_runtime): void
+    }
+  }
+}
+
+# ─────────────────────────────────────────────
+#  task_graph/ — DAG structure and queries
+# ─────────────────────────────────────────────
+task_graph_pkg: "task_graph/" {
+  TaskGraph: "TaskGraph <<frozen dataclass>>" {
+    shape: class
+    name: "str | None"
+    max_workstream_depth: int
+    +task(task_id): Task
+    +task_ids(): "tuple[str, ...]"
+    +dependency_ids(task_id): "tuple[str, ...]"
+    +dependent_ids(task_id): "tuple[str, ...]"
+    +roots(): "tuple[str, ...]"
+    +leaves(): "tuple[str, ...]"
+    +topological_order(): "tuple[str, ...]"
+    +ready_ids(completed_ids, running_ids): "tuple[str, ...]"
+    +workstream_ids(): "tuple[str, ...]"
+    +workstream(workstream_id): WorkstreamSpec
+    +tasks_in_workstream(workstream_id): "tuple[str, ...]"
+    +child_workstream_ids(workstream_id): "tuple[str, ...]"
+  }
+
+
+
+  TaskGraphBuilder: "TaskGraphBuilder" {
+    shape: class
+    +from_yaml(path): TaskGraph
+    +from_dict(data): TaskGraph
+  }
+}
+
+# ─────────────────────────────────────────────
+#  task_runtime/ — mutable execution state
+# ─────────────────────────────────────────────
+task_runtime_pkg: "task_runtime/" {
+  TaskStatus: "TaskStatus <<enumeration>>" {
+    shape: class
+    PENDING
+    RUNNING
+    PR_CREATED
+    PR_MERGED
+    FAILED
+  }
+
+  TaskState: "TaskState <<mutable dataclass>>" {
+    shape: class
+    status: TaskStatus
+    worktree_path: "Path | None"
+    branch_name: "str | None"
+    signal_dir: "Path | None"
+    error: "str | None"
+    attempt_num: int
+    integration_branch: "str | None"
+    workstream_worktree_path: "Path | None"
+  }
+
+  TaskArtifacts: "TaskArtifacts <<mutable dataclass>>" {
+    shape: class
+    pr_url: "str | None"
+    concerns: "list[str]"
+    agent_address: "AgentAddress | None"
+  }
+
+  TaskRuntime: "TaskRuntime <<mutable dataclass>>" {
+    shape: class
+    task: Task
+    state: TaskState
+    artifacts: TaskArtifacts
+    +prepare_for_attempt(attempt_num): void
+    +mark_failed(error): void
+    +reset_for_retry(): void
+    +mark_pending(): void
+  }
+
+}
+
+# ─────────────────────────────────────────────
+#  task_runner/ — one-task lifecycle and I/O protocols
+# ─────────────────────────────────────────────
+task_runner_pkg: "task_runner/" {
+  task_runner_core_pkg: "core/" {
+    TearDownMode: "TearDownMode <<enumeration>>" {
+      shape: class
+      ALWAYS
+      NEVER
+      ON_SUCCESS
+    }
+
+    TaskCompletionSignal: "TaskCompletionSignal <<frozen dataclass>>" {
+      shape: class
+      outcome: "done | failed"
+      pr_url: "str | None"
+      error: "str | None"
+      concerns: "tuple[str, ...]"
+    }
+
+    TaskPreparer: "TaskPreparer <<protocol>>" {
+      shape: class
+      +prepare(runtime): void
+    }
+
+    TaskLauncher: "TaskLauncher <<protocol>>" {
+      shape: class
+      +launch(runtime): Agent
+    }
+
+    TaskKickoff: "TaskKickoff <<protocol>>" {
+      shape: class
+      +kickoff(runtime, agent): void
+    }
+
+    TaskCompletionChecker: "TaskCompletionChecker <<protocol>>" {
+      shape: class
+      +wait_for_completion(runtime): TaskCompletionSignal
+    }
+
+    TaskMerger: "TaskMerger <<protocol>>" {
+      shape: class
+      +merge_pr(runtime, pr_url): void
+    }
+
+    TaskTeardown: "TaskTeardown <<protocol>>" {
+      shape: class
+      +teardown(runtime): void
+    }
+
+    StepDispatch: "StepDispatch<T> <<frozen dataclass>>" {
+      shape: class
+      entries: "dict[DispatchKey, Callable]"
+      default: "Callable | None"
+      +__call__(runtime): T
+    }
+
+    TaskRunResult: "TaskRunResult <<frozen dataclass>>" {
+      shape: class
+      task_id: str
+      status: TaskStatus
+      pr_url: "str | None"
+      error: "str | None"
+      failure_class: "IntegrationFailureClass | None"
+    }
+
+    TaskRunner: "TaskRunner <<protocol>>" {
+      shape: class
+      +run(runtime, teardown_mode): TaskRunResult
+    }
+
+    StandardTaskRunner: "StandardTaskRunner <<mutable dataclass>>" {
+      shape: class
+      +run(runtime, teardown_mode): TaskRunResult
+    }
+  }
+
+  task_runner_impl_pkg: "implementations/" {
+    WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      graph_name: str
+      dependency_descriptions: dict
+      context_content: "str | None"
+      +prepare(runtime): void
+    }
+
+    TmuxTaskLauncher: "TmuxTaskLauncher <<dataclass>>" {
+      shape: class
+      +launch(runtime): Agent
+    }
+
+    TmuxTaskKickoff: "TmuxTaskKickoff <<dataclass>>" {
+      shape: class
+      +kickoff(runtime, agent): void
+    }
+
+    SignalCompletionChecker: "SignalCompletionChecker <<dataclass>>" {
+      shape: class
+      poll_interval: float
+      +wait_for_completion(runtime): TaskCompletionSignal
+    }
+
+    GhTaskMerger: "GhTaskMerger <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +merge_pr(runtime, pr_url): void
+    }
+
+    WorktreeTaskTeardown: "WorktreeTaskTeardown <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      keep_panes: bool
+      +teardown(runtime): void
+    }
+  }
+}
+
+# ─────────────────────────────────────────────
+#  orchestrator/ — async scheduling loop
+# ─────────────────────────────────────────────
+orchestrator_pkg: "orchestrator/" {
+  TaskOutcomeClass: "TaskOutcomeClass <<enumeration>>" {
+    shape: class
+    SUCCESS
+    EXPECTED_FAILURE
+    INTERNAL_ERROR
+  }
+
+  OrchestratorOutcome: "OrchestratorOutcome <<enumeration>>" {
+    shape: class
+    SUCCEEDED
+    COMPLETED_WITH_FAILURES
+    FATAL_INTERNAL_ERROR
+  }
+
+  OrchestratorConfig: "OrchestratorConfig <<frozen dataclass>>" {
+    shape: class
+    max_concurrency: int
+    max_task_attempts: int
+    task_teardown_mode: TearDownMode
+    fail_fast_on_internal_error: bool
+    fail_fast_on_workstream_error: bool
+  }
+
+  OrchestratorEvent: "OrchestratorEvent <<frozen dataclass>>" {
+    shape: class
+    kind: str
+    task_id: "str | None"
+    workstream_id: "str | None"
+    attempt_num: "int | None"
+    outcome_class: "TaskOutcomeClass | None"
+    message: "str | None"
+  }
+
+  OrchestratorResult: "OrchestratorResult <<frozen dataclass>>" {
+    shape: class
+    outcome: OrchestratorOutcome
+    task_runtimes: "Mapping[str, TaskRuntime]"
+    workstream_runtimes: "Mapping[str, WorkstreamRuntime]"
+    events: "tuple[OrchestratorEvent, ...]"
+    fatal_error: "str | None"
+  }
+
+  OrchestratorListener: "OrchestratorListener <<protocol>>" {
+    shape: class
+    +on_event(event): void
+  }
+
+  Orchestrator: "Orchestrator <<mutable dataclass>>" {
+    shape: class
+    graph: TaskGraph
+    task_runner: TaskRunner
+    workstream_runner: WorkstreamRunner
+    config: OrchestratorConfig
+    listener: "OrchestratorListener | None"
+    +run(task_runtimes, workstream_runtimes): OrchestratorResult
+  }
+
+
+  TaskRuntimeBuilder: "TaskRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, TaskRuntime]"
+  }
+
+  WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, WorkstreamRuntime]"
+  }
+
+  builders: "builders <<module>>" {
+    shape: class
+    module_path: orchestrator.builders
+    "+build_standard_runner(...)": StandardTaskRunner
+  }
+}
+
+# ─────────────────────────────────────────────
+#  ops/ — infrastructure primitives (private)
+# ─────────────────────────────────────────────
+ops_pkg: "ops/" {
+  git: "git <<module>>" {
+    shape: class
+    module_path: ops.git
+    +worktree_add(repo, path, branch, start_point): void
+    +worktree_remove(repo, path): void
+    +checkout(repo, branch): void
+    +branch_create(repo, branch, start_point, force): void
+    +branch_delete(repo, branch): void
+    +pull_ff_only(repo): bool
+    +fetch_branch(repo, branch): void
+    +update_local_ref(repo, branch, remote_ref): void
+    +push_branch(repo, branch, set_upstream): void
+    +push_delete_branch(repo, branch): void
+    +ls_remote_branch_exists(repo, branch): bool
+  }
+
+  tmux: "tmux <<module>>" {
+    shape: class
+    module_path: ops.tmux
+    +new_window(session, name, cwd): str
+    +send_keys(pane_id, keys, press_enter): void
+    +capture_pane(pane_id, full_history): str
+    +kill_window(pane_id): void
+    +wait_for_tui_ready(pane_id, marker, timeout): bool
+  }
+
+  gh: "gh <<module>>" {
+    shape: class
+    module_path: ops.gh
+    +pr_create(repo_dir, title, body, base, head): str
+    +pr_merge(pr_url): void
+    +pr_body(pr_url): str
+  }
+
+  signals: "signals <<module>>" {
+    shape: class
+    module_path: ops.signals
+    +ensure_signal_dir(signal_dir): Path
+    +write_json(signal_dir, filename, data): void
+    +write_text(signal_dir, filename, content): void
+    +read_signal_file(signal_dir, filename): "str | None"
+    +poll_signal_files(signal_dir, filenames, interval): str
+  }
+}
+
+# ─────────────────────────────────────────────
+#  errors/ — error hierarchy
+# ─────────────────────────────────────────────
+errors_pkg: "errors/" {
+  IntegrationBoundary: "IntegrationBoundary <<enumeration>>" {
+    shape: class
+    WORKSPACE
+    SIGNAL
+    PULL_REQUEST
+    AGENT_LAUNCH
+  }
+
+  IntegrationFailureClass: "IntegrationFailureClass <<enumeration>>" {
+    shape: class
+    EXPECTED_TASK_FAILURE
+    INTERNAL_ERROR
+  }
+
+  IntegrationError: "IntegrationError <<exception>>" {
+    shape: class
+    boundary: IntegrationBoundary
+    failure_class: IntegrationFailureClass
+  }
+
+  ExpectedTaskFailureError: "ExpectedTaskFailureError <<exception>>" {
+    shape: class
+  }
+
+  InternalIntegrationError: "InternalIntegrationError <<exception>>" {
+    shape: class
+  }
+
+
+
+
+
+  error_functions: "error_functions <<module>>" {
+    shape: class
+    module_path: errors
+    +classify_integration_error(exc): IntegrationFailureClass
+  }
+}
+
+# ─────────────────────────────────────────────
+#  agent_comm_protocol/ — agent communication protocol layers 1-3
+# ─────────────────────────────────────────────
+agent_comm_protocol_pkg: "agent_comm_protocol/" {
+  TaskManifest: "TaskManifest <<frozen dataclass>>" {
+    shape: class
+    schema_version: str
+    task_id: str
+    role: AgentRole
+    description: "str | None"
+    src_paths: "tuple[Path, ...]"
+    test_paths: "tuple[Path, ...]"
+    spec_path: "Path | None"
+    branch_name: str
+    integration_branch: str
+    attempt_num: int
+    graph_name: "str | None"
+    dependencies: "dict[str, DependencyInfo]"
+  }
+
+  DependencyInfo: "DependencyInfo <<frozen dataclass>>" {
+    shape: class
+    description: "str | None"
+  }
+
+  WorkflowPolicies: "WorkflowPolicies <<frozen dataclass>>" {
+    shape: class
+    schema_version: str
+    commit_policy: "_CommitPolicy | None"
+    pr_policy: "_PrPolicy | None"
+    completion_gate: "_CompletionGatePolicy | None"
+    review: "_ReviewPolicy | None"
+    adr: "_AdrPolicy | None"
+    verification: "_VerificationPolicy | None"
+  }
+
+
+
+
+
+
+
+
+
+  manifest_functions: "manifest_functions <<module>>" {
+    shape: class
+    module_path: agent_comm_protocol.manifest
+    +build_manifest(task, branch_name, integration_branch, graph_name, attempt_num, dependency_descriptions): TaskManifest
+    +manifest_to_dict(manifest): dict
+  }
+
+  policies_functions: "policies_functions <<module>>" {
+    shape: class
+    module_path: agent_comm_protocol.policies
+    +build_policies(task, integration_branch, default_max_gate_attempts): WorkflowPolicies
+    +policies_to_dict(policies): dict
+  }
+
+  templates_functions: "templates_functions <<module>>" {
+    shape: class
+    module_path: agent_comm_protocol.templates
+    +resolve_instructions(role, manifest, adapter_name): str
+  }
+}
+
+
+# ═════════════════════════════════════════════
+#  Relationships
+# ═════════════════════════════════════════════
+
+# --- task.py internal ---
+task_py.Task -> task_py.AgentRole: role { class: composition }
+task_py.Task -> task_py.TaskPaths: paths { class: composition }
+task_py.Task -> task_py.AgentConfig: primary_agent { class: composition }
+task_py.Task -> task_py.ReviewConfig: "review (optional)" { class: composition }
+task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
+task_py.AgentConfig -> task_py.AgentFramework: framework { class: composition }
+task_py.AgentConfig -> task_py.AgentVerbosity: adr_verbosity { class: composition }
+task_py.ReviewConfig -> task_py.AgentConfig: agent { class: composition }
+
+# --- environments ---
+task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
+environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }
+
+# --- agent ---
+agent_pkg.agent_impl_pkg.TmuxAddress -> agent_pkg.agent_core_pkg.AgentAddress { class: inheritance }
+agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_core_pkg.Agent { class: inheritance }
+agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address { class: composition }
+
+
+# --- task_graph ---
+task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
+task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
+task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: dependency }
+
+# --- builders (in orchestrator/) ---
+orchestrator_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
+
+# --- task_runner ---
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunner: satisfies { class: implementation }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.StepDispatch: "6 fields" { class: composition }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskMerger: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunResult: returns { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionSignal: returns { class: dependency }
+task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Agent: launches { class: dependency }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
+
+# --- task_runtime internal ---
+task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
+task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
+task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
+task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
+
+# --- workstream internal ---
+workstream_pkg.workstream_core_pkg.WorkstreamState -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: spec { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamState: state { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamArtifacts: artifacts { class: composition }
+
+# --- workstream runner ---
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
+workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunResult: returns { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
+
+# --- workstream implementations ---
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
+
+# --- orchestrator ---
+orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.Orchestrator -> task_runner_pkg.task_runner_core_pkg.TaskRunner: "delegates task runs" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: "delegates workstream lifecycle" { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorConfig: uses { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
+orchestrator_pkg.OrchestratorResult -> orchestrator_pkg.OrchestratorOutcome: outcome { class: composition }
+orchestrator_pkg.OrchestratorResult -> orchestrator_pkg.OrchestratorEvent: events { class: composition }
+orchestrator_pkg.OrchestratorEvent -> orchestrator_pkg.TaskOutcomeClass: classification { class: composition }
+orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: "listener (optional)" { class: composition }
+orchestrator_pkg.OrchestratorListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
+
+# --- errors ---
+errors_pkg.ExpectedTaskFailureError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg.InternalIntegrationError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg.IntegrationError -> errors_pkg.IntegrationBoundary: boundary { class: composition }
+errors_pkg.IntegrationError -> errors_pkg.IntegrationFailureClass: failure_class { class: composition }
+errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { class: dependency }
+
+# --- agent_comm_protocol ---
+agent_comm_protocol_pkg.TaskManifest -> agent_comm_protocol_pkg.DependencyInfo: dependencies { class: composition }
+agent_comm_protocol_pkg.TaskManifest -> task_py.AgentRole: role { class: composition }
+agent_comm_protocol_pkg.manifest_functions -> task_py.Task: reads { class: dependency }
+agent_comm_protocol_pkg.manifest_functions -> agent_comm_protocol_pkg.TaskManifest: builds { class: dependency }
+agent_comm_protocol_pkg.policies_functions -> task_py.Task: reads { class: dependency }
+agent_comm_protocol_pkg.policies_functions -> agent_comm_protocol_pkg.WorkflowPolicies: builds { class: dependency }
+agent_comm_protocol_pkg.templates_functions -> task_py.AgentRole: reads { class: dependency }
+agent_comm_protocol_pkg.templates_functions -> agent_comm_protocol_pkg.TaskManifest: reads { class: dependency }
+
+# --- task_runner implementations ---
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.manifest_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.policies_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.templates_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pkg.TmuxAgent: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
+
+# test
