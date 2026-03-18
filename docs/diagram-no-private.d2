@@ -136,7 +136,21 @@ agent_pkg: "agent/" {
   }
 
   agent_impl_pkg: "implementations/" {
-    "(2 classes hidden)"
+    TmuxAddress: "TmuxAddress <<frozen dataclass>>" {
+      shape: class
+      session: str
+      pane_id: str
+      +label(): str
+      +teardown(signal_dir, keep_panes): void
+    }
+
+    TmuxAgent: "TmuxAgent <<mutable dataclass>>" {
+      shape: class
+      -_address: TmuxAddress
+      +address(): TmuxAddress
+      +from_config(config, task_id, worktree_path, signal_dir): TmuxAgent
+      +send_kickoff(instructions_path): void
+    }
   }
 }
 
@@ -225,7 +239,24 @@ workstream_pkg: "workstream/" {
   }
 
   workstream_impl_pkg: "implementations/" {
-    "(3 classes hidden)"
+    GitWorkstreamPreparer: "GitWorkstreamPreparer <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      graph_name: str
+      +prepare_workstream(workstream_runtime): void
+    }
+
+    GhWorkstreamMerger: "GhWorkstreamMerger <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +merge_workstream(workstream_runtime): void
+    }
+
+    GitWorkstreamTeardown: "GitWorkstreamTeardown <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +teardown_workstream(workstream_runtime): void
+    }
   }
 }
 
@@ -383,7 +414,43 @@ task_runner_pkg: "task_runner/" {
   }
 
   task_runner_impl_pkg: "implementations/" {
-    "(6 classes hidden)"
+    WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      graph_name: str
+      dependency_descriptions: dict
+      context_content: "str | None"
+      +prepare(runtime): void
+    }
+
+    TmuxTaskLauncher: "TmuxTaskLauncher <<dataclass>>" {
+      shape: class
+      +launch(runtime): Agent
+    }
+
+    TmuxTaskKickoff: "TmuxTaskKickoff <<dataclass>>" {
+      shape: class
+      +kickoff(runtime, agent): void
+    }
+
+    SignalCompletionChecker: "SignalCompletionChecker <<dataclass>>" {
+      shape: class
+      poll_interval: float
+      +wait_for_completion(runtime): TaskCompletionSignal
+    }
+
+    GhTaskMerger: "GhTaskMerger <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +merge_pr(runtime, pr_url): void
+    }
+
+    WorktreeTaskTeardown: "WorktreeTaskTeardown <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      keep_panes: bool
+      +teardown(runtime): void
+    }
   }
 }
 
@@ -643,6 +710,8 @@ task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: co
 environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }
 
 # --- agent ---
+agent_pkg.agent_impl_pkg.TmuxAddress -> agent_pkg.agent_core_pkg.AgentAddress { class: inheritance }
+agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_core_pkg.Agent { class: inheritance }
 agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address { class: composition }
 
 
@@ -674,6 +743,12 @@ task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Ag
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
 
 # --- task_runtime internal ---
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
@@ -695,6 +770,13 @@ workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream
 workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
 
 # --- workstream implementations ---
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
 
 # --- orchestrator ---
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
@@ -729,5 +811,23 @@ agent_comm_protocol_pkg.templates_functions -> task_py.AgentRole: reads { class:
 agent_comm_protocol_pkg.templates_functions -> agent_comm_protocol_pkg.TaskManifest: reads { class: dependency }
 
 # --- task_runner implementations ---
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.manifest_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.policies_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.templates_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pkg.TmuxAgent: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
 
 # test

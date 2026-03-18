@@ -1,36 +1,46 @@
 # Design Diagram
 
 This diagram is a first-class project artifact. It shows all currently implemented
-types and their relationships, organized by source module. Archive types are excluded.
+types and their relationships, organized by source module.
 
-The authoritative source is `docs/diagram-detailed.d2` (D2 with ELK layout engine). Every PR
+The authoritative source is `docs/diagram-detailed.d2` (D2 with TALA layout engine). Every PR
 that touches `src/agentrelay/` must update the diagram to reflect any new or changed
-types and relationships, then re-render `docs/diagram-detailed.svg` via `pixi run diagram`.
+types and relationships, then re-render via `pixi run diagram`.
 
 ## Views
 
-**Overview** — package-level dependency diagram with connector popups. Click a
-connection to see the list of class-level dependencies between two packages.
-Auto-generated from the detail diagram by `tools/generate_overview.py`.
+**Standard** — public API types with collapsed `implementations/` packages. This is
+the default view for understanding the architecture.
 
-[View overview diagram](diagram-overview.html){: target="_blank" } — opens in a new tab; click connections for dependency details.
+[View standard diagram (SVG)](diagram-standard.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
 
-**Detail** — full class-level diagram showing all types, relationships, and methods.
+**Detailed** — everything: private types, implementation classes, and all relationships.
+Use this for deep dives into specific packages.
 
-[View detail diagram (SVG)](diagram-detailed.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
+[View detailed diagram (SVG)](diagram-detailed.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
+
+Two intermediate variants are also generated for reference:
+
+- `diagram-no-private.svg` — public types with full implementation detail
+- `diagram-no-impl.svg` — all types with collapsed implementations
+
+## Filtering conventions
+
+Diagram variants are auto-generated from `diagram-detailed.d2` by `tools/generate_diagrams.py`
+using composable filters from `tools/d2_filters.py`:
+
+- **Private filter**: strips nodes whose D2 identifier starts with `_` (matching the
+  Python private naming convention) and any relationship arrows referencing them.
+- **Impl filter**: collapses `*_impl_pkg` containers to a `"(N classes hidden)"`
+  placeholder and strips relationship arrows referencing nodes inside them.
 
 ## Conventions
 
 **Connector lines** represent relationships that are not already obvious from the
 class body or visual proximity. Guidelines:
 
-- **Always add connectors** for composition/ownership (e.g. `TaskRuntime --> TaskState : state`)
-  and inheritance/implementation (e.g. `TaskState ..|> TaskStateView : satisfies`).
-- **Omit connectors** when a Protocol's property return types reference other protocols
-  or types that are already visually adjacent and connected via other relationships.
-  For example, `TaskRuntimeView` has properties returning `TaskStateView` and
-  `TaskArtifactsView`, but connectors for these are omitted because the "satisfies"
-  arrows from the concrete dataclasses already establish the grouping, and the return
-  types are readable in the protocol's class body.
+- **Always add connectors** for composition/ownership and inheritance/implementation.
+- **Omit connectors** when return types reference types that are already visually
+  adjacent and connected via other relationships.
 - When in doubt, prefer fewer connectors — the diagram should highlight structural
   relationships, not restate every type signature.

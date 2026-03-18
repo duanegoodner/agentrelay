@@ -218,6 +218,9 @@ workstream_pkg: "workstream/" {
 
     StandardWorkstreamRunner: "StandardWorkstreamRunner <<mutable dataclass>>" {
       shape: class
+      _preparer: WorkstreamPreparer
+      _merger: WorkstreamMerger
+      _teardown: WorkstreamTeardown
       +prepare(workstream_runtime): void
       +merge(workstream_runtime): WorkstreamRunResult
       +teardown(workstream_runtime): void
@@ -251,7 +254,27 @@ task_graph_pkg: "task_graph/" {
     +child_workstream_ids(workstream_id): "tuple[str, ...]"
   }
 
+  _validation: "_validation <<module>>" {
+    shape: class
+    module_path: task_graph._validation
+    +normalize_workstreams(workstreams_by_id): "dict[str, WorkstreamSpec]"
+    +validate_task_workstream_ids(tasks_by_id, workstreams_by_id): void
+    +validate_workstream_parent_ids_exist(workstreams_by_id): void
+    +validate_workstream_hierarchy_acyclic(workstreams_by_id): void
+    +validate_workstream_max_depth(workstreams_by_id, max_depth): void
+    +validate_dependencies_exist(tasks_by_id, dependency_ids): void
+    +validate_known_ids(ids, tasks_by_id, source_name): void
+  }
 
+  _indexing: "_indexing <<module>>" {
+    shape: class
+    module_path: task_graph._indexing
+    +build_dependency_ids(tasks_by_id): "dict[str, tuple[str, ...]]"
+    +build_dependent_ids(tasks_by_id, dependency_ids): "dict[str, tuple[str, ...]]"
+    +topological_order_or_raise(dependency_ids, dependent_ids): "tuple[str, ...]"
+    +build_task_ids_by_workstream(tasks_by_id, topological_order, workstreams_by_id): "dict[str, tuple[str, ...]]"
+    +build_child_workstream_ids(workstreams_by_id): "dict[str, tuple[str, ...]]"
+  }
 
   TaskGraphBuilder: "TaskGraphBuilder" {
     shape: class
@@ -378,6 +401,12 @@ task_runner_pkg: "task_runner/" {
 
     StandardTaskRunner: "StandardTaskRunner <<mutable dataclass>>" {
       shape: class
+      _preparer: "StepDispatch[TaskPreparer]"
+      _launcher: "StepDispatch[TaskLauncher]"
+      _kickoff: "StepDispatch[TaskKickoff]"
+      _completion_checker: "StepDispatch[TaskCompletionChecker]"
+      _merger: "StepDispatch[TaskMerger]"
+      _teardown: "StepDispatch[TaskTeardown]"
       +run(runtime, teardown_mode): TaskRunResult
     }
   }
@@ -448,6 +477,11 @@ orchestrator_pkg: "orchestrator/" {
     +run(task_runtimes, workstream_runtimes): OrchestratorResult
   }
 
+  _OrchestratorRun: "_OrchestratorRun <<internal>>" {
+    shape: class
+    -_orchestrator: Orchestrator
+    +execute(): OrchestratorResult
+  }
 
   TaskRuntimeBuilder: "TaskRuntimeBuilder" {
     shape: class
@@ -547,9 +581,21 @@ errors_pkg: "errors/" {
     shape: class
   }
 
+  _WorkspaceIntegrationError: "_WorkspaceIntegrationError <<exception>>" {
+    shape: class
+  }
 
+  _SignalIntegrationError: "_SignalIntegrationError <<exception>>" {
+    shape: class
+  }
 
+  _PullRequestIntegrationError: "_PullRequestIntegrationError <<exception>>" {
+    shape: class
+  }
 
+  _AgentLaunchIntegrationError: "_AgentLaunchIntegrationError <<exception>>" {
+    shape: class
+  }
 
   error_functions: "error_functions <<module>>" {
     shape: class
@@ -594,13 +640,59 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
     verification: "_VerificationPolicy | None"
   }
 
+  _WorkflowAction: "_WorkflowAction <<str>>" {
+    shape: class
+    COMMIT_AND_PUSH
+    CREATE_PR
+    SIGNAL_DONE
+    SIGNAL_FAILED
+    RUN_COMPLETION_GATE
+    RECORD_CONCERN
+    WRITE_ADR
+    RUN_VERIFICATION
+  }
 
+  _PrBodySection: "_PrBodySection <<str>>" {
+    shape: class
+    SUMMARY
+    FILES_CHANGED
+  }
 
+  _CommitPolicy: "_CommitPolicy <<frozen dataclass>>" {
+    shape: class
+    action: _WorkflowAction
+  }
 
+  _PrPolicy: "_PrPolicy <<frozen dataclass>>" {
+    shape: class
+    action: _WorkflowAction
+    base_branch: str
+    title_template: str
+    body_sections: "tuple[_PrBodySection, ...]"
+  }
 
+  _CompletionGatePolicy: "_CompletionGatePolicy <<frozen dataclass>>" {
+    shape: class
+    command: str
+    max_attempts: int
+    output_file: str
+  }
 
+  _VerificationPolicy: "_VerificationPolicy <<frozen dataclass>>" {
+    shape: class
+    commands: "tuple[str, ...]"
+  }
 
+  _AdrPolicy: "_AdrPolicy <<frozen dataclass>>" {
+    shape: class
+    verbosity: AgentVerbosity
+  }
 
+  _ReviewPolicy: "_ReviewPolicy <<frozen dataclass>>" {
+    shape: class
+    model: "str | None"
+    review_on_attempt: int
+  }
 
   manifest_functions: "manifest_functions <<module>>" {
     shape: class
@@ -649,6 +741,8 @@ agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address
 # --- task_graph ---
 task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
 task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
+task_graph_pkg.TaskGraph -> task_graph_pkg._validation: uses { class: dependency }
+task_graph_pkg.TaskGraph -> task_graph_pkg._indexing: uses { class: dependency }
 task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: dependency }
 
 # --- builders (in orchestrator/) ---
@@ -690,6 +784,9 @@ workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstrea
 
 # --- workstream runner ---
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: _preparer { class: composition }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: _merger { class: composition }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: _teardown { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
 workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunResult: returns { class: dependency }
 workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
@@ -708,12 +805,17 @@ orchestrator_pkg.OrchestratorEvent -> orchestrator_pkg.TaskOutcomeClass: classif
 orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
 orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: "listener (optional)" { class: composition }
 orchestrator_pkg.OrchestratorListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg._OrchestratorRun: creates { class: dependency }
 orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
 
 # --- errors ---
 errors_pkg.ExpectedTaskFailureError -> errors_pkg.IntegrationError { class: inheritance }
 errors_pkg.InternalIntegrationError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg._WorkspaceIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._SignalIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._PullRequestIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._AgentLaunchIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
 errors_pkg.IntegrationError -> errors_pkg.IntegrationBoundary: boundary { class: composition }
 errors_pkg.IntegrationError -> errors_pkg.IntegrationFailureClass: failure_class { class: composition }
 errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { class: dependency }
@@ -721,6 +823,16 @@ errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { clas
 # --- agent_comm_protocol ---
 agent_comm_protocol_pkg.TaskManifest -> agent_comm_protocol_pkg.DependencyInfo: dependencies { class: composition }
 agent_comm_protocol_pkg.TaskManifest -> task_py.AgentRole: role { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._CommitPolicy: "commit_policy (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._PrPolicy: "pr_policy (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._CompletionGatePolicy: "completion_gate (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._ReviewPolicy: "review (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._AdrPolicy: "adr (optional)" { class: composition }
+agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._VerificationPolicy: "verification (optional)" { class: composition }
+agent_comm_protocol_pkg._CommitPolicy -> agent_comm_protocol_pkg._WorkflowAction: action { class: composition }
+agent_comm_protocol_pkg._PrPolicy -> agent_comm_protocol_pkg._WorkflowAction: action { class: composition }
+agent_comm_protocol_pkg._PrPolicy -> agent_comm_protocol_pkg._PrBodySection: body_sections { class: composition }
+agent_comm_protocol_pkg._AdrPolicy -> task_py.AgentVerbosity: verbosity { class: composition }
 agent_comm_protocol_pkg.manifest_functions -> task_py.Task: reads { class: dependency }
 agent_comm_protocol_pkg.manifest_functions -> agent_comm_protocol_pkg.TaskManifest: builds { class: dependency }
 agent_comm_protocol_pkg.policies_functions -> task_py.Task: reads { class: dependency }
