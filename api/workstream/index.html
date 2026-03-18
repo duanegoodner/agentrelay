@@ -862,34 +862,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../core/workspace/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workspace
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../core/errors/" class="md-nav__link">
         
   
@@ -1352,17 +1324,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamArtifactsView" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamArtifactsView
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamRuntime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1413,32 +1374,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRuntimeView" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRuntimeView
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamState" class="md-nav__link">
     <span class="md-ellipsis">
       
         WorkstreamState
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamStateView" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamStateView
       
     </span>
   </a>
@@ -1453,34 +1392,6 @@
       
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRuntimeBuilder
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        from_graph
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1856,17 +1767,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamArtifactsView" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamArtifactsView
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamRuntime" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1917,32 +1817,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRuntimeView" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRuntimeView
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamState" class="md-nav__link">
     <span class="md-ellipsis">
       
         WorkstreamState
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamStateView" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamStateView
       
     </span>
   </a>
@@ -1957,34 +1835,6 @@
       
     </span>
   </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        WorkstreamRuntimeBuilder
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#agentrelay.workstream.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        from_graph
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -2112,8 +1962,8 @@
 
         <p>Workstream model for lane-level execution and integration state.</p>
 <p>This package defines immutable workstream specifications, mutable runtime
-state for each workstream lane, runtime initialization helpers, and the
-workstream-level lifecycle runner with its I/O protocols.</p>
+state for each workstream lane, and the workstream-level lifecycle runner
+with its I/O protocols.</p>
 
 
 <details class="subpackages" open>
@@ -3643,7 +3493,8 @@ internal step structure.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
+<span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
@@ -3652,8 +3503,7 @@ internal step structure.</p>
 <span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamArtifacts</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Outputs and observations produced while advancing a workstream.</span>
 
@@ -3664,88 +3514,6 @@ internal step structure.</p>
 
     <span class="n">merge_pr_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">concerns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.workstream.WorkstreamArtifactsView" class="doc doc-heading">
-            <code>WorkstreamArtifactsView</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
-
-
-
-        <p>Read-only view of WorkstreamArtifacts.</p>
-<p>A Protocol satisfied structurally by WorkstreamArtifacts. The <code>concerns</code>
-property returns <code>Sequence[str]</code> (not <code>list[str]</code>) so that callers
-cannot mutate the list through the view.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamArtifactsView</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read-only view of WorkstreamArtifacts.</span>
-
-<span class="sd">    A Protocol satisfied structurally by WorkstreamArtifacts. The ``concerns``</span>
-<span class="sd">    property returns ``Sequence[str]`` (not ``list[str]``) so that callers</span>
-<span class="sd">    cannot mutate the list through the view.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">merge_pr_url</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">concerns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3862,32 +3630,32 @@ cannot mutate the list through the view.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntime</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable runtime envelope for a :class:`WorkstreamSpec`.</span>
 
@@ -3945,10 +3713,10 @@ cannot mutate the list through the view.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">89</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
+<span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transition to FAILED with an error message.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">FAILED</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="n">error</span>
@@ -3974,9 +3742,9 @@ cannot mutate the list through the view.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_merge_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_merge_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transition to MERGE_READY.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGE_READY</span>
 </code></pre></div></td></tr></table></div>
@@ -4001,9 +3769,9 @@ cannot mutate the list through the view.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Transition to MERGED.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="n">WorkstreamStatus</span><span class="o">.</span><span class="n">MERGED</span>
 </code></pre></div></td></tr></table></div>
@@ -4011,94 +3779,6 @@ cannot mutate the list through the view.</p>
     </div>
 
 </div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.workstream.WorkstreamRuntimeView" class="doc doc-heading">
-            <code>WorkstreamRuntimeView</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
-
-
-
-        <p>Read-only view of WorkstreamRuntime.</p>
-<p>A Protocol satisfied structurally by WorkstreamRuntime. Nested state and
-artifacts are exposed as their respective view protocols, ensuring
-read-only enforcement propagates through the object graph.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeView</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read-only view of WorkstreamRuntime.</span>
-
-<span class="sd">    A Protocol satisfied structurally by WorkstreamRuntime. Nested state and</span>
-<span class="sd">    artifacts are exposed as their respective view protocols, ensuring</span>
-<span class="sd">    read-only enforcement propagates through the object graph.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">spec</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamSpec</span><span class="p">:</span> <span class="o">...</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamStateView</span><span class="p">:</span> <span class="o">...</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">artifacts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamArtifactsView</span><span class="p">:</span> <span class="o">...</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4197,7 +3877,8 @@ read-only enforcement propagates through the object graph.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
+<span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
@@ -4211,8 +3892,7 @@ read-only enforcement propagates through the object graph.</p>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamState</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mutable operational state of a workstream lane.</span>
 
@@ -4228,100 +3908,6 @@ read-only enforcement propagates through the object graph.</p>
     <span class="n">worktree_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">branch_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.workstream.WorkstreamStateView" class="doc doc-heading">
-            <code>WorkstreamStateView</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
-
-
-
-        <p>Read-only view of WorkstreamState.</p>
-<p>A Protocol satisfied structurally by WorkstreamState. Exposes all fields
-as read-only properties so that holders of a WorkstreamStateView reference
-cannot mutate the underlying state.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamStateView</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read-only view of WorkstreamState.</span>
-
-<span class="sd">    A Protocol satisfied structurally by WorkstreamState. Exposes all fields</span>
-<span class="sd">    as read-only properties so that holders of a WorkstreamStateView reference</span>
-<span class="sd">    cannot mutate the underlying state.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkstreamStatus</span><span class="p">:</span> <span class="o">...</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">worktree_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span> <span class="o">...</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">branch_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span> <span class="o">...</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4438,7 +4024,8 @@ cannot mutate the underlying state.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/workstream/core/runtime.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">26</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
+<span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
@@ -4452,8 +4039,7 @@ cannot mutate the underlying state.</p>
 <span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamStatus</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution state of a workstream during orchestration.</span>
 
 <span class="sd">    Attributes:</span>
@@ -4484,228 +4070,6 @@ cannot mutate the underlying state.</p>
 
 
 
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="agentrelay.workstream.WorkstreamRuntimeBuilder" class="doc doc-heading">
-            <code>WorkstreamRuntimeBuilder</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-
-
-
-        <p>Builder for initializing per-workstream runtime envelopes from a graph.</p>
-
-
-
-
-
-
-
-
-              <details class="mkdocstrings-source">
-                <summary>Source code in <code>src/agentrelay/workstream/core/runtime_builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
-
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
-
-<span class="sd">        Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
-<span class="sd">        Each runtime starts with default mutable state/artifacts.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            graph: Validated immutable task graph.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
-            <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
-                <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">runtimes</span>
-</code></pre></div></td></tr></table></div>
-              </details>
-
-
-
-<div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="agentrelay.workstream.WorkstreamRuntimeBuilder.from_graph" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
-  </span>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Build initial runtimes for all workstreams in a graph.</p>
-<p>Runtimes are returned in the graph's stable sorted workstream order.
-Each runtime starts with default mutable state/artifacts.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>graph</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskGraph
-
-
-  
-      dataclass
-   (agentrelay.task_graph.TaskGraph)" href="../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Validated immutable task graph.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="WorkstreamRuntime
-
-
-  
-      dataclass
-   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/agentrelay/workstream/core/runtime_builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
-
-<span class="sd">    Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
-<span class="sd">    Each runtime starts with default mutable state/artifacts.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        graph: Validated immutable task graph.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
-        <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
-            <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">runtimes</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
 
 
 
@@ -5227,7 +4591,7 @@ so that task PRs can target it.</p>
             <span class="p">)</span>
             <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">WorkspaceIntegrationError</span><span class="p">(</span>
+            <span class="k">raise</span> <span class="n">_WorkspaceIntegrationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to provision workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
@@ -5338,7 +4702,7 @@ so that task PRs can target it.</p>
         <span class="p">)</span>
         <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">WorkspaceIntegrationError</span><span class="p">(</span>
+        <span class="k">raise</span> <span class="n">_WorkspaceIntegrationError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Failed to provision workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 

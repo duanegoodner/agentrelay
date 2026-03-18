@@ -864,34 +864,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../workspace/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workspace
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../errors/" class="md-nav__link">
         
   
@@ -1019,6 +991,62 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.TaskRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.TaskRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.WorkstreamRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.orchestrator.Orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1123,6 +1151,17 @@
     <span class="md-ellipsis">
       
         TaskOutcomeClass
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.build_standard_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_standard_runner
       
     </span>
   </a>
@@ -1295,6 +1334,62 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.TaskRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.TaskRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.WorkstreamRuntimeBuilder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkstreamRuntimeBuilder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorkstreamRuntimeBuilder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.WorkstreamRuntimeBuilder.from_graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        from_graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.orchestrator.Orchestrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1405,6 +1500,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.build_standard_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_standard_runner
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1459,6 +1565,442 @@ continues to work after promotion from a single module to a package.</p>
 
 
 
+<h2 id="agentrelay.orchestrator.TaskRuntimeBuilder" class="doc doc-heading">
+            <code>TaskRuntimeBuilder</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Builder for initializing per-task runtime envelopes from a task graph.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-task runtime envelopes from a task graph.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
+
+<span class="sd">        Runtimes are returned in the graph&#39;s stable topological task order.</span>
+<span class="sd">        Each runtime starts with default mutable state/artifacts and no agent.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph: Validated immutable task graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, TaskRuntime]: Task runtimes keyed by task ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">():</span>
+            <span class="n">runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskRuntime</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_id</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.orchestrator.TaskRuntimeBuilder.from_graph" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build initial runtimes for all tasks in a graph.</p>
+<p>Runtimes are returned in the graph's stable topological task order.
+Each runtime starts with default mutable state/artifacts and no agent.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskGraph
+
+
+  
+      dataclass
+   (agentrelay.task_graph.TaskGraph)" href="../../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Validated immutable task graph.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>dict[str, TaskRuntime]: Task runtimes keyed by task ID.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
+
+<span class="sd">    Runtimes are returned in the graph&#39;s stable topological task order.</span>
+<span class="sd">    Each runtime starts with default mutable state/artifacts and no agent.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph: Validated immutable task graph.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, TaskRuntime]: Task runtimes keyed by task ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">task_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">():</span>
+        <span class="n">runtimes</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">TaskRuntime</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">task_id</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.orchestrator.WorkstreamRuntimeBuilder" class="doc doc-heading">
+            <code>WorkstreamRuntimeBuilder</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Builder for initializing per-workstream runtime envelopes from a graph.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
+
+<span class="sd">        Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
+<span class="sd">        Each runtime starts with default mutable state/artifacts.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            graph: Validated immutable task graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
+            <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
+                <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.orchestrator.WorkstreamRuntimeBuilder.from_graph" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build initial runtimes for all workstreams in a graph.</p>
+<p>Runtimes are returned in the graph's stable sorted workstream order.
+Each runtime starts with default mutable state/artifacts.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskGraph
+
+
+  
+      dataclass
+   (agentrelay.task_graph.TaskGraph)" href="../../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Validated immutable task graph.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="../../workstream/#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
+
+<span class="sd">    Runtimes are returned in the graph&#39;s stable sorted workstream order.</span>
+<span class="sd">    Each runtime starts with default mutable state/artifacts.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph: Validated immutable task graph.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">runtimes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">workstream_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">workstream_ids</span><span class="p">():</span>
+        <span class="n">runtimes</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">WorkstreamRuntime</span><span class="p">(</span>
+            <span class="n">spec</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">workstream</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">runtimes</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="agentrelay.orchestrator.Orchestrator" class="doc doc-heading">
             <code>Orchestrator</code>
 
@@ -1487,10 +2029,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
@@ -1522,7 +2061,10 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
-<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Orchestrator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Async graph scheduler using dependency + workstream constraints.</span>
 
@@ -1705,10 +2247,7 @@ align with graph IDs.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
@@ -1726,7 +2265,10 @@ align with graph IDs.</p>
 <span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
-<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">task_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">workstream_runtimes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1864,10 +2406,7 @@ in already-active workstreams is not cancelled.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
@@ -1883,7 +2422,10 @@ in already-active workstreams is not cancelled.</p>
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for one orchestrator scheduling run.</span>
 
@@ -2037,25 +2579,25 @@ in already-active workstreams is not cancelled.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span>
-<span class="normal">98</span>
-<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorEvent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Structured event emitted by the orchestration loop.</span>
 
@@ -2126,17 +2668,17 @@ in already-active workstreams is not cancelled.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorListener</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback protocol for real-time orchestration event observation.&quot;&quot;&quot;</span>
 
@@ -2215,13 +2757,13 @@ in already-active workstreams is not cancelled.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">on_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">OrchestratorEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Called each time the orchestrator produces an event.</span>
 
 <span class="sd">    Args:</span>
@@ -2315,10 +2857,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
 <span class="normal">50</span>
@@ -2327,7 +2866,10 @@ ended <code>FAILED</code>.</p>
 <span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span>
-<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorOutcome</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal outcome for one orchestrator run.</span>
 
 <span class="sd">    Attributes:</span>
@@ -2478,10 +3020,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
@@ -2494,7 +3033,10 @@ ended <code>FAILED</code>.</p>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OrchestratorResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal result for one orchestrator run.</span>
 
@@ -2607,10 +3149,7 @@ ended <code>FAILED</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/orchestrator.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
 <span class="normal">34</span>
 <span class="normal">35</span>
 <span class="normal">36</span>
@@ -2618,7 +3157,10 @@ ended <code>FAILED</code>.</p>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
-<span class="normal">41</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskOutcomeClass</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Classification of one task attempt outcome from the orchestrator boundary.</span>
 
 <span class="sd">    Attributes:</span>
@@ -2654,6 +3196,347 @@ ended <code>FAILED</code>.</p>
 
 </div>
 
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.orchestrator.build_standard_runner" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_standard_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">context_content</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build the standard runner for worktree + tmux + Claude Code.</p>
+<p>All steps use <code>StepDispatch</code> <code>default</code> since only one
+framework/environment combo currently exists.</p>
+<p>When adding a new <code>AgentFramework</code> or <code>AgentEnvironment</code>, add keyed
+entries to the <code>StepDispatch</code> tables for steps that have distinct
+implementations. Refer to the sensitivity table in
+:class:<code>StandardTaskRunner</code>'s docstring.</p>
+<p>Dispatch table (current):</p>
+<p>+-----------------------+----------------------------+-----------------------+
+| Step                  | Implementation             | Notes                 |
++=======================+============================+=======================+
+| preparer              | WorktreeTaskPreparer       | env/fw agnostic       |
++-----------------------+----------------------------+-----------------------+
+| launcher              | TmuxTaskLauncher           | will need entries     |
++-----------------------+----------------------------+-----------------------+
+| kickoff               | TmuxTaskKickoff            | will need entries     |
++-----------------------+----------------------------+-----------------------+
+| completion_checker    | SignalCompletionChecker     | may need entries      |
++-----------------------+----------------------------+-----------------------+
+| merger                | GhTaskMerger               | env/fw agnostic       |
++-----------------------+----------------------------+-----------------------+
+| teardown              | WorktreeTaskTeardown       | will need entries     |
++-----------------------+----------------------------+-----------------------+</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>repo_path</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the bare/main repository.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the task graph being executed.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskGraph
+
+
+  
+      dataclass
+   (agentrelay.task_graph.TaskGraph)" href="../../task_graph/#agentrelay.task_graph.TaskGraph">TaskGraph</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The task graph (used to compute dependency descriptions).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>keep_panes</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to keep tmux panes after teardown.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>poll_interval</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Seconds between completion signal polls.</p>
+              </div>
+            </td>
+            <td>
+                  <code>2.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context_content</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional context content to write to the signal dir.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StandardTaskRunner
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.runner.StandardTaskRunner)" href="../task_runner/#agentrelay.task_runner.StandardTaskRunner">StandardTaskRunner</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A fully wired :class:<code>StandardTaskRunner</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
+    <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">context_content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardTaskRunner</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard runner for worktree + tmux + Claude Code.</span>
+
+<span class="sd">    All steps use ``StepDispatch`` ``default`` since only one</span>
+<span class="sd">    framework/environment combo currently exists.</span>
+
+<span class="sd">    When adding a new ``AgentFramework`` or ``AgentEnvironment``, add keyed</span>
+<span class="sd">    entries to the ``StepDispatch`` tables for steps that have distinct</span>
+<span class="sd">    implementations. Refer to the sensitivity table in</span>
+<span class="sd">    :class:`StandardTaskRunner`&#39;s docstring.</span>
+
+<span class="sd">    Dispatch table (current):</span>
+
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | Step                  | Implementation             | Notes                 |</span>
+<span class="sd">    +=======================+============================+=======================+</span>
+<span class="sd">    | preparer              | WorktreeTaskPreparer       | env/fw agnostic       |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | launcher              | TmuxTaskLauncher           | will need entries     |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | kickoff               | TmuxTaskKickoff            | will need entries     |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | completion_checker    | SignalCompletionChecker     | may need entries      |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | merger                | GhTaskMerger               | env/fw agnostic       |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | teardown              | WorktreeTaskTeardown       | will need entries     |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        repo_path: Path to the bare/main repository.</span>
+<span class="sd">        graph_name: Name of the task graph being executed.</span>
+<span class="sd">        graph: The task graph (used to compute dependency descriptions).</span>
+<span class="sd">        keep_panes: Whether to keep tmux panes after teardown.</span>
+<span class="sd">        poll_interval: Seconds between completion signal polls.</span>
+<span class="sd">        context_content: Optional context content to write to the signal dir.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A fully wired :class:`StandardTaskRunner`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tmux_launcher</span> <span class="o">=</span> <span class="n">TmuxTaskLauncher</span><span class="p">()</span>
+    <span class="n">tmux_kickoff</span> <span class="o">=</span> <span class="n">TmuxTaskKickoff</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_preparer</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskPreparer</span><span class="p">:</span>
+        <span class="n">dep_ids</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">dependency_ids</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">dep_descs</span> <span class="o">=</span> <span class="p">{</span><span class="n">did</span><span class="p">:</span> <span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">did</span><span class="p">)</span><span class="o">.</span><span class="n">description</span> <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="n">dep_ids</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">WorktreeTaskPreparer</span><span class="p">(</span>
+            <span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">,</span>
+            <span class="n">dependency_descriptions</span><span class="o">=</span><span class="n">dep_descs</span><span class="p">,</span>
+            <span class="n">context_content</span><span class="o">=</span><span class="n">context_content</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskMerger</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GhTaskMerger</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_completion_checker</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionChecker</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SignalCompletionChecker</span><span class="p">(</span><span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskTeardown</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WorktreeTaskTeardown</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="n">keep_panes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">StandardTaskRunner</span><span class="p">(</span>
+        <span class="n">_preparer</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_preparer</span><span class="p">),</span>
+        <span class="n">_launcher</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span> <span class="n">rt</span><span class="p">:</span> <span class="n">tmux_launcher</span><span class="p">),</span>
+        <span class="n">_kickoff</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span> <span class="n">rt</span><span class="p">:</span> <span class="n">tmux_kickoff</span><span class="p">),</span>
+        <span class="n">_completion_checker</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_completion_checker</span><span class="p">),</span>
+        <span class="n">_merger</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_merger</span><span class="p">),</span>
+        <span class="n">_teardown</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_teardown</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 

@@ -575,6 +575,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#removed-modules-revisit-when-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed Modules (revisit when needed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -953,34 +964,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/workspace/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    workspace
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../api/core/errors/" class="md-nav__link">
         
   
@@ -1237,6 +1220,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#removed-modules-revisit-when-needed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed Modules (revisit when needed)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1282,6 +1276,12 @@
 <ul>
 <li>Add additional <code>AgentFramework</code> implementations beyond <code>CLAUDE_CODE</code>.</li>
 <li>Expand <code>AgentEnvironment</code> beyond tmux when real use-cases are validated.</li>
+</ul>
+<h2 id="removed-modules-revisit-when-needed">Removed Modules (revisit when needed)</h2>
+<ul>
+<li><code>spec/</code> (<code>SpecRepresentation</code> protocol, <code>PythonStubSpec</code>) — removed in PR #??? (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.</li>
+<li><code>workspace.py</code> (<code>LocalWorkspaceRef</code>, <code>WorkspaceRef</code>) — removed in the same PR. Was intended to model workspace/repo references.</li>
+<li>View protocols (<code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code>, <code>WorkstreamStateView</code>, <code>WorkstreamArtifactsView</code>, <code>WorkstreamRuntimeView</code>) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.</li>
 </ul>
 <h2 id="observability">Observability</h2>
 <ul>
