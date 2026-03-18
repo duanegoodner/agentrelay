@@ -11,8 +11,8 @@ OV_SCALE=0.5
 OV_PAD=20
 
 # Detail diagram
-DT_SCALE=0.4
-DT_PAD=20
+DT_SCALE=0.1
+DT_PAD=50
 
 # ── Generate overview D2 source ──────────────────────────────────────
 python tools/generate_overview.py
