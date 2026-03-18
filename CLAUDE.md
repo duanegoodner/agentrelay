@@ -13,6 +13,7 @@ The orchestrator merges PRs in dependency order.
 | `pixi run typecheck` | Pyright static analysis |
 | `pixi run format` | black + isort |
 | `pixi run check` | format + typecheck + test (pre-PR verification) |
+| `pixi run setup-hooks` | Enable git pre-commit hooks (one-time setup) |
 | `python -m agentrelay.run_graph graphs/<name>.yaml` | Run a task graph |
 | `python -m agentrelay.reset_graph graphs/<name>.yaml` | Reset repo to pre-run state |
 
@@ -81,7 +82,9 @@ Rules:
 - PR body must include a `## Test plan` checklist (automated + human-verifiable items)
 - Update `docs/HISTORY.md` with a new entry for each merged PR
 - Update `docs/diagram-detailed.d2` and re-render `docs/diagram-detailed.svg` (`pixi run diagram`)
-  in every PR that touches `src/agentrelay/`
+  in every PR that touches `src/agentrelay/`. Rendering requires the TALA layout engine
+  (`d2plugin-tala`) installed locally. A pre-commit hook blocks commits where `.d2` changed
+  without a corresponding `.svg` update. Run `pixi run setup-hooks` once to enable.
 
 ## Coding conventions
 

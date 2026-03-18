@@ -21,6 +21,7 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.8.4
         with:
           pixi-version: latest
-      - name: Render diagram SVG
-        run: pixi run diagram
+      # Diagram SVGs are pre-rendered locally (requires TALA layout engine)
+      # and committed to the repo. A pre-commit hook (.githooks/pre-commit)
+      # ensures D2 source and SVG stay in sync.
       - run: pixi run docs-deploy
