@@ -16,7 +16,6 @@ from agentrelay.task_runner.core.io import (
     TaskLauncher,
     TaskMerger,
     TaskPreparer,
-    TaskRunnerIO,
     TaskTeardown,
 )
 from agentrelay.task_runner.core.runner import (
@@ -51,7 +50,6 @@ __all__ = [
     "TaskPreparer",
     "TaskRunResult",
     "TaskRunner",
-    "TaskRunnerIO",
     "TaskTeardown",
     "TearDownMode",
     "TmuxTaskKickoff",

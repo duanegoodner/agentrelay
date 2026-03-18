@@ -9,7 +9,6 @@ Core types:
 - TaskRuntimeBuilder: TaskGraph -> TaskRuntime map builder   [task_runtime/builder.py]
 - WorkstreamRuntimeBuilder: TaskGraph -> WorkstreamRuntime map builder [workstream/core/runtime_builder.py]
 - TaskRunner: one-task lifecycle state machine               [task_runner/core/runner.py]
-- TaskRunnerIO: composed I/O boundary for TaskRunner         [task_runner/core/io.py]
 - WorkstreamRunner: workstream lifecycle runner              [workstream/core/runner.py]
 - Orchestrator: async graph scheduler over TaskRuntime        [orchestrator/orchestrator.py]
 - OrchestratorConfig: scheduler/retry/teardown configuration [orchestrator/orchestrator.py]

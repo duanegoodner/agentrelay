@@ -125,6 +125,7 @@ agent_pkg: "agent/" {
     AgentAddress: "AgentAddress <<abstract>>" {
       shape: class
       +label(): str
+      +teardown(signal_dir, keep_panes): void
     }
 
     Agent: "Agent <<abstract>>" {
@@ -140,6 +141,7 @@ agent_pkg: "agent/" {
       session: str
       pane_id: str
       +label(): str
+      +teardown(signal_dir, keep_panes): void
     }
 
     TmuxAgent: "TmuxAgent <<mutable dataclass>>" {
@@ -475,18 +477,6 @@ task_runner_pkg: "task_runner/" {
     TaskTeardown: "TaskTeardown <<protocol>>" {
       shape: class
       +teardown(runtime): void
-    }
-
-    TaskRunnerIO: "TaskRunnerIO <<frozen dataclass>> [deprecated]" {
-      shape: class
-      style.fill: "#D3D3D3"
-      style.font-color: "#808080"
-      preparer: TaskPreparer
-      launcher: TaskLauncher
-      kickoff_sender: TaskKickoff
-      completion_checker: TaskCompletionChecker
-      merger: TaskMerger
-      teardown_handler: TaskTeardown
     }
 
     StepDispatch: "StepDispatch<T> <<frozen dataclass>>" {
@@ -1038,8 +1028,9 @@ task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pk
 task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
-task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.tmux: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
 
 # --- spec ---
 spec_pkg.PythonStubSpec -> spec_pkg.SpecRepresentation: satisfies { class: implementation }

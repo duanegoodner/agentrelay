@@ -1,7 +1,7 @@
 """Implementations of :class:`~agentrelay.task_runner.core.io.TaskTeardown`.
 
 Classes:
-    WorktreeTaskTeardown: Captures agent logs and cleans up task branch.
+    WorktreeTaskTeardown: Delegates agent cleanup and deletes the task branch.
 """
 
 from __future__ import annotations
@@ -10,19 +10,19 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from agentrelay.agent.implementations.tmux_address import TmuxAddress
-from agentrelay.ops import git, signals, tmux
+from agentrelay.ops import git
 from agentrelay.task_runtime import TaskRuntime
 
 
 @dataclass
 class WorktreeTaskTeardown:
-    """Capture agent logs, kill tmux windows, and delete the task branch.
+    """Delegate agent-address cleanup and delete the task branch.
 
-    Performs best-effort cleanup: captures pane scrollback, optionally kills
-    the tmux window, and deletes the task branch. The workstream worktree is
-    owned by the workstream teardown handler and is not touched here.
-    Errors during teardown are caught and not propagated.
+    Performs best-effort cleanup: delegates log capture and environment
+    teardown to the agent address, then deletes the task branch.
+    The workstream worktree is owned by the workstream teardown handler
+    and is not touched here. Errors during teardown are caught and not
+    propagated.
     """
 
     repo_path: Path
@@ -36,20 +36,11 @@ class WorktreeTaskTeardown:
         """
         agent_address = runtime.artifacts.agent_address
 
-        if isinstance(agent_address, TmuxAddress):
-            pane_id = agent_address.pane_id
-            try:
-                log = tmux.capture_pane(pane_id, full_history=True)
-                if runtime.state.signal_dir is not None:
-                    signals.write_text(runtime.state.signal_dir, "agent.log", log)
-            except subprocess.CalledProcessError:
-                pass  # Best-effort: pane may already be gone
-
-            if not self.keep_panes:
-                try:
-                    tmux.kill_window(pane_id)
-                except subprocess.CalledProcessError:
-                    pass  # Best-effort
+        if agent_address is not None:
+            agent_address.teardown(
+                signal_dir=runtime.state.signal_dir,
+                keep_panes=self.keep_panes,
+            )
 
         if runtime.state.branch_name is not None:
             try:

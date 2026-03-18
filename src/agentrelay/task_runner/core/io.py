@@ -1,9 +1,7 @@
-"""Per-step protocols and composed I/O boundary for task execution.
+"""Per-step protocols for task execution.
 
 This module defines fine-grained protocol interfaces for each step of the
-task lifecycle, a completion signal type, and a :class:`TaskRunnerIO`
-dataclass that composes them into a single I/O boundary used by
-:class:`~agentrelay.task_runner.core.runner.TaskRunner`.
+task lifecycle and a completion signal type.
 
 Protocols:
     TaskPreparer: Prepare runtime prerequisites before agent launch.
@@ -15,7 +13,6 @@ Protocols:
 
 Classes:
     TaskCompletionSignal: Frozen signal payload from the execution boundary.
-    TaskRunnerIO: Frozen composition of per-step protocol implementations.
 """
 
 from __future__ import annotations
@@ -135,38 +132,6 @@ class TaskTeardown(Protocol):
         ...
 
 
-# ── Composed I/O boundary ──
-
-
-@dataclass(frozen=True)
-class TaskRunnerIO:
-    """Composed I/O boundary (deprecated — prefer :class:`StandardTaskRunner`).
-
-    This dataclass bundles all six per-step protocol implementations into a
-    single frozen object. It was the original composition mechanism for
-    ``TaskRunner`` but has been superseded by :class:`StandardTaskRunner`
-    which uses :class:`StepDispatch` tables directly.
-
-    Retained for backward compatibility. Scheduled for removal once all
-    call sites have migrated to ``StandardTaskRunner``.
-
-    Attributes:
-        preparer: Prepare runtime prerequisites before launch.
-        launcher: Launch and return the primary agent.
-        kickoff_sender: Send kickoff instructions to the launched agent.
-        completion_checker: Wait for a terminal completion signal.
-        merger: Merge the completed task PR.
-        teardown_handler: Release runtime resources after completion.
-    """
-
-    preparer: TaskPreparer
-    launcher: TaskLauncher
-    kickoff_sender: TaskKickoff
-    completion_checker: TaskCompletionChecker
-    merger: TaskMerger
-    teardown_handler: TaskTeardown
-
-
 __all__ = [
     "TaskCompletionChecker",
     "TaskCompletionSignal",
@@ -174,6 +139,5 @@ __all__ = [
     "TaskLauncher",
     "TaskMerger",
     "TaskPreparer",
-    "TaskRunnerIO",
     "TaskTeardown",
 ]
