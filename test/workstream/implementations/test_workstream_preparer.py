@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentrelay.errors import WorkspaceIntegrationError
+from agentrelay.errors import _WorkspaceIntegrationError
 from agentrelay.workstream.core.io import WorkstreamPreparer
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
 from agentrelay.workstream.core.workstream import WorkstreamSpec
@@ -90,14 +90,14 @@ class TestGitWorkstreamPreparer:
         self,
         mock_git: MagicMock,
     ) -> None:
-        """Wraps CalledProcessError from git in WorkspaceIntegrationError."""
+        """Wraps CalledProcessError from git in _WorkspaceIntegrationError."""
         mock_git.worktree_add.side_effect = subprocess.CalledProcessError(
             1, "git worktree add"
         )
         preparer = _make_preparer()
         runtime = _make_runtime()
 
-        with pytest.raises(WorkspaceIntegrationError, match="ws-1"):
+        with pytest.raises(_WorkspaceIntegrationError, match="ws-1"):
             preparer.prepare_workstream(runtime)
 
     @patch("agentrelay.workstream.implementations.workstream_preparer.git")

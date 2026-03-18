@@ -16,13 +16,16 @@ from types import MappingProxyType
 from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.errors import IntegrationFailureClass
+from agentrelay.orchestrator.builders import (
+    TaskRuntimeBuilder,
+    WorkstreamRuntimeBuilder,
+)
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
-from agentrelay.task_runtime import TaskRuntime, TaskRuntimeBuilder, TaskStatus
+from agentrelay.task_runtime import TaskRuntime, TaskStatus
 from agentrelay.workstream import (
     WorkstreamRunner,
     WorkstreamRuntime,
-    WorkstreamRuntimeBuilder,
     WorkstreamStatus,
 )
 

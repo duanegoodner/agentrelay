@@ -8,12 +8,12 @@ Constants:
     POLICIES_SCHEMA_VERSION: Current policies schema version string.
 
 Classes:
-    CommitPolicy: Commit and push configuration.
-    PrPolicy: Pull request creation configuration.
-    CompletionGatePolicy: Gate loop configuration.
-    VerificationPolicy: Pre-completion verification commands.
-    AdrPolicy: Architecture decision record configuration.
-    ReviewPolicy: Self-review configuration.
+    _CommitPolicy: Commit and push configuration.
+    _PrPolicy: Pull request creation configuration.
+    _CompletionGatePolicy: Gate loop configuration.
+    _VerificationPolicy: Pre-completion verification commands.
+    _AdrPolicy: Architecture decision record configuration.
+    _ReviewPolicy: Self-review configuration.
     WorkflowPolicies: Frozen Layer-3 composed policies.
 
 Functions:
@@ -32,7 +32,7 @@ from agentrelay.task import AgentRole, AgentVerbosity, Task
 POLICIES_SCHEMA_VERSION = "1"
 
 
-class WorkflowAction(str, Enum):
+class _WorkflowAction(str, Enum):
     """Abstract workflow actions that adapters translate to framework-specific commands.
 
     Defined by the agent communication protocol Layer 3 vocabulary.
@@ -48,7 +48,7 @@ class WorkflowAction(str, Enum):
     RUN_VERIFICATION = "run_verification"
 
 
-class PrBodySection(str, Enum):
+class _PrBodySection(str, Enum):
     """Sections that can appear in an auto-generated PR body."""
 
     SUMMARY = "summary"
@@ -56,18 +56,18 @@ class PrBodySection(str, Enum):
 
 
 @dataclass(frozen=True)
-class CommitPolicy:
+class _CommitPolicy:
     """Policy for committing work.
 
     Attributes:
         action: Workflow action for this policy.
     """
 
-    action: WorkflowAction
+    action: _WorkflowAction
 
 
 @dataclass(frozen=True)
-class PrPolicy:
+class _PrPolicy:
     """Policy for creating pull requests.
 
     Attributes:
@@ -77,14 +77,14 @@ class PrPolicy:
         body_sections: Sections to include in the PR body.
     """
 
-    action: WorkflowAction
+    action: _WorkflowAction
     base_branch: str
     title_template: str
-    body_sections: tuple[PrBodySection, ...]
+    body_sections: tuple[_PrBodySection, ...]
 
 
 @dataclass(frozen=True)
-class CompletionGatePolicy:
+class _CompletionGatePolicy:
     """Policy for running a completion gate command with retry logic.
 
     Attributes:
@@ -99,7 +99,7 @@ class CompletionGatePolicy:
 
 
 @dataclass(frozen=True)
-class VerificationPolicy:
+class _VerificationPolicy:
     """Policy for pre-completion verification commands.
 
     Attributes:
@@ -110,7 +110,7 @@ class VerificationPolicy:
 
 
 @dataclass(frozen=True)
-class AdrPolicy:
+class _AdrPolicy:
     """Policy for architecture decision record writing.
 
     Attributes:
@@ -121,7 +121,7 @@ class AdrPolicy:
 
 
 @dataclass(frozen=True)
-class ReviewPolicy:
+class _ReviewPolicy:
     """Policy for self-review.
 
     Attributes:
@@ -152,12 +152,12 @@ class WorkflowPolicies:
     """
 
     schema_version: str
-    commit_policy: Optional[CommitPolicy]
-    pr_policy: Optional[PrPolicy]
-    completion_gate: Optional[CompletionGatePolicy]
-    review: Optional[ReviewPolicy]
-    adr: Optional[AdrPolicy]
-    verification: Optional[VerificationPolicy]
+    commit_policy: Optional[_CommitPolicy]
+    pr_policy: Optional[_PrPolicy]
+    completion_gate: Optional[_CompletionGatePolicy]
+    review: Optional[_ReviewPolicy]
+    adr: Optional[_AdrPolicy]
+    verification: Optional[_VerificationPolicy]
 
 
 def build_policies(
@@ -186,37 +186,37 @@ def build_policies(
     Returns:
         Composable workflow configuration.
     """
-    commit_policy = CommitPolicy(action=WorkflowAction.COMMIT_AND_PUSH)
+    commit_policy = _CommitPolicy(action=_WorkflowAction.COMMIT_AND_PUSH)
 
-    pr_policy = PrPolicy(
-        action=WorkflowAction.CREATE_PR,
+    pr_policy = _PrPolicy(
+        action=_WorkflowAction.CREATE_PR,
         base_branch=integration_branch,
         title_template="{task_id}",
-        body_sections=(PrBodySection.SUMMARY, PrBodySection.FILES_CHANGED),
+        body_sections=(_PrBodySection.SUMMARY, _PrBodySection.FILES_CHANGED),
     )
 
-    completion_gate: Optional[CompletionGatePolicy] = None
+    completion_gate: Optional[_CompletionGatePolicy] = None
     if task.completion_gate is not None:
-        completion_gate = CompletionGatePolicy(
+        completion_gate = _CompletionGatePolicy(
             command=task.completion_gate,
             max_attempts=task.max_gate_attempts or default_max_gate_attempts,
             output_file="gate_last_output.txt",
         )
 
-    review: Optional[ReviewPolicy] = None
+    review: Optional[_ReviewPolicy] = None
     if task.review is not None:
-        review = ReviewPolicy(
+        review = _ReviewPolicy(
             model=task.review.agent.model,
             review_on_attempt=task.review.review_on_attempt,
         )
 
-    adr: Optional[AdrPolicy] = None
+    adr: Optional[_AdrPolicy] = None
     if task.primary_agent.adr_verbosity != AgentVerbosity.NONE:
-        adr = AdrPolicy(verbosity=task.primary_agent.adr_verbosity)
+        adr = _AdrPolicy(verbosity=task.primary_agent.adr_verbosity)
 
-    verification: Optional[VerificationPolicy] = None
+    verification: Optional[_VerificationPolicy] = None
     if task.role in (AgentRole.TEST_WRITER, AgentRole.TEST_REVIEWER):
-        verification = VerificationPolicy(commands=("pytest --collect-only",))
+        verification = _VerificationPolicy(commands=("pytest --collect-only",))
 
     return WorkflowPolicies(
         schema_version=POLICIES_SCHEMA_VERSION,
@@ -287,14 +287,6 @@ def policies_to_dict(policies: WorkflowPolicies) -> dict[str, Any]:
 
 __all__ = [
     "POLICIES_SCHEMA_VERSION",
-    "AdrPolicy",
-    "CommitPolicy",
-    "CompletionGatePolicy",
-    "PrBodySection",
-    "PrPolicy",
-    "ReviewPolicy",
-    "VerificationPolicy",
-    "WorkflowAction",
     "WorkflowPolicies",
     "build_policies",
     "policies_to_dict",

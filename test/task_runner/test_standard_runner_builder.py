@@ -2,12 +2,10 @@
 
 from pathlib import Path
 
+from agentrelay.orchestrator.builders import build_standard_runner
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
-from agentrelay.task_runner import (
-    StandardTaskRunner,
-    build_standard_runner,
-)
+from agentrelay.task_runner import StandardTaskRunner
 from agentrelay.task_runner.implementations import (
     GhTaskMerger,
     SignalCompletionChecker,

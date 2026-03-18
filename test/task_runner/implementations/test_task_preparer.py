@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from agentrelay.errors import WorkspaceIntegrationError
+from agentrelay.errors import _WorkspaceIntegrationError
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_runner.core.io import TaskPreparer
 from agentrelay.task_runner.implementations.task_preparer import (
@@ -204,14 +204,14 @@ class TestWorktreeTaskPreparer:
         mock_git: MagicMock,
         _mock_signals: MagicMock,
     ) -> None:
-        """Wraps CalledProcessError from git in WorkspaceIntegrationError."""
+        """Wraps CalledProcessError from git in _WorkspaceIntegrationError."""
         mock_git.branch_create.side_effect = subprocess.CalledProcessError(
             1, "git branch"
         )
         preparer = _make_preparer()
         runtime = _make_runtime()
 
-        with pytest.raises(WorkspaceIntegrationError, match="task_1"):
+        with pytest.raises(_WorkspaceIntegrationError, match="task_1"):
             preparer.prepare(runtime)
 
     def test_satisfies_task_preparer_protocol(self) -> None:

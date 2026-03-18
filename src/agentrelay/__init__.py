@@ -6,10 +6,10 @@ designed with careful architectural consideration rather than incremental refact
 Core types:
 - TaskGraph: immutable DAG of Task specs                     [task_graph/graph.py]
 - TaskGraphBuilder: YAML/dict -> TaskGraph builder           [task_graph/builder.py]
-- TaskRuntimeBuilder: TaskGraph -> TaskRuntime map builder   [task_runtime/builder.py]
-- WorkstreamRuntimeBuilder: TaskGraph -> WorkstreamRuntime map builder [workstream/core/runtime_builder.py]
+- TaskRuntimeBuilder: TaskGraph -> TaskRuntime map builder   [orchestrator/builders.py]
+- WorkstreamRuntimeBuilder: TaskGraph -> WorkstreamRuntime map builder [orchestrator/builders.py]
+- build_standard_runner: TaskGraph -> StandardTaskRunner builder [orchestrator/builders.py]
 - TaskRunner: one-task lifecycle state machine               [task_runner/core/runner.py]
-- TaskRunnerIO: composed I/O boundary for TaskRunner         [task_runner/core/io.py]
 - WorkstreamRunner: workstream lifecycle runner              [workstream/core/runner.py]
 - Orchestrator: async graph scheduler over TaskRuntime        [orchestrator/orchestrator.py]
 - OrchestratorConfig: scheduler/retry/teardown configuration [orchestrator/orchestrator.py]
@@ -33,16 +33,11 @@ Core types:
 - WorkstreamState: mutable operational state of a lane       [workstream/core/runtime.py]
 - WorkstreamArtifacts: outputs of lane execution             [workstream/core/runtime.py]
 - WorkstreamRuntime: mutable lane envelope                   [workstream/core/runtime.py]
-- LocalWorkspaceRef: resolved local workspace details        [workspace.py]
-- WorkspaceRef: type alias for workspace references          [workspace.py]
 
 Protocol types:
 - TaskManifest: Layer-1 structured task facts                   [agent_comm_protocol/manifest.py]
 - WorkflowPolicies: Layer-3 composable workflow config          [agent_comm_protocol/policies.py]
 - resolve_instructions: Layer-2 role template resolution        [agent_comm_protocol/templates.py]
-- SpecRepresentation: abstract spec format protocol             [spec/spec.py]
-- PythonStubSpec: Python stub spec implementation               [spec/spec.py]
-
 See also:
 - errors: typed integration failure model + classification helper
 - prototypes.v01: v1 prototype implementation (reference only)

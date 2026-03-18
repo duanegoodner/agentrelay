@@ -4,6 +4,11 @@ Re-exports all public names so that ``from agentrelay.orchestrator import X``
 continues to work after promotion from a single module to a package.
 """
 
+from agentrelay.orchestrator.builders import (
+    TaskRuntimeBuilder,
+    WorkstreamRuntimeBuilder,
+    build_standard_runner,
+)
 from agentrelay.orchestrator.orchestrator import (
     Orchestrator,
     OrchestratorConfig,
@@ -22,4 +27,7 @@ __all__ = [
     "OrchestratorOutcome",
     "OrchestratorResult",
     "TaskOutcomeClass",
+    "TaskRuntimeBuilder",
+    "WorkstreamRuntimeBuilder",
+    "build_standard_runner",
 ]

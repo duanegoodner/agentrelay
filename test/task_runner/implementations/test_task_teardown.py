@@ -33,75 +33,50 @@ class TestWorktreeTaskTeardown:
     """Tests for WorktreeTaskTeardown.teardown."""
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
-    @patch("agentrelay.task_runner.implementations.task_teardown.signals")
-    @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
-    def test_captures_pane_log_and_writes_it(
+    def test_delegates_to_agent_address_teardown(
         self,
-        mock_tmux: MagicMock,
-        mock_signals: MagicMock,
         _mock_git: MagicMock,
     ) -> None:
-        """Captures pane scrollback and writes agent.log."""
-        mock_tmux.capture_pane.return_value = "pane output\n"
+        """Calls agent_address.teardown with signal_dir and keep_panes."""
+        mock_address = MagicMock()
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
         runtime = _make_runtime()
+        runtime.artifacts.agent_address = mock_address
 
         teardown.teardown(runtime)
 
-        mock_tmux.capture_pane.assert_called_once_with("%42", full_history=True)
-        mock_signals.write_text.assert_called_once_with(
-            Path("/repo/.workflow/demo/signals/task_1"), "agent.log", "pane output\n"
+        mock_address.teardown.assert_called_once_with(
+            signal_dir=Path("/repo/.workflow/demo/signals/task_1"),
+            keep_panes=False,
         )
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
-    @patch("agentrelay.task_runner.implementations.task_teardown.signals")
-    @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
-    def test_kills_window_by_default(
+    def test_passes_keep_panes_flag(
         self,
-        mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
         _mock_git: MagicMock,
     ) -> None:
-        """Kills the tmux window when keep_panes=False."""
-        mock_tmux.capture_pane.return_value = ""
-        teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
-        runtime = _make_runtime()
-
-        teardown.teardown(runtime)
-
-        mock_tmux.kill_window.assert_called_once_with("%42")
-
-    @patch("agentrelay.task_runner.implementations.task_teardown.git")
-    @patch("agentrelay.task_runner.implementations.task_teardown.signals")
-    @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
-    def test_keeps_panes_when_flag_set(
-        self,
-        mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
-        _mock_git: MagicMock,
-    ) -> None:
-        """Does not kill the tmux window when keep_panes=True."""
-        mock_tmux.capture_pane.return_value = ""
+        """Passes keep_panes=True through to agent_address.teardown."""
+        mock_address = MagicMock()
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"), keep_panes=True)
         runtime = _make_runtime()
+        runtime.artifacts.agent_address = mock_address
 
         teardown.teardown(runtime)
 
-        mock_tmux.kill_window.assert_not_called()
+        mock_address.teardown.assert_called_once_with(
+            signal_dir=Path("/repo/.workflow/demo/signals/task_1"),
+            keep_panes=True,
+        )
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
-    @patch("agentrelay.task_runner.implementations.task_teardown.signals")
-    @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
     def test_deletes_branch(
         self,
-        mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
         mock_git: MagicMock,
     ) -> None:
         """Deletes the task branch but does not remove the worktree."""
-        mock_tmux.capture_pane.return_value = ""
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
         runtime = _make_runtime()
+        runtime.artifacts.agent_address = MagicMock()
 
         teardown.teardown(runtime)
 
@@ -111,41 +86,30 @@ class TestWorktreeTaskTeardown:
         mock_git.worktree_remove.assert_not_called()
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
-    @patch("agentrelay.task_runner.implementations.task_teardown.signals")
-    @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
     def test_handles_missing_agent_address(
         self,
-        _mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
         mock_git: MagicMock,
     ) -> None:
-        """Does not try to capture pane when agent_address is None."""
+        """Does not call teardown when agent_address is None."""
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
         runtime = _make_runtime(agent_address=None)
 
         teardown.teardown(runtime)
 
-        _mock_tmux.capture_pane.assert_not_called()
-        _mock_tmux.kill_window.assert_not_called()
         mock_git.branch_delete.assert_called_once()
 
     @patch("agentrelay.task_runner.implementations.task_teardown.git")
-    @patch("agentrelay.task_runner.implementations.task_teardown.signals")
-    @patch("agentrelay.task_runner.implementations.task_teardown.tmux")
-    def test_handles_capture_pane_error_gracefully(
+    def test_handles_branch_delete_error_gracefully(
         self,
-        mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
         mock_git: MagicMock,
     ) -> None:
-        """Catches CalledProcessError from capture_pane without propagating."""
-        mock_tmux.capture_pane.side_effect = subprocess.CalledProcessError(1, "tmux")
+        """Catches CalledProcessError from branch_delete without propagating."""
+        mock_git.branch_delete.side_effect = subprocess.CalledProcessError(1, "git")
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
         runtime = _make_runtime()
+        runtime.artifacts.agent_address = MagicMock()
 
         teardown.teardown(runtime)  # Should not raise
-
-        mock_git.branch_delete.assert_called_once()
 
     def test_satisfies_task_teardown_protocol(self) -> None:
         """WorktreeTaskTeardown satisfies the TaskTeardown protocol."""

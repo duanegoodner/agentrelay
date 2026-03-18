@@ -1,15 +1,15 @@
 """Tests for integration error hierarchy and classification helpers."""
 
 from agentrelay.errors import (
-    AgentLaunchIntegrationError,
     ExpectedTaskFailureError,
     IntegrationBoundary,
     IntegrationError,
     IntegrationFailureClass,
     InternalIntegrationError,
-    PullRequestIntegrationError,
-    SignalIntegrationError,
-    WorkspaceIntegrationError,
+    _AgentLaunchIntegrationError,
+    _PullRequestIntegrationError,
+    _SignalIntegrationError,
+    _WorkspaceIntegrationError,
     classify_integration_error,
 )
 
@@ -37,10 +37,10 @@ def test_internal_integration_error_classification() -> None:
 
 
 def test_boundary_specific_internal_errors_have_expected_boundaries() -> None:
-    workspace = WorkspaceIntegrationError("workspace failure")
-    signal = SignalIntegrationError("signal failure")
-    pr = PullRequestIntegrationError("pr failure")
-    launcher = AgentLaunchIntegrationError("launcher failure")
+    workspace = _WorkspaceIntegrationError("workspace failure")
+    signal = _SignalIntegrationError("signal failure")
+    pr = _PullRequestIntegrationError("pr failure")
+    launcher = _AgentLaunchIntegrationError("launcher failure")
 
     assert workspace.boundary == IntegrationBoundary.WORKSPACE
     assert signal.boundary == IntegrationBoundary.SIGNAL
@@ -53,7 +53,7 @@ def test_classify_integration_error_uses_failure_class_for_typed_errors() -> Non
         "task-level failure",
         boundary=IntegrationBoundary.PULL_REQUEST,
     )
-    internal = WorkspaceIntegrationError("internal workspace problem")
+    internal = _WorkspaceIntegrationError("internal workspace problem")
 
     assert (
         classify_integration_error(expected)
@@ -75,6 +75,6 @@ def test_classify_integration_error_defaults_non_integration_errors_to_internal(
 def test_integration_error_cause_via_dunder_cause() -> None:
     cause = ValueError("bad input")
     try:
-        raise SignalIntegrationError("signal parse error") from cause
-    except SignalIntegrationError as exc:
+        raise _SignalIntegrationError("signal parse error") from cause
+    except _SignalIntegrationError as exc:
         assert exc.__cause__ is cause

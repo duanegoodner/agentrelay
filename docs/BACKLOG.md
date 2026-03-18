@@ -20,6 +20,12 @@ Near-term items for the current architecture track.
 - Add additional `AgentFramework` implementations beyond `CLAUDE_CODE`.
 - Expand `AgentEnvironment` beyond tmux when real use-cases are validated.
 
+## Removed Modules (revisit when needed)
+
+- `spec/` (`SpecRepresentation` protocol, `PythonStubSpec`) — removed in PR #??? (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.
+- `workspace.py` (`LocalWorkspaceRef`, `WorkspaceRef`) — removed in the same PR. Was intended to model workspace/repo references.
+- View protocols (`TaskStateView`, `TaskArtifactsView`, `TaskRuntimeView`, `WorkstreamStateView`, `WorkstreamArtifactsView`, `WorkstreamRuntimeView`) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).

@@ -11,7 +11,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
-from agentrelay.errors import WorkspaceIntegrationError
+from agentrelay.errors import _WorkspaceIntegrationError
 from agentrelay.ops import git
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
 
@@ -47,7 +47,7 @@ class GitWorkstreamPreparer:
             )
             git.push_branch(self.repo_path, branch_name, set_upstream=True)
         except subprocess.CalledProcessError as exc:
-            raise WorkspaceIntegrationError(
+            raise _WorkspaceIntegrationError(
                 f"Failed to provision workstream {spec.id!r}: {exc}",
             ) from exc
 

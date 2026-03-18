@@ -8,15 +8,15 @@ import pytest
 
 from agentrelay.agent_comm_protocol.policies import (
     POLICIES_SCHEMA_VERSION,
-    AdrPolicy,
-    CommitPolicy,
-    CompletionGatePolicy,
-    PrBodySection,
-    PrPolicy,
-    ReviewPolicy,
-    VerificationPolicy,
-    WorkflowAction,
     WorkflowPolicies,
+    _AdrPolicy,
+    _CommitPolicy,
+    _CompletionGatePolicy,
+    _PrBodySection,
+    _PrPolicy,
+    _ReviewPolicy,
+    _VerificationPolicy,
+    _WorkflowAction,
     build_policies,
     policies_to_dict,
 )
@@ -40,36 +40,36 @@ class TestPolicyDataclasses:
     """Frozen dataclass construction for individual policy types."""
 
     def test_commit_policy(self) -> None:
-        p = CommitPolicy(action=WorkflowAction.COMMIT_AND_PUSH)
-        assert p.action == WorkflowAction.COMMIT_AND_PUSH
+        p = _CommitPolicy(action=_WorkflowAction.COMMIT_AND_PUSH)
+        assert p.action == _WorkflowAction.COMMIT_AND_PUSH
         with pytest.raises(AttributeError):
-            p.action = WorkflowAction.CREATE_PR  # type: ignore[misc]
+            p.action = _WorkflowAction.CREATE_PR  # type: ignore[misc]
 
     def test_pr_policy(self) -> None:
-        p = PrPolicy(
-            action=WorkflowAction.CREATE_PR,
+        p = _PrPolicy(
+            action=_WorkflowAction.CREATE_PR,
             base_branch="main",
             title_template="{task_id}",
-            body_sections=(PrBodySection.SUMMARY,),
+            body_sections=(_PrBodySection.SUMMARY,),
         )
         assert p.base_branch == "main"
 
     def test_completion_gate_policy(self) -> None:
-        p = CompletionGatePolicy(
+        p = _CompletionGatePolicy(
             command="pytest", max_attempts=3, output_file="out.txt"
         )
         assert p.max_attempts == 3
 
     def test_verification_policy(self) -> None:
-        p = VerificationPolicy(commands=("pytest --collect-only",))
+        p = _VerificationPolicy(commands=("pytest --collect-only",))
         assert p.commands == ("pytest --collect-only",)
 
     def test_adr_policy(self) -> None:
-        p = AdrPolicy(verbosity=AgentVerbosity.STANDARD)
+        p = _AdrPolicy(verbosity=AgentVerbosity.STANDARD)
         assert p.verbosity == AgentVerbosity.STANDARD
 
     def test_review_policy(self) -> None:
-        p = ReviewPolicy(model="claude-sonnet-4-6", review_on_attempt=1)
+        p = _ReviewPolicy(model="claude-sonnet-4-6", review_on_attempt=1)
         assert p.model == "claude-sonnet-4-6"
 
 
@@ -112,7 +112,7 @@ class TestBuildPolicies:
         policies = build_policies(_task(), integration_branch="graph/demo")
         assert policies.schema_version == POLICIES_SCHEMA_VERSION
         assert policies.commit_policy is not None
-        assert policies.commit_policy.action == WorkflowAction.COMMIT_AND_PUSH
+        assert policies.commit_policy.action == _WorkflowAction.COMMIT_AND_PUSH
         assert policies.pr_policy is not None
         assert policies.pr_policy.base_branch == "graph/demo"
         assert policies.completion_gate is None

@@ -15,7 +15,7 @@ from typing import Optional
 from agentrelay.agent_comm_protocol.manifest import build_manifest, manifest_to_dict
 from agentrelay.agent_comm_protocol.policies import build_policies, policies_to_dict
 from agentrelay.agent_comm_protocol.templates import resolve_instructions
-from agentrelay.errors import WorkspaceIntegrationError
+from agentrelay.errors import _WorkspaceIntegrationError
 from agentrelay.ops import git, signals
 from agentrelay.task_runtime import TaskRuntime
 
@@ -77,7 +77,7 @@ class WorktreeTaskPreparer:
             )
             git.checkout(workstream_worktree_path, branch_name)
         except subprocess.CalledProcessError as exc:
-            raise WorkspaceIntegrationError(
+            raise _WorkspaceIntegrationError(
                 f"Failed to create branch for task {task.id!r}: {exc}",
             ) from exc
 

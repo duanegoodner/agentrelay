@@ -2,13 +2,10 @@
 
 from pathlib import Path
 
+from agentrelay.orchestrator.builders import WorkstreamRuntimeBuilder
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
-from agentrelay.workstream import (
-    WorkstreamRuntimeBuilder,
-    WorkstreamSpec,
-    WorkstreamStatus,
-)
+from agentrelay.workstream import WorkstreamSpec, WorkstreamStatus
 
 
 def _task(

@@ -298,8 +298,8 @@ class TestEndToEnd:
     def test_package_count(self) -> None:
         lines = _REAL_DIAGRAM.read_text().splitlines()
         packages = parse_packages(lines)
-        # Current diagram has 13 top-level containers
-        assert len(packages) == 13
+        # Current diagram has 11 top-level containers
+        assert len(packages) == 11
 
     def test_arrow_count_range(self) -> None:
         lines = _REAL_DIAGRAM.read_text().splitlines()

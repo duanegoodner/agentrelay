@@ -7,7 +7,11 @@ Classes:
     AgentAddress: Abstract base for addressing a running agent instance.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Optional
 
 
 class AgentAddress(ABC):
@@ -30,3 +34,21 @@ class AgentAddress(ABC):
             String representation of the agent's address/location.
         """
         ...
+
+    def teardown(
+        self,
+        signal_dir: Optional[Path] = None,
+        keep_panes: bool = False,
+    ) -> None:
+        """Release environment-specific resources for this agent address.
+
+        Called during task teardown to capture logs and clean up. The default
+        implementation is a no-op; subclasses override for environment-specific
+        cleanup (e.g. capturing tmux pane scrollback, killing windows).
+
+        Args:
+            signal_dir: Directory for writing teardown artifacts (e.g. agent logs).
+                None if no signal directory is available.
+            keep_panes: If True, preserve the agent's execution environment
+                (e.g. tmux window) for debugging rather than destroying it.
+        """
