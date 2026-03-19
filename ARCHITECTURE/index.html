@@ -343,10 +343,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#execution-boundary-what-is-not-implemented-here-yet" class="md-nav__link">
+  <a href="#execution-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Boundary (What Is Not Implemented Here Yet)
+        Execution Boundary
       
     </span>
   </a>
@@ -1253,10 +1253,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#execution-boundary-what-is-not-implemented-here-yet" class="md-nav__link">
+  <a href="#execution-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Execution Boundary (What Is Not Implemented Here Yet)
+        Execution Boundary
       
     </span>
   </a>
@@ -1320,8 +1320,10 @@ truth for concrete implementation details.</p>
 <li><code>TaskRuntimeBuilder</code>: graph-to-runtime initializer for task execution state</li>
 <li><code>WorkstreamRuntimeBuilder</code>: graph-to-runtime initializer for workstream lane state</li>
 <li><code>TaskRunner</code>: one-task lifecycle state machine over <code>TaskRuntime</code></li>
-<li><code>TaskRunnerIO</code>: composed per-step I/O boundary used by <code>TaskRunner</code></li>
+<li><code>StepDispatch</code>: per-step dispatch table for framework/environment-specific implementations</li>
 <li><code>WorkstreamRunner</code>: workstream-level lifecycle runner (holds per-step protocol fields directly)</li>
+<li><code>build_standard_runner</code>: factory wiring <code>StandardTaskRunner</code> for worktree + tmux + Claude Code</li>
+<li><code>build_standard_workstream_runner</code>: factory wiring <code>StandardWorkstreamRunner</code> for git + GitHub CLI</li>
 <li><code>Orchestrator</code>: async dependency/workstream scheduler over graph runtimes</li>
 <li><code>OrchestratorConfig</code>: run-level scheduling, retry, and teardown policy</li>
 <li><code>errors</code>: typed integration failure model + expected/internal classification helper</li>
@@ -1351,11 +1353,11 @@ truth for concrete implementation details.</p>
 <li><strong>Narrow interfaces</strong>: <code>Agent</code>, <code>AgentAddress</code>, and environment typing keep launcher logic decoupled.</li>
 <li><strong>Contract-first integrations</strong>: external side effects are modeled as typed protocols/errors before concrete implementations.</li>
 </ul>
-<h2 id="execution-boundary-what-is-not-implemented-here-yet">Execution Boundary (What Is Not Implemented Here Yet)</h2>
-<p>The current architecture layer includes a real orchestrator and task lifecycle runner,
-but production side-effect integrations remain incomplete. End-to-end behavior for tmux
-launch, prompt dispatch, signal polling, and PR integration still primarily lives in
-<code>src/agentrelay/prototypes/v01/</code>.</p>
+<h2 id="execution-boundary">Execution Boundary</h2>
+<p>The current architecture layer includes a real orchestrator, task lifecycle runner,
+workstream lifecycle runner, and a CLI entry point (<code>run_graph.py</code>). All production
+side-effect integrations (worktree setup, tmux launch, signal polling, PR merge,
+workstream prepare/merge/teardown) are wired through the composition layer.</p>
 <h2 id="orchestrator-behavior-contract">Orchestrator Behavior Contract</h2>
 <p>The orchestrator currently enforces:</p>
 <ul>

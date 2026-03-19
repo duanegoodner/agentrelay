@@ -364,21 +364,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-not-yet-implemented-in-this-layer" class="md-nav__link">
+  <a href="#prototype-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What Is Not Yet Implemented In This Layer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#where-end-to-end-workflow-exists-today" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Where End-To-End Workflow Exists Today
+        Prototype Reference
       
     </span>
   </a>
@@ -1176,21 +1165,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#what-is-not-yet-implemented-in-this-layer" class="md-nav__link">
+  <a href="#prototype-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        What Is Not Yet Implemented In This Layer
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#where-end-to-end-workflow-exists-today" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Where End-To-End Workflow Exists Today
+        Prototype Reference
       
     </span>
   </a>
@@ -1216,23 +1194,22 @@
 
 <h1 id="workflow">Workflow</h1>
 <h2 id="current-architecture-layer-srcagentrelay">Current Architecture Layer (<code>src/agentrelay/</code>)</h2>
-<p>Implemented workflow behavior in the current architecture now includes:</p>
+<p>Implemented workflow behavior in the current architecture:</p>
 <ol>
 <li>Define immutable work with <code>Task</code> and <code>TaskGraph</code>.</li>
 <li>Load graph YAML with <code>TaskGraphBuilder</code>.</li>
 <li>Initialize runtime state with <code>TaskRuntimeBuilder</code> and <code>WorkstreamRuntimeBuilder</code>.</li>
-<li>Execute one task lifecycle with <code>TaskRunner</code>.</li>
+<li>Execute one task lifecycle with <code>TaskRunner</code> (via <code>StandardTaskRunner</code> + <code>StepDispatch</code>).</li>
+<li>Execute workstream lifecycle with <code>WorkstreamRunner</code> (via <code>StandardWorkstreamRunner</code>).</li>
 <li>Schedule the graph with <code>Orchestrator</code> using dependency + workstream rules.</li>
+<li>Run from the command line with <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code>.</li>
 </ol>
-<p>This gives us a full in-process orchestration model and execution-state model.</p>
-<h2 id="what-is-not-yet-implemented-in-this-layer">What Is Not Yet Implemented In This Layer</h2>
-<ul>
-<li>Non-stub <code>TmuxAgent.from_config()</code> and <code>TmuxAgent.send_kickoff()</code></li>
-<li>Production <code>TaskRunnerIO</code> adapter for side effects (worktree setup, signal polling, PR operations)</li>
-<li>End-user CLI flow that runs the non-prototype orchestrator with real side-effect integrations</li>
-</ul>
-<h2 id="where-end-to-end-workflow-exists-today">Where End-To-End Workflow Exists Today</h2>
-<p>The runnable orchestration flow is in the v01 prototype:</p>
+<p>The <code>run_graph</code> module wires all components together: it loads the YAML, builds the
+graph, constructs task and workstream runners via builder factories, creates the
+orchestrator, and runs it. <code>--dry-run</code> validates the graph and prints the execution
+plan without running.</p>
+<h2 id="prototype-reference">Prototype Reference</h2>
+<p>The v01 prototype remains as a reference implementation:</p>
 <ul>
 <li><a href="../prototypes/v01/WORKFLOW_DESCRIPTION/">Prototype workflow description</a></li>
 <li><a href="../prototypes/v01/OPERATIONS/">Prototype operations guide</a></li>

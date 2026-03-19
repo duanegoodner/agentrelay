@@ -1168,6 +1168,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.build_standard_workstream_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_standard_workstream_runner
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1511,6 +1522,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#agentrelay.orchestrator.build_standard_workstream_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_standard_workstream_runner
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1587,17 +1609,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
@@ -1606,7 +1618,17 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-task runtime envelopes from a task graph.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -1728,23 +1750,23 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
 
@@ -1801,17 +1823,7 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
 <span class="normal">79</span>
@@ -1822,7 +1834,17 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -1946,17 +1968,7 @@ Each runtime starts with default mutable state/artifacts.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
 <span class="normal">80</span>
 <span class="normal">81</span>
 <span class="normal">82</span>
@@ -1964,7 +1976,17 @@ Each runtime starts with default mutable state/artifacts.</p>
 <span class="normal">84</span>
 <span class="normal">85</span>
 <span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
 
@@ -3379,17 +3401,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
@@ -3455,7 +3467,17 @@ implementations. Refer to the sensitivity table in
 <span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span>
-<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
@@ -3531,6 +3553,172 @@ implementations. Refer to the sensitivity table in
         <span class="n">_completion_checker</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_completion_checker</span><span class="p">),</span>
         <span class="n">_merger</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_merger</span><span class="p">),</span>
         <span class="n">_teardown</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_teardown</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.orchestrator.build_standard_workstream_runner" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_standard_workstream_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build the standard workstream runner for git worktree + GitHub CLI.</p>
+<p>Wires the three workstream lifecycle steps with concrete implementations:</p>
+<p>+----------+-------------------------+
+| Step     | Implementation          |
++==========+=========================+
+| preparer | GitWorkstreamPreparer   |
++----------+-------------------------+
+| merger   | GhWorkstreamMerger      |
++----------+-------------------------+
+| teardown | GitWorkstreamTeardown   |
++----------+-------------------------+</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>repo_path</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the bare/main repository.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the task graph being executed.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StandardWorkstreamRunner
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runner.StandardWorkstreamRunner)" href="../../workstream/#agentrelay.workstream.StandardWorkstreamRunner">StandardWorkstreamRunner</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A fully wired :class:<code>StandardWorkstreamRunner</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardWorkstreamRunner</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard workstream runner for git worktree + GitHub CLI.</span>
+
+<span class="sd">    Wires the three workstream lifecycle steps with concrete implementations:</span>
+
+<span class="sd">    +----------+-------------------------+</span>
+<span class="sd">    | Step     | Implementation          |</span>
+<span class="sd">    +==========+=========================+</span>
+<span class="sd">    | preparer | GitWorkstreamPreparer   |</span>
+<span class="sd">    +----------+-------------------------+</span>
+<span class="sd">    | merger   | GhWorkstreamMerger      |</span>
+<span class="sd">    +----------+-------------------------+</span>
+<span class="sd">    | teardown | GitWorkstreamTeardown   |</span>
+<span class="sd">    +----------+-------------------------+</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        repo_path: Path to the bare/main repository.</span>
+<span class="sd">        graph_name: Name of the task graph being executed.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A fully wired :class:`StandardWorkstreamRunner`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">StandardWorkstreamRunner</span><span class="p">(</span>
+        <span class="n">_preparer</span><span class="o">=</span><span class="n">GitWorkstreamPreparer</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">),</span>
+        <span class="n">_merger</span><span class="o">=</span><span class="n">GhWorkstreamMerger</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
+        <span class="n">_teardown</span><span class="o">=</span><span class="n">GitWorkstreamTeardown</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

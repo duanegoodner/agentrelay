@@ -515,6 +515,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#composition-and-cli-entry-point-pr-n2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Composition and CLI entry point (PR N2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset-tool-pr-o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reset tool (PR O)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-16" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1632,6 +1671,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-18" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-18
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-18">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#composition-and-cli-entry-point-pr-n2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Composition and CLI entry point (PR N2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset-tool-pr-o" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reset tool (PR O)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-16" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2150,6 +2228,46 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-18">2026-03-18</h2>
+<h3 id="composition-and-cli-entry-point-pr-n2">Composition and CLI entry point (PR N2)</h3>
+<ul>
+<li><strong><code>build_standard_workstream_runner()</code></strong>: New builder in <code>orchestrator/builders.py</code>
+  that wires <code>GitWorkstreamPreparer</code>, <code>GhWorkstreamMerger</code>, and <code>GitWorkstreamTeardown</code>
+  into a <code>StandardWorkstreamRunner</code>. Mirrors the <code>build_standard_runner()</code> pattern.</li>
+<li><strong><code>run_graph.py</code></strong>: New top-level module providing:</li>
+<li><code>run_graph()</code> async composition function: loads YAML, builds graph + runners +
+    orchestrator, and runs to completion.</li>
+<li><code>dry_run()</code>: validates graph YAML and prints execution plan (task order,
+    dependencies, workstreams).</li>
+<li>CLI via <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code> with flags:
+    <code>--max-concurrency</code>, <code>--max-task-attempts</code>, <code>--teardown-mode</code>, <code>--tmux-session</code>,
+    <code>--model</code>, <code>--dry-run</code>.</li>
+<li><strong>Operational YAML keys</strong>: <code>tmux_session</code>, <code>keep_panes</code>, <code>model</code> are popped from
+  the raw YAML before graph parsing, allowing <code>TaskGraphBuilder</code> to stay unchanged.
+  CLI flags override YAML values.</li>
+<li><strong>19 new tests</strong>: unit tests for YAML preprocessing, builder, and dry-run; integration
+  tests verifying full wiring from graph YAML through orchestrator with test doubles.</li>
+</ul>
+<h3 id="reset-tool-pr-o">Reset tool (PR O)</h3>
+<ul>
+<li><strong><code>reset_graph.py</code></strong>: New top-level module for resetting a repository to its
+  pre-graph-run state. Reads <code>.workflow/&lt;graph&gt;/run_info.json</code> (written by <code>run_graph</code>),
+  then: closes open PRs, resets main and force-pushes (with ancestry safety check),
+  deletes remote/local branches, removes worktree and workflow directories.</li>
+<li><code>plan_reset()</code> / <code>execute_reset()</code>: separated planning from execution for testability.</li>
+<li>CLI via <code>python -m agentrelay.reset_graph &lt;graph.yaml&gt;</code> with <code>--yes</code> flag.</li>
+<li>Out-of-order reset detection: skips main-branch reset if <code>start_head</code> is not an
+    ancestor of current HEAD, still performs all other cleanup.</li>
+<li>Idempotent: re-running after a successful reset is safe.</li>
+<li><strong><code>run_info.json</code></strong>: <code>run_graph</code> now writes <code>start_head</code> + <code>started_at</code> to
+  <code>.workflow/&lt;graph&gt;/run_info.json</code> before orchestrator runs.</li>
+<li><strong>New ops primitives</strong>: <code>git.rev_parse_head</code>, <code>git.merge_base_is_ancestor</code>,
+  <code>git.reset_hard</code>, <code>git.push_force_with_lease</code>, <code>git.ls_remote_branches</code>,
+  <code>gh.pr_list</code>, <code>gh.pr_close</code>.</li>
+<li><strong>10 new tests</strong>: plan/execute against temp git repos with remotes, out-of-order
+  detection, idempotency, PR closing (mocked), run_info.json integration.</li>
+</ul>
 <hr />
 <h2 id="2026-03-16">2026-03-16</h2>
 <h3 id="add-graphical-popups-to-overview-diagram">Add graphical popups to overview diagram</h3>

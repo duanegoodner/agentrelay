@@ -1114,28 +1114,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#what-exists-but-isnt-wired" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What exists but isn't wired
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#what-doesnt-exist-yet" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What doesn't exist yet
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1154,10 +1132,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-n1-wire-workstreamrunner-into-orchestrator" class="md-nav__link">
+  <a href="#pr-n1-wire-workstreamrunner-into-orchestrator-done-pr-101" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR N1: Wire WorkstreamRunner into Orchestrator
+        PR N1: Wire WorkstreamRunner into Orchestrator — Done (PR #101)
       
     </span>
   </a>
@@ -1165,21 +1143,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-n2-composition-and-cli-entry-point" class="md-nav__link">
+  <a href="#pr-n2o-composition-cli-and-reset-tool-in-review" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR N2: Composition and CLI entry point
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pr-o-reset-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR O: Reset tool
+        PR N2+O: Composition, CLI, and Reset tool — In review
       
     </span>
   </a>
@@ -1243,7 +1210,7 @@
 
 <h1 id="sprint-notes-2026-03-14">Sprint Notes — 2026-03-14</h1>
 <blockquote>
-<p><strong>Status: Planning.</strong></p>
+<p><strong>Status: In progress.</strong> PR N1 merged. PR N2+O in review.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Complete the end-to-end wiring from graph YAML to running orchestrator. All
@@ -1301,62 +1268,24 @@ implementation constructors into <code>TaskState</code>.</p>
 <td><code>StandardTaskRunner</code> with <code>StepDispatch</code> (unplanned)</td>
 <td>2026-03-14</td>
 </tr>
+<tr>
+<td>#101</td>
+<td>Wire WorkstreamRunner into Orchestrator (PR N1)</td>
+<td>2026-03-15</td>
+</tr>
+<tr>
+<td>#102</td>
+<td>Extract <code>_OrchestratorRun</code> (unplanned)</td>
+<td>2026-03-15</td>
+</tr>
 </tbody>
 </table>
-<h3 id="what-exists-but-isnt-wired">What exists but isn't wired</h3>
-<ul>
-<li>
-<p><strong><code>WorkstreamRunner</code></strong> — has <code>prepare()</code>, <code>merge()</code>, <code>teardown()</code> methods,
-  but the orchestrator doesn't call them. Workstream state transitions
-  (<code>activate</code>, <code>deactivate</code>, <code>mark_merged</code>, <code>mark_failed</code>) happen inline in
-  the orchestrator, but no actual I/O (creating worktrees, merging integration
-  PRs, tearing down worktrees) is dispatched.</p>
-</li>
-<li>
-<p><strong><code>build_standard_runner()</code></strong> — factory that wires all six <code>StepDispatch</code>
-  tables with default implementations, but nothing calls it yet.</p>
-</li>
-<li>
-<p><strong>Workstream implementations</strong> (<code>GitWorkstreamPreparer</code>, <code>GhWorkstreamMerger</code>,
-  <code>GitWorkstreamTeardown</code>) — concrete classes exist, not composed into anything.</p>
-</li>
-</ul>
-<h3 id="what-doesnt-exist-yet">What doesn't exist yet</h3>
-<ul>
-<li><strong>CLI entry point</strong> (<code>run_graph.py</code>) — no way to run a graph from the command
-  line outside the prototype.</li>
-<li><strong>Reset tool</strong> (<code>reset_graph.py</code>) — no clean architecture version.</li>
-</ul>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
-<h3 id="pr-n1-wire-workstreamrunner-into-orchestrator">PR N1: Wire WorkstreamRunner into Orchestrator</h3>
+<h3 id="pr-n1-wire-workstreamrunner-into-orchestrator-done-pr-101">PR N1: Wire WorkstreamRunner into Orchestrator — <strong>Done</strong> (PR #101)</h3>
 <ul>
 <li>Branch: <code>feat/orchestrator-workstream-runner</code></li>
 </ul>
-<p>The orchestrator currently manages workstream state transitions inline but
-doesn't dispatch any workstream I/O. This PR wires <code>WorkstreamRunner</code> into
-<code>Orchestrator</code>, cleans up redundant mutable state, adds <code>MERGE_READY</code> as an
-intermediate status for future human-approval gates, and adds a
-<code>fail_fast_on_workstream_error</code> config option.</p>
-<p><strong>Changes:</strong></p>
-<ol>
-<li>Promote <code>WorkstreamRunner</code> to a <code>@runtime_checkable Protocol</code>; rename the
-   concrete implementation to <code>StandardWorkstreamRunner</code>.</li>
-<li>Add <code>workstream_runner: WorkstreamRunner</code> field to <code>Orchestrator</code>.</li>
-<li>Before first task in a workstream: call <code>workstream_runner.prepare()</code>.
-   <code>prepare()</code> owns the PENDING → ACTIVE transition.</li>
-<li>Add <code>MERGE_READY</code> status. <code>_refresh_workstream_terminal_states</code> transitions
-   to MERGE_READY; a new <code>_process_merge_ready_workstreams</code> helper calls
-   <code>workstream_runner.merge()</code> (decouples detection from I/O).</li>
-<li>After main loop exits: call <code>workstream_runner.teardown()</code> for each
-   workstream that was prepared.</li>
-<li>Remove <code>active_task_id</code> from <code>WorkstreamState</code> and <code>activate()</code>/<code>deactivate()</code>
-   from <code>WorkstreamRuntime</code>. Derive "has running task" by scanning task runtimes
-   for <code>RUNNING</code>/<code>PR_CREATED</code> status.</li>
-<li>Add <code>fail_fast_on_workstream_error: bool = True</code> to <code>OrchestratorConfig</code> —
-   blocks preparing new workstreams after any workstream fails; does not cancel
-   in-flight work.</li>
-</ol>
 <p><strong>Acceptance criteria:</strong>
 - [x] Orchestrator accepts <code>workstream_runner</code> parameter.
 - [x] Workstream prepare/merge/teardown are called at correct lifecycle points.
@@ -1368,36 +1297,53 @@ intermediate status for future human-approval gates, and adds a
 - [x] Six new lifecycle tests added.
 - [x] <code>pixi run check</code> passes.</p>
 <hr />
-<h3 id="pr-n2-composition-and-cli-entry-point">PR N2: Composition and CLI entry point</h3>
+<h3 id="pr-n2o-composition-cli-and-reset-tool-in-review">PR N2+O: Composition, CLI, and Reset tool — <strong>In review</strong></h3>
 <ul>
 <li>Branch: <code>feat/run-graph-cli</code></li>
-<li>New module: <code>src/agentrelay/run_graph.py</code></li>
+<li>New modules: <code>src/agentrelay/run_graph.py</code>, <code>src/agentrelay/reset_graph.py</code></li>
 </ul>
-<p>Wire everything together and provide a CLI.</p>
-<p><strong>Scope:</strong>
-1. Top-level composition function that builds <code>Orchestrator</code>, <code>StandardTaskRunner</code>
-   (via <code>build_standard_runner()</code>), and <code>WorkstreamRunner</code> (via
-   <code>build_workstream_runner()</code> — new builder, mirrors the task runner pattern)
-   from a parsed graph YAML.
-2. CLI via <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code> with flags:
-   <code>--max-concurrency</code>, <code>--max-task-attempts</code>, <code>--teardown-mode</code>,
-   <code>--tmux-session</code>, <code>--model</code>, <code>--dry-run</code>.</p>
+<p>Originally planned as two separate PRs (N2: composition/CLI, O: reset tool).
+Consolidated into one PR because run and reset are a matched pair — shipping
+a CLI to run graphs without a way to reset the repo would be risky.</p>
+<p><strong>Scope:</strong></p>
+<ol>
+<li><strong><code>run_graph.py</code></strong> — Top-level composition + CLI:</li>
+<li><code>run_graph()</code> async function wires <code>TaskGraphBuilder</code>, <code>build_standard_runner()</code>,
+     new <code>build_standard_workstream_runner()</code>, and <code>Orchestrator</code>.</li>
+<li>CLI via <code>python -m agentrelay.run_graph &lt;graph.yaml&gt;</code> with flags:
+     <code>--max-concurrency</code>, <code>--max-task-attempts</code>, <code>--teardown-mode</code>,
+     <code>--tmux-session</code>, <code>--model</code>, <code>--dry-run</code>.</li>
+<li>Writes <code>run_info.json</code> (start HEAD + timestamp) before orchestrator runs.</li>
+<li>
+<p>Operational YAML keys (<code>tmux_session</code>, <code>keep_panes</code>, <code>model</code>) popped from
+     raw dict before graph parsing; CLI flags override YAML values.</p>
+</li>
+<li>
+<p><strong><code>reset_graph.py</code></strong> — Graph reset tool:</p>
+</li>
+<li><code>plan_reset()</code> / <code>execute_reset()</code> separated for testability.</li>
+<li>CLI via <code>python -m agentrelay.reset_graph &lt;graph.yaml&gt;</code> with <code>--yes</code> flag.</li>
+<li>Closes open PRs, resets main with ancestry safety check, deletes branches,
+     removes worktree and workflow directories.</li>
+<li>Out-of-order reset detection skips main-branch reset if unsafe.</li>
+<li>
+<p>Idempotent: re-running after a successful reset is safe.</p>
+</li>
+<li>
+<p><strong><code>build_standard_workstream_runner()</code></strong> — New builder in <code>orchestrator/builders.py</code>.</p>
+</li>
+<li>
+<p><strong>New ops primitives</strong> — <code>git.rev_parse_head</code>, <code>git.merge_base_is_ancestor</code>,
+   <code>git.reset_hard</code>, <code>git.push_force_with_lease</code>, <code>git.ls_remote_branches</code>,
+   <code>gh.pr_list</code>, <code>gh.pr_close</code>.</p>
+</li>
+</ol>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>--dry-run</code> validates graph and prints execution plan.
-- [ ] Integration test verifies full wiring from graph YAML to orchestrator.
-- [ ] <code>pixi run check</code> passes.</p>
-<hr />
-<h3 id="pr-o-reset-tool">PR O: Reset tool</h3>
-<ul>
-<li>Branch: <code>feat/reset-graph</code></li>
-<li>New module: <code>src/agentrelay/reset_graph.py</code></li>
-</ul>
-<p>Clean reset command: close PRs, delete branches/worktrees, remove signal dirs.
-Idempotent, interactive by default with <code>--yes</code> override.</p>
-<p><strong>Acceptance criteria:</strong>
-- [ ] Idempotent when re-run.
-- [ ] Tested against temp git repo fixture.
-- [ ] <code>pixi run check</code> passes.</p>
+- [x] <code>--dry-run</code> validates graph and prints execution plan.
+- [x] Integration test verifies full wiring from graph YAML to orchestrator.
+- [x] Reset is idempotent when re-run.
+- [x] Reset tested against temp git repo fixture (10 tests).
+- [x] <code>pixi run check</code> passes (833 tests, 0 errors).</p>
 <hr />
 <h3 id="pr-p-docs-diagram-and-e2e-validation">PR P: Docs, diagram, and E2E validation</h3>
 <ul>
@@ -1447,31 +1393,35 @@ documentation. Final diagram updates for the full wiring.</p>
 <td>Architectural improvement</td>
 </tr>
 <tr>
-<td>PR N: Composition and CLI</td>
-<td><strong>Remaining</strong></td>
-<td>Split into N1 + N2 (below)</td>
+<td>PR N1: Wire WorkstreamRunner into Orchestrator</td>
+<td><strong>Done</strong> (PR #101)</td>
+<td></td>
 </tr>
 <tr>
-<td>PR N½: Wire WorkstreamRunner into Orchestrator</td>
-<td><strong>Remaining</strong></td>
-<td>Renamed to N1</td>
+<td>(unplanned) Extract <code>_OrchestratorRun</code></td>
+<td><strong>Done</strong> (PR #102)</td>
+<td></td>
+</tr>
+<tr>
+<td>PR N2: Composition and CLI</td>
+<td><strong>In review</strong></td>
+<td>Consolidated with PR O</td>
 </tr>
 <tr>
 <td>PR O: Reset tool</td>
-<td><strong>Remaining</strong></td>
-<td>Unchanged</td>
+<td><strong>In review</strong></td>
+<td>Consolidated with PR N2</td>
 </tr>
 <tr>
 <td>PR P: Docs and E2E validation</td>
 <td><strong>Remaining</strong></td>
-<td>Unchanged</td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Renaming note:</strong> The old "PR N" (composition + CLI) and "PR N½" (workstream
-runner wiring) are now <strong>PR N1</strong> and <strong>PR N2</strong> respectively. N1 goes first
-because N2's composition layer depends on the orchestrator accepting a
-workstream runner.</p>
+<p><strong>Consolidation note:</strong> PRs N2 and O were merged into a single PR on branch
+<code>feat/run-graph-cli</code>. Run and reset are a matched pair — shipping one without
+the other would allow "damage" without a quick recovery path.</p>
 <hr />
 <h2 id="merge-discipline">Merge discipline</h2>
 <ol>
