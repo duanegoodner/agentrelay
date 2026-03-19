@@ -34,9 +34,9 @@ from agentrelay.orchestrator import (
     build_standard_runner,
     build_standard_workstream_runner,
 )
+from agentrelay.output import ConsoleListener, print_summary
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
-from agentrelay.task_runtime import TaskStatus
 
 
 def _extract_operational_config(
@@ -251,6 +251,7 @@ async def run_graph(
         task_runner=task_runner,
         workstream_runner=workstream_runner,
         config=config,
+        listener=ConsoleListener(),
     )
     return await orchestrator.run()
 
@@ -335,26 +336,7 @@ def _print_result(result: OrchestratorResult) -> None:
     Args:
         result: Terminal orchestration result.
     """
-    print(f"\nOutcome: {result.outcome.value}")
-    if result.fatal_error:
-        print(f"Fatal error:\n{result.fatal_error}")
-
-    succeeded = []
-    failed = []
-    for task_id, runtime in result.task_runtimes.items():
-        if runtime.state.status is TaskStatus.PR_MERGED:
-            succeeded.append(task_id)
-        elif runtime.state.status is TaskStatus.FAILED:
-            failed.append(task_id)
-
-    if succeeded:
-        print(f"Succeeded: {', '.join(succeeded)}")
-    if failed:
-        print(f"Failed: {', '.join(failed)}")
-        for task_id in failed:
-            error = result.task_runtimes[task_id].state.error
-            if error:
-                print(f"  {task_id}: {error}")
+    print_summary(result)
 
 
 def main() -> None:

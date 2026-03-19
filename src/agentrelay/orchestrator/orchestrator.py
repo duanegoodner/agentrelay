@@ -8,6 +8,7 @@ execution to :class:`agentrelay.task_runner.TaskRunner`.
 from __future__ import annotations
 
 import asyncio
+import time
 import traceback
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -95,6 +96,7 @@ class OrchestratorEvent:
     """
 
     kind: str
+    timestamp: float = field(default_factory=time.time)
     task_id: Optional[str] = None
     workstream_id: Optional[str] = None
     attempt_num: Optional[int] = None
@@ -328,6 +330,12 @@ class _OrchestratorRun:
                         ),
                     )
                     continue
+                self._emit(
+                    OrchestratorEvent(
+                        kind="workstream_prepared",
+                        workstream_id=runtime.task.workstream_id,
+                    ),
+                )
 
             attempt_num = self._attempts_used[task_id]
             runtime.prepare_for_attempt(attempt_num)
@@ -443,6 +451,7 @@ class _OrchestratorRun:
                 workstream_id=runtime.task.workstream_id,
                 attempt_num=attempt_num,
                 outcome_class=TaskOutcomeClass.SUCCESS,
+                message=runtime.artifacts.pr_url,
             ),
         )
         self._refresh_workstream_terminal_states()
