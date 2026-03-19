@@ -19,11 +19,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
 import yaml
 
+from agentrelay.ops import git, signals
 from agentrelay.orchestrator import (
     Orchestrator,
     OrchestratorConfig,
@@ -115,6 +117,27 @@ def _load_and_prepare_graph(
     return graph, effective_session, yaml_keep_panes
 
 
+def _record_run_start(repo_path: Path, graph_name: str) -> None:
+    """Write run_info.json with start HEAD and timestamp.
+
+    This file is read by ``reset_graph`` to know what SHA to reset to.
+
+    Args:
+        repo_path: Path to the repository root.
+        graph_name: Name of the task graph being executed.
+    """
+    workflow_dir = repo_path / ".workflow" / graph_name
+    start_head = git.rev_parse_head(repo_path)
+    signals.write_json(
+        workflow_dir,
+        "run_info.json",
+        {
+            "start_head": start_head,
+            "started_at": datetime.now(timezone.utc).isoformat(),
+        },
+    )
+
+
 async def run_graph(
     graph_path: Path,
     repo_path: Path,
@@ -151,6 +174,8 @@ async def run_graph(
     effective_keep_panes = keep_panes or yaml_keep_panes
 
     assert graph.name is not None, "Graph must have a name"
+
+    _record_run_start(repo_path, graph.name)
 
     task_runner = build_standard_runner(
         repo_path=repo_path,

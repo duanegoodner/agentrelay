@@ -189,3 +189,87 @@ def ls_remote_branch_exists(repo: Path, branch: str) -> bool:
         text=True,
     )
     return bool(result.stdout.strip())
+
+
+def ls_remote_branches(repo: Path, pattern: str) -> list[str]:
+    """List remote branches matching a glob *pattern*.
+
+    Runs ``git -C <repo> ls-remote --heads origin <pattern>`` and extracts
+    branch names (without the ``refs/heads/`` prefix).
+
+    Returns:
+        List of branch names matching the pattern.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo), "ls-remote", "--heads", "origin", pattern],
+        capture_output=True,
+        text=True,
+    )
+    branches: list[str] = []
+    for line in result.stdout.strip().splitlines():
+        if not line:
+            continue
+        ref = line.split("\t", 1)[1]
+        branches.append(ref.removeprefix("refs/heads/"))
+    return branches
+
+
+def rev_parse_head(repo: Path) -> str:
+    """Return the full SHA of HEAD.
+
+    Runs ``git -C <repo> rev-parse HEAD``.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
+def merge_base_is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
+    """Check whether *ancestor* is an ancestor of *descendant*.
+
+    Runs ``git -C <repo> merge-base --is-ancestor <ancestor> <descendant>``.
+
+    Returns:
+        ``True`` if *ancestor* is an ancestor of *descendant*.
+    """
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "merge-base",
+            "--is-ancestor",
+            ancestor,
+            descendant,
+        ],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
+def reset_hard(repo: Path, ref: str) -> None:
+    """Hard-reset *repo* to *ref*.
+
+    Runs ``git -C <repo> reset --hard <ref>``.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "reset", "--hard", ref],
+        check=True,
+        capture_output=True,
+    )
+
+
+def push_force_with_lease(repo: Path, branch: str) -> None:
+    """Force-push *branch* to origin with lease safety.
+
+    Runs ``git -C <repo> push --force-with-lease origin <branch>``.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "push", "--force-with-lease", "origin", branch],
+        check=True,
+        capture_output=True,
+    )

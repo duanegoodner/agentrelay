@@ -754,6 +754,30 @@ run_graph_py: "run_graph.py" {
   }
 }
 
+# ─────────────────────────────────────────────
+#  reset_graph.py — graph reset tool
+# ─────────────────────────────────────────────
+reset_graph_py: "reset_graph.py" {
+  ResetPlan: "ResetPlan <<dataclass>>" {
+    shape: class
+    graph_name: str
+    repo_path: Path
+    start_head: str
+    can_reset_main: bool
+    open_prs: "list[dict]"
+    remote_branches: "list[str]"
+  }
+
+  reset_graph_functions: "reset_graph <<module>>" {
+    shape: class
+    module_path: reset_graph
+    "+plan_reset(graph_name, repo_path)": ResetPlan
+    "+execute_reset(plan)": "list[str]"
+    "+reset_graph(graph_name, repo_path, ...)": "list[str]"
+    "+main()": void
+  }
+}
+
 # ═════════════════════════════════════════════
 #  Relationships
 # ═════════════════════════════════════════════
@@ -924,5 +948,12 @@ run_graph_py.run_graph_functions -> orchestrator_pkg.builders: builds runners { 
 run_graph_py.run_graph_functions -> orchestrator_pkg.Orchestrator: creates and runs { class: dependency }
 run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorConfig: configures { class: dependency }
 run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
+run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dependency }
+run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
+
+# --- reset_graph ---
+reset_graph_py.reset_graph_functions -> reset_graph_py.ResetPlan: "builds / executes" { class: dependency }
+reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class: dependency }
+reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
 
 # test
