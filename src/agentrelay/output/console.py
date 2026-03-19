@@ -158,9 +158,16 @@ def print_summary(
 
     # Column headers and rows.
     headers = ("Task", "Status", "Workstream", "Attempts", "Duration", "PR")
+    status_labels = {
+        TaskStatus.PR_MERGED: "succeeded",
+        TaskStatus.FAILED: "failed",
+        TaskStatus.RUNNING: "running",
+        TaskStatus.PR_CREATED: "pr_created",
+        TaskStatus.PENDING: "pending",
+    }
     rows: list[tuple[str, ...]] = []
     for task_id, runtime in result.task_runtimes.items():
-        status = runtime.state.status.value
+        status = status_labels.get(runtime.state.status, runtime.state.status.value)
         workstream = runtime.task.workstream_id
         attempts = str(runtime.state.attempt_num + 1)
         dur = durations.get(task_id)
@@ -182,6 +189,11 @@ def print_summary(
     stream.write("  ".join("\u2500" * w for w in widths) + "\n")
     for row in rows:
         stream.write(_fmt_row(row) + "\n")
+
+    # Total duration from first event to last event.
+    if result.events:
+        total = result.events[-1].timestamp - result.events[0].timestamp
+        stream.write(f"\nTotal: {_format_duration(total)}\n")
 
     # Per-task errors for failed tasks.
     failed_errors = [
