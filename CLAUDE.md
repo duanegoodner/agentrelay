@@ -21,11 +21,16 @@ The orchestrator merges PRs in dependency order.
 
 | File | Responsibility |
 |---|---|
-| `agent_task.py` | `AgentTask`, `AgentRole`, `TaskStatus`, `TaskState` data models |
-| `agent_task_graph.py` | `AgentTaskGraph` — all path computation; `AgentTaskGraphBuilder.from_yaml()` |
-| `run_graph.py` | Orchestrator loop — dispatches tasks, polls signals, merges PRs |
-| `task_launcher.py` | Low-level infrastructure: worktrees, tmux, signal files, PR operations |
-| `worktree_task_runner.py` | Agent-side API — runs inside worktrees, writes signal files |
+| `run_graph.py` | Top-level composition + CLI: wires graph, runners, orchestrator |
+| `orchestrator/` | Async scheduler, config, runtime builders, runner builders |
+| `task_graph/` | Immutable `TaskGraph` DAG model and `TaskGraphBuilder` YAML parser |
+| `task_runner/` | `TaskRunner` protocol, `StandardTaskRunner`, per-step dispatch |
+| `workstream/` | `WorkstreamRunner` protocol, `StandardWorkstreamRunner`, workstream lifecycle |
+| `task_runtime/` | Mutable `TaskRuntime`, `TaskState`, `TaskStatus` |
+| `agent/` | `Agent` / `AgentAddress` abstractions, `TmuxAgent` implementation |
+| `agent_comm_protocol/` | Manifest, policies, role templates for agent instructions |
+| `ops/` | Stateless subprocess wrappers: git, tmux, gh, signals |
+| `task.py` | `Task`, `AgentRole`, `AgentConfig`, `TaskPaths` data models |
 | `reset_graph.py` | Full graph reset: closes PRs, resets main, deletes branches |
 
 ## Signal files

@@ -13,6 +13,8 @@ Classes:
 Functions:
     build_standard_runner: Build a StandardTaskRunner wired for worktree + tmux
         + Claude Code.
+    build_standard_workstream_runner: Build a StandardWorkstreamRunner wired for
+        git worktree + GitHub CLI.
 """
 
 from __future__ import annotations
@@ -38,7 +40,15 @@ from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
 from agentrelay.task_runner.implementations.task_preparer import WorktreeTaskPreparer
 from agentrelay.task_runner.implementations.task_teardown import WorktreeTaskTeardown
 from agentrelay.task_runtime.runtime import TaskRuntime
+from agentrelay.workstream.core.runner import StandardWorkstreamRunner
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
+from agentrelay.workstream.implementations.workstream_merger import GhWorkstreamMerger
+from agentrelay.workstream.implementations.workstream_preparer import (
+    GitWorkstreamPreparer,
+)
+from agentrelay.workstream.implementations.workstream_teardown import (
+    GitWorkstreamTeardown,
+)
 
 
 class TaskRuntimeBuilder:
@@ -163,4 +173,36 @@ def build_standard_runner(
         _completion_checker=StepDispatch(default=_make_completion_checker),
         _merger=StepDispatch(default=_make_merger),
         _teardown=StepDispatch(default=_make_teardown),
+    )
+
+
+def build_standard_workstream_runner(
+    repo_path: Path,
+    graph_name: str,
+) -> StandardWorkstreamRunner:
+    """Build the standard workstream runner for git worktree + GitHub CLI.
+
+    Wires the three workstream lifecycle steps with concrete implementations:
+
+    +----------+-------------------------+
+    | Step     | Implementation          |
+    +==========+=========================+
+    | preparer | GitWorkstreamPreparer   |
+    +----------+-------------------------+
+    | merger   | GhWorkstreamMerger      |
+    +----------+-------------------------+
+    | teardown | GitWorkstreamTeardown   |
+    +----------+-------------------------+
+
+    Args:
+        repo_path: Path to the bare/main repository.
+        graph_name: Name of the task graph being executed.
+
+    Returns:
+        A fully wired :class:`StandardWorkstreamRunner`.
+    """
+    return StandardWorkstreamRunner(
+        _preparer=GitWorkstreamPreparer(repo_path=repo_path, graph_name=graph_name),
+        _merger=GhWorkstreamMerger(repo_path=repo_path),
+        _teardown=GitWorkstreamTeardown(repo_path=repo_path),
     )

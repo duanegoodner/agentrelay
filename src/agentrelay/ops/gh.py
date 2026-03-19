@@ -7,8 +7,10 @@ on failure.
 
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
+from typing import Any
 
 
 def pr_create(
@@ -47,6 +49,62 @@ def pr_create(
         cwd=str(repo_dir),
     )
     return result.stdout.strip()
+
+
+def pr_list(
+    repo_dir: Path,
+    *,
+    state: str = "open",
+    head_prefix: str | None = None,
+) -> list[dict[str, Any]]:
+    """List pull requests, optionally filtered by head branch prefix.
+
+    Runs ``gh pr list --json number,headRefName --state <state>``
+    in *repo_dir*.
+
+    Args:
+        repo_dir: Repository working directory.
+        state: PR state filter (``"open"``, ``"closed"``, ``"all"``).
+        head_prefix: If given, only return PRs whose ``headRefName``
+            starts with this string.
+
+    Returns:
+        List of dicts with ``"number"`` and ``"headRefName"`` keys.
+    """
+    result = subprocess.run(
+        [
+            "gh",
+            "pr",
+            "list",
+            "--state",
+            state,
+            "--json",
+            "number,headRefName",
+            "--limit",
+            "200",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=str(repo_dir),
+    )
+    prs: list[dict[str, Any]] = json.loads(result.stdout)
+    if head_prefix is not None:
+        prs = [pr for pr in prs if pr["headRefName"].startswith(head_prefix)]
+    return prs
+
+
+def pr_close(repo_dir: Path, pr_number: int) -> None:
+    """Close a pull request by number.
+
+    Runs ``gh pr close <number>`` in *repo_dir*.
+    """
+    subprocess.run(
+        ["gh", "pr", "close", str(pr_number)],
+        check=True,
+        capture_output=True,
+        cwd=str(repo_dir),
+    )
 
 
 def pr_merge(pr_url: str) -> None:

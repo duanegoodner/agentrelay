@@ -65,6 +65,7 @@ class TestWorktreeTaskPreparer:
             Path("/worktrees/demo/ws-1"),
             "agentrelay/demo/task_1",
             "agentrelay/demo",
+            force=True,
         )
         mock_git.checkout.assert_called_once_with(
             Path("/worktrees/demo/ws-1"),

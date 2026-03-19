@@ -74,6 +74,7 @@ class WorktreeTaskPreparer:
                 workstream_worktree_path,
                 branch_name,
                 integration_branch,
+                force=True,
             )
             git.checkout(workstream_worktree_path, branch_name)
         except subprocess.CalledProcessError as exc:

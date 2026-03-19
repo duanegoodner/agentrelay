@@ -4,6 +4,48 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-18
+
+### Composition and CLI entry point (PR N2)
+
+- **`build_standard_workstream_runner()`**: New builder in `orchestrator/builders.py`
+  that wires `GitWorkstreamPreparer`, `GhWorkstreamMerger`, and `GitWorkstreamTeardown`
+  into a `StandardWorkstreamRunner`. Mirrors the `build_standard_runner()` pattern.
+- **`run_graph.py`**: New top-level module providing:
+  - `run_graph()` async composition function: loads YAML, builds graph + runners +
+    orchestrator, and runs to completion.
+  - `dry_run()`: validates graph YAML and prints execution plan (task order,
+    dependencies, workstreams).
+  - CLI via `python -m agentrelay.run_graph <graph.yaml>` with flags:
+    `--max-concurrency`, `--max-task-attempts`, `--teardown-mode`, `--tmux-session`,
+    `--model`, `--dry-run`.
+- **Operational YAML keys**: `tmux_session`, `keep_panes`, `model` are popped from
+  the raw YAML before graph parsing, allowing `TaskGraphBuilder` to stay unchanged.
+  CLI flags override YAML values.
+- **19 new tests**: unit tests for YAML preprocessing, builder, and dry-run; integration
+  tests verifying full wiring from graph YAML through orchestrator with test doubles.
+
+### Reset tool (PR O)
+
+- **`reset_graph.py`**: New top-level module for resetting a repository to its
+  pre-graph-run state. Reads `.workflow/<graph>/run_info.json` (written by `run_graph`),
+  then: closes open PRs, resets main and force-pushes (with ancestry safety check),
+  deletes remote/local branches, removes worktree and workflow directories.
+  - `plan_reset()` / `execute_reset()`: separated planning from execution for testability.
+  - CLI via `python -m agentrelay.reset_graph <graph.yaml>` with `--yes` flag.
+  - Out-of-order reset detection: skips main-branch reset if `start_head` is not an
+    ancestor of current HEAD, still performs all other cleanup.
+  - Idempotent: re-running after a successful reset is safe.
+- **`run_info.json`**: `run_graph` now writes `start_head` + `started_at` to
+  `.workflow/<graph>/run_info.json` before orchestrator runs.
+- **New ops primitives**: `git.rev_parse_head`, `git.merge_base_is_ancestor`,
+  `git.reset_hard`, `git.push_force_with_lease`, `git.ls_remote_branches`,
+  `gh.pr_list`, `gh.pr_close`.
+- **10 new tests**: plan/execute against temp git repos with remotes, out-of-order
+  detection, idempotency, PR closing (mocked), run_info.json integration.
+
+---
+
 ## 2026-03-16
 
 ### Add graphical popups to overview diagram
