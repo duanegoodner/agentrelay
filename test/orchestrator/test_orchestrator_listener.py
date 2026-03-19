@@ -9,6 +9,7 @@ from agentrelay.orchestrator import (
     OrchestratorEvent,
     OrchestratorListener,
     OrchestratorOutcome,
+    TaskOutcomeClass,
 )
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
@@ -121,10 +122,13 @@ def test_no_listener_default_behavior_unchanged() -> None:
     )
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
-    assert len(result.events) == 3  # task_started + task_finished + workstream_merged
-    assert result.events[0].kind == "task_started"
-    assert result.events[1].kind == "task_finished"
-    assert result.events[2].kind == "workstream_merged"
+    kinds = [e.kind for e in result.events]
+    assert kinds == [
+        "workstream_prepared",
+        "task_started",
+        "task_finished",
+        "workstream_merged",
+    ]
 
 
 def test_listener_protocol_runtime_checkable() -> None:
@@ -152,3 +156,59 @@ def test_listener_called_for_blocked_events() -> None:
     blocked_events = [e for e in listener.events if e.kind == "task_blocked"]
     assert len(blocked_events) == 1
     assert blocked_events[0].task_id == "b"
+
+
+def test_all_events_have_timestamps() -> None:
+    graph = TaskGraph.from_tasks((_task("a"),))
+    listener = RecordingListener()
+
+    asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=SuccessRunner(),
+            workstream_runner=NoOpWorkstreamRunner(),
+            listener=listener,
+        ).run()
+    )
+
+    assert len(listener.events) > 0
+    for event in listener.events:
+        assert event.timestamp > 0
+
+
+def test_workstream_prepared_event_emitted() -> None:
+    graph = TaskGraph.from_tasks((_task("a"),))
+    listener = RecordingListener()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=SuccessRunner(),
+            workstream_runner=NoOpWorkstreamRunner(),
+            listener=listener,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    prepared = [e for e in listener.events if e.kind == "workstream_prepared"]
+    assert len(prepared) == 1
+    assert prepared[0].workstream_id == "default"
+
+
+def test_task_finished_success_carries_pr_url() -> None:
+    graph = TaskGraph.from_tasks((_task("a"),))
+    listener = RecordingListener()
+
+    asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=SuccessRunner(),
+            workstream_runner=NoOpWorkstreamRunner(),
+            listener=listener,
+        ).run()
+    )
+
+    finished = [e for e in listener.events if e.kind == "task_finished"]
+    assert len(finished) == 1
+    assert finished[0].outcome_class == TaskOutcomeClass.SUCCESS
+    assert finished[0].message == "https://example.com/a"

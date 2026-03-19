@@ -24,8 +24,8 @@ Arguments:
   target-repo-path   Path to the target repo to reset
 
 Examples:
-  pixi run e2e-reset graphs/quick_chained.yaml /path/to/demos
-  pixi run e2e-reset graphs/quick_parallel.yaml /path/to/demos
+  pixi run e2e-reset graphs/smoke/quick_chained.yaml /path/to/demos
+  pixi run e2e-reset graphs/smoke/quick_parallel.yaml /path/to/demos
 HELP
 }
 

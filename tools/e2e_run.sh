@@ -21,9 +21,9 @@ Arguments:
 Extra flags are passed through to run_graph (e.g. --dry-run, --model).
 
 Examples:
-  pixi run e2e graphs/quick_chained.yaml /path/to/demos
-  pixi run e2e graphs/quick_parallel.yaml /path/to/demos --dry-run
-  pixi run e2e graphs/quick_parallel.yaml /path/to/demos --model claude-opus-4-6
+  pixi run e2e graphs/smoke/quick_chained.yaml /path/to/demos
+  pixi run e2e graphs/smoke/quick_parallel.yaml /path/to/demos --dry-run
+  pixi run e2e graphs/smoke/quick_parallel.yaml /path/to/demos --model claude-opus-4-6
 HELP
 }
 

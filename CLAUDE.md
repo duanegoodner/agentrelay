@@ -14,8 +14,8 @@ The orchestrator merges PRs in dependency order.
 | `pixi run format` | black + isort |
 | `pixi run check` | format + typecheck + test (pre-PR verification) |
 | `pixi run setup-hooks` | Enable git pre-commit hooks (one-time setup) |
-| `python -m agentrelay.run_graph graphs/<name>.yaml` | Run a task graph |
-| `python -m agentrelay.reset_graph graphs/<name>.yaml` | Reset repo to pre-run state |
+| `python -m agentrelay.run_graph graphs/<category>/<name>.yaml` | Run a task graph |
+| `python -m agentrelay.reset_graph graphs/<category>/<name>.yaml` | Reset repo to pre-run state |
 
 ## Module map
 

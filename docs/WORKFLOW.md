@@ -19,7 +19,7 @@ orchestrator, and runs it.
 ### 1. Validate the graph
 
 ```bash
-python -m agentrelay.run_graph graphs/quick_chained.yaml --dry-run
+python -m agentrelay.run_graph graphs/smoke/quick_chained.yaml --dry-run
 ```
 
 Output shows graph name, task count, workstream structure, execution order,
@@ -30,7 +30,7 @@ and any conflicts with leftover state from previous runs.
 From the target repository directory:
 
 ```bash
-python -m agentrelay.run_graph /path/to/graphs/quick_chained.yaml
+python -m agentrelay.run_graph /path/to/graphs/smoke/quick_chained.yaml
 ```
 
 What happens:
@@ -58,7 +58,7 @@ What happens:
 ### 4. Reset
 
 ```bash
-python -m agentrelay.reset_graph /path/to/graphs/quick_chained.yaml --yes
+python -m agentrelay.reset_graph /path/to/graphs/smoke/quick_chained.yaml --yes
 ```
 
 This reverses the run: closes open PRs, resets main to the starting HEAD
@@ -76,8 +76,8 @@ For testing from the agentrelay repo against an external target:
 
 ```bash
 pixi run e2e-check /path/to/target         # preflight validation
-pixi run e2e graphs/quick_parallel.yaml /path/to/target   # run
-pixi run e2e-reset graphs/quick_parallel.yaml /path/to/target  # reset
+pixi run e2e graphs/smoke/quick_parallel.yaml /path/to/target   # run
+pixi run e2e-reset graphs/smoke/quick_parallel.yaml /path/to/target  # reset
 ```
 
 ## Prototype Reference
