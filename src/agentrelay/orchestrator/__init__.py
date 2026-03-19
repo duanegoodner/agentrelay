@@ -8,6 +8,7 @@ from agentrelay.orchestrator.builders import (
     TaskRuntimeBuilder,
     WorkstreamRuntimeBuilder,
     build_standard_runner,
+    build_standard_workstream_runner,
 )
 from agentrelay.orchestrator.orchestrator import (
     Orchestrator,
@@ -30,4 +31,5 @@ __all__ = [
     "TaskRuntimeBuilder",
     "WorkstreamRuntimeBuilder",
     "build_standard_runner",
+    "build_standard_workstream_runner",
 ]

@@ -4,6 +4,29 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-18
+
+### Composition and CLI entry point (PR N2)
+
+- **`build_standard_workstream_runner()`**: New builder in `orchestrator/builders.py`
+  that wires `GitWorkstreamPreparer`, `GhWorkstreamMerger`, and `GitWorkstreamTeardown`
+  into a `StandardWorkstreamRunner`. Mirrors the `build_standard_runner()` pattern.
+- **`run_graph.py`**: New top-level module providing:
+  - `run_graph()` async composition function: loads YAML, builds graph + runners +
+    orchestrator, and runs to completion.
+  - `dry_run()`: validates graph YAML and prints execution plan (task order,
+    dependencies, workstreams).
+  - CLI via `python -m agentrelay.run_graph <graph.yaml>` with flags:
+    `--max-concurrency`, `--max-task-attempts`, `--teardown-mode`, `--tmux-session`,
+    `--model`, `--dry-run`.
+- **Operational YAML keys**: `tmux_session`, `keep_panes`, `model` are popped from
+  the raw YAML before graph parsing, allowing `TaskGraphBuilder` to stay unchanged.
+  CLI flags override YAML values.
+- **19 new tests**: unit tests for YAML preprocessing, builder, and dry-run; integration
+  tests verifying full wiring from graph YAML through orchestrator with test doubles.
+
+---
+
 ## 2026-03-16
 
 ### Add graphical popups to overview diagram

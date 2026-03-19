@@ -521,6 +521,7 @@ orchestrator_pkg: "orchestrator/" {
     shape: class
     module_path: orchestrator.builders
     "+build_standard_runner(...)": StandardTaskRunner
+    "+build_standard_workstream_runner(...)": StandardWorkstreamRunner
   }
 }
 
@@ -740,6 +741,19 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
 }
 
 
+# ─────────────────────────────────────────────
+#  run_graph.py — top-level composition and CLI
+# ─────────────────────────────────────────────
+run_graph_py: "run_graph.py" {
+  run_graph_functions: "run_graph <<module>>" {
+    shape: class
+    module_path: run_graph
+    "+run_graph(graph_path, repo_path, ...)": OrchestratorResult
+    "+dry_run(graph_path)": void
+    "+main()": void
+  }
+}
+
 # ═════════════════════════════════════════════
 #  Relationships
 # ═════════════════════════════════════════════
@@ -801,6 +815,10 @@ orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickof
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhWorkstreamMerger: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown: registers { class: dependency }
 
 # --- task_runtime internal ---
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
@@ -899,5 +917,12 @@ task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: 
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
 agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
 agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
+
+# --- run_graph ---
+run_graph_py.run_graph_functions -> task_graph_pkg.TaskGraphBuilder: loads YAML { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.builders: builds runners { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.Orchestrator: creates and runs { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorConfig: configures { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
 
 # test

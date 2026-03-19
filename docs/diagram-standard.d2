@@ -460,6 +460,7 @@ orchestrator_pkg: "orchestrator/" {
     shape: class
     module_path: orchestrator.builders
     "+build_standard_runner(...)": StandardTaskRunner
+    "+build_standard_workstream_runner(...)": StandardWorkstreamRunner
   }
 }
 
@@ -621,6 +622,19 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
 }
 
 
+# ─────────────────────────────────────────────
+#  run_graph.py — top-level composition and CLI
+# ─────────────────────────────────────────────
+run_graph_py: "run_graph.py" {
+  run_graph_functions: "run_graph <<module>>" {
+    shape: class
+    module_path: run_graph
+    "+run_graph(graph_path, repo_path, ...)": OrchestratorResult
+    "+dry_run(graph_path)": void
+    "+main()": void
+  }
+}
+
 # ═════════════════════════════════════════════
 #  Relationships
 # ═════════════════════════════════════════════
@@ -674,6 +688,8 @@ task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatu
 task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg: registers { class: dependency }
 
 # --- task_runtime internal ---
 task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
@@ -749,5 +765,12 @@ task_runner_pkg.task_runner_impl_pkg -> agent_pkg.agent_impl_pkg: uses { class: 
 task_runner_pkg.task_runner_impl_pkg -> ops_pkg.gh: uses { class: dependency }
 agent_pkg.agent_impl_pkg -> ops_pkg.tmux: uses { class: dependency }
 agent_pkg.agent_impl_pkg -> ops_pkg.signals: uses { class: dependency }
+
+# --- run_graph ---
+run_graph_py.run_graph_functions -> task_graph_pkg.TaskGraphBuilder: loads YAML { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.builders: builds runners { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.Orchestrator: creates and runs { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorConfig: configures { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
 
 # test

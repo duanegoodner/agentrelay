@@ -20,8 +20,10 @@ truth for concrete implementation details.
 - `TaskRuntimeBuilder`: graph-to-runtime initializer for task execution state
 - `WorkstreamRuntimeBuilder`: graph-to-runtime initializer for workstream lane state
 - `TaskRunner`: one-task lifecycle state machine over `TaskRuntime`
-- `TaskRunnerIO`: composed per-step I/O boundary used by `TaskRunner`
+- `StepDispatch`: per-step dispatch table for framework/environment-specific implementations
 - `WorkstreamRunner`: workstream-level lifecycle runner (holds per-step protocol fields directly)
+- `build_standard_runner`: factory wiring `StandardTaskRunner` for worktree + tmux + Claude Code
+- `build_standard_workstream_runner`: factory wiring `StandardWorkstreamRunner` for git + GitHub CLI
 - `Orchestrator`: async dependency/workstream scheduler over graph runtimes
 - `OrchestratorConfig`: run-level scheduling, retry, and teardown policy
 - `errors`: typed integration failure model + expected/internal classification helper
@@ -51,12 +53,12 @@ truth for concrete implementation details.
 - **Narrow interfaces**: `Agent`, `AgentAddress`, and environment typing keep launcher logic decoupled.
 - **Contract-first integrations**: external side effects are modeled as typed protocols/errors before concrete implementations.
 
-## Execution Boundary (What Is Not Implemented Here Yet)
+## Execution Boundary
 
-The current architecture layer includes a real orchestrator and task lifecycle runner,
-but production side-effect integrations remain incomplete. End-to-end behavior for tmux
-launch, prompt dispatch, signal polling, and PR integration still primarily lives in
-`src/agentrelay/prototypes/v01/`.
+The current architecture layer includes a real orchestrator, task lifecycle runner,
+workstream lifecycle runner, and a CLI entry point (`run_graph.py`). All production
+side-effect integrations (worktree setup, tmux launch, signal polling, PR merge,
+workstream prepare/merge/teardown) are wired through the composition layer.
 
 ## Orchestrator Behavior Contract
 
