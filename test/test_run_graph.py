@@ -26,7 +26,7 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 def test_extract_operational_config_defaults() -> None:
     raw: dict = {"name": "g", "tasks": []}
     session, keep, model = _extract_operational_config(raw)
-    assert session == "agentrelay"
+    assert session is None
     assert keep is False
     assert model is None
 

@@ -124,9 +124,9 @@ class TestTmuxEnvironment:
     """Tests for TmuxEnvironment."""
 
     def test_default_session(self) -> None:
-        """TmuxEnvironment defaults session to 'agentrelay'."""
+        """TmuxEnvironment defaults session to empty string."""
         env = TmuxEnvironment()
-        assert env.session == "agentrelay"
+        assert env.session == ""
 
     def test_custom_session(self) -> None:
         """TmuxEnvironment can specify custom session."""
@@ -277,7 +277,7 @@ class TestAgentConfig:
         """AgentConfig defaults environment to TmuxEnvironment."""
         config = AgentConfig()
         assert isinstance(config.environment, TmuxEnvironment)
-        assert config.environment.session == "agentrelay"
+        assert config.environment.session == ""
 
     def test_custom_environment(self) -> None:
         """AgentConfig can specify custom environment."""

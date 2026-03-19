@@ -1,0 +1,29 @@
+name: quick-chained
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+
+# Two tasks in a chain: counter_fn runs first, then use_counter depends on it.
+
+tasks:
+  - id: counter_fn
+    description: >-
+      Create src/agentrelaydemos/counter.py containing a Counter class with:
+      __init__(self, start: int = 0), increment(self) -> None,
+      decrement(self) -> None, and a value property returning the current int.
+      The count must never go below zero (decrement at zero is a no-op).
+      Also create test/test_counter.py with pytest tests covering:
+      initial value, increment, decrement, and the zero-floor behavior.
+    dependencies: []
+
+  - id: use_counter
+    description: >-
+      Create src/agentrelaydemos/counter_utils.py containing two functions:
+      count_up(n: int) -> int that creates a Counter, calls increment() n times,
+      and returns counter.value; and
+      count_down(start: int, n: int) -> int that creates a Counter(start),
+      calls decrement() n times, and returns counter.value.
+      Import Counter from agentrelaydemos.counter.
+      Also create test/test_counter_utils.py with pytest tests for both functions,
+      including edge cases like count_down(3, 10) returning 0.
+    dependencies:
+      - counter_fn

@@ -387,9 +387,11 @@ def _parse_environment(value: Any, path: str) -> TmuxEnvironment:
             raise _schema_error(path + ".type", "must be a string")
         if env_type.strip().lower() != "tmux":
             raise _schema_error(path + ".type", "must be 'tmux'")
-    session = mapping.get("session", "agentrelay")
-    session_str = _require_non_empty_string(session, path + ".session")
-    return TmuxEnvironment(session=session_str)
+    session = mapping.get("session")
+    if session is not None:
+        session_str = _require_non_empty_string(session, path + ".session")
+        return TmuxEnvironment(session=session_str)
+    return TmuxEnvironment()
 
 
 def _parse_review_config(value: Any, path: str) -> Optional[ReviewConfig]:

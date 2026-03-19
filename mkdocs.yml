@@ -60,12 +60,12 @@ nav:
     - Backlog: prototypes/v01/BACKLOG.md
   - API Reference:
     - Overview: api/index.md
-    - task: api/core/task.md
+    - agent: api/agent/index.md
     - environments: api/core/environments.md
     - errors: api/core/errors.md
-    - task_runner: api/core/task_runner.md
     - orchestrator: api/core/orchestrator.md
-    - agent: api/agent/index.md
+    - task: api/core/task.md
     - task_graph: api/task_graph/index.md
+    - task_runner: api/core/task_runner.md
     - task_runtime: api/task_runtime/index.md
     - workstream: api/workstream/index.md

@@ -20,6 +20,13 @@ Near-term items for the current architecture track.
 - Add additional `AgentFramework` implementations beyond `CLAUDE_CODE`.
 - Expand `AgentEnvironment` beyond tmux when real use-cases are validated.
 
+## Graph Execution
+
+- Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
+  `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
+  of the same graph can coexist. Requires updating `reset_graph` to discover
+  suffixed directories.
+
 ## Removed Modules (revisit when needed)
 
 - `spec/` (`SpecRepresentation` protocol, `PythonStubSpec`) — removed in PR #106 (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.

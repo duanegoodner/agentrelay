@@ -12,6 +12,21 @@ import time
 from pathlib import Path
 
 
+def has_session(session: str) -> bool:
+    """Check whether a tmux session exists.
+
+    Runs ``tmux has-session -t <session>``.
+
+    Returns:
+        ``True`` if the session exists, ``False`` otherwise.
+    """
+    result = subprocess.run(
+        ["tmux", "has-session", "-t", session],
+        capture_output=True,
+    )
+    return result.returncode == 0
+
+
 def new_window(session: str, window_name: str, cwd: Path) -> str:
     """Create a tmux window in *session* and return its pane ID.
 
