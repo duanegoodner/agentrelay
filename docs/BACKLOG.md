@@ -7,8 +7,6 @@ Near-term items for the current architecture track.
 ## Core Execution
 
 - Expand orchestrator support for richer resume hooks and durable state checkpoints.
-- Implement `TmuxAgent.from_config()` and `TmuxAgent.send_kickoff()`.
-- Add orchestration tests that exercise current architecture modules end to end.
 
 ## Integration
 

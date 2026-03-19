@@ -131,14 +131,14 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--input",
         type=Path,
-        default=Path("docs/diagram-detailed.d2"),
-        help="Path to detailed diagram (default: docs/diagram-detailed.d2)",
+        default=Path("docs/diagrams/uml/diagram-detailed.d2"),
+        help="Path to detailed diagram (default: docs/diagrams/uml/diagram-detailed.d2)",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("docs"),
-        help="Directory for output files (default: docs/)",
+        default=Path("docs/diagrams/uml"),
+        help="Directory for output files (default: docs/diagrams/uml/)",
     )
     parser.add_argument(
         "--variant",

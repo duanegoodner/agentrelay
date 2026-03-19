@@ -229,8 +229,8 @@ Maps directly to the existing `TaskCompletionSignal` dataclass.
 
 ### Layer 5 — Framework adapter
 
-Not a new abstraction — maps onto existing `TaskRunnerIO` protocol
-implementations. Concrete implementations of `TaskPreparer`, `TaskLauncher`,
+Not a new abstraction — maps onto the per-step protocols dispatched via
+`StepDispatch[T]`. Concrete implementations of `TaskPreparer`, `TaskLauncher`,
 `TaskKickoff`, `TaskCompletionChecker`, `TaskMerger`, `TaskTeardown` per
 framework/environment combination.
 
@@ -309,7 +309,7 @@ representation type.
 
 | Existing component | Protocol relationship |
 |---|---|
-| `TaskRunnerIO` (six protocols) | Layer 5 maps directly onto these |
+| `StepDispatch[T]` (six per-step protocols) | Layer 5 maps directly onto these |
 | `TaskCompletionSignal` | Layer 4 maps directly; no changes needed |
 | `TaskRunner` state machine | Unchanged; orchestrates the protocols |
 | `Orchestrator` | Unchanged; schedules tasks |

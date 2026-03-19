@@ -96,10 +96,10 @@ for variant in detailed no-private no-impl standard; do
     {
       build_preamble
       echo ""
-      cat "docs/diagram-detailed.d2"
-    } | d2 --layout "$layout" --scale "$scale" --pad "$pad" - "docs/diagram-detailed.svg"
+      cat "docs/diagrams/uml/diagram-detailed.d2"
+    } | d2 --layout "$layout" --scale "$scale" --pad "$pad" - "docs/diagrams/uml/diagram-detailed.svg"
   else
     d2 --layout "$layout" --scale "$scale" --pad "$pad" \
-      "docs/diagram-${variant}.d2" "docs/diagram-${variant}.svg"
+      "docs/diagrams/uml/diagram-${variant}.d2" "docs/diagrams/uml/diagram-${variant}.svg"
   fi
 done

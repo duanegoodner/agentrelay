@@ -15,7 +15,20 @@ Optional keys:
 - `workstreams`: non-empty list of workstream objects.
 - `max_workstream_depth`: integer > 0. Default: `1`.
 
-Unknown top-level keys are rejected.
+Unknown top-level keys are rejected by `TaskGraphBuilder`.
+
+### Operational keys
+
+The following top-level keys are **not** part of the graph schema but are
+recognized by `run_graph.py`, which extracts them before passing the dict to
+`TaskGraphBuilder.from_dict()`:
+
+- `tmux_session`: string. Override tmux session name for all agents.
+- `keep_panes`: boolean. Leave agent tmux windows open after completion.
+- `model`: string. Override model for all agents.
+
+These can also be set via CLI flags (`--tmux-session`, `--model`). CLI flags
+take precedence over YAML values.
 
 ## Task object
 
