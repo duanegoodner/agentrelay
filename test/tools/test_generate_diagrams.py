@@ -54,6 +54,21 @@ class TestGenerateVariant:
         content = output.read_text()
         assert len(content) > 0
 
+    def test_preamble_prepended(self, tmp_path: Path) -> None:
+        variant = VARIANTS["standard"]
+        preamble = ["direction: right", "**.style.font-size: 42"]
+        output = generate_variant(_REAL_DIAGRAM, tmp_path, variant, preamble=preamble)
+        lines = output.read_text().splitlines()
+        assert lines[0] == "direction: right"
+        assert lines[1] == "**.style.font-size: 42"
+        assert lines[2] == ""  # blank separator
+
+    def test_no_preamble_no_extra_lines(self, tmp_path: Path) -> None:
+        variant = VARIANTS["standard"]
+        output = generate_variant(_REAL_DIAGRAM, tmp_path, variant)
+        first_line = output.read_text().splitlines()[0]
+        assert "direction" not in first_line
+
     def test_all_variants_produce_different_sizes(self, tmp_path: Path) -> None:
         sizes: dict[str, int] = {}
         for name, variant in VARIANTS.items():

@@ -77,11 +77,23 @@ def generate_variant(
     input_path: Path,
     output_dir: Path,
     variant: DiagramVariant,
+    preamble: list[str] | None = None,
 ) -> Path:
-    """Generate a single diagram variant and return the output path."""
+    """Generate a single diagram variant and return the output path.
+
+    Args:
+        input_path: Path to the source D2 file.
+        output_dir: Directory for the output file.
+        variant: Variant definition with filter chain.
+        preamble: Optional D2 global lines (direction, font-size, etc.)
+            prepended to the output. These are injected *before* the source
+            content so they take effect as D2 defaults.
+    """
     source = input_path.read_text()
     lines = source.splitlines()
     filtered = apply_filters(lines, variant.filters)
+    if preamble:
+        filtered = preamble + [""] + filtered
     output_path = output_dir / f"diagram-{variant.name}.d2"
     output_path.write_text("\n".join(filtered) + "\n")
     return output_path
@@ -91,6 +103,7 @@ def generate_all(
     input_path: Path,
     output_dir: Path,
     variant_names: list[str] | None = None,
+    preamble: list[str] | None = None,
 ) -> list[Path]:
     """Generate diagram variants and return their output paths."""
     if variant_names is None:
@@ -99,7 +112,7 @@ def generate_all(
     paths: list[Path] = []
     for name in variant_names:
         variant = VARIANTS[name]
-        path = generate_variant(input_path, output_dir, variant)
+        path = generate_variant(input_path, output_dir, variant, preamble=preamble)
         paths.append(path)
 
     return paths
@@ -135,6 +148,13 @@ def main(argv: list[str] | None = None) -> None:
         help="Generate a specific variant (repeatable; default: all)",
     )
     parser.add_argument(
+        "--preamble",
+        action="append",
+        dest="preamble",
+        metavar="LINE",
+        help='D2 global line to prepend (repeatable). Example: --preamble "direction: right"',
+    )
+    parser.add_argument(
         "--list",
         action="store_true",
         help="List available variants and exit.",
@@ -150,7 +170,9 @@ def main(argv: list[str] | None = None) -> None:
         print(f"Error: input file not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    paths = generate_all(args.input, args.output_dir, args.variants)
+    paths = generate_all(
+        args.input, args.output_dir, args.variants, preamble=args.preamble
+    )
     for path in paths:
         print(f"Generated {path}")
 
