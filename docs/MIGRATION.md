@@ -8,9 +8,10 @@ TaskGraph schema with workstreams and orchestrator-aware behavior.
 This migration guide targets `TaskGraphBuilder` YAML consumed by the current
 architecture layer (`src/agentrelay/`).
 
-It does not describe all prototype v01 runner fields. Prototype-only top-level
-fields (for example `tmux_session`, `keep_panes`) are not accepted by
-`TaskGraphBuilder`.
+It does not describe all prototype v01 runner fields. Operational top-level
+fields (`tmux_session`, `keep_panes`, `model`) are not part of the graph
+schema — they are extracted by `run_graph.py` before `TaskGraphBuilder`
+parses the YAML. See [SCHEMA.md](SCHEMA.md) for details.
 
 ## Migration checklist
 
