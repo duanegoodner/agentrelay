@@ -1396,10 +1396,10 @@ pixi<span class="w"> </span>run<span class="w"> </span>docs<span class="w">     
 </code></pre></div>
 <h2 id="running-a-graph">Running a Graph</h2>
 <p>Validate a graph without running it:</p>
-<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/quick_chained.yaml<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>--dry-run
 </code></pre></div>
 <p>Run a graph (from the target repo directory):</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>/path/to/graphs/quick_chained.yaml
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml
 </code></pre></div>
 <p>CLI flags:</p>
 <table>
@@ -1445,23 +1445,24 @@ pixi<span class="w"> </span>run<span class="w"> </span>docs<span class="w">     
 </table>
 <h2 id="resetting-a-graph-run">Resetting a Graph Run</h2>
 <p>After a run, reset the target repo to its pre-run state:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/quick_chained.yaml
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/quick_chained.yaml<span class="w"> </span>--yes<span class="w">  </span><span class="c1"># skip prompt</span>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml
+python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml<span class="w"> </span>--yes<span class="w">  </span><span class="c1"># skip prompt</span>
 </code></pre></div>
 <p>This closes open PRs, resets main to the starting HEAD, deletes graph branches,
 and removes <code>.workflow/</code> and <code>.worktrees/</code> directories for the graph.</p>
 <h2 id="e2e-testing-against-a-target-repo">E2E Testing Against a Target Repo</h2>
-<p>agentrelay ships demo graphs in <code>graphs/</code> and helper scripts for running them
-against an external "testing ground" repository (e.g. <code>agentrelaydemos</code>).</p>
+<p>agentrelay ships test graphs in <code>graphs/</code> (organized by category) and helper
+scripts for running them against an external "testing ground" repository
+(e.g. <code>agentrelaydemos</code>).</p>
 <p>Preflight check on a target repo:</p>
 <div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>e2e-check<span class="w"> </span>/path/to/target-repo
 </code></pre></div>
 <p>Run a graph in the target repo:</p>
-<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>e2e<span class="w"> </span>graphs/quick_parallel.yaml<span class="w"> </span>/path/to/target-repo
-pixi<span class="w"> </span>run<span class="w"> </span>e2e<span class="w"> </span>graphs/quick_chained.yaml<span class="w"> </span>/path/to/target-repo<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>e2e<span class="w"> </span>graphs/smoke/quick_parallel.yaml<span class="w"> </span>/path/to/target-repo
+pixi<span class="w"> </span>run<span class="w"> </span>e2e<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>/path/to/target-repo<span class="w"> </span>--dry-run
 </code></pre></div>
 <p>Reset a graph run in the target repo:</p>
-<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>e2e-reset<span class="w"> </span>graphs/quick_parallel.yaml<span class="w"> </span>/path/to/target-repo
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>e2e-reset<span class="w"> </span>graphs/smoke/quick_parallel.yaml<span class="w"> </span>/path/to/target-repo
 </code></pre></div>
 <h2 id="schema-references">Schema References</h2>
 <ul>

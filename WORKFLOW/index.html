@@ -1374,13 +1374,13 @@ graph, constructs task and workstream runners via builder factories, creates the
 orchestrator, and runs it.</p>
 <h2 id="practical-usage-runreset-cycle">Practical Usage: Run/Reset Cycle</h2>
 <h3 id="1-validate-the-graph">1. Validate the graph</h3>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/quick_chained.yaml<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>--dry-run
 </code></pre></div>
 <p>Output shows graph name, task count, workstream structure, execution order,
 and any conflicts with leftover state from previous runs.</p>
 <h3 id="2-run-the-graph">2. Run the graph</h3>
 <p>From the target repository directory:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>/path/to/graphs/quick_chained.yaml
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml
 </code></pre></div>
 <p>What happens:
 - <code>run_info.json</code> is written to <code>.workflow/&lt;graph&gt;/</code> (records start HEAD for reset).
@@ -1401,7 +1401,7 @@ and any conflicts with leftover state from previous runs.</p>
     agent.log                # tmux scrollback capture
 </code></pre></div>
 <h3 id="4-reset">4. Reset</h3>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/quick_chained.yaml<span class="w"> </span>--yes
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml<span class="w"> </span>--yes
 </code></pre></div>
 <p>This reverses the run: closes open PRs, resets main to the starting HEAD
 (with ancestry safety check), deletes graph branches, and removes
@@ -1412,8 +1412,8 @@ repo is back to its pre-run state and ready for another run.</p>
 <h2 id="e2e-testing-workflow">E2E Testing Workflow</h2>
 <p>For testing from the agentrelay repo against an external target:</p>
 <div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>e2e-check<span class="w"> </span>/path/to/target<span class="w">         </span><span class="c1"># preflight validation</span>
-pixi<span class="w"> </span>run<span class="w"> </span>e2e<span class="w"> </span>graphs/quick_parallel.yaml<span class="w"> </span>/path/to/target<span class="w">   </span><span class="c1"># run</span>
-pixi<span class="w"> </span>run<span class="w"> </span>e2e-reset<span class="w"> </span>graphs/quick_parallel.yaml<span class="w"> </span>/path/to/target<span class="w">  </span><span class="c1"># reset</span>
+pixi<span class="w"> </span>run<span class="w"> </span>e2e<span class="w"> </span>graphs/smoke/quick_parallel.yaml<span class="w"> </span>/path/to/target<span class="w">   </span><span class="c1"># run</span>
+pixi<span class="w"> </span>run<span class="w"> </span>e2e-reset<span class="w"> </span>graphs/smoke/quick_parallel.yaml<span class="w"> </span>/path/to/target<span class="w">  </span><span class="c1"># reset</span>
 </code></pre></div>
 <h2 id="prototype-reference">Prototype Reference</h2>
 <p>The v01 prototype remains as a reference implementation:</p>
