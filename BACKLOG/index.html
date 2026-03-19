@@ -1279,7 +1279,7 @@
 </ul>
 <h2 id="removed-modules-revisit-when-needed">Removed Modules (revisit when needed)</h2>
 <ul>
-<li><code>spec/</code> (<code>SpecRepresentation</code> protocol, <code>PythonStubSpec</code>) — removed in PR #??? (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.</li>
+<li><code>spec/</code> (<code>SpecRepresentation</code> protocol, <code>PythonStubSpec</code>) — removed in PR #106 (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.</li>
 <li><code>workspace.py</code> (<code>LocalWorkspaceRef</code>, <code>WorkspaceRef</code>) — removed in the same PR. Was intended to model workspace/repo references.</li>
 <li>View protocols (<code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code>, <code>WorkstreamStateView</code>, <code>WorkstreamArtifactsView</code>, <code>WorkstreamRuntimeView</code>) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.</li>
 </ul>
