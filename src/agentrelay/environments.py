@@ -26,10 +26,10 @@ class TmuxEnvironment:
 
     Attributes:
         session: The tmux session name where the pane will be created.
-            Defaults to "agentrelay".
+            Must be explicitly provided via graph YAML or CLI flag.
     """
 
-    session: str = "agentrelay"
+    session: str = ""
 
 
 # ── Type alias and TypeVar ──

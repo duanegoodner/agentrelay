@@ -5,9 +5,6 @@
 - Python 3.12+
 - `pixi` (https://pixi.sh)
 - `git` with worktree support
-
-For running the v01 prototype orchestrator additionally:
-
 - `tmux`
 - `gh` (GitHub CLI, authenticated)
 - Claude Code CLI
@@ -29,49 +26,90 @@ pixi run check
 ## Development Commands
 
 ```bash
-pixi run test
-pixi run typecheck
-pixi run format
-pixi run check
-pixi run docs
+pixi run test          # run test suite
+pixi run typecheck     # pyright static analysis
+pixi run format        # black + isort
+pixi run check         # format + typecheck + test
+pixi run diagram       # render D2 diagrams
+pixi run docs          # serve mkdocs locally
 ```
 
-## Current Architecture Smoke Check
+## Running a Graph
 
-Validate one of the checked-in TaskGraph schema examples:
+Validate a graph without running it:
 
 ```bash
-pixi run python -c "from pathlib import Path; from agentrelay.task_graph import TaskGraphBuilder; g = TaskGraphBuilder.from_yaml(Path('docs/examples/workstreams.yaml')); print(g.name, g.task_ids())"
+pixi run python -m agentrelay.run_graph graphs/quick_chained.yaml --dry-run
 ```
 
-Schema and migration references:
+Run a graph (from the target repo directory):
+
+```bash
+python -m agentrelay.run_graph /path/to/graphs/quick_chained.yaml
+```
+
+CLI flags:
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--dry-run` | Validate and print plan without running | |
+| `--max-concurrency N` | Max concurrent task attempts | 1 |
+| `--max-task-attempts N` | Max attempts per task | 1 |
+| `--teardown-mode MODE` | `always`, `never`, or `on_success` | `on_success` |
+| `--tmux-session NAME` | Override tmux session name | `agentrelay` |
+| `--model MODEL` | Override model for all agents | per-task default |
+
+## Resetting a Graph Run
+
+After a run, reset the target repo to its pre-run state:
+
+```bash
+python -m agentrelay.reset_graph /path/to/graphs/quick_chained.yaml
+python -m agentrelay.reset_graph /path/to/graphs/quick_chained.yaml --yes  # skip prompt
+```
+
+This closes open PRs, resets main to the starting HEAD, deletes graph branches,
+and removes `.workflow/` and `.worktrees/` directories for the graph.
+
+## E2E Testing Against a Target Repo
+
+agentrelay ships demo graphs in `graphs/` and helper scripts for running them
+against an external "testing ground" repository (e.g. `agentrelaydemos`).
+
+Preflight check on a target repo:
+
+```bash
+pixi run e2e-check /path/to/target-repo
+```
+
+Run a graph in the target repo:
+
+```bash
+pixi run e2e graphs/quick_parallel.yaml /path/to/target-repo
+pixi run e2e graphs/quick_chained.yaml /path/to/target-repo --dry-run
+```
+
+Reset a graph run in the target repo:
+
+```bash
+pixi run e2e-reset graphs/quick_parallel.yaml /path/to/target-repo
+```
+
+## Schema References
 
 - [Task Graph Schema](SCHEMA.md)
-- [Migration Guide](MIGRATION.md)
 
-## Prototype v01 Commands
+## Prototype v01 (Legacy)
 
-Run a graph:
+The v01 prototype is retained as a reference implementation. For new work, use
+the commands above.
 
 ```bash
 pixi run python -m agentrelay.prototypes.v01.run_graph graphs/<name>.yaml
-```
-
-Useful options:
-
-```bash
-pixi run python -m agentrelay.prototypes.v01.run_graph graphs/<name>.yaml --tmux-session <session>
-pixi run python -m agentrelay.prototypes.v01.run_graph graphs/<name>.yaml --keep-panes
-```
-
-Reset a graph run:
-
-```bash
-pixi run python -m agentrelay.prototypes.v01.reset_graph graphs/<name>.yaml
 pixi run python -m agentrelay.prototypes.v01.reset_graph graphs/<name>.yaml --yes
 ```
 
 ## Notes
 
 - Prefer `pixi run <task>` over ad-hoc local environments.
-- The current architecture modules are the long-term target; v01 is still the runnable implementation.
+- Run `pixi run check` before every PR.

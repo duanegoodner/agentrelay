@@ -132,6 +132,7 @@ def test_run_graph_wires_orchestrator(tmp_path: Path) -> None:
             return_value=ws_runner,
         ) as mock_build_ws,
         patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
     ):
         result = asyncio.run(
             run_graph(
@@ -177,6 +178,7 @@ def test_run_graph_passes_orchestrator_config(tmp_path: Path) -> None:
             return_value=ws_runner,
         ),
         patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
     ):
         result = asyncio.run(
             run_graph(
@@ -207,6 +209,7 @@ def test_run_graph_with_operational_yaml_keys(tmp_path: Path) -> None:
             return_value=ws_runner,
         ),
         patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
     ):
         result = asyncio.run(
             run_graph(
@@ -241,6 +244,7 @@ def test_run_graph_cli_overrides_yaml(tmp_path: Path) -> None:
             return_value=ws_runner,
         ),
         patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
     ):
         result = asyncio.run(
             run_graph(
@@ -274,6 +278,7 @@ def test_run_graph_with_task_failure(tmp_path: Path) -> None:
             return_value=ws_runner,
         ),
         patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
     ):
         result = asyncio.run(
             run_graph(

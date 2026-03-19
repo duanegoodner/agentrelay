@@ -4,6 +4,27 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-19
+
+### Docs, demo graphs, and E2E testing (PR P)
+
+- **Demo graphs**: Replaced outdated `graphs/demo.yaml` with two tested demos
+  (`quick_parallel.yaml`, `quick_chained.yaml`) versioned alongside the code.
+- **E2E scripts**: Three shell scripts in `tools/` for running graphs against
+  external target repos:
+  - `e2e_run.sh` — validates target repo, runs a graph.
+  - `e2e_reset.sh` — resets a graph run in a target repo.
+  - `e2e_check.sh` — preflight check (pixi, agentrelay dependency, Python, gh auth,
+    agent environment, working tree cleanliness, leftover state).
+- **Conflict detection**: `run_graph` now errors if `.workflow/<graph>` or
+  `.worktrees/<graph>` already exists, preventing corrupted state from overlapping
+  runs. `--dry-run` reports conflicts as warnings.
+- **Pixi tasks**: `e2e`, `e2e-reset`, `e2e-check`.
+- **Updated docs**: GUIDE.md rewritten with current-architecture-first CLI reference
+  and E2E section. WORKFLOW.md expanded with practical run/reset cycle examples.
+
+---
+
 ## 2026-03-18
 
 ### Composition and CLI entry point (PR N2)

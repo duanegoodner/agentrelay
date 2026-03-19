@@ -25,7 +25,7 @@ from typing import Any, Optional
 
 import yaml
 
-from agentrelay.ops import git, signals
+from agentrelay.ops import git, signals, tmux
 from agentrelay.orchestrator import (
     Orchestrator,
     OrchestratorConfig,
@@ -41,7 +41,7 @@ from agentrelay.task_runtime import TaskStatus
 
 def _extract_operational_config(
     raw: dict[str, Any],
-) -> tuple[str, bool, Optional[str]]:
+) -> tuple[Optional[str], bool, Optional[str]]:
     """Pop operational keys from a raw YAML dict before graph parsing.
 
     The graph YAML may include operational keys (``tmux_session``,
@@ -54,8 +54,9 @@ def _extract_operational_config(
 
     Returns:
         Tuple of ``(tmux_session, keep_panes, model_default)``.
+        ``tmux_session`` is ``None`` if not specified in the YAML.
     """
-    tmux_session: str = raw.pop("tmux_session", "agentrelay")
+    tmux_session: Optional[str] = raw.pop("tmux_session", None)
     keep_panes: bool = raw.pop("keep_panes", False)
     model: Optional[str] = raw.pop("model", None)
     return tmux_session, keep_panes, model
@@ -94,7 +95,7 @@ def _load_and_prepare_graph(
     *,
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
-) -> tuple[TaskGraph, str, bool]:
+) -> tuple[TaskGraph, Optional[str], bool]:
     """Load YAML, extract operational config, apply overrides, build graph.
 
     Args:
@@ -115,6 +116,62 @@ def _load_and_prepare_graph(
 
     graph = TaskGraphBuilder.from_dict(raw)
     return graph, effective_session, yaml_keep_panes
+
+
+class _ConflictError(RuntimeError):
+    """Raised when leftover state from a previous run would conflict."""
+
+
+def _check_for_conflicts(repo_path: Path, graph_name: str) -> None:
+    """Check for leftover state that would conflict with a new run.
+
+    Raises:
+        _ConflictError: If ``.workflow/<graph>`` or ``.worktrees/<graph>``
+            already exists.
+    """
+    workflow_dir = repo_path / ".workflow" / graph_name
+    worktree_dir = repo_path / ".worktrees" / graph_name
+    conflicts = []
+    if workflow_dir.is_dir():
+        conflicts.append(str(workflow_dir))
+    if worktree_dir.is_dir():
+        conflicts.append(str(worktree_dir))
+    if conflicts:
+        dirs = ", ".join(conflicts)
+        raise _ConflictError(
+            f"Leftover state from a previous run of graph '{graph_name}': {dirs}\n"
+            f"Run `python -m agentrelay.reset_graph <graph.yaml>` to clean up first."
+        )
+
+
+class _SessionError(RuntimeError):
+    """Raised when the tmux session is not specified or doesn't exist."""
+
+
+def _validate_tmux_sessions(graph: TaskGraph) -> None:
+    """Validate that all tasks have a tmux session and it exists.
+
+    Raises:
+        _SessionError: If any task has an empty session or the session
+            doesn't exist.
+    """
+    sessions_seen: set[str] = set()
+    for task_id in graph.task_ids():
+        task = graph.task(task_id)
+        session = task.primary_agent.environment.session
+        if not session:
+            raise _SessionError(
+                f"Task '{task_id}' has no tmux session specified.\n"
+                "Set 'tmux_session' in the graph YAML or use --tmux-session on the CLI."
+            )
+        sessions_seen.add(session)
+
+    for session in sorted(sessions_seen):
+        if not tmux.has_session(session):
+            raise _SessionError(
+                f"Tmux session '{session}' does not exist.\n"
+                f"Create it first: tmux new-session -d -s {session}"
+            )
 
 
 def _record_run_start(repo_path: Path, graph_name: str) -> None:
@@ -175,6 +232,8 @@ async def run_graph(
 
     assert graph.name is not None, "Graph must have a name"
 
+    _check_for_conflicts(repo_path, graph.name)
+    _validate_tmux_sessions(graph)
     _record_run_start(repo_path, graph.name)
 
     task_runner = build_standard_runner(
@@ -234,6 +293,19 @@ def dry_run(graph_path: Path) -> None:
     leaves = graph.leaves()
     print(f"\nRoots (no deps): {', '.join(roots)}")
     print(f"Leaves (no dependents): {', '.join(leaves)}")
+
+
+def _dry_run_conflict_check(repo_path: Path, graph_name: str) -> None:
+    """Print conflict warnings during dry-run (non-fatal)."""
+    workflow_dir = repo_path / ".workflow" / graph_name
+    worktree_dir = repo_path / ".worktrees" / graph_name
+    if workflow_dir.is_dir() or worktree_dir.is_dir():
+        print(f"\nWARNING: Leftover state from a previous run of '{graph_name}':")
+        if workflow_dir.is_dir():
+            print(f"  {workflow_dir}")
+        if worktree_dir.is_dir():
+            print(f"  {worktree_dir}")
+        print("  Run reset_graph to clean up before a real run.")
 
 
 def _build_config_from_args(args: argparse.Namespace) -> OrchestratorConfig:
@@ -334,22 +406,33 @@ def main() -> None:
         print(f"Error: graph file not found: {graph_path}", file=sys.stderr)
         sys.exit(1)
 
+    repo_path = Path.cwd()
+
     if args.dry_run:
         dry_run(graph_path)
+        # Also check for conflicts in the current directory.
+        raw = yaml.safe_load(graph_path.read_text())
+        graph_name = raw.get("name")
+        if graph_name:
+            _dry_run_conflict_check(repo_path, graph_name)
         return
 
     config = _build_config_from_args(args)
-    repo_path = Path.cwd()
 
-    result = asyncio.run(
-        run_graph(
-            graph_path=graph_path,
-            repo_path=repo_path,
-            tmux_session=args.tmux_session,
-            model_override=args.model,
-            config=config,
+    try:
+        result = asyncio.run(
+            run_graph(
+                graph_path=graph_path,
+                repo_path=repo_path,
+                tmux_session=args.tmux_session,
+                model_override=args.model,
+                config=config,
+            )
         )
-    )
+    except (_ConflictError, _SessionError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
     _print_result(result)
 
     if result.outcome != OrchestratorOutcome.SUCCEEDED:

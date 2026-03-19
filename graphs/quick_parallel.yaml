@@ -1,0 +1,23 @@
+name: quick-parallel
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+
+# Two independent tasks that run in the default workstream.
+# Each creates one tiny module + one test file.
+
+tasks:
+  - id: add_fn
+    description: >-
+      Create src/agentrelaydemos/add.py containing exactly one function:
+      add(a: int, b: int) -> int that returns a + b.
+      Also create test/test_add.py with two pytest tests: one that checks
+      add(2, 3) == 5 and one that checks add(-1, 1) == 0.
+    dependencies: []
+
+  - id: mul_fn
+    description: >-
+      Create src/agentrelaydemos/mul.py containing exactly one function:
+      mul(a: int, b: int) -> int that returns a * b.
+      Also create test/test_mul.py with two pytest tests: one that checks
+      mul(3, 4) == 12 and one that checks mul(0, 99) == 0.
+    dependencies: []
