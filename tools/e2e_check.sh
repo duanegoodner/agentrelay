@@ -8,20 +8,43 @@
 
 set -euo pipefail
 
+usage() {
+  cat <<HELP
+Usage: pixi run e2e-check <target-repo-path> [--env <type>]
+
+Preflight check on a target repository for E2E testing.
+
+Validates: git repo, pixi setup, agentrelay dependency, Python version,
+gh auth, agent environment (default: tmux), working tree cleanliness,
+and leftover graph state.
+
+Arguments:
+  target-repo-path   Path to the target repo to check
+
+Options:
+  --env <type>       Agent environment to check for (default: tmux)
+
+Examples:
+  pixi run e2e-check /path/to/demos
+  pixi run e2e-check /path/to/demos --env tmux
+HELP
+}
+
 ENV_TYPE="tmux"
 TARGET_REPO=""
 
 # Parse arguments.
 while [ $# -gt 0 ]; do
   case "$1" in
+    --help|-h) usage; exit 0 ;;
     --env) ENV_TYPE="$2"; shift 2 ;;
-    -*) echo "Unknown flag: $1" >&2; exit 1 ;;
+    -*) echo "Unknown flag: $1" >&2; usage >&2; exit 1 ;;
     *) TARGET_REPO="$1"; shift ;;
   esac
 done
 
 if [ -z "$TARGET_REPO" ]; then
-  echo "Usage: $0 <target-repo-path> [--env <type>]" >&2
+  usage >&2
   exit 1
 fi
 

@@ -8,8 +8,32 @@
 
 set -euo pipefail
 
+usage() {
+  cat <<HELP
+Usage: pixi run e2e <graph.yaml> <target-repo-path> [flags...]
+
+Run an agentrelay graph in a target repository.
+
+Arguments:
+  graph.yaml         Path to graph YAML (relative to agentrelay repo root)
+  target-repo-path   Path to the target repo where agents will work
+
+Extra flags are passed through to run_graph (e.g. --dry-run, --model).
+
+Examples:
+  pixi run e2e graphs/quick_chained.yaml /path/to/demos
+  pixi run e2e graphs/quick_parallel.yaml /path/to/demos --dry-run
+  pixi run e2e graphs/quick_parallel.yaml /path/to/demos --model claude-opus-4-6
+HELP
+}
+
+if [ $# -lt 1 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+  usage
+  exit 0
+fi
+
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 <graph.yaml> <target-repo-path> [extra flags...]" >&2
+  usage >&2
   exit 1
 fi
 

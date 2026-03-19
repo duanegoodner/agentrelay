@@ -9,8 +9,33 @@
 
 set -euo pipefail
 
+usage() {
+  cat <<HELP
+Usage: pixi run e2e-reset <graph.yaml> <target-repo-path>
+
+Reset a target repository to its pre-graph-run state.
+
+Closes open PRs, resets main to the starting HEAD, deletes graph
+branches, and removes .workflow/ and .worktrees/ directories.
+Passes --yes automatically (no interactive prompt).
+
+Arguments:
+  graph.yaml         Path to graph YAML (relative to agentrelay repo root)
+  target-repo-path   Path to the target repo to reset
+
+Examples:
+  pixi run e2e-reset graphs/quick_chained.yaml /path/to/demos
+  pixi run e2e-reset graphs/quick_parallel.yaml /path/to/demos
+HELP
+}
+
+if [ $# -lt 1 ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+  usage
+  exit 0
+fi
+
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 <graph.yaml> <target-repo-path>" >&2
+  usage >&2
   exit 1
 fi
 
