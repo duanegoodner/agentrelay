@@ -66,24 +66,61 @@ def resolve_instructions(
                 f"GENERIC role requires a task description, but task "
                 f"'{manifest.task_id}' has description=None."
             )
-        return f"# Task: {manifest.task_id}\n\n{manifest.description}\n"
+        work_section = f"# Task: {manifest.task_id}\n\n{manifest.description}\n"
+    else:
+        template_text = _load_template(role.value, adapter_name)
 
-    template_text = _load_template(role.value, adapter_name)
+        substitutions = {
+            "role": role.value.upper(),
+            "description": manifest.description or "",
+            "src_paths": _format_paths(manifest.src_paths),
+            "test_paths": _format_paths(manifest.test_paths),
+            "spec_path": (
+                str(manifest.spec_path)
+                if manifest.spec_path is not None
+                else _NONE_PLACEHOLDER
+            ),
+            "task_id": manifest.task_id,
+        }
 
-    substitutions = {
-        "role": role.value.upper(),
-        "description": manifest.description or "",
-        "src_paths": _format_paths(manifest.src_paths),
-        "test_paths": _format_paths(manifest.test_paths),
-        "spec_path": (
-            str(manifest.spec_path)
-            if manifest.spec_path is not None
-            else _NONE_PLACEHOLDER
-        ),
-        "task_id": manifest.task_id,
-    }
+        work_section = Template(template_text).substitute(substitutions)
 
-    return Template(template_text).substitute(substitutions)
+    return work_section + _workflow_footer(manifest)
+
+
+def _workflow_footer(manifest: TaskManifest) -> str:
+    """Build the standard workflow completion steps appended to all instructions.
+
+    Tells the agent how to commit, create a PR, and write the completion
+    signal file so the orchestrator can detect task completion.
+    """
+    signal_dir = "$AGENTRELAY_SIGNAL_DIR"
+    return f"""
+## Workflow — completion steps
+
+After completing the work above, follow these steps **exactly**:
+
+1. **Commit and push** all changes to the current branch (`{manifest.branch_name}`).
+2. **Create a pull request** targeting the integration branch:
+   ```
+   gh pr create --base {manifest.integration_branch} --head {manifest.branch_name} \\
+     --title "{manifest.task_id}" --body "Automated task PR"
+   ```
+3. **Signal completion** by writing a `.done` file to the signal directory.
+   The file must have exactly two lines: an ISO timestamp, then the PR URL.
+   ```
+   echo "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)" > {signal_dir}/.done
+   echo "<the PR URL from step 2>" >> {signal_dir}/.done
+   ```
+
+If you cannot complete the work, signal failure instead:
+   ```
+   echo "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)" > {signal_dir}/.failed
+   echo "<reason for failure>" >> {signal_dir}/.failed
+   ```
+
+**Important**: The orchestrator is waiting for the signal file. Do not skip this step.
+"""
 
 
 def _load_template(role_value: str, adapter_name: Optional[str]) -> str:
