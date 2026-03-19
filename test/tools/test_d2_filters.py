@@ -6,7 +6,7 @@ from pathlib import Path
 
 from tools.d2_filters import collapse_impl_packages, filter_private_nodes
 
-_REAL_DIAGRAM = Path("docs/diagram-detailed.d2")
+_REAL_DIAGRAM = Path("docs/diagrams/uml/diagram-detailed.d2")
 
 
 def _apply(fn, text: str) -> list[str]:  # type: ignore[type-arg]

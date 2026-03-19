@@ -6,7 +6,7 @@ from pathlib import Path
 
 from tools.generate_diagrams import VARIANTS, apply_filters, generate_variant
 
-_REAL_DIAGRAM = Path("docs/diagram-detailed.d2")
+_REAL_DIAGRAM = Path("docs/diagrams/uml/diagram-detailed.d2")
 
 
 class TestVariantConfig:
