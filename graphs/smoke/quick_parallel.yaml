@@ -2,11 +2,16 @@ name: quick-parallel
 tmux_session: agentrelay
 model: claude-sonnet-4-6
 
-# Two independent tasks that run in the default workstream.
-# Each creates one tiny module + one test file.
+# Two independent tasks on separate workstreams so they run in parallel,
+# each in its own git worktree.
+
+workstreams:
+  - id: ws_add
+  - id: ws_mul
 
 tasks:
   - id: add_fn
+    workstream_id: ws_add
     description: >-
       Create src/agentrelaydemos/add.py containing exactly one function:
       add(a: int, b: int) -> int that returns a + b.
@@ -15,6 +20,7 @@ tasks:
     dependencies: []
 
   - id: mul_fn
+    workstream_id: ws_mul
     description: >-
       Create src/agentrelaydemos/mul.py containing exactly one function:
       mul(a: int, b: int) -> int that returns a * b.

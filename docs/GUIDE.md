@@ -39,13 +39,13 @@ pixi run docs          # serve mkdocs locally
 Validate a graph without running it:
 
 ```bash
-pixi run python -m agentrelay.run_graph graphs/quick_chained.yaml --dry-run
+pixi run python -m agentrelay.run_graph graphs/smoke/quick_chained.yaml --dry-run
 ```
 
 Run a graph (from the target repo directory):
 
 ```bash
-python -m agentrelay.run_graph /path/to/graphs/quick_chained.yaml
+python -m agentrelay.run_graph /path/to/graphs/smoke/quick_chained.yaml
 ```
 
 CLI flags:
@@ -64,8 +64,8 @@ CLI flags:
 After a run, reset the target repo to its pre-run state:
 
 ```bash
-python -m agentrelay.reset_graph /path/to/graphs/quick_chained.yaml
-python -m agentrelay.reset_graph /path/to/graphs/quick_chained.yaml --yes  # skip prompt
+python -m agentrelay.reset_graph /path/to/graphs/smoke/quick_chained.yaml
+python -m agentrelay.reset_graph /path/to/graphs/smoke/quick_chained.yaml --yes  # skip prompt
 ```
 
 This closes open PRs, resets main to the starting HEAD, deletes graph branches,
@@ -73,8 +73,9 @@ and removes `.workflow/` and `.worktrees/` directories for the graph.
 
 ## E2E Testing Against a Target Repo
 
-agentrelay ships demo graphs in `graphs/` and helper scripts for running them
-against an external "testing ground" repository (e.g. `agentrelaydemos`).
+agentrelay ships test graphs in `graphs/` (organized by category) and helper
+scripts for running them against an external "testing ground" repository
+(e.g. `agentrelaydemos`).
 
 Preflight check on a target repo:
 
@@ -85,14 +86,14 @@ pixi run e2e-check /path/to/target-repo
 Run a graph in the target repo:
 
 ```bash
-pixi run e2e graphs/quick_parallel.yaml /path/to/target-repo
-pixi run e2e graphs/quick_chained.yaml /path/to/target-repo --dry-run
+pixi run e2e graphs/smoke/quick_parallel.yaml /path/to/target-repo
+pixi run e2e graphs/smoke/quick_chained.yaml /path/to/target-repo --dry-run
 ```
 
 Reset a graph run in the target repo:
 
 ```bash
-pixi run e2e-reset graphs/quick_parallel.yaml /path/to/target-repo
+pixi run e2e-reset graphs/smoke/quick_parallel.yaml /path/to/target-repo
 ```
 
 ## Schema References
