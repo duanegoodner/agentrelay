@@ -388,6 +388,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Top-level object">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operational-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1206,6 +1223,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Top-level object">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#operational-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Operational keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1294,7 +1328,18 @@
 <li><code>workstreams</code>: non-empty list of workstream objects.</li>
 <li><code>max_workstream_depth</code>: integer &gt; 0. Default: <code>1</code>.</li>
 </ul>
-<p>Unknown top-level keys are rejected.</p>
+<p>Unknown top-level keys are rejected by <code>TaskGraphBuilder</code>.</p>
+<h3 id="operational-keys">Operational keys</h3>
+<p>The following top-level keys are <strong>not</strong> part of the graph schema but are
+recognized by <code>run_graph.py</code>, which extracts them before passing the dict to
+<code>TaskGraphBuilder.from_dict()</code>:</p>
+<ul>
+<li><code>tmux_session</code>: string. Override tmux session name for all agents.</li>
+<li><code>keep_panes</code>: boolean. Leave agent tmux windows open after completion.</li>
+<li><code>model</code>: string. Override model for all agents.</li>
+</ul>
+<p>These can also be set via CLI flags (<code>--tmux-session</code>, <code>--model</code>). CLI flags
+take precedence over YAML values.</p>
 <h2 id="task-object">Task object</h2>
 <p>Required keys:</p>
 <ul>

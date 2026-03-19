@@ -1217,23 +1217,23 @@
 <h1 id="design-diagram">Design Diagram</h1>
 <p>This diagram is a first-class project artifact. It shows all currently implemented
 types and their relationships, organized by source module.</p>
-<p>The authoritative source is <code>docs/diagram-detailed.d2</code> (D2 with TALA layout engine). Every PR
-that touches <code>src/agentrelay/</code> must update the diagram to reflect any new or changed
-types and relationships, then re-render via <code>pixi run diagram</code>.</p>
+<p>The authoritative source is <code>docs/diagrams/uml/diagram-detailed.d2</code> (D2 with TALA layout
+engine). Every PR that touches <code>src/agentrelay/</code> must update the diagram to reflect any
+new or changed types and relationships, then re-render via <code>pixi run diagram</code>.</p>
 <h2 id="views">Views</h2>
 <p><strong>Standard</strong> — public API types with collapsed <code>implementations/</code> packages. This is
 the default view for understanding the architecture.</p>
-<p><a href="../diagram-standard.svg" target="_blank">View standard diagram (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
+<p><a href="../diagrams/uml/diagram-standard.svg" target="_blank">View standard diagram (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
 <p><strong>Detailed</strong> — everything: private types, implementation classes, and all relationships.
 Use this for deep dives into specific packages.</p>
-<p><a href="../diagram-detailed.svg" target="_blank">View detailed diagram (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
+<p><a href="../diagrams/uml/diagram-detailed.svg" target="_blank">View detailed diagram (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
 <p>Two intermediate variants are also generated for reference:</p>
 <ul>
-<li><code>diagram-no-private.svg</code> — public types with full implementation detail</li>
-<li><code>diagram-no-impl.svg</code> — all types with collapsed implementations</li>
+<li><code>diagrams/uml/diagram-no-private.svg</code> — public types with full implementation detail</li>
+<li><code>diagrams/uml/diagram-no-impl.svg</code> — all types with collapsed implementations</li>
 </ul>
 <h2 id="filtering-conventions">Filtering conventions</h2>
-<p>Diagram variants are auto-generated from <code>diagram-detailed.d2</code> by <code>tools/generate_diagrams.py</code>
+<p>Diagram variants are auto-generated from <code>diagrams/uml/diagram-detailed.d2</code> by <code>tools/generate_diagrams.py</code>
 using composable filters from <code>tools/d2_filters.py</code>:</p>
 <ul>
 <li><strong>Private filter</strong>: strips nodes whose D2 identifier starts with <code>_</code> (matching the

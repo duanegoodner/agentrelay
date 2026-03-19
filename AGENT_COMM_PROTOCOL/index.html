@@ -1685,8 +1685,8 @@ means setting its key to <code>null</code>. No instruction builder changes neede
 </table>
 <p>Maps directly to the existing <code>TaskCompletionSignal</code> dataclass.</p>
 <h3 id="layer-5-framework-adapter">Layer 5 — Framework adapter</h3>
-<p>Not a new abstraction — maps onto existing <code>TaskRunnerIO</code> protocol
-implementations. Concrete implementations of <code>TaskPreparer</code>, <code>TaskLauncher</code>,
+<p>Not a new abstraction — maps onto the per-step protocols dispatched via
+<code>StepDispatch[T]</code>. Concrete implementations of <code>TaskPreparer</code>, <code>TaskLauncher</code>,
 <code>TaskKickoff</code>, <code>TaskCompletionChecker</code>, <code>TaskMerger</code>, <code>TaskTeardown</code> per
 framework/environment combination.</p>
 <p>The adapter does not modify <code>instructions.md</code>. It reads the abstract policies
@@ -1790,7 +1790,7 @@ representation type.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>TaskRunnerIO</code> (six protocols)</td>
+<td><code>StepDispatch[T]</code> (six per-step protocols)</td>
 <td>Layer 5 maps directly onto these</td>
 </tr>
 <tr>
