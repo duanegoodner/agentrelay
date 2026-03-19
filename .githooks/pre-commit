@@ -1,15 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Block commits where a .d2 source changed but the matching .svg was not updated.
+# Block commits where a .d2 source changed but its matching .svg is stale.
+# For each staged .d2 file, check that a corresponding .svg is either:
+#   1. Also staged (updated in this commit), OR
+#   2. Clean in the working tree (already up-to-date from a prior commit)
+
 d2_changed=$(git diff --cached --name-only -- '*.d2' || true)
 if [ -z "$d2_changed" ]; then
   exit 0
 fi
 
 svg_changed=$(git diff --cached --name-only -- '*.svg' || true)
-if [ -z "$svg_changed" ]; then
-  echo "ERROR: D2 diagram source changed but no .svg files were updated."
+
+for d2_file in $d2_changed; do
+  svg_file="${d2_file%.d2}.svg"
+
+  # Check if matching SVG is staged
+  if echo "$svg_changed" | grep -qF "$svg_file"; then
+    continue
+  fi
+
+  # Check if matching SVG has no unstaged changes (already up-to-date)
+  if [ -f "$svg_file" ] && git diff --quiet -- "$svg_file" 2>/dev/null; then
+    continue
+  fi
+
+  echo "ERROR: $d2_file changed but $svg_file was not updated."
   echo "Run 'pixi run diagram' and stage the rendered SVGs before committing."
   exit 1
-fi
+done
