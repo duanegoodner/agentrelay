@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/core/environments/">
       
       
-        <link rel="prev" href="../task/">
+        <link rel="prev" href="../../agent/">
       
       
         <link rel="next" href="../errors/">
@@ -808,14 +808,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task/" class="md-nav__link">
+      <a href="../../agent/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task
+    agent
   
 
     
@@ -961,34 +961,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_runner/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runner
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../orchestrator/" class="md-nav__link">
         
   
@@ -1017,14 +989,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agent/" class="md-nav__link">
+      <a href="../task/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
+    task
   
 
     
@@ -1053,6 +1025,34 @@
     
   
     task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
   
 
     
@@ -1283,7 +1283,7 @@ vs HTTP-based). Each concrete type is a frozen dataclass.</p>
             <td>
               <div class="doc-md-description">
                 <p>The tmux session name where the pane will be created.
-Defaults to "agentrelay".</p>
+Must be explicitly provided via graph YAML or CLI flag.</p>
               </div>
             </td>
           </tr>
@@ -1314,10 +1314,10 @@ Defaults to "agentrelay".</p>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        session: The tmux session name where the pane will be created.</span>
-<span class="sd">            Defaults to &quot;agentrelay&quot;.</span>
+<span class="sd">            Must be explicitly provided via graph YAML or CLI flag.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">session</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;agentrelay&quot;</span>
+    <span class="n">session</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 

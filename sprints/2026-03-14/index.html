@@ -802,14 +802,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/task/" class="md-nav__link">
+      <a href="../../api/agent/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task
+    agent
   
 
     
@@ -886,34 +886,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/core/task_runner/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runner
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../api/core/orchestrator/" class="md-nav__link">
         
   
@@ -942,14 +914,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/agent/" class="md-nav__link">
+      <a href="../../api/core/task/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
+    task
   
 
     
@@ -978,6 +950,34 @@
     
   
     task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
   
 
     
@@ -1143,10 +1143,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-n2o-composition-cli-and-reset-tool-in-review" class="md-nav__link">
+  <a href="#pr-n2o-composition-cli-and-reset-tool-done-pr-108" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR N2+O: Composition, CLI, and Reset tool — In review
+        PR N2+O: Composition, CLI, and Reset tool — Done (PR #108)
       
     </span>
   </a>
@@ -1154,10 +1154,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-p-docs-diagram-and-e2e-validation" class="md-nav__link">
+  <a href="#pr-p-docs-demo-graphs-and-e2e-testing-in-review" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR P: Docs, diagram, and E2E validation
+        PR P: Docs, demo graphs, and E2E testing — In review
       
     </span>
   </a>
@@ -1210,7 +1210,7 @@
 
 <h1 id="sprint-notes-2026-03-14">Sprint Notes — 2026-03-14</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR N1 merged. PR N2+O in review.</p>
+<p><strong>Status: In progress.</strong> PRs N1 and N2+O merged. PR P in review.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Complete the end-to-end wiring from graph YAML to running orchestrator. All
@@ -1297,7 +1297,7 @@ implementation constructors into <code>TaskState</code>.</p>
 - [x] Six new lifecycle tests added.
 - [x] <code>pixi run check</code> passes.</p>
 <hr />
-<h3 id="pr-n2o-composition-cli-and-reset-tool-in-review">PR N2+O: Composition, CLI, and Reset tool — <strong>In review</strong></h3>
+<h3 id="pr-n2o-composition-cli-and-reset-tool-done-pr-108">PR N2+O: Composition, CLI, and Reset tool — <strong>Done</strong> (PR #108)</h3>
 <ul>
 <li>Branch: <code>feat/run-graph-cli</code></li>
 <li>New modules: <code>src/agentrelay/run_graph.py</code>, <code>src/agentrelay/reset_graph.py</code></li>
@@ -1345,16 +1345,16 @@ a CLI to run graphs without a way to reset the repo would be risky.</p>
 - [x] Reset tested against temp git repo fixture (10 tests).
 - [x] <code>pixi run check</code> passes (833 tests, 0 errors).</p>
 <hr />
-<h3 id="pr-p-docs-diagram-and-e2e-validation">PR P: Docs, diagram, and E2E validation</h3>
+<h3 id="pr-p-docs-demo-graphs-and-e2e-testing-in-review">PR P: Docs, demo graphs, and E2E testing — <strong>In review</strong></h3>
 <ul>
 <li>Branch: <code>feat/e2e-docs</code></li>
 </ul>
-<p>Update architecture docs, workflow docs, and add end-to-end demo cycle
-documentation. Final diagram updates for the full wiring.</p>
+<p>Demo graphs versioned in-repo, E2E testing scripts, conflict detection,
+updated docs.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Documented end-to-end run/reset cycle.
-- [ ] Docs internally consistent.
-- [ ] <code>pixi run check</code> passes.</p>
+- [x] Documented end-to-end run/reset cycle.
+- [x] Docs internally consistent.
+- [x] <code>pixi run check</code> passes.</p>
 <hr />
 <h2 id="sprint-status-vs-2026-03-13-plan">Sprint status vs. 2026-03-13 plan</h2>
 <p>The 2026-03-13 sprint defined PRs K through P. Here's the mapping:</p>
@@ -1404,18 +1404,18 @@ documentation. Final diagram updates for the full wiring.</p>
 </tr>
 <tr>
 <td>PR N2: Composition and CLI</td>
-<td><strong>In review</strong></td>
+<td><strong>Done</strong> (PR #108)</td>
 <td>Consolidated with PR O</td>
 </tr>
 <tr>
 <td>PR O: Reset tool</td>
-<td><strong>In review</strong></td>
+<td><strong>Done</strong> (PR #108)</td>
 <td>Consolidated with PR N2</td>
 </tr>
 <tr>
 <td>PR P: Docs and E2E validation</td>
-<td><strong>Remaining</strong></td>
-<td></td>
+<td><strong>In review</strong></td>
+<td>E2E scripts + demo graphs</td>
 </tr>
 </tbody>
 </table>

@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-19
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-19">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docs-demo-graphs-and-e2e-testing-pr-p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs, demo graphs, and E2E testing (PR P)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-18" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1392,14 +1420,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/task/" class="md-nav__link">
+      <a href="../api/agent/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task
+    agent
   
 
     
@@ -1476,34 +1504,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/task_runner/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runner
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../api/core/orchestrator/" class="md-nav__link">
         
   
@@ -1532,14 +1532,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/agent/" class="md-nav__link">
+      <a href="../api/core/task/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
+    task
   
 
     
@@ -1568,6 +1568,34 @@
     
   
     task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
   
 
     
@@ -1669,6 +1697,34 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#2026-03-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-19
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-19">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docs-demo-graphs-and-e2e-testing-pr-p" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs, demo graphs, and E2E testing (PR P)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#2026-03-18" class="md-nav__link">
@@ -2228,6 +2284,25 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-19">2026-03-19</h2>
+<h3 id="docs-demo-graphs-and-e2e-testing-pr-p">Docs, demo graphs, and E2E testing (PR P)</h3>
+<ul>
+<li><strong>Demo graphs</strong>: Replaced outdated <code>graphs/demo.yaml</code> with two tested demos
+  (<code>quick_parallel.yaml</code>, <code>quick_chained.yaml</code>) versioned alongside the code.</li>
+<li><strong>E2E scripts</strong>: Three shell scripts in <code>tools/</code> for running graphs against
+  external target repos:</li>
+<li><code>e2e_run.sh</code> — validates target repo, runs a graph.</li>
+<li><code>e2e_reset.sh</code> — resets a graph run in a target repo.</li>
+<li><code>e2e_check.sh</code> — preflight check (pixi, agentrelay dependency, Python, gh auth,
+    agent environment, working tree cleanliness, leftover state).</li>
+<li><strong>Conflict detection</strong>: <code>run_graph</code> now errors if <code>.workflow/&lt;graph&gt;</code> or
+  <code>.worktrees/&lt;graph&gt;</code> already exists, preventing corrupted state from overlapping
+  runs. <code>--dry-run</code> reports conflicts as warnings.</li>
+<li><strong>Pixi tasks</strong>: <code>e2e</code>, <code>e2e-reset</code>, <code>e2e-check</code>.</li>
+<li><strong>Updated docs</strong>: GUIDE.md rewritten with current-architecture-first CLI reference
+  and E2E section. WORKFLOW.md expanded with practical run/reset cycle examples.</li>
+</ul>
 <hr />
 <h2 id="2026-03-18">2026-03-18</h2>
 <h3 id="composition-and-cli-entry-point-pr-n2">Composition and CLI entry point (PR N2)</h3>

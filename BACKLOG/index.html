@@ -575,6 +575,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#graph-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph Execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#removed-modules-revisit-when-needed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -908,14 +919,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/task/" class="md-nav__link">
+      <a href="../api/agent/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    task
+    agent
   
 
     
@@ -992,34 +1003,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/core/task_runner/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    task_runner
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../api/core/orchestrator/" class="md-nav__link">
         
   
@@ -1048,14 +1031,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/agent/" class="md-nav__link">
+      <a href="../api/core/task/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    agent
+    task
   
 
     
@@ -1084,6 +1067,34 @@
     
   
     task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
   
 
     
@@ -1220,6 +1231,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#graph-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph Execution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#removed-modules-revisit-when-needed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1276,6 +1298,13 @@
 <ul>
 <li>Add additional <code>AgentFramework</code> implementations beyond <code>CLAUDE_CODE</code>.</li>
 <li>Expand <code>AgentEnvironment</code> beyond tmux when real use-cases are validated.</li>
+</ul>
+<h2 id="graph-execution">Graph Execution</h2>
+<ul>
+<li>Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
+  <code>.workflow/&lt;graph&gt;</code> and <code>.worktrees/&lt;graph&gt;</code> directory names so multiple runs
+  of the same graph can coexist. Requires updating <code>reset_graph</code> to discover
+  suffixed directories.</li>
 </ul>
 <h2 id="removed-modules-revisit-when-needed">Removed Modules (revisit when needed)</h2>
 <ul>
