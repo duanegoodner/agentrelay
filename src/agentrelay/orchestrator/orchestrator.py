@@ -209,6 +209,12 @@ class _OrchestratorRun:
         self._running_attempts: dict[str, int] = {}
         self._fatal_error: Optional[str] = None
 
+        # Wire step-level event emission into the task runner if supported.
+        from agentrelay.task_runner.core.runner import StandardTaskRunner
+
+        if isinstance(orchestrator.task_runner, StandardTaskRunner):
+            orchestrator.task_runner.on_event = self._emit
+
     # -- Public entry point --------------------------------------------------
 
     async def execute(self) -> OrchestratorResult:

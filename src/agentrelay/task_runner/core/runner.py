@@ -13,8 +13,8 @@ the same protocol.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from dataclasses import dataclass
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass, field
 from enum import Enum
 from types import MappingProxyType
 from typing import Optional, Protocol, runtime_checkable
@@ -172,6 +172,7 @@ class StandardTaskRunner:
     _completion_checker: StepDispatch[TaskCompletionChecker]
     _merger: StepDispatch[TaskMerger]
     _teardown: StepDispatch[TaskTeardown]
+    on_event: Optional[Callable[..., None]] = field(default=None, repr=False)
 
     async def run(
         self,
@@ -205,6 +206,11 @@ class StandardTaskRunner:
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
+            self._emit_step(
+                "task_prepared",
+                runtime,
+                f"branch={runtime.state.branch_name}",
+            )
 
             try:
                 agent = self._launcher(runtime).launch(runtime)
@@ -212,12 +218,19 @@ class StandardTaskRunner:
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
+            addr = runtime.artifacts.agent_address
+            self._emit_step(
+                "task_launched",
+                runtime,
+                addr.label if addr else None,
+            )
 
             try:
                 self._kickoff(runtime).kickoff(runtime, agent)
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
+            self._emit_step("task_waiting", runtime)
 
             try:
                 signal = await self._completion_checker(runtime).wait_for_completion(
@@ -244,6 +257,7 @@ class StandardTaskRunner:
             runtime.artifacts.pr_url = signal.pr_url
             self._transition(runtime, TaskStatus.PR_CREATED)
 
+            self._emit_step("task_pr_merging", runtime, signal.pr_url)
             try:
                 self._merger(runtime).merge_pr(runtime, signal.pr_url)
             except Exception as exc:
@@ -259,6 +273,27 @@ class StandardTaskRunner:
                     runtime.artifacts.concerns.append(f"teardown_failed: {exc}")
 
         return TaskRunResult.from_runtime(runtime)
+
+    def _emit_step(
+        self,
+        kind: str,
+        runtime: TaskRuntime,
+        message: Optional[str] = None,
+    ) -> None:
+        """Emit a step-level event if an event callback is registered."""
+        if self.on_event is None:
+            return
+        # Local import to avoid circular dependency (orchestrator → task_runner).
+        from agentrelay.orchestrator.orchestrator import OrchestratorEvent
+
+        self.on_event(
+            OrchestratorEvent(
+                kind=kind,
+                task_id=runtime.task.id,
+                workstream_id=runtime.task.workstream_id,
+                message=message,
+            )
+        )
 
     def _transition(self, runtime: TaskRuntime, target: TaskStatus) -> None:
         """Transition runtime status while enforcing legal lifecycle edges."""

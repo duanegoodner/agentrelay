@@ -42,6 +42,7 @@ class ConsoleListener:
     """
 
     stream: TextIO = field(default_factory=lambda: sys.stderr)
+    verbose: bool = False
     _start_times: dict[str, float] = field(default_factory=dict, repr=False)
 
     def on_event(self, event: OrchestratorEvent) -> None:
@@ -111,6 +112,40 @@ class ConsoleListener:
             event.workstream_id or "?",
             f"merge FAILED: {msg}",
         )
+
+    # -- Verbose-only step events (from StandardTaskRunner) --
+
+    def _on_task_prepared(self, event: OrchestratorEvent) -> None:
+        if self.verbose:
+            self._print(
+                event.timestamp,
+                event.task_id or "?",
+                f"prepared ({event.message or ''})",
+            )
+
+    def _on_task_launched(self, event: OrchestratorEvent) -> None:
+        if self.verbose:
+            self._print(
+                event.timestamp,
+                event.task_id or "?",
+                f"agent launched ({event.message or ''})",
+            )
+
+    def _on_task_waiting(self, event: OrchestratorEvent) -> None:
+        if self.verbose:
+            self._print(
+                event.timestamp,
+                event.task_id or "?",
+                "waiting for completion signal",
+            )
+
+    def _on_task_pr_merging(self, event: OrchestratorEvent) -> None:
+        if self.verbose:
+            self._print(
+                event.timestamp,
+                event.task_id or "?",
+                f"merging PR to integration branch",
+            )
 
 
 # ---------------------------------------------------------------------------

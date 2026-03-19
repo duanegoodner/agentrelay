@@ -184,6 +184,64 @@ class TestConsoleListenerEvents:
 
 
 # ---------------------------------------------------------------------------
+# Verbose step events
+# ---------------------------------------------------------------------------
+
+
+def _verbose_listener() -> tuple[ConsoleListener, io.StringIO]:
+    buf = io.StringIO()
+    return ConsoleListener(stream=buf, verbose=True), buf
+
+
+class TestVerboseStepEvents:
+    def test_step_events_suppressed_in_default_mode(self) -> None:
+        listener, buf = _listener()  # verbose=False
+        for kind in (
+            "task_prepared",
+            "task_launched",
+            "task_waiting",
+            "task_pr_merging",
+        ):
+            listener.on_event(_event(kind, task_id="t"))
+        assert buf.getvalue() == ""
+
+    def test_task_prepared(self) -> None:
+        listener, buf = _verbose_listener()
+        listener.on_event(
+            _event(
+                "task_prepared", task_id="add_fn", message="branch=agentrelay/g/add_fn"
+            )
+        )
+        output = buf.getvalue()
+        assert "add_fn" in output
+        assert "prepared" in output
+        assert "branch=" in output
+
+    def test_task_launched(self) -> None:
+        listener, buf = _verbose_listener()
+        listener.on_event(
+            _event("task_launched", task_id="add_fn", message="agentrelay:%3")
+        )
+        output = buf.getvalue()
+        assert "agent launched" in output
+        assert "agentrelay:%3" in output
+
+    def test_task_waiting(self) -> None:
+        listener, buf = _verbose_listener()
+        listener.on_event(_event("task_waiting", task_id="add_fn"))
+        assert "waiting for completion signal" in buf.getvalue()
+
+    def test_task_pr_merging(self) -> None:
+        listener, buf = _verbose_listener()
+        listener.on_event(
+            _event(
+                "task_pr_merging", task_id="add_fn", message="https://example.com/pr/1"
+            )
+        )
+        assert "merging PR" in buf.getvalue()
+
+
+# ---------------------------------------------------------------------------
 # Summary table
 # ---------------------------------------------------------------------------
 

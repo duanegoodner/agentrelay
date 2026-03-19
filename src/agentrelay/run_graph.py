@@ -203,6 +203,7 @@ async def run_graph(
     keep_panes: bool = False,
     model_override: Optional[str] = None,
     config: Optional[OrchestratorConfig] = None,
+    verbose: bool = False,
 ) -> OrchestratorResult:
     """Build all components from a graph YAML and run the orchestrator.
 
@@ -218,6 +219,7 @@ async def run_graph(
         model_override: Override model for all agents (overrides YAML value).
         config: Orchestrator configuration.  Defaults to
             :class:`OrchestratorConfig` defaults.
+        verbose: Show detailed step-level output during execution.
 
     Returns:
         OrchestratorResult: Terminal orchestration result.
@@ -251,7 +253,7 @@ async def run_graph(
         task_runner=task_runner,
         workstream_runner=workstream_runner,
         config=config,
-        listener=ConsoleListener(),
+        listener=ConsoleListener(verbose=verbose),
     )
     return await orchestrator.run()
 
@@ -381,6 +383,12 @@ def main() -> None:
         action="store_true",
         help="Validate graph and print execution plan without running",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Show detailed step-level output during execution",
+    )
     args = parser.parse_args()
 
     graph_path = Path(args.graph).resolve()
@@ -409,6 +417,7 @@ def main() -> None:
                 tmux_session=args.tmux_session,
                 model_override=args.model,
                 config=config,
+                verbose=args.verbose,
             )
         )
     except (_ConflictError, _SessionError) as exc:
