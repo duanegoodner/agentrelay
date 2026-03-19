@@ -1,5 +1,0 @@
-{
-  "task_id": "use_greet_fn",
-  "graph_name": "demo",
-  "signal_dir": "/data/git/agentrelay/main/.workflow/demo/signals/use_greet_fn"
-}
