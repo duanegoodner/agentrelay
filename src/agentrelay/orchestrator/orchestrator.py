@@ -561,6 +561,7 @@ class _OrchestratorRun:
         if any(
             self._task_runtimes[tid].state.status
             in (TaskStatus.RUNNING, TaskStatus.PR_CREATED)
+            or tid in self._running
             for tid in task_ids_in_ws
         ):
             return False

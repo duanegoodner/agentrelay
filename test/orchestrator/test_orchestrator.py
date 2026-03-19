@@ -113,13 +113,41 @@ def _noop_ws_runner() -> NoOpWorkstreamRunner:
 
 
 def test_one_active_task_per_workstream() -> None:
+    """Two independent tasks on the same workstream must run serially.
+
+    Uses a yielding runner so asyncio has a chance to schedule both tasks
+    concurrently if the dispatch guard fails.
+    """
+
+    @dataclass
+    class _ConcurrencyTracker:
+        active: int = 0
+        peak: int = 0
+        order: list[str] = field(default_factory=list)
+
+        async def run(
+            self,
+            runtime: TaskRuntime,
+            *,
+            teardown_mode: TearDownMode = TearDownMode.ALWAYS,
+        ) -> TaskRunResult:
+            self.active += 1
+            self.peak = max(self.peak, self.active)
+            self.order.append(runtime.task.id)
+            # Yield so the event loop can start a second task if dispatched.
+            await asyncio.sleep(0)
+            self.active -= 1
+            runtime.artifacts.pr_url = f"https://example.com/{runtime.task.id}/0"
+            runtime.state.status = TaskStatus.PR_MERGED
+            return TaskRunResult.from_runtime(runtime)
+
     task_a = _task("a")
     task_b = _task("b")
     graph = TaskGraph.from_tasks((task_a, task_b))
-    runner = ScriptedTaskRunner()
+    tracker = _ConcurrencyTracker()
     orchestrator = Orchestrator(
         graph=graph,
-        task_runner=runner,
+        task_runner=tracker,
         workstream_runner=_noop_ws_runner(),
         config=OrchestratorConfig(max_concurrency=2),
     )
@@ -127,8 +155,59 @@ def test_one_active_task_per_workstream() -> None:
     result = asyncio.run(orchestrator.run())
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
-    assert [task_id for task_id, _, _ in runner.calls] == ["a", "b"]
+    assert (
+        tracker.peak == 1
+    ), f"expected serial execution, but peak concurrency was {tracker.peak}"
+    assert tracker.order == ["a", "b"]
     assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.MERGED
+
+
+def test_same_workstream_dispatch_race_regression() -> None:
+    """Regression: two tasks must not be dispatched together in one loop pass.
+
+    Before the fix, ``_workstream_can_run`` only checked ``TaskStatus.RUNNING``
+    which had not yet been set for a task that was just added to
+    ``self._running`` via ``asyncio.create_task``.  This allowed a second task
+    in the same workstream to slip through in the same synchronous dispatch
+    loop, causing both agents to land in the same git worktree.
+    """
+
+    overlap_detected = False
+
+    @dataclass
+    class _OverlapDetector:
+        active: int = 0
+
+        async def run(
+            self,
+            runtime: TaskRuntime,
+            *,
+            teardown_mode: TearDownMode = TearDownMode.ALWAYS,
+        ) -> TaskRunResult:
+            nonlocal overlap_detected
+            self.active += 1
+            if self.active > 1:
+                overlap_detected = True
+            # Multiple yields to give the scheduler every opportunity.
+            for _ in range(3):
+                await asyncio.sleep(0)
+            self.active -= 1
+            runtime.artifacts.pr_url = f"https://example.com/{runtime.task.id}/0"
+            runtime.state.status = TaskStatus.PR_MERGED
+            return TaskRunResult.from_runtime(runtime)
+
+    graph = TaskGraph.from_tasks((_task("x"), _task("y")))
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=_OverlapDetector(),
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert not overlap_detected, "two tasks in the same workstream ran concurrently"
 
 
 def test_parent_workstream_must_merge_before_child_tasks_run() -> None:
