@@ -240,6 +240,8 @@ class StandardTaskRunner:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
+            runtime.artifacts.concerns.extend(signal.concerns)
+
             if signal.outcome == "failed":
                 self._transition(runtime, TaskStatus.FAILED)
                 runtime.state.error = (

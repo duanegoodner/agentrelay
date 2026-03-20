@@ -241,4 +241,16 @@ def print_summary(
         for task_id, error in failed_errors:
             stream.write(f"  {task_id}: {error}\n")
 
+    # Per-task concerns.
+    task_concerns = [
+        (tid, rt.artifacts.concerns)
+        for tid, rt in result.task_runtimes.items()
+        if rt.artifacts.concerns
+    ]
+    if task_concerns:
+        stream.write("\nConcerns:\n")
+        for task_id, concerns in task_concerns:
+            for concern in concerns:
+                stream.write(f"  {task_id}: {concern}\n")
+
     stream.flush()

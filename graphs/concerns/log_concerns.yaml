@@ -1,0 +1,23 @@
+name: concerns-test
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+
+# Single task that writes concerns to concerns.log.
+# Verifies the concern capture pipeline works end-to-end.
+
+tasks:
+  - id: write_concerns
+    description: >-
+      Create src/agentrelaydemos/greet.py containing a function
+      greet(name: str) -> str that returns "Hello, {name}!".
+      Also create test/test_greet.py with a pytest test checking
+      greet("World") == "Hello, World!".
+
+      IMPORTANT: Before signaling completion, write the following lines
+      to concerns.log in your signal directory ($AGENTRELAY_SIGNAL_DIR):
+
+        echo "Function naming could be more descriptive" >> $AGENTRELAY_SIGNAL_DIR/concerns.log
+        echo "No input validation for empty strings" >> $AGENTRELAY_SIGNAL_DIR/concerns.log
+
+      These lines test the concern capture mechanism.
+    dependencies: []
