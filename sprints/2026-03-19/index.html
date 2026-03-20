@@ -1143,10 +1143,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-a2-enrich-integration-pr-with-task-summaries-and-concerns" class="md-nav__link">
+  <a href="#pr-a2-rich-integration-pr-stop-auto-merging-to-main" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A2: Enrich integration PR with task summaries and concerns
+        PR A2: Rich integration PR + stop auto-merging to main
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-a3-signal-file-backed-taskstatus-match-workstream-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A3: Signal-file-backed TaskStatus (match workstream pattern)
       
     </span>
   </a>
@@ -1191,6 +1202,17 @@
     <span class="md-ellipsis">
       
         PR E: Wire ADR production + adr/ test graphs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-f-agent-assisted-integration-branch-merging-optional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F: Agent-assisted integration branch merging (optional)
       
     </span>
   </a>
@@ -1331,22 +1353,45 @@ them").</p>
 - [ ] <code>pixi run check</code> passes
 - [ ] E2E: concerns graph runs, agent uses helper, concerns are captured</p>
 <hr />
-<h3 id="pr-a2-enrich-integration-pr-with-task-summaries-and-concerns">PR A2: Enrich integration PR with task summaries and concerns</h3>
+<h3 id="pr-a2-rich-integration-pr-stop-auto-merging-to-main">PR A2: Rich integration PR + stop auto-merging to main</h3>
 <ul>
 <li>Branch: <code>feat/integration-pr-summary</code></li>
 </ul>
-<p><strong>Enrich GhWorkstreamMerger:</strong>
-- When creating the integration-to-main PR, build a rich body that includes:
+<p><strong>Stop auto-merging to main:</strong>
+- <code>GhWorkstreamMerger</code> currently creates the integration PR and immediately
+  merges it via <code>gh pr merge</code>. Change to create-only — the PR is left open
+  for human review and merge. (The prototype also left this to humans.)
+- This avoids silent failures from merge conflicts when parallel workstreams
+  modify overlapping files.</p>
+<p><strong>Enrich integration PR body:</strong>
+- Build a rich PR body that includes:
   - List of tasks in the workstream with descriptions and PR URLs
-  - Aggregated design concerns from all tasks (from <code>runtime.artifacts.concerns</code>)
-  - ADR content if present
-- Pass task runtimes and/or signal directory info to the merger so it can
-  build the summary (currently it only receives the WorkstreamRuntime).</p>
+  - Aggregated design concerns from all tasks
+- Pass task summaries to the merger so it can build the body (currently it
+  only receives the WorkstreamRuntime with no task-level info).</p>
 <p><strong>Acceptance criteria:</strong>
+- [ ] Integration PR is created but NOT auto-merged
 - [ ] Integration PR body lists all tasks with PR links
 - [ ] Design concerns from all tasks appear in the integration PR body
 - [ ] <code>pixi run check</code> passes
-- [ ] E2E: integration PR on GitHub has a meaningful summary</p>
+- [ ] E2E: integration PR on GitHub has a meaningful summary and is open (not merged)</p>
+<hr />
+<h3 id="pr-a3-signal-file-backed-taskstatus-match-workstream-pattern">PR A3: Signal-file-backed TaskStatus (match workstream pattern)</h3>
+<ul>
+<li>Branch: <code>feat/task-signal-files</code></li>
+</ul>
+<p><strong>Align task status management with the workstream signal file pattern:</strong>
+- Establish a task-level signal directory convention under
+  <code>.workflow/&lt;graph&gt;/signals/&lt;task_id&gt;/status/</code> with files matching
+  TaskStatus enum values (pending, running, pr_created, pr_merged, failed).
+- Make TaskStatus a computed property on TaskRuntime, derived from which
+  signal files exist (same pattern as WorkstreamRuntime after PR A2).
+- This should be done soon after PR A2 so that task and workstream status
+  management strategies don't diverge for long.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Task status determined from signal files, same pattern as workstreams
+- [ ] Existing task lifecycle behavior unchanged
+- [ ] <code>pixi run check</code> passes</p>
 <hr />
 <h3 id="pr-b-roles-test-graphs-multi-role-pipeline">PR B: roles/ test graphs + multi-role pipeline</h3>
 <ul>
@@ -1428,6 +1473,36 @@ them").</p>
 - [ ] ADR detail scales with verbosity level
 - [ ] <code>pixi run check</code> passes
 - [ ] E2E: adr graph runs, ADR file is present in committed output</p>
+<hr />
+<h3 id="pr-f-agent-assisted-integration-branch-merging-optional">PR F: Agent-assisted integration branch merging (optional)</h3>
+<ul>
+<li>Branch: <code>feat/agent-merge</code></li>
+</ul>
+<blockquote>
+<p><strong>Decision gate:</strong> Before starting this PR, evaluate whether to implement
+now or defer to <code>docs/BACKLOG.md</code>. The value depends on how often merge
+conflicts arise in practice and whether human review is sufficient.</p>
+</blockquote>
+<p><strong>Merge strategy options (configurable per-graph or per-workstream):</strong>
+- <code>human</code> — Create integration PR, leave for human review and merge (default,
+  current behavior after PR A2).
+- <code>auto</code> — If no merge conflicts, merge automatically. If conflicts exist,
+  leave for human review.
+- <code>agent</code> — If merge conflicts, launch an agent to resolve them. Require
+  the test suite to pass before completing the merge. If the agent cannot
+  resolve, leave for human review.</p>
+<p><strong>Implementation sketch:</strong>
+- Add a <code>merge_strategy</code> field to WorkstreamSpec or OrchestratorConfig.
+- For <code>auto</code>: attempt <code>gh pr merge</code>, fall back to <code>human</code> on failure.
+- For <code>agent</code>: create a tmux pane with Claude Code, instruct it to resolve
+  conflicts and run tests. Agent uses TaskHelper-like API to signal success
+  or failure.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>human</code> mode creates PR without merging (same as PR A2)
+- [ ] <code>auto</code> mode merges when clean, falls back when not
+- [ ] <code>agent</code> mode resolves conflicts and runs tests before merging
+- [ ] <code>pixi run check</code> passes
+- [ ] E2E: test with conflicting parallel workstreams</p>
 
 
 

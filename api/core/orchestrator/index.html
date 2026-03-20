@@ -1609,9 +1609,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
@@ -1628,7 +1626,9 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-task runtime envelopes from a task graph.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -1750,9 +1750,7 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
@@ -1766,7 +1764,9 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
 
@@ -1823,9 +1823,7 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span>
 <span class="normal">81</span>
@@ -1844,7 +1842,9 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 <span class="normal">94</span>
 <span class="normal">95</span>
 <span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -1968,9 +1968,7 @@ Each runtime starts with default mutable state/artifacts.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
@@ -1986,7 +1984,9 @@ Each runtime starts with default mutable state/artifacts.</p>
 <span class="normal">94</span>
 <span class="normal">95</span>
 <span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
 
@@ -3403,9 +3403,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
@@ -3479,7 +3477,9 @@ implementations. Refer to the sensitivity table in
 <span class="normal">173</span>
 <span class="normal">174</span>
 <span class="normal">175</span>
-<span class="normal">176</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
@@ -3580,7 +3580,7 @@ implementations. Refer to the sensitivity table in
 +==========+=========================+
 | preparer | GitWorkstreamPreparer   |
 +----------+-------------------------+
-| merger   | GhWorkstreamMerger      |
+| integrator | GhWorkstreamIntegrator |
 +----------+-------------------------+
 | teardown | GitWorkstreamTeardown   |
 +----------+-------------------------+</p>
@@ -3663,9 +3663,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -3692,7 +3690,9 @@ implementations. Refer to the sensitivity table in
 <span class="normal">205</span>
 <span class="normal">206</span>
 <span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardWorkstreamRunner</span><span class="p">:</span>
@@ -3705,7 +3705,7 @@ implementations. Refer to the sensitivity table in
 <span class="sd">    +==========+=========================+</span>
 <span class="sd">    | preparer | GitWorkstreamPreparer   |</span>
 <span class="sd">    +----------+-------------------------+</span>
-<span class="sd">    | merger   | GhWorkstreamMerger      |</span>
+<span class="sd">    | integrator | GhWorkstreamIntegrator |</span>
 <span class="sd">    +----------+-------------------------+</span>
 <span class="sd">    | teardown | GitWorkstreamTeardown   |</span>
 <span class="sd">    +----------+-------------------------+</span>
@@ -3719,7 +3719,7 @@ implementations. Refer to the sensitivity table in
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">StandardWorkstreamRunner</span><span class="p">(</span>
         <span class="n">_preparer</span><span class="o">=</span><span class="n">GitWorkstreamPreparer</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">),</span>
-        <span class="n">_merger</span><span class="o">=</span><span class="n">GhWorkstreamMerger</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
+        <span class="n">_integrator</span><span class="o">=</span><span class="n">GhWorkstreamIntegrator</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
         <span class="n">_teardown</span><span class="o">=</span><span class="n">GitWorkstreamTeardown</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
