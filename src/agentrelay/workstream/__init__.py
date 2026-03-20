@@ -10,7 +10,7 @@ Subpackages:
 """
 
 from agentrelay.workstream.core.io import (
-    WorkstreamMerger,
+    WorkstreamIntegrator,
     WorkstreamPreparer,
     WorkstreamTeardown,
 )
@@ -20,14 +20,15 @@ from agentrelay.workstream.core.runner import (
     WorkstreamRunResult,
 )
 from agentrelay.workstream.core.runtime import (
+    TaskSummary,
     WorkstreamArtifacts,
     WorkstreamRuntime,
     WorkstreamState,
     WorkstreamStatus,
 )
 from agentrelay.workstream.core.workstream import WorkstreamSpec
-from agentrelay.workstream.implementations.workstream_merger import (
-    GhWorkstreamMerger,
+from agentrelay.workstream.implementations.workstream_integrator import (
+    GhWorkstreamIntegrator,
 )
 from agentrelay.workstream.implementations.workstream_preparer import (
     GitWorkstreamPreparer,
@@ -37,11 +38,12 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 )
 
 __all__ = [
-    "GhWorkstreamMerger",
+    "GhWorkstreamIntegrator",
     "GitWorkstreamPreparer",
     "GitWorkstreamTeardown",
+    "TaskSummary",
     "WorkstreamArtifacts",
-    "WorkstreamMerger",
+    "WorkstreamIntegrator",
     "WorkstreamPreparer",
     "WorkstreamRunResult",
     "WorkstreamRuntime",

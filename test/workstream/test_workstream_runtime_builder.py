@@ -1,5 +1,6 @@
 """Tests for workstream_runtime_builder: graph -> initial workstream runtimes."""
 
+import tempfile
 from pathlib import Path
 
 from agentrelay.orchestrator.builders import WorkstreamRuntimeBuilder
@@ -56,7 +57,7 @@ def test_runtime_defaults_state_and_artifacts() -> None:
     runtimes = WorkstreamRuntimeBuilder.from_graph(graph)
 
     for runtime in runtimes.values():
-        assert runtime.state.status == WorkstreamStatus.PENDING
+        assert runtime.status == WorkstreamStatus.PENDING
         assert runtime.state.worktree_path is None
         assert runtime.state.branch_name is None
         assert runtime.state.error is None
@@ -68,10 +69,12 @@ def test_runtime_mutation_isolated_per_workstream_state() -> None:
     graph = _graph()
     runtimes = WorkstreamRuntimeBuilder.from_graph(graph)
 
-    runtimes["feature_a"].state.status = WorkstreamStatus.ACTIVE
+    runtimes["feature_a"].state.signal_dir = Path(tempfile.mkdtemp())
+    runtimes["feature_a"].mark_pending()
+    runtimes["feature_a"].mark_active()
     runtimes["feature_a"].state.worktree_path = Path("/tmp/worktree-feature-a")
 
-    assert runtimes["feature_b"].state.status == WorkstreamStatus.PENDING
+    assert runtimes["feature_b"].status == WorkstreamStatus.PENDING
     assert runtimes["feature_b"].state.worktree_path is None
 
 
@@ -105,8 +108,11 @@ def test_from_graph_runtimes_can_track_different_lifecycle_states() -> None:
     graph = _graph()
     runtimes = WorkstreamRuntimeBuilder.from_graph(graph)
 
-    runtimes["feature_a"].state.status = WorkstreamStatus.MERGED
-    runtimes["feature_b"].state.status = WorkstreamStatus.FAILED
+    for ws_id in ("feature_a", "feature_b"):
+        runtimes[ws_id].state.signal_dir = Path(tempfile.mkdtemp())
 
-    assert runtimes["feature_a"].state.status == WorkstreamStatus.MERGED
-    assert runtimes["feature_b"].state.status == WorkstreamStatus.FAILED
+    runtimes["feature_a"].mark_merged()
+    runtimes["feature_b"].mark_failed("test failure")
+
+    assert runtimes["feature_a"].status == WorkstreamStatus.MERGED
+    assert runtimes["feature_b"].status == WorkstreamStatus.FAILED

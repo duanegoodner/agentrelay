@@ -51,5 +51,10 @@ class GitWorkstreamPreparer:
                 f"Failed to provision workstream {spec.id!r}: {exc}",
             ) from exc
 
+        signal_dir = (
+            self.repo_path / ".workflow" / self.graph_name / "workstreams" / spec.id
+        )
+        workstream_runtime.state.signal_dir = signal_dir
         workstream_runtime.state.worktree_path = worktree_path
         workstream_runtime.state.branch_name = branch_name
+        workstream_runtime.mark_pending()

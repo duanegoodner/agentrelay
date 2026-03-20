@@ -1,7 +1,9 @@
 """Tests for graph-level orchestration behavior."""
 
 import asyncio
+import tempfile
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
@@ -90,18 +92,22 @@ class NoOpWorkstreamRunner:
     """WorkstreamRunner double that performs state transitions without I/O."""
 
     prepare_calls: list[str] = field(default_factory=list)
-    merge_calls: list[str] = field(default_factory=list)
+    integrate_calls: list[str] = field(default_factory=list)
     teardown_calls: list[str] = field(default_factory=list)
 
     def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
         self.prepare_calls.append(workstream_runtime.spec.id)
-        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+        workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
+        workstream_runtime.mark_pending()
+        workstream_runtime.mark_active()
 
-    def merge(  # noqa: D102
+    def integrate(  # noqa: D102
         self, workstream_runtime: WorkstreamRuntime
     ) -> WorkstreamRunResult:
-        self.merge_calls.append(workstream_runtime.spec.id)
-        workstream_runtime.state.status = WorkstreamStatus.MERGED
+        self.integrate_calls.append(workstream_runtime.spec.id)
+        workstream_runtime.mark_pr_created(
+            f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+        )
         return WorkstreamRunResult.from_runtime(workstream_runtime)
 
     def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
@@ -159,7 +165,7 @@ def test_one_active_task_per_workstream() -> None:
         tracker.peak == 1
     ), f"expected serial execution, but peak concurrency was {tracker.peak}"
     assert tracker.order == ["a", "b"]
-    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.MERGED
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.PR_CREATED
 
 
 def test_same_workstream_dispatch_race_regression() -> None:
@@ -232,8 +238,8 @@ def test_parent_workstream_must_merge_before_child_tasks_run() -> None:
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     assert [task_id for task_id, _, _ in runner.calls] == ["parent_task", "child_task"]
-    assert result.workstream_runtimes["a"].state.status == WorkstreamStatus.MERGED
-    assert result.workstream_runtimes["b"].state.status == WorkstreamStatus.MERGED
+    assert result.workstream_runtimes["a"].status == WorkstreamStatus.PR_CREATED
+    assert result.workstream_runtimes["b"].status == WorkstreamStatus.PR_CREATED
 
 
 def test_expected_failure_is_retried_until_success() -> None:
@@ -283,7 +289,7 @@ def test_expected_failure_without_retries_is_terminal() -> None:
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert len(runner.calls) == 1
     assert result.task_runtimes["fails_once"].state.status == TaskStatus.FAILED
-    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.FAILED
     assert any(
         event.outcome_class == TaskOutcomeClass.EXPECTED_FAILURE
         and event.message == "max_attempts_reached"
@@ -348,7 +354,7 @@ def test_fail_fast_internal_error_cancels_other_inflight_tasks() -> None:
         result.task_runtimes["blocked"].state.error
         == "canceled due to fatal internal orchestrator error"
     )
-    assert result.workstream_runtimes["b"].state.status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["b"].status == WorkstreamStatus.FAILED
 
 
 def test_teardown_mode_is_forwarded_to_task_runner() -> None:
@@ -518,7 +524,7 @@ def test_workstream_runner_prepare_called_before_first_task() -> None:
     assert ws_runner.prepare_calls == ["default"]
 
 
-def test_workstream_runner_merge_called_after_all_tasks_succeed() -> None:
+def test_workstream_runner_integrate_called_after_all_tasks_succeed() -> None:
     task_a = _task("a")
     task_b = _task("b", dependencies=("a",))
     graph = TaskGraph.from_tasks((task_a, task_b))
@@ -534,8 +540,8 @@ def test_workstream_runner_merge_called_after_all_tasks_succeed() -> None:
     )
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
-    assert ws_runner.merge_calls == ["default"]
-    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.MERGED
+    assert ws_runner.integrate_calls == ["default"]
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.PR_CREATED
 
 
 def test_workstream_runner_teardown_called_after_loop() -> None:
@@ -559,12 +565,16 @@ def test_workstream_prepare_failure_marks_workstream_failed() -> None:
     @dataclass
     class FailingPrepareRunner:
         def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
-            workstream_runtime.state.status = WorkstreamStatus.FAILED
-            workstream_runtime.state.error = "prepare boom"
+            workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            workstream_runtime.mark_failed("prepare boom")
             raise RuntimeError("prepare boom")
 
-        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-            workstream_runtime.state.status = WorkstreamStatus.MERGED
+        def integrate(
+            self, workstream_runtime: WorkstreamRuntime
+        ) -> WorkstreamRunResult:
+            workstream_runtime.mark_pr_created(
+                f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+            )
             return WorkstreamRunResult.from_runtime(workstream_runtime)
 
         def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -584,7 +594,7 @@ def test_workstream_prepare_failure_marks_workstream_failed() -> None:
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert len(runner.calls) == 0
-    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.FAILED
     assert any(event.kind == "workstream_prepare_failed" for event in result.events)
 
 
@@ -605,14 +615,19 @@ def test_fail_fast_on_workstream_error_blocks_new_workstreams() -> None:
         def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
             nonlocal prepare_count
             prepare_count += 1
+            workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
             if workstream_runtime.spec.id == "a":
-                workstream_runtime.state.status = WorkstreamStatus.FAILED
-                workstream_runtime.state.error = "prepare failed"
+                workstream_runtime.mark_failed("prepare failed")
                 raise RuntimeError("prepare failed")
-            workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+            workstream_runtime.mark_pending()
+            workstream_runtime.mark_active()
 
-        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-            workstream_runtime.state.status = WorkstreamStatus.MERGED
+        def integrate(
+            self, workstream_runtime: WorkstreamRuntime
+        ) -> WorkstreamRunResult:
+            workstream_runtime.mark_pr_created(
+                f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+            )
             return WorkstreamRunResult.from_runtime(workstream_runtime)
 
         def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -632,8 +647,8 @@ def test_fail_fast_on_workstream_error_blocks_new_workstreams() -> None:
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert prepare_count == 1
-    assert result.workstream_runtimes["a"].state.status == WorkstreamStatus.FAILED
-    assert result.workstream_runtimes["b"].state.status != WorkstreamStatus.ACTIVE
+    assert result.workstream_runtimes["a"].status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["b"].status != WorkstreamStatus.ACTIVE
 
 
 def test_fail_fast_on_workstream_error_false_allows_new_workstreams() -> None:
@@ -652,14 +667,19 @@ def test_fail_fast_on_workstream_error_false_allows_new_workstreams() -> None:
     class FailFirstPrepareRunner:
         def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
             prepare_calls.append(workstream_runtime.spec.id)
+            workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
             if workstream_runtime.spec.id == "a":
-                workstream_runtime.state.status = WorkstreamStatus.FAILED
-                workstream_runtime.state.error = "prepare failed"
+                workstream_runtime.mark_failed("prepare failed")
                 raise RuntimeError("prepare failed")
-            workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+            workstream_runtime.mark_pending()
+            workstream_runtime.mark_active()
 
-        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-            workstream_runtime.state.status = WorkstreamStatus.MERGED
+        def integrate(
+            self, workstream_runtime: WorkstreamRuntime
+        ) -> WorkstreamRunResult:
+            workstream_runtime.mark_pr_created(
+                f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+            )
             return WorkstreamRunResult.from_runtime(workstream_runtime)
 
         def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -679,26 +699,29 @@ def test_fail_fast_on_workstream_error_false_allows_new_workstreams() -> None:
 
     assert "a" in prepare_calls
     assert "b" in prepare_calls
-    assert result.workstream_runtimes["a"].state.status == WorkstreamStatus.FAILED
-    assert result.workstream_runtimes["b"].state.status == WorkstreamStatus.MERGED
+    assert result.workstream_runtimes["a"].status == WorkstreamStatus.FAILED
+    assert result.workstream_runtimes["b"].status == WorkstreamStatus.PR_CREATED
 
 
-def test_workstream_merge_failure_downgrades_outcome() -> None:
-    """Outcome must not be SUCCEEDED when a workstream merge fails.
+def test_workstream_integration_failure_downgrades_outcome() -> None:
+    """Outcome must not be SUCCEEDED when workstream integration fails.
 
     Regression: _build_result() only checked task statuses, so a run where
-    all tasks reached PR_MERGED but the workstream integration-to-main merge
+    all tasks reached PR_MERGED but the workstream integration PR creation
     failed still reported SUCCEEDED.
     """
 
     @dataclass
-    class FailingMergeRunner:
+    class FailingIntegrateRunner:
         def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
-            workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+            workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            workstream_runtime.mark_pending()
+            workstream_runtime.mark_active()
 
-        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-            workstream_runtime.state.status = WorkstreamStatus.FAILED
-            workstream_runtime.state.error = "gh pr merge failed"
+        def integrate(
+            self, workstream_runtime: WorkstreamRuntime
+        ) -> WorkstreamRunResult:
+            workstream_runtime.mark_failed("integration PR creation failed")
             return WorkstreamRunResult.from_runtime(workstream_runtime)
 
         def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -712,11 +735,11 @@ def test_workstream_merge_failure_downgrades_outcome() -> None:
         Orchestrator(
             graph=graph,
             task_runner=runner,
-            workstream_runner=FailingMergeRunner(),
+            workstream_runner=FailingIntegrateRunner(),
         ).run()
     )
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert result.task_runtimes["a"].state.status == TaskStatus.PR_MERGED
-    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.FAILED
-    assert any(event.kind == "workstream_merge_failed" for event in result.events)
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.FAILED
+    assert any(event.kind == "workstream_integration_failed" for event in result.events)

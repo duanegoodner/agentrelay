@@ -1,12 +1,14 @@
 """Tests for WorkstreamRunner lifecycle behavior."""
 
+import tempfile
 from dataclasses import dataclass, field
+from pathlib import Path
 
 import pytest
 
 from agentrelay.workstream import (
     StandardWorkstreamRunner,
-    WorkstreamMerger,
+    WorkstreamIntegrator,
     WorkstreamPreparer,
     WorkstreamRunner,
     WorkstreamRunResult,
@@ -18,7 +20,9 @@ from agentrelay.workstream import (
 
 
 def _make_runtime(workstream_id: str = "ws-1") -> WorkstreamRuntime:
-    return WorkstreamRuntime(spec=WorkstreamSpec(id=workstream_id))
+    runtime = WorkstreamRuntime(spec=WorkstreamSpec(id=workstream_id))
+    runtime.state.signal_dir = Path(tempfile.mkdtemp())
+    return runtime
 
 
 @dataclass
@@ -36,9 +40,12 @@ class FakeWorkstreamIO:
         self.calls.append("prepare")
         self._maybe_fail("prepare")
 
-    def merge_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
-        self.calls.append("merge")
-        self._maybe_fail("merge")
+    def create_integration_pr(self, workstream_runtime: WorkstreamRuntime) -> None:
+        self.calls.append("integrate")
+        self._maybe_fail("integrate")
+        workstream_runtime.mark_pr_created(
+            f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+        )
 
     def teardown_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
         self.calls.append("teardown")
@@ -50,7 +57,7 @@ def _make_runner(fake: FakeWorkstreamIO | None = None) -> StandardWorkstreamRunn
         fake = FakeWorkstreamIO()
     return StandardWorkstreamRunner(
         _preparer=fake,
-        _merger=fake,
+        _integrator=fake,
         _teardown=fake,
     )
 
@@ -63,7 +70,7 @@ def test_prepare_calls_preparer() -> None:
     runner.prepare(runtime)
 
     assert fake.calls == ["prepare"]
-    assert runtime.state.status == WorkstreamStatus.ACTIVE
+    assert runtime.status == WorkstreamStatus.ACTIVE
 
 
 def test_prepare_failure_records_error_and_raises() -> None:
@@ -74,33 +81,33 @@ def test_prepare_failure_records_error_and_raises() -> None:
     with pytest.raises(RuntimeError, match="prepare boom"):
         runner.prepare(runtime)
 
-    assert runtime.state.status == WorkstreamStatus.FAILED
+    assert runtime.status == WorkstreamStatus.FAILED
     assert "prepare boom" in (runtime.state.error or "")
 
 
-def test_merge_success_transitions_to_merged() -> None:
+def test_integrate_success_transitions_to_pr_created() -> None:
     fake = FakeWorkstreamIO()
     runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = runner.merge(runtime)
+    result = runner.integrate(runtime)
 
-    assert fake.calls == ["merge"]
-    assert result.status == WorkstreamStatus.MERGED
+    assert fake.calls == ["integrate"]
+    assert result.status == WorkstreamStatus.PR_CREATED
     assert result.error is None
-    assert runtime.state.status == WorkstreamStatus.MERGED
+    assert runtime.status == WorkstreamStatus.PR_CREATED
 
 
-def test_merge_failure_transitions_to_failed() -> None:
-    fake = FakeWorkstreamIO(fail_stage="merge")
+def test_integrate_failure_transitions_to_failed() -> None:
+    fake = FakeWorkstreamIO(fail_stage="integrate")
     runner = _make_runner(fake)
     runtime = _make_runtime()
 
-    result = runner.merge(runtime)
+    result = runner.integrate(runtime)
 
     assert result.status == WorkstreamStatus.FAILED
-    assert "merge boom" in (result.error or "")
-    assert runtime.state.status == WorkstreamStatus.FAILED
+    assert "integrate boom" in (result.error or "")
+    assert runtime.status == WorkstreamStatus.FAILED
 
 
 def test_teardown_calls_teardown_handler() -> None:
@@ -127,7 +134,7 @@ def test_teardown_failure_records_concern() -> None:
 def test_protocol_runtime_checkable_instances() -> None:
     fake = FakeWorkstreamIO()
     assert isinstance(fake, WorkstreamPreparer)
-    assert isinstance(fake, WorkstreamMerger)
+    assert isinstance(fake, WorkstreamIntegrator)
     assert isinstance(fake, WorkstreamTeardown)
 
 
@@ -138,10 +145,10 @@ def test_standard_runner_satisfies_protocol() -> None:
 
 def test_workstream_run_result_from_runtime() -> None:
     runtime = _make_runtime("ws-test")
-    runtime.state.status = WorkstreamStatus.MERGED
+    runtime.mark_pr_created("https://example.com/ws-test/integration-pr")
 
     result = WorkstreamRunResult.from_runtime(runtime)
 
     assert result.workstream_id == "ws-test"
-    assert result.status == WorkstreamStatus.MERGED
+    assert result.status == WorkstreamStatus.PR_CREATED
     assert result.error is None

@@ -40,16 +40,17 @@ class TestGitWorkstreamPreparer:
     def test_creates_worktree_with_correct_args(
         self,
         mock_git: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Calls git.worktree_add with expected branch, path, and base."""
-        preparer = _make_preparer()
+        preparer = _make_preparer(repo_path=tmp_path)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
 
         mock_git.worktree_add.assert_called_once_with(
-            Path("/repo"),
-            Path("/repo/.worktrees/demo/ws-1"),
+            tmp_path,
+            tmp_path / ".worktrees/demo/ws-1",
             "agentrelay/demo/ws-1/integration",
             "main",
         )
@@ -58,15 +59,16 @@ class TestGitWorkstreamPreparer:
     def test_pushes_integration_branch(
         self,
         mock_git: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Pushes integration branch with set_upstream=True."""
-        preparer = _make_preparer()
+        preparer = _make_preparer(repo_path=tmp_path)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
 
         mock_git.push_branch.assert_called_once_with(
-            Path("/repo"),
+            tmp_path,
             "agentrelay/demo/ws-1/integration",
             set_upstream=True,
         )
@@ -75,14 +77,15 @@ class TestGitWorkstreamPreparer:
     def test_sets_runtime_state(
         self,
         _mock_git: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Sets worktree_path and branch_name on workstream runtime state."""
-        preparer = _make_preparer()
+        preparer = _make_preparer(repo_path=tmp_path)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
 
-        assert runtime.state.worktree_path == Path("/repo/.worktrees/demo/ws-1")
+        assert runtime.state.worktree_path == tmp_path / ".worktrees/demo/ws-1"
         assert runtime.state.branch_name == "agentrelay/demo/ws-1/integration"
 
     @patch("agentrelay.workstream.implementations.workstream_preparer.git")
@@ -104,16 +107,17 @@ class TestGitWorkstreamPreparer:
     def test_uses_custom_base_branch(
         self,
         mock_git: MagicMock,
+        tmp_path: Path,
     ) -> None:
         """Uses the workstream spec's base_branch as the start point."""
-        preparer = _make_preparer()
+        preparer = _make_preparer(repo_path=tmp_path)
         runtime = _make_runtime(base_branch="develop")
 
         preparer.prepare_workstream(runtime)
 
         mock_git.worktree_add.assert_called_once_with(
-            Path("/repo"),
-            Path("/repo/.worktrees/demo/ws-1"),
+            tmp_path,
+            tmp_path / ".worktrees/demo/ws-1",
             "agentrelay/demo/ws-1/integration",
             "develop",
         )

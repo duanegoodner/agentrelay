@@ -12,7 +12,9 @@ from agentrelay.run_graph import (
     _extract_operational_config,
     dry_run,
 )
-from agentrelay.workstream.implementations.workstream_merger import GhWorkstreamMerger
+from agentrelay.workstream.implementations.workstream_integrator import (
+    GhWorkstreamIntegrator,
+)
 from agentrelay.workstream.implementations.workstream_preparer import (
     GitWorkstreamPreparer,
 )
@@ -165,7 +167,7 @@ def test_build_standard_workstream_runner_types(tmp_path: Path) -> None:
         graph_name="test-graph",
     )
     assert isinstance(runner._preparer, GitWorkstreamPreparer)
-    assert isinstance(runner._merger, GhWorkstreamMerger)
+    assert isinstance(runner._integrator, GhWorkstreamIntegrator)
     assert isinstance(runner._teardown, GitWorkstreamTeardown)
 
 
@@ -180,14 +182,14 @@ def test_build_standard_workstream_runner_preparer_config(tmp_path: Path) -> Non
     assert preparer.graph_name == "my-graph"
 
 
-def test_build_standard_workstream_runner_merger_config(tmp_path: Path) -> None:
+def test_build_standard_workstream_runner_integrator_config(tmp_path: Path) -> None:
     runner = build_standard_workstream_runner(
         repo_path=tmp_path,
         graph_name="my-graph",
     )
-    merger = runner._merger
-    assert isinstance(merger, GhWorkstreamMerger)
-    assert merger.repo_path == tmp_path
+    integrator = runner._integrator
+    assert isinstance(integrator, GhWorkstreamIntegrator)
+    assert integrator.repo_path == tmp_path
 
 
 def test_build_standard_workstream_runner_teardown_config(tmp_path: Path) -> None:

@@ -102,15 +102,18 @@ class ConsoleListener:
     def _on_task_blocked(self, event: OrchestratorEvent) -> None:
         self._print(event.timestamp, event.task_id or "?", "blocked")
 
-    def _on_workstream_merged(self, event: OrchestratorEvent) -> None:
-        self._print(event.timestamp, event.workstream_id or "?", "merged to main")
+    def _on_workstream_pr_created(self, event: OrchestratorEvent) -> None:
+        detail = "integration PR created"
+        if event.message:
+            detail += f" \u2192 {event.message}"
+        self._print(event.timestamp, event.workstream_id or "?", detail)
 
-    def _on_workstream_merge_failed(self, event: OrchestratorEvent) -> None:
+    def _on_workstream_integration_failed(self, event: OrchestratorEvent) -> None:
         msg = event.message or "unknown error"
         self._print(
             event.timestamp,
             event.workstream_id or "?",
-            f"merge FAILED: {msg}",
+            f"integration FAILED: {msg}",
         )
 
     # -- Verbose-only step events (from StandardTaskRunner) --
