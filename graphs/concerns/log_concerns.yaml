@@ -13,11 +13,12 @@ tasks:
       Also create test/test_greet.py with a pytest test checking
       greet("World") == "Hello, World!".
 
-      IMPORTANT: Before signaling completion, write the following lines
-      to concerns.log in your signal directory ($AGENTRELAY_SIGNAL_DIR):
+      IMPORTANT: Before completing the task, record the following design
+      concerns using the TaskHelper (which you will already have from
+      the completion workflow):
 
-        echo "Function naming could be more descriptive" >> $AGENTRELAY_SIGNAL_DIR/concerns.log
-        echo "No input validation for empty strings" >> $AGENTRELAY_SIGNAL_DIR/concerns.log
+        helper.record_concern("Function naming could be more descriptive")
+        helper.record_concern("No input validation for empty strings")
 
       These lines test the concern capture mechanism.
     dependencies: []

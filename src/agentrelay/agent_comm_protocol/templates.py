@@ -91,35 +91,35 @@ def resolve_instructions(
 def _workflow_footer(manifest: TaskManifest) -> str:
     """Build the standard workflow completion steps appended to all instructions.
 
-    Tells the agent how to commit, create a PR, and write the completion
-    signal file so the orchestrator can detect task completion.
+    Tells the agent how to commit, push, and use the TaskHelper to create
+    a PR and signal the orchestrator.
     """
-    signal_dir = "$AGENTRELAY_SIGNAL_DIR"
     return f"""
 ## Workflow — completion steps
 
-After completing the work above, follow these steps **exactly**:
+After completing the work above:
 
-1. **Commit and push** all changes to the current branch (`{manifest.branch_name}`).
-2. **Create a pull request** targeting the integration branch:
-   ```
-   gh pr create --base {manifest.integration_branch} --head {manifest.branch_name} \\
-     --title "{manifest.task_id}" --body "Automated task PR"
-   ```
-3. **Signal completion** by writing a `.done` file to the signal directory.
-   The file must have exactly two lines: an ISO timestamp, then the PR URL.
-   ```
-   echo "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)" > {signal_dir}/.done
-   echo "<the PR URL from step 2>" >> {signal_dir}/.done
+1. **Commit and push** all changes to branch `{manifest.branch_name}`.
+2. **Complete the task** by running:
+   ```python
+   from agentrelay.agent_sdk import TaskHelper
+   helper = TaskHelper.from_env()
+   helper.complete()
    ```
 
 If you cannot complete the work, signal failure instead:
-   ```
-   echo "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)" > {signal_dir}/.failed
-   echo "<reason for failure>" >> {signal_dir}/.failed
+   ```python
+   from agentrelay.agent_sdk import TaskHelper
+   helper = TaskHelper.from_env()
+   helper.mark_failed("reason for failure")
    ```
 
-**Important**: The orchestrator is waiting for the signal file. Do not skip this step.
+If you encounter design concerns during your work, record each one:
+   ```python
+   helper.record_concern("description of concern")
+   ```
+
+**Important**: The orchestrator is waiting for the signal. Do not skip step 2.
 """
 
 
