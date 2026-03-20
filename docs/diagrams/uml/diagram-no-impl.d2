@@ -156,13 +156,14 @@ workstream_pkg: "workstream/" {
       PENDING
       ACTIVE
       MERGE_READY
+      PR_CREATED
       MERGED
       FAILED
     }
 
     WorkstreamState: "WorkstreamState <<mutable dataclass>>" {
       shape: class
-      status: WorkstreamStatus
+      signal_dir: "Path | None"
       worktree_path: "Path | None"
       branch_name: "str | None"
       error: "str | None"
@@ -172,6 +173,15 @@ workstream_pkg: "workstream/" {
       shape: class
       merge_pr_url: "str | None"
       concerns: "list[str]"
+      task_summaries: "list[TaskSummary]"
+    }
+
+    TaskSummary: "TaskSummary <<frozen dataclass>>" {
+      shape: class
+      task_id: str
+      description: "str | None"
+      pr_url: "str | None"
+      concerns: "tuple[str, ...]"
     }
 
     WorkstreamRuntime: "WorkstreamRuntime <<mutable dataclass>>" {
@@ -179,9 +189,13 @@ workstream_pkg: "workstream/" {
       spec: WorkstreamSpec
       state: WorkstreamState
       artifacts: WorkstreamArtifacts
-      +mark_failed(error): void
+      +status(): WorkstreamStatus
+      +mark_pending(): void
+      +mark_active(): void
       +mark_merge_ready(): void
+      +mark_pr_created(pr_url): void
       +mark_merged(): void
+      +mark_failed(error): void
     }
 
     WorkstreamPreparer: "WorkstreamPreparer <<protocol>>" {
@@ -189,9 +203,9 @@ workstream_pkg: "workstream/" {
       +prepare_workstream(workstream_runtime): void
     }
 
-    WorkstreamMerger: "WorkstreamMerger <<protocol>>" {
+    WorkstreamIntegrator: "WorkstreamIntegrator <<protocol>>" {
       shape: class
-      +merge_workstream(workstream_runtime): void
+      +create_integration_pr(workstream_runtime): void
     }
 
     WorkstreamTeardown: "WorkstreamTeardown <<protocol>>" {
@@ -209,17 +223,17 @@ workstream_pkg: "workstream/" {
     WorkstreamRunner: "WorkstreamRunner <<protocol>>" {
       shape: class
       +prepare(workstream_runtime): void
-      +merge(workstream_runtime): WorkstreamRunResult
+      +integrate(workstream_runtime): WorkstreamRunResult
       +teardown(workstream_runtime): void
     }
 
     StandardWorkstreamRunner: "StandardWorkstreamRunner <<mutable dataclass>>" {
       shape: class
       _preparer: WorkstreamPreparer
-      _merger: WorkstreamMerger
+      _integrator: WorkstreamIntegrator
       _teardown: WorkstreamTeardown
       +prepare(workstream_runtime): void
-      +merge(workstream_runtime): WorkstreamRunResult
+      +integrate(workstream_runtime): WorkstreamRunResult
       +teardown(workstream_runtime): void
     }
   }
@@ -404,6 +418,7 @@ task_runner_pkg: "task_runner/" {
       _completion_checker: "StepDispatch[TaskCompletionChecker]"
       _merger: "StepDispatch[TaskMerger]"
       _teardown: "StepDispatch[TaskTeardown]"
+      on_event: "Callable[..., None] | None"
       +run(runtime, teardown_mode): TaskRunResult
     }
   }
@@ -443,6 +458,7 @@ orchestrator_pkg: "orchestrator/" {
   OrchestratorEvent: "OrchestratorEvent <<frozen dataclass>>" {
     shape: class
     kind: str
+    timestamp: float
     task_id: "str | None"
     workstream_id: "str | None"
     attempt_num: "int | None"
@@ -713,6 +729,42 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   }
 }
 
+# ─────────────────────────────────────────────
+#  agent_sdk/ — agent-side helpers
+# ─────────────────────────────────────────────
+agent_sdk_pkg: "agent_sdk/" {
+  TaskHelper: "TaskHelper <<class>>" {
+    shape: class
+    signal_dir: Path
+    task_id: str
+    branch_name: str
+    integration_branch: str
+    +from_env(): TaskHelper
+    +complete(title, body): void
+    +create_pr(title, body): str
+    +mark_done(pr_url): void
+    +mark_failed(reason): void
+    +record_concern(concern): void
+  }
+}
+
+# ─────────────────────────────────────────────
+#  output/ — presentation layer
+# ─────────────────────────────────────────────
+output_pkg: "output/" {
+  ConsoleListener: "ConsoleListener <<dataclass>>" {
+    shape: class
+    stream: TextIO
+    verbose: bool
+    +on_event(event): void
+  }
+
+  _console_functions: "_console <<module>>" {
+    shape: class
+    module_path: output.console
+    "+print_summary(result, stream)": void
+  }
+}
 
 # ─────────────────────────────────────────────
 #  run_graph.py — top-level composition and CLI
@@ -817,7 +869,6 @@ task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { clas
 task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
 
 # --- workstream internal ---
-workstream_pkg.workstream_core_pkg.WorkstreamState -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: spec { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamState: state { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamArtifacts: artifacts { class: composition }
@@ -825,7 +876,7 @@ workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstrea
 # --- workstream runner ---
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: _preparer { class: composition }
-workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: _merger { class: composition }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamIntegrator: _integrator { class: composition }
 workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: _teardown { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
 workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunResult: returns { class: dependency }
@@ -833,7 +884,7 @@ workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstr
 
 # --- workstream implementations ---
 workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
-workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamMerger: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamIntegrator: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg -> ops_pkg.gh: uses { class: dependency }
@@ -910,10 +961,25 @@ run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorConfig: configu
 run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
 run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dependency }
 run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
+run_graph_py.run_graph_functions -> output_pkg.ConsoleListener: creates { class: dependency }
+run_graph_py.run_graph_functions -> output_pkg._console_functions: "prints summary" { class: dependency }
 
 # --- reset_graph ---
 reset_graph_py.reset_graph_functions -> reset_graph_py.ResetPlan: "builds / executes" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
+
+# --- output ---
+output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }
+output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+output_pkg._console_functions -> orchestrator_pkg.OrchestratorResult: reads { class: dependency }
+
+# --- agent_sdk ---
+agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }
+agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }
+
+# --- workstream runtime -> TaskSummary ---
+workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.TaskSummary: task_summaries { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: "status (computed)" { class: dependency }
 
 # test
