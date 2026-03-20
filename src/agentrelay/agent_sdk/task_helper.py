@@ -63,18 +63,36 @@ class TaskHelper:
 
     # -- Completion workflow ------------------------------------------------
 
-    def complete(self) -> None:
+    def complete(
+        self,
+        *,
+        title: str | None = None,
+        body: str | None = None,
+    ) -> None:
         """Create a PR and signal task completion.
 
         Call this after committing and pushing all changes. Creates a pull
         request from the task branch to the integration branch, then writes
         the ``.done`` signal file with the PR URL.
+
+        Args:
+            title: PR title. Defaults to the task ID.
+            body: PR body/description. Defaults to ``"Automated task PR"``.
         """
-        pr_url = self.create_pr()
+        pr_url = self.create_pr(title=title, body=body)
         self.mark_done(pr_url)
 
-    def create_pr(self) -> str:
+    def create_pr(
+        self,
+        *,
+        title: str | None = None,
+        body: str | None = None,
+    ) -> str:
         """Create a pull request targeting the integration branch.
+
+        Args:
+            title: PR title. Defaults to the task ID.
+            body: PR body/description. Defaults to ``"Automated task PR"``.
 
         Returns:
             The URL of the created pull request.
@@ -92,9 +110,9 @@ class TaskHelper:
                 "--head",
                 self.branch_name,
                 "--title",
-                self.task_id,
+                title or self.task_id,
                 "--body",
-                "Automated task PR",
+                body or "Automated task PR",
             ],
             capture_output=True,
             text=True,

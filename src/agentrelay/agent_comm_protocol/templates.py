@@ -104,8 +104,9 @@ After completing the work above:
    ```python
    from agentrelay.agent_sdk import TaskHelper
    helper = TaskHelper.from_env()
-   helper.complete()
+   helper.complete(title="short summary of changes", body="## Summary\\n\\n- what was done")
    ```
+   Provide a meaningful PR title (concise) and body (markdown with a ## Summary section).
 
 If you cannot complete the work, signal failure instead:
    ```python
