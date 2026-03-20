@@ -1104,6 +1104,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#pre-sprint-prs-completed-before-sprint-doc-created" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-sprint PRs (completed before sprint doc created)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#e2e-test-categories" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1132,10 +1143,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-agent-side-helper-fix-concerns-bug-concerns-test-graphs" class="md-nav__link">
+  <a href="#pr-a-agent-side-helper-fix-concerns-bug-concerns-test-graphs-done-pr-114" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: Agent-side helper + fix concerns bug + concerns/ test graphs
+        PR A: Agent-side helper + fix concerns bug + concerns/ test graphs — Done (PR #114)
       
     </span>
   </a>
@@ -1143,10 +1154,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-a2-rich-integration-pr-stop-auto-merging-to-main" class="md-nav__link">
+  <a href="#pr-a2-rich-integration-pr-stop-auto-merging-to-main-done-pr-115" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A2: Rich integration PR + stop auto-merging to main
+        PR A2: Rich integration PR + stop auto-merging to main — Done (PR #115)
       
     </span>
   </a>
@@ -1259,6 +1270,38 @@ outcome reporting bug in PR #113.</p>
 written to policies.json) but not wired in the runner: completion gates, review,
 and ADR production. A concerns bug was also found (signal.concerns dropped in
 the runner).</p>
+<h3 id="pre-sprint-prs-completed-before-sprint-doc-created">Pre-sprint PRs (completed before sprint doc created)</h3>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>What</th>
+<th>Date</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#111</td>
+<td>Fix workstream dispatch race condition</td>
+<td>2026-03-19</td>
+</tr>
+<tr>
+<td>#112</td>
+<td>E2E graph organization, console output, verbose mode</td>
+<td>2026-03-19</td>
+</tr>
+<tr>
+<td>#113</td>
+<td>Fix outcome reporting when workstream merge fails</td>
+<td>2026-03-19</td>
+</tr>
+<tr>
+<td>#116</td>
+<td>Diagram catch-up for PRs #111–#115</td>
+<td>2026-03-20</td>
+</tr>
+</tbody>
+</table>
 <h3 id="e2e-test-categories">E2E test categories</h3>
 <table>
 <thead>
@@ -1318,9 +1361,9 @@ the runner).</p>
 </table>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
-<h3 id="pr-a-agent-side-helper-fix-concerns-bug-concerns-test-graphs">PR A: Agent-side helper + fix concerns bug + concerns/ test graphs</h3>
+<h3 id="pr-a-agent-side-helper-fix-concerns-bug-concerns-test-graphs-done-pr-114">PR A: Agent-side helper + fix concerns bug + concerns/ test graphs — <strong>Done</strong> (PR #114)</h3>
 <ul>
-<li>Branch: <code>feat/agent-helper</code></li>
+<li>Branch: <code>fix/concerns-capture</code></li>
 </ul>
 <p><strong>Agent-side helper:</strong>
 Create an agent-side helper class that agents instantiate inside their tmux
@@ -1346,14 +1389,14 @@ them").</p>
 - Graph with a task whose description instructs the agent to record concerns
   via the helper API. Verify they appear in the orchestrator result.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Agent-side helper class works when imported by agent in tmux session
-- [ ] Workflow footer uses helper API for completion signaling and concerns
-- [ ] Concerns from <code>concerns.log</code> are stored in <code>runtime.artifacts.concerns</code>
-- [ ] Concerns appear in console output
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: concerns graph runs, agent uses helper, concerns are captured</p>
+- [x] Agent-side helper class works when imported by agent in tmux session
+- [x] Workflow footer uses helper API for completion signaling and concerns
+- [x] Concerns from <code>concerns.log</code> are stored in <code>runtime.artifacts.concerns</code>
+- [x] Concerns appear in console output
+- [x] <code>pixi run check</code> passes
+- [x] E2E: concerns graph runs, agent uses helper, concerns are captured</p>
 <hr />
-<h3 id="pr-a2-rich-integration-pr-stop-auto-merging-to-main">PR A2: Rich integration PR + stop auto-merging to main</h3>
+<h3 id="pr-a2-rich-integration-pr-stop-auto-merging-to-main-done-pr-115">PR A2: Rich integration PR + stop auto-merging to main — <strong>Done</strong> (PR #115)</h3>
 <ul>
 <li>Branch: <code>feat/integration-pr-summary</code></li>
 </ul>
@@ -1370,11 +1413,11 @@ them").</p>
 - Pass task summaries to the merger so it can build the body (currently it
   only receives the WorkstreamRuntime with no task-level info).</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Integration PR is created but NOT auto-merged
-- [ ] Integration PR body lists all tasks with PR links
-- [ ] Design concerns from all tasks appear in the integration PR body
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: integration PR on GitHub has a meaningful summary and is open (not merged)</p>
+- [x] Integration PR is created but NOT auto-merged
+- [x] Integration PR body lists all tasks with PR links
+- [x] Design concerns from all tasks appear in the integration PR body
+- [x] <code>pixi run check</code> passes
+- [x] E2E: integration PR on GitHub has a meaningful summary and is open (not merged)</p>
 <hr />
 <h3 id="pr-a3-signal-file-backed-taskstatus-match-workstream-pattern">PR A3: Signal-file-backed TaskStatus (match workstream pattern)</h3>
 <ul>
