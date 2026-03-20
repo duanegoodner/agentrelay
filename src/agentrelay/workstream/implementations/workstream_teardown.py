@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from agentrelay.ops import git
-from agentrelay.workstream.core.runtime import WorkstreamRuntime
+from agentrelay.workstream.core.runtime import WorkstreamRuntime, WorkstreamStatus
 
 
 @dataclass
@@ -42,6 +42,11 @@ class GitWorkstreamTeardown:
                 git.worktree_remove(self.repo_path, worktree_path)
             except subprocess.CalledProcessError:
                 pass  # Best-effort: worktree may already be gone
+
+        # Skip branch deletion if the integration PR is open and awaiting
+        # human merge — deleting the branch would auto-close the PR.
+        if workstream_runtime.status == WorkstreamStatus.PR_CREATED:
+            return
 
         if branch_name is not None:
             try:
