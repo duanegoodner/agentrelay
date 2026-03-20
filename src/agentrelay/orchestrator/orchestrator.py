@@ -734,6 +734,9 @@ class _OrchestratorRun:
         elif any(
             runtime.state.status == TaskStatus.FAILED
             for runtime in self._task_runtimes.values()
+        ) or any(
+            runtime.state.status == WorkstreamStatus.FAILED
+            for runtime in self._workstream_runtimes.values()
         ):
             outcome = OrchestratorOutcome.COMPLETED_WITH_FAILURES
         else:
