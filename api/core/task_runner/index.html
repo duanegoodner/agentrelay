@@ -4050,7 +4050,9 @@ based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code
 <span class="normal">327</span>
 <span class="normal">328</span>
 <span class="normal">329</span>
-<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">StandardTaskRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard task lifecycle: prepare → launch → kickoff → wait → merge → teardown.</span>
 
@@ -4165,6 +4167,8 @@ based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
+
+            <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">concerns</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">signal</span><span class="o">.</span><span class="n">outcome</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">)</span>
@@ -4492,7 +4496,9 @@ state.</p>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span>
-<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4557,6 +4563,8 @@ state.</p>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
+
+        <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">concerns</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">signal</span><span class="o">.</span><span class="n">outcome</span> <span class="o">==</span> <span class="s2">&quot;failed&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">)</span>
