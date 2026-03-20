@@ -681,3 +681,42 @@ def test_fail_fast_on_workstream_error_false_allows_new_workstreams() -> None:
     assert "b" in prepare_calls
     assert result.workstream_runtimes["a"].state.status == WorkstreamStatus.FAILED
     assert result.workstream_runtimes["b"].state.status == WorkstreamStatus.MERGED
+
+
+def test_workstream_merge_failure_downgrades_outcome() -> None:
+    """Outcome must not be SUCCEEDED when a workstream merge fails.
+
+    Regression: _build_result() only checked task statuses, so a run where
+    all tasks reached PR_MERGED but the workstream integration-to-main merge
+    failed still reported SUCCEEDED.
+    """
+
+    @dataclass
+    class FailingMergeRunner:
+        def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
+            workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+
+        def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+            workstream_runtime.state.status = WorkstreamStatus.FAILED
+            workstream_runtime.state.error = "gh pr merge failed"
+            return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+        def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
+            pass
+
+    task = _task("a")
+    graph = TaskGraph.from_tasks((task,))
+    runner = ScriptedTaskRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=FailingMergeRunner(),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
+    assert result.task_runtimes["a"].state.status == TaskStatus.PR_MERGED
+    assert result.workstream_runtimes["default"].state.status == WorkstreamStatus.FAILED
+    assert any(event.kind == "workstream_merge_failed" for event in result.events)
