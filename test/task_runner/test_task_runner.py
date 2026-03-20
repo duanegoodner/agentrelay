@@ -333,3 +333,40 @@ def test_expected_task_failure_error_classified_as_expected() -> None:
 
     assert result.status == TaskStatus.FAILED
     assert result.failure_class == IntegrationFailureClass.EXPECTED_TASK_FAILURE
+
+
+def test_concerns_transferred_to_runtime_on_success() -> None:
+    fake = FakeIO(
+        signal=TaskCompletionSignal(
+            outcome="done",
+            pr_url="https://github.com/org/repo/pull/1",
+            concerns=("naming could be clearer", "consider edge case X"),
+        )
+    )
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    asyncio.run(runner.run(runtime))
+
+    assert runtime.state.status == TaskStatus.PR_MERGED
+    assert runtime.artifacts.concerns == [
+        "naming could be clearer",
+        "consider edge case X",
+    ]
+
+
+def test_concerns_transferred_to_runtime_on_failure() -> None:
+    fake = FakeIO(
+        signal=TaskCompletionSignal(
+            outcome="failed",
+            error="could not complete task",
+            concerns=("partial progress made",),
+        )
+    )
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    asyncio.run(runner.run(runtime))
+
+    assert runtime.state.status == TaskStatus.FAILED
+    assert runtime.artifacts.concerns == ["partial progress made"]

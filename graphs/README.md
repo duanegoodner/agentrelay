@@ -8,6 +8,7 @@ definitions and a README with run instructions and verification notes.
 | Directory | Purpose |
 |---|---|
 | `smoke/` | Quick validation of core execution paths (chained, parallel) |
+| `concerns/` | Agent concern capture mechanism (concerns.log → orchestrator result) |
 
 ## Adding a new category
 

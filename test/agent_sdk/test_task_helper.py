@@ -1,0 +1,161 @@
+"""Tests for TaskHelper agent-side workflow helper."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from unittest.mock import patch
+
+import pytest
+
+from agentrelay.agent_sdk.task_helper import TaskHelper
+
+
+def _write_manifest(signal_dir: Path, **overrides: object) -> None:
+    """Write a minimal manifest.json for testing."""
+    manifest = {
+        "schema_version": "1",
+        "task": {"id": "test_task", "role": "generic", "description": None},
+        "paths": {"src": [], "test": [], "spec": None},
+        "workspace": {
+            "branch_name": "agentrelay/graph/test_task",
+            "integration_branch": "agentrelay/graph/default/integration",
+        },
+        "execution": {"attempt_num": 0, "graph_name": "test-graph"},
+        "dependencies": {},
+    }
+    # Apply overrides to nested keys.
+    for key, value in overrides.items():
+        if "." in key:
+            section, field = key.split(".", 1)
+            manifest[section][field] = value
+        else:
+            manifest[key] = value
+    signal_dir.mkdir(parents=True, exist_ok=True)
+    (signal_dir / "manifest.json").write_text(json.dumps(manifest))
+
+
+# -- Construction --
+
+
+def test_from_env_reads_manifest(tmp_path: Path) -> None:
+    signal_dir = tmp_path / "signals"
+    _write_manifest(signal_dir)
+
+    with patch.dict("os.environ", {"AGENTRELAY_SIGNAL_DIR": str(signal_dir)}):
+        helper = TaskHelper.from_env()
+
+    assert helper.signal_dir == signal_dir
+    assert helper.task_id == "test_task"
+    assert helper.branch_name == "agentrelay/graph/test_task"
+    assert helper.integration_branch == "agentrelay/graph/default/integration"
+
+
+def test_from_env_missing_env_var() -> None:
+    with patch.dict("os.environ", {}, clear=True):
+        with pytest.raises(KeyError):
+            TaskHelper.from_env()
+
+
+def test_from_env_missing_manifest(tmp_path: Path) -> None:
+    signal_dir = tmp_path / "signals"
+    signal_dir.mkdir(parents=True)
+
+    with patch.dict("os.environ", {"AGENTRELAY_SIGNAL_DIR": str(signal_dir)}):
+        with pytest.raises(FileNotFoundError):
+            TaskHelper.from_env()
+
+
+# -- Signal files --
+
+
+def test_mark_done_writes_signal(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.mark_done("https://github.com/org/repo/pull/1")
+
+    content = (tmp_path / ".done").read_text()
+    lines = content.strip().splitlines()
+    assert len(lines) == 2
+    assert lines[1] == "https://github.com/org/repo/pull/1"
+
+
+def test_mark_failed_writes_signal(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.mark_failed("could not compile")
+
+    content = (tmp_path / ".failed").read_text()
+    lines = content.strip().splitlines()
+    assert len(lines) == 2
+    assert lines[1] == "could not compile"
+
+
+# -- Concerns --
+
+
+def test_record_concern_appends_to_file(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.record_concern("naming could be clearer")
+    helper.record_concern("missing edge case")
+
+    content = (tmp_path / "concerns.log").read_text()
+    lines = content.strip().splitlines()
+    assert lines == ["naming could be clearer", "missing edge case"]
+
+
+# -- PR creation --
+
+
+def test_create_pr_calls_gh(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="my_task",
+        branch_name="agentrelay/g/my_task",
+        integration_branch="agentrelay/g/default/integration",
+    )
+
+    with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
+        mock_run.return_value.stdout = "https://github.com/org/repo/pull/42\n"
+        pr_url = helper.create_pr()
+
+    assert pr_url == "https://github.com/org/repo/pull/42"
+    mock_run.assert_called_once()
+    args = mock_run.call_args[0][0]
+    assert args[0] == "gh"
+    assert "--base" in args
+    base_idx = args.index("--base")
+    assert args[base_idx + 1] == "agentrelay/g/default/integration"
+    head_idx = args.index("--head")
+    assert args[head_idx + 1] == "agentrelay/g/my_task"
+
+
+# -- Complete (combined workflow) --
+
+
+def test_complete_creates_pr_and_signals_done(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+
+    with patch.object(helper, "create_pr", return_value="https://example.com/pr/1"):
+        helper.complete()
+
+    content = (tmp_path / ".done").read_text()
+    assert "https://example.com/pr/1" in content

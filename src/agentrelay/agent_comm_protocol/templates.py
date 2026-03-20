@@ -91,35 +91,36 @@ def resolve_instructions(
 def _workflow_footer(manifest: TaskManifest) -> str:
     """Build the standard workflow completion steps appended to all instructions.
 
-    Tells the agent how to commit, create a PR, and write the completion
-    signal file so the orchestrator can detect task completion.
+    Tells the agent how to commit, push, and use the TaskHelper to create
+    a PR and signal the orchestrator.
     """
-    signal_dir = "$AGENTRELAY_SIGNAL_DIR"
     return f"""
 ## Workflow — completion steps
 
-After completing the work above, follow these steps **exactly**:
+After completing the work above:
 
-1. **Commit and push** all changes to the current branch (`{manifest.branch_name}`).
-2. **Create a pull request** targeting the integration branch:
+1. **Commit and push** all changes to branch `{manifest.branch_name}`.
+2. **Record any design concerns** you encountered (optional — skip if none):
+   ```python
+   from agentrelay.agent_sdk import TaskHelper
+   helper = TaskHelper.from_env()
+   helper.record_concern("description of concern")
    ```
-   gh pr create --base {manifest.integration_branch} --head {manifest.branch_name} \\
-     --title "{manifest.task_id}" --body "Automated task PR"
+3. **Complete the task** (creates PR and signals the orchestrator):
+   ```python
+   helper.complete(title="short summary of changes", body="## Summary\\n\\n- what was done")
    ```
-3. **Signal completion** by writing a `.done` file to the signal directory.
-   The file must have exactly two lines: an ISO timestamp, then the PR URL.
-   ```
-   echo "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)" > {signal_dir}/.done
-   echo "<the PR URL from step 2>" >> {signal_dir}/.done
-   ```
+   Provide a meaningful PR title (concise) and body (markdown with a ## Summary section).
+   Any recorded concerns are automatically appended to the PR body.
 
 If you cannot complete the work, signal failure instead:
-   ```
-   echo "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)" > {signal_dir}/.failed
-   echo "<reason for failure>" >> {signal_dir}/.failed
+   ```python
+   from agentrelay.agent_sdk import TaskHelper
+   helper = TaskHelper.from_env()
+   helper.mark_failed("reason for failure")
    ```
 
-**Important**: The orchestrator is waiting for the signal file. Do not skip this step.
+**Important**: The orchestrator is waiting for the signal. Do not skip step 3.
 """
 
 
