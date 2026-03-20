@@ -734,6 +734,11 @@ output_pkg: "output/" {
     +on_event(event): void
   }
 
+  console_functions: "console <<module>>" {
+    shape: class
+    module_path: output.console
+    "+print_summary(result, stream)": void
+  }
 }
 
 # ─────────────────────────────────────────────
@@ -923,6 +928,7 @@ run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns
 run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dependency }
 run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.ConsoleListener: creates { class: dependency }
+run_graph_py.run_graph_functions -> output_pkg.console_functions: "prints summary" { class: dependency }
 
 # --- reset_graph ---
 reset_graph_py.reset_graph_functions -> reset_graph_py.ResetPlan: "builds / executes" { class: dependency }
@@ -932,6 +938,7 @@ reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: d
 # --- output ---
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+output_pkg.console_functions -> orchestrator_pkg.OrchestratorResult: reads { class: dependency }
 
 # --- agent_sdk ---
 agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }
