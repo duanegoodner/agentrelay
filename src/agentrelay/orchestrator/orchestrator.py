@@ -322,7 +322,7 @@ class _OrchestratorRun:
                 continue
 
             ws_runtime = self._workstream_runtimes[runtime.task.workstream_id]
-            if ws_runtime.state.status == WorkstreamStatus.PENDING:
+            if ws_runtime.status == WorkstreamStatus.PENDING:
                 if self._should_block_new_workstreams():
                     continue
                 try:
@@ -565,9 +565,10 @@ class _OrchestratorRun:
         workstream_id = runtime.task.workstream_id
         ws_runtime = self._workstream_runtimes[workstream_id]
 
-        if ws_runtime.state.status in (
+        if ws_runtime.status in (
             WorkstreamStatus.FAILED,
             WorkstreamStatus.MERGE_READY,
+            WorkstreamStatus.PR_CREATED,
             WorkstreamStatus.MERGED,
         ):
             return False
@@ -584,9 +585,12 @@ class _OrchestratorRun:
         current = graph.workstream(workstream_id).parent_workstream_id
         while current is not None:
             parent_runtime = self._workstream_runtimes[current]
-            if parent_runtime.state.status == WorkstreamStatus.FAILED:
+            if parent_runtime.status == WorkstreamStatus.FAILED:
                 return False
-            if parent_runtime.state.status != WorkstreamStatus.MERGED:
+            if parent_runtime.status not in (
+                WorkstreamStatus.PR_CREATED,
+                WorkstreamStatus.MERGED,
+            ):
                 return False
             current = graph.workstream(current).parent_workstream_id
 
@@ -605,7 +609,7 @@ class _OrchestratorRun:
             error = f"Blocked by orchestration rules: {reason}"
             runtime.mark_failed(error)
             ws_runtime = self._workstream_runtimes[runtime.task.workstream_id]
-            if ws_runtime.state.status != WorkstreamStatus.FAILED:
+            if ws_runtime.status != WorkstreamStatus.FAILED:
                 ws_runtime.mark_failed(error)
             self._emit(
                 OrchestratorEvent(
@@ -628,16 +632,19 @@ class _OrchestratorRun:
         runtime = self._task_runtimes[task_id]
         workstream_id = runtime.task.workstream_id
         ws_runtime = self._workstream_runtimes[workstream_id]
-        if ws_runtime.state.status == WorkstreamStatus.FAILED:
+        if ws_runtime.status == WorkstreamStatus.FAILED:
             return f"workstream '{workstream_id}' failed"
 
         parent_id = graph.workstream(workstream_id).parent_workstream_id
         while parent_id is not None:
             parent_runtime = self._workstream_runtimes[parent_id]
-            if parent_runtime.state.status == WorkstreamStatus.FAILED:
+            if parent_runtime.status == WorkstreamStatus.FAILED:
                 return f"ancestor workstream '{parent_id}' failed"
-            if parent_runtime.state.status != WorkstreamStatus.MERGED:
-                return f"waiting for parent workstream '{parent_id}' to reach MERGED"
+            if parent_runtime.status not in (
+                WorkstreamStatus.PR_CREATED,
+                WorkstreamStatus.MERGED,
+            ):
+                return f"waiting for parent workstream '{parent_id}' to complete integration"
             parent_id = graph.workstream(parent_id).parent_workstream_id
         return None
 
@@ -645,9 +652,10 @@ class _OrchestratorRun:
         graph = self._orchestrator.graph
         for workstream_id in graph.workstream_ids():
             ws_runtime = self._workstream_runtimes[workstream_id]
-            if ws_runtime.state.status in (
+            if ws_runtime.status in (
                 WorkstreamStatus.FAILED,
                 WorkstreamStatus.MERGE_READY,
+                WorkstreamStatus.PR_CREATED,
                 WorkstreamStatus.MERGED,
             ):
                 continue
@@ -659,21 +667,38 @@ class _OrchestratorRun:
                 ws_runtime.mark_merge_ready()
 
     def _process_merge_ready_workstreams(self) -> None:
-        """Merge workstreams that have reached MERGE_READY."""
+        """Create integration PRs for workstreams that have reached MERGE_READY."""
         graph = self._orchestrator.graph
         for workstream_id in graph.workstream_ids():
             ws_runtime = self._workstream_runtimes[workstream_id]
-            if ws_runtime.state.status == WorkstreamStatus.MERGE_READY:
-                result = self._orchestrator.workstream_runner.merge(ws_runtime)
+            if ws_runtime.status == WorkstreamStatus.MERGE_READY:
+                # Populate task summaries for the integration PR body.
+                from agentrelay.workstream.core.runtime import TaskSummary
+
+                task_ids = graph.tasks_in_workstream(workstream_id)
+                ws_runtime.artifacts.task_summaries = [
+                    TaskSummary(
+                        task_id=tid,
+                        description=self._task_runtimes[tid].task.description,
+                        pr_url=self._task_runtimes[tid].artifacts.pr_url,
+                        concerns=tuple(self._task_runtimes[tid].artifacts.concerns),
+                    )
+                    for tid in task_ids
+                ]
+                result = self._orchestrator.workstream_runner.integrate(ws_runtime)
                 self._emit(
                     OrchestratorEvent(
                         kind=(
-                            "workstream_merged"
-                            if result.status == WorkstreamStatus.MERGED
-                            else "workstream_merge_failed"
+                            "workstream_pr_created"
+                            if result.status == WorkstreamStatus.PR_CREATED
+                            else "workstream_integration_failed"
                         ),
                         workstream_id=workstream_id,
-                        message=result.error,
+                        message=(
+                            ws_runtime.artifacts.merge_pr_url
+                            if result.status == WorkstreamStatus.PR_CREATED
+                            else result.error
+                        ),
                     ),
                 )
 
@@ -682,7 +707,7 @@ class _OrchestratorRun:
         if not self._orchestrator.config.fail_fast_on_workstream_error:
             return False
         return any(
-            ws.state.status == WorkstreamStatus.FAILED
+            ws.status == WorkstreamStatus.FAILED
             for ws in self._workstream_runtimes.values()
         )
 
@@ -714,7 +739,7 @@ class _OrchestratorRun:
             else:
                 runtime.state.error = reason
             ws_runtime = self._workstream_runtimes[runtime.task.workstream_id]
-            if ws_runtime.state.status != WorkstreamStatus.FAILED:
+            if ws_runtime.status != WorkstreamStatus.FAILED:
                 ws_runtime.mark_failed(reason)
 
     def _teardown_prepared_workstreams(self) -> None:
@@ -722,7 +747,7 @@ class _OrchestratorRun:
         graph = self._orchestrator.graph
         for workstream_id in graph.workstream_ids():
             ws_runtime = self._workstream_runtimes[workstream_id]
-            if ws_runtime.state.status != WorkstreamStatus.PENDING:
+            if ws_runtime.status != WorkstreamStatus.PENDING:
                 self._orchestrator.workstream_runner.teardown(ws_runtime)
 
     def _build_result(self) -> OrchestratorResult:
@@ -735,7 +760,7 @@ class _OrchestratorRun:
             runtime.state.status == TaskStatus.FAILED
             for runtime in self._task_runtimes.values()
         ) or any(
-            runtime.state.status == WorkstreamStatus.FAILED
+            runtime.status == WorkstreamStatus.FAILED
             for runtime in self._workstream_runtimes.values()
         ):
             outcome = OrchestratorOutcome.COMPLETED_WITH_FAILURES

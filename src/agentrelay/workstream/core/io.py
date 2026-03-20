@@ -6,7 +6,7 @@ holds these protocol fields directly.
 
 Protocols:
     WorkstreamPreparer: Provision worktree and integration branch.
-    WorkstreamMerger: Merge integration branch into target.
+    WorkstreamIntegrator: Create integration PR.
     WorkstreamTeardown: Clean up worktree and integration branch.
 """
 
@@ -31,15 +31,15 @@ class WorkstreamPreparer(Protocol):
 
 
 @runtime_checkable
-class WorkstreamMerger(Protocol):
-    """Merge workstream integration branch into its target."""
+class WorkstreamIntegrator(Protocol):
+    """Create integration PR for a workstream lane."""
 
-    def merge_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
-        """Merge the workstream integration branch into its merge target.
+    def create_integration_pr(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Create a PR from the integration branch to the merge target.
 
         Args:
             workstream_runtime: Workstream runtime whose integration branch
-                should be merged.
+                should be submitted as a PR.
         """
         ...
 
@@ -59,7 +59,7 @@ class WorkstreamTeardown(Protocol):
 
 
 __all__ = [
-    "WorkstreamMerger",
+    "WorkstreamIntegrator",
     "WorkstreamPreparer",
     "WorkstreamTeardown",
 ]

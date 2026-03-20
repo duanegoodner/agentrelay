@@ -5,8 +5,8 @@ per-step protocols defined in ``workstream.core.io``. Each module is named
 after the protocol it implements.
 """
 
-from agentrelay.workstream.implementations.workstream_merger import (
-    GhWorkstreamMerger,
+from agentrelay.workstream.implementations.workstream_integrator import (
+    GhWorkstreamIntegrator,
 )
 from agentrelay.workstream.implementations.workstream_preparer import (
     GitWorkstreamPreparer,
@@ -16,7 +16,7 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 )
 
 __all__ = [
-    "GhWorkstreamMerger",
+    "GhWorkstreamIntegrator",
     "GitWorkstreamPreparer",
     "GitWorkstreamTeardown",
 ]

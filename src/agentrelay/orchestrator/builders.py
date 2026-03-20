@@ -42,7 +42,9 @@ from agentrelay.task_runner.implementations.task_teardown import WorktreeTaskTea
 from agentrelay.task_runtime.runtime import TaskRuntime
 from agentrelay.workstream.core.runner import StandardWorkstreamRunner
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
-from agentrelay.workstream.implementations.workstream_merger import GhWorkstreamMerger
+from agentrelay.workstream.implementations.workstream_integrator import (
+    GhWorkstreamIntegrator,
+)
 from agentrelay.workstream.implementations.workstream_preparer import (
     GitWorkstreamPreparer,
 )
@@ -189,7 +191,7 @@ def build_standard_workstream_runner(
     +==========+=========================+
     | preparer | GitWorkstreamPreparer   |
     +----------+-------------------------+
-    | merger   | GhWorkstreamMerger      |
+    | integrator | GhWorkstreamIntegrator |
     +----------+-------------------------+
     | teardown | GitWorkstreamTeardown   |
     +----------+-------------------------+
@@ -203,6 +205,6 @@ def build_standard_workstream_runner(
     """
     return StandardWorkstreamRunner(
         _preparer=GitWorkstreamPreparer(repo_path=repo_path, graph_name=graph_name),
-        _merger=GhWorkstreamMerger(repo_path=repo_path),
+        _integrator=GhWorkstreamIntegrator(repo_path=repo_path),
         _teardown=GitWorkstreamTeardown(repo_path=repo_path),
     )

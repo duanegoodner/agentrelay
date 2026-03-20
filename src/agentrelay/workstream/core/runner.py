@@ -3,11 +3,11 @@
 This module defines :class:`WorkstreamRunner` (a Protocol) and
 :class:`StandardWorkstreamRunner` (the standard implementation),
 which drive a :class:`WorkstreamRuntime` through the workstream lifecycle
-steps (prepare, merge, teardown).
+steps (prepare, integrate, teardown).
 
 The orchestrator calls these methods at the appropriate points in the
 scheduling loop — prepare before the first task in a workstream,
-merge after all tasks succeed, and teardown at the end.
+integrate after all tasks succeed, and teardown at the end.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.workstream.core.io import (
-    WorkstreamMerger,
+    WorkstreamIntegrator,
     WorkstreamPreparer,
     WorkstreamTeardown,
 )
@@ -49,7 +49,7 @@ class WorkstreamRunResult:
         """
         return cls(
             workstream_id=runtime.spec.id,
-            status=runtime.state.status,
+            status=runtime.status,
             error=runtime.state.error,
         )
 
@@ -67,8 +67,8 @@ class WorkstreamRunner(Protocol):
         """Provision workspace infrastructure for a workstream."""
         ...
 
-    def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-        """Merge the workstream integration branch into its target."""
+    def integrate(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+        """Create the integration PR for the workstream."""
         ...
 
     def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -80,18 +80,18 @@ class WorkstreamRunner(Protocol):
 class StandardWorkstreamRunner:
     """Standard workstream lifecycle runner.
 
-    Drives workstream-level operations (prepare, merge, teardown) by
+    Drives workstream-level operations (prepare, integrate, teardown) by
     delegating to per-step protocol implementations. The orchestrator
     calls these methods at appropriate scheduling points.
 
     Attributes:
         _preparer: Provision worktree and integration branch.
-        _merger: Merge integration branch into target.
+        _integrator: Create integration PR.
         _teardown: Clean up worktree and integration branch.
     """
 
     _preparer: WorkstreamPreparer
-    _merger: WorkstreamMerger
+    _integrator: WorkstreamIntegrator
     _teardown: WorkstreamTeardown
 
     def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -106,30 +106,27 @@ class StandardWorkstreamRunner:
         try:
             self._preparer.prepare_workstream(workstream_runtime)
         except Exception as exc:
-            workstream_runtime.state.status = WorkstreamStatus.FAILED
-            workstream_runtime.state.error = f"{type(exc).__name__}: {exc}"
+            workstream_runtime.mark_failed(f"{type(exc).__name__}: {exc}")
             raise
-        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+        workstream_runtime.mark_active()
 
-    def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-        """Merge the workstream integration branch into its target.
+    def integrate(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+        """Create the integration PR for the workstream.
 
-        Transitions to ``MERGED`` on success, or ``FAILED`` on error.
+        Transitions to ``PR_CREATED`` on success, or ``FAILED`` on error.
 
         Args:
-            workstream_runtime: Workstream runtime to merge.
+            workstream_runtime: Workstream runtime to integrate.
 
         Returns:
             WorkstreamRunResult: Snapshot of state after the operation.
         """
         try:
-            self._merger.merge_workstream(workstream_runtime)
+            self._integrator.create_integration_pr(workstream_runtime)
         except Exception as exc:
-            workstream_runtime.state.status = WorkstreamStatus.FAILED
-            workstream_runtime.state.error = f"{type(exc).__name__}: {exc}"
+            workstream_runtime.mark_failed(f"{type(exc).__name__}: {exc}")
             return WorkstreamRunResult.from_runtime(workstream_runtime)
 
-        workstream_runtime.state.status = WorkstreamStatus.MERGED
         return WorkstreamRunResult.from_runtime(workstream_runtime)
 
     def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:

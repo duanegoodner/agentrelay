@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from unittest.mock import patch
@@ -67,16 +68,20 @@ class NoOpWorkstreamRunner:
     """WorkstreamRunner double that performs state transitions without I/O."""
 
     prepare_calls: list[str] = field(default_factory=list)
-    merge_calls: list[str] = field(default_factory=list)
+    integrate_calls: list[str] = field(default_factory=list)
     teardown_calls: list[str] = field(default_factory=list)
 
     def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
         self.prepare_calls.append(workstream_runtime.spec.id)
-        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+        workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
+        workstream_runtime.mark_pending()
+        workstream_runtime.mark_active()
 
-    def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-        self.merge_calls.append(workstream_runtime.spec.id)
-        workstream_runtime.state.status = WorkstreamStatus.MERGED
+    def integrate(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+        self.integrate_calls.append(workstream_runtime.spec.id)
+        workstream_runtime.mark_pr_created(
+            f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+        )
         return WorkstreamRunResult.from_runtime(workstream_runtime)
 
     def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -148,7 +153,7 @@ def test_run_graph_wires_orchestrator(tmp_path: Path) -> None:
     mock_build_ws.assert_called_once()
 
     assert ws_runner.prepare_calls == ["default"]
-    assert ws_runner.merge_calls == ["default"]
+    assert ws_runner.integrate_calls == ["default"]
     assert ws_runner.teardown_calls == ["default"]
 
     called_tasks = [call[0] for call in task_runner.calls]

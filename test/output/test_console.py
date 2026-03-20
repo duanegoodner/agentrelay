@@ -159,22 +159,30 @@ class TestConsoleListenerEvents:
         listener.on_event(_event("task_blocked", task_id="add_fn"))
         assert "blocked" in buf.getvalue()
 
-    def test_workstream_merged(self) -> None:
-        listener, buf = _listener()
-        listener.on_event(_event("workstream_merged", workstream_id="ws_add"))
-        assert "merged to main" in buf.getvalue()
-
-    def test_workstream_merge_failed(self) -> None:
+    def test_workstream_pr_created(self) -> None:
         listener, buf = _listener()
         listener.on_event(
             _event(
-                "workstream_merge_failed",
+                "workstream_pr_created",
+                workstream_id="ws_add",
+                message="https://example.com/pr/1",
+            )
+        )
+        output = buf.getvalue()
+        assert "integration PR created" in output
+        assert "https://example.com/pr/1" in output
+
+    def test_workstream_integration_failed(self) -> None:
+        listener, buf = _listener()
+        listener.on_event(
+            _event(
+                "workstream_integration_failed",
                 workstream_id="ws_add",
                 message="conflict",
             )
         )
         output = buf.getvalue()
-        assert "merge FAILED" in output
+        assert "integration FAILED" in output
         assert "conflict" in output
 
     def test_unknown_event_is_silently_ignored(self) -> None:

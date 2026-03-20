@@ -1,7 +1,9 @@
 """Tests for OrchestratorListener real-time event callback."""
 
 import asyncio
+import tempfile
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from agentrelay.orchestrator import (
     Orchestrator,
@@ -66,10 +68,14 @@ class NoOpWorkstreamRunner:
     """WorkstreamRunner double that performs state transitions without I/O."""
 
     def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:
-        workstream_runtime.state.status = WorkstreamStatus.ACTIVE
+        workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
+        workstream_runtime.mark_pending()
+        workstream_runtime.mark_active()
 
-    def merge(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
-        workstream_runtime.state.status = WorkstreamStatus.MERGED
+    def integrate(self, workstream_runtime: WorkstreamRuntime) -> WorkstreamRunResult:
+        workstream_runtime.mark_pr_created(
+            f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
+        )
         return WorkstreamRunResult.from_runtime(workstream_runtime)
 
     def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:
@@ -127,7 +133,7 @@ def test_no_listener_default_behavior_unchanged() -> None:
         "workstream_prepared",
         "task_started",
         "task_finished",
-        "workstream_merged",
+        "workstream_pr_created",
     ]
 
 
