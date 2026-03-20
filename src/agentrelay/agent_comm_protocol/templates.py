@@ -100,13 +100,18 @@ def _workflow_footer(manifest: TaskManifest) -> str:
 After completing the work above:
 
 1. **Commit and push** all changes to branch `{manifest.branch_name}`.
-2. **Complete the task** by running:
+2. **Record any design concerns** you encountered (optional — skip if none):
    ```python
    from agentrelay.agent_sdk import TaskHelper
    helper = TaskHelper.from_env()
+   helper.record_concern("description of concern")
+   ```
+3. **Complete the task** (creates PR and signals the orchestrator):
+   ```python
    helper.complete(title="short summary of changes", body="## Summary\\n\\n- what was done")
    ```
    Provide a meaningful PR title (concise) and body (markdown with a ## Summary section).
+   Any recorded concerns are automatically appended to the PR body.
 
 If you cannot complete the work, signal failure instead:
    ```python
@@ -115,12 +120,7 @@ If you cannot complete the work, signal failure instead:
    helper.mark_failed("reason for failure")
    ```
 
-If you encounter design concerns during your work, record each one:
-   ```python
-   helper.record_concern("description of concern")
-   ```
-
-**Important**: The orchestrator is waiting for the signal. Do not skip step 2.
+**Important**: The orchestrator is waiting for the signal. Do not skip step 3.
 """
 
 

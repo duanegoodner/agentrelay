@@ -90,6 +90,9 @@ class TaskHelper:
     ) -> str:
         """Create a pull request targeting the integration branch.
 
+        Automatically appends any recorded concerns as a "Concerns" section
+        in the PR body.
+
         Args:
             title: PR title. Defaults to the task ID.
             body: PR body/description. Defaults to ``"Automated task PR"``.
@@ -100,6 +103,12 @@ class TaskHelper:
         Raises:
             subprocess.CalledProcessError: If ``gh pr create`` fails.
         """
+        full_body = body or "Automated task PR"
+        concerns = self._read_concerns()
+        if concerns:
+            concerns_list = "\n".join(f"- {c}" for c in concerns)
+            full_body += f"\n\n## Concerns\n\n{concerns_list}"
+
         result = subprocess.run(
             [
                 "gh",
@@ -112,7 +121,7 @@ class TaskHelper:
                 "--title",
                 title or self.task_id,
                 "--body",
-                body or "Automated task PR",
+                full_body,
             ],
             capture_output=True,
             text=True,
@@ -152,6 +161,13 @@ class TaskHelper:
             f.write(concern.strip() + "\n")
 
     # -- Internal ----------------------------------------------------------
+
+    def _read_concerns(self) -> list[str]:
+        """Read recorded concerns from concerns.log, if it exists."""
+        concerns_path = self.signal_dir / "concerns.log"
+        if not concerns_path.exists():
+            return []
+        return [line for line in concerns_path.read_text().splitlines() if line.strip()]
 
     def _write_signal(self, name: str, content: str) -> None:
         self.signal_dir.mkdir(parents=True, exist_ok=True)
