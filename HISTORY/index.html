@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-20
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-file-backed-taskstatus-pr-a3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal-file-backed TaskStatus (PR A3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-19" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1699,6 +1727,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-20
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-20">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-file-backed-taskstatus-pr-a3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal-file-backed TaskStatus (PR A3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-19" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2284,6 +2340,27 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-20">2026-03-20</h2>
+<h3 id="signal-file-backed-taskstatus-pr-a3">Signal-file-backed TaskStatus (PR A3)</h3>
+<ul>
+<li><strong>TaskStatus is now derived from signal files on disk</strong>, matching the
+  WorkstreamStatus pattern from PR #115. Status files live under
+  <code>.workflow/&lt;graph&gt;/signals/&lt;task_id&gt;/status/</code> with one file per status value
+  (<code>pending</code>, <code>running</code>, <code>pr_created</code>, <code>pr_merged</code>, <code>failed</code>).</li>
+<li><strong><code>TaskRuntime.status</code></strong> is a computed property reading from signal files.
+  Falls back to <code>PENDING</code> (or <code>FAILED</code> if an error is recorded) when no
+  signal directory has been set.</li>
+<li><strong><code>TaskState.status</code> field removed</strong> — status is no longer stored in memory.</li>
+<li><strong>New mark methods</strong> on <code>TaskRuntime</code>: <code>mark_running()</code>, <code>mark_pr_created()</code>,
+  <code>mark_pr_merged()</code>. Existing <code>mark_pending()</code> and <code>mark_failed(error)</code> updated
+  to write signal files.</li>
+<li><strong><code>StandardTaskRunner._transition()</code></strong> validates lifecycle edges then delegates
+  to the appropriate mark method. FAILED transitions use <code>mark_failed(error)</code>
+  directly at call sites.</li>
+<li><strong><code>reset_for_retry()</code></strong> clears all status signal files before writing a fresh
+  <code>pending</code> file.</li>
+</ul>
 <hr />
 <h2 id="2026-03-19">2026-03-19</h2>
 <h3 id="docs-demo-graphs-and-e2e-testing-pr-p">Docs, demo graphs, and E2E testing (PR P)</h3>

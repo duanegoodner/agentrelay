@@ -286,7 +286,6 @@ task_runtime_pkg: "task_runtime/" {
 
   TaskState: "TaskState <<mutable dataclass>>" {
     shape: class
-    status: TaskStatus
     worktree_path: "Path | None"
     branch_name: "str | None"
     signal_dir: "Path | None"
@@ -308,10 +307,14 @@ task_runtime_pkg: "task_runtime/" {
     task: Task
     state: TaskState
     artifacts: TaskArtifacts
-    +prepare_for_attempt(attempt_num): void
-    +mark_failed(error): void
-    +reset_for_retry(): void
+    +status: TaskStatus
     +mark_pending(): void
+    +mark_running(): void
+    +mark_pr_created(): void
+    +mark_pr_merged(): void
+    +mark_failed(error): void
+    +prepare_for_attempt(attempt_num): void
+    +reset_for_retry(): void
   }
 
 }
@@ -768,7 +771,7 @@ orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstre
 orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg: registers { class: dependency }
 
 # --- task_runtime internal ---
-task_runtime_pkg.TaskState -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskStatus: status { class: composition }
 task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
