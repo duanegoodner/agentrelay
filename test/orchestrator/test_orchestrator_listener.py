@@ -16,7 +16,7 @@ from agentrelay.orchestrator import (
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunResult, TearDownMode
-from agentrelay.task_runtime import TaskRuntime, TaskStatus
+from agentrelay.task_runtime import TaskRuntime
 from agentrelay.workstream import (
     WorkstreamRunResult,
     WorkstreamRuntime,
@@ -59,7 +59,9 @@ class SuccessRunner:
         teardown_mode: TearDownMode = TearDownMode.ALWAYS,
     ) -> TaskRunResult:
         runtime.artifacts.pr_url = f"https://example.com/{runtime.task.id}"
-        runtime.state.status = TaskStatus.PR_MERGED
+        if runtime.state.signal_dir is None:
+            runtime.state.signal_dir = Path(tempfile.mkdtemp())
+        runtime.mark_pr_merged()
         return TaskRunResult.from_runtime(runtime)
 
 
@@ -92,8 +94,7 @@ class FailRunner:
         *,
         teardown_mode: TearDownMode = TearDownMode.ALWAYS,
     ) -> TaskRunResult:
-        runtime.state.status = TaskStatus.FAILED
-        runtime.state.error = f"{runtime.task.id} failed"
+        runtime.mark_failed(f"{runtime.task.id} failed")
         return TaskRunResult.from_runtime(runtime)
 
 

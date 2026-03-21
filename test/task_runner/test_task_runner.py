@@ -1,7 +1,9 @@
 """Tests for StandardTaskRunner lifecycle behavior."""
 
 import asyncio
+import tempfile
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -32,7 +34,17 @@ def _make_runtime(
     task_id: str = "task_1", status: TaskStatus = TaskStatus.PENDING
 ) -> TaskRuntime:
     runtime = TaskRuntime(task=Task(id=task_id, role=AgentRole.GENERIC))
-    runtime.state.status = status
+    runtime.state.signal_dir = Path(tempfile.mkdtemp())
+    if status == TaskStatus.PENDING:
+        runtime.mark_pending()
+    elif status == TaskStatus.RUNNING:
+        runtime.mark_running()
+    elif status == TaskStatus.PR_CREATED:
+        runtime.mark_pr_created()
+    elif status == TaskStatus.PR_MERGED:
+        runtime.mark_pr_merged()
+    elif status == TaskStatus.FAILED:
+        runtime.mark_failed("test failure")
     return runtime
 
 
@@ -115,7 +127,7 @@ def test_run_success_path() -> None:
         "merge_pr",
         "teardown",
     ]
-    assert runtime.state.status == TaskStatus.PR_MERGED
+    assert runtime.status == TaskStatus.PR_MERGED
     assert runtime.state.error is None
     assert runtime.artifacts.pr_url == "https://github.com/org/repo/pull/1"
     assert runtime.artifacts.agent_address == fake.agent.address
@@ -140,7 +152,7 @@ def test_run_failed_signal_marks_runtime_failed() -> None:
         "wait_for_completion",
         "teardown",
     ]
-    assert runtime.state.status == TaskStatus.FAILED
+    assert runtime.status == TaskStatus.FAILED
     assert runtime.state.error == "agent failed"
     assert runtime.artifacts.pr_url is None
     assert result.status == TaskStatus.FAILED
@@ -153,7 +165,7 @@ def test_run_failed_signal_without_error_sets_default_message() -> None:
 
     asyncio.run(_make_runner(fake).run(runtime))
 
-    assert runtime.state.status == TaskStatus.FAILED
+    assert runtime.status == TaskStatus.FAILED
     assert runtime.state.error == "Task failed without an error message."
 
 
@@ -171,7 +183,7 @@ def test_run_done_signal_without_pr_url_fails() -> None:
         "wait_for_completion",
         "teardown",
     ]
-    assert runtime.state.status == TaskStatus.FAILED
+    assert runtime.status == TaskStatus.FAILED
     assert "did not include pr_url" in (runtime.state.error or "")
     assert result.status == TaskStatus.FAILED
 
@@ -188,7 +200,7 @@ def test_run_io_exception_marks_failed_and_still_tears_down(fail_stage: str) -> 
     result = asyncio.run(runner.run(runtime))
 
     assert fake.calls[-1] == "teardown"
-    assert runtime.state.status == TaskStatus.FAILED
+    assert runtime.status == TaskStatus.FAILED
     assert f"{fail_stage} boom" in (runtime.state.error or "")
     assert result.status == TaskStatus.FAILED
     assert result.failure_class == IntegrationFailureClass.INTERNAL_ERROR
@@ -199,7 +211,7 @@ def test_run_requires_pending_entry_status() -> None:
     runner = _make_runner(fake)
     runtime = _make_runtime(status=TaskStatus.RUNNING)
 
-    with pytest.raises(ValueError, match="requires runtime.state.status == PENDING"):
+    with pytest.raises(ValueError, match="requires runtime.status == PENDING"):
         asyncio.run(runner.run(runtime))
 
     assert fake.calls == []
@@ -212,7 +224,7 @@ def test_teardown_failure_is_recorded_without_overwriting_success() -> None:
 
     result = asyncio.run(runner.run(runtime))
 
-    assert runtime.state.status == TaskStatus.PR_MERGED
+    assert runtime.status == TaskStatus.PR_MERGED
     assert result.status == TaskStatus.PR_MERGED
     assert runtime.artifacts.concerns
     assert runtime.artifacts.concerns[-1].startswith("teardown_failed:")
@@ -348,7 +360,7 @@ def test_concerns_transferred_to_runtime_on_success() -> None:
 
     asyncio.run(runner.run(runtime))
 
-    assert runtime.state.status == TaskStatus.PR_MERGED
+    assert runtime.status == TaskStatus.PR_MERGED
     assert runtime.artifacts.concerns == [
         "naming could be clearer",
         "consider edge case X",
@@ -368,5 +380,5 @@ def test_concerns_transferred_to_runtime_on_failure() -> None:
 
     asyncio.run(runner.run(runtime))
 
-    assert runtime.state.status == TaskStatus.FAILED
+    assert runtime.status == TaskStatus.FAILED
     assert runtime.artifacts.concerns == ["partial progress made"]

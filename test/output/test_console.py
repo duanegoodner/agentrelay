@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import io
+import tempfile
+from pathlib import Path
 from typing import Any
 
 from agentrelay.orchestrator import (
@@ -266,11 +268,18 @@ def _make_result(
     for task_id, status, ws_id in tasks:
         task = Task(id=task_id, role=AgentRole.GENERIC, workstream_id=ws_id)
         runtime = TaskRuntime(task=task)
-        runtime.state.status = status
+        if status == TaskStatus.FAILED:
+            runtime.mark_failed(f"{task_id} failed")
+        elif status != TaskStatus.PENDING:
+            runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            _mark = {
+                TaskStatus.RUNNING: runtime.mark_running,
+                TaskStatus.PR_CREATED: runtime.mark_pr_created,
+                TaskStatus.PR_MERGED: runtime.mark_pr_merged,
+            }
+            _mark[status]()
         if status == TaskStatus.PR_MERGED:
             runtime.artifacts.pr_url = f"https://example.com/{task_id}"
-        if status == TaskStatus.FAILED:
-            runtime.state.error = f"{task_id} failed"
         task_runtimes[task_id] = runtime
         events.append(
             OrchestratorEvent(

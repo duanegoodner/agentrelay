@@ -1,5 +1,6 @@
 """Tests for agentrelay.v2.task_runtime: runtime state and addressing."""
 
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -20,18 +21,12 @@ class TestTaskState:
     """Tests for TaskState (operational state)."""
 
     def test_default_state(self) -> None:
-        """TaskState defaults to PENDING with no paths or error."""
+        """TaskState defaults to no paths or error."""
         state = TaskState()
-        assert state.status == TaskStatus.PENDING
         assert state.worktree_path is None
         assert state.branch_name is None
         assert state.error is None
         assert state.attempt_num == 0
-
-    def test_set_status(self) -> None:
-        """TaskState status can be set."""
-        state = TaskState(status=TaskStatus.RUNNING)
-        assert state.status == TaskStatus.RUNNING
 
     def test_set_worktree_path(self) -> None:
         """TaskState can track worktree path."""
@@ -56,10 +51,6 @@ class TestTaskState:
     def test_is_mutable(self) -> None:
         """TaskState can be modified."""
         state = TaskState()
-        assert state.status == TaskStatus.PENDING
-
-        state.status = TaskStatus.RUNNING
-        assert state.status == TaskStatus.RUNNING
 
         state.attempt_num = 1
         assert state.attempt_num == 1
@@ -70,17 +61,12 @@ class TestTaskState:
     def test_state_progression(self) -> None:
         """TaskState can be mutated to represent execution progress."""
         state = TaskState()
-        assert state.status == TaskStatus.PENDING
 
-        state.status = TaskStatus.RUNNING
         state.worktree_path = Path("/tmp/work-123")
         state.branch_name = "feat/task-123"
-        assert state.status == TaskStatus.RUNNING
         assert state.worktree_path == Path("/tmp/work-123")
 
-        state.status = TaskStatus.PR_CREATED
         state.attempt_num = 1
-        assert state.status == TaskStatus.PR_CREATED
         assert state.attempt_num == 1
 
 
@@ -219,6 +205,10 @@ class TestTmuxAddress:
 # ── Tests for TaskRuntime ──
 
 
+def _signal_dir() -> Path:
+    return Path(tempfile.mkdtemp())
+
+
 class TestTaskRuntime:
     """Tests for TaskRuntime envelope."""
 
@@ -237,7 +227,7 @@ class TestTaskRuntime:
         task = Task(id="task", role=AgentRole.GENERIC)
         runtime = TaskRuntime(task=task)
 
-        assert runtime.state.status == TaskStatus.PENDING
+        assert runtime.status == TaskStatus.PENDING
         assert runtime.state.worktree_path is None
         assert runtime.state.attempt_num == 0
 
@@ -252,11 +242,13 @@ class TestTaskRuntime:
     def test_custom_state(self) -> None:
         """TaskRuntime can use a provided TaskState."""
         task = Task(id="task", role=AgentRole.GENERIC)
-        state = TaskState(status=TaskStatus.RUNNING, attempt_num=1)
+        sd = _signal_dir()
+        state = TaskState(signal_dir=sd, attempt_num=1)
         runtime = TaskRuntime(task=task, state=state)
+        runtime.mark_running()
 
         assert runtime.state == state
-        assert runtime.state.status == TaskStatus.RUNNING
+        assert runtime.status == TaskStatus.RUNNING
 
     def test_custom_artifacts(self) -> None:
         """TaskRuntime can use provided TaskArtifacts."""
@@ -289,11 +281,12 @@ class TestTaskRuntime:
         task = Task(id="task", role=AgentRole.GENERIC)
         runtime = TaskRuntime(task=task)
 
-        runtime.state.status = TaskStatus.RUNNING
+        runtime.state.signal_dir = _signal_dir()
+        runtime.mark_running()
         runtime.state.worktree_path = Path("/tmp/work")
         runtime.state.attempt_num = 1
 
-        assert runtime.state.status == TaskStatus.RUNNING
+        assert runtime.status == TaskStatus.RUNNING
         assert runtime.state.worktree_path == Path("/tmp/work")
         assert runtime.state.attempt_num == 1
 
@@ -317,12 +310,13 @@ class TestTaskRuntime:
             completion_gate="pytest",
         )
         runtime = TaskRuntime(task=task)
+        runtime.state.signal_dir = _signal_dir()
 
         # Agent is launched
         runtime.artifacts.agent_address = TmuxAddress(
             session="agentrelay", pane_id="%2"
         )
-        runtime.state.status = TaskStatus.RUNNING
+        runtime.mark_running()
 
         # Agent starts working
         runtime.state.worktree_path = Path("/tmp/worktree-abc")
@@ -333,14 +327,14 @@ class TestTaskRuntime:
 
         # Agent completes and creates PR
         runtime.artifacts.pr_url = "https://github.com/org/repo/pull/42"
-        runtime.state.status = TaskStatus.PR_CREATED
+        runtime.mark_pr_created()
 
         # Orchestrator merges the PR
-        runtime.state.status = TaskStatus.PR_MERGED
+        runtime.mark_pr_merged()
 
         # Verify final state
         assert runtime.artifacts.agent_address.label == "agentrelay:%2"
-        assert runtime.state.status == TaskStatus.PR_MERGED
+        assert runtime.status == TaskStatus.PR_MERGED
         assert runtime.state.worktree_path == Path("/tmp/worktree-abc")
         assert runtime.state.branch_name == "feat/impl"
         assert len(runtime.artifacts.concerns) == 1
@@ -356,7 +350,8 @@ class TestTaskRuntime:
         runtime = TaskRuntime(task=task)
 
         # Modify runtime state
-        runtime.state.status = TaskStatus.RUNNING
+        runtime.state.signal_dir = _signal_dir()
+        runtime.mark_running()
         runtime.artifacts.pr_url = "https://github.com/user/repo/pull/1"
 
         # Task spec is unchanged
@@ -391,5 +386,16 @@ class TestTaskRuntime:
         assert runtime.task.id == "impl"
         assert len(runtime.task.dependencies) == 2
         assert runtime.task.completion_gate == "pytest"
-        assert runtime.state.status == TaskStatus.PENDING
+        assert runtime.status == TaskStatus.PENDING
         assert runtime.artifacts.agent_address is None
+
+    def test_status_pending_without_signal_dir(self) -> None:
+        """Status is PENDING when signal_dir is not set and no error."""
+        runtime = TaskRuntime(task=Task(id="t", role=AgentRole.GENERIC))
+        assert runtime.status == TaskStatus.PENDING
+
+    def test_status_failed_without_signal_dir_when_error_set(self) -> None:
+        """Status is FAILED when signal_dir is not set but error is set."""
+        runtime = TaskRuntime(task=Task(id="t", role=AgentRole.GENERIC))
+        runtime.mark_failed("pre-prepare failure")
+        assert runtime.status == TaskStatus.FAILED

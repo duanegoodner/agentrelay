@@ -205,7 +205,7 @@ def print_summary(
     }
     rows: list[tuple[str, ...]] = []
     for task_id, runtime in result.task_runtimes.items():
-        status = status_labels.get(runtime.state.status, runtime.state.status.value)
+        status = status_labels.get(runtime.status, runtime.status.value)
         workstream = runtime.task.workstream_id
         attempts = str(runtime.state.attempt_num + 1)
         dur = durations.get(task_id)
@@ -237,7 +237,7 @@ def print_summary(
     failed_errors = [
         (tid, rt.state.error)
         for tid, rt in result.task_runtimes.items()
-        if rt.state.status is TaskStatus.FAILED and rt.state.error
+        if rt.status is TaskStatus.FAILED and rt.state.error
     ]
     if failed_errors:
         stream.write("\nErrors:\n")
