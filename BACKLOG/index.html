@@ -1393,11 +1393,23 @@ without a structured foundation; this item addresses the root cause.</p>
 <li><strong>Default-with-overrides pattern</strong>: Define default role instructions as templates
   that interpret structured data from manifest.json and policies.json. Provide a
   mechanism for per-task description overrides that layer on top of defaults.</li>
-<li><strong>Trade-off</strong>: More abstraction improves flexibility but reduces auditability —
-  tracing exactly what instructions an agent received requires resolving the
-  template + overrides chain. Consider keeping a rendered snapshot of the final
-  instructions in the signal directory (already done: instructions.md is written
-  to disk after resolution).</li>
+<li><strong>Trade-offs to balance</strong>: The current approach — orchestrator-side objects
+  produce deterministic instructions.md content, agents receive three auditable
+  files (instructions.md, manifest.json, policies.json) — has clear strengths:</li>
+<li><strong>Auditability</strong>: What the agent saw is exactly what's on disk. No need to
+    trace through override chains or resolve templates to understand what happened.</li>
+<li><strong>Simplicity</strong>: Adding new guidance (e.g., tool usage via <code>TOOL_REGISTRY</code>)
+    is just programmatic input → rendered output. No new agent-side abstractions.</li>
+<li><strong>Debuggability</strong>: Three files to inspect per task. Nothing hidden.</li>
+<li>The cost is <strong>repetition</strong> — every agent gets the full boilerplate even when
+    most of it is identical across tasks in the same graph.</li>
+<li>A more structured agent-side architecture would reduce repetition and enable
+    agent-side interpretation of policies, but at the cost of auditability (need
+    to trace what the agent actually did with the structured data) and complexity
+    (agents need to understand a protocol, not just follow instructions).</li>
+<li><strong>Recommendation</strong>: Only pursue the structured approach when repetition
+    becomes a measurable problem (token cost, context window pressure, or
+    performance). The simpler rendered-output model is the right default.</li>
 </ul>
 <h2 id="agent-build-environment-awareness">Agent Build Environment Awareness</h2>
 <p>Agents don't always know how to invoke commands in the target repo's build

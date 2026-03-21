@@ -3225,7 +3225,7 @@ ended <code>FAILED</code>.</p>
 
 
 <h2 id="agentrelay.orchestrator.build_standard_runner" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">build_standard_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">context_content</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">build_standard_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">context_content</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">())</span></code>
 
 </h2>
 
@@ -3369,6 +3369,22 @@ implementations. Refer to the sensitivity table in
                   <code>None</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>tools</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declared tool names from the graph YAML.</p>
+              </div>
+            </td>
+            <td>
+                  <code>()</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3479,13 +3495,17 @@ implementations. Refer to the sensitivity table in
 <span class="normal">175</span>
 <span class="normal">176</span>
 <span class="normal">177</span>
-<span class="normal">178</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
     <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
     <span class="n">context_content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">tools</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardTaskRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard runner for worktree + tmux + Claude Code.</span>
 
@@ -3522,6 +3542,7 @@ implementations. Refer to the sensitivity table in
 <span class="sd">        keep_panes: Whether to keep tmux panes after teardown.</span>
 <span class="sd">        poll_interval: Seconds between completion signal polls.</span>
 <span class="sd">        context_content: Optional context content to write to the signal dir.</span>
+<span class="sd">        tools: Declared tool names from the graph YAML.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A fully wired :class:`StandardTaskRunner`.</span>
@@ -3537,6 +3558,7 @@ implementations. Refer to the sensitivity table in
             <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">,</span>
             <span class="n">dependency_descriptions</span><span class="o">=</span><span class="n">dep_descs</span><span class="p">,</span>
             <span class="n">context_content</span><span class="o">=</span><span class="n">context_content</span><span class="p">,</span>
+            <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_make_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskMerger</span><span class="p">:</span>
@@ -3663,10 +3685,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">184</span>
 <span class="normal">185</span>
 <span class="normal">186</span>
 <span class="normal">187</span>
@@ -3692,7 +3711,10 @@ implementations. Refer to the sensitivity table in
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
-<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardWorkstreamRunner</span><span class="p">:</span>

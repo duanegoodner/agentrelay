@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#declared-tools-taskhelper-cli-wrapper-pr-b2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declared tools + TaskHelper CLI wrapper (PR B2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#roles-test-graphs-and-multi-role-pipeline-pr-b" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1767,6 +1778,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#declared-tools-taskhelper-cli-wrapper-pr-b2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Declared tools + TaskHelper CLI wrapper (PR B2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#roles-test-graphs-and-multi-role-pipeline-pr-b" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2398,6 +2420,18 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-21">2026-03-21</h2>
+<h3 id="declared-tools-taskhelper-cli-wrapper-pr-b2">Declared tools + TaskHelper CLI wrapper (PR B2)</h3>
+<ul>
+<li><strong>Declared tools in graph YAML</strong>: New <code>tools</code> field (list of tool names)
+  at the graph level. The orchestrator validates each tool is available before
+  launch and injects usage guidance into agent instructions. Starts with pixi;
+  extensible via <code>TOOL_REGISTRY</code> in <code>tools.py</code>.</li>
+<li><strong>TaskHelper CLI wrapper</strong>: Agents can now use shell commands instead of
+  inline Python: <code>agentrelay-complete</code>, <code>agentrelay-failed</code>, <code>agentrelay-concern</code>.
+  Eliminates shell-escaping issues with inline Python in zsh.</li>
+<li><strong>Workflow footer updated</strong>: Shows CLI commands instead of Python snippets.
+  Tools guidance section appears when tools are declared.</li>
+</ul>
 <h3 id="roles-test-graphs-and-multi-role-pipeline-pr-b">Roles test graphs and multi-role pipeline (PR B)</h3>
 <ul>
 <li><strong>Roles pipeline graph</strong> (<code>graphs/roles/pipeline.yaml</code>): Four-role pipeline

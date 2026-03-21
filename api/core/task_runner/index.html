@@ -6482,7 +6482,9 @@ creates and checks out branches within it.</p>
 <span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
-<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorktreeTaskPreparer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a task branch in a shared workstream worktree and write protocol files.</span>
 
@@ -6499,6 +6501,7 @@ creates and checks out branches within it.</p>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">dependency_descriptions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">context_content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">tools</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare runtime execution prerequisites.</span>
@@ -6553,6 +6556,7 @@ creates and checks out branches within it.</p>
             <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
             <span class="n">attempt_num</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
             <span class="n">dependency_descriptions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_descriptions</span><span class="p">,</span>
+            <span class="n">tools</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span> <span class="n">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">))</span>
 
@@ -6664,8 +6668,7 @@ and writes protocol files to the signal directory.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_preparer.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 41</span>
-<span class="normal"> 42</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 42</span>
 <span class="normal"> 43</span>
 <span class="normal"> 44</span>
 <span class="normal"> 45</span>
@@ -6731,7 +6734,9 @@ and writes protocol files to the signal directory.</p>
 <span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
-<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare runtime execution prerequisites.</span>
 
 <span class="sd">    Creates a task branch in the workstream worktree, checks it out,</span>
@@ -6784,6 +6789,7 @@ and writes protocol files to the signal directory.</p>
         <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
         <span class="n">attempt_num</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
         <span class="n">dependency_descriptions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_descriptions</span><span class="p">,</span>
+        <span class="n">tools</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">,</span> <span class="n">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">))</span>
 
