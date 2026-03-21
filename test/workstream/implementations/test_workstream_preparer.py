@@ -74,6 +74,24 @@ class TestGitWorkstreamPreparer:
         )
 
     @patch("agentrelay.workstream.implementations.workstream_preparer.git")
+    def test_sets_auto_setup_remote_in_worktree(
+        self,
+        mock_git: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """Sets push.autoSetupRemote=true in the worktree git config."""
+        preparer = _make_preparer(repo_path=tmp_path)
+        runtime = _make_runtime()
+
+        preparer.prepare_workstream(runtime)
+
+        mock_git.set_config.assert_called_once_with(
+            tmp_path / ".worktrees/demo/ws-1",
+            "push.autoSetupRemote",
+            "true",
+        )
+
+    @patch("agentrelay.workstream.implementations.workstream_preparer.git")
     def test_sets_runtime_state(
         self,
         _mock_git: MagicMock,
