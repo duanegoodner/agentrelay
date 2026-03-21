@@ -1187,10 +1187,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b2-build-env-detection-taskhelper-cli-wrapper" class="md-nav__link">
+  <a href="#pr-b2-declared-tools-taskhelper-cli-template-cleanup-done-prs-120-121" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B2: Build env detection + TaskHelper CLI wrapper
+        PR B2: Declared tools + TaskHelper CLI + template cleanup — Done (PRs #120, #121)
       
     </span>
   </a>
@@ -1198,10 +1198,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b3-ops-concerns" class="md-nav__link">
+  <a href="#pr-b3-role-specific-workflow-fixes" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B3: Ops concerns
+        PR B3: Role-specific workflow fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b4-ops-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B4: Ops concerns
       
     </span>
   </a>
@@ -1494,36 +1505,54 @@ them").</p>
 - [x] <code>pixi run check</code> passes
 - [x] E2E: pipeline graph runs to completion</p>
 <hr />
-<h3 id="pr-b2-build-env-detection-taskhelper-cli-wrapper">PR B2: Build env detection + TaskHelper CLI wrapper</h3>
+<h3 id="pr-b2-declared-tools-taskhelper-cli-template-cleanup-done-prs-120-121">PR B2: Declared tools + TaskHelper CLI + template cleanup — <strong>Done</strong> (PRs #120, #121)</h3>
+<ul>
+<li>Branches: <code>feat/declared-tools-cli</code>, <code>fix/template-description-cleanup</code></li>
+</ul>
+<p><strong>Delivered:</strong>
+- Declared <code>tools</code> field in graph YAML (list of tool names). Orchestrator
+  validates each tool is available (preflight check) and injects usage
+  guidance into agent instructions via <code>TOOL_REGISTRY</code> in <code>tools.py</code>.
+- TaskHelper CLI wrapper: <code>agentrelay-complete</code>, <code>agentrelay-failed</code>,
+  <code>agentrelay-concern</code> — shell commands replacing inline Python.
+- Workflow footer updated to show CLI commands + tools guidance.
+- Optional <code>$description_section</code> in all role templates — task description
+  now renders directly in instructions.md when present.
+- Implementer concern guidance aligned to CLI (<code>agentrelay-concern</code>).
+- Backlog items: instruction architecture trade-offs, role-specific
+  workflow issues (no-commit PR, git push upstream, spec source-of-truth).</p>
+<p><strong>E2E result:</strong>
+- Pipeline runs to completion. Agents use <code>pixi run</code> and complete via CLI.</p>
+<p><strong>Acceptance criteria:</strong>
+- [x] Agents consistently use the correct build system commands
+- [x] TaskHelper completion works via CLI without shell-escaping issues
+- [x] Task description appears in spec_writer instructions.md
+- [x] <code>pixi run check</code> passes (897 tests)
+- [x] E2E: agents use <code>pixi run</code> and complete tasks without env friction</p>
+<hr />
+<h3 id="pr-b3-role-specific-workflow-fixes">PR B3: Role-specific workflow fixes</h3>
 <ul>
 <li>Branch: TBD</li>
 </ul>
-<p><strong>Problem:</strong> Two mechanical failures observed in E2E runs: (1) agents use
-bare <code>python</code>/<code>pytest</code> instead of <code>pixi run</code>, causing import errors;
-(2) agents struggle with inline Python in zsh for <code>helper.complete()</code> due
-to shell-escaping issues.</p>
-<p><strong>Build env detection (orchestrator side):</strong>
-- Detect build system in the target repo (e.g., <code>pixi.toml</code> → pixi)
-- Inject a "Build environment" section into instructions.md telling agents
-  the correct command prefix (e.g., "Use <code>pixi run</code> for all Python and
-  test commands")
-- Implementation: add detection in task_preparer or templates, pass build
-  system info through manifest or directly into the workflow footer</p>
-<p><strong>TaskHelper CLI wrapper (agent side):</strong>
-- Add CLI entry points to agent_sdk so agents can call shell commands
-  instead of writing inline Python:
-  - <code>agentrelay-complete --title "..." --body "..."</code>
-  - <code>agentrelay-failed --reason "..."</code>
-  - <code>agentrelay-concern --message "..."</code>
-- Update the workflow footer to show CLI commands instead of Python snippets
-- Keep the Python API as-is for programmatic use</p>
+<p><strong>Problem:</strong> Two issues observed during E2E pipeline runs:</p>
+<p><strong>No-commit PR failure (test_reviewer):</strong>
+- Review-only roles that produce no code changes can't create a PR because
+  branch HEAD == integration HEAD. The agent worked around it by committing
+  an unrelated pixi.lock change.
+- Fix: allow review-only tasks to complete without a PR, or have the
+  reviewer write a review summary file so there's always a commit.</p>
+<p><strong>Git push without upstream (test_writer):</strong>
+- First <code>git push</code> fails because the task branch has no upstream set.
+  Agent recovers with <code>git push -u</code>, but this is avoidable friction.
+- Fix: set <code>push.autoSetupRemote=true</code> in worktree git config during task
+  preparation, or configure upstream when creating the branch.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Agents consistently use the correct build system commands
-- [ ] TaskHelper completion works via CLI without shell-escaping issues
+- [ ] Review-only tasks complete without needing a dummy commit
+- [ ] First <code>git push</code> succeeds without <code>--set-upstream</code>
 - [ ] <code>pixi run check</code> passes
-- [ ] E2E: agents use <code>pixi run</code> and complete tasks without env friction</p>
+- [ ] E2E: pipeline runs without either workaround</p>
 <hr />
-<h3 id="pr-b3-ops-concerns">PR B3: Ops concerns</h3>
+<h3 id="pr-b4-ops-concerns">PR B4: Ops concerns</h3>
 <ul>
 <li>Branch: TBD</li>
 </ul>
