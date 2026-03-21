@@ -680,6 +680,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cross-workstream-dependency-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Workstream Dependency Ordering
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-Workstream Dependency Ordering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#human-merge-and-status-signaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Human merge and status signaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#premature-cross-workstream-task-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Premature cross-workstream task dispatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1419,6 +1458,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cross-workstream-dependency-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Workstream Dependency Ordering
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-Workstream Dependency Ordering">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#human-merge-and-status-signaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Human merge and status signaling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#premature-cross-workstream-task-dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Premature cross-workstream task dispatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1594,6 +1672,25 @@ Options:
 - Configure the upstream when creating the task branch in the preparer.
 - This is likely a <strong>core fix</strong> (preparer or git config) rather than an
   ops concern, since it affects every task on first push.</p>
+<h2 id="cross-workstream-dependency-ordering">Cross-Workstream Dependency Ordering</h2>
+<p>Two related questions about correctness when tasks span workstreams:</p>
+<h3 id="human-merge-and-status-signaling">Human merge and status signaling</h3>
+<p>Integration PRs are left for human merge (by design, since PR A2). When a
+human merges a workstream's integration branch to main, does the orchestrator
+need the human to write a status signal file (e.g., marking the workstream
+as MERGED) so that downstream tasks/workstreams can be initiated? Or does the
+orchestrator detect the merge via some other mechanism? If signal files are
+needed, we should either automate this (GitHub webhook, polling) or document
+the manual step clearly.</p>
+<h3 id="premature-cross-workstream-task-dispatch">Premature cross-workstream task dispatch</h3>
+<p>If Task A is in Workstream X and Task B is in Workstream Y, and B depends
+on A: does the orchestrator wait until Workstream X's integration branch
+has been merged to main before starting Task B? The concern is that the
+orchestrator could see Task A as PR_MERGED (its task PR merged to the
+integration branch) and dispatch Task B before Workstream X's integration
+PR is merged to main — meaning Task B's worktree wouldn't have Task A's
+changes. Need to verify whether the current orchestrator scheduling logic
+prevents this, or if this is a gap.</p>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
