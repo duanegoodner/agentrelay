@@ -563,6 +563,7 @@ ops_pkg: "ops/" {
     +push_branch(repo, branch, set_upstream): void
     +push_delete_branch(repo, branch): void
     +ls_remote_branch_exists(repo, branch): bool
+    +set_config(repo, key, value): void
   }
 
   tmux: "tmux <<module>>" {
@@ -773,6 +774,7 @@ agent_sdk_pkg: "agent_sdk/" {
     integration_branch: str
     +from_env(): TaskHelper
     +complete(title, body): void
+    +complete_without_pr(): void
     +create_pr(title, body): str
     +mark_done(pr_url): void
     +mark_failed(reason): void
@@ -783,6 +785,7 @@ agent_sdk_pkg: "agent_sdk/" {
     shape: class
     module_path: agent_sdk.cli
     "+complete()": void
+    "+complete_no_pr()": void
     "+failed()": void
     "+concern()": void
   }
