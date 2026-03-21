@@ -126,6 +126,11 @@ After completing the work above:
    Provide a meaningful PR title (concise) and body (markdown with a ## Summary section).
    Any recorded concerns are automatically appended to the PR body.
 
+If you made no code changes (e.g., review-only work), complete without a PR:
+   ```bash
+   agentrelay-complete-no-pr
+   ```
+
 If you cannot complete the work, signal failure instead:
    ```bash
    agentrelay-failed --reason "reason for failure"

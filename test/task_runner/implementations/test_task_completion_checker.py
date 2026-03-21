@@ -68,6 +68,24 @@ class TestSignalCompletionChecker:
         assert signal.concerns == ()
 
     @patch("agentrelay.task_runner.implementations.task_completion_checker.signals")
+    def test_done_signal_with_no_pr_sentinel_returns_none_pr_url(
+        self, mock_signals: MagicMock
+    ) -> None:
+        """Parses .done file with NO_PR sentinel and returns pr_url=None."""
+        mock_signals.poll_signal_files = AsyncMock(return_value=".done")
+        mock_signals.read_signal_file.side_effect = lambda _dir, name: {
+            ".done": "2026-03-13T10:00:00Z\nNO_PR\n",
+            "concerns.log": None,
+        }[name]
+
+        checker = SignalCompletionChecker(poll_interval=0.01)
+        signal = asyncio.run(checker.wait_for_completion(_make_runtime()))
+
+        assert signal.outcome == "done"
+        assert signal.pr_url is None
+        assert signal.concerns == ()
+
+    @patch("agentrelay.task_runner.implementations.task_completion_checker.signals")
     def test_failed_signal_returns_error(self, mock_signals: MagicMock) -> None:
         """Parses .failed file and returns failed signal with error."""
         mock_signals.poll_signal_files = AsyncMock(return_value=".failed")

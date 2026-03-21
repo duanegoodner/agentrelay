@@ -12,3 +12,4 @@ $description_section
    untestable structure), signal failure and explain why.
 
 Do NOT implement the feature. Only review the tests.
+If the tests pass review, complete without a PR — you are not expected to have code changes.

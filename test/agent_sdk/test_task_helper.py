@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from agentrelay.agent_sdk.task_helper import TaskHelper
+from agentrelay.agent_sdk.task_helper import NO_PR_SENTINEL, TaskHelper
 
 
 def _write_manifest(signal_dir: Path, **overrides: object) -> None:
@@ -144,6 +144,21 @@ def test_create_pr_calls_gh(tmp_path: Path) -> None:
 
 
 # -- Complete (combined workflow) --
+
+
+def test_complete_without_pr_writes_no_pr_sentinel(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.complete_without_pr()
+
+    content = (tmp_path / ".done").read_text()
+    lines = content.strip().splitlines()
+    assert len(lines) == 2
+    assert lines[1] == NO_PR_SENTINEL
 
 
 def test_complete_creates_pr_and_signals_done(tmp_path: Path) -> None:

@@ -36,7 +36,11 @@ ALLOWED_TASK_TRANSITIONS: Mapping[TaskStatus, tuple[TaskStatus, ...]] = (
     MappingProxyType(
         {
             TaskStatus.PENDING: (TaskStatus.RUNNING,),
-            TaskStatus.RUNNING: (TaskStatus.PR_CREATED, TaskStatus.FAILED),
+            TaskStatus.RUNNING: (
+                TaskStatus.PR_CREATED,
+                TaskStatus.PR_MERGED,
+                TaskStatus.FAILED,
+            ),
             TaskStatus.PR_CREATED: (TaskStatus.PR_MERGED, TaskStatus.FAILED),
             TaskStatus.PR_MERGED: (),
             TaskStatus.FAILED: (),
@@ -259,23 +263,22 @@ class StandardTaskRunner:
                 )
                 return TaskRunResult.from_runtime(runtime)
 
-            if not signal.pr_url:
-                runtime.mark_failed(
-                    "Task completion signaled 'done' but did not include pr_url."
-                )
-                return TaskRunResult.from_runtime(runtime)
+            if signal.pr_url:
+                # Standard path: merge the PR.
+                runtime.artifacts.pr_url = signal.pr_url
+                self._transition(runtime, TaskStatus.PR_CREATED)
 
-            runtime.artifacts.pr_url = signal.pr_url
-            self._transition(runtime, TaskStatus.PR_CREATED)
+                self._emit_step("task_pr_merging", runtime, signal.pr_url)
+                try:
+                    self._merger(runtime).merge_pr(runtime, signal.pr_url)
+                except Exception as exc:
+                    fc = self._record_io_failure(runtime, exc)
+                    return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
-            self._emit_step("task_pr_merging", runtime, signal.pr_url)
-            try:
-                self._merger(runtime).merge_pr(runtime, signal.pr_url)
-            except Exception as exc:
-                fc = self._record_io_failure(runtime, exc)
-                return TaskRunResult.from_runtime(runtime, failure_class=fc)
-
-            self._transition(runtime, TaskStatus.PR_MERGED)
+                self._transition(runtime, TaskStatus.PR_MERGED)
+            else:
+                # PR-less completion (e.g., review-only task with no changes).
+                self._transition(runtime, TaskStatus.PR_MERGED)
         finally:
             if self._should_teardown(teardown_mode, runtime.status):
                 try:
