@@ -619,6 +619,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-ops-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Ops Concerns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1297,6 +1308,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-ops-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Ops Concerns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1355,6 +1377,11 @@
 <li>View protocols (<code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code>, <code>WorkstreamStateView</code>, <code>WorkstreamArtifactsView</code>, <code>WorkstreamRuntimeView</code>) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.</li>
 </ul>
 <h2 id="agent-instruction-architecture">Agent Instruction Architecture</h2>
+<blockquote>
+<p><strong>Priority</strong>: Highly recommended as the next focus after sprint 2026-03-19
+completes. The ad-hoc template fixes in B1–BN will accumulate friction
+without a structured foundation; this item addresses the root cause.</p>
+</blockquote>
 <ul>
 <li><strong>Structured concern definitions</strong>: Move concern qualification guidance from
   prose in role templates to a formal data field (e.g., a <code>concern_policy</code> in
@@ -1396,6 +1423,34 @@ increasing sophistication:</p>
 inline Python in zsh (<code>pixi run python -c "..."</code> has shell-escaping issues).
 A CLI wrapper (e.g., <code>agentrelay-complete --title "..." --body "..."</code>) would
 be more robust than asking agents to write inline Python.</p>
+<h2 id="agent-ops-concerns">Agent Ops Concerns</h2>
+<p>Agents encounter operational issues during task execution — wrong build
+commands, missing dependencies, permission errors, flaky tests, unexpected
+repo layout — that are distinct from design concerns about the spec or code.
+Even when the agent eventually works around the problem, the friction is
+worth capturing so it can be fixed systematically.</p>
+<ul>
+<li><strong>New concern type</strong>: <code>helper.record_ops_concern("description")</code> (or a
+  <code>category</code> parameter on <code>record_concern</code>). Ops concerns are written to a
+  separate file (e.g., <code>ops_concerns.log</code>) or tagged in the existing
+  <code>concerns.log</code> so the orchestrator can distinguish them from design concerns.</li>
+<li><strong>Visibility</strong>: Ops concerns surface in the integration PR body, console
+  output, and post-run summary — separately from design concerns so they
+  don't get lost in the noise.</li>
+<li><strong>Resolution paths</strong>:</li>
+<li><strong>Agent self-fix</strong>: Agent records the concern and also applies a local
+    workaround (e.g., switches to <code>pixi run</code>). The concern still gets logged
+    so the root cause can be addressed.</li>
+<li><strong>Orchestrator-driven fix</strong>: Orchestrator aggregates ops concerns across
+    runs and applies automated fixes (e.g., updating instructions templates,
+    injecting env context).</li>
+<li><strong>Human review</strong>: Periodic triage of ops concerns to identify patterns
+    and make durable fixes (CLAUDE.md updates, template changes, new backlog
+    items).</li>
+<li><strong>Examples of ops concerns</strong>: wrong Python/package manager invocation,
+  shell escaping issues with TaskHelper, missing directories, import path
+  confusion in worktrees, test collection failures from environment mismatch.</li>
+</ul>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>

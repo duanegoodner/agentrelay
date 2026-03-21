@@ -1187,10 +1187,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b2-agent-build-environment-awareness" class="md-nav__link">
+  <a href="#pr-b2-build-env-detection-taskhelper-cli-wrapper" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B2: Agent build environment awareness
+        PR B2: Build env detection + TaskHelper CLI wrapper
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b3-ops-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B3: Ops concerns
       
     </span>
   </a>
@@ -1483,34 +1494,64 @@ them").</p>
 - [x] <code>pixi run check</code> passes
 - [x] E2E: pipeline graph runs to completion</p>
 <hr />
-<h3 id="pr-b2-agent-build-environment-awareness">PR B2: Agent build environment awareness</h3>
+<h3 id="pr-b2-build-env-detection-taskhelper-cli-wrapper">PR B2: Build env detection + TaskHelper CLI wrapper</h3>
 <ul>
 <li>Branch: TBD</li>
 </ul>
-<blockquote>
-<p><strong>Decision gate:</strong> Choose between orchestrator-injected environment context
-(detect <code>pixi.toml</code>, inject "use <code>pixi run</code>" into instructions) or a
-lighter-weight approach. See <code>docs/BACKLOG.md</code> "Agent Build Environment
-Awareness" for options.</p>
-</blockquote>
-<p><strong>Problem:</strong> Agents sometimes use bare <code>python</code>/<code>pytest</code> instead of
-<code>pixi run</code>, causing import failures in target repos that use pixi.</p>
-<p><strong>Scope options (pick one or combine):</strong>
-- Orchestrator detects build system and injects guidance into instructions.md
-- TaskHelper CLI wrapper (<code>agentrelay-complete --title "..."</code>) to avoid
-  shell-escaping issues with inline Python in zsh</p>
+<p><strong>Problem:</strong> Two mechanical failures observed in E2E runs: (1) agents use
+bare <code>python</code>/<code>pytest</code> instead of <code>pixi run</code>, causing import errors;
+(2) agents struggle with inline Python in zsh for <code>helper.complete()</code> due
+to shell-escaping issues.</p>
+<p><strong>Build env detection (orchestrator side):</strong>
+- Detect build system in the target repo (e.g., <code>pixi.toml</code> → pixi)
+- Inject a "Build environment" section into instructions.md telling agents
+  the correct command prefix (e.g., "Use <code>pixi run</code> for all Python and
+  test commands")
+- Implementation: add detection in task_preparer or templates, pass build
+  system info through manifest or directly into the workflow footer</p>
+<p><strong>TaskHelper CLI wrapper (agent side):</strong>
+- Add CLI entry points to agent_sdk so agents can call shell commands
+  instead of writing inline Python:
+  - <code>agentrelay-complete --title "..." --body "..."</code>
+  - <code>agentrelay-failed --reason "..."</code>
+  - <code>agentrelay-concern --message "..."</code>
+- Update the workflow footer to show CLI commands instead of Python snippets
+- Keep the Python API as-is for programmatic use</p>
 <p><strong>Acceptance criteria:</strong>
 - [ ] Agents consistently use the correct build system commands
-- [ ] TaskHelper completion works reliably without shell-escaping hacks
+- [ ] TaskHelper completion works via CLI without shell-escaping issues
 - [ ] <code>pixi run check</code> passes
-- [ ] E2E: agents use <code>pixi run</code> without manual CLAUDE.md guidance</p>
+- [ ] E2E: agents use <code>pixi run</code> and complete tasks without env friction</p>
+<hr />
+<h3 id="pr-b3-ops-concerns">PR B3: Ops concerns</h3>
+<ul>
+<li>Branch: TBD</li>
+</ul>
+<p><strong>Problem:</strong> Agents encounter operational issues (wrong build commands,
+missing dependencies, import path confusion) that are distinct from design
+concerns. Even when the agent works around the problem, the friction should
+be captured so it can be fixed systematically.</p>
+<p><strong>Implementation:</strong>
+- Add <code>record_ops_concern()</code> to TaskHelper (or a <code>category</code> param on
+  <code>record_concern</code>)
+- Separate storage: <code>ops_concerns.log</code> in signal dir (or tagged lines in
+  <code>concerns.log</code>)
+- Orchestrator reads and surfaces ops concerns separately from design
+  concerns in console output and integration PR body
+- Update workflow footer to tell agents about ops concerns</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Agents can record ops concerns via TaskHelper
+- [ ] Ops concerns appear separately from design concerns in console output
+- [ ] Ops concerns appear in integration PR body
+- [ ] <code>pixi run check</code> passes
+- [ ] E2E: agent records an ops concern, visible in output</p>
 <hr />
 <h3 id="pr-bn-concern-instruction-refinement">PR BN: Concern instruction refinement</h3>
 <ul>
 <li>Branch: TBD</li>
 </ul>
 <blockquote>
-<p><strong>Prerequisite:</strong> PR B2 (clean agent runs needed for reliable experimentation)</p>
+<p><strong>Prerequisite:</strong> PR B2 (clean runs needed for reliable experimentation)</p>
 </blockquote>
 <p><strong>Problem:</strong> With baseline instructions, agents do not organically raise
 concerns about spec inconsistencies. Need to determine what level of guidance
