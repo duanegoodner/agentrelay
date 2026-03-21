@@ -158,6 +158,31 @@ Options:
 - This is likely a **core fix** (preparer or git config) rather than an
   ops concern, since it affects every task on first push.
 
+## Cross-Workstream Dependency Ordering
+
+Two related questions about correctness when tasks span workstreams:
+
+### Human merge and status signaling
+
+Integration PRs are left for human merge (by design, since PR A2). When a
+human merges a workstream's integration branch to main, does the orchestrator
+need the human to write a status signal file (e.g., marking the workstream
+as MERGED) so that downstream tasks/workstreams can be initiated? Or does the
+orchestrator detect the merge via some other mechanism? If signal files are
+needed, we should either automate this (GitHub webhook, polling) or document
+the manual step clearly.
+
+### Premature cross-workstream task dispatch
+
+If Task A is in Workstream X and Task B is in Workstream Y, and B depends
+on A: does the orchestrator wait until Workstream X's integration branch
+has been merged to main before starting Task B? The concern is that the
+orchestrator could see Task A as PR_MERGED (its task PR merged to the
+integration branch) and dispatch Task B before Workstream X's integration
+PR is merged to main — meaning Task B's worktree wouldn't have Task A's
+changes. Need to verify whether the current orchestrator scheduling logic
+prevents this, or if this is a gap.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
