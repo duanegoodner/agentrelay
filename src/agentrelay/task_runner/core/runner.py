@@ -44,6 +44,17 @@ ALLOWED_TASK_TRANSITIONS: Mapping[TaskStatus, tuple[TaskStatus, ...]] = (
     )
 )
 
+# Maps non-failure TaskStatus values to the corresponding mark method name
+# on TaskRuntime.  Used by StandardTaskRunner._transition().
+_MARK_DISPATCH: Mapping[TaskStatus, str] = MappingProxyType(
+    {
+        TaskStatus.PENDING: "mark_pending",
+        TaskStatus.RUNNING: "mark_running",
+        TaskStatus.PR_CREATED: "mark_pr_created",
+        TaskStatus.PR_MERGED: "mark_pr_merged",
+    }
+)
+
 
 class TearDownMode(str, Enum):
     """Policy controlling whether runtime resources are torn down after run.
@@ -98,7 +109,7 @@ class TaskRunResult:
         """
         return cls(
             task_id=runtime.task.id,
-            status=runtime.state.status,
+            status=runtime.status,
             pr_url=runtime.artifacts.pr_url,
             error=runtime.state.error,
             failure_class=failure_class,
@@ -193,19 +204,19 @@ class StandardTaskRunner:
         Raises:
             ValueError: If ``runtime`` does not enter in ``PENDING`` status.
         """
-        if runtime.state.status != TaskStatus.PENDING:
+        if runtime.status != TaskStatus.PENDING:
             raise ValueError(
-                "StandardTaskRunner.run() requires runtime.state.status == PENDING. "
-                f"Received {runtime.state.status!r}."
+                "StandardTaskRunner.run() requires runtime.status == PENDING. "
+                f"Received {runtime.status!r}."
             )
 
-        self._transition(runtime, TaskStatus.RUNNING)
         try:
             try:
                 self._preparer(runtime).prepare(runtime)
             except Exception as exc:
                 fc = self._record_io_failure(runtime, exc)
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
+            self._transition(runtime, TaskStatus.RUNNING)
             self._emit_step(
                 "task_prepared",
                 runtime,
@@ -243,15 +254,13 @@ class StandardTaskRunner:
             runtime.artifacts.concerns.extend(signal.concerns)
 
             if signal.outcome == "failed":
-                self._transition(runtime, TaskStatus.FAILED)
-                runtime.state.error = (
+                runtime.mark_failed(
                     signal.error or "Task failed without an error message."
                 )
                 return TaskRunResult.from_runtime(runtime)
 
             if not signal.pr_url:
-                self._transition(runtime, TaskStatus.FAILED)
-                runtime.state.error = (
+                runtime.mark_failed(
                     "Task completion signaled 'done' but did not include pr_url."
                 )
                 return TaskRunResult.from_runtime(runtime)
@@ -268,7 +277,7 @@ class StandardTaskRunner:
 
             self._transition(runtime, TaskStatus.PR_MERGED)
         finally:
-            if self._should_teardown(teardown_mode, runtime.state.status):
+            if self._should_teardown(teardown_mode, runtime.status):
                 try:
                     self._teardown(runtime).teardown(runtime)
                 except Exception as exc:
@@ -298,27 +307,26 @@ class StandardTaskRunner:
         )
 
     def _transition(self, runtime: TaskRuntime, target: TaskStatus) -> None:
-        """Transition runtime status while enforcing legal lifecycle edges."""
-        current = runtime.state.status
+        """Transition runtime status while enforcing legal lifecycle edges.
+
+        Handles non-failure transitions; ``FAILED`` is written directly by
+        callers via ``runtime.mark_failed(error)``.
+        """
+        current = runtime.status
         allowed = ALLOWED_TASK_TRANSITIONS[current]
         if target not in allowed:
             raise RuntimeError(
                 f"Illegal task status transition: {current.value} -> {target.value}"
             )
-        runtime.state.status = target
-
-    def _transition_to_failed(self, runtime: TaskRuntime) -> None:
-        """Move runtime to ``FAILED``, enforcing the transition table."""
-        if runtime.state.status == TaskStatus.FAILED:
-            return
-        self._transition(runtime, TaskStatus.FAILED)
+        method_name = _MARK_DISPATCH[target]
+        getattr(runtime, method_name)()
 
     def _record_io_failure(
         self, runtime: TaskRuntime, exc: Exception
     ) -> IntegrationFailureClass:
         """Record an I/O boundary failure and return its classification."""
-        self._transition_to_failed(runtime)
-        runtime.state.error = f"{type(exc).__name__}: {exc}"
+        if runtime.status != TaskStatus.FAILED:
+            runtime.mark_failed(f"{type(exc).__name__}: {exc}")
         return classify_integration_error(exc)
 
     def _should_teardown(

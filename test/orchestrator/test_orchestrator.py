@@ -58,32 +58,31 @@ class ScriptedTaskRunner:
         self.calls.append((task_id, attempt_num, teardown_mode))
         action = self.script.get((task_id, attempt_num), "success")
 
+        if runtime.state.signal_dir is None:
+            runtime.state.signal_dir = Path(tempfile.mkdtemp())
+
         if action == "raise":
             raise RuntimeError(f"{task_id} internal boom")
         if action == "block":
             await asyncio.sleep(10)
         if action == "fail":
-            runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = f"{task_id} failed"
+            runtime.mark_failed(f"{task_id} failed")
             return TaskRunResult.from_runtime(runtime)
         if action == "fail_internal":
-            runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = f"{task_id} internal adapter error"
+            runtime.mark_failed(f"{task_id} internal adapter error")
             return TaskRunResult.from_runtime(
                 runtime,
                 failure_class=IntegrationFailureClass.INTERNAL_ERROR,
             )
         if action == "fail_expected":
-            runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = f"{task_id} expected adapter failure"
+            runtime.mark_failed(f"{task_id} expected adapter failure")
             return TaskRunResult.from_runtime(
                 runtime,
                 failure_class=IntegrationFailureClass.EXPECTED_TASK_FAILURE,
             )
 
         runtime.artifacts.pr_url = f"https://example.com/{task_id}/{attempt_num}"
-        runtime.state.status = TaskStatus.PR_MERGED
-        runtime.state.error = None
+        runtime.mark_pr_merged()
         return TaskRunResult.from_runtime(runtime)
 
 
@@ -144,7 +143,9 @@ def test_one_active_task_per_workstream() -> None:
             await asyncio.sleep(0)
             self.active -= 1
             runtime.artifacts.pr_url = f"https://example.com/{runtime.task.id}/0"
-            runtime.state.status = TaskStatus.PR_MERGED
+            if runtime.state.signal_dir is None:
+                runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            runtime.mark_pr_merged()
             return TaskRunResult.from_runtime(runtime)
 
     task_a = _task("a")
@@ -199,7 +200,9 @@ def test_same_workstream_dispatch_race_regression() -> None:
                 await asyncio.sleep(0)
             self.active -= 1
             runtime.artifacts.pr_url = f"https://example.com/{runtime.task.id}/0"
-            runtime.state.status = TaskStatus.PR_MERGED
+            if runtime.state.signal_dir is None:
+                runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            runtime.mark_pr_merged()
             return TaskRunResult.from_runtime(runtime)
 
     graph = TaskGraph.from_tasks((_task("x"), _task("y")))
@@ -263,7 +266,7 @@ def test_expected_failure_is_retried_until_success() -> None:
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     assert [attempt for _, attempt, _ in runner.calls] == [0, 1]
-    assert result.task_runtimes["retry_me"].state.status == TaskStatus.PR_MERGED
+    assert result.task_runtimes["retry_me"].status == TaskStatus.PR_MERGED
     assert result.task_runtimes["retry_me"].state.attempt_num == 1
     assert any(
         event.outcome_class == TaskOutcomeClass.EXPECTED_FAILURE
@@ -288,7 +291,7 @@ def test_expected_failure_without_retries_is_terminal() -> None:
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert len(runner.calls) == 1
-    assert result.task_runtimes["fails_once"].state.status == TaskStatus.FAILED
+    assert result.task_runtimes["fails_once"].status == TaskStatus.FAILED
     assert result.workstream_runtimes["default"].status == WorkstreamStatus.FAILED
     assert any(
         event.outcome_class == TaskOutcomeClass.EXPECTED_FAILURE
@@ -313,7 +316,7 @@ def test_raised_task_runner_error_is_internal_fail_fast() -> None:
 
     assert result.outcome == OrchestratorOutcome.FATAL_INTERNAL_ERROR
     assert len(runner.calls) == 1
-    assert result.task_runtimes["explodes"].state.status == TaskStatus.FAILED
+    assert result.task_runtimes["explodes"].status == TaskStatus.FAILED
     assert result.fatal_error is not None
     assert "RuntimeError: explodes internal boom" in result.fatal_error
     assert any(
@@ -348,8 +351,8 @@ def test_fail_fast_internal_error_cancels_other_inflight_tasks() -> None:
     )
 
     assert result.outcome == OrchestratorOutcome.FATAL_INTERNAL_ERROR
-    assert result.task_runtimes["explodes"].state.status == TaskStatus.FAILED
-    assert result.task_runtimes["blocked"].state.status == TaskStatus.FAILED
+    assert result.task_runtimes["explodes"].status == TaskStatus.FAILED
+    assert result.task_runtimes["blocked"].status == TaskStatus.FAILED
     assert (
         result.task_runtimes["blocked"].state.error
         == "canceled due to fatal internal orchestrator error"
@@ -397,8 +400,8 @@ def test_descendant_workstream_task_is_blocked_after_parent_failure() -> None:
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert [task_id for task_id, _, _ in runner.calls] == ["parent_task"]
-    assert result.task_runtimes["parent_task"].state.status == TaskStatus.FAILED
-    assert result.task_runtimes["child_task"].state.status == TaskStatus.FAILED
+    assert result.task_runtimes["parent_task"].status == TaskStatus.FAILED
+    assert result.task_runtimes["child_task"].status == TaskStatus.FAILED
     assert "ancestor workstream 'a' failed" in (
         result.task_runtimes["child_task"].state.error or ""
     )
@@ -447,7 +450,7 @@ def test_internal_failure_class_triggers_fail_fast() -> None:
 
     assert result.outcome == OrchestratorOutcome.FATAL_INTERNAL_ERROR
     assert len(runner.calls) == 1
-    assert result.task_runtimes["adapter_fails"].state.status == TaskStatus.FAILED
+    assert result.task_runtimes["adapter_fails"].status == TaskStatus.FAILED
     assert any(
         event.outcome_class == TaskOutcomeClass.INTERNAL_ERROR
         for event in result.events
@@ -740,6 +743,6 @@ def test_workstream_integration_failure_downgrades_outcome() -> None:
     )
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
-    assert result.task_runtimes["a"].state.status == TaskStatus.PR_MERGED
+    assert result.task_runtimes["a"].status == TaskStatus.PR_MERGED
     assert result.workstream_runtimes["default"].status == WorkstreamStatus.FAILED
     assert any(event.kind == "workstream_integration_failed" for event in result.events)

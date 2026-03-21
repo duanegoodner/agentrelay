@@ -1,5 +1,6 @@
 """Tests for task_runtime_builder: graph -> initial runtime map."""
 
+import tempfile
 from pathlib import Path
 
 from agentrelay.orchestrator.builders import TaskRuntimeBuilder
@@ -42,7 +43,7 @@ def test_runtime_defaults_state_artifacts_and_agent() -> None:
     runtimes = TaskRuntimeBuilder.from_graph(graph)
 
     for runtime in runtimes.values():
-        assert runtime.state.status == TaskStatus.PENDING
+        assert runtime.status == TaskStatus.PENDING
         assert runtime.state.worktree_path is None
         assert runtime.state.branch_name is None
         assert runtime.state.error is None
@@ -56,12 +57,13 @@ def test_runtime_mutation_isolated_per_task_state() -> None:
     graph = _graph()
     runtimes = TaskRuntimeBuilder.from_graph(graph)
 
-    runtimes["a"].state.status = TaskStatus.RUNNING
+    runtimes["a"].state.signal_dir = Path(tempfile.mkdtemp())
+    runtimes["a"].mark_running()
     runtimes["a"].state.worktree_path = Path("/tmp/worktree-a")
 
-    assert runtimes["b"].state.status == TaskStatus.PENDING
+    assert runtimes["b"].status == TaskStatus.PENDING
     assert runtimes["b"].state.worktree_path is None
-    assert runtimes["c"].state.status == TaskStatus.PENDING
+    assert runtimes["c"].status == TaskStatus.PENDING
     assert runtimes["c"].state.worktree_path is None
 
 
@@ -94,10 +96,13 @@ def test_from_graph_runtimes_can_track_different_lifecycle_states() -> None:
     graph = _graph()
     runtimes = TaskRuntimeBuilder.from_graph(graph)
 
-    runtimes["a"].state.status = TaskStatus.PR_MERGED
-    runtimes["b"].state.status = TaskStatus.RUNNING
-    runtimes["c"].state.status = TaskStatus.FAILED
+    for rt in runtimes.values():
+        rt.state.signal_dir = Path(tempfile.mkdtemp())
 
-    assert runtimes["a"].state.status == TaskStatus.PR_MERGED
-    assert runtimes["b"].state.status == TaskStatus.RUNNING
-    assert runtimes["c"].state.status == TaskStatus.FAILED
+    runtimes["a"].mark_pr_merged()
+    runtimes["b"].mark_running()
+    runtimes["c"].mark_failed("test error")
+
+    assert runtimes["a"].status == TaskStatus.PR_MERGED
+    assert runtimes["b"].status == TaskStatus.RUNNING
+    assert runtimes["c"].status == TaskStatus.FAILED

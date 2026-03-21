@@ -41,25 +41,25 @@ class ScriptedTaskRunner:
         self.calls.append((task_id, attempt_num, teardown_mode))
         action = self.script.get((task_id, attempt_num), "success")
 
+        if runtime.state.signal_dir is None:
+            runtime.state.signal_dir = Path(tempfile.mkdtemp())
+
         if action == "raise":
             raise RuntimeError(f"{task_id} internal boom")
         if action == "block":
             await asyncio.sleep(10)
         if action == "fail":
-            runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = f"{task_id} failed"
+            runtime.mark_failed(f"{task_id} failed")
             return TaskRunResult.from_runtime(runtime)
         if action == "fail_internal":
-            runtime.state.status = TaskStatus.FAILED
-            runtime.state.error = f"{task_id} internal adapter error"
+            runtime.mark_failed(f"{task_id} internal adapter error")
             return TaskRunResult.from_runtime(
                 runtime,
                 failure_class=IntegrationFailureClass.INTERNAL_ERROR,
             )
 
         runtime.artifacts.pr_url = f"https://example.com/{task_id}/{attempt_num}"
-        runtime.state.status = TaskStatus.PR_MERGED
-        runtime.state.error = None
+        runtime.mark_pr_merged()
         return TaskRunResult.from_runtime(runtime)
 
 
@@ -293,4 +293,4 @@ def test_run_graph_with_task_failure(tmp_path: Path) -> None:
         )
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
-    assert result.task_runtimes["task_a"].state.status == TaskStatus.FAILED
+    assert result.task_runtimes["task_a"].status == TaskStatus.FAILED

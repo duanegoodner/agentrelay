@@ -43,6 +43,39 @@ class TaskStatus(str, Enum):
     FAILED = "failed"
 
 
+# Ordered sequence of non-failure statuses for determining current state
+# from signal files.  The latest file in this sequence wins.
+_TASK_STATUS_SEQUENCE: tuple[TaskStatus, ...] = (
+    TaskStatus.PENDING,
+    TaskStatus.RUNNING,
+    TaskStatus.PR_CREATED,
+    TaskStatus.PR_MERGED,
+)
+
+
+def _read_task_status_from_signals(signal_dir: Path) -> TaskStatus:
+    """Determine task status from signal files on disk.
+
+    ``FAILED`` takes priority if present.  Otherwise, the latest status in
+    the known sequence whose signal file exists is returned.
+
+    Args:
+        signal_dir: Path to the task signal directory.  Status files are
+            read from the ``status/`` subdirectory.
+
+    Returns:
+        The current task status.
+    """
+    status_dir = signal_dir / "status"
+    if (status_dir / "failed").exists():
+        return TaskStatus.FAILED
+    result = TaskStatus.PENDING
+    for status in _TASK_STATUS_SEQUENCE:
+        if (status_dir / status.value).exists():
+            result = status
+    return result
+
+
 # ── Runtime state and artifacts ──
 
 
@@ -54,11 +87,12 @@ class TaskState:
     as managed by the orchestrator.
 
     Attributes:
-        status: Current execution state (TaskStatus enum).
         worktree_path: Filesystem path to the git worktree where the agent works,
             or None if not yet created.
         branch_name: Name of the feature branch in the worktree,
             or None if not yet created.
+        signal_dir: Path to the task signal directory for signal and status
+            files, or None if not yet provisioned.
         error: Error message if the task failed, or None if no error.
         attempt_num: The current attempt number (0-indexed). Used to track
             retries and conditional logic like when to start self-review.
@@ -70,7 +104,6 @@ class TaskState:
             None until set.
     """
 
-    status: TaskStatus = TaskStatus.PENDING
     worktree_path: Optional[Path] = None
     branch_name: Optional[str] = None
     signal_dir: Optional[Path] = None
@@ -112,8 +145,8 @@ class TaskRuntime:
 
     Attributes:
         task: The immutable Task specification being executed.
-        state: Operational state (status, worktree, branch, error, attempts).
-            Defaults to a new TaskState (PENDING, no paths, no error, attempt 0).
+        state: Operational state (worktree, branch, signal_dir, error, attempts).
+            Defaults to a new TaskState (no paths, no error, attempt 0).
         artifacts: Work outputs and observations (PR URL, concerns, agent address).
             Defaults to a new TaskArtifacts (no PR, no concerns, no agent address).
     """
@@ -122,15 +155,66 @@ class TaskRuntime:
     state: TaskState = field(default_factory=TaskState)
     artifacts: TaskArtifacts = field(default_factory=TaskArtifacts)
 
+    @property
+    def status(self) -> TaskStatus:
+        """Current task status, derived from signal files on disk.
+
+        Falls back to ``PENDING`` if no signal directory has been set,
+        unless an error has been recorded (indicating failure before
+        provisioning), in which case ``FAILED`` is returned.
+        """
+        if self.state.signal_dir is None:
+            if self.state.error is not None:
+                return TaskStatus.FAILED
+            return TaskStatus.PENDING
+        return _read_task_status_from_signals(self.state.signal_dir)
+
+    def _write_status_signal(self, name: str, content: str = "") -> None:
+        """Write a status signal file to the task signal directory."""
+        assert self.state.signal_dir is not None, "signal_dir must be set"
+        status_dir = self.state.signal_dir / "status"
+        status_dir.mkdir(parents=True, exist_ok=True)
+        (status_dir / name).write_text(content)
+
+    def _clear_status_signals(self) -> None:
+        """Remove all status signal files (used before retry)."""
+        if self.state.signal_dir is None:
+            return
+        status_dir = self.state.signal_dir / "status"
+        if status_dir.is_dir():
+            for f in status_dir.iterdir():
+                f.unlink()
+
+    def mark_pending(self) -> None:
+        """Write the ``pending`` status signal file."""
+        self._write_status_signal("pending")
+
+    def mark_running(self) -> None:
+        """Write the ``running`` status signal file."""
+        self._write_status_signal("running")
+
+    def mark_pr_created(self) -> None:
+        """Write the ``pr_created`` status signal file."""
+        self._write_status_signal("pr_created")
+
+    def mark_pr_merged(self) -> None:
+        """Write the ``pr_merged`` status signal file."""
+        self._write_status_signal("pr_merged")
+
+    def mark_failed(self, error: str) -> None:
+        """Write the ``failed`` status signal file with the error message.
+
+        If ``signal_dir`` is not set (task was never prepared),
+        only the in-memory error is recorded without writing to disk.
+        """
+        if self.state.signal_dir is not None:
+            self._write_status_signal("failed", error)
+        self.state.error = error
+
     def prepare_for_attempt(self, attempt_num: int) -> None:
         """Reset error and set attempt number before a task attempt."""
         self.state.attempt_num = attempt_num
         self.state.error = None
-
-    def mark_failed(self, error: str) -> None:
-        """Transition to FAILED with an error message."""
-        self.state.status = TaskStatus.FAILED
-        self.state.error = error
 
     def reset_for_retry(self) -> None:
         """Archive current error to concerns and reset to PENDING for retry."""
@@ -138,9 +222,7 @@ class TaskRuntime:
             self.artifacts.concerns.append(
                 f"attempt_{self.state.attempt_num}_error: {self.state.error}"
             )
-        self.state.status = TaskStatus.PENDING
+        self._clear_status_signals()
+        if self.state.signal_dir is not None:
+            self.mark_pending()
         self.state.error = None
-
-    def mark_pending(self) -> None:
-        """Set status to PENDING (used for retry normalization)."""
-        self.state.status = TaskStatus.PENDING

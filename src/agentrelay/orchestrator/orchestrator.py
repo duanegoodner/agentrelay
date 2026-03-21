@@ -198,7 +198,7 @@ class _OrchestratorRun:
         self._completed_ids: set[str] = {
             task_id
             for task_id, runtime in self._task_runtimes.items()
-            if runtime.state.status == TaskStatus.PR_MERGED
+            if runtime.status == TaskStatus.PR_MERGED
         }
         self._attempts_used = self._initialize_attempts_used()
         self._normalize_failed_for_retry()
@@ -281,7 +281,7 @@ class _OrchestratorRun:
     def _initialize_attempts_used(self) -> dict[str, int]:
         attempts_used: dict[str, int] = {}
         for task_id, runtime in self._task_runtimes.items():
-            status = runtime.state.status
+            status = runtime.status
             if status in (TaskStatus.RUNNING, TaskStatus.PR_CREATED):
                 raise ValueError(
                     "Resume from RUNNING/PR_CREATED is not yet supported. "
@@ -296,7 +296,7 @@ class _OrchestratorRun:
     def _normalize_failed_for_retry(self) -> None:
         max_attempts = self._orchestrator.config.max_task_attempts
         for task_id, runtime in self._task_runtimes.items():
-            if runtime.state.status != TaskStatus.FAILED:
+            if runtime.status != TaskStatus.FAILED:
                 continue
             if self._attempts_used[task_id] < max_attempts:
                 runtime.mark_pending()
@@ -316,7 +316,7 @@ class _OrchestratorRun:
             if len(self._running) >= config.max_concurrency:
                 break
             runtime = self._task_runtimes[task_id]
-            if runtime.state.status != TaskStatus.PENDING:
+            if runtime.status != TaskStatus.PENDING:
                 continue
             if not self._workstream_can_run(task_id):
                 continue
@@ -555,7 +555,7 @@ class _OrchestratorRun:
 
     def _all_tasks_terminal(self) -> bool:
         return all(
-            runtime.state.status in (TaskStatus.PR_MERGED, TaskStatus.FAILED)
+            runtime.status in (TaskStatus.PR_MERGED, TaskStatus.FAILED)
             for runtime in self._task_runtimes.values()
         )
 
@@ -575,7 +575,7 @@ class _OrchestratorRun:
 
         task_ids_in_ws = graph.tasks_in_workstream(workstream_id)
         if any(
-            self._task_runtimes[tid].state.status
+            self._task_runtimes[tid].status
             in (TaskStatus.RUNNING, TaskStatus.PR_CREATED)
             or tid in self._running
             for tid in task_ids_in_ws
@@ -601,7 +601,7 @@ class _OrchestratorRun:
         changed = False
         for task_id in graph.task_ids():
             runtime = self._task_runtimes[task_id]
-            if runtime.state.status != TaskStatus.PENDING:
+            if runtime.status != TaskStatus.PENDING:
                 continue
             reason = self._blocked_reason(task_id)
             if reason is None:
@@ -626,7 +626,7 @@ class _OrchestratorRun:
     def _blocked_reason(self, task_id: str) -> Optional[str]:
         graph = self._orchestrator.graph
         for dep_id in graph.dependency_ids(task_id):
-            if self._task_runtimes[dep_id].state.status == TaskStatus.FAILED:
+            if self._task_runtimes[dep_id].status == TaskStatus.FAILED:
                 return f"dependency '{dep_id}' failed"
 
         runtime = self._task_runtimes[task_id]
@@ -661,7 +661,7 @@ class _OrchestratorRun:
                 continue
             task_ids = graph.tasks_in_workstream(workstream_id)
             if not task_ids or all(
-                self._task_runtimes[task_id].state.status == TaskStatus.PR_MERGED
+                self._task_runtimes[task_id].status == TaskStatus.PR_MERGED
                 for task_id in task_ids
             ):
                 ws_runtime.mark_merge_ready()
@@ -734,7 +734,7 @@ class _OrchestratorRun:
         """Mark in-flight tasks as failed when orchestration aborts."""
         for task_id in self._running:
             runtime = self._task_runtimes[task_id]
-            if runtime.state.status not in (TaskStatus.PR_MERGED, TaskStatus.FAILED):
+            if runtime.status not in (TaskStatus.PR_MERGED, TaskStatus.FAILED):
                 runtime.mark_failed(reason)
             else:
                 runtime.state.error = reason
@@ -757,7 +757,7 @@ class _OrchestratorRun:
         if self._fatal_error is not None:
             outcome = OrchestratorOutcome.FATAL_INTERNAL_ERROR
         elif any(
-            runtime.state.status == TaskStatus.FAILED
+            runtime.status == TaskStatus.FAILED
             for runtime in self._task_runtimes.values()
         ) or any(
             runtime.status == WorkstreamStatus.FAILED

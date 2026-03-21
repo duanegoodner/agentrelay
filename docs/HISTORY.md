@@ -4,6 +4,29 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-20
+
+### Signal-file-backed TaskStatus (PR A3)
+
+- **TaskStatus is now derived from signal files on disk**, matching the
+  WorkstreamStatus pattern from PR #115. Status files live under
+  `.workflow/<graph>/signals/<task_id>/status/` with one file per status value
+  (`pending`, `running`, `pr_created`, `pr_merged`, `failed`).
+- **`TaskRuntime.status`** is a computed property reading from signal files.
+  Falls back to `PENDING` (or `FAILED` if an error is recorded) when no
+  signal directory has been set.
+- **`TaskState.status` field removed** — status is no longer stored in memory.
+- **New mark methods** on `TaskRuntime`: `mark_running()`, `mark_pr_created()`,
+  `mark_pr_merged()`. Existing `mark_pending()` and `mark_failed(error)` updated
+  to write signal files.
+- **`StandardTaskRunner._transition()`** validates lifecycle edges then delegates
+  to the appropriate mark method. FAILED transitions use `mark_failed(error)`
+  directly at call sites.
+- **`reset_for_retry()`** clears all status signal files before writing a fresh
+  `pending` file.
+
+---
+
 ## 2026-03-19
 
 ### Docs, demo graphs, and E2E testing (PR P)
