@@ -13,4 +13,6 @@ integration branch and available in your worktree.
    Preserve all existing docstrings exactly. You may add Examples or Notes
    but do NOT alter Args, Returns, or Raises sections.
 3. Run the tests at $test_paths and fix any failures.
-4. If you encounter design concerns, document each one.
+4. If you encounter design concerns — contradictions in the spec, ambiguities
+   that affect behavior, or requirements that seem impossible to satisfy — record
+   each one using `helper.record_concern("description of concern")`.

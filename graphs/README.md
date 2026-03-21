@@ -9,6 +9,7 @@ definitions and a README with run instructions and verification notes.
 |---|---|
 | `smoke/` | Quick validation of core execution paths (chained, parallel) |
 | `concerns/` | Agent concern capture mechanism (concerns.log → orchestrator result) |
+| `roles/` | Role-specific templates and multi-role pipeline handoff |
 
 ## Adding a new category
 

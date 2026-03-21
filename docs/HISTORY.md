@@ -4,6 +4,26 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-21
+
+### Roles test graphs and multi-role pipeline (PR B)
+
+- **Roles pipeline graph** (`graphs/roles/pipeline.yaml`): Four-role pipeline
+  (spec_writer -> test_writer -> test_reviewer -> implementer) building a
+  BoundedQueue class. Exercises role-specific templates, TaskPaths, and the
+  full handoff chain for the first time with real agents.
+- **Organic concern test**: The spec_writer description contains a deliberate
+  contradiction (eviction vs OverflowError on full push) to test whether
+  agents discover and report spec inconsistencies without explicit prompting.
+- **Implementer template fix**: Updated `templates/implementer.md` to connect
+  concern documentation to `helper.record_concern()` with guidance on what
+  qualifies as a concern (contradictions, ambiguities, impossible requirements).
+- **Backlog**: Added structured instruction architecture item (concern
+  definitions as formal data, partially structured instructions.md,
+  default-with-overrides pattern).
+
+---
+
 ## 2026-03-20
 
 ### Signal-file-backed TaskStatus (PR A3)
