@@ -37,29 +37,33 @@ from agentrelay.orchestrator import (
 from agentrelay.output import ConsoleListener, print_summary
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
+from agentrelay.tools import ToolValidationError, validate_tools
 
 
 def _extract_operational_config(
     raw: dict[str, Any],
-) -> tuple[Optional[str], bool, Optional[str]]:
+) -> tuple[Optional[str], bool, Optional[str], tuple[str, ...]]:
     """Pop operational keys from a raw YAML dict before graph parsing.
 
     The graph YAML may include operational keys (``tmux_session``,
-    ``keep_panes``, ``model``) that are not part of the structural graph
-    schema.  These must be removed before passing to
+    ``keep_panes``, ``model``, ``tools``) that are not part of the
+    structural graph schema.  These must be removed before passing to
     :meth:`TaskGraphBuilder.from_dict` (which rejects unknown keys).
 
     Args:
         raw: Mutable raw YAML dict.  Modified in place.
 
     Returns:
-        Tuple of ``(tmux_session, keep_panes, model_default)``.
+        Tuple of ``(tmux_session, keep_panes, model_default, tools)``.
         ``tmux_session`` is ``None`` if not specified in the YAML.
+        ``tools`` defaults to an empty tuple.
     """
     tmux_session: Optional[str] = raw.pop("tmux_session", None)
     keep_panes: bool = raw.pop("keep_panes", False)
     model: Optional[str] = raw.pop("model", None)
-    return tmux_session, keep_panes, model
+    raw_tools = raw.pop("tools", None)
+    tools: tuple[str, ...] = tuple(raw_tools) if raw_tools else ()
+    return tmux_session, keep_panes, model, tools
 
 
 def _apply_overrides(
@@ -95,7 +99,7 @@ def _load_and_prepare_graph(
     *,
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
-) -> tuple[TaskGraph, Optional[str], bool]:
+) -> tuple[TaskGraph, Optional[str], bool, tuple[str, ...]]:
     """Load YAML, extract operational config, apply overrides, build graph.
 
     Args:
@@ -104,10 +108,10 @@ def _load_and_prepare_graph(
         model_override: CLI override for agent model.
 
     Returns:
-        Tuple of ``(graph, effective_tmux_session, effective_keep_panes)``.
+        Tuple of ``(graph, effective_tmux_session, effective_keep_panes, tools)``.
     """
     raw = yaml.safe_load(graph_path.read_text())
-    yaml_session, yaml_keep_panes, yaml_model = _extract_operational_config(raw)
+    yaml_session, yaml_keep_panes, yaml_model, tools = _extract_operational_config(raw)
 
     effective_session = tmux_session if tmux_session is not None else yaml_session
     effective_model = model_override if model_override is not None else yaml_model
@@ -115,7 +119,7 @@ def _load_and_prepare_graph(
     _apply_overrides(raw, tmux_session=effective_session, model=effective_model)
 
     graph = TaskGraphBuilder.from_dict(raw)
-    return graph, effective_session, yaml_keep_panes
+    return graph, effective_session, yaml_keep_panes, tools
 
 
 class _ConflictError(RuntimeError):
@@ -227,7 +231,7 @@ async def run_graph(
     if config is None:
         config = OrchestratorConfig()
 
-    graph, _, yaml_keep_panes = _load_and_prepare_graph(
+    graph, _, yaml_keep_panes, tools = _load_and_prepare_graph(
         graph_path, tmux_session=tmux_session, model_override=model_override
     )
     effective_keep_panes = keep_panes or yaml_keep_panes
@@ -236,6 +240,7 @@ async def run_graph(
 
     _check_for_conflicts(repo_path, graph.name)
     _validate_tmux_sessions(graph)
+    validate_tools(tools)
     _record_run_start(repo_path, graph.name)
 
     task_runner = build_standard_runner(
@@ -243,6 +248,7 @@ async def run_graph(
         graph_name=graph.name,
         graph=graph,
         keep_panes=effective_keep_panes,
+        tools=tools,
     )
     workstream_runner = build_standard_workstream_runner(
         repo_path=repo_path,
@@ -264,11 +270,13 @@ def dry_run(graph_path: Path) -> None:
     Args:
         graph_path: Path to the graph YAML file.
     """
-    graph, _, _ = _load_and_prepare_graph(graph_path)
+    graph, _, _, tools = _load_and_prepare_graph(graph_path)
 
     print(f"Graph: {graph.name}")
     print(f"Tasks: {len(graph.task_ids())}")
     print(f"Workstreams: {len(graph.workstream_ids())}")
+    if tools:
+        print(f"Tools: {', '.join(tools)}")
 
     print("\nWorkstreams:")
     for ws_id in graph.workstream_ids():
@@ -420,7 +428,7 @@ def main() -> None:
                 verbose=args.verbose,
             )
         )
-    except (_ConflictError, _SessionError) as exc:
+    except (_ConflictError, _SessionError, ToolValidationError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 

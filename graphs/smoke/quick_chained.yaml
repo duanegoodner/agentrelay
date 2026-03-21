@@ -1,6 +1,8 @@
 name: quick-chained
 tmux_session: agentrelay
 model: claude-sonnet-4-6
+tools:
+  - pixi
 
 # Two tasks in a chain: counter_fn runs first, then use_counter depends on it.
 

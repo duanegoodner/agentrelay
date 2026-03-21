@@ -6,6 +6,18 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-21
 
+### Declared tools + TaskHelper CLI wrapper (PR B2)
+
+- **Declared tools in graph YAML**: New `tools` field (list of tool names)
+  at the graph level. The orchestrator validates each tool is available before
+  launch and injects usage guidance into agent instructions. Starts with pixi;
+  extensible via `TOOL_REGISTRY` in `tools.py`.
+- **TaskHelper CLI wrapper**: Agents can now use shell commands instead of
+  inline Python: `agentrelay-complete`, `agentrelay-failed`, `agentrelay-concern`.
+  Eliminates shell-escaping issues with inline Python in zsh.
+- **Workflow footer updated**: Shows CLI commands instead of Python snippets.
+  Tools guidance section appears when tools are declared.
+
 ### Roles test graphs and multi-role pipeline (PR B)
 
 - **Roles pipeline graph** (`graphs/roles/pipeline.yaml`): Four-role pipeline

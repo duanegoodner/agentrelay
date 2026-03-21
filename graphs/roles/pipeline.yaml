@@ -1,6 +1,8 @@
 name: role-pipeline
 tmux_session: agentrelay
 model: claude-sonnet-4-6
+tools:
+  - pixi
 
 # Four-role pipeline: spec_writer → test_writer → test_reviewer → implementer.
 # Exercises role-specific templates, TaskPaths, and the full handoff chain.

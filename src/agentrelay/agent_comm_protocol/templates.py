@@ -15,6 +15,7 @@ from typing import Optional
 
 from agentrelay.agent_comm_protocol.manifest import TaskManifest
 from agentrelay.task import AgentRole
+from agentrelay.tools import tool_guidance
 
 _TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 
@@ -91,33 +92,36 @@ def resolve_instructions(
 def _workflow_footer(manifest: TaskManifest) -> str:
     """Build the standard workflow completion steps appended to all instructions.
 
-    Tells the agent how to commit, push, and use the TaskHelper to create
-    a PR and signal the orchestrator.
+    Tells the agent how to commit, push, and use the CLI commands to create
+    a PR and signal the orchestrator. Includes tool guidance if tools are
+    declared in the graph.
     """
-    return f"""
+    tools_section = tool_guidance(manifest.tools)
+    if tools_section:
+        tools_section = "\n" + tools_section + "\n"
+
+    return f"""{tools_section}
 ## Workflow — completion steps
 
 After completing the work above:
 
 1. **Commit and push** all changes to branch `{manifest.branch_name}`.
 2. **Record any design concerns** you encountered (optional — skip if none):
-   ```python
-   from agentrelay.agent_sdk import TaskHelper
-   helper = TaskHelper.from_env()
-   helper.record_concern("description of concern")
+   ```bash
+   agentrelay-concern --message "description of concern"
    ```
 3. **Complete the task** (creates PR and signals the orchestrator):
-   ```python
-   helper.complete(title="short summary of changes", body="## Summary\\n\\n- what was done")
+   ```bash
+   agentrelay-complete --title "short summary of changes" --body "## Summary
+
+   - what was done"
    ```
    Provide a meaningful PR title (concise) and body (markdown with a ## Summary section).
    Any recorded concerns are automatically appended to the PR body.
 
 If you cannot complete the work, signal failure instead:
-   ```python
-   from agentrelay.agent_sdk import TaskHelper
-   helper = TaskHelper.from_env()
-   helper.mark_failed("reason for failure")
+   ```bash
+   agentrelay-failed --reason "reason for failure"
    ```
 
 **Important**: The orchestrator is waiting for the signal. Do not skip step 3.

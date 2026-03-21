@@ -1,6 +1,8 @@
 name: concerns-test
 tmux_session: agentrelay
 model: claude-sonnet-4-6
+tools:
+  - pixi
 
 # Single task that writes concerns to concerns.log.
 # Verifies the concern capture pipeline works end-to-end.
