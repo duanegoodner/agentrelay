@@ -33,6 +33,10 @@ Near-term items for the current architecture track.
 
 ## Agent Instruction Architecture
 
+> **Priority**: Highly recommended as the next focus after sprint 2026-03-19
+> completes. The ad-hoc template fixes in B1–BN will accumulate friction
+> without a structured foundation; this item addresses the root cause.
+
 - **Structured concern definitions**: Move concern qualification guidance from
   prose in role templates to a formal data field (e.g., a `concern_policy` in
   policies.json). This lets per-graph or per-task overrides control what agents
@@ -74,6 +78,35 @@ Related: the TaskHelper completion step is fragile — agents struggle with
 inline Python in zsh (`pixi run python -c "..."` has shell-escaping issues).
 A CLI wrapper (e.g., `agentrelay-complete --title "..." --body "..."`) would
 be more robust than asking agents to write inline Python.
+
+## Agent Ops Concerns
+
+Agents encounter operational issues during task execution — wrong build
+commands, missing dependencies, permission errors, flaky tests, unexpected
+repo layout — that are distinct from design concerns about the spec or code.
+Even when the agent eventually works around the problem, the friction is
+worth capturing so it can be fixed systematically.
+
+- **New concern type**: `helper.record_ops_concern("description")` (or a
+  `category` parameter on `record_concern`). Ops concerns are written to a
+  separate file (e.g., `ops_concerns.log`) or tagged in the existing
+  `concerns.log` so the orchestrator can distinguish them from design concerns.
+- **Visibility**: Ops concerns surface in the integration PR body, console
+  output, and post-run summary — separately from design concerns so they
+  don't get lost in the noise.
+- **Resolution paths**:
+  - **Agent self-fix**: Agent records the concern and also applies a local
+    workaround (e.g., switches to `pixi run`). The concern still gets logged
+    so the root cause can be addressed.
+  - **Orchestrator-driven fix**: Orchestrator aggregates ops concerns across
+    runs and applies automated fixes (e.g., updating instructions templates,
+    injecting env context).
+  - **Human review**: Periodic triage of ops concerns to identify patterns
+    and make durable fixes (CLAUDE.md updates, template changes, new backlog
+    items).
+- **Examples of ops concerns**: wrong Python/package manager invocation,
+  shell escaping issues with TaskHelper, missing directories, import path
+  confusion in worktrees, test collection failures from environment mismatch.
 
 ## Observability
 
