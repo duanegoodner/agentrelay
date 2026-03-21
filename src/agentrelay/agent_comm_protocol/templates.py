@@ -71,9 +71,16 @@ def resolve_instructions(
     else:
         template_text = _load_template(role.value, adapter_name)
 
+        description_section = (
+            f"## Task Description\n\n{manifest.description}\n"
+            if manifest.description
+            else ""
+        )
+
         substitutions = {
             "role": role.value.upper(),
             "description": manifest.description or "",
+            "description_section": description_section,
             "src_paths": _format_paths(manifest.src_paths),
             "test_paths": _format_paths(manifest.test_paths),
             "spec_path": (

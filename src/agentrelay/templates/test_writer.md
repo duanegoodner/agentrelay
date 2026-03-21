@@ -3,6 +3,7 @@
 ## Context
 If context.md exists in this directory, read it first.
 
+$description_section
 ## Work
 1. Read the source stubs at $src_paths to understand the API contract.
    The docstrings are the authoritative spec.

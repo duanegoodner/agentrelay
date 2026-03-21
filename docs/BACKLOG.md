@@ -120,6 +120,44 @@ worth capturing so it can be fixed systematically.
   shell escaping issues with TaskHelper, missing directories, import path
   confusion in worktrees, test collection failures from environment mismatch.
 
+## Role-Specific Workflow Issues
+
+### Spec writer: source-of-truth for specs
+
+For specs that can be fully defined in docstrings/comments (e.g., Python
+function/method signatures with docstrings), the source files should be the
+single source of truth. Writing a separate `.md` spec file duplicates
+information and risks drift. The spec_writer template should default to
+source-only specs; the supplementary `.md` spec should be reserved for
+complex specs that can't be captured in code comments alone (e.g., system
+architecture, multi-component interactions).
+
+### Test reviewer: no-commit PR failure
+
+The test_reviewer role reviews tests but may produce no code changes. When
+the branch HEAD equals the integration branch HEAD, `gh pr create` fails
+with "No commits between..." because there's nothing to diff. The agent
+worked around it by committing an unrelated pixi.lock change, but this is
+fragile. Options:
+- Allow review-only tasks to complete without a PR (skip PR creation, write
+  `.done` with a sentinel like `"no-pr"` instead of a URL).
+- Have the reviewer write a review summary file (e.g., `review_notes.md`)
+  so there's always at least one commit.
+- This is a **core workflow issue**, not an ops concern — the orchestrator
+  should handle review-only completion paths explicitly.
+
+### Git push without upstream
+
+Agents' first `git push` fails because the task branch has no upstream set.
+The agent recovers by using `git push -u`, but this is avoidable friction.
+Options:
+- Set `push.autoSetupRemote=true` in the worktree's git config during
+  task preparation.
+- Have the workflow footer instruct agents to use `git push -u origin <branch>`.
+- Configure the upstream when creating the task branch in the preparer.
+- This is likely a **core fix** (preparer or git config) rather than an
+  ops concern, since it affects every task on first push.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
