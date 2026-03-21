@@ -1,0 +1,87 @@
+name: role-pipeline
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+
+# Four-role pipeline: spec_writer → test_writer → test_reviewer → implementer.
+# Exercises role-specific templates, TaskPaths, and the full handoff chain.
+#
+# The spec_writer description contains a deliberate inconsistency: the "Core
+# operations" section says push() evicts the oldest item when full, while the
+# "Error handling" section says push() raises OverflowError when full. These
+# are mutually exclusive. The implementer should discover this contradiction
+# organically when tests conflict, and record it via helper.record_concern().
+
+tasks:
+  - id: spec_bounded_queue
+    role: spec_writer
+    description: >-
+      Create a BoundedQueue[T] class — a generic, fixed-capacity FIFO queue.
+
+
+      Constructor:
+
+      - __init__(capacity: int) — capacity must be a positive integer
+        (raise ValueError if capacity <= 0).
+
+
+      Core operations:
+
+      - push(item: T) -> None — Add item to the back of the queue. If the
+        queue is at capacity, the oldest item is automatically evicted to
+        make room for the new item.
+
+      - pop() -> T — Remove and return the front item. Raise IndexError
+        if the queue is empty.
+
+      - peek() -> T — Return the front item without removing it. Raise
+        IndexError if the queue is empty.
+
+
+      Query methods:
+
+      - is_full() -> bool — True when the current length equals capacity.
+
+      - __len__() -> int — Current number of items in the queue.
+
+      - capacity (read-only property) -> int — The maximum number of items.
+
+
+      Error handling:
+
+      All mutating methods must validate preconditions and raise appropriate
+      exceptions. push() raises OverflowError when the queue has reached
+      capacity. pop() and peek() raise IndexError when the queue is empty.
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      spec: specs/bounded_queue.md
+    dependencies: []
+
+  - id: test_bounded_queue
+    role: test_writer
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
+    dependencies: [spec_bounded_queue]
+
+  - id: review_bounded_queue
+    role: test_reviewer
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
+    dependencies: [test_bounded_queue]
+
+  - id: impl_bounded_queue
+    role: implementer
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
+    completion_gate: "pixi run pytest tests/test_bounded_queue.py -q"
+    max_gate_attempts: 3
+    dependencies: [review_bounded_queue]
