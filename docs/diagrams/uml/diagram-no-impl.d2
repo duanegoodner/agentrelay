@@ -639,6 +639,7 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
     attempt_num: int
     graph_name: "str | None"
     dependencies: "dict[str, DependencyInfo]"
+    tools: "tuple[str, ...]"
   }
 
   DependencyInfo: "DependencyInfo <<frozen dataclass>>" {
@@ -714,8 +715,8 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   manifest_functions: "manifest_functions <<module>>" {
     shape: class
     module_path: agent_comm_protocol.manifest
-    +build_manifest(task, branch_name, integration_branch, graph_name, attempt_num, dependency_descriptions): TaskManifest
-    +manifest_to_dict(manifest): dict
+    "+build_manifest(task, ..., tools)": TaskManifest
+    "+manifest_to_dict(manifest)": dict
   }
 
   policies_functions: "policies_functions <<module>>" {
@@ -749,6 +750,14 @@ agent_sdk_pkg: "agent_sdk/" {
     +mark_failed(reason): void
     +record_concern(concern): void
   }
+
+  cli: "cli <<module>>" {
+    shape: class
+    module_path: agent_sdk.cli
+    "+complete()": void
+    "+failed()": void
+    "+concern()": void
+  }
 }
 
 # ─────────────────────────────────────────────
@@ -766,6 +775,28 @@ output_pkg: "output/" {
     shape: class
     module_path: output.console
     "+print_summary(result, stream)": void
+  }
+}
+
+# ─────────────────────────────────────────────
+#  tools.py — declared tool validation and guidance
+# ─────────────────────────────────────────────
+tools_py: "tools.py" {
+  ToolSpec: "ToolSpec <<frozen dataclass>>" {
+    shape: class
+    binary: str
+    agent_guidance: str
+  }
+
+  ToolValidationError: "ToolValidationError <<exception>>" {
+    shape: class
+  }
+
+  tools_functions: "tools <<module>>" {
+    shape: class
+    module_path: tools
+    "+validate_tools(tools)": void
+    "+tool_guidance(tools)": str
   }
 }
 
@@ -980,6 +1011,12 @@ output_pkg.console_functions -> orchestrator_pkg.OrchestratorResult: reads { cla
 # --- agent_sdk ---
 agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }
 agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }
+agent_sdk_pkg.cli -> agent_sdk_pkg.TaskHelper: delegates { class: dependency }
+
+# --- tools ---
+tools_py.tools_functions -> tools_py.ToolSpec: reads { class: dependency }
+agent_comm_protocol_pkg.templates_functions -> tools_py.tools_functions: "tool_guidance()" { class: dependency }
+run_graph_py.run_graph_functions -> tools_py.tools_functions: "validate_tools()" { class: dependency }
 
 # --- workstream runtime -> TaskSummary ---
 workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.TaskSummary: task_summaries { class: composition }
