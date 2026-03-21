@@ -49,6 +49,32 @@ Near-term items for the current architecture track.
   instructions in the signal directory (already done: instructions.md is written
   to disk after resolution).
 
+## Agent Build Environment Awareness
+
+Agents don't always know how to invoke commands in the target repo's build
+system (e.g., using bare `python -m pytest` instead of `pixi run pytest`).
+This causes import errors and wasted agent cycles. Three approaches, in
+increasing sophistication:
+
+- **Manual CLAUDE.md**: Target repo maintainer adds build system guidance
+  (e.g., "use `pixi run` for all Python commands") to CLAUDE.md. Simple
+  but ad-hoc — each repo needs manual setup and agents may still miss it.
+- **Orchestrator-injected environment context**: Orchestrator detects the
+  build system (e.g., `pixi.toml` present) and injects a "Build environment"
+  section into instructions.md. Scales automatically to any target repo.
+- **Automated detection and correction**: Introduce an "ops concern" type
+  (distinct from design concerns) for environment/tooling issues. Agents
+  raise ops concerns when they hit env problems. Options for resolution:
+  - Agent self-corrects (retries with adjusted commands).
+  - A dedicated agent periodically reviews ops concerns and applies fixes
+    (e.g., updating CLAUDE.md, adjusting orchestrator templates).
+  - Human reviews ops concerns and decides on fixes.
+
+Related: the TaskHelper completion step is fragile — agents struggle with
+inline Python in zsh (`pixi run python -c "..."` has shell-escaping issues).
+A CLI wrapper (e.g., `agentrelay-complete --title "..." --body "..."`) would
+be more robust than asking agents to write inline Python.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
