@@ -597,6 +597,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-instruction-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Instruction Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-build-environment-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Build Environment Awareness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1253,6 +1275,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-instruction-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Instruction Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-build-environment-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Build Environment Awareness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1310,6 +1354,48 @@
 <li><code>workspace.py</code> (<code>LocalWorkspaceRef</code>, <code>WorkspaceRef</code>) — removed in the same PR. Was intended to model workspace/repo references.</li>
 <li>View protocols (<code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code>, <code>WorkstreamStateView</code>, <code>WorkstreamArtifactsView</code>, <code>WorkstreamRuntimeView</code>) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.</li>
 </ul>
+<h2 id="agent-instruction-architecture">Agent Instruction Architecture</h2>
+<ul>
+<li><strong>Structured concern definitions</strong>: Move concern qualification guidance from
+  prose in role templates to a formal data field (e.g., a <code>concern_policy</code> in
+  policies.json). This lets per-graph or per-task overrides control what agents
+  treat as concern-worthy without editing templates.</li>
+<li><strong>Partially structured instructions.md</strong>: Use heading levels and lists with a
+  direct mapping from JSON/YAML, so parts of instructions.md are machine-readable
+  and overridable rather than pure prose.</li>
+<li><strong>Default-with-overrides pattern</strong>: Define default role instructions as templates
+  that interpret structured data from manifest.json and policies.json. Provide a
+  mechanism for per-task description overrides that layer on top of defaults.</li>
+<li><strong>Trade-off</strong>: More abstraction improves flexibility but reduces auditability —
+  tracing exactly what instructions an agent received requires resolving the
+  template + overrides chain. Consider keeping a rendered snapshot of the final
+  instructions in the signal directory (already done: instructions.md is written
+  to disk after resolution).</li>
+</ul>
+<h2 id="agent-build-environment-awareness">Agent Build Environment Awareness</h2>
+<p>Agents don't always know how to invoke commands in the target repo's build
+system (e.g., using bare <code>python -m pytest</code> instead of <code>pixi run pytest</code>).
+This causes import errors and wasted agent cycles. Three approaches, in
+increasing sophistication:</p>
+<ul>
+<li><strong>Manual CLAUDE.md</strong>: Target repo maintainer adds build system guidance
+  (e.g., "use <code>pixi run</code> for all Python commands") to CLAUDE.md. Simple
+  but ad-hoc — each repo needs manual setup and agents may still miss it.</li>
+<li><strong>Orchestrator-injected environment context</strong>: Orchestrator detects the
+  build system (e.g., <code>pixi.toml</code> present) and injects a "Build environment"
+  section into instructions.md. Scales automatically to any target repo.</li>
+<li><strong>Automated detection and correction</strong>: Introduce an "ops concern" type
+  (distinct from design concerns) for environment/tooling issues. Agents
+  raise ops concerns when they hit env problems. Options for resolution:</li>
+<li>Agent self-corrects (retries with adjusted commands).</li>
+<li>A dedicated agent periodically reviews ops concerns and applies fixes
+    (e.g., updating CLAUDE.md, adjusting orchestrator templates).</li>
+<li>Human reviews ops concerns and decides on fixes.</li>
+</ul>
+<p>Related: the TaskHelper completion step is fragile — agents struggle with
+inline Python in zsh (<code>pixi run python -c "..."</code> has shell-escaping issues).
+A CLI wrapper (e.g., <code>agentrelay-complete --title "..." --body "..."</code>) would
+be more robust than asking agents to write inline Python.</p>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>

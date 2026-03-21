@@ -1165,10 +1165,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-a3-signal-file-backed-taskstatus-match-workstream-pattern" class="md-nav__link">
+  <a href="#pr-a3-signal-file-backed-taskstatus-match-workstream-pattern-done-pr-117" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A3: Signal-file-backed TaskStatus (match workstream pattern)
+        PR A3: Signal-file-backed TaskStatus (match workstream pattern) — Done (PR #117)
       
     </span>
   </a>
@@ -1176,10 +1176,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b-roles-test-graphs-multi-role-pipeline" class="md-nav__link">
+  <a href="#pr-b1-roles-pipeline-graph-implementer-template-fix-done-pr-118" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B: roles/ test graphs + multi-role pipeline
+        PR B1: roles/ pipeline graph + implementer template fix — Done (PR #118)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b2-agent-build-environment-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B2: Agent build environment awareness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-bn-concern-instruction-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR BN: Concern instruction refinement
       
     </span>
   </a>
@@ -1419,7 +1441,7 @@ them").</p>
 - [x] <code>pixi run check</code> passes
 - [x] E2E: integration PR on GitHub has a meaningful summary and is open (not merged)</p>
 <hr />
-<h3 id="pr-a3-signal-file-backed-taskstatus-match-workstream-pattern">PR A3: Signal-file-backed TaskStatus (match workstream pattern)</h3>
+<h3 id="pr-a3-signal-file-backed-taskstatus-match-workstream-pattern-done-pr-117">PR A3: Signal-file-backed TaskStatus (match workstream pattern) — <strong>Done</strong> (PR #117)</h3>
 <ul>
 <li>Branch: <code>feat/task-signal-files</code></li>
 </ul>
@@ -1432,31 +1454,80 @@ them").</p>
 - This should be done soon after PR A2 so that task and workstream status
   management strategies don't diverge for long.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Task status determined from signal files, same pattern as workstreams
-- [ ] Existing task lifecycle behavior unchanged
-- [ ] <code>pixi run check</code> passes</p>
+- [x] Task status determined from signal files, same pattern as workstreams
+- [x] Existing task lifecycle behavior unchanged
+- [x] <code>pixi run check</code> passes</p>
 <hr />
-<h3 id="pr-b-roles-test-graphs-multi-role-pipeline">PR B: roles/ test graphs + multi-role pipeline</h3>
+<h3 id="pr-b1-roles-pipeline-graph-implementer-template-fix-done-pr-118">PR B1: roles/ pipeline graph + implementer template fix — <strong>Done</strong> (PR #118)</h3>
 <ul>
 <li>Branch: <code>test/role-graphs</code></li>
 </ul>
-<p><strong>Test graphs:</strong>
-- <code>graphs/roles/README.md</code> — category docs
-- Individual role graphs or a multi-role pipeline graph:
-  spec_writer → test_writer → implementer (chained on one workstream)
-- TaskPaths configured for each role (src, test, spec)
-- <strong>Organic concern test:</strong> Include a spec with a deliberate inconsistency
-  (e.g., a docstring that contradicts a type signature, or an edge case the
-  tests don't cover). Verify the implementer raises it as a genuine design
-  concern via <code>helper.record_concern()</code> without being explicitly told to.
-  This validates that the concern mechanism works for real discoveries, not
-  just scripted test inputs.</p>
+<p><strong>Delivered:</strong>
+- <code>graphs/roles/pipeline.yaml</code> — four-role pipeline (spec_writer →
+  test_writer → test_reviewer → implementer) building a BoundedQueue class.
+  Includes a deliberate spec inconsistency (eviction vs OverflowError) and a
+  completion gate on the implementer.
+- Updated <code>templates/implementer.md</code> to connect concern documentation to
+  <code>helper.record_concern()</code> with guidance on what qualifies as a concern.
+- Backlog items: structured instruction architecture, agent build environment
+  awareness (including ops concerns concept and TaskHelper CLI wrapper).</p>
+<p><strong>E2E result:</strong>
+- Pipeline runs to completion. All four roles produce expected artifacts.
+- Implementer does NOT organically record a concern about the spec
+  inconsistency (with Sonnet, baseline instructions). Concern instruction
+  refinement deferred to PR BN.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Each role produces expected artifacts (specs, tests, implementations)
-- [ ] Multi-role pipeline: changes propagate through the chain
-- [ ] Implementer organically records a concern about the spec inconsistency
+- [x] Each role produces expected artifacts (specs, tests, implementations)
+- [x] Multi-role pipeline: changes propagate through the chain
+- [ ] ~~Implementer organically records a concern~~ (deferred to PR BN)
+- [x] <code>pixi run check</code> passes
+- [x] E2E: pipeline graph runs to completion</p>
+<hr />
+<h3 id="pr-b2-agent-build-environment-awareness">PR B2: Agent build environment awareness</h3>
+<ul>
+<li>Branch: TBD</li>
+</ul>
+<blockquote>
+<p><strong>Decision gate:</strong> Choose between orchestrator-injected environment context
+(detect <code>pixi.toml</code>, inject "use <code>pixi run</code>" into instructions) or a
+lighter-weight approach. See <code>docs/BACKLOG.md</code> "Agent Build Environment
+Awareness" for options.</p>
+</blockquote>
+<p><strong>Problem:</strong> Agents sometimes use bare <code>python</code>/<code>pytest</code> instead of
+<code>pixi run</code>, causing import failures in target repos that use pixi.</p>
+<p><strong>Scope options (pick one or combine):</strong>
+- Orchestrator detects build system and injects guidance into instructions.md
+- TaskHelper CLI wrapper (<code>agentrelay-complete --title "..."</code>) to avoid
+  shell-escaping issues with inline Python in zsh</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Agents consistently use the correct build system commands
+- [ ] TaskHelper completion works reliably without shell-escaping hacks
 - [ ] <code>pixi run check</code> passes
-- [ ] E2E: pipeline graph runs to completion</p>
+- [ ] E2E: agents use <code>pixi run</code> without manual CLAUDE.md guidance</p>
+<hr />
+<h3 id="pr-bn-concern-instruction-refinement">PR BN: Concern instruction refinement</h3>
+<ul>
+<li>Branch: TBD</li>
+</ul>
+<blockquote>
+<p><strong>Prerequisite:</strong> PR B2 (clean agent runs needed for reliable experimentation)</p>
+</blockquote>
+<p><strong>Problem:</strong> With baseline instructions, agents do not organically raise
+concerns about spec inconsistencies. Need to determine what level of guidance
+produces reliable concern discovery across models.</p>
+<p><strong>Approach:</strong>
+- Experiment with concern qualification guidance levels (minimal, prompted,
+  checklist) in the implementer task description
+- Test across models (Haiku, Sonnet, Opus) with the roles/pipeline.yaml
+  graph and its deliberate BoundedQueue spec inconsistency
+- Settle on a default guidance level that works with "reasonable agents"
+- May feed into the structured instruction architecture (see BACKLOG.md)</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] All four roles produce expected artifacts (specs, tests, implementations)
+- [ ] At least one guidance level reliably produces organic concern discovery
+- [ ] Results matrix (model × guidance level) documented in graphs/roles/README.md
+- [ ] Guidance is documented and integrated into templates or protocol
+- [ ] <code>pixi run check</code> passes</p>
 <hr />
 <h3 id="pr-c-failure-and-workstreams-test-graphs">PR C: failure/ and workstreams/ test graphs</h3>
 <ul>

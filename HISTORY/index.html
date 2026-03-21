@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#roles-test-graphs-and-multi-role-pipeline-pr-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Roles test graphs and multi-role pipeline (PR B)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1727,6 +1755,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-21
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-21">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#roles-test-graphs-and-multi-role-pipeline-pr-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Roles test graphs and multi-role pipeline (PR B)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-20" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2340,6 +2396,24 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-21">2026-03-21</h2>
+<h3 id="roles-test-graphs-and-multi-role-pipeline-pr-b">Roles test graphs and multi-role pipeline (PR B)</h3>
+<ul>
+<li><strong>Roles pipeline graph</strong> (<code>graphs/roles/pipeline.yaml</code>): Four-role pipeline
+  (spec_writer -&gt; test_writer -&gt; test_reviewer -&gt; implementer) building a
+  BoundedQueue class. Exercises role-specific templates, TaskPaths, and the
+  full handoff chain for the first time with real agents.</li>
+<li><strong>Organic concern test</strong>: The spec_writer description contains a deliberate
+  contradiction (eviction vs OverflowError on full push) to test whether
+  agents discover and report spec inconsistencies without explicit prompting.</li>
+<li><strong>Implementer template fix</strong>: Updated <code>templates/implementer.md</code> to connect
+  concern documentation to <code>helper.record_concern()</code> with guidance on what
+  qualifies as a concern (contradictions, ambiguities, impossible requirements).</li>
+<li><strong>Backlog</strong>: Added structured instruction architecture item (concern
+  definitions as formal data, partially structured instructions.md,
+  default-with-overrides pattern).</li>
+</ul>
 <hr />
 <h2 id="2026-03-20">2026-03-20</h2>
 <h3 id="signal-file-backed-taskstatus-pr-a3">Signal-file-backed TaskStatus (PR A3)</h3>
