@@ -37,6 +37,7 @@ class WorktreeTaskPreparer:
     graph_name: str
     dependency_descriptions: dict[str, Optional[str]] = field(default_factory=dict)
     context_content: Optional[str] = None
+    tools: tuple[str, ...] = ()
 
     def prepare(self, runtime: TaskRuntime) -> None:
         """Prepare runtime execution prerequisites.
@@ -91,6 +92,7 @@ class WorktreeTaskPreparer:
             graph_name=self.graph_name,
             attempt_num=runtime.state.attempt_num,
             dependency_descriptions=self.dependency_descriptions,
+            tools=self.tools,
         )
         signals.write_json(signal_dir, "manifest.json", manifest_to_dict(manifest))
 

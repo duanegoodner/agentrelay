@@ -200,6 +200,7 @@ class TestManifestToDict:
             "workspace",
             "execution",
             "dependencies",
+            "tools",
         }
 
     def test_schema_version(self) -> None:

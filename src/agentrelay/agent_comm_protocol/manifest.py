@@ -56,6 +56,7 @@ class TaskManifest:
         attempt_num: Current attempt number (0-indexed).
         graph_name: Name of the containing graph, or ``None``.
         dependencies: Mapping of dependency task IDs to :class:`DependencyInfo`.
+        tools: Declared tool names from the graph YAML.
     """
 
     schema_version: str
@@ -70,6 +71,7 @@ class TaskManifest:
     attempt_num: int
     graph_name: Optional[str]
     dependencies: dict[str, DependencyInfo]
+    tools: tuple[str, ...] = ()
 
 
 def build_manifest(
@@ -79,6 +81,7 @@ def build_manifest(
     graph_name: Optional[str],
     attempt_num: int,
     dependency_descriptions: dict[str, Optional[str]],
+    tools: tuple[str, ...] = (),
 ) -> TaskManifest:
     """Build a :class:`TaskManifest` from task spec and contextual data.
 
@@ -90,6 +93,7 @@ def build_manifest(
         attempt_num: Current execution attempt (0-indexed).
         dependency_descriptions: Map of dependency task ID to description
             (``None`` if the dependency has no description).
+        tools: Declared tool names from the graph YAML.
 
     Returns:
         Frozen manifest with all task facts.
@@ -110,6 +114,7 @@ def build_manifest(
             dep_id: DependencyInfo(description=desc)
             for dep_id, desc in dependency_descriptions.items()
         },
+        tools=tools,
     )
 
 
@@ -150,6 +155,7 @@ def manifest_to_dict(manifest: TaskManifest) -> dict[str, Any]:
             dep_id: {"description": info.description}
             for dep_id, info in manifest.dependencies.items()
         },
+        "tools": list(manifest.tools),
     }
 
 

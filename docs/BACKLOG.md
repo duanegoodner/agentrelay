@@ -47,11 +47,23 @@ Near-term items for the current architecture track.
 - **Default-with-overrides pattern**: Define default role instructions as templates
   that interpret structured data from manifest.json and policies.json. Provide a
   mechanism for per-task description overrides that layer on top of defaults.
-- **Trade-off**: More abstraction improves flexibility but reduces auditability —
-  tracing exactly what instructions an agent received requires resolving the
-  template + overrides chain. Consider keeping a rendered snapshot of the final
-  instructions in the signal directory (already done: instructions.md is written
-  to disk after resolution).
+- **Trade-offs to balance**: The current approach — orchestrator-side objects
+  produce deterministic instructions.md content, agents receive three auditable
+  files (instructions.md, manifest.json, policies.json) — has clear strengths:
+  - **Auditability**: What the agent saw is exactly what's on disk. No need to
+    trace through override chains or resolve templates to understand what happened.
+  - **Simplicity**: Adding new guidance (e.g., tool usage via `TOOL_REGISTRY`)
+    is just programmatic input → rendered output. No new agent-side abstractions.
+  - **Debuggability**: Three files to inspect per task. Nothing hidden.
+  - The cost is **repetition** — every agent gets the full boilerplate even when
+    most of it is identical across tasks in the same graph.
+  - A more structured agent-side architecture would reduce repetition and enable
+    agent-side interpretation of policies, but at the cost of auditability (need
+    to trace what the agent actually did with the structured data) and complexity
+    (agents need to understand a protocol, not just follow instructions).
+  - **Recommendation**: Only pursue the structured approach when repetition
+    becomes a measurable problem (token cost, context window pressure, or
+    performance). The simpler rendered-output model is the right default.
 
 ## Agent Build Environment Awareness
 

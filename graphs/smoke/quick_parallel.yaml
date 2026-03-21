@@ -1,6 +1,8 @@
 name: quick-parallel
 tmux_session: agentrelay
 model: claude-sonnet-4-6
+tools:
+  - pixi
 
 # Two independent tasks on separate workstreams so they run in parallel,
 # each in its own git worktree.

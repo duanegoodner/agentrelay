@@ -106,6 +106,7 @@ def build_standard_runner(
     keep_panes: bool = False,
     poll_interval: float = 2.0,
     context_content: Optional[str] = None,
+    tools: tuple[str, ...] = (),
 ) -> StandardTaskRunner:
     """Build the standard runner for worktree + tmux + Claude Code.
 
@@ -142,6 +143,7 @@ def build_standard_runner(
         keep_panes: Whether to keep tmux panes after teardown.
         poll_interval: Seconds between completion signal polls.
         context_content: Optional context content to write to the signal dir.
+        tools: Declared tool names from the graph YAML.
 
     Returns:
         A fully wired :class:`StandardTaskRunner`.
@@ -157,6 +159,7 @@ def build_standard_runner(
             graph_name=graph_name,
             dependency_descriptions=dep_descs,
             context_content=context_content,
+            tools=tools,
         )
 
     def _make_merger(runtime: TaskRuntime) -> TaskMerger:
