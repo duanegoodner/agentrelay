@@ -630,6 +630,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#role-specific-workflow-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Role-Specific Workflow Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Role-Specific Workflow Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-writer-source-of-truth-for-specs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec writer: source-of-truth for specs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-reviewer-no-commit-pr-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test reviewer: no-commit PR failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-push-without-upstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git push without upstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1319,6 +1369,56 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#role-specific-workflow-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Role-Specific Workflow Issues
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Role-Specific Workflow Issues">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-writer-source-of-truth-for-specs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec writer: source-of-truth for specs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-reviewer-no-commit-pr-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test reviewer: no-commit PR failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#git-push-without-upstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git push without upstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1463,6 +1563,37 @@ worth capturing so it can be fixed systematically.</p>
   shell escaping issues with TaskHelper, missing directories, import path
   confusion in worktrees, test collection failures from environment mismatch.</li>
 </ul>
+<h2 id="role-specific-workflow-issues">Role-Specific Workflow Issues</h2>
+<h3 id="spec-writer-source-of-truth-for-specs">Spec writer: source-of-truth for specs</h3>
+<p>For specs that can be fully defined in docstrings/comments (e.g., Python
+function/method signatures with docstrings), the source files should be the
+single source of truth. Writing a separate <code>.md</code> spec file duplicates
+information and risks drift. The spec_writer template should default to
+source-only specs; the supplementary <code>.md</code> spec should be reserved for
+complex specs that can't be captured in code comments alone (e.g., system
+architecture, multi-component interactions).</p>
+<h3 id="test-reviewer-no-commit-pr-failure">Test reviewer: no-commit PR failure</h3>
+<p>The test_reviewer role reviews tests but may produce no code changes. When
+the branch HEAD equals the integration branch HEAD, <code>gh pr create</code> fails
+with "No commits between..." because there's nothing to diff. The agent
+worked around it by committing an unrelated pixi.lock change, but this is
+fragile. Options:
+- Allow review-only tasks to complete without a PR (skip PR creation, write
+  <code>.done</code> with a sentinel like <code>"no-pr"</code> instead of a URL).
+- Have the reviewer write a review summary file (e.g., <code>review_notes.md</code>)
+  so there's always at least one commit.
+- This is a <strong>core workflow issue</strong>, not an ops concern — the orchestrator
+  should handle review-only completion paths explicitly.</p>
+<h3 id="git-push-without-upstream">Git push without upstream</h3>
+<p>Agents' first <code>git push</code> fails because the task branch has no upstream set.
+The agent recovers by using <code>git push -u</code>, but this is avoidable friction.
+Options:
+- Set <code>push.autoSetupRemote=true</code> in the worktree's git config during
+  task preparation.
+- Have the workflow footer instruct agents to use <code>git push -u origin &lt;branch&gt;</code>.
+- Configure the upstream when creating the task branch in the preparer.
+- This is likely a <strong>core fix</strong> (preparer or git config) rather than an
+  ops concern, since it affects every task on first push.</p>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
