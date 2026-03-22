@@ -120,6 +120,10 @@ class TaskHelper:
         if concerns:
             concerns_list = "\n".join(f"- {c}" for c in concerns)
             full_body += f"\n\n## Concerns\n\n{concerns_list}"
+        ops_concerns = self._read_ops_concerns()
+        if ops_concerns:
+            ops_list = "\n".join(f"- {c}" for c in ops_concerns)
+            full_body += f"\n\n## Ops Concerns\n\n{ops_list}"
 
         result = subprocess.run(
             [
@@ -172,6 +176,20 @@ class TaskHelper:
         with open(concerns_path, "a") as f:
             f.write(concern.strip() + "\n")
 
+    def record_ops_concern(self, concern: str) -> None:
+        """Record an operational concern.
+
+        Appends a line to ``ops_concerns.log`` in the signal directory.
+        Ops concerns capture build errors, missing dependencies, tooling
+        friction, and similar environmental issues.
+
+        Args:
+            concern: Description of the operational concern.
+        """
+        ops_path = self.signal_dir / "ops_concerns.log"
+        with open(ops_path, "a") as f:
+            f.write(concern.strip() + "\n")
+
     # -- Internal ----------------------------------------------------------
 
     def _read_concerns(self) -> list[str]:
@@ -180,6 +198,13 @@ class TaskHelper:
         if not concerns_path.exists():
             return []
         return [line for line in concerns_path.read_text().splitlines() if line.strip()]
+
+    def _read_ops_concerns(self) -> list[str]:
+        """Read recorded ops concerns from ops_concerns.log, if it exists."""
+        ops_path = self.signal_dir / "ops_concerns.log"
+        if not ops_path.exists():
+            return []
+        return [line for line in ops_path.read_text().splitlines() if line.strip()]
 
     def _write_signal(self, name: str, content: str) -> None:
         self.signal_dir.mkdir(parents=True, exist_ok=True)

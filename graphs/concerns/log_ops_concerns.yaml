@@ -1,0 +1,25 @@
+name: ops-concerns-test
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Single task that writes ops concerns to ops_concerns.log.
+# Verifies the ops concern capture pipeline works end-to-end.
+
+tasks:
+  - id: write_ops_concerns
+    description: >-
+      Create src/agentrelaydemos/greet.py containing a function
+      greet(name: str) -> str that returns "Hello, {name}!".
+      Also create test/test_greet.py with a pytest test checking
+      greet("World") == "Hello, World!".
+
+      IMPORTANT: Before completing the task, record the following
+      operational concerns using the CLI:
+
+        agentrelay-ops-concern --message "pixi install took >30s"
+        agentrelay-ops-concern --message "pyright flagged unrelated warnings"
+
+      These lines test the ops concern capture mechanism.
+    dependencies: []

@@ -84,12 +84,14 @@ class TaskSummary:
         description: Human-readable task description, or ``None``.
         pr_url: URL of the task's pull request, or ``None``.
         concerns: Design concerns recorded by the agent.
+        ops_concerns: Operational concerns recorded by the agent.
     """
 
     task_id: str
     description: Optional[str] = None
     pr_url: Optional[str] = None
     concerns: tuple[str, ...] = ()
+    ops_concerns: tuple[str, ...] = ()
 
 
 @dataclass

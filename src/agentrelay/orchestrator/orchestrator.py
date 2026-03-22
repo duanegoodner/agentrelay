@@ -682,6 +682,9 @@ class _OrchestratorRun:
                         description=self._task_runtimes[tid].task.description,
                         pr_url=self._task_runtimes[tid].artifacts.pr_url,
                         concerns=tuple(self._task_runtimes[tid].artifacts.concerns),
+                        ops_concerns=tuple(
+                            self._task_runtimes[tid].artifacts.ops_concerns
+                        ),
                     )
                     for tid in task_ids
                 ]

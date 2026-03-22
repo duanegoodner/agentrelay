@@ -43,6 +43,7 @@ Per-task directory: `.workflow/<graph>/signals/<task-id>/`
 | `.failed` | Agent | Task failed; line 2 is the reason |
 | `.merged` | Orchestrator | PR merged successfully |
 | `agent.log` | Orchestrator | tmux pane scrollback captured after task |
+| `ops_concerns.log` | Agent | Operational concerns (build errors, tooling friction) |
 | `summary.md` | Orchestrator | PR body fetched before merge |
 
 Graph-level: `.workflow/<graph>/run_info.json` — start HEAD + timestamp (for reset).

@@ -125,6 +125,8 @@ class TaskArtifacts:
             or None if no PR has been created yet.
         concerns: List of design concerns or observations noted by the agent
             during execution. Defaults to empty list.
+        ops_concerns: List of operational concerns (build errors, missing deps,
+            tooling friction) noted by the agent. Defaults to empty list.
         agent_address: Address of the agent that executed this task (e.g. tmux
             session + pane), or None if no agent has been launched yet. Stored
             as an immutable audit trail after agent teardown.
@@ -132,6 +134,7 @@ class TaskArtifacts:
 
     pr_url: Optional[str] = None
     concerns: list[str] = field(default_factory=list)
+    ops_concerns: list[str] = field(default_factory=list)
     agent_address: Optional[AgentAddress] = None
 
 

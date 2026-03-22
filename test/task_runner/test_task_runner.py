@@ -386,6 +386,40 @@ def test_concerns_transferred_to_runtime_on_failure() -> None:
     assert runtime.artifacts.concerns == ["partial progress made"]
 
 
+def test_ops_concerns_transferred_to_runtime_on_success() -> None:
+    fake = FakeIO(
+        signal=TaskCompletionSignal(
+            outcome="done",
+            pr_url="https://github.com/org/repo/pull/1",
+            ops_concerns=("slow build", "missing dep"),
+        )
+    )
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    asyncio.run(runner.run(runtime))
+
+    assert runtime.status == TaskStatus.PR_MERGED
+    assert runtime.artifacts.ops_concerns == ["slow build", "missing dep"]
+
+
+def test_ops_concerns_transferred_to_runtime_on_failure() -> None:
+    fake = FakeIO(
+        signal=TaskCompletionSignal(
+            outcome="failed",
+            error="could not complete task",
+            ops_concerns=("pixi not found",),
+        )
+    )
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    asyncio.run(runner.run(runtime))
+
+    assert runtime.status == TaskStatus.FAILED
+    assert runtime.artifacts.ops_concerns == ["pixi not found"]
+
+
 @patch("agentrelay.task_runner.core.runner.gh")
 def test_run_saves_pr_summary_before_merge(mock_gh: Any) -> None:
     mock_gh.pr_body.return_value = "## Summary\n\n- implemented feature"

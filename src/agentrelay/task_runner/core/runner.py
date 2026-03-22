@@ -257,6 +257,7 @@ class StandardTaskRunner:
                 return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
             runtime.artifacts.concerns.extend(signal.concerns)
+            runtime.artifacts.ops_concerns.extend(signal.ops_concerns)
 
             if signal.outcome == "failed":
                 runtime.mark_failed(

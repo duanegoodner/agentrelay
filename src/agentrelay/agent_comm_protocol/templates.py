@@ -113,10 +113,15 @@ def _workflow_footer(manifest: TaskManifest) -> str:
 After completing the work above:
 
 1. **Commit and push** all changes to branch `{manifest.branch_name}`.
-2. **Record any design concerns** you encountered (optional — skip if none):
-   ```bash
-   agentrelay-concern --message "description of concern"
-   ```
+2. **Record any concerns** you encountered (optional — skip if none):
+   - **Design concerns** (spec contradictions, ambiguities, naming issues):
+     ```bash
+     agentrelay-concern --message "description of concern"
+     ```
+   - **Ops concerns** (build errors, missing deps, tooling friction):
+     ```bash
+     agentrelay-ops-concern --message "description of ops concern"
+     ```
 3. **Complete the task** (creates PR and signals the orchestrator):
    ```bash
    agentrelay-complete --title "short summary of changes" --body "## Summary

@@ -182,6 +182,7 @@ workstream_pkg: "workstream/" {
       description: "str | None"
       pr_url: "str | None"
       concerns: "tuple[str, ...]"
+      ops_concerns: "tuple[str, ...]"
     }
 
     WorkstreamRuntime: "WorkstreamRuntime <<mutable dataclass>>" {
@@ -299,6 +300,7 @@ task_runtime_pkg: "task_runtime/" {
     shape: class
     pr_url: "str | None"
     concerns: "list[str]"
+    ops_concerns: "list[str]"
     agent_address: "AgentAddress | None"
   }
 
@@ -337,6 +339,7 @@ task_runner_pkg: "task_runner/" {
       pr_url: "str | None"
       error: "str | None"
       concerns: "tuple[str, ...]"
+      ops_concerns: "tuple[str, ...]"
     }
 
     TaskPreparer: "TaskPreparer <<protocol>>" {

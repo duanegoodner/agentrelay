@@ -117,7 +117,65 @@ def test_record_concern_appends_to_file(tmp_path: Path) -> None:
     assert lines == ["naming could be clearer", "missing edge case"]
 
 
+def test_record_ops_concern_appends_to_file(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.record_ops_concern("pixi install took >30s")
+    helper.record_ops_concern("pyright flagged unrelated warnings")
+
+    content = (tmp_path / "ops_concerns.log").read_text()
+    lines = content.strip().splitlines()
+    assert lines == ["pixi install took >30s", "pyright flagged unrelated warnings"]
+
+
 # -- PR creation --
+
+
+def test_create_pr_includes_ops_concerns_in_body(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="my_task",
+        branch_name="agentrelay/g/my_task",
+        integration_branch="agentrelay/g/default/integration",
+    )
+    helper.record_ops_concern("slow build")
+
+    with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
+        mock_run.return_value.stdout = "https://github.com/org/repo/pull/42\n"
+        helper.create_pr(body="task body")
+
+    args = mock_run.call_args[0][0]
+    body_idx = args.index("--body")
+    body = args[body_idx + 1]
+    assert "## Ops Concerns" in body
+    assert "slow build" in body
+
+
+def test_create_pr_includes_both_concern_types(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="my_task",
+        branch_name="agentrelay/g/my_task",
+        integration_branch="agentrelay/g/default/integration",
+    )
+    helper.record_concern("spec ambiguity")
+    helper.record_ops_concern("missing dep")
+
+    with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
+        mock_run.return_value.stdout = "https://github.com/org/repo/pull/42\n"
+        helper.create_pr(body="task body")
+
+    args = mock_run.call_args[0][0]
+    body_idx = args.index("--body")
+    body = args[body_idx + 1]
+    assert "## Concerns" in body
+    assert "spec ambiguity" in body
+    assert "## Ops Concerns" in body
+    assert "missing dep" in body
 
 
 def test_create_pr_calls_gh(tmp_path: Path) -> None:

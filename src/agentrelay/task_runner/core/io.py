@@ -34,13 +34,16 @@ class TaskCompletionSignal:
             ``"failed"`` indicates the task failed before successful completion.
         pr_url: Pull request URL for a ``"done"`` outcome, if available.
         error: Failure detail for a ``"failed"`` outcome, if available.
-        concerns: Semantic concerns captured during execution.
+        concerns: Design concerns captured during execution.
+        ops_concerns: Operational concerns (build errors, tooling friction)
+            captured during execution.
     """
 
     outcome: Literal["done", "failed"]
     pr_url: Optional[str] = None
     error: Optional[str] = None
     concerns: tuple[str, ...] = ()
+    ops_concerns: tuple[str, ...] = ()
 
 
 # ── Per-step protocols ──

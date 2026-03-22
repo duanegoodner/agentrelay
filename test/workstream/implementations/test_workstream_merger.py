@@ -105,6 +105,62 @@ class TestGhWorkstreamIntegrator:
         assert "task_a" in body
         assert "Add feature" in body
 
+    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    def test_pr_body_contains_ops_concerns(
+        self,
+        mock_gh: MagicMock,
+    ) -> None:
+        """PR body includes ops concerns when present."""
+        from agentrelay.workstream.core.runtime import TaskSummary
+
+        mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
+        integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+        runtime.artifacts.task_summaries = [
+            TaskSummary(
+                task_id="task_a",
+                description="Add feature",
+                ops_concerns=("slow build", "missing dep"),
+            ),
+        ]
+
+        integrator.create_integration_pr(runtime)
+
+        call_kwargs = mock_gh.pr_create.call_args
+        body = call_kwargs[1]["body"]
+        assert "## Ops Concerns" in body
+        assert "slow build" in body
+        assert "missing dep" in body
+
+    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    def test_pr_body_separates_design_and_ops_concerns(
+        self,
+        mock_gh: MagicMock,
+    ) -> None:
+        """PR body keeps design and ops concerns in separate sections."""
+        from agentrelay.workstream.core.runtime import TaskSummary
+
+        mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
+        integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+        runtime.artifacts.task_summaries = [
+            TaskSummary(
+                task_id="task_a",
+                description="Add feature",
+                concerns=("spec ambiguity",),
+                ops_concerns=("build flaky",),
+            ),
+        ]
+
+        integrator.create_integration_pr(runtime)
+
+        call_kwargs = mock_gh.pr_create.call_args
+        body = call_kwargs[1]["body"]
+        assert "## Concerns" in body
+        assert "spec ambiguity" in body
+        assert "## Ops Concerns" in body
+        assert "build flaky" in body
+
     def test_satisfies_workstream_integrator_protocol(self) -> None:
         """GhWorkstreamIntegrator satisfies the WorkstreamIntegrator protocol."""
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
