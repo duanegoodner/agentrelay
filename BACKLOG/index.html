@@ -653,10 +653,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-reviewer-no-commit-pr-failure" class="md-nav__link">
+  <a href="#test-reviewer-no-commit-pr-failure-resolved-in-pr-125" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test reviewer: no-commit PR failure
+        ~~Test reviewer: no-commit PR failure~~ — resolved in PR #125
       
     </span>
   </a>
@@ -664,10 +664,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#git-push-without-upstream" class="md-nav__link">
+  <a href="#git-push-without-upstream-resolved-in-pr-125" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Git push without upstream
+        ~~Git push without upstream~~ — resolved in PR #125
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-status-semantics-for-pr-less-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task status semantics for PR-less completion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-pr-body-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration PR body quality
       
     </span>
   </a>
@@ -1431,10 +1453,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-reviewer-no-commit-pr-failure" class="md-nav__link">
+  <a href="#test-reviewer-no-commit-pr-failure-resolved-in-pr-125" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Test reviewer: no-commit PR failure
+        ~~Test reviewer: no-commit PR failure~~ — resolved in PR #125
       
     </span>
   </a>
@@ -1442,10 +1464,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#git-push-without-upstream" class="md-nav__link">
+  <a href="#git-push-without-upstream-resolved-in-pr-125" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Git push without upstream
+        ~~Git push without upstream~~ — resolved in PR #125
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-status-semantics-for-pr-less-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task status semantics for PR-less completion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-pr-body-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration PR body quality
       
     </span>
   </a>
@@ -1609,10 +1653,10 @@ increasing sophistication:</p>
     (e.g., updating CLAUDE.md, adjusting orchestrator templates).</li>
 <li>Human reviews ops concerns and decides on fixes.</li>
 </ul>
-<p>Related: the TaskHelper completion step is fragile — agents struggle with
-inline Python in zsh (<code>pixi run python -c "..."</code> has shell-escaping issues).
-A CLI wrapper (e.g., <code>agentrelay-complete --title "..." --body "..."</code>) would
-be more robust than asking agents to write inline Python.</p>
+<p>~~Related: the TaskHelper completion step is fragile — agents struggle with
+inline Python in zsh. A CLI wrapper would be more robust.~~ Resolved in
+PR #120 (<code>agentrelay-complete</code>, <code>agentrelay-failed</code>, <code>agentrelay-concern</code>)
+and PR #125 (<code>agentrelay-complete-no-pr</code>).</p>
 <h2 id="agent-ops-concerns">Agent Ops Concerns</h2>
 <p>Agents encounter operational issues during task execution — wrong build
 commands, missing dependencies, permission errors, flaky tests, unexpected
@@ -1650,28 +1694,38 @@ information and risks drift. The spec_writer template should default to
 source-only specs; the supplementary <code>.md</code> spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).</p>
-<h3 id="test-reviewer-no-commit-pr-failure">Test reviewer: no-commit PR failure</h3>
-<p>The test_reviewer role reviews tests but may produce no code changes. When
-the branch HEAD equals the integration branch HEAD, <code>gh pr create</code> fails
-with "No commits between..." because there's nothing to diff. The agent
-worked around it by committing an unrelated pixi.lock change, but this is
-fragile. Options:
-- Allow review-only tasks to complete without a PR (skip PR creation, write
-  <code>.done</code> with a sentinel like <code>"no-pr"</code> instead of a URL).
-- Have the reviewer write a review summary file (e.g., <code>review_notes.md</code>)
-  so there's always at least one commit.
-- This is a <strong>core workflow issue</strong>, not an ops concern — the orchestrator
-  should handle review-only completion paths explicitly.</p>
-<h3 id="git-push-without-upstream">Git push without upstream</h3>
-<p>Agents' first <code>git push</code> fails because the task branch has no upstream set.
-The agent recovers by using <code>git push -u</code>, but this is avoidable friction.
-Options:
-- Set <code>push.autoSetupRemote=true</code> in the worktree's git config during
-  task preparation.
-- Have the workflow footer instruct agents to use <code>git push -u origin &lt;branch&gt;</code>.
-- Configure the upstream when creating the task branch in the preparer.
-- This is likely a <strong>core fix</strong> (preparer or git config) rather than an
-  ops concern, since it affects every task on first push.</p>
+<h3 id="test-reviewer-no-commit-pr-failure-resolved-in-pr-125">~~Test reviewer: no-commit PR failure~~ — resolved in PR #125</h3>
+<h3 id="git-push-without-upstream-resolved-in-pr-125">~~Git push without upstream~~ — resolved in PR #125</h3>
+<h3 id="task-status-semantics-for-pr-less-completion">Task status semantics for PR-less completion</h3>
+<p>PR #125 introduced PR-less completion for review-only tasks, but reuses
+<code>PR_MERGED</code> as the terminal success status even when no PR was created.
+This works mechanically (downstream dependency checks and workstream
+terminal state logic both key on <code>PR_MERGED</code>) but is semantically
+misleading. A dedicated <code>COMPLETED</code> (or <code>COMPLETED_WITHOUT_PR</code>) status
+would be more accurate. Changes needed:
+- Add the new status to <code>TaskStatus</code> enum.
+- Update <code>ALLOWED_TASK_TRANSITIONS</code>: <code>RUNNING</code> → <code>COMPLETED</code> (for
+  PR-less) alongside the existing <code>RUNNING</code> → <code>PR_CREATED</code> path.
+- Update all call sites that check <code>PR_MERGED</code> as "task succeeded" to
+  also accept the new status (orchestrator dependency resolution,
+  workstream terminal state, teardown mode, console output, integration
+  PR body builder).
+- Consider whether the new status needs its own signal file in the
+  <code>status/</code> directory.</p>
+<h3 id="integration-pr-body-quality">Integration PR body quality</h3>
+<p>The integration PR body produced by <code>GhWorkstreamIntegrator</code> is
+functional but not reader-friendly:
+- <strong>Long descriptions inlined verbatim</strong>: Multi-paragraph task
+  descriptions (e.g., from <code>spec_bounded_queue</code>) are dumped as-is,
+  making the PR body wall-of-text. Should truncate or summarize.
+- <strong>Missing descriptions</strong>: Tasks without an explicit <code>description</code> in
+  the YAML show <code>(no description)</code>. Could fall back to the task ID or
+  role name for context.
+- <strong>Formatting</strong>: The body is a flat bullet list. Could use collapsible
+  sections (<code>&lt;details&gt;</code>), tables, or better heading structure to match
+  the quality of a typical agent-written PR description.
+- <strong>Concern presentation</strong>: Concerns are listed per-task, which is good,
+  but could benefit from a summary/highlight for cross-cutting concerns.</p>
 <h2 id="cross-workstream-dependency-ordering">Cross-Workstream Dependency Ordering</h2>
 <p>Two related questions about correctness when tasks span workstreams:</p>
 <h3 id="human-merge-and-status-signaling">Human merge and status signaling</h3>

@@ -5013,7 +5013,8 @@ so that task PRs can target it.</p>
 <span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
-<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GitWorkstreamPreparer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision a worktree and integration branch for a workstream lane.</span>
 
@@ -5043,6 +5044,7 @@ so that task PRs can target it.</p>
                 <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
             <span class="p">)</span>
             <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">worktree_path</span><span class="p">,</span> <span class="s2">&quot;push.autoSetupRemote&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">_WorkspaceIntegrationError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Failed to provision workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -5149,7 +5151,8 @@ so that task PRs can target it.</p>
 <span class="normal">57</span>
 <span class="normal">58</span>
 <span class="normal">59</span>
-<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision worktree and integration branch for this workstream.</span>
 
 <span class="sd">    Args:</span>
@@ -5164,6 +5167,7 @@ so that task PRs can target it.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
         <span class="p">)</span>
         <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">worktree_path</span><span class="p">,</span> <span class="s2">&quot;push.autoSetupRemote&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">_WorkspaceIntegrationError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Failed to provision workstream </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>

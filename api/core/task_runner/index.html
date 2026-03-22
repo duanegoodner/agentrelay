@@ -3847,11 +3847,7 @@ based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span>
@@ -4049,7 +4045,10 @@ based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code
 <span class="normal">337</span>
 <span class="normal">338</span>
 <span class="normal">339</span>
-<span class="normal">340</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">StandardTaskRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard task lifecycle: prepare → launch → kickoff → wait → merge → teardown.</span>
 
@@ -4173,23 +4172,22 @@ based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">:</span>
-                <span class="n">runtime</span><span class="o">.</span><span class="n">mark_failed</span><span class="p">(</span>
-                    <span class="s2">&quot;Task completion signaled &#39;done&#39; but did not include pr_url.&quot;</span>
-                <span class="p">)</span>
-                <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">:</span>
+                <span class="c1"># Standard path: merge the PR.</span>
+                <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">pr_url</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
 
-            <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">pr_url</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_emit_step</span><span class="p">(</span><span class="s2">&quot;task_pr_merging&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">_emit_step</span><span class="p">(</span><span class="s2">&quot;task_pr_merging&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># PR-less completion (e.g., review-only task with no changes).</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_teardown</span><span class="p">(</span><span class="n">teardown_mode</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">status</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -4392,11 +4390,7 @@ state.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span>
 <span class="normal">195</span>
@@ -4490,7 +4484,10 @@ state.</p>
 <span class="normal">283</span>
 <span class="normal">284</span>
 <span class="normal">285</span>
-<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4564,23 +4561,22 @@ state.</p>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">:</span>
-            <span class="n">runtime</span><span class="o">.</span><span class="n">mark_failed</span><span class="p">(</span>
-                <span class="s2">&quot;Task completion signaled &#39;done&#39; but did not include pr_url.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">:</span>
+            <span class="c1"># Standard path: merge the PR.</span>
+            <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">pr_url</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
 
-        <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">pr_url</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_emit_step</span><span class="p">(</span><span class="s2">&quot;task_pr_merging&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_emit_step</span><span class="p">(</span><span class="s2">&quot;task_pr_merging&quot;</span><span class="p">,</span> <span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_merger</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">merge_pr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">pr_url</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">fc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record_io_failure</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">TaskRunResult</span><span class="o">.</span><span class="n">from_runtime</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">failure_class</span><span class="o">=</span><span class="n">fc</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># PR-less completion (e.g., review-only task with no changes).</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_teardown</span><span class="p">(</span><span class="n">teardown_mode</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">status</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
@@ -4634,11 +4630,7 @@ not know or care about internal step structure.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
 <span class="normal">126</span>
@@ -4650,7 +4642,11 @@ not know or care about internal step structure.</p>
 <span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
-<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunner</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by Orchestrator.</span>
 
@@ -4703,14 +4699,14 @@ not know or care about internal step structure.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
-<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -4834,11 +4830,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 77</span>
 <span class="normal"> 78</span>
 <span class="normal"> 79</span>
 <span class="normal"> 80</span>
@@ -4877,7 +4869,11 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience return value mirroring terminal fields on :class:`TaskRuntime`.</span>
 
@@ -5037,11 +5033,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
@@ -5058,7 +5050,11 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_runtime</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
@@ -5166,18 +5162,18 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
 <span class="normal">69</span>
-<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TearDownMode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TearDownMode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Policy controlling whether runtime resources are torn down after run.</span>
 
 <span class="sd">    Attributes:</span>
@@ -5537,8 +5533,7 @@ into a :class:<code>TaskCompletionSignal</code>.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_completion_checker.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
-<span class="normal">28</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
@@ -5588,7 +5583,9 @@ into a :class:<code>TaskCompletionSignal</code>.</p>
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SignalCompletionChecker</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Poll signal files and parse the result into a completion signal.</span>
 
@@ -5629,9 +5626,10 @@ into a :class:<code>TaskCompletionSignal</code>.</p>
         <span class="n">concerns</span> <span class="o">=</span> <span class="n">_parse_concerns</span><span class="p">(</span><span class="n">concerns_text</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">found</span> <span class="o">==</span> <span class="s2">&quot;.done&quot;</span><span class="p">:</span>
+            <span class="n">pr_url</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">payload</span> <span class="o">==</span> <span class="n">NO_PR_SENTINEL</span> <span class="k">else</span> <span class="n">payload</span>
             <span class="k">return</span> <span class="n">TaskCompletionSignal</span><span class="p">(</span>
                 <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;done&quot;</span><span class="p">,</span>
-                <span class="n">pr_url</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+                <span class="n">pr_url</span><span class="o">=</span><span class="n">pr_url</span><span class="p">,</span>
                 <span class="n">concerns</span><span class="o">=</span><span class="n">concerns</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -5763,8 +5761,7 @@ into a :class:<code>TaskCompletionSignal</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_completion_checker.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
-<span class="normal">39</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
@@ -5803,7 +5800,9 @@ into a :class:<code>TaskCompletionSignal</code>.</p>
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionSignal</span><span class="p">:</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_completion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionSignal</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait for terminal task signal from the execution boundary.</span>
 
 <span class="sd">    Args:</span>
@@ -5833,9 +5832,10 @@ into a :class:<code>TaskCompletionSignal</code>.</p>
     <span class="n">concerns</span> <span class="o">=</span> <span class="n">_parse_concerns</span><span class="p">(</span><span class="n">concerns_text</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">found</span> <span class="o">==</span> <span class="s2">&quot;.done&quot;</span><span class="p">:</span>
+        <span class="n">pr_url</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">payload</span> <span class="o">==</span> <span class="n">NO_PR_SENTINEL</span> <span class="k">else</span> <span class="n">payload</span>
         <span class="k">return</span> <span class="n">TaskCompletionSignal</span><span class="p">(</span>
             <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;done&quot;</span><span class="p">,</span>
-            <span class="n">pr_url</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span>
+            <span class="n">pr_url</span><span class="o">=</span><span class="n">pr_url</span><span class="p">,</span>
             <span class="n">concerns</span><span class="o">=</span><span class="n">concerns</span><span class="p">,</span>
         <span class="p">)</span>
 
