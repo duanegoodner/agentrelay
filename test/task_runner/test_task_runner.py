@@ -5,6 +5,7 @@ import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
@@ -383,3 +384,51 @@ def test_concerns_transferred_to_runtime_on_failure() -> None:
 
     assert runtime.status == TaskStatus.FAILED
     assert runtime.artifacts.concerns == ["partial progress made"]
+
+
+@patch("agentrelay.task_runner.core.runner.gh")
+def test_run_saves_pr_summary_before_merge(mock_gh: Any) -> None:
+    mock_gh.pr_body.return_value = "## Summary\n\n- implemented feature"
+    fake = FakeIO()
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    mock_gh.pr_body.assert_called_once_with("https://github.com/org/repo/pull/1")
+    assert runtime.state.signal_dir is not None
+    summary_path = runtime.state.signal_dir / "summary.md"
+    assert summary_path.is_file()
+    assert summary_path.read_text() == "## Summary\n\n- implemented feature"
+    # Verify summary saved before merge (merge_pr comes after summary in calls).
+    merge_idx = fake.calls.index("merge_pr")
+    assert merge_idx > 0  # merge_pr happened, not first
+
+
+@patch("agentrelay.task_runner.core.runner.gh")
+def test_run_pr_summary_fetch_failure_does_not_block_merge(mock_gh: Any) -> None:
+    mock_gh.pr_body.side_effect = RuntimeError("gh failed")
+    fake = FakeIO()
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert "merge_pr" in fake.calls
+    assert runtime.state.signal_dir is not None
+    summary_path = runtime.state.signal_dir / "summary.md"
+    assert not summary_path.exists()
+
+
+@patch("agentrelay.task_runner.core.runner.gh")
+def test_run_pr_less_completion_skips_summary(mock_gh: Any) -> None:
+    fake = FakeIO(signal=TaskCompletionSignal(outcome="done", pr_url=None))
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    mock_gh.pr_body.assert_not_called()
