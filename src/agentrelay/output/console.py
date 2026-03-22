@@ -256,4 +256,16 @@ def print_summary(
             for concern in concerns:
                 stream.write(f"  {task_id}: {concern}\n")
 
+    # Per-task ops concerns.
+    task_ops_concerns = [
+        (tid, rt.artifacts.ops_concerns)
+        for tid, rt in result.task_runtimes.items()
+        if rt.artifacts.ops_concerns
+    ]
+    if task_ops_concerns:
+        stream.write("\nOps Concerns:\n")
+        for task_id, ops_concerns in task_ops_concerns:
+            for concern in ops_concerns:
+                stream.write(f"  {task_id}: {concern}\n")
+
     stream.flush()

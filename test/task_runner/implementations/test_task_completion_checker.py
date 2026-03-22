@@ -56,6 +56,7 @@ class TestSignalCompletionChecker:
         mock_signals.read_signal_file.side_effect = lambda _dir, name: {
             ".done": "2026-03-13T10:00:00Z\nhttps://github.com/org/repo/pull/42\n",
             "concerns.log": None,
+            "ops_concerns.log": None,
         }[name]
 
         checker = SignalCompletionChecker(poll_interval=0.01)
@@ -66,6 +67,7 @@ class TestSignalCompletionChecker:
         assert signal.pr_url == "https://github.com/org/repo/pull/42"
         assert signal.error is None
         assert signal.concerns == ()
+        assert signal.ops_concerns == ()
 
     @patch("agentrelay.task_runner.implementations.task_completion_checker.signals")
     def test_done_signal_with_no_pr_sentinel_returns_none_pr_url(
@@ -76,6 +78,7 @@ class TestSignalCompletionChecker:
         mock_signals.read_signal_file.side_effect = lambda _dir, name: {
             ".done": "2026-03-13T10:00:00Z\nNO_PR\n",
             "concerns.log": None,
+            "ops_concerns.log": None,
         }[name]
 
         checker = SignalCompletionChecker(poll_interval=0.01)
@@ -84,6 +87,7 @@ class TestSignalCompletionChecker:
         assert signal.outcome == "done"
         assert signal.pr_url is None
         assert signal.concerns == ()
+        assert signal.ops_concerns == ()
 
     @patch("agentrelay.task_runner.implementations.task_completion_checker.signals")
     def test_failed_signal_returns_error(self, mock_signals: MagicMock) -> None:
@@ -92,6 +96,7 @@ class TestSignalCompletionChecker:
         mock_signals.read_signal_file.side_effect = lambda _dir, name: {
             ".failed": "2026-03-13T10:00:00Z\nGate check failed\n",
             "concerns.log": None,
+            "ops_concerns.log": None,
         }[name]
 
         checker = SignalCompletionChecker(poll_interval=0.01)
@@ -109,6 +114,7 @@ class TestSignalCompletionChecker:
         mock_signals.read_signal_file.side_effect = lambda _dir, name: {
             ".done": "2026-03-13T10:00:00Z\nhttps://github.com/org/repo/pull/1\n",
             "concerns.log": "style issue\nmissing test\n",
+            "ops_concerns.log": None,
         }[name]
 
         checker = SignalCompletionChecker(poll_interval=0.01)
@@ -117,12 +123,29 @@ class TestSignalCompletionChecker:
         assert signal.concerns == ("style issue", "missing test")
 
     @patch("agentrelay.task_runner.implementations.task_completion_checker.signals")
+    def test_reads_ops_concerns_log(self, mock_signals: MagicMock) -> None:
+        """Includes ops concerns from ops_concerns.log in the signal."""
+        mock_signals.poll_signal_files = AsyncMock(return_value=".done")
+        mock_signals.read_signal_file.side_effect = lambda _dir, name: {
+            ".done": "2026-03-13T10:00:00Z\nhttps://github.com/org/repo/pull/1\n",
+            "concerns.log": None,
+            "ops_concerns.log": "slow build\nmissing dep\n",
+        }[name]
+
+        checker = SignalCompletionChecker(poll_interval=0.01)
+        signal = asyncio.run(checker.wait_for_completion(_make_runtime()))
+
+        assert signal.ops_concerns == ("slow build", "missing dep")
+        assert signal.concerns == ()
+
+    @patch("agentrelay.task_runner.implementations.task_completion_checker.signals")
     def test_handles_missing_payload_line(self, mock_signals: MagicMock) -> None:
         """Returns None payload when signal file has only a timestamp line."""
         mock_signals.poll_signal_files = AsyncMock(return_value=".failed")
         mock_signals.read_signal_file.side_effect = lambda _dir, name: {
             ".failed": "2026-03-13T10:00:00Z\n",
             "concerns.log": None,
+            "ops_concerns.log": None,
         }[name]
 
         checker = SignalCompletionChecker(poll_interval=0.01)

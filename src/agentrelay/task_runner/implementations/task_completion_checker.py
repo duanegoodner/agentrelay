@@ -30,8 +30,8 @@ class SignalCompletionChecker:
     """Poll signal files and parse the result into a completion signal.
 
     Watches the task's signal directory for ``.done`` or ``.failed`` files,
-    then parses the signal file content and any ``concerns.log`` entries
-    into a :class:`TaskCompletionSignal`.
+    then parses the signal file content and any ``concerns.log`` /
+    ``ops_concerns.log`` entries into a :class:`TaskCompletionSignal`.
     """
 
     poll_interval: float = 2.0
@@ -65,16 +65,21 @@ class SignalCompletionChecker:
         concerns_text = signals.read_signal_file(signal_dir, "concerns.log")
         concerns = _parse_concerns(concerns_text)
 
+        ops_concerns_text = signals.read_signal_file(signal_dir, "ops_concerns.log")
+        ops_concerns = _parse_concerns(ops_concerns_text)
+
         if found == ".done":
             pr_url = None if payload == NO_PR_SENTINEL else payload
             return TaskCompletionSignal(
                 outcome="done",
                 pr_url=pr_url,
                 concerns=concerns,
+                ops_concerns=ops_concerns,
             )
 
         return TaskCompletionSignal(
             outcome="failed",
             error=payload,
             concerns=concerns,
+            ops_concerns=ops_concerns,
         )

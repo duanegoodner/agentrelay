@@ -95,3 +95,22 @@ class TestConcernCli:
         monkeypatch.setattr("sys.argv", ["agentrelay-concern"])
         with pytest.raises(SystemExit):
             cli.concern()
+
+
+class TestOpsConcernCli:
+    def test_calls_helper_record_ops_concern(
+        self, signal_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+        monkeypatch.setattr(
+            "sys.argv", ["agentrelay-ops-concern", "--message", "build timeout"]
+        )
+        with patch("agentrelay.agent_sdk.cli.TaskHelper") as mock_cls:
+            instance = mock_cls.from_env.return_value
+            cli.ops_concern()
+            instance.record_ops_concern.assert_called_once_with("build timeout")
+
+    def test_message_required(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr("sys.argv", ["agentrelay-ops-concern"])
+        with pytest.raises(SystemExit):
+            cli.ops_concern()

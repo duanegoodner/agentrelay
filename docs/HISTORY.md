@@ -4,6 +4,25 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-22
+
+### Ops concerns — separate channel for operational issues (PR B4)
+
+- **Separate ops concerns channel**: Agents can now record operational concerns
+  (build errors, missing deps, tooling friction) via `agentrelay-ops-concern`
+  CLI, distinct from design concerns (`agentrelay-concern`). Stored in
+  `ops_concerns.log` in the signal directory.
+- **End-to-end pipeline**: `TaskHelper.record_ops_concern()` →
+  `ops_concerns.log` → `SignalCompletionChecker` → `TaskArtifacts.ops_concerns`
+  → `TaskSummary.ops_concerns` → integration PR body + console summary.
+- **Separate rendering**: Ops concerns appear in their own `## Ops Concerns`
+  section in both individual task PRs and integration PRs, and in a separate
+  `Ops Concerns:` block in console output.
+- **Workflow footer updated**: Step 2 now distinguishes design vs ops concerns
+  with examples of each category.
+
+---
+
 ## 2026-03-21
 
 ### Declared tools + TaskHelper CLI wrapper (PR B2)

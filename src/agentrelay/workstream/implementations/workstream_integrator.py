@@ -45,6 +45,15 @@ def _build_pr_body(
             for concern in s.concerns:
                 parts.append(f"- {concern}\n")
 
+    # Aggregate ops concerns across all tasks.
+    tasks_with_ops_concerns = [s for s in summaries if s.ops_concerns]
+    if tasks_with_ops_concerns:
+        parts.append("\n## Ops Concerns\n")
+        for s in tasks_with_ops_concerns:
+            parts.append(f"\n### {s.task_id}\n")
+            for concern in s.ops_concerns:
+                parts.append(f"- {concern}\n")
+
     return "\n".join(parts)
 
 

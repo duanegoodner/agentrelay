@@ -359,6 +359,35 @@ class TestPrintSummary:
         assert "Fatal error:" in output
         assert "RuntimeError: boom" in output
 
+    def test_ops_concerns_displayed_in_summary(self) -> None:
+        result = _make_result(
+            tasks=(("task_a", TaskStatus.PR_MERGED, "default"),),
+        )
+        result.task_runtimes["task_a"].artifacts.ops_concerns = [
+            "slow build",
+            "missing dep",
+        ]
+        buf = io.StringIO()
+        print_summary(result, stream=buf)
+        output = buf.getvalue()
+        assert "Ops Concerns:" in output
+        assert "task_a: slow build" in output
+        assert "task_a: missing dep" in output
+
+    def test_both_concern_types_displayed(self) -> None:
+        result = _make_result(
+            tasks=(("task_a", TaskStatus.PR_MERGED, "default"),),
+        )
+        result.task_runtimes["task_a"].artifacts.concerns = ["spec issue"]
+        result.task_runtimes["task_a"].artifacts.ops_concerns = ["build flaky"]
+        buf = io.StringIO()
+        print_summary(result, stream=buf)
+        output = buf.getvalue()
+        assert "Concerns:" in output
+        assert "task_a: spec issue" in output
+        assert "Ops Concerns:" in output
+        assert "task_a: build flaky" in output
+
     def test_empty_graph_no_table(self) -> None:
         result = _make_result()
         buf = io.StringIO()
