@@ -50,6 +50,16 @@ Ideas to explore:
   exists, read it first" — just needs to be wired in `run_graph.py`
   or the orchestrator builder.
 
+## Agent-Written Summaries for PR-less Tasks
+
+Currently `summary.md` is only written for tasks that create a PR (the
+orchestrator fetches the PR body). PR-less tasks (e.g., test_reviewer)
+leave no summary of what they did. A CLI command like
+`agentrelay-summary --message "..."` would let any agent write a summary
+to its signal directory, independent of PR creation. This would make
+PR-less task results visible to downstream agents, auditing, and the
+integration PR body.
+
 ## Agent Instruction Architecture
 
 > **Priority**: Highly recommended as the next focus after sprint 2026-03-19
