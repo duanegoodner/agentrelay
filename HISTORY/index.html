@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ops-concerns-separate-channel-for-operational-issues-pr-b4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ops concerns — separate channel for operational issues (PR B4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-21" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1766,6 +1794,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-22
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-22">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ops-concerns-separate-channel-for-operational-issues-pr-b4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ops concerns — separate channel for operational issues (PR B4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-21" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2418,6 +2474,23 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-22">2026-03-22</h2>
+<h3 id="ops-concerns-separate-channel-for-operational-issues-pr-b4">Ops concerns — separate channel for operational issues (PR B4)</h3>
+<ul>
+<li><strong>Separate ops concerns channel</strong>: Agents can now record operational concerns
+  (build errors, missing deps, tooling friction) via <code>agentrelay-ops-concern</code>
+  CLI, distinct from design concerns (<code>agentrelay-concern</code>). Stored in
+  <code>ops_concerns.log</code> in the signal directory.</li>
+<li><strong>End-to-end pipeline</strong>: <code>TaskHelper.record_ops_concern()</code> →
+  <code>ops_concerns.log</code> → <code>SignalCompletionChecker</code> → <code>TaskArtifacts.ops_concerns</code>
+  → <code>TaskSummary.ops_concerns</code> → integration PR body + console summary.</li>
+<li><strong>Separate rendering</strong>: Ops concerns appear in their own <code>## Ops Concerns</code>
+  section in both individual task PRs and integration PRs, and in a separate
+  <code>Ops Concerns:</code> block in console output.</li>
+<li><strong>Workflow footer updated</strong>: Step 2 now distinguishes design vs ops concerns
+  with examples of each category.</li>
+</ul>
 <hr />
 <h2 id="2026-03-21">2026-03-21</h2>
 <h3 id="declared-tools-taskhelper-cli-wrapper-pr-b2">Declared tools + TaskHelper CLI wrapper (PR B2)</h3>
