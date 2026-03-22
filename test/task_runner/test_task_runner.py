@@ -169,7 +169,7 @@ def test_run_failed_signal_without_error_sets_default_message() -> None:
     assert runtime.state.error == "Task failed without an error message."
 
 
-def test_run_done_signal_without_pr_url_fails() -> None:
+def test_run_done_signal_without_pr_url_succeeds_without_merge() -> None:
     fake = FakeIO(signal=TaskCompletionSignal(outcome="done", pr_url=None))
     runner = _make_runner(fake)
     runtime = _make_runtime()
@@ -183,9 +183,10 @@ def test_run_done_signal_without_pr_url_fails() -> None:
         "wait_for_completion",
         "teardown",
     ]
-    assert runtime.status == TaskStatus.FAILED
-    assert "did not include pr_url" in (runtime.state.error or "")
-    assert result.status == TaskStatus.FAILED
+    assert "merge_pr" not in fake.calls
+    assert runtime.status == TaskStatus.PR_MERGED
+    assert runtime.artifacts.pr_url is None
+    assert result.status == TaskStatus.PR_MERGED
 
 
 @pytest.mark.parametrize(

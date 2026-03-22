@@ -97,6 +97,16 @@ class TestResolveInstructions:
             leftover = re.findall(r"\$[a-z_]+", text)
             assert leftover == [], f"Role {role}: leftover placeholders {leftover}"
 
+    def test_workflow_footer_includes_no_pr_option(self) -> None:
+        """Workflow footer mentions agentrelay-complete-no-pr."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "agentrelay-complete-no-pr" in text
+
+    def test_test_reviewer_mentions_no_pr_completion(self) -> None:
+        """Test reviewer template mentions completing without a PR."""
+        text = resolve_instructions(AgentRole.TEST_REVIEWER, _manifest())
+        assert "complete without a PR" in text
+
     def test_empty_paths_show_placeholder(self) -> None:
         """Empty paths are shown as '(none specified)'."""
         m = _manifest(src_paths=(), test_paths=())

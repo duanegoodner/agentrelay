@@ -86,10 +86,10 @@ increasing sophistication:
     (e.g., updating CLAUDE.md, adjusting orchestrator templates).
   - Human reviews ops concerns and decides on fixes.
 
-Related: the TaskHelper completion step is fragile — agents struggle with
-inline Python in zsh (`pixi run python -c "..."` has shell-escaping issues).
-A CLI wrapper (e.g., `agentrelay-complete --title "..." --body "..."`) would
-be more robust than asking agents to write inline Python.
+~~Related: the TaskHelper completion step is fragile — agents struggle with
+inline Python in zsh. A CLI wrapper would be more robust.~~ Resolved in
+PR #120 (`agentrelay-complete`, `agentrelay-failed`, `agentrelay-concern`)
+and PR #125 (`agentrelay-complete-no-pr`).
 
 ## Agent Ops Concerns
 
@@ -132,31 +132,43 @@ source-only specs; the supplementary `.md` spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).
 
-### Test reviewer: no-commit PR failure
+### ~~Test reviewer: no-commit PR failure~~ — resolved in PR #125
 
-The test_reviewer role reviews tests but may produce no code changes. When
-the branch HEAD equals the integration branch HEAD, `gh pr create` fails
-with "No commits between..." because there's nothing to diff. The agent
-worked around it by committing an unrelated pixi.lock change, but this is
-fragile. Options:
-- Allow review-only tasks to complete without a PR (skip PR creation, write
-  `.done` with a sentinel like `"no-pr"` instead of a URL).
-- Have the reviewer write a review summary file (e.g., `review_notes.md`)
-  so there's always at least one commit.
-- This is a **core workflow issue**, not an ops concern — the orchestrator
-  should handle review-only completion paths explicitly.
+### ~~Git push without upstream~~ — resolved in PR #125
 
-### Git push without upstream
+### Task status semantics for PR-less completion
 
-Agents' first `git push` fails because the task branch has no upstream set.
-The agent recovers by using `git push -u`, but this is avoidable friction.
-Options:
-- Set `push.autoSetupRemote=true` in the worktree's git config during
-  task preparation.
-- Have the workflow footer instruct agents to use `git push -u origin <branch>`.
-- Configure the upstream when creating the task branch in the preparer.
-- This is likely a **core fix** (preparer or git config) rather than an
-  ops concern, since it affects every task on first push.
+PR #125 introduced PR-less completion for review-only tasks, but reuses
+`PR_MERGED` as the terminal success status even when no PR was created.
+This works mechanically (downstream dependency checks and workstream
+terminal state logic both key on `PR_MERGED`) but is semantically
+misleading. A dedicated `COMPLETED` (or `COMPLETED_WITHOUT_PR`) status
+would be more accurate. Changes needed:
+- Add the new status to `TaskStatus` enum.
+- Update `ALLOWED_TASK_TRANSITIONS`: `RUNNING` → `COMPLETED` (for
+  PR-less) alongside the existing `RUNNING` → `PR_CREATED` path.
+- Update all call sites that check `PR_MERGED` as "task succeeded" to
+  also accept the new status (orchestrator dependency resolution,
+  workstream terminal state, teardown mode, console output, integration
+  PR body builder).
+- Consider whether the new status needs its own signal file in the
+  `status/` directory.
+
+### Integration PR body quality
+
+The integration PR body produced by `GhWorkstreamIntegrator` is
+functional but not reader-friendly:
+- **Long descriptions inlined verbatim**: Multi-paragraph task
+  descriptions (e.g., from `spec_bounded_queue`) are dumped as-is,
+  making the PR body wall-of-text. Should truncate or summarize.
+- **Missing descriptions**: Tasks without an explicit `description` in
+  the YAML show `(no description)`. Could fall back to the task ID or
+  role name for context.
+- **Formatting**: The body is a flat bullet list. Could use collapsible
+  sections (`<details>`), tables, or better heading structure to match
+  the quality of a typical agent-written PR description.
+- **Concern presentation**: Concerns are listed per-task, which is good,
+  but could benefit from a summary/highlight for cross-cutting concerns.
 
 ## Cross-Workstream Dependency Ordering
 

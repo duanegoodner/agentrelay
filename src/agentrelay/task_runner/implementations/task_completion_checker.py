@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from agentrelay.agent_sdk.task_helper import NO_PR_SENTINEL
 from agentrelay.ops import signals
 from agentrelay.task_runner.core.io import TaskCompletionSignal
 from agentrelay.task_runtime import TaskRuntime
@@ -65,9 +66,10 @@ class SignalCompletionChecker:
         concerns = _parse_concerns(concerns_text)
 
         if found == ".done":
+            pr_url = None if payload == NO_PR_SENTINEL else payload
             return TaskCompletionSignal(
                 outcome="done",
-                pr_url=payload,
+                pr_url=pr_url,
                 concerns=concerns,
             )
 

@@ -263,6 +263,18 @@ def reset_hard(repo: Path, ref: str) -> None:
     )
 
 
+def set_config(repo: Path, key: str, value: str) -> None:
+    """Set a git config value in the local repo.
+
+    Runs ``git -C <repo> config <key> <value>``.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "config", key, value],
+        check=True,
+        capture_output=True,
+    )
+
+
 def push_force_with_lease(repo: Path, branch: str) -> None:
     """Force-push *branch* to origin with lease safety.
 

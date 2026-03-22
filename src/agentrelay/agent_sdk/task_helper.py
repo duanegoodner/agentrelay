@@ -22,6 +22,9 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
+NO_PR_SENTINEL = "NO_PR"
+"""Sentinel value written to ``.done`` when a task completes without a PR."""
+
 
 class TaskHelper:
     """Agent-side helper for task workflow interaction.
@@ -62,6 +65,15 @@ class TaskHelper:
         )
 
     # -- Completion workflow ------------------------------------------------
+
+    def complete_without_pr(self) -> None:
+        """Signal task completion without creating a PR.
+
+        Use this when the task produced no code changes (e.g., review-only
+        tasks). Writes the ``.done`` signal file with the ``NO_PR`` sentinel
+        instead of a PR URL.
+        """
+        self.mark_done(NO_PR_SENTINEL)
 
     def complete(
         self,

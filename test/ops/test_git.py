@@ -14,6 +14,7 @@ from agentrelay.ops.git import (
     ls_remote_branch_exists,
     pull_ff_only,
     push_branch,
+    set_config,
     update_local_ref,
     worktree_add,
     worktree_remove,
@@ -397,6 +398,22 @@ class TestPushBranch:
 
         # Verify on remote.
         assert ls_remote_branch_exists(clone, "feat/push-test")
+
+
+class TestSetConfig:
+    """Tests for set_config."""
+
+    def test_sets_config_value(self, tmp_git_repo: Path) -> None:
+        """Sets a git config value in the local repo."""
+        set_config(tmp_git_repo, "push.autoSetupRemote", "true")
+
+        result = subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "config", "--get", "push.autoSetupRemote"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        assert result.stdout.strip() == "true"
 
 
 class TestLsRemoteBranchExists:

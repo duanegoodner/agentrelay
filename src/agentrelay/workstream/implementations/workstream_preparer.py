@@ -46,6 +46,7 @@ class GitWorkstreamPreparer:
                 self.repo_path, worktree_path, branch_name, spec.base_branch
             )
             git.push_branch(self.repo_path, branch_name, set_upstream=True)
+            git.set_config(worktree_path, "push.autoSetupRemote", "true")
         except subprocess.CalledProcessError as exc:
             raise _WorkspaceIntegrationError(
                 f"Failed to provision workstream {spec.id!r}: {exc}",

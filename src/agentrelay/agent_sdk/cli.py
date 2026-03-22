@@ -45,6 +45,21 @@ def complete() -> None:
         sys.exit(1)
 
 
+def complete_no_pr() -> None:
+    """CLI entry point: signal task completion without creating a PR."""
+    parser = argparse.ArgumentParser(
+        description="Signal task completion without creating a PR.",
+    )
+    _ = parser.parse_args()
+
+    try:
+        helper = TaskHelper.from_env()
+        helper.complete_without_pr()
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+
 def failed() -> None:
     """CLI entry point: signal task failure."""
     parser = argparse.ArgumentParser(
