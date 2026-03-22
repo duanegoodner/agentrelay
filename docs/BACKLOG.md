@@ -31,6 +31,35 @@ Near-term items for the current architecture track.
 - `workspace.py` (`LocalWorkspaceRef`, `WorkspaceRef`) — removed in the same PR. Was intended to model workspace/repo references.
 - View protocols (`TaskStateView`, `TaskArtifactsView`, `TaskRuntimeView`, `WorkstreamStateView`, `WorkstreamArtifactsView`, `WorkstreamRuntimeView`) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.
 
+## Task Graph Awareness for Agents
+
+Agents currently have no formal knowledge of their position in the task
+graph. They see upstream task file changes via the shared worktree, and
+`manifest.json` lists dependency IDs with descriptions, but nothing tells
+the agent how to find upstream task artifacts (PR summaries, concerns,
+signal files).
+
+Ideas to explore:
+- Wire up `context.md` with basic graph position info (dependency IDs,
+  signal directory paths, PR URLs from completed upstream tasks).
+- Give agents a tool or CLI command to query upstream task artifacts
+  (e.g., `agentrelay-upstream <task_id>` returning summary, concerns,
+  PR URL).
+- The `context.md` infrastructure already exists in `WorktreeTaskPreparer`
+  (field + write logic) and every role template says "If context.md
+  exists, read it first" — just needs to be wired in `run_graph.py`
+  or the orchestrator builder.
+
+## Agent-Written Summaries for PR-less Tasks
+
+Currently `summary.md` is only written for tasks that create a PR (the
+orchestrator fetches the PR body). PR-less tasks (e.g., test_reviewer)
+leave no summary of what they did. A CLI command like
+`agentrelay-summary --message "..."` would let any agent write a summary
+to its signal directory, independent of PR creation. This would make
+PR-less task results visible to downstream agents, auditing, and the
+integration PR body.
+
 ## Agent Instruction Architecture
 
 > **Priority**: Highly recommended as the next focus after sprint 2026-03-19
