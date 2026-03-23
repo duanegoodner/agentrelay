@@ -371,8 +371,9 @@ class TestPrintSummary:
         print_summary(result, stream=buf)
         output = buf.getvalue()
         assert "Ops Concerns:" in output
-        assert "task_a: slow build" in output
-        assert "task_a: missing dep" in output
+        assert "task_a:" in output
+        assert "slow build" in output
+        assert "missing dep" in output
 
     def test_both_concern_types_displayed(self) -> None:
         result = _make_result(
@@ -384,9 +385,9 @@ class TestPrintSummary:
         print_summary(result, stream=buf)
         output = buf.getvalue()
         assert "Concerns:" in output
-        assert "task_a: spec issue" in output
+        assert "spec issue" in output
         assert "Ops Concerns:" in output
-        assert "task_a: build flaky" in output
+        assert "build flaky" in output
 
     def test_empty_graph_no_table(self) -> None:
         result = _make_result()

@@ -224,6 +224,26 @@ PR is merged to main — meaning Task B's worktree wouldn't have Task A's
 changes. Need to verify whether the current orchestrator scheduling logic
 prevents this, or if this is a gap.
 
+## Implementer Test Coverage Threshold
+
+The implementer role should optionally enforce a minimum test coverage level.
+When configured, the implementer must verify that test coverage meets or exceeds
+the threshold before completing its task — writing additional tests if needed.
+
+- **Graph YAML configuration**: A `coverage` field on the task (or role-level
+  default) specifying the minimum coverage percentage and optionally how to
+  measure it (e.g., `pixi run coverage --branch`, a specific `pytest-cov`
+  invocation, or a custom command).
+- **Implementer template guidance**: When a coverage threshold is set, the
+  instructions should tell the agent to run the coverage tool after
+  implementation, check the result against the threshold, and iterate
+  (write more tests, re-run) until coverage is satisfied.
+- **Failure mode**: If the agent cannot reach the threshold after a reasonable
+  effort, it should record a concern explaining the gap rather than silently
+  shipping under-covered code.
+- **Scope**: Coverage enforcement applies only to the files under the task's
+  `paths.src` and `paths.test` — not the entire repo.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
