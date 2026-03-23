@@ -763,6 +763,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#implementer-test-coverage-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementer Test Coverage Threshold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1585,6 +1596,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#implementer-test-coverage-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementer Test Coverage Threshold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1813,6 +1835,25 @@ integration branch) and dispatch Task B before Workstream X's integration
 PR is merged to main — meaning Task B's worktree wouldn't have Task A's
 changes. Need to verify whether the current orchestrator scheduling logic
 prevents this, or if this is a gap.</p>
+<h2 id="implementer-test-coverage-threshold">Implementer Test Coverage Threshold</h2>
+<p>The implementer role should optionally enforce a minimum test coverage level.
+When configured, the implementer must verify that test coverage meets or exceeds
+the threshold before completing its task — writing additional tests if needed.</p>
+<ul>
+<li><strong>Graph YAML configuration</strong>: A <code>coverage</code> field on the task (or role-level
+  default) specifying the minimum coverage percentage and optionally how to
+  measure it (e.g., <code>pixi run coverage --branch</code>, a specific <code>pytest-cov</code>
+  invocation, or a custom command).</li>
+<li><strong>Implementer template guidance</strong>: When a coverage threshold is set, the
+  instructions should tell the agent to run the coverage tool after
+  implementation, check the result against the threshold, and iterate
+  (write more tests, re-run) until coverage is satisfied.</li>
+<li><strong>Failure mode</strong>: If the agent cannot reach the threshold after a reasonable
+  effort, it should record a concern explaining the gap rather than silently
+  shipping under-covered code.</li>
+<li><strong>Scope</strong>: Coverage enforcement applies only to the files under the task's
+  <code>paths.src</code> and <code>paths.test</code> — not the entire repo.</li>
+</ul>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
