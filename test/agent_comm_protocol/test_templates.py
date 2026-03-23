@@ -44,13 +44,10 @@ class TestResolveInstructions:
 
     def test_spec_writer(self) -> None:
         """SPEC_WRITER loads template and substitutes paths."""
-        m = _manifest(
-            role=AgentRole.SPEC_WRITER,
-            spec_path=Path("specs/greet.md"),
-        )
+        m = _manifest(role=AgentRole.SPEC_WRITER)
         text = resolve_instructions(AgentRole.SPEC_WRITER, m)
         assert "SPEC_WRITER" in text
-        assert "specs/greet.md" in text
+        assert "src/greet.py" in text
 
     def test_test_reviewer(self) -> None:
         """TEST_REVIEWER loads template and substitutes task_id."""
@@ -65,11 +62,11 @@ class TestResolveInstructions:
         assert "test/test_greet.py" in text
 
     def test_generic_with_description(self) -> None:
-        """GENERIC role returns description-based instructions."""
+        """GENERIC role puts description in What to Do section."""
         m = _manifest(description="Do something custom")
         text = resolve_instructions(AgentRole.GENERIC, m)
+        assert "## What to Do" in text
         assert "Do something custom" in text
-        assert "my_task" in text
 
     def test_generic_without_description_raises(self) -> None:
         """GENERIC role with no description raises ValueError."""
@@ -97,8 +94,8 @@ class TestResolveInstructions:
             leftover = re.findall(r"\$[a-z_]+", text)
             assert leftover == [], f"Role {role}: leftover placeholders {leftover}"
 
-    def test_workflow_footer_includes_no_pr_option(self) -> None:
-        """Workflow footer mentions agentrelay-complete-no-pr."""
+    def test_submission_includes_no_pr_option(self) -> None:
+        """Submission section mentions agentrelay-complete-no-pr."""
         text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
         assert "agentrelay-complete-no-pr" in text
 
@@ -112,3 +109,60 @@ class TestResolveInstructions:
         m = _manifest(src_paths=(), test_paths=())
         text = resolve_instructions(AgentRole.TEST_WRITER, m)
         assert "(none specified)" in text
+
+
+class TestDocumentStructure:
+    """Tests for the work-order document structure."""
+
+    def test_title_contains_task_id(self) -> None:
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "# Instructions for Task my_task" in text
+
+    def test_role_section_present(self) -> None:
+        text = resolve_instructions(AgentRole.SPEC_WRITER, _manifest())
+        assert "## Role" in text
+        assert "SPEC_WRITER" in text
+
+    def test_tools_section_present_when_declared(self) -> None:
+        m = _manifest(tools=("pixi",))
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        assert "## Tools" in text
+        assert "pixi run" in text
+
+    def test_tools_section_absent_when_no_tools(self) -> None:
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## Tools" not in text
+
+    def test_what_to_do_section_present(self) -> None:
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## What to Do" in text
+
+    def test_concerns_note_present(self) -> None:
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "agentrelay-concern" in text
+        assert "agentrelay-ops-concern" in text
+
+    def test_submission_section_present(self) -> None:
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## Submitting Your Work" in text
+
+    def test_task_details_present_for_role_with_description(self) -> None:
+        text = resolve_instructions(AgentRole.SPEC_WRITER, _manifest())
+        assert "## Task Details" in text
+        assert "Write tests for greet module" in text
+
+    def test_task_details_absent_for_generic(self) -> None:
+        m = _manifest(description="Do something")
+        text = resolve_instructions(AgentRole.GENERIC, m)
+        assert "## Task Details" not in text
+
+    def test_task_details_absent_when_no_description(self) -> None:
+        m = _manifest(description=None)
+        text = resolve_instructions(AgentRole.SPEC_WRITER, m)
+        assert "## Task Details" not in text
+
+    def test_generic_description_in_what_to_do(self) -> None:
+        m = _manifest(description="Do something custom")
+        text = resolve_instructions(AgentRole.GENERIC, m)
+        assert "## What to Do" in text
+        assert "Do something custom" in text

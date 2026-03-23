@@ -1,7 +1,9 @@
 """Role template resolution — Layer 2 of the agent communication protocol.
 
 Resolves role-appropriate markdown instruction templates, substituting
-manifest data using ``string.Template`` (``$var`` syntax).
+manifest data using ``string.Template`` (``$var`` syntax).  The assembled
+document is structured as a work order: role, tools, what to do, how to
+submit, and (for non-generic roles) task details from the graph author.
 
 Functions:
     resolve_instructions: Load and parameterize a role template.
@@ -21,6 +23,26 @@ _TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 
 _NONE_PLACEHOLDER = "(none specified)"
 
+_ROLE_SENTENCES: dict[AgentRole, str] = {
+    AgentRole.SPEC_WRITER: (
+        "You are a SPEC_WRITER tasked with writing specifications "
+        "for part of a software project."
+    ),
+    AgentRole.TEST_WRITER: (
+        "You are a TEST_WRITER tasked with writing tests "
+        "for part of a software project."
+    ),
+    AgentRole.TEST_REVIEWER: (
+        "You are a TEST_REVIEWER tasked with reviewing tests "
+        "written by another agent."
+    ),
+    AgentRole.IMPLEMENTER: (
+        "You are an IMPLEMENTER tasked with writing working code "
+        "that passes existing tests."
+    ),
+    AgentRole.GENERIC: "You are tasked with a custom assignment.",
+}
+
 
 def _format_paths(paths: tuple[Path, ...]) -> str:
     """Join paths with spaces, or return a placeholder if empty."""
@@ -34,15 +56,19 @@ def resolve_instructions(
 ) -> str:
     """Resolve work instructions by loading and parameterizing a role template.
 
-    Resolution order:
+    The assembled document is structured as a work order:
 
-    1. Adapter-specific: ``templates/<adapter_name>/<role>.md``
-    2. Shared: ``templates/<role>.md``
-    3. Fallback for ``GENERIC`` role: returns task description as instructions.
+    1. **Role** — who the agent is and what it's doing.
+    2. **Tools** — environment tools available (if any).
+    3. **What to Do** — role-specific steps from the template, or the
+       task description for GENERIC roles.
+    4. **Submitting Your Work** — how to commit, create a PR, and signal
+       the orchestrator.
+    5. **Task Details** — the task author's description (non-generic only,
+       when present).
 
     Template variables (``$var`` syntax via :class:`string.Template`):
 
-    - ``$role`` — uppercase role name
     - ``$description`` — task description
     - ``$src_paths`` — space-joined source paths, or ``"(none specified)"``
     - ``$test_paths`` — space-joined test paths, or ``"(none specified)"``
@@ -61,26 +87,31 @@ def resolve_instructions(
         FileNotFoundError: If no template found for a non-GENERIC role.
         ValueError: If GENERIC role has no description.
     """
+    parts = [
+        f"# Instructions for Task {manifest.task_id}",
+        (
+            f"## Role\n\n{_ROLE_SENTENCES[role]} "
+            "Follow the instructions below to complete the task."
+        ),
+    ]
+
+    # Tools (flat H2, only if declared).
+    tools_text = tool_guidance(manifest.tools)
+    if tools_text:
+        parts.append("## Tools\n\n" + tools_text.strip())
+
+    # What to Do.
     if role == AgentRole.GENERIC:
         if manifest.description is None:
             raise ValueError(
                 f"GENERIC role requires a task description, but task "
                 f"'{manifest.task_id}' has description=None."
             )
-        work_section = f"# Task: {manifest.task_id}\n\n{manifest.description}\n"
+        parts.append("## What to Do\n\n" + manifest.description)
     else:
         template_text = _load_template(role.value, adapter_name)
-
-        description_section = (
-            f"## Task Description\n\n{manifest.description}\n"
-            if manifest.description
-            else ""
-        )
-
         substitutions = {
-            "role": role.value.upper(),
             "description": manifest.description or "",
-            "description_section": description_section,
             "src_paths": _format_paths(manifest.src_paths),
             "test_paths": _format_paths(manifest.test_paths),
             "spec_path": (
@@ -90,39 +121,38 @@ def resolve_instructions(
             ),
             "task_id": manifest.task_id,
         }
+        resolved = Template(template_text).substitute(substitutions)
+        parts.append("## What to Do\n\n" + resolved.strip())
 
-        work_section = Template(template_text).substitute(substitutions)
+    parts.append(_concerns_note())
+    parts.append(_submission_section(manifest))
 
-    return work_section + _workflow_footer(manifest)
+    # Task Details (non-generic, when description exists).
+    if role != AgentRole.GENERIC and manifest.description:
+        parts.append("## Task Details\n\n" + manifest.description)
+
+    return "\n\n".join(parts) + "\n"
 
 
-def _workflow_footer(manifest: TaskManifest) -> str:
-    """Build the standard workflow completion steps appended to all instructions.
+def _concerns_note() -> str:
+    """Build the concerns guidance note appended to the What to Do section."""
+    return (
+        "As you work, record any concerns you encounter:\n"
+        "- **Design concerns** (spec contradictions, ambiguities): "
+        '`agentrelay-concern --message "..."`\n'
+        "- **Ops concerns** (build errors, missing deps, tooling friction): "
+        '`agentrelay-ops-concern --message "..."`'
+    )
 
-    Tells the agent how to commit, push, and use the CLI commands to create
-    a PR and signal the orchestrator. Includes tool guidance if tools are
-    declared in the graph.
-    """
-    tools_section = tool_guidance(manifest.tools)
-    if tools_section:
-        tools_section = "\n" + tools_section + "\n"
 
-    return f"""{tools_section}
-## Workflow — completion steps
+def _submission_section(manifest: TaskManifest) -> str:
+    """Build the Submitting Your Work section with signaling steps."""
+    return f"""## Submitting Your Work
 
 After completing the work above:
 
 1. **Commit and push** all changes to branch `{manifest.branch_name}`.
-2. **Record any concerns** you encountered (optional — skip if none):
-   - **Design concerns** (spec contradictions, ambiguities, naming issues):
-     ```bash
-     agentrelay-concern --message "description of concern"
-     ```
-   - **Ops concerns** (build errors, missing deps, tooling friction):
-     ```bash
-     agentrelay-ops-concern --message "description of ops concern"
-     ```
-3. **Complete the task** (creates PR and signals the orchestrator):
+2. **Complete the task** (creates PR and signals the orchestrator):
    ```bash
    agentrelay-complete --title "short summary of changes" --body "## Summary
 
@@ -141,8 +171,7 @@ If you cannot complete the work, signal failure instead:
    agentrelay-failed --reason "reason for failure"
    ```
 
-**Important**: The orchestrator is waiting for the signal. Do not skip step 3.
-"""
+**Important**: The orchestrator is waiting for the signal. Do not skip step 2."""
 
 
 def _load_template(role_value: str, adapter_name: Optional[str]) -> str:

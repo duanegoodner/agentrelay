@@ -85,11 +85,9 @@ class TestToolGuidance:
 
     def test_pixi_guidance(self) -> None:
         result = tool_guidance(("pixi",))
-        assert "## Tools" in result
         assert "pixi" in result
         assert "pixi run" in result
 
     def test_unknown_tool_skipped(self) -> None:
         result = tool_guidance(("nonexistent",))
-        assert "## Tools" in result
-        assert "nonexistent" not in result.split("## Tools")[1]
+        assert "nonexistent" not in result

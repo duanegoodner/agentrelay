@@ -1,14 +1,6 @@
-# Role: TEST_WRITER
+**Scope: write tests only.** The source files at $src_paths contain signatures and docstrings for an API that has not yet been implemented. Write pytest tests that can be used to verify the implementation, which another agent will write next. Do not modify the source files or add implementations.
 
-## Context
-If context.md exists in this directory, read it first.
-
-$description_section
-## Work
 1. Read the source stubs at $src_paths to understand the API contract.
    The docstrings are the authoritative spec.
 2. Write pytest test files at: $test_paths
-   The stub modules already exist -- do NOT create or overwrite them.
 3. Verify tests collect without import errors.
-
-Do NOT implement the feature. Only write tests.

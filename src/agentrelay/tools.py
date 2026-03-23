@@ -86,7 +86,7 @@ def tool_guidance(tools: tuple[str, ...]) -> str:
     """
     if not tools:
         return ""
-    lines = ["## Tools", ""]
+    lines: list[str] = []
     for name in tools:
         spec = TOOL_REGISTRY.get(name)
         if spec is not None:

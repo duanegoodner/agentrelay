@@ -6,6 +6,23 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-22
 
+### Restructure instructions.md as a work-order document
+
+- **Work-order layout**: instructions.md now reads as a natural work order:
+  Role → Tools → What to Do → Submitting Your Work → Task Details.
+  Each role gets a descriptive sentence ("You are a SPEC_WRITER tasked
+  with...") via `_ROLE_SENTENCES` dict.
+- **Scope preludes**: each role template starts with an explicit scope
+  statement (e.g., "Scope: write API stubs only") so agents know their
+  boundaries before reading the steps.
+- **Concerns during work**: concern recording guidance moved into "What to
+  Do" (record as you work) instead of the submission section.
+- **Task Details at the end**: task description appears last as a reference
+  section. For generic tasks, the description IS the work and goes under
+  "What to Do" directly.
+- **Spec writer simplified**: removed markdown spec step — Python stubs
+  with signatures and docstrings are the single source of truth.
+
 ### Ops concerns — separate channel for operational issues (PR B4)
 
 - **Separate ops concerns channel**: Agents can now record operational concerns
