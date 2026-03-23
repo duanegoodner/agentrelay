@@ -224,6 +224,22 @@ PR is merged to main — meaning Task B's worktree wouldn't have Task A's
 changes. Need to verify whether the current orchestrator scheduling logic
 prevents this, or if this is a gap.
 
+## Concern Guidance Level Experimentation
+
+PR #129 shipped "prompted" guidance (cross-check steps in role templates) which
+works reliably with Sonnet. Further investigation deferred:
+
+- **Model matrix**: Test concern discovery across Haiku, Sonnet, Opus to see if
+  the prompted guidance level generalizes or if weaker models need stronger
+  prompting (checklist-style).
+- **Guidance levels**: Compare minimal (no cross-check step), prompted (current),
+  and checklist (explicit verification questions) to find the minimum effective
+  guidance.
+- **Results documentation**: Fill in the results matrix in `graphs/roles/README.md`
+  with model × guidance level data.
+- Experiment infrastructure is already in place: single-task graphs in
+  `graphs/roles/experiments/`, BoundedQueue fixtures, `setup_fixtures.sh`.
+
 ## Implementer Test Coverage Threshold
 
 The implementer role should optionally enforce a minimum test coverage level.
