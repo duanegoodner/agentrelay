@@ -1198,10 +1198,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b3-role-specific-workflow-fixes" class="md-nav__link">
+  <a href="#pr-b3-role-specific-workflow-fixes-done-pr-125" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B3: Role-specific workflow fixes
+        PR B3: Role-specific workflow fixes — Done (PR #125)
       
     </span>
   </a>
@@ -1209,10 +1209,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b4-ops-concerns" class="md-nav__link">
+  <a href="#pr-b4-ops-concerns-done-pr-127" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B4: Ops concerns
+        PR B4: Ops concerns — Done (PR #127)
       
     </span>
   </a>
@@ -1530,50 +1530,51 @@ them").</p>
 - [x] <code>pixi run check</code> passes (897 tests)
 - [x] E2E: agents use <code>pixi run</code> and complete tasks without env friction</p>
 <hr />
-<h3 id="pr-b3-role-specific-workflow-fixes">PR B3: Role-specific workflow fixes</h3>
+<h3 id="pr-b3-role-specific-workflow-fixes-done-pr-125">PR B3: Role-specific workflow fixes — <strong>Done</strong> (PR #125)</h3>
 <ul>
-<li>Branch: TBD</li>
+<li>Branch: <code>fix/role-workflow</code></li>
 </ul>
-<p><strong>Problem:</strong> Two issues observed during E2E pipeline runs:</p>
-<p><strong>No-commit PR failure (test_reviewer):</strong>
-- Review-only roles that produce no code changes can't create a PR because
-  branch HEAD == integration HEAD. The agent worked around it by committing
-  an unrelated pixi.lock change.
-- Fix: allow review-only tasks to complete without a PR, or have the
-  reviewer write a review summary file so there's always a commit.</p>
-<p><strong>Git push without upstream (test_writer):</strong>
-- First <code>git push</code> fails because the task branch has no upstream set.
-  Agent recovers with <code>git push -u</code>, but this is avoidable friction.
-- Fix: set <code>push.autoSetupRemote=true</code> in worktree git config during task
-  preparation, or configure upstream when creating the branch.</p>
+<p><strong>Delivered:</strong>
+- Agent-driven PR-less completion: <code>NO_PR_SENTINEL</code>, <code>complete_without_pr()</code>,
+  <code>agentrelay-complete-no-pr</code> CLI. Runner skips merge when <code>pr_url</code> is None
+  (RUNNING → PR_MERGED). Workflow footer and test_reviewer template updated.
+- <code>push.autoSetupRemote=true</code> set in worktree git config during workstream
+  preparation via new <code>git.set_config()</code> ops wrapper.
+- Also landed PR #126: save task PR body as <code>summary.md</code> in signal directory
+  (fetched after PR_CREATED, before merge; preserved if merge fails).</p>
+<p><strong>E2E result:</strong>
+- Pipeline completes in ~4 min. test_reviewer uses <code>agentrelay-complete-no-pr</code>
+  cleanly. No agent needs <code>git push -u</code>. spec_writer catches deliberate spec
+  inconsistency and records concern organically.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Review-only tasks complete without needing a dummy commit
-- [ ] First <code>git push</code> succeeds without <code>--set-upstream</code>
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: pipeline runs without either workaround</p>
+- [x] Review-only tasks complete without needing a dummy commit
+- [x] First <code>git push</code> succeeds without <code>--set-upstream</code>
+- [x] <code>pixi run check</code> passes (907 tests)
+- [x] E2E: pipeline runs without either workaround</p>
 <hr />
-<h3 id="pr-b4-ops-concerns">PR B4: Ops concerns</h3>
+<h3 id="pr-b4-ops-concerns-done-pr-127">PR B4: Ops concerns — <strong>Done</strong> (PR #127)</h3>
 <ul>
-<li>Branch: TBD</li>
+<li>Branch: <code>feat/ops-concerns</code></li>
 </ul>
-<p><strong>Problem:</strong> Agents encounter operational issues (wrong build commands,
-missing dependencies, import path confusion) that are distinct from design
-concerns. Even when the agent works around the problem, the friction should
-be captured so it can be fixed systematically.</p>
-<p><strong>Implementation:</strong>
-- Add <code>record_ops_concern()</code> to TaskHelper (or a <code>category</code> param on
-  <code>record_concern</code>)
-- Separate storage: <code>ops_concerns.log</code> in signal dir (or tagged lines in
-  <code>concerns.log</code>)
-- Orchestrator reads and surfaces ops concerns separately from design
-  concerns in console output and integration PR body
-- Update workflow footer to tell agents about ops concerns</p>
+<p><strong>Delivered:</strong>
+- Separate ops concerns channel: <code>record_ops_concern()</code> on TaskHelper +
+  <code>agentrelay-ops-concern</code> CLI command. Stored in <code>ops_concerns.log</code> in
+  the signal directory (parallel to <code>concerns.log</code> for design concerns).
+- End-to-end pipeline: <code>TaskHelper.record_ops_concern()</code> →
+  <code>ops_concerns.log</code> → <code>SignalCompletionChecker</code> →
+  <code>TaskArtifacts.ops_concerns</code> → <code>TaskSummary.ops_concerns</code> →
+  integration PR body (<code>## Ops Concerns</code>) + console summary
+  (<code>Ops Concerns:</code> block).
+- Individual task PRs also get a <code>## Ops Concerns</code> section when ops
+  concerns are present.
+- Workflow footer updated: step 2 now distinguishes design vs ops
+  concerns with category labels and examples.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Agents can record ops concerns via TaskHelper
-- [ ] Ops concerns appear separately from design concerns in console output
-- [ ] Ops concerns appear in integration PR body
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: agent records an ops concern, visible in output</p>
+- [x] Agents can record ops concerns via TaskHelper
+- [x] Ops concerns appear separately from design concerns in console output
+- [x] Ops concerns appear in integration PR body
+- [x] <code>pixi run check</code> passes (919 tests)
+- [x] E2E: agent records an ops concern, visible in output</p>
 <hr />
 <h3 id="pr-bn-concern-instruction-refinement">PR BN: Concern instruction refinement</h3>
 <ul>
