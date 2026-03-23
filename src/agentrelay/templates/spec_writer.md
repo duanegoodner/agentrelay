@@ -1,14 +1,5 @@
-# Role: SPEC_WRITER
+**Scope: write API stubs only.** Define class, function, and method signatures with type hints and docstrings. Function and method bodies should be `raise NotImplementedError`. Do not write working logic.
 
-## Context
-If context.md exists in this directory, read it first.
-
-$description_section
-## Work
-1. Create specification files at: $src_paths
-   Specifications define the API contract through signatures and docstrings.
-   The implementation body should raise NotImplementedError.
-2. If a spec path is specified ($spec_path), also create a supplementary
-   specification document there.
-
-Do NOT implement the feature. Only write specifications.
+1. Create specification file(s) at: $src_paths.
+   In this/these file(s), create class signatures and docstrings that define the API contract for the items described in the Task Details section below.
+   The implementation body of each method should be `raise NotImplementedError`.
