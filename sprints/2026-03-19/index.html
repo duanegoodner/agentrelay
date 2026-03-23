@@ -1220,10 +1220,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-bn-concern-instruction-refinement" class="md-nav__link">
+  <a href="#pr-bn-concern-instruction-refinement-done-pr-129" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR BN: Concern instruction refinement
+        PR BN: Concern instruction refinement — Done (PR #129)
       
     </span>
   </a>
@@ -1576,29 +1576,32 @@ them").</p>
 - [x] <code>pixi run check</code> passes (919 tests)
 - [x] E2E: agent records an ops concern, visible in output</p>
 <hr />
-<h3 id="pr-bn-concern-instruction-refinement">PR BN: Concern instruction refinement</h3>
+<h3 id="pr-bn-concern-instruction-refinement-done-pr-129">PR BN: Concern instruction refinement — <strong>Done</strong> (PR #129)</h3>
 <ul>
-<li>Branch: TBD</li>
+<li>Branch: <code>feat/concern-refinement</code></li>
 </ul>
-<blockquote>
-<p><strong>Prerequisite:</strong> PR B2 (clean runs needed for reliable experimentation)</p>
-</blockquote>
-<p><strong>Problem:</strong> With baseline instructions, agents do not organically raise
-concerns about spec inconsistencies. Need to determine what level of guidance
-produces reliable concern discovery across models.</p>
-<p><strong>Approach:</strong>
-- Experiment with concern qualification guidance levels (minimal, prompted,
-  checklist) in the implementer task description
-- Test across models (Haiku, Sonnet, Opus) with the roles/pipeline.yaml
-  graph and its deliberate BoundedQueue spec inconsistency
-- Settle on a default guidance level that works with "reasonable agents"
-- May feed into the structured instruction architecture (see BACKLOG.md)</p>
+<p><strong>Delivered:</strong>
+- Cross-check steps added to all four role templates so agents actively look
+  for spec contradictions. General concerns note placed before numbered steps
+  via <code>$concerns_note</code> placeholder (scope → how to record → steps).
+- Wording refined: "throughout" emphasis in general note, "if not already
+  recorded" in specific steps, clearer CLI command guidance.
+- Single-task experiment graphs (<code>graphs/roles/experiments/</code>) with BoundedQueue
+  fixtures for isolated per-role testing. Setup script with <code>stubs</code>/<code>all</code> modes.
+- Console concern display improved: task ID on its own line, concern text
+  wrapped at 76 chars with indentation.</p>
+<p><strong>E2E result:</strong>
+- "Prompted" guidance level works reliably with Sonnet across all four roles.
+  All agents caught the deliberate BoundedQueue contradiction (push evicts vs
+  raises OverflowError) and recorded design concerns.</p>
+<p><strong>Deferred to backlog:</strong>
+- Full model × guidance level matrix (Haiku, Opus) and guidance level
+  experimentation (minimal, checklist). See BACKLOG.md.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] All four roles produce expected artifacts (specs, tests, implementations)
-- [ ] At least one guidance level reliably produces organic concern discovery
-- [ ] Results matrix (model × guidance level) documented in graphs/roles/README.md
-- [ ] Guidance is documented and integrated into templates or protocol
-- [ ] <code>pixi run check</code> passes</p>
+- [x] At least one guidance level reliably produces organic concern discovery
+- [x] Guidance is documented and integrated into templates
+- [x] <code>pixi run check</code> passes (935 tests)
+- [ ] ~~Results matrix (model × guidance level)~~ (deferred to backlog)</p>
 <hr />
 <h3 id="pr-c-failure-and-workstreams-test-graphs">PR C: failure/ and workstreams/ test graphs</h3>
 <ul>

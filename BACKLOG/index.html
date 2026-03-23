@@ -763,6 +763,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#concern-guidance-level-experimentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concern Guidance Level Experimentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#implementer-test-coverage-threshold" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1596,6 +1607,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#concern-guidance-level-experimentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concern Guidance Level Experimentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#implementer-test-coverage-threshold" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1835,6 +1857,21 @@ integration branch) and dispatch Task B before Workstream X's integration
 PR is merged to main — meaning Task B's worktree wouldn't have Task A's
 changes. Need to verify whether the current orchestrator scheduling logic
 prevents this, or if this is a gap.</p>
+<h2 id="concern-guidance-level-experimentation">Concern Guidance Level Experimentation</h2>
+<p>PR #129 shipped "prompted" guidance (cross-check steps in role templates) which
+works reliably with Sonnet. Further investigation deferred:</p>
+<ul>
+<li><strong>Model matrix</strong>: Test concern discovery across Haiku, Sonnet, Opus to see if
+  the prompted guidance level generalizes or if weaker models need stronger
+  prompting (checklist-style).</li>
+<li><strong>Guidance levels</strong>: Compare minimal (no cross-check step), prompted (current),
+  and checklist (explicit verification questions) to find the minimum effective
+  guidance.</li>
+<li><strong>Results documentation</strong>: Fill in the results matrix in <code>graphs/roles/README.md</code>
+  with model × guidance level data.</li>
+<li>Experiment infrastructure is already in place: single-task graphs in
+  <code>graphs/roles/experiments/</code>, BoundedQueue fixtures, <code>setup_fixtures.sh</code>.</li>
+</ul>
 <h2 id="implementer-test-coverage-threshold">Implementer Test Coverage Threshold</h2>
 <p>The implementer role should optionally enforce a minimum test coverage level.
 When configured, the implementer must verify that test coverage meets or exceeds
