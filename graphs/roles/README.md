@@ -69,6 +69,12 @@ For spec_writer: just `e2e-reset` (no fixture commit to undo).
 
 ### Concern refinement matrix
 
+Guidance level: "prompted" — each role template includes a cross-check step
+that instructs the agent to compare inputs for contradictions before proceeding.
+
 | Model | Role | Concern recorded? | What was recorded | Notes |
 |---|---|---|---|---|
-| | | | | |
+| sonnet | spec_writer | Yes | push() evicts vs raises OverflowError — mutually exclusive | Caught from task description alone (41s) |
+| sonnet | test_writer | Yes | push() docstring body says eviction, Raises says OverflowError | Caught from contradictory docstrings in stubs (1m20s) |
+| sonnet | test_reviewer | Yes | Docstring contradiction + tests written against OverflowError interpretation | Caught both internal contradiction and test mismatch (26s) |
+| sonnet | implementer | Yes | Docstring body says eviction, Raises says OverflowError; tests agree with Raises | Identified tests as correct interpretation (50s) |

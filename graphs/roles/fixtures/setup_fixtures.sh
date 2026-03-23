@@ -36,7 +36,7 @@ if [[ "$MODE" != "stubs" && "$MODE" != "all" ]]; then
     usage
 fi
 
-if [[ ! -d "$TARGET_REPO/.git" ]]; then
+if [[ ! -d "$TARGET_REPO/.git" && ! -f "$TARGET_REPO/.git" ]]; then
     echo "Error: $TARGET_REPO is not a git repository" >&2
     exit 1
 fi

@@ -107,7 +107,9 @@ def resolve_instructions(
                 f"GENERIC role requires a task description, but task "
                 f"'{manifest.task_id}' has description=None."
             )
-        parts.append("## What to Do\n\n" + manifest.description)
+        parts.append(
+            "## What to Do\n\n" + manifest.description + "\n\n" + _concerns_note()
+        )
     else:
         template_text = _load_template(role.value, adapter_name)
         substitutions = {
@@ -120,11 +122,11 @@ def resolve_instructions(
                 else _NONE_PLACEHOLDER
             ),
             "task_id": manifest.task_id,
+            "concerns_note": _concerns_note(),
         }
         resolved = Template(template_text).substitute(substitutions)
         parts.append("## What to Do\n\n" + resolved.strip())
 
-    parts.append(_concerns_note())
     parts.append(_submission_section(manifest))
 
     # Task Details (non-generic, when description exists).
@@ -137,12 +139,12 @@ def resolve_instructions(
 def _concerns_note() -> str:
     """Build the concerns guidance note appended to the What to Do section."""
     return (
-        "As you work, record any concerns you encounter:\n"
+        "Throughout your work on this task, watch for and record any concerns you encounter:\n"
         "- **Design concerns** (spec contradictions, ambiguous requirements, "
-        "conflicting behaviors): "
-        '`agentrelay-concern --message "..."`\n'
+        "conflicting behaviors): report with "
+        '`agentrelay-concern --message "describe the concern"`\n'
         "- **Ops concerns** (build errors, missing deps, tooling friction): "
-        '`agentrelay-ops-concern --message "..."`'
+        'report with `agentrelay-ops-concern --message "describe the concern"`'
     )
 
 
