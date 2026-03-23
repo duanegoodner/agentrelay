@@ -166,3 +166,34 @@ class TestDocumentStructure:
         text = resolve_instructions(AgentRole.GENERIC, m)
         assert "## What to Do" in text
         assert "Do something custom" in text
+
+
+class TestConcernGuidance:
+    """Tests that role templates include concern-discovery guidance."""
+
+    def test_spec_writer_has_cross_check_step(self) -> None:
+        """SPEC_WRITER template prompts cross-checking requirements."""
+        m = _manifest(role=AgentRole.SPEC_WRITER)
+        text = resolve_instructions(AgentRole.SPEC_WRITER, m)
+        assert "contradict" in text.lower()
+
+    def test_test_writer_has_contradiction_check(self) -> None:
+        """TEST_WRITER template prompts checking for contradictory docstrings."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "contradict" in text.lower()
+
+    def test_test_reviewer_has_consistency_check(self) -> None:
+        """TEST_REVIEWER template prompts checking tests against docstrings."""
+        text = resolve_instructions(AgentRole.TEST_REVIEWER, _manifest())
+        assert "contradict" in text.lower()
+
+    def test_implementer_has_cross_check(self) -> None:
+        """IMPLEMENTER template prompts checking tests against docstrings."""
+        text = resolve_instructions(AgentRole.IMPLEMENTER, _manifest())
+        assert "contradict" in text.lower()
+
+    def test_concerns_note_mentions_design_concerns(self) -> None:
+        """Concerns note includes design concern guidance."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "agentrelay-concern" in text
+        assert "design concern" in text.lower()

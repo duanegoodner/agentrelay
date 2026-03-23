@@ -138,7 +138,8 @@ def _concerns_note() -> str:
     """Build the concerns guidance note appended to the What to Do section."""
     return (
         "As you work, record any concerns you encounter:\n"
-        "- **Design concerns** (spec contradictions, ambiguities): "
+        "- **Design concerns** (spec contradictions, ambiguous requirements, "
+        "conflicting behaviors): "
         '`agentrelay-concern --message "..."`\n'
         "- **Ops concerns** (build errors, missing deps, tooling friction): "
         '`agentrelay-ops-concern --message "..."`'
