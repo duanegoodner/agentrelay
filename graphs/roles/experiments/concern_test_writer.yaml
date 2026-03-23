@@ -1,0 +1,22 @@
+name: concern-test-writer
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Single-task graph for testing test_writer concern discovery.
+# Setup: ./fixtures/setup_fixtures.sh stubs <target-repo>
+# (commits bounded_queue.py stubs with contradictory docstrings)
+#
+# The test_writer should notice the push() docstring contradiction when
+# reading the stubs and record it as a design concern.
+
+tasks:
+  - id: test_bounded_queue
+    role: test_writer
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
+    dependencies: []
