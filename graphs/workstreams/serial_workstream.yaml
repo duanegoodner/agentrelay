@@ -1,0 +1,44 @@
+name: serial-workstream
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Three tasks with ZERO dependency edges, all in the default workstream.
+# Workstream serialization enforces one-at-a-time execution. Each task builds
+# on the prior task's committed code in the shared worktree.
+#
+# Task IDs sort alphabetically in the desired execution order (create < extend
+# < use), matching Kahn's algorithm tie-breaking for zero-dependency roots.
+
+tasks:
+  - id: create_stack
+    description: >-
+      Create src/agentrelaydemos/stack.py containing a Stack class with:
+      __init__(self) initializing an empty list, push(self, item) -> None,
+      pop(self) -> any (raises IndexError if empty), and
+      is_empty(self) -> bool.
+      Also create test/test_stack.py with pytest tests covering push, pop,
+      is_empty, and the IndexError on empty pop.
+    dependencies: []
+
+  - id: extend_stack
+    description: >-
+      Open the existing file src/agentrelaydemos/stack.py (created by a
+      previous task) and add two new methods to the Stack class:
+      push_many(self, items: list) -> None that pushes each item in order,
+      and pop_all(self) -> list that pops all items and returns them
+      (last-in first-out order). Do not modify the existing methods.
+      Also add tests for push_many and pop_all to test/test_stack.py,
+      verifying that push_many([1,2,3]) followed by pop_all() returns [3,2,1].
+    dependencies: []
+
+  - id: use_stack
+    description: >-
+      Create src/agentrelaydemos/stack_utils.py containing a function
+      reverse_list(items: list) -> list that uses the Stack class to reverse
+      a list: import Stack from agentrelaydemos.stack, push_many all items,
+      then pop_all to get the reversed result.
+      Also create test/test_stack_utils.py with pytest tests verifying
+      reverse_list([1,2,3]) == [3,2,1] and reverse_list([]) == [].
+    dependencies: []

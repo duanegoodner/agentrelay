@@ -1,0 +1,54 @@
+name: blocked-downstream
+tmux_session: agentrelay
+model: claude-haiku-4-5-20251001
+tools:
+  - pixi
+
+# Three tasks across two workstreams: one fails, one is blocked by the failure,
+# and one independent task succeeds.
+#
+# MUST run with --max-concurrency 2 so both workstreams are prepared before the
+# failure occurs. With max_concurrency=1, the default fail_fast_on_workstream_error
+# prevents preparing new workstreams after ws_fail is marked failed.
+#
+# Verifies: failure propagation, dependency blocking, and continued execution
+# of unaffected workstreams.
+
+workstreams:
+  - id: ws_fail
+  - id: ws_independent
+
+tasks:
+  - id: fails_first
+    workstream_id: ws_fail
+    description: >-
+      Create src/agentrelaydemos/placeholder.py containing a function
+      placeholder() -> str that returns "placeholder".
+
+      IMPORTANT: Do NOT complete this task normally. After creating the
+      file, signal failure instead of success by running:
+
+        agentrelay-failed --reason "Deliberate failure to test downstream blocking"
+
+      This is an intentional test of the failure signaling mechanism.
+      Do not call agentrelay-complete. The expected outcome is failure.
+    dependencies: []
+
+  - id: blocked_by_first
+    workstream_id: ws_fail
+    description: >-
+      Create src/agentrelaydemos/uses_placeholder.py that imports
+      placeholder from agentrelaydemos.placeholder and creates a function
+      decorated_placeholder() -> str that returns f"[{placeholder()}]".
+      Also create test/test_uses_placeholder.py with a pytest test.
+    dependencies:
+      - fails_first
+
+  - id: independent_success
+    workstream_id: ws_independent
+    description: >-
+      Create src/agentrelaydemos/echo.py containing a function
+      echo(msg: str) -> str that returns msg unchanged.
+      Also create test/test_echo.py with a pytest test checking
+      echo("hi") == "hi".
+    dependencies: []

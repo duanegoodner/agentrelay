@@ -1,0 +1,25 @@
+name: agent-fails
+tmux_session: agentrelay
+model: claude-haiku-4-5-20251001
+tools:
+  - pixi
+
+# Single task that deliberately signals failure.
+# Verifies the orchestrator handles .failed signals correctly.
+
+tasks:
+  - id: deliberate_fail
+    description: >-
+      Create src/agentrelaydemos/hello.py containing a function
+      hello(name: str) -> str that returns "Hello, {name}!".
+      Also create test/test_hello.py with a pytest test checking
+      hello("World") == "Hello, World!".
+
+      IMPORTANT: Do NOT complete this task normally. After creating the
+      files, signal failure instead of success by running:
+
+        agentrelay-failed --reason "Deliberate failure for e2e testing"
+
+      This is an intentional test of the failure signaling mechanism.
+      Do not call agentrelay-complete. The expected outcome is failure.
+    dependencies: []

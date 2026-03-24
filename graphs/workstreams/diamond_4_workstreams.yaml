@@ -1,0 +1,67 @@
+name: diamond-4-workstreams
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Diamond dependency topology: A -> B, A -> C, B -> D, C -> D.
+# Each task in its own workstream (separate worktree + integration branch).
+# Run with --max-concurrency 2 so B and C can run in parallel.
+#
+# NOTE: Cross-workstream dependencies are scheduling-only — each worktree
+# branches off main and does NOT automatically contain code from other
+# workstreams. This graph tests whether agents can work with cross-workstream
+# dependencies or whether the code visibility gap causes failures.
+# See BACKLOG.md "Cross-Workstream Dependency Ordering" for discussion.
+
+workstreams:
+  - id: ws_a
+  - id: ws_b
+  - id: ws_c
+  - id: ws_d
+
+tasks:
+  - id: base_calc
+    workstream_id: ws_a
+    description: >-
+      Create src/agentrelaydemos/base_calc.py containing a class BaseCalc
+      with a method compute(self, x: float) -> float that returns x unchanged
+      (identity operation). Also create test/test_base_calc.py with pytest
+      tests verifying BaseCalc().compute(5) == 5 and BaseCalc().compute(-3) == -3.
+    dependencies: []
+
+  - id: double_calc
+    workstream_id: ws_b
+    description: >-
+      Create src/agentrelaydemos/double_calc.py containing a class DoubleCalc
+      that inherits from BaseCalc (import from agentrelaydemos.base_calc).
+      Override compute(self, x: float) -> float to return x * 2.
+      Also create test/test_double_calc.py with pytest tests verifying
+      DoubleCalc().compute(5) == 10 and DoubleCalc().compute(0) == 0.
+    dependencies:
+      - base_calc
+
+  - id: square_calc
+    workstream_id: ws_c
+    description: >-
+      Create src/agentrelaydemos/square_calc.py containing a class SquareCalc
+      that inherits from BaseCalc (import from agentrelaydemos.base_calc).
+      Override compute(self, x: float) -> float to return x * x.
+      Also create test/test_square_calc.py with pytest tests verifying
+      SquareCalc().compute(5) == 25 and SquareCalc().compute(-3) == 9.
+    dependencies:
+      - base_calc
+
+  - id: combined_calc
+    workstream_id: ws_d
+    description: >-
+      Create src/agentrelaydemos/combined_calc.py containing a function
+      combined(x: float) -> float that returns DoubleCalc().compute(x) +
+      SquareCalc().compute(x). Import DoubleCalc from
+      agentrelaydemos.double_calc and SquareCalc from
+      agentrelaydemos.square_calc.
+      Also create test/test_combined_calc.py with pytest tests verifying
+      combined(5) == 35 (10 + 25) and combined(0) == 0 (0 + 0).
+    dependencies:
+      - double_calc
+      - square_calc
