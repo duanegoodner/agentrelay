@@ -7,11 +7,32 @@ Near-term items for the current architecture track.
 ## Core Execution
 
 - Expand orchestrator support for richer resume hooks and durable state checkpoints.
+- **Human intervention on task failure**: When an agent declares a task failed,
+  allow a human to fix the problem (e.g., correct an upstream file, adjust the
+  worktree) and then trigger a retry of the failed task without restarting the
+  entire graph. Currently the orchestrator treats agent-declared failure as
+  terminal (unless `max_task_attempts` allows automatic retry). A manual retry
+  mechanism — CLI command, signal file, or interactive prompt — would let
+  humans unblock downstream tasks after fixing transient or environmental
+  issues. Design this after gaining more experience with failure modes in
+  e2e testing (PR C, PR D).
 
 ## Integration
 
 - Map v01 graph/task-launch behavior onto current architecture interfaces.
 - Define a migration path so prototype-only concepts land behind stable abstractions.
+
+## Agent Isolation
+
+- **Separate Linux user + scoped GitHub PAT for agent sessions**: Currently
+  agents run as the human user, sharing SSH keys, `gh` credentials, and full
+  filesystem access. A dedicated `claude-agent` OS user with a fine-grained
+  GitHub PAT (scoped to the target repo, no admin privileges) would enforce
+  identity separation, filesystem isolation via permissions, and prevent agents
+  from merging PRs intended for human review. Bubblewrap (`bwrap`) or similar
+  sandboxing can further restrict worktree visibility. See
+  `docs/discussions/AGENT_ISOLATION.md` for full discussion of options
+  (bwrap, Docker, git hooks, CODEOWNERS, deploy keys vs PATs).
 
 ## Extensibility
 
@@ -20,6 +41,14 @@ Near-term items for the current architecture track.
 
 ## Graph Execution
 
+- **CLI flags for fail-fast config**: `OrchestratorConfig.fail_fast_on_internal_error`
+  and `fail_fast_on_workstream_error` have no CLI flags. Add `--fail-fast-on-internal-error`
+  and `--fail-fast-on-workstream-error` (boolean flags) to `run_graph.py` and wire
+  through `_build_config_from_args`. Currently the only way to change these defaults
+  is programmatically. Surfaced during PR C e2e testing: the `blocked_downstream`
+  graph requires `--max-concurrency 2` as a workaround because the default
+  `fail_fast_on_workstream_error=True` blocks new workstream preparation after a
+  failure.
 - Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover
@@ -224,6 +253,22 @@ PR is merged to main — meaning Task B's worktree wouldn't have Task A's
 changes. Need to verify whether the current orchestrator scheduling logic
 prevents this, or if this is a gap.
 
+### Observed agent workaround (PR C e2e testing, 2026-03-23)
+
+Running `diamond_4_workstreams.yaml`, the `double_calc` agent discovered
+that `base_calc.py` was missing from its worktree. It inspected available
+branches with `git show`, found the code on the `base_calc` task branch,
+and ran `git merge agentrelay/diamond-4-workstreams/base_calc --no-edit`
+to pull the dependency's code into its own branch. This worked — but the
+agent did not report an ops concern despite the workaround being a
+significant deviation from the expected workflow. Implications:
+- The workaround succeeded because worktrees share the git object store,
+  so other workstreams' branches are locally available.
+- Merging another task's branch directly could cause conflicts when
+  integration PRs are merged to main (duplicate commits).
+- The agent silently working around infrastructure gaps without raising
+  ops concerns makes these gaps harder to detect systematically.
+
 ## Concern Guidance Level Experimentation
 
 PR #129 shipped "prompted" guidance (cross-check steps in role templates) which
@@ -259,6 +304,48 @@ the threshold before completing its task — writing additional tests if needed.
   shipping under-covered code.
 - **Scope**: Coverage enforcement applies only to the files under the task's
   `paths.src` and `paths.test` — not the entire repo.
+
+## Multi-Model Support via Bifrost + OpenRouter
+
+Use Bifrost (high-performance Rust gateway) as a local routing layer in front
+of OpenRouter and direct provider APIs. This decouples the orchestrator from
+any single LLM provider and enables per-task model/provider selection:
+- Route high-reasoning tasks to Anthropic direct (Max plan), simple tasks
+  to cheaper models via OpenRouter, and trivial tasks to local models.
+- Automatic fallback: if one provider is down or rate-limited, Bifrost
+  retries on another.
+- Bifrost's "Code Mode" compresses tool definitions, reducing token usage.
+- The orchestrator only talks to `localhost:8080`; routing/billing logic
+  lives in Bifrost config.
+
+Prerequisite: the current `AgentConfig.model` field already supports per-task
+model selection. Extending to per-task provider/harness selection requires
+adding a `provider` (and possibly `harness`) field to the graph YAML schema
+and wiring environment variables at agent launch time.
+
+See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
+
+## Rust Migration
+
+Migrate the orchestrator from Python to Rust for type safety, fearless
+concurrency, and resource efficiency. The orchestrator is not currently a
+bottleneck (agents and network I/O dominate), but Rust's ownership model
+enforces correct state management at compile time — valuable as the task
+graph grows in complexity and the orchestrator gains more responsibilities
+(retry logic, gate execution, agent-assisted merging).
+
+Suggested phased approach:
+1. **Engine proxy**: Rust CLI that handles LLM API calls (learn Rust I/O,
+   JSON, env vars). Use `rig-core` crate.
+2. **Graph runner**: Move DAG scheduling to Rust using `petgraph` (learn
+   ownership, trait-based abstraction).
+3. **Full harness**: Move tmux/process management to Rust with `tokio`
+   (learn async, PTY handling).
+
+Stay in Python while the design is still evolving rapidly; migrate when
+state complexity or scale becomes a pain point.
+
+See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
 ## Observability
 
