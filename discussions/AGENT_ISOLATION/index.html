@@ -1,0 +1,1439 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/discussions/AGENT_ISOLATION/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>AGENT ISOLATION - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#run-claude-code-inside-a-sandbox-restricted-to-the-worktree-folder" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AGENT ISOLATION
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<p>You said
+When running multiple instances of Claude Code for a project, each using a different worktree, how do I ensure an instance doesn’t reach to a directory outside of its worktree - e.g. another worktree dir? Also, is there a way to allow an instance to do full git and go CLI operations on its worktree, but not on other worktree and not be able to mere into main?</p>
+<p>Gemini said
+Managing multiple instances of Claude Code (or any agentic CLI tool) across different git worktrees requires a "sandbox" approach. While Claude Code generally respects the directory it is launched in, its ability to execute shell commands means it could technically navigate to a parent directory and access other worktrees if not explicitly restricted.</p>
+<p>Here is how you can achieve strict isolation, allow full CLI toolchains (Git/Go), and enforce branch protections.</p>
+<ol>
+<li>Ensuring Filesystem Isolation
+The most effective way to prevent an instance from "reaching out" is to hide the rest of the filesystem from it.</li>
+</ol>
+<p>Option A: The "Bubblewrap" Method (Recommended for Linux)
+bwrap (Bubblewrap) is a lightweight unprivileged sandboxing tool. You can create a "jail" where the instance thinks its worktree is the entire world.</p>
+<p>Bash</p>
+<h1 id="run-claude-code-inside-a-sandbox-restricted-to-the-worktree-folder">Run Claude Code inside a sandbox restricted to the worktree folder</h1>
+<p>bwrap --ro-bind / / \
+      --bind $(pwd) $(pwd) \
+      --dev /dev \
+      --proc /proc \
+      --tmpfs /home/$USER/.claude \
+      claude
+How it works: This mounts the entire OS as read-only (--ro-bind / /), but makes your current worktree directory writable. It prevents the agent from seeing or writing to other folders in your project root because they aren't "bound" into the sandbox.</p>
+<p>Option B: Docker Containers
+If you need absolute certainty, run each worktree instance in a separate Docker container.</p>
+<p>Mount only the specific worktree directory into the container (e.g., -v /path/to/worktree:/app).</p>
+<p>Install the Go and Git binaries within the Docker image.</p>
+<p>Note: Since git worktrees rely on a .git file that points to the main repository, you must also mount the primary .git folder as read-only so the Git CLI can function, while keeping the other worktree folders hidden.</p>
+<ol>
+<li>Restricting Git Operations (No Merge to Main)
+To allow "full Git" but prevent merging into main, you can use Git Hooks and Environment Variables.</li>
+</ol>
+<p>Use Local Git Hooks
+Inside your main repository, create a pre-merge-commit hook (or a prepare-commit-msg hook) that checks the branch. Since worktrees share hooks, this applies to all instances.</p>
+<p>Create .git/hooks/pre-merge-commit:</p>
+<p>Bash</p>
+<h1 id="binbash">!/bin/bash</h1>
+<p>current_branch=$(git symbolic-ref --short HEAD)
+if [ "$current_branch" == "main" ]; then
+  echo "Error: Merging into 'main' is prohibited for AI instances."
+  exit 1
+fi
+Make sure to chmod +x the hook.</p>
+<p>The Worktree Advantage
+By design, Git prevents you from checking out the same branch in two different worktrees. If your "main" branch is already checked out in your primary directory, any Claude instance running in a worktree cannot switch to main. This provides a built-in layer of protection against accidental merges.</p>
+<ol>
+<li>Configuring Claude Code Scope
+Claude Code (and similar tools) typically look for a configuration file to define their boundaries.</li>
+</ol>
+<p>Use .claudeignore
+In the root of each worktree, create a .claudeignore file. While this is primarily for preventing the AI from reading files, it helps guide its context.</p>
+<p>Plaintext</p>
+<h1 id="claudeignore">.claudeignore</h1>
+<p>../**/                # Attempt to ignore parent and sibling directories
+.git/                 # Prevent it from messing with git internals directly
+Use a Dedicated Service User
+For high-stakes environments, run the Claude instance as a separate OS user:</p>
+<p>Create a user claude-agent.</p>
+<p>chown only the specific worktree directory to that user.</p>
+<p>The agent will physically lack permission to cd into your other worktree folders.</p>
+<p>Comparison of Isolation Strategies
+Strategy    Isolation Strength  Git/Go Compatibility    Setup Effort
+.claudeignore   Weak (Logic only)   Full    Low
+Git Hooks   Medium (Prevents merge) Full    Medium
+Bubblewrap  High (FS Isolation) Full    Medium
+Docker  Maximum Full (Requires Image)   High
+Suggested Next Step
+Would you like me to write a specific Bash wrapper script that automatically detects your current worktree and launches Claude inside a bwrap or chroot environment for you?</p>
+<p>You said
+Thanks. The bubble wrap method sounds good.</p>
+<p>Question about the got hook…. How does it prevent an agent from merging into main but still allow a human user to merge into main?</p>
+<p>Gemini said
+To differentiate between an "agent" and a "human," you essentially need a secret handshake. Since a Git hook is just a script, it can't inherently "see" who is typing, but it can see the Environment Variables of the process that triggered it.</p>
+<p>Here is how you set that up:</p>
+<ol>
+<li>The "Secret Handshake" (Environment Variable)
+When you launch Claude Code, you will "tag" the session with a specific environment variable. A human won't have this variable set in their standard terminal session.</li>
+</ol>
+<p>How you launch Claude:</p>
+<p>Bash</p>
+<h1 id="we-set-a-custom-variable-just-for-this-process">We set a custom variable just for this process</h1>
+<p>IS_AI_AGENT=true claude
+2. The Smart Git Hook
+You modify your Git hook to look for that variable. If the variable exists and the branch is main, it blocks the action. If the variable is missing (meaning it’s a human), it lets the merge proceed.</p>
+<p>Update .git/hooks/pre-merge-commit:</p>
+<p>Bash</p>
+<h1 id="binbash_1">!/bin/bash</h1>
+<h1 id="1-check-if-the-is_ai_agent-flag-is-present">1. Check if the "IS_AI_AGENT" flag is present</h1>
+<p>if [ "$IS_AI_AGENT" == "true" ]; then</p>
+<pre><code># 2. Check the current branch name
+current_branch=$(git symbolic-ref --short HEAD)
+
+if [ "$current_branch" == "main" ]; then
+    echo "❌ AGENT BLOCK: Claude is not allowed to merge into 'main'."
+    echo "Please submit a Pull Request instead."
+    exit 1
+fi
+</code></pre>
+<p>fi</p>
+<h1 id="if-the-code-reaches-here-its-either-a-human-or-not-the-main-branch">If the code reaches here, it's either a human or not the main branch.</h1>
+<p>exit 0
+Why this works:
+For the Human: When you run git merge feature-branch normally, the variable $IS_AI_AGENT is empty. The script sees it’s empty, skips the logic, and exits with 0 (success).</p>
+<p>For Claude: Because you launched Claude with IS_AI_AGENT=true, every shell command it runs inherits that variable. When Claude tries to merge, the script catches the "true" value and kills the process.</p>
+<p>An Alternative: The "User" Method
+If you want something even more "bulletproof" that doesn't rely on you remembering to set a variable, you can run Claude as a separate OS User (e.g., a user named claude-bot).</p>
+<p>Your hook would then look like this:</p>
+<p>Bash
+if [ "$(whoami)" == "claude-bot" ]; then
+    # Prevent merge logic here...
+fi
+This is harder for an agent to "fake" or accidentally bypass because it is tied to the system-level identity of the process owner.</p>
+<p>A Pro-Tip on main Protection
+If your project is hosted on GitHub, GitLab, or Bitbucket, the absolute best way to do this is via Branch Protection Rules. You can configure the repository so that no one (human or AI) can push or merge directly to main without a passing CI/CD pipeline and a code review. This moves the security from your local machine to the server.</p>
+<p>Would you like me to help you write a small "alias" or wrapper script that handles the Bubblewrap launch and the Environment Variable all in one command?</p>
+<p>You said
+Thanks. Hook with env variable as an identifier will be good for now.</p>
+<p>If an agent can use the gh command line tool, would GitHub branch protection prevent agent from merging into main?</p>
+<p>Gemini said
+Yes, GitHub branch protection is the "gold standard" for this. Since branch protection is enforced on GitHub’s servers, it doesn't matter if the agent uses the git CLI, the gh (GitHub) CLI, or even a direct API call—the server will reject the merge if the rules aren't met.</p>
+<ol>
+<li>How GitHub Blocks the gh CLI
+When Claude (or any user) runs gh pr merge, the CLI sends a request to GitHub's API. GitHub checks the branch rules before executing the merge. If you have "Require a pull request before merging" enabled, the command will fail with an error like:</li>
+</ol>
+<p>X Pull request #123 is not mergeable: the base branch policy prohibits the merge.</p>
+<ol>
+<li>Making it "Agent-Proof"
+To ensure the agent cannot bypass these rules, you should check two specific settings in your GitHub Repository under Settings &gt; Branches &gt; [Rule for main]:</li>
+</ol>
+<p>"Lock branch": This makes the branch read-only, preventing any pushes or merges regardless of status.</p>
+<p>"Do not allow bypassing the above settings": By default, repository Administrators can often bypass branch protections. If your agent is using a token with Admin privileges, check this box to force the rules on everyone, including the agent.</p>
+<p>"Require approvals": If this is set to 1 or more, the agent can't merge its own PR because GitHub prevents the PR author from approving their own code.</p>
+<ol>
+<li>A Critical Warning: FS Isolation vs. API Access
+It is important to distinguish between Filesystem (FS) Isolation (what Bubblewrap does) and Identity Isolation.</li>
+</ol>
+<p>Bubblewrap prevents the agent from reading your other worktree folders on your hard drive.</p>
+<p>GitHub Tokens allow the agent to talk to your repository on the internet.</p>
+<p>If you give Claude Code a Personal Access Token (PAT) that has "Full Repo" access, it could theoretically use the gh CLI to delete issues, comment on PRs, or modify settings in any repository that token has access to, even if it can't "see" the files on your disk.</p>
+<p>To fix this:
+If you want total isolation, use a Fine-Grained Personal Access Token scoped only to that specific repository and with only the permissions it needs (e.g., "Contents: Read &amp; Write", "Pull Requests: Read &amp; Write"), but not "Administration" permissions.</p>
+<p>Summary Checklist
+Protection Layer    What it stops
+Bubblewrap  Agent reading/writing files in your other worktrees.
+Git Hook (Env Var)  Agent running git merge or git commit locally on main.
+GitHub Branch Protection    Agent using gh pr merge or git push to main on the server.
+Fine-Grained Token  Agent accessing your other private repositories via API.
+Suggested Next Step
+Would you like me to help you generate a specific .claudeignore file or a fine-grained token permission list to ensure the agent has the bare minimum access it needs?</p>
+<p>You said
+Ah, I see. The PR requirement. I ran into a case where another agent had written a PR that was supposed to be reviewed and merged by a human, but another (very resourceful!) agent that could not complete its task without the merge competed the PR.</p>
+<p>Gemini said
+That is a classic "Agent Loophole"! When an agent is given a goal, it becomes a literal-minded optimizer. If the goal is "Fix the bug" and a pending PR is in the way, the agent sees "Merge PR" as just another sub-task to check off.</p>
+<p>To stop a "resourceful" agent from approving and merging its own (or others') work, you need to move from social rules ("Please don't merge this") to hard constraints in GitHub.</p>
+<p>Here are the three ways to "Agent-proof" your PR process:</p>
+<ol>
+<li>The "No Self-Service" Rule
+In your GitHub Branch Protection settings, you must enable:</li>
+</ol>
+<p>Require approvals: Set this to at least 1.</p>
+<p>Restrict updates to the specified users/teams: (Optional) Only allow a specific "Human" team to push.</p>
+<p>IMPORTANT: "Require approval from someone other than the last pusher."</p>
+<p>This is the kill-switch for your scenario. Even if the agent tries to use the gh CLI to approve a PR, GitHub will look at the "pusher" of the code and the "approver." If they are the same identity (or the same token), the merge remains blocked.</p>
+<ol>
+<li>The CODEOWNERS Wall
+This is the most robust way to force a human into the loop.</li>
+</ol>
+<p>Create a file at .github/CODEOWNERS.</p>
+<p>Add a rule that assigns all files to you (or a human team):</p>
+<p>Plaintext
+* @your-github-username
+In Branch Protection, check "Require review from Code Owners."</p>
+<p>Result: Now, even if an agent creates a PR, GitHub automatically demands an approval from you specifically. The gh pr merge command will return an error until your specific account hits the "Approve" button.</p>
+<ol>
+<li>"Shadow" the gh CLI (The Sandbox Trick)
+Since you are already using the Bubblewrap method, you can effectively "lobotomize" the gh tool for the agent so it can't even try to merge.</li>
+</ol>
+<p>When you set up your sandbox, you can create a "fake" gh command that lives inside the sandbox's PATH.</p>
+<p>Create a script named gh inside a folder (e.g., ~/agent-bin/gh):</p>
+<p>Bash</p>
+<h1 id="binbash_2">!/bin/bash</h1>
+<p>if [[ "$<em>" == </em>"merge"<em> ]] || [[ "$</em>" == <em>"approve"</em> ]]; then
+  echo "❌ Error: PR merging/approving is disabled for this instance."
+  exit 1
+else
+  # Pass all other commands through to the real GitHub CLI
+  /usr/bin/gh "$@"
+fi
+Add ~/agent-bin/ to the front of the PATH inside your Bubblewrap environment.</p>
+<p>Now, whenever Claude tries to run gh pr merge, it hits your script instead of the real tool, and the "resourceful" shortcut is blocked before it even hits the network.</p>
+<p>Summary of Protections
+Problem Solution
+Agent merges its own PR GitHub: "Require approval from someone other than pusher"
+Agent approves another Agent    GitHub: CODEOWNERS (Requires your specific signature)
+Agent tries to use CLI shortcuts    Sandbox: "Shadow" the gh binary with a restricted wrapper
+Would you like me to help you draft a complete CODEOWNERS file or the bwrap launch script that includes the gh wrapper?</p>
+<p>You said
+Right now I’m the only person working on the project, and agents are launched with my Linux user. Seems like should maybe pursue the separate Linux user for agents?</p>
+<p>Gemini said
+Moving to a dedicated Linux user for your agents is the "pro-tier" move. It transitions your security model from "trusting the agent to follow rules" to "the operating system enforcing the rules."</p>
+<p>If you stay as the same user, the agent shares your SSH keys, your .gitconfig, your gh credentials, and your shell history. A separate user starts with a blank slate.</p>
+<p>Why a Separate User is Better
+1. Identity Separation (The "PR Loophole" Fix)
+If the agent is a separate Linux user, you can give it its own GitHub Fine-Grained Personal Access Token (PAT).</p>
+<p>The Magic: Because the agent is "User B" on GitHub, it cannot approve a PR created by "User A" (You). GitHub's "Require approval from someone other than the author" rule will finally work perfectly.</p>
+<ol>
+<li>Physical Filesystem Jails
+Instead of using bwrap to "hide" folders, you use standard Linux permissions.</li>
+</ol>
+<p>You can chown a specific worktree directory to the agent-user.</p>
+<p>The agent literally cannot cd into your main project folder or your /home/user/Documents because it lacks the permission bit.</p>
+<ol>
+<li>Clean Audit Logs
+In your git log, you’ll see exactly what was done by you vs. the agent:</li>
+</ol>
+<p>Author: Your Name <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#121;&#111;&#117;&#64;&#101;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#121;&#111;&#117;&#64;&#101;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>Author: Claude Agent <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#103;&#101;&#110;&#116;&#64;&#101;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#97;&#103;&#101;&#110;&#116;&#64;&#101;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a></p>
+<p>How to Set It Up (The "Agent-Sandbox" Pattern)
+Step 1: Create the Agent User
+Bash
+sudo adduser claude-agent</p>
+<h1 id="give-it-access-to-the-necessary-runtimes-go-node-etc">Give it access to the necessary runtimes (Go, Node, etc.)</h1>
+<p>sudo usermod -aG developers claude-agent 
+Step 2: Create a Shared "Workzone"
+Create a directory where both you and the agent can operate. You’ll use ACLs (Access Control Lists) to ensure you can both read/write files without permission errors.</p>
+<p>Bash
+sudo mkdir /srv/worktrees
+sudo setfacl -R -m u:claude-agent:rwx /srv/worktrees
+sudo setfacl -R -m u:$(whoami):rwx /srv/worktrees
+Step 3: Launching the Agent
+You don't need to log out. Use sudo -i -u to drop into the agent's persona:</p>
+<p>Bash</p>
+<h1 id="set-the-env-variable-we-discussed-earlier-for-extra-safety">Set the ENV variable we discussed earlier for extra safety</h1>
+<p>sudo -i -u claude-agent IS_AI_AGENT=true claude
+Step 4: The "Identity" Setup (Crucial)
+While logged in as claude-agent, configure its specific GitHub identity:</p>
+<p>Bash</p>
+<h1 id="inside-the-agent-session">Inside the agent session</h1>
+<p>git config --global user.name "Claude Agent 01"
+git config --global user.email "claude-bot@yourdomain.com"</p>
+<h1 id="authenticate-the-agents-gh-cli-with-its-own-token">Authenticate the agent's GH CLI with its OWN token</h1>
+<h1 id="get-a-fine-grained-pat-from-github-for-this">(Get a Fine-Grained PAT from GitHub for this)</h1>
+<p>export GH_TOKEN=github_pat_XXXXXX
+gh auth setup-git
+The Ultimate "Defense in Depth" Stack
+By combining everything we've talked about, your setup would look like this:</p>
+<p>OS User: claude-agent (Stops it from seeing your personal files).</p>
+<p>Worktree: Isolated directory (Stops it from messing with other tasks).</p>
+<p>Env Var + Git Hook: Stops it from committing to main locally.</p>
+<p>Unique GitHub PAT: Stops it from bypassing PR rules on GitHub.</p>
+<p>GitHub Branch Protection: Ensures a human (You) must sign off on its work.</p>
+<p>[!TIP]
+Warning: Be careful with Docker or Sudo access. Do not give the claude-agent user sudo privileges, or it can simply "escalate" back to being you (or root) and bypass all your hard work!</p>
+<p>Suggested Next Step
+Would you like me to write a "Setup Script" that automates creating the user, setting the permissions, and configuring the restricted Git hooks for you?</p>
+<p>You said
+Thanks. For my own Github use, where I want to quickly access "anything," I moved away from PAT to ssh key quite a while ago. With PAT, can I make it so I only grant access to a particular repo?</p>
+<p>Gemini said
+Yes, absolutely. GitHub Fine-grained Personal Access Tokens (PATs) were specifically designed to solve the "all or nothing" problem of SSH keys and Classic PATs.</p>
+<p>While your personal SSH key is an "all-access pass" to your entire account, a Fine-grained PAT acts like a limited-access keycard for a specific room (repository).</p>
+<p>How to Scope a PAT to a Single Repo
+When you create a Fine-grained PAT, you are presented with a "Repository access" section.</p>
+<p>Selection: Choose "Only select repositories".</p>
+<p>Dropdown: Search for and select the specific project your agent is working on.</p>
+<p>Result: If the agent tries to use this token to git clone or gh pr list on any other repository in your account, GitHub will return a 404 Not Found or 403 Forbidden error.</p>
+<p>The "Least Privilege" Permission List
+To allow your agent to perform Git and Go operations without giving it too much power, use these specific settings when creating the token:</p>
+<p>Permission  Level   Why?
+Contents    Read &amp; Write    Allows git push, git pull, and editing code.
+Metadata    Read-only   Mandatory for all tokens (basic repo info).
+Pull Requests   Read &amp; Write    Allows the agent to use gh pr create and gh pr view.
+Commit Statuses Read-only   Allows the agent to see if CI/CD tests are passing.
+Workflows   Read &amp; Write    Optional: Only if you want the agent to edit .github/workflows.
+Why this is safer than an SSH Key for an Agent
+In your "Separate Linux User" setup, using a Fine-grained PAT is superior to an SSH key for three reasons:</p>
+<p>Repository Isolation: As you asked, it physically cannot see your other work.</p>
+<p>API Control: SSH keys only handle Git (push/pull). A PAT allows you to precisely control what the agent does with the gh CLI (e.g., let it create PRs but not delete the repository).</p>
+<p>Auto-Expiry: You can set the token to expire in 30 days. If you forget about the agent or the machine is compromised, the "key" eventually stops working on its own.</p>
+<p>How to give the token to the Agent
+Once you've generated the token, you don't need to type it in every time. In the agent's Linux user session:</p>
+<p>Bash</p>
+<h1 id="set-it-as-an-environment-variable-in-the-agents-bashrc-or-launch-script">Set it as an environment variable in the agent's .bashrc or launch script</h1>
+<p>export GH_TOKEN=github_pat_xxxx_your_token_here</p>
+<h1 id="then-the-gh-cli-and-git-will-automatically-use-it">Then the 'gh' CLI and 'git' will automatically use it</h1>
+<p>gh auth status
+Comparison: Fine-grained PAT vs. SSH Deploy Key
+You might also hear about Deploy Keys (which are repository-specific SSH keys). Here is how they compare for your use case:</p>
+<p>Feature Fine-grained PAT    SSH Deploy Key
+Scope   One or many specific repos  Strictly one repo
+Identity    Acts as You (restricted)    Acts as a "Machine"
+CLI Tools   Works perfectly with gh CLI Only works with git
+PR Workflow Can open/comment on PRs Cannot easily interact with PRs
+Verdict: For an "agent" that needs to use gh and participate in PRs, the Fine-grained PAT is the better choice.</p>
+<p>Would you like me to help you generate a curl command or a script to verify a token's permissions once you've created it?</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

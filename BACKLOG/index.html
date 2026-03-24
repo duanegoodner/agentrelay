@@ -564,6 +564,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Isolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#extensibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -757,6 +768,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#observed-agent-workaround-pr-c-e2e-testing-2026-03-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observed agent workaround (PR C e2e testing, 2026-03-23)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -778,6 +800,28 @@
     <span class="md-ellipsis">
       
         Implementer Test Coverage Threshold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-model-support-via-bifrost-openrouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Model Support via Bifrost + OpenRouter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust Migration
       
     </span>
   </a>
@@ -1408,6 +1452,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Isolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#extensibility" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1601,6 +1656,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#observed-agent-workaround-pr-c-e2e-testing-2026-03-23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observed agent workaround (PR C e2e testing, 2026-03-23)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1622,6 +1688,28 @@
     <span class="md-ellipsis">
       
         Implementer Test Coverage Threshold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-model-support-via-bifrost-openrouter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Model Support via Bifrost + OpenRouter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust Migration
       
     </span>
   </a>
@@ -1662,11 +1750,32 @@
 <h2 id="core-execution">Core Execution</h2>
 <ul>
 <li>Expand orchestrator support for richer resume hooks and durable state checkpoints.</li>
+<li><strong>Human intervention on task failure</strong>: When an agent declares a task failed,
+  allow a human to fix the problem (e.g., correct an upstream file, adjust the
+  worktree) and then trigger a retry of the failed task without restarting the
+  entire graph. Currently the orchestrator treats agent-declared failure as
+  terminal (unless <code>max_task_attempts</code> allows automatic retry). A manual retry
+  mechanism — CLI command, signal file, or interactive prompt — would let
+  humans unblock downstream tasks after fixing transient or environmental
+  issues. Design this after gaining more experience with failure modes in
+  e2e testing (PR C, PR D).</li>
 </ul>
 <h2 id="integration">Integration</h2>
 <ul>
 <li>Map v01 graph/task-launch behavior onto current architecture interfaces.</li>
 <li>Define a migration path so prototype-only concepts land behind stable abstractions.</li>
+</ul>
+<h2 id="agent-isolation">Agent Isolation</h2>
+<ul>
+<li><strong>Separate Linux user + scoped GitHub PAT for agent sessions</strong>: Currently
+  agents run as the human user, sharing SSH keys, <code>gh</code> credentials, and full
+  filesystem access. A dedicated <code>claude-agent</code> OS user with a fine-grained
+  GitHub PAT (scoped to the target repo, no admin privileges) would enforce
+  identity separation, filesystem isolation via permissions, and prevent agents
+  from merging PRs intended for human review. Bubblewrap (<code>bwrap</code>) or similar
+  sandboxing can further restrict worktree visibility. See
+  <code>docs/discussions/AGENT_ISOLATION.md</code> for full discussion of options
+  (bwrap, Docker, git hooks, CODEOWNERS, deploy keys vs PATs).</li>
 </ul>
 <h2 id="extensibility">Extensibility</h2>
 <ul>
@@ -1675,6 +1784,14 @@
 </ul>
 <h2 id="graph-execution">Graph Execution</h2>
 <ul>
+<li><strong>CLI flags for fail-fast config</strong>: <code>OrchestratorConfig.fail_fast_on_internal_error</code>
+  and <code>fail_fast_on_workstream_error</code> have no CLI flags. Add <code>--fail-fast-on-internal-error</code>
+  and <code>--fail-fast-on-workstream-error</code> (boolean flags) to <code>run_graph.py</code> and wire
+  through <code>_build_config_from_args</code>. Currently the only way to change these defaults
+  is programmatically. Surfaced during PR C e2e testing: the <code>blocked_downstream</code>
+  graph requires <code>--max-concurrency 2</code> as a workaround because the default
+  <code>fail_fast_on_workstream_error=True</code> blocks new workstream preparation after a
+  failure.</li>
 <li>Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   <code>.workflow/&lt;graph&gt;</code> and <code>.worktrees/&lt;graph&gt;</code> directory names so multiple runs
   of the same graph can coexist. Requires updating <code>reset_graph</code> to discover
@@ -1857,6 +1974,20 @@ integration branch) and dispatch Task B before Workstream X's integration
 PR is merged to main — meaning Task B's worktree wouldn't have Task A's
 changes. Need to verify whether the current orchestrator scheduling logic
 prevents this, or if this is a gap.</p>
+<h3 id="observed-agent-workaround-pr-c-e2e-testing-2026-03-23">Observed agent workaround (PR C e2e testing, 2026-03-23)</h3>
+<p>Running <code>diamond_4_workstreams.yaml</code>, the <code>double_calc</code> agent discovered
+that <code>base_calc.py</code> was missing from its worktree. It inspected available
+branches with <code>git show</code>, found the code on the <code>base_calc</code> task branch,
+and ran <code>git merge agentrelay/diamond-4-workstreams/base_calc --no-edit</code>
+to pull the dependency's code into its own branch. This worked — but the
+agent did not report an ops concern despite the workaround being a
+significant deviation from the expected workflow. Implications:
+- The workaround succeeded because worktrees share the git object store,
+  so other workstreams' branches are locally available.
+- Merging another task's branch directly could cause conflicts when
+  integration PRs are merged to main (duplicate commits).
+- The agent silently working around infrastructure gaps without raising
+  ops concerns makes these gaps harder to detect systematically.</p>
 <h2 id="concern-guidance-level-experimentation">Concern Guidance Level Experimentation</h2>
 <p>PR #129 shipped "prompted" guidance (cross-check steps in role templates) which
 works reliably with Sonnet. Further investigation deferred:</p>
@@ -1891,6 +2022,39 @@ the threshold before completing its task — writing additional tests if needed.
 <li><strong>Scope</strong>: Coverage enforcement applies only to the files under the task's
   <code>paths.src</code> and <code>paths.test</code> — not the entire repo.</li>
 </ul>
+<h2 id="multi-model-support-via-bifrost-openrouter">Multi-Model Support via Bifrost + OpenRouter</h2>
+<p>Use Bifrost (high-performance Rust gateway) as a local routing layer in front
+of OpenRouter and direct provider APIs. This decouples the orchestrator from
+any single LLM provider and enables per-task model/provider selection:
+- Route high-reasoning tasks to Anthropic direct (Max plan), simple tasks
+  to cheaper models via OpenRouter, and trivial tasks to local models.
+- Automatic fallback: if one provider is down or rate-limited, Bifrost
+  retries on another.
+- Bifrost's "Code Mode" compresses tool definitions, reducing token usage.
+- The orchestrator only talks to <code>localhost:8080</code>; routing/billing logic
+  lives in Bifrost config.</p>
+<p>Prerequisite: the current <code>AgentConfig.model</code> field already supports per-task
+model selection. Extending to per-task provider/harness selection requires
+adding a <code>provider</code> (and possibly <code>harness</code>) field to the graph YAML schema
+and wiring environment variables at agent launch time.</p>
+<p>See <code>docs/discussions/OPENROUTER_BIFROST_RUST.md</code> for full discussion.</p>
+<h2 id="rust-migration">Rust Migration</h2>
+<p>Migrate the orchestrator from Python to Rust for type safety, fearless
+concurrency, and resource efficiency. The orchestrator is not currently a
+bottleneck (agents and network I/O dominate), but Rust's ownership model
+enforces correct state management at compile time — valuable as the task
+graph grows in complexity and the orchestrator gains more responsibilities
+(retry logic, gate execution, agent-assisted merging).</p>
+<p>Suggested phased approach:
+1. <strong>Engine proxy</strong>: Rust CLI that handles LLM API calls (learn Rust I/O,
+   JSON, env vars). Use <code>rig-core</code> crate.
+2. <strong>Graph runner</strong>: Move DAG scheduling to Rust using <code>petgraph</code> (learn
+   ownership, trait-based abstraction).
+3. <strong>Full harness</strong>: Move tmux/process management to Rust with <code>tokio</code>
+   (learn async, PTY handling).</p>
+<p>Stay in Python while the design is still evolving rapidly; migrate when
+state complexity or scale becomes a pain point.</p>
+<p>See <code>docs/discussions/OPENROUTER_BIFROST_RUST.md</code> for full discussion.</p>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
