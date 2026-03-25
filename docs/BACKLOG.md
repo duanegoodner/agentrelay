@@ -228,6 +228,30 @@ functional but not reader-friendly:
 - **Concern presentation**: Concerns are listed per-task, which is good,
   but could benefit from a summary/highlight for cross-cutting concerns.
 
+## Agent-Assisted Integration Branch Merging
+
+Configurable merge strategies for integration PRs. Currently the orchestrator
+creates integration PRs and leaves them for human review (`human` mode, since
+PR A2). Additional strategies:
+
+- **`auto`** — If no merge conflicts, merge automatically. If conflicts exist,
+  fall back to human review.
+- **`agent`** — If merge conflicts, launch a Claude Code agent in a tmux pane
+  to resolve them. Require the test suite to pass before completing the merge.
+  If the agent cannot resolve, fall back to human review.
+
+Implementation sketch:
+- Add a `merge_strategy` field to `WorkstreamSpec` or `OrchestratorConfig`.
+- For `auto`: attempt `gh pr merge`, fall back to `human` on failure.
+- For `agent`: create a tmux pane, instruct Claude Code to resolve conflicts
+  and run tests. Agent uses TaskHelper-like API to signal success or failure.
+
+Originally planned as PR F in sprint 2026-03-19, deferred because the retry
+and gate work surfaced more foundational issues (signal cleanup, prepare-on-retry,
+agent SDK retry support) that should be addressed first. Best tackled in a
+sprint focused on integration reliability alongside the cross-workstream
+dependency ordering and agent SDK retry items below.
+
 ## Cross-Workstream Dependency Ordering
 
 Two related questions about correctness when tasks span workstreams:
