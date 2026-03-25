@@ -829,6 +829,50 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-worktree-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Worktree Awareness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-sdk-retry-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent SDK Retry Support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagram-rendering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagram Rendering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1717,6 +1761,50 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-worktree-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Worktree Awareness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-sdk-retry-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent SDK Retry Support
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#signal-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagram-rendering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagram Rendering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2055,6 +2143,50 @@ graph grows in complexity and the orchestrator gains more responsibilities
 <p>Stay in Python while the design is still evolving rapidly; migrate when
 state complexity or scale becomes a pain point.</p>
 <p>See <code>docs/discussions/OPENROUTER_BIFROST_RUST.md</code> for full discussion.</p>
+<h2 id="agent-worktree-awareness">Agent Worktree Awareness</h2>
+<ul>
+<li><strong>Agent navigates out of worktree</strong>: During E2E testing (PR D, retry graph
+  with Haiku), the generic-role agent was launched in the workstream worktree
+  but used absolute paths to write files in the main repo and <code>cd</code>'d to the
+  main repo for git operations. It committed to <code>main</code> instead of the task
+  branch. The agent saw <code>/data/git/.../main</code> as the project root and ignored
+  its actual CWD. Possible fixes: add explicit worktree guidance to agent
+  instructions ("work in your current directory, do not navigate to other
+  paths"), or include the worktree path in the manifest so agents can
+  self-check. Observed with Haiku; may not affect stronger models.</li>
+</ul>
+<h2 id="agent-sdk-retry-support">Agent SDK Retry Support</h2>
+<ul>
+<li><strong><code>agentrelay-complete</code> fails on retry when PR already exists</strong>: On retry
+  after gate failure, the PR from attempt 1 already exists. <code>agentrelay-complete</code>
+  calls <code>gh pr create</code> which rejects the duplicate (<code>a pull request for branch
+  ... already exists</code>). The agent must manually discover the existing PR URL
+  and call <code>mark_done</code> directly. Fix: <code>agentrelay-complete</code> (or <code>create_pr</code>
+  in <code>TaskHelper</code>) should detect the existing PR and reuse its URL instead of
+  failing. Observed during PR D E2E testing with Sonnet — the agent worked
+  around it by reading the SDK source, but this is fragile.</li>
+</ul>
+<h2 id="signal-directory-structure">Signal Directory Structure</h2>
+<ul>
+<li><strong>Signal directory restructure</strong>: Split <code>signal_dir/</code> into two named
+  subdirectories — one for orchestrator-internal status tracking (currently
+  <code>signal_dir/status/</code>) and one for agent-facing files (instructions, manifest,
+  policies, .done, .failed, etc., currently direct children of <code>signal_dir/</code>).
+  Gives each scope a clear name and prevents bugs like agent signals not being
+  cleared on retry (fixed in PR D). Deferred because it touches every
+  signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
+  checker, teardown, reset_graph).</li>
+</ul>
+<h2 id="diagram-rendering">Diagram Rendering</h2>
+<ul>
+<li><strong><code>diagram-no-impl.d2</code> exceeds TALA layout size limit</strong>: As the D2 diagram
+  grows, the <code>diagram-no-impl</code> view (all types with collapsed implementations)
+  fails to render with TALA: <code>Reached a bad state: Dimensions w:20515, h:30905
+  reached after stage NodePlacement</code>. The other three views (detailed,
+  no-private, standard) render fine. Options: split the diagram into
+  sub-diagrams, reduce the no-impl view further, or switch to a different
+  layout engine for that view. Observed during PR D.</li>
+</ul>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>

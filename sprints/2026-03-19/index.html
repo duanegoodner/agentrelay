@@ -1231,10 +1231,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-c-failure-and-workstreams-test-graphs" class="md-nav__link">
+  <a href="#pr-c-failure-and-workstreams-test-graphs-done-pr-131" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR C: failure/ and workstreams/ test graphs
+        PR C: failure/ and workstreams/ test graphs — Done (PR #131)
       
     </span>
   </a>
@@ -1603,44 +1603,65 @@ them").</p>
 - [x] <code>pixi run check</code> passes (935 tests)
 - [ ] ~~Results matrix (model × guidance level)~~ (deferred to backlog)</p>
 <hr />
-<h3 id="pr-c-failure-and-workstreams-test-graphs">PR C: failure/ and workstreams/ test graphs</h3>
+<h3 id="pr-c-failure-and-workstreams-test-graphs-done-pr-131">PR C: failure/ and workstreams/ test graphs — <strong>Done</strong> (PR #131)</h3>
 <ul>
 <li>Branch: <code>test/failure-and-workstream-graphs</code></li>
 </ul>
-<p><strong>failure/ test graphs:</strong>
-- <code>graphs/failure/README.md</code> — category docs
-- Agent .failed signal (impossible task)
-- Blocked downstream task (A fails → B blocked)
-- Retry with <code>max_task_attempts: 2</code></p>
-<p><strong>workstreams/ test graphs:</strong>
-- <code>graphs/workstreams/README.md</code> — category docs
-- Diamond dependency (A→B, A→C, B→D, C→D)
-- Same-workstream serialization (independent tasks, one workstream)</p>
+<p><strong>Delivered:</strong>
+- <code>graphs/failure/</code> category: <code>agent_fails.yaml</code> (single task deliberately
+  signals <code>.failed</code>) and <code>blocked_downstream.yaml</code> (failure propagation +
+  dependency blocking + independent workstream continues). Retry graph
+  deferred to PR D where completion gates provide natural retry scenarios.
+- <code>graphs/workstreams/</code> category: <code>diamond_1_workstream.yaml</code> (fan-in in
+  shared worktree), <code>diamond_4_workstreams.yaml</code> (cross-workstream fan-in,
+  4 separate workstreams), <code>serial_workstream.yaml</code> (3 zero-dependency tasks
+  serialized by workstream constraint).
+- Backlog items from e2e observations: human retry intervention, fail-fast
+  CLI flags, agent isolation, Bifrost/OpenRouter multi-model support, Rust
+  migration. Discussion reference docs added (<code>docs/discussions/</code>).</p>
+<p><strong>E2E observations:</strong>
+- <code>blocked_downstream</code> requires <code>--max-concurrency 2</code> so both workstreams
+  are prepared before the failure. Default <code>fail_fast_on_workstream_error=True</code>
+  blocks new workstream preparation after a failure (backlogged: CLI flag).
+- <code>diamond_4_workstreams</code>: agents discovered missing upstream code and
+  autonomously merged the dependency's branch into their own worktree. Did
+  not raise ops concerns despite the workaround. Confirms the cross-workstream
+  code visibility gap (backlogged).</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Failed task produces correct outcome and error messages
-- [ ] Blocked tasks emit task_blocked event
-- [ ] Diamond topology executes correctly
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: at least one graph from each category runs</p>
+- [x] Failed task produces correct outcome and error messages
+- [x] Blocked tasks emit task_blocked event
+- [ ] ~~Retry with <code>max_task_attempts: 2</code>~~ (deferred to PR D)
+- [x] Diamond topology executes correctly (both single and 4-workstream)
+- [x] <code>pixi run check</code> passes (935 tests)
+- [x] E2E: at least one graph from each category runs</p>
 <hr />
 <h3 id="pr-d-wire-completion-gates-gates-test-graphs">PR D: Wire completion gates + gates/ test graphs</h3>
 <ul>
 <li>Branch: <code>feat/completion-gates</code></li>
 </ul>
 <p><strong>Wire gate execution:</strong>
-- Add gate step to <code>StandardTaskRunner</code> (after completion signal, before merge)
-- Run <code>completion_gate</code> shell command in the task's worktree
-- On failure: retry up to <code>max_gate_attempts</code>, then mark task failed
-- Emit step-level events: <code>task_gate_running</code>, <code>task_gate_passed</code>/<code>task_gate_failed</code></p>
+- <code>TaskGateChecker</code> protocol + <code>GateCheckResult</code> in <code>task_runner/core/io.py</code>
+- <code>ShellGateChecker</code> implementation: runs shell command in worktree, captures
+  output to <code>gate_last_output.txt</code>, returns pass/fail
+- Gate step in <code>StandardTaskRunner.run()</code>: after completion signal + PR_CREATED,
+  before merge. Retry loop up to <code>max_gate_attempts</code> (default 5)
+- Gate failure marks task FAILED with <code>failure_class=None</code> (retryable by
+  orchestrator when <code>max_task_attempts</code> allows)
+- Events: <code>task_gate_running</code> (verbose), <code>task_gate_passed</code> (verbose),
+  <code>task_gate_failed</code> (always visible)
+- Direct field on runner (not StepDispatch) — gate doesn't vary by
+  framework/environment</p>
 <p><strong>Test graphs:</strong>
-- <code>graphs/gates/README.md</code> — category docs
-- Graph with <code>completion_gate: "pixi run test"</code> — verifies agent's code passes tests</p>
+- <code>graphs/gates/</code> category with <code>pixi_run_test.yaml</code> (gate-pass scenario)
+- <code>graphs/failure/retry_on_gate_failure.yaml</code> (gate-triggered retry with
+  <code>--max-task-attempts 2</code>)</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Gate command runs after task signals .done
-- [ ] Gate failure triggers retry (up to max_gate_attempts)
-- [ ] Gate pass proceeds to PR merge
-- [ ] Verbose output shows gate events
-- [ ] <code>pixi run check</code> passes
+- [x] Gate command runs after task signals .done
+- [x] Gate failure triggers retry (up to max_gate_attempts)
+- [x] Gate pass proceeds to PR merge
+- [ ] Retry: agent's second attempt passes the gate after first attempt fails
+- [x] Verbose output shows gate events
+- [x] <code>pixi run check</code> passes (957 tests)
 - [ ] E2E: gate graph runs, tests pass, PR merges</p>
 <hr />
 <h3 id="pr-e-wire-adr-production-adr-test-graphs">PR E: Wire ADR production + adr/ test graphs</h3>
