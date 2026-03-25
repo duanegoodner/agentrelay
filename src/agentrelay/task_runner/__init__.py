@@ -10,8 +10,10 @@ Subpackages:
 
 from agentrelay.task_runner.core.dispatch import DispatchKey, StepDispatch
 from agentrelay.task_runner.core.io import (
+    GateCheckResult,
     TaskCompletionChecker,
     TaskCompletionSignal,
+    TaskGateChecker,
     TaskKickoff,
     TaskLauncher,
     TaskMerger,
@@ -27,6 +29,7 @@ from agentrelay.task_runner.core.runner import (
 )
 from agentrelay.task_runner.implementations import (
     GhTaskMerger,
+    ShellGateChecker,
     SignalCompletionChecker,
     TmuxTaskKickoff,
     TmuxTaskLauncher,
@@ -37,12 +40,15 @@ from agentrelay.task_runner.implementations import (
 __all__ = [
     "ALLOWED_TASK_TRANSITIONS",
     "DispatchKey",
+    "GateCheckResult",
     "GhTaskMerger",
+    "ShellGateChecker",
     "SignalCompletionChecker",
     "StandardTaskRunner",
     "StepDispatch",
     "TaskCompletionChecker",
     "TaskCompletionSignal",
+    "TaskGateChecker",
     "TaskKickoff",
     "TaskLauncher",
     "TaskMerger",

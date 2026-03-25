@@ -71,13 +71,18 @@ class WorktreeTaskPreparer:
         signal_dir = self.repo_path / f".workflow/{self.graph_name}/signals/{task.id}"
 
         try:
-            git.branch_create(
-                workstream_worktree_path,
-                branch_name,
-                integration_branch,
-                force=True,
-            )
-            git.checkout(workstream_worktree_path, branch_name)
+            if git.current_branch(workstream_worktree_path) == branch_name:
+                # Retry: branch already checked out from a prior attempt.
+                # Keep the agent's prior commits so they can fix their code.
+                pass
+            else:
+                git.branch_create(
+                    workstream_worktree_path,
+                    branch_name,
+                    integration_branch,
+                    force=True,
+                )
+                git.checkout(workstream_worktree_path, branch_name)
         except subprocess.CalledProcessError as exc:
             raise _WorkspaceIntegrationError(
                 f"Failed to create branch for task {task.id!r}: {exc}",

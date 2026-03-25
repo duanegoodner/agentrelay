@@ -1,0 +1,22 @@
+name: retry-on-gate-failure
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Deterministic gate failure: the gate runs a test file the agent is never
+# told to create, so it always fails. With --max-task-attempts 2 the
+# orchestrator retries once, the gate fails again, and the task is marked
+# FAILED.  Validates: gate failure → retry → exhaustion → COMPLETED_WITH_FAILURES.
+#
+# Usage:
+#   pixi run e2e graphs/failure/retry_on_gate_failure.yaml /path/to/target --max-task-attempts 2
+
+tasks:
+  - id: greeter
+    description: >-
+      Create src/agentrelaydemos/greeter.py containing a function
+      greet(name: str) -> str that returns "Hello, {name}!".
+    completion_gate: "pixi run pytest test/test_nonexistent.py -q"
+    max_gate_attempts: 1
+    dependencies: []

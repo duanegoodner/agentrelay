@@ -362,6 +362,17 @@ task_runner_pkg: "task_runner/" {
       +wait_for_completion(runtime): TaskCompletionSignal
     }
 
+    GateCheckResult: "GateCheckResult <<frozen dataclass>>" {
+      shape: class
+      passed: bool
+      output: str
+    }
+
+    TaskGateChecker: "TaskGateChecker <<protocol>>" {
+      shape: class
+      +check_gate(runtime): GateCheckResult
+    }
+
     TaskMerger: "TaskMerger <<protocol>>" {
       shape: class
       +merge_pr(runtime, pr_url): void
@@ -401,7 +412,7 @@ task_runner_pkg: "task_runner/" {
   }
 
   task_runner_impl_pkg: "implementations/" {
-    "(6 classes hidden)"
+    "(7 classes hidden)"
   }
 }
 
@@ -495,6 +506,7 @@ ops_pkg: "ops/" {
     module_path: ops.git
     +worktree_add(repo, path, branch, start_point): void
     +worktree_remove(repo, path): void
+    +current_branch(repo): "str | None"
     +checkout(repo, branch): void
     +branch_create(repo, branch, start_point, force): void
     +branch_delete(repo, branch): void
@@ -795,6 +807,7 @@ task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskMerger: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.TaskGateChecker -> task_runner_pkg.task_runner_core_pkg.GateCheckResult: returns { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunResult: returns { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
@@ -869,6 +882,7 @@ task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.Tas
 task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskGateChecker: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg -> ops_pkg.git: uses { class: dependency }

@@ -188,6 +188,15 @@ class TaskRuntime:
             for f in status_dir.iterdir():
                 f.unlink()
 
+    def _clear_agent_signals(self) -> None:
+        """Remove agent-written signal files (``.done``, ``.failed``) before retry."""
+        if self.state.signal_dir is None:
+            return
+        for name in (".done", ".failed"):
+            path = self.state.signal_dir / name
+            if path.is_file():
+                path.unlink()
+
     def mark_pending(self) -> None:
         """Write the ``pending`` status signal file."""
         self._write_status_signal("pending")
@@ -226,6 +235,7 @@ class TaskRuntime:
                 f"attempt_{self.state.attempt_num}_error: {self.state.error}"
             )
         self._clear_status_signals()
+        self._clear_agent_signals()
         if self.state.signal_dir is not None:
             self.mark_pending()
         self.state.error = None

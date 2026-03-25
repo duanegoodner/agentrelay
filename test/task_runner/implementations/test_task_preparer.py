@@ -58,6 +58,7 @@ class TestWorktreeTaskPreparer:
         preparer = _make_preparer(repo_path=Path("/repo"))
         runtime = _make_runtime()
         mock_build_manifest.return_value = MagicMock()
+        mock_git.current_branch.return_value = None  # Fresh prepare.
 
         preparer.prepare(runtime)
 
@@ -206,6 +207,7 @@ class TestWorktreeTaskPreparer:
         _mock_signals: MagicMock,
     ) -> None:
         """Wraps CalledProcessError from git in _WorkspaceIntegrationError."""
+        mock_git.current_branch.return_value = None  # Fresh prepare.
         mock_git.branch_create.side_effect = subprocess.CalledProcessError(
             1, "git branch"
         )
@@ -214,6 +216,39 @@ class TestWorktreeTaskPreparer:
 
         with pytest.raises(_WorkspaceIntegrationError, match="task_1"):
             preparer.prepare(runtime)
+
+    @patch("agentrelay.task_runner.implementations.task_preparer.resolve_instructions")
+    @patch("agentrelay.task_runner.implementations.task_preparer.policies_to_dict")
+    @patch("agentrelay.task_runner.implementations.task_preparer.build_policies")
+    @patch("agentrelay.task_runner.implementations.task_preparer.manifest_to_dict")
+    @patch("agentrelay.task_runner.implementations.task_preparer.build_manifest")
+    @patch("agentrelay.task_runner.implementations.task_preparer.signals")
+    @patch("agentrelay.task_runner.implementations.task_preparer.git")
+    def test_retry_skips_branch_creation_when_already_checked_out(
+        self,
+        mock_git: MagicMock,
+        mock_signals: MagicMock,
+        mock_build_manifest: MagicMock,
+        _mock_manifest_to_dict: MagicMock,
+        _mock_build_policies: MagicMock,
+        _mock_policies_to_dict: MagicMock,
+        _mock_resolve: MagicMock,
+    ) -> None:
+        """On retry, skips branch_create/checkout when branch is already checked out."""
+        mock_git.current_branch.return_value = "agentrelay/demo/task_1"
+        mock_build_manifest.return_value = MagicMock()
+        preparer = _make_preparer()
+        runtime = _make_runtime()
+
+        preparer.prepare(runtime)
+
+        mock_git.branch_create.assert_not_called()
+        mock_git.checkout.assert_not_called()
+        # Protocol files are still written.
+        signal_dir = Path("/repo/.workflow/demo/signals/task_1")
+        mock_signals.write_json.assert_any_call(
+            signal_dir, "manifest.json", _mock_manifest_to_dict.return_value
+        )
 
     def test_satisfies_task_preparer_protocol(self) -> None:
         """WorktreeTaskPreparer satisfies the TaskPreparer protocol."""

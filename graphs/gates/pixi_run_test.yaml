@@ -1,0 +1,27 @@
+name: gate-pixi-run-test
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Single task with a completion gate that runs the task's test file.
+# The gate verifies the agent's code actually passes the tests before
+# the PR is merged.
+
+tasks:
+  - id: impl_clamp
+    role: implementer
+    description: >-
+      Create src/agentrelaydemos/clamp.py containing a function
+      clamp(value: float, lo: float, hi: float) -> float that returns
+      value constrained to [lo, hi]. If value < lo, return lo. If
+      value > hi, return hi. Otherwise return value. Also handle the
+      edge case where lo > hi by swapping them.
+    paths:
+      src:
+        - src/agentrelaydemos/clamp.py
+      test:
+        - test/test_clamp.py
+    completion_gate: "pixi run pytest test/test_clamp.py -q"
+    max_gate_attempts: 3
+    dependencies: []

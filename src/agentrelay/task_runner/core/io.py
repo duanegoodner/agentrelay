@@ -1,18 +1,20 @@
 """Per-step protocols for task execution.
 
 This module defines fine-grained protocol interfaces for each step of the
-task lifecycle and a completion signal type.
+task lifecycle, a completion signal type, and a gate check result type.
 
 Protocols:
     TaskPreparer: Prepare runtime prerequisites before agent launch.
     TaskLauncher: Launch and return the primary agent.
     TaskKickoff: Send kickoff instructions to the launched agent.
     TaskCompletionChecker: Wait for a terminal completion signal.
+    TaskGateChecker: Run a completion gate command and return the result.
     TaskMerger: Merge the completed task PR.
     TaskTeardown: Release runtime resources after completion.
 
 Classes:
     TaskCompletionSignal: Frozen signal payload from the execution boundary.
+    GateCheckResult: Frozen result of a single gate check attempt.
 """
 
 from __future__ import annotations
@@ -108,6 +110,35 @@ class TaskCompletionChecker(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class GateCheckResult:
+    """Result of a single completion gate check attempt.
+
+    Attributes:
+        passed: Whether the gate command exited successfully (exit code 0).
+        output: Combined stdout and stderr from the gate command.
+    """
+
+    passed: bool
+    output: str
+
+
+@runtime_checkable
+class TaskGateChecker(Protocol):
+    """Run a completion gate command and return the result."""
+
+    def check_gate(self, runtime: TaskRuntime) -> GateCheckResult:
+        """Execute the completion gate command for a task.
+
+        Args:
+            runtime: Runtime envelope with gate command and worktree path.
+
+        Returns:
+            GateCheckResult: Pass/fail outcome and captured output.
+        """
+        ...
+
+
 @runtime_checkable
 class TaskMerger(Protocol):
     """Merge the completed task PR into the integration target."""
@@ -136,8 +167,10 @@ class TaskTeardown(Protocol):
 
 
 __all__ = [
+    "GateCheckResult",
     "TaskCompletionChecker",
     "TaskCompletionSignal",
+    "TaskGateChecker",
     "TaskKickoff",
     "TaskLauncher",
     "TaskMerger",

@@ -200,7 +200,7 @@ pkg: "pkg/" {
 
         assert "(2 classes hidden)" in joined  # agent_impl_pkg
         assert "(3 classes hidden)" in joined  # workstream_impl_pkg
-        assert "(6 classes hidden)" in joined  # task_runner_impl_pkg
+        assert "(7 classes hidden)" in joined  # task_runner_impl_pkg
 
         assert "agent_impl_pkg" in joined  # container kept
         assert "TmuxAddress" not in joined  # contents removed

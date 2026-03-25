@@ -143,6 +143,30 @@ class ConsoleListener:
                 "waiting for completion signal",
             )
 
+    def _on_task_gate_running(self, event: OrchestratorEvent) -> None:
+        if self.verbose:
+            self._print(
+                event.timestamp,
+                event.task_id or "?",
+                f"gate running ({event.message or ''})",
+            )
+
+    def _on_task_gate_passed(self, event: OrchestratorEvent) -> None:
+        if self.verbose:
+            self._print(
+                event.timestamp,
+                event.task_id or "?",
+                "gate passed",
+            )
+
+    def _on_task_gate_failed(self, event: OrchestratorEvent) -> None:
+        msg = event.message or "unknown command"
+        self._print(
+            event.timestamp,
+            event.task_id or "?",
+            f"gate FAILED: {msg}",
+        )
+
     def _on_task_pr_merging(self, event: OrchestratorEvent) -> None:
         if self.verbose:
             self._print(

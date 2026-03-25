@@ -4,7 +4,7 @@ This module defines:
 
 - :class:`TaskRunner` — the protocol boundary used by the orchestrator.
 - :class:`StandardTaskRunner` — the concrete standard lifecycle implementation
-  (prepare → launch → kickoff → wait → merge → teardown).
+  (prepare → launch → kickoff → wait → gate → merge → teardown).
 
 The orchestrator depends only on the :class:`TaskRunner` protocol. Different
 lifecycle variants (e.g., adding a review step) are separate classes satisfying
@@ -24,6 +24,7 @@ from agentrelay.ops import gh, signals
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
     TaskCompletionChecker,
+    TaskGateChecker,
     TaskKickoff,
     TaskLauncher,
     TaskMerger,
@@ -59,6 +60,11 @@ _MARK_DISPATCH: Mapping[TaskStatus, str] = MappingProxyType(
         TaskStatus.PR_MERGED: "mark_pr_merged",
     }
 )
+
+
+#: Default max gate attempts when ``Task.max_gate_attempts`` is ``None``.
+#: Matches the ``default_max_gate_attempts`` parameter in ``build_policies()``.
+_DEFAULT_MAX_GATE_ATTEMPTS = 5
 
 
 class TearDownMode(str, Enum):
@@ -142,7 +148,7 @@ class TaskRunner(Protocol):
 
 @dataclass
 class StandardTaskRunner:
-    """Standard task lifecycle: prepare → launch → kickoff → wait → merge → teardown.
+    """Standard task lifecycle: prepare → launch → kickoff → wait → gate → merge → teardown.
 
     Uses :class:`StepDispatch` tables for per-step implementation selection
     based on the task's ``AgentFramework`` and ``AgentEnvironment``.
@@ -159,6 +165,8 @@ class StandardTaskRunner:
     | kickoff               | Yes            | Yes                  |
     +-----------------------+----------------+----------------------+
     | completion_checker    | Maybe          | No                   |
+    +-----------------------+----------------+----------------------+
+    | gate_checker          | No             | No                   |
     +-----------------------+----------------+----------------------+
     | merger                | No             | No                   |
     +-----------------------+----------------+----------------------+
@@ -178,6 +186,8 @@ class StandardTaskRunner:
         _launcher: Dispatch table for :class:`TaskLauncher` selection.
         _kickoff: Dispatch table for :class:`TaskKickoff` selection.
         _completion_checker: Dispatch table for :class:`TaskCompletionChecker` selection.
+        _gate_checker: Completion gate checker (not dispatch-based — always
+            a shell command, does not vary by framework/environment).
         _merger: Dispatch table for :class:`TaskMerger` selection.
         _teardown: Dispatch table for :class:`TaskTeardown` selection.
     """
@@ -186,6 +196,7 @@ class StandardTaskRunner:
     _launcher: StepDispatch[TaskLauncher]
     _kickoff: StepDispatch[TaskKickoff]
     _completion_checker: StepDispatch[TaskCompletionChecker]
+    _gate_checker: TaskGateChecker
     _merger: StepDispatch[TaskMerger]
     _teardown: StepDispatch[TaskTeardown]
     on_event: Optional[Callable[..., None]] = field(default=None, repr=False)
@@ -272,6 +283,12 @@ class StandardTaskRunner:
 
                 self._save_pr_summary(runtime, signal.pr_url)
 
+                # Completion gate check (optional — only if task declares one).
+                if runtime.task.completion_gate is not None:
+                    gate_failed = self._run_gate(runtime)
+                    if gate_failed is not None:
+                        return gate_failed
+
                 self._emit_step("task_pr_merging", runtime, signal.pr_url)
                 try:
                     self._merger(runtime).merge_pr(runtime, signal.pr_url)
@@ -290,6 +307,36 @@ class StandardTaskRunner:
                 except Exception as exc:
                     runtime.artifacts.concerns.append(f"teardown_failed: {exc}")
 
+        return TaskRunResult.from_runtime(runtime)
+
+    def _run_gate(self, runtime: TaskRuntime) -> Optional[TaskRunResult]:
+        """Run the completion gate retry loop.
+
+        Returns ``None`` if the gate passes, or a ``TaskRunResult`` if the
+        gate fails all attempts or an exception occurs.
+        """
+        max_attempts = runtime.task.max_gate_attempts or _DEFAULT_MAX_GATE_ATTEMPTS
+        command = runtime.task.completion_gate
+
+        for attempt in range(max_attempts):
+            self._emit_step(
+                "task_gate_running",
+                runtime,
+                f"attempt {attempt + 1}/{max_attempts}: {command}",
+            )
+            try:
+                gate_result = self._gate_checker.check_gate(runtime)
+            except Exception as exc:
+                fc = self._record_io_failure(runtime, exc)
+                return TaskRunResult.from_runtime(runtime, failure_class=fc)
+            if gate_result.passed:
+                self._emit_step("task_gate_passed", runtime)
+                return None
+        # All attempts exhausted.
+        self._emit_step("task_gate_failed", runtime, command)
+        runtime.mark_failed(
+            f"Completion gate failed after {max_attempts} attempt(s): {command}"
+        )
         return TaskRunResult.from_runtime(runtime)
 
     def _emit_step(

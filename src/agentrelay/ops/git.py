@@ -62,6 +62,21 @@ def checkout(repo: Path, branch: str) -> None:
     )
 
 
+def current_branch(repo: Path) -> str | None:
+    """Return the current branch name, or ``None`` if HEAD is detached.
+
+    Runs ``git -C <repo> symbolic-ref --short HEAD``.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo), "symbolic-ref", "--short", "HEAD"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip()
+
+
 def branch_create(
     repo: Path,
     branch: str,

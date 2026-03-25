@@ -8,6 +8,7 @@ from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import StandardTaskRunner
 from agentrelay.task_runner.implementations import (
     GhTaskMerger,
+    ShellGateChecker,
     SignalCompletionChecker,
     TmuxTaskKickoff,
     TmuxTaskLauncher,
@@ -110,6 +111,16 @@ def test_merger_dispatch_returns_gh_merger() -> None:
     merger = runner._merger(runtime)
     assert isinstance(merger, GhTaskMerger)
     assert merger.repo_path == Path("/repo")
+
+
+def test_gate_checker_is_shell_gate_checker() -> None:
+    graph = _graph_with_deps()
+    runner = build_standard_runner(
+        repo_path=Path("/repo"),
+        graph_name="test_graph",
+        graph=graph,
+    )
+    assert isinstance(runner._gate_checker, ShellGateChecker)
 
 
 def test_teardown_dispatch_returns_worktree_teardown() -> None:

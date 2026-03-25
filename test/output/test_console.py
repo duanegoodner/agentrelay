@@ -210,6 +210,8 @@ class TestVerboseStepEvents:
             "task_prepared",
             "task_launched",
             "task_waiting",
+            "task_gate_running",
+            "task_gate_passed",
             "task_pr_merging",
         ):
             listener.on_event(_event(kind, task_id="t"))
@@ -240,6 +242,38 @@ class TestVerboseStepEvents:
         listener, buf = _verbose_listener()
         listener.on_event(_event("task_waiting", task_id="add_fn"))
         assert "waiting for completion signal" in buf.getvalue()
+
+    def test_task_gate_running(self) -> None:
+        listener, buf = _verbose_listener()
+        listener.on_event(
+            _event(
+                "task_gate_running",
+                task_id="add_fn",
+                message="attempt 1/3: pixi run test",
+            )
+        )
+        output = buf.getvalue()
+        assert "gate running" in output
+        assert "attempt 1/3" in output
+
+    def test_task_gate_passed(self) -> None:
+        listener, buf = _verbose_listener()
+        listener.on_event(_event("task_gate_passed", task_id="add_fn"))
+        assert "gate passed" in buf.getvalue()
+
+    def test_task_gate_failed_always_visible(self) -> None:
+        """gate_failed is printed even with verbose=False."""
+        listener, buf = _listener()  # non-verbose
+        listener.on_event(
+            _event(
+                "task_gate_failed",
+                task_id="add_fn",
+                message="pixi run test",
+            )
+        )
+        output = buf.getvalue()
+        assert "gate FAILED" in output
+        assert "pixi run test" in output
 
     def test_task_pr_merging(self) -> None:
         listener, buf = _verbose_listener()
