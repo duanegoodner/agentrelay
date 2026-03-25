@@ -4,6 +4,24 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-24
+
+### Wire ADR production into agent instructions (PR E)
+
+- **Rename `AgentVerbosity` → `AdrVerbosity`**: clearer naming, consistent
+  with `_AdrPolicy`.
+- **ADR instruction injection**: `resolve_instructions()` gains an
+  `adr_verbosity` parameter. When not `NONE`, a `## Architecture Decision
+  Record` section is injected between "What to Do" and "Submitting Your Work"
+  with verbosity-scaled guidance and output path `docs/adr/<task_id>.md`.
+- **Three verbosity tiers**: STANDARD (Title, Status, Context, Decision,
+  Consequences), DETAILED (+Alternatives Considered, Trade-offs, Implementation
+  Notes), EDUCATIONAL (+annotations explaining each section's purpose).
+- **`graphs/adr/` test category**: `adr_standard.yaml` graph with a single
+  task at standard verbosity.
+
+---
+
 ## 2026-03-22
 
 ### Restructure instructions.md as a work-order document

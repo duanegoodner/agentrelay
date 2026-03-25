@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Optional
 
-from agentrelay.task import AgentRole, AgentVerbosity, Task
+from agentrelay.task import AdrVerbosity, AgentRole, Task
 
 POLICIES_SCHEMA_VERSION = "1"
 
@@ -117,7 +117,7 @@ class _AdrPolicy:
         verbosity: Detail level for ADR output.
     """
 
-    verbosity: AgentVerbosity
+    verbosity: AdrVerbosity
 
 
 @dataclass(frozen=True)
@@ -211,7 +211,7 @@ def build_policies(
         )
 
     adr: Optional[_AdrPolicy] = None
-    if task.primary_agent.adr_verbosity != AgentVerbosity.NONE:
+    if task.primary_agent.adr_verbosity != AdrVerbosity.NONE:
         adr = _AdrPolicy(verbosity=task.primary_agent.adr_verbosity)
 
     verification: Optional[_VerificationPolicy] = None

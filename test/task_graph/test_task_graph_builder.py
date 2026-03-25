@@ -5,9 +5,9 @@ from pathlib import Path
 import pytest
 
 from agentrelay.task import (
+    AdrVerbosity,
     AgentFramework,
     AgentRole,
-    AgentVerbosity,
 )
 from agentrelay.task_graph.builder import TaskGraphBuilder
 
@@ -107,13 +107,13 @@ def test_from_dict_parses_paths_agent_and_review_configs() -> None:
 
     assert task.primary_agent.framework == AgentFramework.CLAUDE_CODE
     assert task.primary_agent.model == "claude-opus-4-6"
-    assert task.primary_agent.adr_verbosity == AgentVerbosity.DETAILED
+    assert task.primary_agent.adr_verbosity == AdrVerbosity.DETAILED
     assert task.primary_agent.environment.session == "proj"
 
     assert task.review is not None
     assert task.review.agent.framework == AgentFramework.CLAUDE_CODE
     assert task.review.agent.model == "claude-haiku-4-5-20251001"
-    assert task.review.agent.adr_verbosity == AgentVerbosity.STANDARD
+    assert task.review.agent.adr_verbosity == AdrVerbosity.STANDARD
     assert task.review.agent.environment.session == "reviewers"
     assert task.review.review_on_attempt == 2
 

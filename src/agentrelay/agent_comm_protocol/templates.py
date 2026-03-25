@@ -16,7 +16,7 @@ from string import Template
 from typing import Optional
 
 from agentrelay.agent_comm_protocol.manifest import TaskManifest
-from agentrelay.task import AgentRole
+from agentrelay.task import AdrVerbosity, AgentRole
 from agentrelay.tools import tool_guidance
 
 _TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
@@ -53,6 +53,7 @@ def resolve_instructions(
     role: AgentRole,
     manifest: TaskManifest,
     adapter_name: Optional[str] = None,
+    adr_verbosity: AdrVerbosity = AdrVerbosity.NONE,
 ) -> str:
     """Resolve work instructions by loading and parameterizing a role template.
 
@@ -62,9 +63,11 @@ def resolve_instructions(
     2. **Tools** — environment tools available (if any).
     3. **What to Do** — role-specific steps from the template, or the
        task description for GENERIC roles.
-    4. **Submitting Your Work** — how to commit, create a PR, and signal
+    4. **Architecture Decision Record** — ADR writing instructions (if
+       ``adr_verbosity`` is not ``NONE``).
+    5. **Submitting Your Work** — how to commit, create a PR, and signal
        the orchestrator.
-    5. **Task Details** — the task author's description (non-generic only,
+    6. **Task Details** — the task author's description (non-generic only,
        when present).
 
     Template variables (``$var`` syntax via :class:`string.Template`):
@@ -79,6 +82,7 @@ def resolve_instructions(
         role: Agent role determining which template to load.
         manifest: Task manifest providing substitution values.
         adapter_name: Optional adapter name for adapter-specific override.
+        adr_verbosity: ADR detail level. ``NONE`` (default) omits the section.
 
     Returns:
         Resolved markdown instruction text.
@@ -127,6 +131,11 @@ def resolve_instructions(
         resolved = Template(template_text).substitute(substitutions)
         parts.append("## What to Do\n\n" + resolved.strip())
 
+    # Architecture Decision Record (conditional, cross-cutting).
+    adr_text = _adr_section(adr_verbosity, manifest.task_id)
+    if adr_text:
+        parts.append(adr_text)
+
     parts.append(_submission_section(manifest))
 
     # Task Details (non-generic, when description exists).
@@ -146,6 +155,94 @@ def _concerns_note() -> str:
         "- **Ops concerns** (build errors, missing deps, tooling friction): "
         'report with `agentrelay-ops-concern --message "describe the concern"`'
     )
+
+
+def _adr_section(verbosity: AdrVerbosity, task_id: str) -> str:
+    """Build the Architecture Decision Record section for the given verbosity.
+
+    Returns a complete ``## Architecture Decision Record`` section when
+    *verbosity* is not ``NONE``, or an empty string otherwise.
+
+    Args:
+        verbosity: Requested ADR detail level.
+        task_id: Task identifier used to derive the output file path.
+
+    Returns:
+        Markdown section text, or ``""`` when no ADR is requested.
+    """
+    if verbosity == AdrVerbosity.NONE:
+        return ""
+
+    output_path = f"docs/adr/{task_id}.md"
+
+    lines = [
+        "## Architecture Decision Record",
+        "",
+        "As part of this task, write an Architecture Decision Record (ADR) "
+        "documenting the key technical decisions you make.",
+        "",
+        f"**Output file:** `{output_path}`",
+        "",
+        "Create the file and commit it alongside your other changes.",
+    ]
+
+    if verbosity == AdrVerbosity.STANDARD:
+        lines += [
+            "",
+            "Include the following sections:",
+            "",
+            "- **Title** — Short name for the decision",
+            "- **Status** — Proposed, Accepted, Deprecated, or Superseded",
+            "- **Context** — What situation or problem prompted this decision",
+            "- **Decision** — What was decided and why",
+            "- **Consequences** — What follows from this decision "
+            "(positive and negative)",
+        ]
+    elif verbosity == AdrVerbosity.DETAILED:
+        lines += [
+            "",
+            "Include the following sections:",
+            "",
+            "- **Title** — Short name for the decision",
+            "- **Status** — Proposed, Accepted, Deprecated, or Superseded",
+            "- **Context** — What situation or problem prompted this decision",
+            "- **Decision** — What was decided and why",
+            "- **Alternatives Considered** — Other options evaluated and why "
+            "they were rejected",
+            "- **Trade-offs** — Key trade-offs involved in the chosen approach",
+            "- **Consequences** — What follows from this decision "
+            "(positive and negative)",
+            "- **Implementation Notes** — Relevant technical details " "or constraints",
+        ]
+    elif verbosity == AdrVerbosity.EDUCATIONAL:
+        lines += [
+            "",
+            "Include the following sections. For each section, add a brief "
+            "annotation explaining what the section captures and why it "
+            "matters.",
+            "",
+            "- **Title** — Short name for the decision",
+            "- **Status** — Proposed, Accepted, Deprecated, or Superseded",
+            "- **Context** — What situation or problem prompted this decision. "
+            "Explain why capturing context is important for future readers.",
+            "- **Decision** — What was decided and why. "
+            "Explain the value of recording rationale alongside the decision "
+            "itself.",
+            "- **Alternatives Considered** — Other options evaluated and why "
+            "they were rejected. Explain why documenting rejected alternatives "
+            "helps future maintainers.",
+            "- **Trade-offs** — Key trade-offs involved in the chosen approach. "
+            "Explain how explicit trade-off documentation aids future "
+            "decision-making.",
+            "- **Consequences** — What follows from this decision "
+            "(positive and negative). Explain why anticipated consequences "
+            "should be documented upfront.",
+            "- **Implementation Notes** — Relevant technical details "
+            "or constraints. Explain how this section bridges the gap between "
+            "decision and execution.",
+        ]
+
+    return "\n".join(lines)
 
 
 def _submission_section(manifest: TaskManifest) -> str:

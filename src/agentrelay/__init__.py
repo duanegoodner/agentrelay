@@ -17,7 +17,7 @@ Core types:
 - WorkstreamSpec: immutable workstream configuration          [workstream/core/workstream.py]
 - Task: frozen specification of a unit of work              [task.py]
 - TaskPaths, AgentConfig, ReviewConfig: config dataclasses  [task.py]
-- AgentRole, AgentFramework, AgentVerbosity: spec enums     [task.py]
+- AgentRole, AgentFramework, AdrVerbosity: spec enums     [task.py]
 - AgentEnvironment: type alias for all environment types    [environments.py]
 - AgentEnvironmentT: TypeVar preserving concrete env type   [environments.py]
 - TmuxEnvironment: tmux pane execution environment          [environments.py]
