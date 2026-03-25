@@ -1263,17 +1263,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#pr-f-agent-assisted-integration-branch-merging-optional" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        PR F: Agent-assisted integration branch merging (optional)
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -1682,36 +1671,11 @@ them").</p>
 - [ ] ADR detail scales with verbosity level
 - [ ] <code>pixi run check</code> passes
 - [ ] E2E: adr graph runs, ADR file is present in committed output</p>
-<hr />
-<h3 id="pr-f-agent-assisted-integration-branch-merging-optional">PR F: Agent-assisted integration branch merging (optional)</h3>
-<ul>
-<li>Branch: <code>feat/agent-merge</code></li>
-</ul>
 <blockquote>
-<p><strong>Decision gate:</strong> Before starting this PR, evaluate whether to implement
-now or defer to <code>docs/BACKLOG.md</code>. The value depends on how often merge
-conflicts arise in practice and whether human review is sufficient.</p>
+<p><strong>PR F (agent-assisted integration branch merging)</strong> was originally planned
+for this sprint but deferred to a future sprint. See <code>docs/BACKLOG.md</code>
+under "Agent-Assisted Integration Branch Merging" for the full design sketch.</p>
 </blockquote>
-<p><strong>Merge strategy options (configurable per-graph or per-workstream):</strong>
-- <code>human</code> — Create integration PR, leave for human review and merge (default,
-  current behavior after PR A2).
-- <code>auto</code> — If no merge conflicts, merge automatically. If conflicts exist,
-  leave for human review.
-- <code>agent</code> — If merge conflicts, launch an agent to resolve them. Require
-  the test suite to pass before completing the merge. If the agent cannot
-  resolve, leave for human review.</p>
-<p><strong>Implementation sketch:</strong>
-- Add a <code>merge_strategy</code> field to WorkstreamSpec or OrchestratorConfig.
-- For <code>auto</code>: attempt <code>gh pr merge</code>, fall back to <code>human</code> on failure.
-- For <code>agent</code>: create a tmux pane with Claude Code, instruct it to resolve
-  conflicts and run tests. Agent uses TaskHelper-like API to signal success
-  or failure.</p>
-<p><strong>Acceptance criteria:</strong>
-- [ ] <code>human</code> mode creates PR without merging (same as PR A2)
-- [ ] <code>auto</code> mode merges when clean, falls back when not
-- [ ] <code>agent</code> mode resolves conflicts and runs tests before merging
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: test with conflicting parallel workstreams</p>
 
 
 
