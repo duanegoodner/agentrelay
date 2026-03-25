@@ -9,6 +9,9 @@ implementations of :class:`~agentrelay.task_runner.core.io.TaskPreparer`).
 from agentrelay.task_runner.implementations.task_completion_checker import (
     SignalCompletionChecker,
 )
+from agentrelay.task_runner.implementations.task_gate_checker import (
+    ShellGateChecker,
+)
 from agentrelay.task_runner.implementations.task_kickoff import TmuxTaskKickoff
 from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLauncher
 from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
@@ -21,6 +24,7 @@ from agentrelay.task_runner.implementations.task_teardown import (
 
 __all__ = [
     "GhTaskMerger",
+    "ShellGateChecker",
     "SignalCompletionChecker",
     "TmuxTaskKickoff",
     "TmuxTaskLauncher",

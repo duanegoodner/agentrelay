@@ -347,6 +347,50 @@ state complexity or scale becomes a pain point.
 
 See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
+## Agent Worktree Awareness
+
+- **Agent navigates out of worktree**: During E2E testing (PR D, retry graph
+  with Haiku), the generic-role agent was launched in the workstream worktree
+  but used absolute paths to write files in the main repo and `cd`'d to the
+  main repo for git operations. It committed to `main` instead of the task
+  branch. The agent saw `/data/git/.../main` as the project root and ignored
+  its actual CWD. Possible fixes: add explicit worktree guidance to agent
+  instructions ("work in your current directory, do not navigate to other
+  paths"), or include the worktree path in the manifest so agents can
+  self-check. Observed with Haiku; may not affect stronger models.
+
+## Agent SDK Retry Support
+
+- **`agentrelay-complete` fails on retry when PR already exists**: On retry
+  after gate failure, the PR from attempt 1 already exists. `agentrelay-complete`
+  calls `gh pr create` which rejects the duplicate (`a pull request for branch
+  ... already exists`). The agent must manually discover the existing PR URL
+  and call `mark_done` directly. Fix: `agentrelay-complete` (or `create_pr`
+  in `TaskHelper`) should detect the existing PR and reuse its URL instead of
+  failing. Observed during PR D E2E testing with Sonnet — the agent worked
+  around it by reading the SDK source, but this is fragile.
+
+## Signal Directory Structure
+
+- **Signal directory restructure**: Split `signal_dir/` into two named
+  subdirectories — one for orchestrator-internal status tracking (currently
+  `signal_dir/status/`) and one for agent-facing files (instructions, manifest,
+  policies, .done, .failed, etc., currently direct children of `signal_dir/`).
+  Gives each scope a clear name and prevents bugs like agent signals not being
+  cleared on retry (fixed in PR D). Deferred because it touches every
+  signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
+  checker, teardown, reset_graph).
+
+## Diagram Rendering
+
+- **`diagram-no-impl.d2` exceeds TALA layout size limit**: As the D2 diagram
+  grows, the `diagram-no-impl` view (all types with collapsed implementations)
+  fails to render with TALA: `Reached a bad state: Dimensions w:20515, h:30905
+  reached after stage NodePlacement`. The other three views (detailed,
+  no-private, standard) render fine. Options: split the diagram into
+  sub-diagrams, reduce the no-impl view further, or switch to a different
+  layout engine for that view. Observed during PR D.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).

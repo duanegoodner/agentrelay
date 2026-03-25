@@ -17,10 +17,12 @@ from agentrelay.errors import (
 )
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_runner import (
+    GateCheckResult,
     StandardTaskRunner,
     StepDispatch,
     TaskCompletionChecker,
     TaskCompletionSignal,
+    TaskGateChecker,
     TaskKickoff,
     TaskLauncher,
     TaskMerger,
@@ -51,7 +53,7 @@ def _make_runtime(
 
 @dataclass
 class FakeIO:
-    """Simple I/O double implementing all six per-step protocols."""
+    """Simple I/O double implementing all per-step protocols (including gate)."""
 
     signal: TaskCompletionSignal = field(
         default_factory=lambda: TaskCompletionSignal(
@@ -66,6 +68,8 @@ class FakeIO:
             _address=TmuxAddress(session="agentrelay", pane_id="%1")
         )
     )
+    gate_results: list[GateCheckResult] = field(default_factory=list)
+    _gate_call_count: int = field(default=0, repr=False)
 
     def _maybe_fail(self, stage: str) -> None:
         if self.fail_stage == stage:
@@ -89,6 +93,15 @@ class FakeIO:
         self._maybe_fail("wait_for_completion")
         return self.signal
 
+    def check_gate(self, runtime: TaskRuntime) -> GateCheckResult:
+        self.calls.append("check_gate")
+        self._maybe_fail("check_gate")
+        if self.gate_results:
+            idx = min(self._gate_call_count, len(self.gate_results) - 1)
+            self._gate_call_count += 1
+            return self.gate_results[idx]
+        return GateCheckResult(passed=True, output="")
+
     def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> None:
         self.calls.append("merge_pr")
         self._maybe_fail("merge_pr")
@@ -108,6 +121,7 @@ def _make_runner(fake: FakeIO | None = None) -> StandardTaskRunner:
         _launcher=d,
         _kickoff=d,
         _completion_checker=d,
+        _gate_checker=fake,
         _merger=d,
         _teardown=d,
     )
@@ -305,6 +319,7 @@ def test_protocol_runtime_checkable_instances() -> None:
     assert isinstance(fake, TaskLauncher)
     assert isinstance(fake, TaskKickoff)
     assert isinstance(fake, TaskCompletionChecker)
+    assert isinstance(fake, TaskGateChecker)
     assert isinstance(fake, TaskMerger)
     assert isinstance(fake, TaskTeardown)
 
@@ -340,6 +355,7 @@ def test_expected_task_failure_error_classified_as_expected() -> None:
         _launcher=d_fake,
         _kickoff=d_fake,
         _completion_checker=d_fake,
+        _gate_checker=fake,
         _merger=d_fake,
         _teardown=d_fake,
     )
@@ -466,3 +482,167 @@ def test_run_pr_less_completion_skips_summary(mock_gh: Any) -> None:
 
     assert result.status == TaskStatus.PR_MERGED
     mock_gh.pr_body.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# Completion gate tests
+# ---------------------------------------------------------------------------
+
+
+def _make_gated_runtime(
+    completion_gate: str = "test cmd",
+    max_gate_attempts: int | None = None,
+) -> TaskRuntime:
+    """Build a PENDING runtime whose task declares a completion gate."""
+    runtime = TaskRuntime(
+        task=Task(
+            id="gated_task",
+            role=AgentRole.GENERIC,
+            completion_gate=completion_gate,
+            max_gate_attempts=max_gate_attempts,
+        )
+    )
+    runtime.state.signal_dir = Path(tempfile.mkdtemp())
+    runtime.mark_pending()
+    return runtime
+
+
+def test_gate_passes_proceeds_to_merge() -> None:
+    fake = FakeIO(gate_results=[GateCheckResult(passed=True, output="ok")])
+    runner = _make_runner(fake)
+    runtime = _make_gated_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert "check_gate" in fake.calls
+    assert "merge_pr" in fake.calls
+    # Gate runs after wait, before merge.
+    gate_idx = fake.calls.index("check_gate")
+    merge_idx = fake.calls.index("merge_pr")
+    assert gate_idx < merge_idx
+
+
+def test_gate_fails_all_attempts_marks_failed() -> None:
+    fake = FakeIO(
+        gate_results=[GateCheckResult(passed=False, output="FAIL")],
+    )
+    runner = _make_runner(fake)
+    runtime = _make_gated_runtime(max_gate_attempts=3)
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.FAILED
+    assert result.failure_class is None  # Expected failure, not internal.
+    assert "Completion gate failed after 3 attempt(s)" in (runtime.state.error or "")
+    assert fake.calls.count("check_gate") == 3
+    assert "merge_pr" not in fake.calls
+
+
+def test_gate_retries_then_passes() -> None:
+    fake = FakeIO(
+        gate_results=[
+            GateCheckResult(passed=False, output="fail 1"),
+            GateCheckResult(passed=False, output="fail 2"),
+            GateCheckResult(passed=True, output="pass"),
+        ],
+    )
+    runner = _make_runner(fake)
+    runtime = _make_gated_runtime(max_gate_attempts=5)
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert fake.calls.count("check_gate") == 3
+    assert "merge_pr" in fake.calls
+
+
+def test_no_gate_skips_check() -> None:
+    """Task without completion_gate should not invoke check_gate."""
+    fake = FakeIO()
+    runner = _make_runner(fake)
+    runtime = _make_runtime()  # No completion_gate on task.
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert "check_gate" not in fake.calls
+
+
+def test_gate_exception_records_io_failure() -> None:
+    fake = FakeIO(fail_stage="check_gate")
+    runner = _make_runner(fake)
+    runtime = _make_gated_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.FAILED
+    assert result.failure_class == IntegrationFailureClass.INTERNAL_ERROR
+    assert "check_gate boom" in (runtime.state.error or "")
+    assert fake.calls[-1] == "teardown"
+
+
+def test_gate_events_emitted() -> None:
+    events: list[Any] = []
+    fake = FakeIO(
+        gate_results=[
+            GateCheckResult(passed=False, output="fail"),
+            GateCheckResult(passed=True, output="pass"),
+        ],
+    )
+    runner = _make_runner(fake)
+    runner.on_event = lambda e: events.append(e)
+    runtime = _make_gated_runtime(max_gate_attempts=3)
+
+    asyncio.run(runner.run(runtime))
+
+    kinds = [e.kind for e in events]
+    assert "task_gate_running" in kinds
+    assert "task_gate_passed" in kinds
+    # Two gate_running events (one per attempt).
+    assert kinds.count("task_gate_running") == 2
+
+
+def test_gate_failed_event_on_exhaustion() -> None:
+    events: list[Any] = []
+    fake = FakeIO(
+        gate_results=[GateCheckResult(passed=False, output="nope")],
+    )
+    runner = _make_runner(fake)
+    runner.on_event = lambda e: events.append(e)
+    runtime = _make_gated_runtime(max_gate_attempts=1)
+
+    asyncio.run(runner.run(runtime))
+
+    kinds = [e.kind for e in events]
+    assert "task_gate_failed" in kinds
+    assert "task_gate_passed" not in kinds
+
+
+def test_gate_skipped_for_pr_less_completion() -> None:
+    """Even if task has a gate, PR-less completion skips the gate check."""
+    fake = FakeIO(
+        signal=TaskCompletionSignal(outcome="done", pr_url=None),
+        gate_results=[GateCheckResult(passed=False, output="should not run")],
+    )
+    runner = _make_runner(fake)
+    runtime = _make_gated_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert "check_gate" not in fake.calls
+
+
+def test_gate_default_max_attempts_used_when_task_omits() -> None:
+    """When task.max_gate_attempts is None, runner uses default (5)."""
+    fake = FakeIO(
+        gate_results=[GateCheckResult(passed=False, output="fail")],
+    )
+    runner = _make_runner(fake)
+    runtime = _make_gated_runtime(max_gate_attempts=None)
+
+    asyncio.run(runner.run(runtime))
+
+    # Default is 5 attempts.
+    assert fake.calls.count("check_gate") == 5

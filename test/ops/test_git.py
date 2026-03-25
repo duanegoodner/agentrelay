@@ -10,6 +10,7 @@ import pytest
 from agentrelay.ops.git import (
     branch_create,
     branch_delete,
+    current_branch,
     fetch_branch,
     ls_remote_branch_exists,
     pull_ff_only,
@@ -43,6 +44,37 @@ def _head_sha(repo: Path) -> str:
         check=True,
     )
     return result.stdout.strip()
+
+
+# ── Current branch tests ──
+
+
+class TestCurrentBranch:
+    """Tests for current_branch."""
+
+    def test_returns_branch_name(self, tmp_git_repo: Path) -> None:
+        """Returns the current branch name."""
+        assert current_branch(tmp_git_repo) == "main"
+
+    def test_returns_branch_after_checkout(self, tmp_git_repo: Path) -> None:
+        """Returns the correct branch after switching."""
+        branch_create(tmp_git_repo, "feat/test", "main")
+        subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "checkout", "feat/test"],
+            check=True,
+            capture_output=True,
+        )
+        assert current_branch(tmp_git_repo) == "feat/test"
+
+    def test_returns_none_on_detached_head(self, tmp_git_repo: Path) -> None:
+        """Returns None when HEAD is detached."""
+        sha = _head_sha(tmp_git_repo)
+        subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "checkout", sha],
+            check=True,
+            capture_output=True,
+        )
+        assert current_branch(tmp_git_repo) is None
 
 
 # ── Worktree tests ──

@@ -34,6 +34,9 @@ from agentrelay.task_runner.core.runner import StandardTaskRunner
 from agentrelay.task_runner.implementations.task_completion_checker import (
     SignalCompletionChecker,
 )
+from agentrelay.task_runner.implementations.task_gate_checker import (
+    ShellGateChecker,
+)
 from agentrelay.task_runner.implementations.task_kickoff import TmuxTaskKickoff
 from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLauncher
 from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
@@ -131,6 +134,8 @@ def build_standard_runner(
     +-----------------------+----------------------------+-----------------------+
     | completion_checker    | SignalCompletionChecker     | may need entries      |
     +-----------------------+----------------------------+-----------------------+
+    | gate_checker          | ShellGateChecker           | env/fw agnostic       |
+    +-----------------------+----------------------------+-----------------------+
     | merger                | GhTaskMerger               | env/fw agnostic       |
     +-----------------------+----------------------------+-----------------------+
     | teardown              | WorktreeTaskTeardown       | will need entries     |
@@ -176,6 +181,7 @@ def build_standard_runner(
         _launcher=StepDispatch(default=lambda rt: tmux_launcher),
         _kickoff=StepDispatch(default=lambda rt: tmux_kickoff),
         _completion_checker=StepDispatch(default=_make_completion_checker),
+        _gate_checker=ShellGateChecker(),
         _merger=StepDispatch(default=_make_merger),
         _teardown=StepDispatch(default=_make_teardown),
     )

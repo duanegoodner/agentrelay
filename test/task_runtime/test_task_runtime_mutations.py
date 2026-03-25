@@ -84,6 +84,22 @@ class TestResetForRetry:
         assert not (status_dir / "running").exists()
         assert not (status_dir / "failed").exists()
 
+    def test_clears_agent_done_signal_on_retry(self) -> None:
+        rt = _runtime(with_signal_dir=True)
+        rt.mark_failed("gate failed")
+        assert rt.state.signal_dir is not None
+        (rt.state.signal_dir / ".done").write_text("done\nhttps://example.com/pr/1\n")
+        rt.reset_for_retry()
+        assert not (rt.state.signal_dir / ".done").exists()
+
+    def test_clears_agent_failed_signal_on_retry(self) -> None:
+        rt = _runtime(with_signal_dir=True)
+        rt.mark_failed("agent failed")
+        assert rt.state.signal_dir is not None
+        (rt.state.signal_dir / ".failed").write_text("failed\nsome reason\n")
+        rt.reset_for_retry()
+        assert not (rt.state.signal_dir / ".failed").exists()
+
 
 class TestMarkPending:
     """Tests for TaskRuntime.mark_pending."""
