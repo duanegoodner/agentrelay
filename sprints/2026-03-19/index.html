@@ -1657,19 +1657,23 @@ them").</p>
 <ul>
 <li>Branch: <code>feat/adr-production</code></li>
 </ul>
-<p><strong>Wire ADR instructions:</strong>
-- Translate <code>_AdrPolicy</code> in the framework adapter into agent instructions
-  that produce ADR files (e.g., append ADR writing directive to instructions.md
-  when <code>adr_verbosity != none</code>)
-- Define ADR output location and format</p>
-<p><strong>Test graphs:</strong>
-- <code>graphs/adr/README.md</code> — category docs
-- Graphs with <code>primary_agent.adr_verbosity</code> set to standard, detailed, educational
-- Verify ADR files are produced with appropriate detail</p>
+<p><strong>Delivered:</strong>
+- Rename <code>AgentVerbosity</code> → <code>AdrVerbosity</code> for naming clarity (consistent
+  with <code>_AdrPolicy</code>).
+- <code>_adr_section(verbosity, task_id)</code> in <code>templates.py</code>: builds a verbosity-scaled
+  <code>## Architecture Decision Record</code> section with output path <code>docs/adr/&lt;task_id&gt;.md</code>.
+  Three tiers: STANDARD (5-section Nygard format), DETAILED (+Alternatives,
+  Trade-offs, Implementation Notes), EDUCATIONAL (+annotations explaining each
+  section).
+- <code>resolve_instructions()</code> gains <code>adr_verbosity</code> parameter; section injected
+  between "What to Do" and "Submitting Your Work" when verbosity != NONE.
+- <code>WorktreeTaskPreparer</code> threads <code>task.primary_agent.adr_verbosity</code> to
+  <code>resolve_instructions()</code>.
+- <code>graphs/adr/</code> category with <code>adr_standard.yaml</code> test graph.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Agent produces ADR when verbosity != none
-- [ ] ADR detail scales with verbosity level
-- [ ] <code>pixi run check</code> passes
+- [x] Agent produces ADR when verbosity != none
+- [x] ADR detail scales with verbosity level
+- [x] <code>pixi run check</code> passes (975 tests)
 - [ ] E2E: adr graph runs, ADR file is present in committed output</p>
 <blockquote>
 <p><strong>PR F (agent-assisted integration branch merging)</strong> was originally planned

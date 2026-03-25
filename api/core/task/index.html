@@ -991,10 +991,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task.AgentVerbosity" class="md-nav__link">
+  <a href="#agentrelay.task.AdrVerbosity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        AgentVerbosity
+        AdrVerbosity
       
     </span>
   </a>
@@ -1233,10 +1233,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task.AgentVerbosity" class="md-nav__link">
+  <a href="#agentrelay.task.AdrVerbosity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        AgentVerbosity
+        AdrVerbosity
       
     </span>
   </a>
@@ -1410,7 +1410,7 @@ configuration types for agents and reviews, and enums for roles.</p>
   <summary>Enums</summary>
   <p>AgentRole: The type of work a task performs.
 AgentFramework: The AI framework/platform executing an agent.
-AgentVerbosity: The detail level of Architecture Decision Records (ADRs).</p>
+AdrVerbosity: The detail level of Architecture Decision Records (ADRs).</p>
 </details>
 
 <details class="see-also" open>
@@ -1442,8 +1442,8 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
 
 
 
-<h2 id="agentrelay.task.AgentVerbosity" class="doc doc-heading">
-            <code>AgentVerbosity</code>
+<h2 id="agentrelay.task.AdrVerbosity" class="doc doc-heading">
+            <code>AdrVerbosity</code>
 
 
 </h2>
@@ -1469,7 +1469,7 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.AgentVerbosity.NONE">NONE</span></code></td>
+            <td><code><span title="agentrelay.task.AdrVerbosity.NONE">NONE</span></code></td>
             <td>
             </td>
             <td>
@@ -1479,7 +1479,7 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.AgentVerbosity.STANDARD">STANDARD</span></code></td>
+            <td><code><span title="agentrelay.task.AdrVerbosity.STANDARD">STANDARD</span></code></td>
             <td>
             </td>
             <td>
@@ -1489,7 +1489,7 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.AgentVerbosity.DETAILED">DETAILED</span></code></td>
+            <td><code><span title="agentrelay.task.AdrVerbosity.DETAILED">DETAILED</span></code></td>
             <td>
             </td>
             <td>
@@ -1499,7 +1499,7 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.AgentVerbosity.EDUCATIONAL">EDUCATIONAL</span></code></td>
+            <td><code><span title="agentrelay.task.AdrVerbosity.EDUCATIONAL">EDUCATIONAL</span></code></td>
             <td>
             </td>
             <td>
@@ -1533,7 +1533,7 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgentVerbosity</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AdrVerbosity</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Level of detail for Architecture Decision Records (ADRs) produced by agents.</span>
 
 <span class="sd">    Attributes:</span>
@@ -2012,7 +2012,7 @@ the framework's default model.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.task.AgentConfig.adr_verbosity">adr_verbosity</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="AgentVerbosity (agentrelay.task.AgentVerbosity)" href="#agentrelay.task.AgentVerbosity">AgentVerbosity</a></code>
+                  <code><a class="autorefs autorefs-internal" title="AdrVerbosity (agentrelay.task.AdrVerbosity)" href="#agentrelay.task.AdrVerbosity">AdrVerbosity</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2086,7 +2086,7 @@ Defaults to TmuxEnvironment.</p>
 
     <span class="n">framework</span><span class="p">:</span> <span class="n">AgentFramework</span> <span class="o">=</span> <span class="n">AgentFramework</span><span class="o">.</span><span class="n">CLAUDE_CODE</span>
     <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">adr_verbosity</span><span class="p">:</span> <span class="n">AgentVerbosity</span> <span class="o">=</span> <span class="n">AgentVerbosity</span><span class="o">.</span><span class="n">NONE</span>
+    <span class="n">adr_verbosity</span><span class="p">:</span> <span class="n">AdrVerbosity</span> <span class="o">=</span> <span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span>
     <span class="n">environment</span><span class="p">:</span> <span class="n">AgentEnvironment</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TmuxEnvironment</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>

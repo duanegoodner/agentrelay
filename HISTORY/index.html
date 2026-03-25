@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-24
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-24">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wire-adr-production-into-agent-instructions-pr-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire ADR production into agent instructions (PR E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-22" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1805,6 +1833,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-24
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-24">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#wire-adr-production-into-agent-instructions-pr-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wire ADR production into agent instructions (PR E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-22" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2496,6 +2552,22 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-24">2026-03-24</h2>
+<h3 id="wire-adr-production-into-agent-instructions-pr-e">Wire ADR production into agent instructions (PR E)</h3>
+<ul>
+<li><strong>Rename <code>AgentVerbosity</code> → <code>AdrVerbosity</code></strong>: clearer naming, consistent
+  with <code>_AdrPolicy</code>.</li>
+<li><strong>ADR instruction injection</strong>: <code>resolve_instructions()</code> gains an
+  <code>adr_verbosity</code> parameter. When not <code>NONE</code>, a <code>## Architecture Decision
+  Record</code> section is injected between "What to Do" and "Submitting Your Work"
+  with verbosity-scaled guidance and output path <code>docs/adr/&lt;task_id&gt;.md</code>.</li>
+<li><strong>Three verbosity tiers</strong>: STANDARD (Title, Status, Context, Decision,
+  Consequences), DETAILED (+Alternatives Considered, Trade-offs, Implementation
+  Notes), EDUCATIONAL (+annotations explaining each section's purpose).</li>
+<li><strong><code>graphs/adr/</code> test category</strong>: <code>adr_standard.yaml</code> graph with a single
+  task at standard verbosity.</li>
+</ul>
 <hr />
 <h2 id="2026-03-22">2026-03-22</h2>
 <h3 id="restructure-instructionsmd-as-a-work-order-document">Restructure instructions.md as a work-order document</h3>
