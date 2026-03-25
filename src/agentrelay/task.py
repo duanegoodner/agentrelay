@@ -12,7 +12,7 @@ Classes:
 Enums:
     AgentRole: The type of work a task performs.
     AgentFramework: The AI framework/platform executing an agent.
-    AgentVerbosity: The detail level of Architecture Decision Records (ADRs).
+    AdrVerbosity: The detail level of Architecture Decision Records (ADRs).
 
 See also:
     environments: AgentEnvironment (type alias) and environment-specific types.
@@ -30,7 +30,7 @@ from agentrelay.environments import AgentEnvironment, TmuxEnvironment
 # ── Enums ──
 
 
-class AgentVerbosity(str, Enum):
+class AdrVerbosity(str, Enum):
     """Level of detail for Architecture Decision Records (ADRs) produced by agents.
 
     Attributes:
@@ -119,7 +119,7 @@ class AgentConfig:
 
     framework: AgentFramework = AgentFramework.CLAUDE_CODE
     model: Optional[str] = None
-    adr_verbosity: AgentVerbosity = AgentVerbosity.NONE
+    adr_verbosity: AdrVerbosity = AdrVerbosity.NONE
     environment: AgentEnvironment = field(default_factory=TmuxEnvironment)
 
 

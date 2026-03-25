@@ -4,10 +4,10 @@ import pytest
 
 from agentrelay.environments import TmuxEnvironment
 from agentrelay.task import (
+    AdrVerbosity,
     AgentConfig,
     AgentFramework,
     AgentRole,
-    AgentVerbosity,
     ReviewConfig,
     Task,
     TaskPaths,
@@ -17,24 +17,24 @@ from agentrelay.task_runtime import TaskStatus
 # ── Tests for enums ──
 
 
-class TestAgentVerbosity:
-    """Tests for AgentVerbosity enum."""
+class TestAdrVerbosity:
+    """Tests for AdrVerbosity enum."""
 
     def test_all_values_exist(self) -> None:
         """All expected verbosity levels are defined."""
-        assert AgentVerbosity.NONE.value == "none"
-        assert AgentVerbosity.STANDARD.value == "standard"
-        assert AgentVerbosity.DETAILED.value == "detailed"
-        assert AgentVerbosity.EDUCATIONAL.value == "educational"
+        assert AdrVerbosity.NONE.value == "none"
+        assert AdrVerbosity.STANDARD.value == "standard"
+        assert AdrVerbosity.DETAILED.value == "detailed"
+        assert AdrVerbosity.EDUCATIONAL.value == "educational"
 
     def test_is_string_enum(self) -> None:
-        """AgentVerbosity values are string-comparable."""
-        assert AgentVerbosity.STANDARD == "standard"
-        assert AgentVerbosity.NONE != "standard"
+        """AdrVerbosity values are string-comparable."""
+        assert AdrVerbosity.STANDARD == "standard"
+        assert AdrVerbosity.NONE != "standard"
 
     def test_all_values_are_strings(self) -> None:
         """All verbosity values are accessible as strings."""
-        for v in AgentVerbosity:
+        for v in AdrVerbosity:
             assert isinstance(v.value, str)
 
 
@@ -260,18 +260,18 @@ class TestAgentConfig:
     def test_default_adr_verbosity(self) -> None:
         """AgentConfig defaults adr_verbosity to NONE."""
         config = AgentConfig()
-        assert config.adr_verbosity == AgentVerbosity.NONE
+        assert config.adr_verbosity == AdrVerbosity.NONE
 
     def test_custom_adr_verbosity(self) -> None:
         """AgentConfig can specify custom adr_verbosity."""
-        config_standard = AgentConfig(adr_verbosity=AgentVerbosity.STANDARD)
-        assert config_standard.adr_verbosity == AgentVerbosity.STANDARD
+        config_standard = AgentConfig(adr_verbosity=AdrVerbosity.STANDARD)
+        assert config_standard.adr_verbosity == AdrVerbosity.STANDARD
 
-        config_detailed = AgentConfig(adr_verbosity=AgentVerbosity.DETAILED)
-        assert config_detailed.adr_verbosity == AgentVerbosity.DETAILED
+        config_detailed = AgentConfig(adr_verbosity=AdrVerbosity.DETAILED)
+        assert config_detailed.adr_verbosity == AdrVerbosity.DETAILED
 
-        config_educational = AgentConfig(adr_verbosity=AgentVerbosity.EDUCATIONAL)
-        assert config_educational.adr_verbosity == AgentVerbosity.EDUCATIONAL
+        config_educational = AgentConfig(adr_verbosity=AdrVerbosity.EDUCATIONAL)
+        assert config_educational.adr_verbosity == AdrVerbosity.EDUCATIONAL
 
     def test_default_environment(self) -> None:
         """AgentConfig defaults environment to TmuxEnvironment."""
@@ -292,12 +292,12 @@ class TestAgentConfig:
         config = AgentConfig(
             framework=AgentFramework.CLAUDE_CODE,
             model="claude-opus-4-6",
-            adr_verbosity=AgentVerbosity.DETAILED,
+            adr_verbosity=AdrVerbosity.DETAILED,
             environment=env,
         )
         assert config.framework == AgentFramework.CLAUDE_CODE
         assert config.model == "claude-opus-4-6"
-        assert config.adr_verbosity == AgentVerbosity.DETAILED
+        assert config.adr_verbosity == AdrVerbosity.DETAILED
         assert config.environment == env
 
 

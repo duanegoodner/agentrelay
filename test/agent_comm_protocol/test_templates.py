@@ -9,7 +9,7 @@ import pytest
 
 from agentrelay.agent_comm_protocol.manifest import TaskManifest
 from agentrelay.agent_comm_protocol.templates import resolve_instructions
-from agentrelay.task import AgentRole
+from agentrelay.task import AdrVerbosity, AgentRole
 
 
 def _manifest(**overrides: object) -> TaskManifest:
@@ -197,3 +197,104 @@ class TestConcernGuidance:
         text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
         assert "agentrelay-concern" in text
         assert "design concern" in text.lower()
+
+
+class TestAdrSection:
+    """Tests for ADR section injection in instructions."""
+
+    def test_adr_section_absent_when_none(self) -> None:
+        """No ADR section when adr_verbosity is NONE (default)."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## Architecture Decision Record" not in text
+
+    def test_adr_section_present_when_standard(self) -> None:
+        """ADR section appears when adr_verbosity is STANDARD."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.STANDARD
+        )
+        assert "## Architecture Decision Record" in text
+        assert "docs/adr/my_task.md" in text
+
+    def test_adr_section_present_when_detailed(self) -> None:
+        """ADR section appears with extra sections when DETAILED."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.DETAILED
+        )
+        assert "## Architecture Decision Record" in text
+        assert "Alternatives Considered" in text
+        assert "Trade-offs" in text
+        assert "Implementation Notes" in text
+
+    def test_adr_section_present_when_educational(self) -> None:
+        """ADR section appears with annotations when EDUCATIONAL."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.EDUCATIONAL
+        )
+        assert "## Architecture Decision Record" in text
+        assert "Alternatives Considered" in text
+        assert "why" in text.split("## Architecture Decision Record")[1].lower()
+
+    def test_adr_section_uses_task_id_in_path(self) -> None:
+        """ADR output path includes the task_id."""
+        m = _manifest(task_id="custom_task")
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, m, adr_verbosity=AdrVerbosity.STANDARD
+        )
+        assert "docs/adr/custom_task.md" in text
+
+    def test_adr_section_for_generic_role(self) -> None:
+        """ADR section works with GENERIC role too."""
+        m = _manifest(description="Do something custom")
+        text = resolve_instructions(
+            AgentRole.GENERIC, m, adr_verbosity=AdrVerbosity.STANDARD
+        )
+        assert "## Architecture Decision Record" in text
+        assert "docs/adr/my_task.md" in text
+
+    def test_adr_section_before_submission(self) -> None:
+        """ADR section appears before Submitting Your Work section."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.STANDARD
+        )
+        adr_pos = text.index("## Architecture Decision Record")
+        submission_pos = text.index("## Submitting Your Work")
+        assert adr_pos < submission_pos
+
+    def test_adr_section_after_what_to_do(self) -> None:
+        """ADR section appears after What to Do section."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.STANDARD
+        )
+        what_to_do_pos = text.index("## What to Do")
+        adr_pos = text.index("## Architecture Decision Record")
+        assert what_to_do_pos < adr_pos
+
+    def test_standard_has_five_sections(self) -> None:
+        """STANDARD verbosity requests five ADR sections."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.STANDARD
+        )
+        for section in ("Title", "Status", "Context", "Decision", "Consequences"):
+            assert f"**{section}**" in text
+
+    def test_standard_omits_detailed_sections(self) -> None:
+        """STANDARD verbosity does NOT include Alternatives or Implementation Notes."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), adr_verbosity=AdrVerbosity.STANDARD
+        )
+        assert "Alternatives Considered" not in text
+        assert "Implementation Notes" not in text
+
+    def test_no_leftover_placeholders_with_adr(self) -> None:
+        """No leftover $var placeholders when ADR section is active."""
+        for role in (
+            AgentRole.TEST_WRITER,
+            AgentRole.SPEC_WRITER,
+            AgentRole.TEST_REVIEWER,
+            AgentRole.IMPLEMENTER,
+        ):
+            text = resolve_instructions(
+                role, _manifest(), adr_verbosity=AdrVerbosity.STANDARD
+            )
+            leftover = re.findall(r"\$[a-z_]+", text)
+            assert leftover == [], f"Role {role}: leftover placeholders {leftover}"

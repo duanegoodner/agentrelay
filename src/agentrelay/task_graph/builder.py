@@ -16,10 +16,10 @@ import yaml
 
 from agentrelay.environments import TmuxEnvironment
 from agentrelay.task import (
+    AdrVerbosity,
     AgentConfig,
     AgentFramework,
     AgentRole,
-    AgentVerbosity,
     ReviewConfig,
     Task,
     TaskPaths,
@@ -361,18 +361,18 @@ def _parse_framework(value: Any, path: str) -> AgentFramework:
     raise _schema_error(path, f"invalid framework '{value}'. Allowed: {allowed}")
 
 
-def _parse_verbosity(value: Any, path: str) -> AgentVerbosity:
+def _parse_verbosity(value: Any, path: str) -> AdrVerbosity:
     if value is None:
-        return AgentVerbosity.NONE
+        return AdrVerbosity.NONE
     if not isinstance(value, str):
         raise _schema_error(path, "must be a string")
     normalized = value.strip()
-    for verbosity in AgentVerbosity:
+    for verbosity in AdrVerbosity:
         if normalized.lower() == verbosity.value:
             return verbosity
         if normalized.upper() == verbosity.name:
             return verbosity
-    allowed = ", ".join(verbosity.value for verbosity in AgentVerbosity)
+    allowed = ", ".join(verbosity.value for verbosity in AdrVerbosity)
     raise _schema_error(path, f"invalid adr_verbosity '{value}'. Allowed: {allowed}")
 
 

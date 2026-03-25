@@ -1,0 +1,21 @@
+name: adr-standard
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+
+# Single task that produces an Architecture Decision Record with standard verbosity.
+# Validates that ADR instructions appear in instructions.md and the agent creates
+# a docs/adr/<task_id>.md file.
+
+tasks:
+  - id: impl_with_adr
+    description: >-
+      Create src/agentrelaydemos/stack.py containing a Stack class with:
+      __init__(self), push(self, item: object) -> None,
+      pop(self) -> object (raises IndexError if empty),
+      peek(self) -> object (raises IndexError if empty),
+      and __len__(self) -> int.
+      Also create test/test_stack.py with pytest tests covering push, pop,
+      peek, empty-stack errors, and __len__.
+    primary_agent:
+      adr_verbosity: standard
+    dependencies: []

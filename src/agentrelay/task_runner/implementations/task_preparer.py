@@ -104,7 +104,9 @@ class WorktreeTaskPreparer:
         policies = build_policies(task, integration_branch)
         signals.write_json(signal_dir, "policies.json", policies_to_dict(policies))
 
-        instructions = resolve_instructions(task.role, manifest)
+        instructions = resolve_instructions(
+            task.role, manifest, adr_verbosity=task.primary_agent.adr_verbosity
+        )
         signals.write_text(signal_dir, "instructions.md", instructions)
 
         if self.context_content is not None:

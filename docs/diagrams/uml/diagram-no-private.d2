@@ -56,7 +56,7 @@ task_py: "task.py" {
     CLAUDE_CODE
   }
 
-  AgentVerbosity: "AgentVerbosity <<enumeration>>" {
+  AdrVerbosity: "AdrVerbosity <<enumeration>>" {
     shape: class
     NONE
     STANDARD
@@ -75,7 +75,7 @@ task_py: "task.py" {
     shape: class
     framework: AgentFramework
     model: "str | None"
-    adr_verbosity: AgentVerbosity
+    adr_verbosity: AdrVerbosity
     environment: AgentEnvironment
   }
 
@@ -726,7 +726,7 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   templates_functions: "templates_functions <<module>>" {
     shape: class
     module_path: agent_comm_protocol.templates
-    +resolve_instructions(role, manifest, adapter_name): str
+    +resolve_instructions(role, manifest, adapter_name, adr_verbosity): str
   }
 }
 
@@ -847,7 +847,7 @@ task_py.Task -> task_py.AgentConfig: primary_agent { class: composition }
 task_py.Task -> task_py.ReviewConfig: "review (optional)" { class: composition }
 task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
 task_py.AgentConfig -> task_py.AgentFramework: framework { class: composition }
-task_py.AgentConfig -> task_py.AgentVerbosity: adr_verbosity { class: composition }
+task_py.AgentConfig -> task_py.AdrVerbosity: adr_verbosity { class: composition }
 task_py.ReviewConfig -> task_py.AgentConfig: agent { class: composition }
 
 # --- environments ---

@@ -21,9 +21,9 @@ from agentrelay.agent_comm_protocol.policies import (
     policies_to_dict,
 )
 from agentrelay.task import (
+    AdrVerbosity,
     AgentConfig,
     AgentRole,
-    AgentVerbosity,
     ReviewConfig,
     Task,
 )
@@ -65,8 +65,8 @@ class TestPolicyDataclasses:
         assert p.commands == ("pytest --collect-only",)
 
     def test_adr_policy(self) -> None:
-        p = _AdrPolicy(verbosity=AgentVerbosity.STANDARD)
-        assert p.verbosity == AgentVerbosity.STANDARD
+        p = _AdrPolicy(verbosity=AdrVerbosity.STANDARD)
+        assert p.verbosity == AdrVerbosity.STANDARD
 
     def test_review_policy(self) -> None:
         p = _ReviewPolicy(model="claude-sonnet-4-6", review_on_attempt=1)
@@ -153,14 +153,14 @@ class TestBuildPolicies:
 
     def test_adr_nonzero_verbosity(self) -> None:
         """ADR policy present when adr_verbosity != NONE."""
-        task = _task(primary_agent=AgentConfig(adr_verbosity=AgentVerbosity.STANDARD))
+        task = _task(primary_agent=AgentConfig(adr_verbosity=AdrVerbosity.STANDARD))
         policies = build_policies(task, integration_branch="main")
         assert policies.adr is not None
-        assert policies.adr.verbosity == AgentVerbosity.STANDARD
+        assert policies.adr.verbosity == AdrVerbosity.STANDARD
 
     def test_adr_none_verbosity(self) -> None:
         """ADR policy absent when adr_verbosity == NONE."""
-        task = _task(primary_agent=AgentConfig(adr_verbosity=AgentVerbosity.NONE))
+        task = _task(primary_agent=AgentConfig(adr_verbosity=AdrVerbosity.NONE))
         policies = build_policies(task, integration_branch="main")
         assert policies.adr is None
 
@@ -237,7 +237,7 @@ class TestPoliciesToDict:
             role=AgentRole.TEST_WRITER,
             completion_gate="pytest",
             review=ReviewConfig(agent=AgentConfig()),
-            primary_agent=AgentConfig(adr_verbosity=AgentVerbosity.DETAILED),
+            primary_agent=AgentConfig(adr_verbosity=AdrVerbosity.DETAILED),
         )
         policies = build_policies(task, integration_branch="main")
         d = policies_to_dict(policies)
