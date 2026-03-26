@@ -1,0 +1,31 @@
+name: concerns-test
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Single task that writes concerns to concerns.log.
+# Verifies the concern capture pipeline works end-to-end.
+
+workstreams:
+  - id: ws_a
+    auto_merge: true
+
+tasks:
+  - id: write_concerns
+    workstream_id: ws_a
+    description: >-
+      Create src/agentrelaydemos/greet.py containing a function
+      greet(name: str) -> str that returns "Hello, {name}!".
+      Also create test/test_greet.py with a pytest test checking
+      greet("World") == "Hello, World!".
+
+      IMPORTANT: Before completing the task, record the following design
+      concerns using the TaskHelper (which you will already have from
+      the completion workflow):
+
+        helper.record_concern("Function naming could be more descriptive")
+        helper.record_concern("No input validation for empty strings")
+
+      These lines test the concern capture mechanism.
+    dependencies: []

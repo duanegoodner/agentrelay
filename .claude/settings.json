@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /data/git/agentrelay/main -path *template* -name *.md)",
+      "Bash(chmod +x /data/git/agentrelay/main/graphs/roles/fixtures/setup_fixtures.sh)",
+      "Bash(graphs/roles/fixtures/setup_fixtures.sh stubs:*)",
+      "Bash(graphs/roles/fixtures/setup_fixtures.sh all:*)",
+      "Bash(grep -l \"def test.*fail\\\\|def test.*block\" /data/git/agentrelay/main/test/orchestrator/*.py)",
+      "Bash(grep -B 10 'dependencies=\\(\"\"b\"\", \"\"c\"\"\\)' /data/git/agentrelay/main/test/task_graph/test_task_graph.py)",
+      "Bash(d2 --layout=tala docs/diagrams/uml/diagram-standard.d2 docs/diagrams/uml/diagram-standard.svg)",
+      "Bash(d2 --layout=tala docs/diagrams/uml/diagram-no-impl.d2 docs/diagrams/uml/diagram-no-impl.svg)",
+      "Bash(find /data/git/agentrelay/main -name *adr* -o -name *ADR*)",
+      "Edit(/.claude/skills/kickoff/**)",
+      "Bash(find /data/git/agentrelay/main -name \"*.py\" -type f -exec grep -l \"IntegrationMergeChecker\" {})"
+    ],
+    "additionalDirectories": [
+      "/data/git/agentrelay/main/.claude/skills"
+    ]
+  }
+}
