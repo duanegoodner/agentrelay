@@ -187,6 +187,45 @@ class TestConsoleListenerEvents:
         assert "integration FAILED" in output
         assert "conflict" in output
 
+    def test_workstream_auto_merged(self) -> None:
+        listener, buf = _listener()
+        listener.on_event(
+            _event(
+                "workstream_auto_merged",
+                workstream_id="ws_ci",
+                message="https://example.com/pr/5",
+            )
+        )
+        output = buf.getvalue()
+        assert "auto-merged" in output
+        assert "https://example.com/pr/5" in output
+
+    def test_workstream_auto_merge_skipped(self) -> None:
+        listener, buf = _listener()
+        listener.on_event(
+            _event(
+                "workstream_auto_merge_skipped",
+                workstream_id="ws_ci",
+                message="design concerns found",
+            )
+        )
+        output = buf.getvalue()
+        assert "auto-merge skipped" in output
+        assert "design concerns found" in output
+
+    def test_workstream_auto_merge_failed(self) -> None:
+        listener, buf = _listener()
+        listener.on_event(
+            _event(
+                "workstream_auto_merge_failed",
+                workstream_id="ws_ci",
+                message="merge conflict",
+            )
+        )
+        output = buf.getvalue()
+        assert "auto-merge FAILED" in output
+        assert "merge conflict" in output
+
     def test_unknown_event_is_silently_ignored(self) -> None:
         listener, buf = _listener()
         listener.on_event(_event("some_future_event"))

@@ -965,3 +965,191 @@ def test_diamond_cross_workstream_all_complete() -> None:
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     assert result.task_runtimes["d"].status == TaskStatus.PR_MERGED
+
+
+# ---------------------------------------------------------------------------
+# Auto-merge of integration PRs
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class RecordingAutoMerger:
+    """IntegrationAutoMerger double that records calls."""
+
+    merge_calls: list[str] = field(default_factory=list)
+    should_fail: set[str] = field(default_factory=set)
+
+    def merge(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
+        ws_id = workstream_runtime.spec.id
+        self.merge_calls.append(ws_id)
+        if ws_id in self.should_fail:
+            raise RuntimeError(f"merge failed for {ws_id}")
+
+
+def test_auto_merge_when_no_concerns() -> None:
+    """Workstream with auto_merge=True and no concerns is auto-merged."""
+    task_a = _task("a", workstream_id="ws")
+    graph = TaskGraph.from_tasks(
+        (task_a,),
+        workstreams=(WorkstreamSpec(id="ws", auto_merge=True),),
+    )
+    merger = RecordingAutoMerger()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            integration_auto_merger=merger,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert merger.merge_calls == ["ws"]
+    assert result.workstream_runtimes["ws"].status == WorkstreamStatus.MERGED
+    auto_events = [e for e in result.events if e.kind == "workstream_auto_merged"]
+    assert len(auto_events) == 1
+    assert auto_events[0].workstream_id == "ws"
+
+
+def test_auto_merge_skipped_when_concerns_exist() -> None:
+    """Auto-merge is skipped when a task recorded design concerns."""
+
+    @dataclass
+    class _ConcernRunner:
+        """TaskRunner that records a concern on the task."""
+
+        async def run(
+            self,
+            runtime: TaskRuntime,
+            *,
+            teardown_mode: TearDownMode = TearDownMode.ALWAYS,
+        ) -> TaskRunResult:
+            if runtime.state.signal_dir is None:
+                runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            runtime.artifacts.concerns = ["This design has issues"]
+            runtime.artifacts.pr_url = f"https://example.com/{runtime.task.id}/0"
+            runtime.mark_pr_merged()
+            return TaskRunResult.from_runtime(runtime)
+
+    task_a = _task("a", workstream_id="ws")
+    graph = TaskGraph.from_tasks(
+        (task_a,),
+        workstreams=(WorkstreamSpec(id="ws", auto_merge=True),),
+    )
+    merger = RecordingAutoMerger()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=_ConcernRunner(),
+            workstream_runner=_noop_ws_runner(),
+            integration_auto_merger=merger,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert merger.merge_calls == []
+    assert result.workstream_runtimes["ws"].status == WorkstreamStatus.PR_CREATED
+    skip_events = [
+        e for e in result.events if e.kind == "workstream_auto_merge_skipped"
+    ]
+    assert len(skip_events) == 1
+    assert "concern" in (skip_events[0].message or "").lower()
+
+
+def test_auto_merge_false_preserves_default_behavior() -> None:
+    """Workstream with auto_merge=False is left for human review."""
+    task_a = _task("a", workstream_id="ws")
+    graph = TaskGraph.from_tasks(
+        (task_a,),
+        workstreams=(WorkstreamSpec(id="ws", auto_merge=False),),
+    )
+    merger = RecordingAutoMerger()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            integration_auto_merger=merger,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert merger.merge_calls == []
+    assert result.workstream_runtimes["ws"].status == WorkstreamStatus.PR_CREATED
+
+
+def test_auto_merge_without_merger_configured() -> None:
+    """auto_merge=True without a configured merger leaves PR for human review."""
+    task_a = _task("a", workstream_id="ws")
+    graph = TaskGraph.from_tasks(
+        (task_a,),
+        workstreams=(WorkstreamSpec(id="ws", auto_merge=True),),
+    )
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            integration_auto_merger=None,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.workstream_runtimes["ws"].status == WorkstreamStatus.PR_CREATED
+
+
+def test_auto_merge_failure_emits_event_and_stays_pr_created() -> None:
+    """When the merge call fails, the workstream stays PR_CREATED."""
+    task_a = _task("a", workstream_id="ws")
+    graph = TaskGraph.from_tasks(
+        (task_a,),
+        workstreams=(WorkstreamSpec(id="ws", auto_merge=True),),
+    )
+    merger = RecordingAutoMerger(should_fail={"ws"})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            integration_auto_merger=merger,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.workstream_runtimes["ws"].status == WorkstreamStatus.PR_CREATED
+    fail_events = [e for e in result.events if e.kind == "workstream_auto_merge_failed"]
+    assert len(fail_events) == 1
+
+
+def test_auto_merge_cross_workstream_unblocks_downstream() -> None:
+    """Auto-merged workstream unblocks downstream cross-workstream tasks."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(
+            WorkstreamSpec(id="ws_a", auto_merge=True),
+            WorkstreamSpec(id="ws_b"),
+        ),
+    )
+    merger = RecordingAutoMerger()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2),
+            integration_auto_merger=merger,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert merger.merge_calls == ["ws_a"]
+    assert result.workstream_runtimes["ws_a"].status == WorkstreamStatus.MERGED
+    assert result.task_runtimes["b"].status == TaskStatus.PR_MERGED

@@ -262,6 +262,46 @@ def test_from_dict_max_workstream_depth_can_override_default() -> None:
     assert graph.max_workstream_depth == 2
 
 
+def test_from_dict_workstream_auto_merge_true() -> None:
+    data = {
+        "name": "g",
+        "workstreams": [{"id": "ws", "auto_merge": True}],
+        "tasks": [{"id": "t1", "workstream_id": "ws"}],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.workstream("ws").auto_merge is True
+
+
+def test_from_dict_workstream_auto_merge_false() -> None:
+    data = {
+        "name": "g",
+        "workstreams": [{"id": "ws", "auto_merge": False}],
+        "tasks": [{"id": "t1", "workstream_id": "ws"}],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.workstream("ws").auto_merge is False
+
+
+def test_from_dict_workstream_auto_merge_defaults_to_false() -> None:
+    data = {
+        "name": "g",
+        "workstreams": [{"id": "ws"}],
+        "tasks": [{"id": "t1", "workstream_id": "ws"}],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.workstream("ws").auto_merge is False
+
+
+def test_from_dict_workstream_auto_merge_non_bool_raises() -> None:
+    data = {
+        "name": "g",
+        "workstreams": [{"id": "ws", "auto_merge": "yes"}],
+        "tasks": [{"id": "t1", "workstream_id": "ws"}],
+    }
+    with pytest.raises(ValueError, match="auto_merge.*must be a boolean"):
+        TaskGraphBuilder.from_dict(data)
+
+
 def test_from_dict_invalid_max_workstream_depth_raises() -> None:
     data = {
         "name": "g",

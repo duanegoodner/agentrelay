@@ -123,6 +123,26 @@ class ConsoleListener:
             detail += f" \u2192 {event.message}"
         self._print(event.timestamp, event.workstream_id or "?", detail)
 
+    def _on_workstream_auto_merged(self, event: OrchestratorEvent) -> None:
+        detail = "integration PR auto-merged"
+        if event.message:
+            detail += f" \u2192 {event.message}"
+        self._print(event.timestamp, event.workstream_id or "?", detail)
+
+    def _on_workstream_auto_merge_skipped(self, event: OrchestratorEvent) -> None:
+        detail = "auto-merge skipped"
+        if event.message:
+            detail += f": {event.message}"
+        self._print(event.timestamp, event.workstream_id or "?", detail)
+
+    def _on_workstream_auto_merge_failed(self, event: OrchestratorEvent) -> None:
+        msg = event.message or "unknown error"
+        self._print(
+            event.timestamp,
+            event.workstream_id or "?",
+            f"auto-merge FAILED: {msg}",
+        )
+
     def _on_waiting_for_integration_merge(self, event: OrchestratorEvent) -> None:
         self._print(
             event.timestamp,

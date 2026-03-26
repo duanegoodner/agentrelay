@@ -5,6 +5,7 @@ state, lifecycle protocols, and the workstream runner state machine.
 """
 
 from agentrelay.workstream.core.io import (
+    IntegrationAutoMerger,
     IntegrationMergeChecker,
     WorkstreamIntegrator,
     WorkstreamPreparer,
@@ -20,6 +21,7 @@ from agentrelay.workstream.core.runtime import (
 from agentrelay.workstream.core.workstream import WorkstreamSpec
 
 __all__ = [
+    "IntegrationAutoMerger",
     "IntegrationMergeChecker",
     "WorkstreamArtifacts",
     "WorkstreamIntegrator",

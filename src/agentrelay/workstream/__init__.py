@@ -10,6 +10,7 @@ Subpackages:
 """
 
 from agentrelay.workstream.core.io import (
+    IntegrationAutoMerger,
     IntegrationMergeChecker,
     WorkstreamIntegrator,
     WorkstreamPreparer,
@@ -28,6 +29,9 @@ from agentrelay.workstream.core.runtime import (
     WorkstreamStatus,
 )
 from agentrelay.workstream.core.workstream import WorkstreamSpec
+from agentrelay.workstream.implementations.integration_auto_merger import (
+    GhIntegrationAutoMerger,
+)
 from agentrelay.workstream.implementations.integration_merge_checker import (
     GhIntegrationMergeChecker,
 )
@@ -42,10 +46,12 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 )
 
 __all__ = [
+    "GhIntegrationAutoMerger",
     "GhIntegrationMergeChecker",
     "GhWorkstreamIntegrator",
     "GitWorkstreamPreparer",
     "GitWorkstreamTeardown",
+    "IntegrationAutoMerger",
     "IntegrationMergeChecker",
     "TaskSummary",
     "WorkstreamArtifacts",

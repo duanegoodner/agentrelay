@@ -247,7 +247,13 @@ def _parse_workstream(value: Any, path: str) -> WorkstreamSpec:
     _reject_unknown_keys(
         mapping,
         path,
-        {"id", "parent_workstream_id", "base_branch", "merge_target_branch"},
+        {
+            "id",
+            "parent_workstream_id",
+            "base_branch",
+            "merge_target_branch",
+            "auto_merge",
+        },
     )
 
     workstream_id = _require_non_empty_string(
@@ -265,11 +271,15 @@ def _parse_workstream(value: Any, path: str) -> WorkstreamSpec:
         mapping.get("merge_target_branch", "main"),
         path + ".merge_target_branch",
     )
+    raw_auto_merge = mapping.get("auto_merge", False)
+    if not isinstance(raw_auto_merge, bool):
+        raise _schema_error(path + ".auto_merge", "must be a boolean")
     return WorkstreamSpec(
         id=workstream_id,
         parent_workstream_id=parent_workstream_id,
         base_branch=base_branch,
         merge_target_branch=merge_target_branch,
+        auto_merge=raw_auto_merge,
     )
 
 

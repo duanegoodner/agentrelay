@@ -8,6 +8,8 @@ Protocols:
     WorkstreamPreparer: Provision worktree and integration branch.
     WorkstreamIntegrator: Create integration PR.
     WorkstreamTeardown: Clean up worktree and integration branch.
+    IntegrationMergeChecker: Poll for human-initiated merge of integration PR.
+    IntegrationAutoMerger: Merge an integration PR on the hosting platform.
 """
 
 from __future__ import annotations
@@ -74,7 +76,25 @@ class IntegrationMergeChecker(Protocol):
         ...
 
 
+@runtime_checkable
+class IntegrationAutoMerger(Protocol):
+    """Merge a workstream's integration PR on the hosting platform."""
+
+    def merge(self, workstream_runtime: WorkstreamRuntime) -> None:
+        """Merge the integration PR for this workstream.
+
+        Args:
+            workstream_runtime: Workstream runtime whose integration PR
+                should be merged.
+
+        Raises:
+            RuntimeError: If the merge fails.
+        """
+        ...
+
+
 __all__ = [
+    "IntegrationAutoMerger",
     "IntegrationMergeChecker",
     "WorkstreamIntegrator",
     "WorkstreamPreparer",

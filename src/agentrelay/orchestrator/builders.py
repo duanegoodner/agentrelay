@@ -45,6 +45,9 @@ from agentrelay.task_runner.implementations.task_teardown import WorktreeTaskTea
 from agentrelay.task_runtime.runtime import TaskRuntime
 from agentrelay.workstream.core.runner import StandardWorkstreamRunner
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
+from agentrelay.workstream.implementations.integration_auto_merger import (
+    GhIntegrationAutoMerger,
+)
 from agentrelay.workstream.implementations.integration_merge_checker import (
     GhIntegrationMergeChecker,
 )
@@ -229,3 +232,12 @@ def build_integration_merge_checker() -> GhIntegrationMergeChecker:
         A :class:`GhIntegrationMergeChecker` instance.
     """
     return GhIntegrationMergeChecker()
+
+
+def build_integration_auto_merger() -> GhIntegrationAutoMerger:
+    """Build the standard integration auto-merger for GitHub CLI.
+
+    Returns:
+        A :class:`GhIntegrationAutoMerger` instance.
+    """
+    return GhIntegrationAutoMerger()
