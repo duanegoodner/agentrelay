@@ -1,0 +1,237 @@
+# ─────────────────────────────────────────────
+#  task_runner/ — one-task lifecycle and I/O protocols
+# ─────────────────────────────────────────────
+task_runner_pkg: "task_runner/" {
+  task_runner_core_pkg: "core/" {
+    TearDownMode: "TearDownMode <<enumeration>>" {
+      shape: class
+      ALWAYS
+      NEVER
+      ON_SUCCESS
+    }
+
+    TaskCompletionSignal: "TaskCompletionSignal <<frozen dataclass>>" {
+      shape: class
+      outcome: "done | failed"
+      pr_url: "str | None"
+      error: "str | None"
+      concerns: "tuple[str, ...]"
+      ops_concerns: "tuple[str, ...]"
+    }
+
+    TaskPreparer: "TaskPreparer <<protocol>>" {
+      shape: class
+      +prepare(runtime): void
+    }
+
+    TaskLauncher: "TaskLauncher <<protocol>>" {
+      shape: class
+      +launch(runtime): Agent
+    }
+
+    TaskKickoff: "TaskKickoff <<protocol>>" {
+      shape: class
+      +kickoff(runtime, agent): void
+    }
+
+    TaskCompletionChecker: "TaskCompletionChecker <<protocol>>" {
+      shape: class
+      +wait_for_completion(runtime): TaskCompletionSignal
+    }
+
+    GateCheckResult: "GateCheckResult <<frozen dataclass>>" {
+      shape: class
+      passed: bool
+      output: str
+    }
+
+    TaskGateChecker: "TaskGateChecker <<protocol>>" {
+      shape: class
+      +check_gate(runtime): GateCheckResult
+    }
+
+    TaskMerger: "TaskMerger <<protocol>>" {
+      shape: class
+      +merge_pr(runtime, pr_url): void
+    }
+
+    TaskTeardown: "TaskTeardown <<protocol>>" {
+      shape: class
+      +teardown(runtime): void
+    }
+
+    StepDispatch: "StepDispatch<T> <<frozen dataclass>>" {
+      shape: class
+      entries: "dict[DispatchKey, Callable]"
+      default: "Callable | None"
+      +__call__(runtime): T
+    }
+
+    TaskRunResult: "TaskRunResult <<frozen dataclass>>" {
+      shape: class
+      task_id: str
+      status: TaskStatus
+      pr_url: "str | None"
+      error: "str | None"
+      failure_class: "IntegrationFailureClass | None"
+    }
+
+    TaskRunner: "TaskRunner <<protocol>>" {
+      shape: class
+      +run(runtime, teardown_mode): TaskRunResult
+    }
+
+    StandardTaskRunner: "StandardTaskRunner <<mutable dataclass>>" {
+      shape: class
+      _preparer: "StepDispatch[TaskPreparer]"
+      _launcher: "StepDispatch[TaskLauncher]"
+      _kickoff: "StepDispatch[TaskKickoff]"
+      _completion_checker: "StepDispatch[TaskCompletionChecker]"
+      _gate_checker: TaskGateChecker
+      _merger: "StepDispatch[TaskMerger]"
+      _teardown: "StepDispatch[TaskTeardown]"
+      on_event: "Callable[..., None] | None"
+      +run(runtime, teardown_mode): TaskRunResult
+    }
+  }
+
+  task_runner_impl_pkg: "implementations/" {
+    WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      graph_name: str
+      dependency_descriptions: dict
+      context_content: "str | None"
+      tools: "tuple[str, ...]"
+      +prepare(runtime): void
+    }
+
+    TmuxTaskLauncher: "TmuxTaskLauncher <<dataclass>>" {
+      shape: class
+      +launch(runtime): Agent
+    }
+
+    TmuxTaskKickoff: "TmuxTaskKickoff <<dataclass>>" {
+      shape: class
+      +kickoff(runtime, agent): void
+    }
+
+    SignalCompletionChecker: "SignalCompletionChecker <<dataclass>>" {
+      shape: class
+      poll_interval: float
+      +wait_for_completion(runtime): TaskCompletionSignal
+    }
+
+    ShellGateChecker: "ShellGateChecker <<dataclass>>" {
+      shape: class
+      +check_gate(runtime): GateCheckResult
+    }
+
+    GhTaskMerger: "GhTaskMerger <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +merge_pr(runtime, pr_url): void
+    }
+
+    WorktreeTaskTeardown: "WorktreeTaskTeardown <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      keep_panes: bool
+      +teardown(runtime): void
+    }
+  }
+}
+
+
+# ─── External dependencies ───
+
+agent_comm_protocol_pkg: "agent_comm_protocol/" {
+  style.opacity: 0.5
+  manifest_functions: "manifest_functions <<module>>" { shape: class }
+  policies_functions: "policies_functions <<module>>" { shape: class }
+  templates_functions: "templates_functions <<module>>" { shape: class }
+}
+
+agent_pkg: "agent/" {
+  style.opacity: 0.5
+  agent_core_pkg: "core/" {
+    Agent: "Agent" { shape: class }
+  }
+  agent_impl_pkg: "implementations/" {
+    TmuxAgent: "TmuxAgent" { shape: class }
+  }
+}
+
+errors_pkg: "errors/" {
+  style.opacity: 0.5
+  IntegrationFailureClass: "IntegrationFailureClass <<enumeration>>" { shape: class }
+}
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  gh: "gh <<module>>" { shape: class }
+  git: "git <<module>>" { shape: class }
+  signals: "signals <<module>>" { shape: class }
+}
+
+orchestrator_pkg: "orchestrator/" {
+  style.opacity: 0.5
+  Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
+  OrchestratorConfig: "OrchestratorConfig <<frozen dataclass>>" { shape: class }
+  builders: "builders <<module>>" { shape: class }
+}
+
+task_runtime_pkg: "task_runtime/" {
+  style.opacity: 0.5
+  TaskRuntime: "TaskRuntime <<mutable dataclass>>" { shape: class }
+  TaskStatus: "TaskStatus <<enumeration>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunner: satisfies { class: implementation }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.StepDispatch: "6 fields" { class: composition }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskMerger: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskGateChecker: _gate_checker { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskGateChecker -> task_runner_pkg.task_runner_core_pkg.GateCheckResult: returns { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunResult: returns { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionSignal: returns { class: dependency }
+task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Agent: launches { class: dependency }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.ShellGateChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
+orchestrator_pkg.Orchestrator -> task_runner_pkg.task_runner_core_pkg.TaskRunner: "delegates task runs" { class: composition }
+orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.ShellGateChecker -> task_runner_pkg.task_runner_core_pkg.TaskGateChecker: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.manifest_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.policies_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.templates_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pkg.TmuxAgent: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.ShellGateChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }

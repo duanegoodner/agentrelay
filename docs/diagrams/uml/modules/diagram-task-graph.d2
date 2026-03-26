@@ -1,0 +1,91 @@
+# ─────────────────────────────────────────────
+#  task_graph/ — DAG structure and queries
+# ─────────────────────────────────────────────
+task_graph_pkg: "task_graph/" {
+  TaskGraph: "TaskGraph <<frozen dataclass>>" {
+    shape: class
+    name: "str | None"
+    max_workstream_depth: int
+    +task(task_id): Task
+    +task_ids(): "tuple[str, ...]"
+    +dependency_ids(task_id): "tuple[str, ...]"
+    +dependent_ids(task_id): "tuple[str, ...]"
+    +roots(): "tuple[str, ...]"
+    +leaves(): "tuple[str, ...]"
+    +topological_order(): "tuple[str, ...]"
+    +ready_ids(completed_ids, running_ids): "tuple[str, ...]"
+    +workstream_ids(): "tuple[str, ...]"
+    +workstream(workstream_id): WorkstreamSpec
+    +tasks_in_workstream(workstream_id): "tuple[str, ...]"
+    +child_workstream_ids(workstream_id): "tuple[str, ...]"
+    +upstream_workstream_ids(task_id): "tuple[str, ...]"
+  }
+
+  _validation: "_validation <<module>>" {
+    shape: class
+    module_path: task_graph._validation
+    +normalize_workstreams(workstreams_by_id): "dict[str, WorkstreamSpec]"
+    +validate_task_workstream_ids(tasks_by_id, workstreams_by_id): void
+    +validate_workstream_parent_ids_exist(workstreams_by_id): void
+    +validate_workstream_hierarchy_acyclic(workstreams_by_id): void
+    +validate_workstream_max_depth(workstreams_by_id, max_depth): void
+    +validate_dependencies_exist(tasks_by_id, dependency_ids): void
+    +validate_known_ids(ids, tasks_by_id, source_name): void
+  }
+
+  _indexing: "_indexing <<module>>" {
+    shape: class
+    module_path: task_graph._indexing
+    +build_dependency_ids(tasks_by_id): "dict[str, tuple[str, ...]]"
+    +build_dependent_ids(tasks_by_id, dependency_ids): "dict[str, tuple[str, ...]]"
+    +topological_order_or_raise(dependency_ids, dependent_ids): "tuple[str, ...]"
+    +build_task_ids_by_workstream(tasks_by_id, topological_order, workstreams_by_id): "dict[str, tuple[str, ...]]"
+    +build_child_workstream_ids(workstreams_by_id): "dict[str, tuple[str, ...]]"
+  }
+
+  TaskGraphBuilder: "TaskGraphBuilder" {
+    shape: class
+    +from_yaml(path): TaskGraph
+    +from_dict(data): TaskGraph
+  }
+}
+
+
+# ─── External dependencies ───
+
+orchestrator_pkg: "orchestrator/" {
+  style.opacity: 0.5
+  Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
+  TaskRuntimeBuilder: "TaskRuntimeBuilder" { shape: class }
+  WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  run_graph_functions: "run_graph <<module>>" { shape: class }
+}
+
+task_py: "task.py" {
+  style.opacity: 0.5
+  Task: "Task <<frozen dataclass>>" { shape: class }
+}
+
+workstream_pkg: "workstream/" {
+  style.opacity: 0.5
+  workstream_core_pkg: "core/" {
+    WorkstreamSpec: "WorkstreamSpec <<frozen dataclass>>" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
+task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
+task_graph_pkg.TaskGraph -> task_graph_pkg._validation: uses { class: dependency }
+task_graph_pkg.TaskGraph -> task_graph_pkg._indexing: uses { class: dependency }
+task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: dependency }
+orchestrator_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
+run_graph_py.run_graph_functions -> task_graph_pkg.TaskGraphBuilder: loads YAML { class: dependency }

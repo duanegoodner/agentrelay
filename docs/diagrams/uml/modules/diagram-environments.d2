@@ -1,0 +1,27 @@
+# ─────────────────────────────────────────────
+#  environments.py — execution environments
+# ─────────────────────────────────────────────
+environments_py: "environments.py" {
+  AgentEnvironment: "AgentEnvironment <<type alias>>" {
+    shape: class
+  }
+
+  TmuxEnvironment: "TmuxEnvironment <<frozen dataclass>>" {
+    shape: class
+    session: str
+  }
+}
+
+
+# ─── External dependencies ───
+
+task_py: "task.py" {
+  style.opacity: 0.5
+  AgentConfig: "AgentConfig <<frozen dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
+environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }

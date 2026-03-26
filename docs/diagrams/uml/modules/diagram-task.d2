@@ -1,0 +1,115 @@
+# ─────────────────────────────────────────────
+#  task.py — immutable task specifications
+# ─────────────────────────────────────────────
+task_py: "task.py" {
+  AgentRole: "AgentRole <<enumeration>>" {
+    shape: class
+    SPEC_WRITER
+    TEST_WRITER
+    TEST_REVIEWER
+    IMPLEMENTER
+    GENERIC
+  }
+
+  AgentFramework: "AgentFramework <<enumeration>>" {
+    shape: class
+    CLAUDE_CODE
+  }
+
+  AdrVerbosity: "AdrVerbosity <<enumeration>>" {
+    shape: class
+    NONE
+    STANDARD
+    DETAILED
+    EDUCATIONAL
+  }
+
+  TaskPaths: "TaskPaths <<frozen dataclass>>" {
+    shape: class
+    src: "tuple[Path, ...]"
+    test: "tuple[Path, ...]"
+    spec: "Path | None"
+  }
+
+  AgentConfig: "AgentConfig <<frozen dataclass>>" {
+    shape: class
+    framework: AgentFramework
+    model: "str | None"
+    adr_verbosity: AdrVerbosity
+    environment: AgentEnvironment
+  }
+
+  ReviewConfig: "ReviewConfig <<frozen dataclass>>" {
+    shape: class
+    agent: AgentConfig
+    review_on_attempt: int
+  }
+
+  Task: "Task <<frozen dataclass>>" {
+    shape: class
+    id: str
+    role: AgentRole
+    description: "str | None"
+    paths: TaskPaths
+    dependencies: "tuple[str, ...]"
+    completion_gate: "str | None"
+    max_gate_attempts: "int | None"
+    primary_agent: AgentConfig
+    review: "ReviewConfig | None"
+    workstream_id: str
+  }
+}
+
+
+# ─── External dependencies ───
+
+agent_comm_protocol_pkg: "agent_comm_protocol/" {
+  style.opacity: 0.5
+  TaskManifest: "TaskManifest <<frozen dataclass>>" { shape: class }
+  _AdrPolicy: "_AdrPolicy <<frozen dataclass>>" { shape: class }
+  manifest_functions: "manifest_functions <<module>>" { shape: class }
+  policies_functions: "policies_functions <<module>>" { shape: class }
+  templates_functions: "templates_functions <<module>>" { shape: class }
+}
+
+environments_py: "environments.py" {
+  style.opacity: 0.5
+  AgentEnvironment: "AgentEnvironment <<type alias>>" { shape: class }
+}
+
+task_graph_pkg: "task_graph/" {
+  style.opacity: 0.5
+  TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
+}
+
+task_runtime_pkg: "task_runtime/" {
+  style.opacity: 0.5
+  TaskRuntime: "TaskRuntime <<mutable dataclass>>" { shape: class }
+}
+
+workstream_pkg: "workstream/" {
+  style.opacity: 0.5
+  workstream_core_pkg: "core/" {
+    WorkstreamSpec: "WorkstreamSpec <<frozen dataclass>>" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+task_py.Task -> task_py.AgentRole: role { class: composition }
+task_py.Task -> task_py.TaskPaths: paths { class: composition }
+task_py.Task -> task_py.AgentConfig: primary_agent { class: composition }
+task_py.Task -> task_py.ReviewConfig: "review (optional)" { class: composition }
+task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
+task_py.AgentConfig -> task_py.AgentFramework: framework { class: composition }
+task_py.AgentConfig -> task_py.AdrVerbosity: adr_verbosity { class: composition }
+task_py.ReviewConfig -> task_py.AgentConfig: agent { class: composition }
+task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
+task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
+task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
+agent_comm_protocol_pkg.TaskManifest -> task_py.AgentRole: role { class: composition }
+agent_comm_protocol_pkg._AdrPolicy -> task_py.AdrVerbosity: verbosity { class: composition }
+agent_comm_protocol_pkg.manifest_functions -> task_py.Task: reads { class: dependency }
+agent_comm_protocol_pkg.policies_functions -> task_py.Task: reads { class: dependency }
+agent_comm_protocol_pkg.templates_functions -> task_py.AgentRole: reads { class: dependency }

@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────
+#  errors/ — error hierarchy
+# ─────────────────────────────────────────────
+errors_pkg: "errors/" {
+  IntegrationBoundary: "IntegrationBoundary <<enumeration>>" {
+    shape: class
+    WORKSPACE
+    SIGNAL
+    PULL_REQUEST
+    AGENT_LAUNCH
+  }
+
+  IntegrationFailureClass: "IntegrationFailureClass <<enumeration>>" {
+    shape: class
+    EXPECTED_TASK_FAILURE
+    INTERNAL_ERROR
+  }
+
+  IntegrationError: "IntegrationError <<exception>>" {
+    shape: class
+    boundary: IntegrationBoundary
+    failure_class: IntegrationFailureClass
+  }
+
+  ExpectedTaskFailureError: "ExpectedTaskFailureError <<exception>>" {
+    shape: class
+  }
+
+  InternalIntegrationError: "InternalIntegrationError <<exception>>" {
+    shape: class
+  }
+
+  _WorkspaceIntegrationError: "_WorkspaceIntegrationError <<exception>>" {
+    shape: class
+  }
+
+  _SignalIntegrationError: "_SignalIntegrationError <<exception>>" {
+    shape: class
+  }
+
+  _PullRequestIntegrationError: "_PullRequestIntegrationError <<exception>>" {
+    shape: class
+  }
+
+  _AgentLaunchIntegrationError: "_AgentLaunchIntegrationError <<exception>>" {
+    shape: class
+  }
+
+  error_functions: "error_functions <<module>>" {
+    shape: class
+    module_path: errors
+    +classify_integration_error(exc): IntegrationFailureClass
+  }
+}
+
+
+# ─── External dependencies ───
+
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_core_pkg: "core/" {
+    TaskRunResult: "TaskRunResult" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> errors_pkg.IntegrationFailureClass: "failure_class (optional)" { class: composition }
+errors_pkg.ExpectedTaskFailureError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg.InternalIntegrationError -> errors_pkg.IntegrationError { class: inheritance }
+errors_pkg._WorkspaceIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._SignalIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._PullRequestIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg._AgentLaunchIntegrationError -> errors_pkg.InternalIntegrationError { class: inheritance }
+errors_pkg.IntegrationError -> errors_pkg.IntegrationBoundary: boundary { class: composition }
+errors_pkg.IntegrationError -> errors_pkg.IntegrationFailureClass: failure_class { class: composition }
+errors_pkg.error_functions -> errors_pkg.IntegrationFailureClass: returns { class: dependency }

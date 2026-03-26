@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────
+#  task_runtime/ — mutable execution state
+# ─────────────────────────────────────────────
+task_runtime_pkg: "task_runtime/" {
+  TaskStatus: "TaskStatus <<enumeration>>" {
+    shape: class
+    PENDING
+    RUNNING
+    PR_CREATED
+    PR_MERGED
+    FAILED
+  }
+
+  TaskState: "TaskState <<mutable dataclass>>" {
+    shape: class
+    worktree_path: "Path | None"
+    branch_name: "str | None"
+    signal_dir: "Path | None"
+    error: "str | None"
+    attempt_num: int
+    integration_branch: "str | None"
+    workstream_worktree_path: "Path | None"
+  }
+
+  TaskArtifacts: "TaskArtifacts <<mutable dataclass>>" {
+    shape: class
+    pr_url: "str | None"
+    concerns: "list[str]"
+    ops_concerns: "list[str]"
+    agent_address: "AgentAddress | None"
+  }
+
+  TaskRuntime: "TaskRuntime <<mutable dataclass>>" {
+    shape: class
+    task: Task
+    state: TaskState
+    artifacts: TaskArtifacts
+    +status: TaskStatus
+    +mark_pending(): void
+    +mark_running(): void
+    +mark_pr_created(): void
+    +mark_pr_merged(): void
+    +mark_failed(error): void
+    +prepare_for_attempt(attempt_num): void
+    +reset_for_retry(): void
+  }
+
+}
+
+
+# ─── External dependencies ───
+
+agent_pkg: "agent/" {
+  style.opacity: 0.5
+  agent_core_pkg: "core/" {
+    AgentAddress: "AgentAddress <<abstract>>" { shape: class }
+  }
+}
+
+orchestrator_pkg: "orchestrator/" {
+  style.opacity: 0.5
+  Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
+  TaskRuntimeBuilder: "TaskRuntimeBuilder" { shape: class }
+}
+
+task_py: "task.py" {
+  style.opacity: 0.5
+  Task: "Task <<frozen dataclass>>" { shape: class }
+}
+
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_core_pkg: "core/" {
+    StandardTaskRunner: "StandardTaskRunner" { shape: class }
+    TaskRunResult: "TaskRunResult" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+orchestrator_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
+task_runner_pkg.task_runner_core_pkg.TaskRunResult -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskStatus: status { class: composition }
+task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
+task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
+task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
+task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
+orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }

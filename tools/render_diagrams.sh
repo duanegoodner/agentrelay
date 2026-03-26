@@ -84,8 +84,9 @@ while IFS= read -r line; do
 done < <(build_preamble)
 
 python -m tools.generate_diagrams "${preamble_args[@]}"
+python -m tools.generate_module_diagrams "${preamble_args[@]}"
 
-# ── Render all SVGs ──────────────────────────────────────────────────
+# ── Render full-diagram SVGs ─────────────────────────────────────────
 for variant in detailed no-private no-impl standard; do
   scale=$(variant_val "$variant" RENDER_SCALE "$RENDER_SCALE")
   pad=$(variant_val "$variant" RENDER_PAD "$RENDER_PAD")
@@ -103,3 +104,21 @@ for variant in detailed no-private no-impl standard; do
       "docs/diagrams/uml/diagram-${variant}.d2" "docs/diagrams/uml/diagram-${variant}.svg"
   fi
 done
+
+# ── Render per-module SVGs ───────────────────────────────────────────
+MODULE_DIR="docs/diagrams/uml/modules"
+if [ -d "$MODULE_DIR" ]; then
+  for d2_file in "$MODULE_DIR"/diagram-*.d2; do
+    [ -f "$d2_file" ] || continue
+    svg_file="${d2_file%.d2}.svg"
+    d2 --layout "$RENDER_LAYOUT" --scale "$RENDER_SCALE" --pad "$RENDER_PAD" \
+      "$d2_file" "$svg_file"
+  done
+fi
+
+# ── Render module-overview SVG ───────────────────────────────────────
+OVERVIEW="docs/diagrams/uml/diagram-modules.d2"
+if [ -f "$OVERVIEW" ]; then
+  d2 --layout "$RENDER_LAYOUT" --scale 0.5 --pad "$RENDER_PAD" \
+    "$OVERVIEW" "${OVERVIEW%.d2}.svg"
+fi

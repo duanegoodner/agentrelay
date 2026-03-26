@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────
+#  output/ — presentation layer
+# ─────────────────────────────────────────────
+output_pkg: "output/" {
+  ConsoleListener: "ConsoleListener <<dataclass>>" {
+    shape: class
+    stream: TextIO
+    verbose: bool
+    +on_event(event): void
+  }
+
+  console_functions: "console <<module>>" {
+    shape: class
+    module_path: output.console
+    "+print_summary(result, stream)": void
+  }
+}
+
+
+# ─── External dependencies ───
+
+orchestrator_pkg: "orchestrator/" {
+  style.opacity: 0.5
+  OrchestratorEvent: "OrchestratorEvent <<frozen dataclass>>" { shape: class }
+  OrchestratorListener: "OrchestratorListener <<protocol>>" { shape: class }
+  OrchestratorResult: "OrchestratorResult <<frozen dataclass>>" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  run_graph_functions: "run_graph <<module>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+run_graph_py.run_graph_functions -> output_pkg.ConsoleListener: creates { class: dependency }
+run_graph_py.run_graph_functions -> output_pkg.console_functions: "prints summary" { class: dependency }
+output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }
+output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+output_pkg.console_functions -> orchestrator_pkg.OrchestratorResult: reads { class: dependency }

@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────
+#  agent_sdk/ — agent-side helpers
+# ─────────────────────────────────────────────
+agent_sdk_pkg: "agent_sdk/" {
+  TaskHelper: "TaskHelper <<class>>" {
+    shape: class
+    signal_dir: Path
+    task_id: str
+    branch_name: str
+    integration_branch: str
+    +from_env(): TaskHelper
+    +complete(title, body): void
+    +complete_without_pr(): void
+    +create_pr(title, body): str
+    +mark_done(pr_url): void
+    +mark_failed(reason): void
+    +record_concern(concern): void
+  }
+
+  cli: "cli <<module>>" {
+    shape: class
+    module_path: agent_sdk.cli
+    "+complete()": void
+    "+complete_no_pr()": void
+    "+failed()": void
+    "+concern()": void
+  }
+}
+
+
+# ─── External dependencies ───
+
+agent_comm_protocol_pkg: "agent_comm_protocol/" {
+  style.opacity: 0.5
+  TaskManifest: "TaskManifest <<frozen dataclass>>" { shape: class }
+}
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  gh: "gh <<module>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }
+agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }
+agent_sdk_pkg.cli -> agent_sdk_pkg.TaskHelper: delegates { class: dependency }

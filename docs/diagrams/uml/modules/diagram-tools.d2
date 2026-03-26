@@ -1,0 +1,41 @@
+# ─────────────────────────────────────────────
+#  tools.py — declared tool validation and guidance
+# ─────────────────────────────────────────────
+tools_py: "tools.py" {
+  ToolSpec: "ToolSpec <<frozen dataclass>>" {
+    shape: class
+    binary: str
+    agent_guidance: str
+  }
+
+  ToolValidationError: "ToolValidationError <<exception>>" {
+    shape: class
+  }
+
+  tools_functions: "tools <<module>>" {
+    shape: class
+    module_path: tools
+    "+validate_tools(tools)": void
+    "+tool_guidance(tools)": str
+  }
+}
+
+
+# ─── External dependencies ───
+
+agent_comm_protocol_pkg: "agent_comm_protocol/" {
+  style.opacity: 0.5
+  templates_functions: "templates_functions <<module>>" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  run_graph_functions: "run_graph <<module>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+tools_py.tools_functions -> tools_py.ToolSpec: reads { class: dependency }
+agent_comm_protocol_pkg.templates_functions -> tools_py.tools_functions: "tool_guidance()" { class: dependency }
+run_graph_py.run_graph_functions -> tools_py.tools_functions: "validate_tools()" { class: dependency }

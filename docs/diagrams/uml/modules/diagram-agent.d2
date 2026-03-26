@@ -1,0 +1,73 @@
+# ─────────────────────────────────────────────
+#  agent/ — agent abstractions
+# ─────────────────────────────────────────────
+agent_pkg: "agent/" {
+  agent_core_pkg: "core/" {
+    AgentAddress: "AgentAddress <<abstract>>" {
+      shape: class
+      +label(): str
+      +teardown(signal_dir, keep_panes): void
+    }
+
+    Agent: "Agent <<abstract>>" {
+      shape: class
+      +send_kickoff(instructions_path): void
+      +address(): AgentAddress
+    }
+  }
+
+  agent_impl_pkg: "implementations/" {
+    TmuxAddress: "TmuxAddress <<frozen dataclass>>" {
+      shape: class
+      session: str
+      pane_id: str
+      +label(): str
+      +teardown(signal_dir, keep_panes): void
+    }
+
+    TmuxAgent: "TmuxAgent <<mutable dataclass>>" {
+      shape: class
+      -_address: TmuxAddress
+      +address(): TmuxAddress
+      +from_config(config, task_id, worktree_path, signal_dir): TmuxAgent
+      +send_kickoff(instructions_path): void
+    }
+  }
+}
+
+
+# ─── External dependencies ───
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  signals: "signals <<module>>" { shape: class }
+  tmux: "tmux <<module>>" { shape: class }
+}
+
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_core_pkg: "core/" {
+    TaskLauncher: "TaskLauncher" { shape: class }
+  }
+  task_runner_impl_pkg: "implementations/" {
+    TmuxTaskLauncher: "TmuxTaskLauncher" { shape: class }
+  }
+}
+
+task_runtime_pkg: "task_runtime/" {
+  style.opacity: 0.5
+  TaskArtifacts: "TaskArtifacts <<mutable dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+agent_pkg.agent_impl_pkg.TmuxAddress -> agent_pkg.agent_core_pkg.AgentAddress { class: inheritance }
+agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_core_pkg.Agent { class: inheritance }
+agent_pkg.agent_impl_pkg.TmuxAgent -> agent_pkg.agent_impl_pkg.TmuxAddress: _address { class: composition }
+agent_pkg.agent_core_pkg.Agent -> agent_pkg.agent_core_pkg.AgentAddress: address { class: composition }
+task_runner_pkg.task_runner_core_pkg.TaskLauncher -> agent_pkg.agent_core_pkg.Agent: launches { class: dependency }
+task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
+task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pkg.TmuxAgent: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
