@@ -1,0 +1,1698 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-03-26-agent-isolation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Sprint Notes — 2026-03-26: Agent Isolation - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sprint-notes-2026-03-26-agent-isolation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sprint Notes — 2026-03-26: Agent Isolation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Context">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#architecture-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture decisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-module-srcagentrelaysandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New module: src/agentrelay/sandbox/
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-yaml-with-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example YAML with isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A: Sandbox data models + AgentSandbox protocol + NullSandbox
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b-frameworkconfigadapter-refactor-tmuxagent-command-building" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B: FrameworkConfigAdapter + refactor TmuxAgent command building
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-credentialprovider-filecredentialprovider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: CredentialProvider + FileCredentialProvider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-d-docker-ops-layer-ocisandbox-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR D: Docker ops layer + OciSandbox implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-e-docker-image-network-lifecycle-cli-flags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E: Docker image + network lifecycle + CLI flags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-f-agent-boundary-instructions-e2e-isolation-test-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F: Agent boundary instructions + e2e isolation test graphs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks and mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
+<blockquote>
+<p><strong>Status: Planning.</strong></p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>Design and implement tunable agent isolation infrastructure — per-graph,
+per-workstream, per-task configurable sandboxing using Docker containers,
+scoped GitHub PATs, and framework-specific config injection. The architecture
+supports Level 0–2 isolation with extensibility to Level 3 and alternative
+runtimes (Podman, bubblewrap).</p>
+<h2 id="context">Context</h2>
+<p>Sprint 2026-03-25 completed cross-workstream dependency ordering (PR #134)
+and optional auto-merge (PR #135). The motivating incident — an agent
+unilaterally merging an integration PR to main — is now prevented
+architecturally. But the broader problem remains: agents run as the human
+user with full credentials, and nothing prevents them from taking
+globally-problematic actions when they encounter unexpected situations.</p>
+<p>See <code>docs/discussions/AGENT_ISOLATION_REFINED.md</code> for full analysis of the
+isolation spectrum (Levels 0–3), tunable isolation design, token tiers, ACL
+profiles, and the motivating incident.</p>
+<h3 id="architecture-decisions">Architecture decisions</h3>
+<p><strong>Container-per-task, orchestrator on host:</strong></p>
+<ul>
+<li>Each task runs in its own Docker container. The container IS the isolation
+  boundary — no Linux user management needed on the host.</li>
+<li>Orchestrator stays on host (trusted code, needs Docker socket + tmux +
+  filesystem).</li>
+<li>tmux stays on host: each pane runs <code>docker run -it ...</code>, preserving the
+  current debugging UX where the human sees all agents in one tmux session.</li>
+<li>Docker network per graph for inter-agent communication restrictions.</li>
+</ul>
+<p><strong>Sandbox as command wrapper, orthogonal to environment:</strong></p>
+<ul>
+<li><code>AgentSandbox</code> protocol wraps the agent command string
+  (<code>docker run ... claude ...</code>).</li>
+<li>Sandbox is orthogonal to <code>AgentEnvironment</code> (tmux). No new environment
+  type needed — the <code>StepDispatch</code> key <code>(framework, env_type)</code> is unchanged.</li>
+<li><code>NullSandbox</code> preserves current behavior exactly (Level 0).</li>
+</ul>
+<p><strong>IsolationConfig on AgentConfig:</strong></p>
+<ul>
+<li><code>IsolationConfig</code> lives on <code>AgentConfig</code> (alongside framework, model,
+  environment). This means <code>Task.primary_agent.isolation</code> and
+  <code>Task.review.agent.isolation</code> can differ.</li>
+<li>Three-level inheritance: graph → workstream → task. Each level can set
+  <code>isolation:</code> in YAML; unset fields inherit from parent. Resolution happens
+  during YAML parsing in <code>TaskGraphBuilder</code>.</li>
+</ul>
+<p><strong>Credentials via protocol, injected as env vars:</strong></p>
+<ul>
+<li><code>CredentialProvider</code> protocol resolves token tier → env var dict.</li>
+<li>Credentials never written to disk inside container — env var injection only.</li>
+<li><code>FileCredentialProvider</code> reads from <code>~/.config/agentrelay/credentials.yaml</code>.</li>
+</ul>
+<p><strong>Framework config extracted to adapter:</strong></p>
+<ul>
+<li><code>FrameworkConfigAdapter</code> protocol builds the framework-specific command string.</li>
+<li><code>ClaudeCodeAdapter</code> extracts current command-building logic from
+  <code>TmuxAgent.from_config()</code>.</li>
+<li>Future <code>CodexAdapter</code> etc. implement the same protocol.</li>
+</ul>
+<p><strong>Docker image: ubuntu:24.04 base:</strong></p>
+<ul>
+<li>Full Linux userspace for multi-framework support (Claude Code, future
+  Codex/Copilot).</li>
+<li>Layers: ubuntu base → git/gh → node/python → claude-code + agent SDK.</li>
+<li>Target repo tools (pixi, etc.) handled by image variants or setup scripts.</li>
+</ul>
+<p><strong>Git worktree bind mounts at same absolute path:</strong></p>
+<ul>
+<li>Mount worktree + signal dir read/write, repo <code>.git</code> read-only.</li>
+<li>Same absolute paths inside container → <code>.git</code> file internal paths resolve
+  without modification.</li>
+<li>Helper reads worktree <code>.git</code> file to discover main repo <code>.git</code> dir path.</li>
+</ul>
+<h3 id="new-module-srcagentrelaysandbox">New module: <code>src/agentrelay/sandbox/</code></h3>
+<div class="highlight"><pre><span></span><code>sandbox/
+  __init__.py
+  core/
+    __init__.py
+    config.py          # SandboxType, TokenTier, IsolationConfig, SandboxContext
+    sandbox.py         # AgentSandbox protocol
+    credentials.py     # CredentialProvider protocol
+    adapters.py        # FrameworkConfigAdapter protocol
+  implementations/
+    __init__.py
+    null_sandbox.py    # NullSandbox (pass-through, Level 0)
+    oci_sandbox.py     # OciSandbox (Docker/Podman, Level 2)
+    claude_code_adapter.py  # ClaudeCodeAdapter
+    file_credentials.py     # FileCredentialProvider
+</code></pre></div>
+<p>Also: <code>src/agentrelay/ops/docker.py</code> — thin subprocess wrappers (same
+pattern as <code>ops/tmux.py</code>).</p>
+<h3 id="example-yaml-with-isolation">Example YAML with isolation</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">isolated-graph</span>
+<span class="nt">isolation</span><span class="p">:</span><span class="w">                    </span><span class="c1"># graph default</span>
+<span class="w">  </span><span class="nt">sandbox</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oci</span>
+<span class="w">  </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">standard</span>
+
+<span class="nt">workstreams</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_review</span>
+<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># workstream override</span>
+<span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read_only</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_merge</span>
+<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">elevated</span>
+
+<span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write_tests</span>
+<span class="w">    </span><span class="nt">workstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_review</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_writer</span>
+<span class="w">    </span><span class="c1"># inherits: sandbox=oci, token_tier=read_only (from ws_review)</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implement</span>
+<span class="w">    </span><span class="nt">workstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_merge</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implementer</span>
+<span class="w">    </span><span class="c1"># inherits: sandbox=oci, token_tier=elevated (from ws_merge)</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merge_task</span>
+<span class="w">    </span><span class="nt">workstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_merge</span>
+<span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generic</span>
+<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># task override</span>
+<span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">elevated</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">implement</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-plan">PR plan</h2>
+<h3 id="pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox">PR A: Sandbox data models + AgentSandbox protocol + NullSandbox</h3>
+<ul>
+<li>Branch: <code>feat/sandbox-protocol</code></li>
+</ul>
+<p><strong>Scope:</strong>
+- <code>SandboxType</code> enum: <code>NONE</code>, <code>OCI</code> (future: <code>BWRAP</code>)
+- <code>TokenTier</code> enum: <code>READ_ONLY</code>, <code>STANDARD</code>, <code>ELEVATED</code>
+- <code>IsolationConfig</code> frozen dataclass: <code>sandbox_type</code>, <code>token_tier</code>, <code>image</code>,
+  <code>runtime</code> (docker/podman)
+- <code>SandboxContext</code> frozen dataclass: worktree_path, signal_dir, repo_path,
+  task_id, graph_name, env_vars
+- <code>AgentSandbox</code> protocol: <code>wrap_command(cmd, context) -&gt; str</code>,
+  <code>setup(context) -&gt; None</code>, <code>teardown(context) -&gt; None</code>
+- <code>NullSandbox</code> implementation: returns command unchanged, setup/teardown
+  are no-ops
+- Add <code>isolation: IsolationConfig</code> field to <code>AgentConfig</code>
+  (default = <code>IsolationConfig()</code> → SandboxType.NONE)
+- Add <code>isolation: Optional[IsolationConfig]</code> to <code>WorkstreamSpec</code>
+- YAML parsing: <code>_parse_isolation_config()</code> in builder.py
+- Three-level inheritance: graph → workstream → task
+  - Parse raw isolation config at each level (all fields Optional)
+  - Merge function: child overrides parent for explicitly set fields,
+    inherits unset fields
+  - Final resolved config stored on each <code>Task.primary_agent.isolation</code></p>
+<p><strong>Key files modified:</strong>
+- <code>src/agentrelay/task.py</code> — <code>AgentConfig</code> gains <code>isolation</code> field
+- <code>src/agentrelay/workstream/core/workstream.py</code> — <code>WorkstreamSpec</code> gains
+  <code>isolation</code> field
+- <code>src/agentrelay/task_graph/builder.py</code> — <code>_parse_isolation_config()</code>,
+  update <code>_parse_agent_config()</code>, <code>_parse_workstream()</code>, three-level merge
+- New: <code>src/agentrelay/sandbox/</code> package</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>IsolationConfig</code> frozen dataclass with sensible defaults
+      (SandboxType.NONE, TokenTier.STANDARD)
+- [ ] <code>AgentSandbox</code> protocol defined with <code>@runtime_checkable</code>
+- [ ] <code>NullSandbox</code> satisfies protocol, returns command unchanged
+- [ ] YAML graphs with <code>isolation:</code> parse at graph, workstream, and task
+      levels
+- [ ] Three-level inheritance: task overrides workstream overrides graph
+- [ ] Graphs without <code>isolation:</code> use defaults (zero behavior change)
+- [ ] <code>pixi run check</code> passes
+- [ ] All existing tests pass unchanged</p>
+<hr />
+<h3 id="pr-b-frameworkconfigadapter-refactor-tmuxagent-command-building">PR B: FrameworkConfigAdapter + refactor TmuxAgent command building</h3>
+<ul>
+<li>Branch: <code>feat/framework-adapter</code></li>
+</ul>
+<p><strong>Scope:</strong>
+- <code>FrameworkConfigAdapter</code> protocol:
+  <code>build_command(config: AgentConfig, signal_dir: Path) -&gt; str</code>
+- <code>ClaudeCodeAdapter</code>: extracts command-building from
+  <code>TmuxAgent.from_config()</code> lines 67–72
+- Refactor <code>TmuxAgent.from_config()</code> to accept
+  <code>adapter: FrameworkConfigAdapter</code> and <code>sandbox: AgentSandbox</code>
+- Flow: adapter builds command → sandbox wraps it → tmux sends wrapped
+  command
+- Update <code>TmuxTaskLauncher</code> to construct adapter and sandbox
+- Update <code>build_standard_runner()</code> to thread dependencies into launcher</p>
+<p><strong>Key files modified:</strong>
+- <code>src/agentrelay/agent/implementations/tmux_agent.py</code> — <code>from_config()</code>
+  accepts adapter + sandbox
+- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code>
+- <code>src/agentrelay/orchestrator/builders.py</code>
+- New: <code>src/agentrelay/sandbox/core/adapters.py</code>,
+  <code>src/agentrelay/sandbox/implementations/claude_code_adapter.py</code></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>ClaudeCodeAdapter.build_command()</code> produces identical command string
+      to current <code>TmuxAgent.from_config()</code>
+- [ ] <code>TmuxAgent.from_config()</code> with <code>NullSandbox</code> + <code>ClaudeCodeAdapter</code>
+      is behaviorally identical to current code
+- [ ] Command building testable independently of tmux
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-c-credentialprovider-filecredentialprovider">PR C: CredentialProvider + FileCredentialProvider</h3>
+<ul>
+<li>Branch: <code>feat/credential-provider</code></li>
+</ul>
+<p><strong>Scope:</strong>
+- <code>CredentialProvider</code> protocol: <code>resolve(tier: TokenTier) -&gt; dict[str, str]</code>
+- <code>FileCredentialProvider</code>: reads <code>~/.config/agentrelay/credentials.yaml</code>
+- <code>EnvCredentialProvider</code>: reads from env vars
+  (<code>AGENTRELAY_PAT_READ_ONLY</code>, etc.)
+- <code>NullCredentialProvider</code>: returns empty dict (for SandboxType.NONE)
+- Credential file schema:
+  <div class="highlight"><pre><span></span><code><span class="nt">token_tiers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">read_only</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghp_xxxx</span>
+<span class="w">  </span><span class="nt">standard</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghp_yyyy</span>
+<span class="w">  </span><span class="nt">elevated</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ghp_zzzz</span>
+<span class="nt">defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ANTHROPIC_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sk-ant-xxxx</span>
+</code></pre></div>
+- Wire into sandbox flow: <code>SandboxContext.env_vars</code> populated from
+  credential resolution
+- Wire into <code>build_standard_runner()</code>: credential provider constructed
+  and passed to launcher</p>
+<p><strong>Key files modified:</strong>
+- New: <code>src/agentrelay/sandbox/core/credentials.py</code>,
+  <code>src/agentrelay/sandbox/implementations/file_credentials.py</code>
+- <code>src/agentrelay/orchestrator/builders.py</code>
+- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>FileCredentialProvider</code> reads YAML config and resolves token tiers
+- [ ] <code>EnvCredentialProvider</code> reads from env vars
+- [ ] Missing tier raises clear error
+- [ ] <code>NullCredentialProvider</code> returns empty dict (default for
+      SandboxType.NONE)
+- [ ] Credentials flow into <code>SandboxContext.env_vars</code> during launch
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-d-docker-ops-layer-ocisandbox-implementation">PR D: Docker ops layer + OciSandbox implementation</h3>
+<ul>
+<li>Branch: <code>feat/oci-sandbox</code></li>
+</ul>
+<p><strong>Scope:</strong>
+- <code>ops/docker.py</code>: thin subprocess wrappers — <code>run()</code>,
+  <code>network_create()</code>, <code>network_remove()</code>, <code>stop()</code>, <code>rm()</code>,
+  <code>is_available()</code>, <code>image_exists()</code>
+- <code>OciSandbox</code> implementation:
+  - <code>wrap_command()</code>: builds <code>docker run -it --rm
+    --name agentrelay-&lt;task_id&gt;
+    -v &lt;worktree&gt;:&lt;worktree&gt;
+    -v &lt;signal_dir&gt;:&lt;signal_dir&gt;
+    -v &lt;git_dir&gt;:&lt;git_dir&gt;:ro
+    -e GH_TOKEN=... -e ANTHROPIC_API_KEY=...
+    --network &lt;network&gt; -w &lt;worktree&gt; &lt;image&gt; &lt;cmd&gt;</code>
+  - <code>setup()</code>: validates Docker available, creates network if needed
+  - <code>teardown()</code>: stops + removes container if still running
+- Git dir resolution helper: reads worktree <code>.git</code> file to find main
+  repo <code>.git/</code> path
+- <code>runtime</code> field on <code>IsolationConfig</code> (<code>"docker"</code> or <code>"podman"</code>) selects
+  the binary
+- Wire <code>SandboxType.OCI</code> into launcher</p>
+<p><strong>Key files modified:</strong>
+- New: <code>src/agentrelay/ops/docker.py</code>
+- New: <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code>
+- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code>
+- <code>src/agentrelay/orchestrator/builders.py</code></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>ops/docker.py</code> wrappers follow <code>ops/tmux.py</code> pattern
+- [ ] <code>OciSandbox.wrap_command()</code> produces correct <code>docker run</code> string
+      with all bind mounts and env vars
+- [ ] Git dir resolution reads <code>.git</code> file and extracts gitdir path
+- [ ] Worktree, signal dir, and <code>.git</code> dir mounted at same absolute paths
+- [ ] <code>OciSandbox.setup()</code> fails fast if Docker not available
+- [ ] Container name includes task_id for debuggability
+- [ ] <code>pixi run check</code> passes (Docker ops tests use subprocess mocking)</p>
+<hr />
+<h3 id="pr-e-docker-image-network-lifecycle-cli-flags">PR E: Docker image + network lifecycle + CLI flags</h3>
+<ul>
+<li>Branch: <code>feat/docker-image</code></li>
+</ul>
+<p><strong>Scope:</strong>
+- <code>Dockerfile</code> for <code>agentrelay-agent</code> image:
+  - Base: <code>ubuntu:24.04</code>
+  - Installs: git, gh, python3, pip, node (via nodesource), npm
+  - Installs: claude-code (<code>npm install -g @anthropic-ai/claude-code</code>)
+  - Installs: agentrelay agent SDK
+  - Runs as non-root <code>agent</code> user
+- <code>pixi run docker-build</code> task for building the image
+- Docker network lifecycle in <code>run_graph.py</code>:
+  - Create <code>agentrelay-&lt;graph_name&gt;</code> network before orchestrator runs
+  - Remove network after orchestrator completes (in finally block)
+- <code>--sandbox</code> CLI flag: <code>--sandbox oci</code> or <code>--sandbox none</code> (global
+  override)
+- <code>--credentials</code> CLI flag: path to credentials file
+  (default <code>~/.config/agentrelay/credentials.yaml</code>)
+- Update <code>reset_graph.py</code> to clean up orphaned Docker networks/containers</p>
+<p><strong>Key files modified:</strong>
+- New: <code>docker/Dockerfile</code>
+- <code>src/agentrelay/run_graph.py</code> — CLI flags, network lifecycle
+- <code>src/agentrelay/reset_graph.py</code> — Docker cleanup
+- <code>pixi.toml</code> — <code>docker-build</code> task</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Docker image builds successfully
+- [ ] Image contains git, gh, python3, node, claude-code, agent SDK
+- [ ] Image runs as non-root user
+- [ ] <code>--sandbox oci</code> triggers OciSandbox path
+- [ ] <code>--sandbox none</code> (default) preserves current behavior
+- [ ] Docker network created/destroyed around graph execution
+- [ ] <code>reset_graph.py</code> cleans up Docker resources
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-f-agent-boundary-instructions-e2e-isolation-test-graphs">PR F: Agent boundary instructions + e2e isolation test graphs</h3>
+<ul>
+<li>Branch: <code>feat/isolation-instructions</code></li>
+</ul>
+<p><strong>Scope:</strong>
+- Agent instruction additions (role templates):
+  - Isolation boundary section: "You are running in an isolated
+    environment. Do not attempt to access resources outside your worktree."
+  - "What to do when blocked" guidance: record ops concern, mark task
+    failed with actionable reason
+  - Conditional: only included when <code>isolation.sandbox_type != NONE</code>
+- <code>IS_AI_AGENT=true</code> env var set on all containerized agents
+- Git hooks (pre-push) that block pushes to protected branches when
+  <code>IS_AI_AGENT=true</code>
+- New <code>graphs/isolation/</code> e2e test category:
+  - <code>basic_oci.yaml</code>: simple task with <code>isolation: {sandbox: oci}</code> —
+    verify agent completes in container
+  - <code>token_tiers.yaml</code>: tasks with different token tiers — verify correct
+    PAT injection
+  - <code>permission_boundary.yaml</code>: agent instructed to attempt out-of-scope
+    action — verify it fails/reports
+- Update <code>docs/BACKLOG.md</code>: mark agent isolation items as addressed
+- Update <code>docs/ARCHITECTURE.md</code>: add isolation section
+- Update <code>docs/HISTORY.md</code>: sprint entry</p>
+<p><strong>Key files modified:</strong>
+- <code>src/agentrelay/agent_comm_protocol/templates.py</code>
+- New: <code>graphs/isolation/</code> directory with test graphs
+- <code>docs/BACKLOG.md</code>, <code>docs/ARCHITECTURE.md</code>, <code>docs/HISTORY.md</code></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Agent instructions include isolation boundary guidance when sandbox
+      is configured
+- [ ] <code>IS_AI_AGENT=true</code> injected into container env
+- [ ] E2E: <code>basic_oci.yaml</code> completes with agent in Docker container
+- [ ] E2E: agent in container can read worktree, write to signal dir,
+      push to task branch
+- [ ] E2E: agent in container cannot merge PRs (read_only/standard PAT)
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h2 id="risks-and-mitigations">Risks and mitigations</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git worktree <code>.git</code> file contains absolute host path</td>
+<td>Bind mounts won't work if paths differ</td>
+<td>Mount at same absolute path inside container</td>
+</tr>
+<tr>
+<td>Docker TTY passthrough may confuse <code>wait_for_tui_ready()</code></td>
+<td>Agent launch hangs</td>
+<td>Test TTY flow manually; use <code>--quiet</code> Docker flags</td>
+</tr>
+<tr>
+<td>Credentials visible via <code>docker inspect</code> and agent logs</td>
+<td>Token leakage</td>
+<td>Document risk; future PR to scrub token patterns</td>
+</tr>
+<tr>
+<td>Docker not installed on user's system</td>
+<td>OciSandbox fails</td>
+<td><code>NullSandbox</code> remains default; <code>is_available()</code> check with clear error</td>
+</tr>
+<tr>
+<td>Container startup latency</td>
+<td>Slower task launch</td>
+<td>Pre-pull image; tasks are minutes long so seconds of overhead is acceptable</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

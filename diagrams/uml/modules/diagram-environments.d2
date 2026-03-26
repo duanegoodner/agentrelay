@@ -1,0 +1,67 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  environments.py — execution environments
+# ─────────────────────────────────────────────
+environments_py: "environments.py" {
+  AgentEnvironment: "AgentEnvironment <<type alias>>" {
+    shape: class
+  }
+
+  TmuxEnvironment: "TmuxEnvironment <<frozen dataclass>>" {
+    shape: class
+    session: str
+  }
+}
+
+
+# ─── External dependencies ───
+
+task_py: "task.py" {
+  style.opacity: 0.5
+  AgentConfig: "AgentConfig <<frozen dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
+environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }

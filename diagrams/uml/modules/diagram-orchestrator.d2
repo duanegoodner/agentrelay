@@ -1,0 +1,233 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  orchestrator/ — async scheduling loop
+# ─────────────────────────────────────────────
+orchestrator_pkg: "orchestrator/" {
+  TaskOutcomeClass: "TaskOutcomeClass <<enumeration>>" {
+    shape: class
+    SUCCESS
+    EXPECTED_FAILURE
+    INTERNAL_ERROR
+  }
+
+  OrchestratorOutcome: "OrchestratorOutcome <<enumeration>>" {
+    shape: class
+    SUCCEEDED
+    COMPLETED_WITH_FAILURES
+    FATAL_INTERNAL_ERROR
+  }
+
+  OrchestratorConfig: "OrchestratorConfig <<frozen dataclass>>" {
+    shape: class
+    max_concurrency: int
+    max_task_attempts: int
+    task_teardown_mode: TearDownMode
+    fail_fast_on_internal_error: bool
+    fail_fast_on_workstream_error: bool
+    merge_poll_interval: float
+  }
+
+  OrchestratorEvent: "OrchestratorEvent <<frozen dataclass>>" {
+    shape: class
+    kind: str
+    timestamp: float
+    task_id: "str | None"
+    workstream_id: "str | None"
+    attempt_num: "int | None"
+    outcome_class: "TaskOutcomeClass | None"
+    message: "str | None"
+  }
+
+  OrchestratorResult: "OrchestratorResult <<frozen dataclass>>" {
+    shape: class
+    outcome: OrchestratorOutcome
+    task_runtimes: "Mapping[str, TaskRuntime]"
+    workstream_runtimes: "Mapping[str, WorkstreamRuntime]"
+    events: "tuple[OrchestratorEvent, ...]"
+    fatal_error: "str | None"
+  }
+
+  OrchestratorListener: "OrchestratorListener <<protocol>>" {
+    shape: class
+    +on_event(event): void
+  }
+
+  Orchestrator: "Orchestrator <<mutable dataclass>>" {
+    shape: class
+    graph: TaskGraph
+    task_runner: TaskRunner
+    workstream_runner: WorkstreamRunner
+    config: OrchestratorConfig
+    listener: "OrchestratorListener | None"
+    integration_merge_checker: "IntegrationMergeChecker | None"
+    integration_auto_merger: "IntegrationAutoMerger | None"
+    +run(task_runtimes, workstream_runtimes): OrchestratorResult
+  }
+
+  _OrchestratorRun: "_OrchestratorRun <<internal>>" {
+    shape: class
+    -_orchestrator: Orchestrator
+    +execute(): OrchestratorResult
+  }
+
+  TaskRuntimeBuilder: "TaskRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, TaskRuntime]"
+  }
+
+  WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" {
+    shape: class
+    +from_graph(graph): "dict[str, WorkstreamRuntime]"
+  }
+
+  builders: "builders <<module>>" {
+    shape: class
+    module_path: orchestrator.builders
+    "+build_standard_runner(...)": StandardTaskRunner
+    "+build_standard_workstream_runner(...)": StandardWorkstreamRunner
+  }
+}
+
+
+# ─── External dependencies ───
+
+output_pkg: "output/" {
+  style.opacity: 0.5
+  ConsoleListener: "ConsoleListener <<dataclass>>" { shape: class }
+  console_functions: "console <<module>>" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  run_graph_functions: "run_graph <<module>>" { shape: class }
+}
+
+task_graph_pkg: "task_graph/" {
+  style.opacity: 0.5
+  TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
+}
+
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_core_pkg: "core/" {
+    StandardTaskRunner: "StandardTaskRunner" { shape: class }
+    TaskRunner: "TaskRunner" { shape: class }
+    TearDownMode: "TearDownMode <<enumeration>>" { shape: class }
+  }
+  task_runner_impl_pkg: "implementations/" {
+    GhTaskMerger: "GhTaskMerger" { shape: class }
+    ShellGateChecker: "ShellGateChecker" { shape: class }
+    SignalCompletionChecker: "SignalCompletionChecker" { shape: class }
+    TmuxTaskKickoff: "TmuxTaskKickoff" { shape: class }
+    TmuxTaskLauncher: "TmuxTaskLauncher" { shape: class }
+    WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" { shape: class }
+    WorktreeTaskTeardown: "WorktreeTaskTeardown" { shape: class }
+  }
+}
+
+task_runtime_pkg: "task_runtime/" {
+  style.opacity: 0.5
+  TaskRuntime: "TaskRuntime <<mutable dataclass>>" { shape: class }
+}
+
+workstream_pkg: "workstream/" {
+  style.opacity: 0.5
+  workstream_core_pkg: "core/" {
+    IntegrationAutoMerger: "IntegrationAutoMerger" { shape: class }
+    IntegrationMergeChecker: "IntegrationMergeChecker" { shape: class }
+    StandardWorkstreamRunner: "StandardWorkstreamRunner" { shape: class }
+    WorkstreamRunner: "WorkstreamRunner" { shape: class }
+    WorkstreamRuntime: "WorkstreamRuntime" { shape: class }
+  }
+  workstream_impl_pkg: "implementations/" {
+    GhIntegrationAutoMerger: "GhIntegrationAutoMerger" { shape: class }
+    GhIntegrationMergeChecker: "GhIntegrationMergeChecker" { shape: class }
+    GhWorkstreamIntegrator: "GhWorkstreamIntegrator" { shape: class }
+    GitWorkstreamPreparer: "GitWorkstreamPreparer <<dataclass>>" { shape: class }
+    GitWorkstreamTeardown: "GitWorkstreamTeardown" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+orchestrator_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_core_pkg.StandardTaskRunner: builds { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.ShellGateChecker: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger: registers { class: dependency }
+orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.Orchestrator -> task_runner_pkg.task_runner_core_pkg.TaskRunner: "delegates task runs" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: "delegates workstream lifecycle" { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorConfig: uses { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
+orchestrator_pkg.OrchestratorResult -> orchestrator_pkg.OrchestratorOutcome: outcome { class: composition }
+orchestrator_pkg.OrchestratorResult -> orchestrator_pkg.OrchestratorEvent: events { class: composition }
+orchestrator_pkg.OrchestratorEvent -> orchestrator_pkg.TaskOutcomeClass: classification { class: composition }
+orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: "listener (optional)" { class: composition }
+orchestrator_pkg.OrchestratorListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: "polls merge status" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: "auto-merges integration PRs" { class: composition }
+orchestrator_pkg.Orchestrator -> orchestrator_pkg._OrchestratorRun: creates { class: dependency }
+orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.builders: builds runners { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.Orchestrator: creates and runs { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorConfig: configures { class: dependency }
+run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
+output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }
+output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+output_pkg.console_functions -> orchestrator_pkg.OrchestratorResult: reads { class: dependency }
