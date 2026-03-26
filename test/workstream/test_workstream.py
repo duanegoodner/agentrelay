@@ -15,6 +15,7 @@ class TestWorkstreamSpec:
         assert spec.parent_workstream_id is None
         assert spec.base_branch == "main"
         assert spec.merge_target_branch == "main"
+        assert spec.auto_merge is False
 
     def test_workstream_with_parent_and_custom_branches(self) -> None:
         """WorkstreamSpec supports parent linkage and branch overrides."""
@@ -28,6 +29,11 @@ class TestWorkstreamSpec:
         assert spec.parent_workstream_id == "feature_a"
         assert spec.base_branch == "feature_a"
         assert spec.merge_target_branch == "feature_a"
+
+    def test_auto_merge_true(self) -> None:
+        """WorkstreamSpec accepts auto_merge=True."""
+        spec = WorkstreamSpec(id="ci", auto_merge=True)
+        assert spec.auto_merge is True
 
     def test_is_frozen(self) -> None:
         """WorkstreamSpec is immutable."""

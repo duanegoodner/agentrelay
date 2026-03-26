@@ -1,0 +1,38 @@
+name: auto-merge-2-workstreams
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Two-workstream graph where ws_a has auto_merge enabled.
+# Task A runs in ws_a, Task B depends on A and runs in ws_b.
+# After A completes, ws_a's integration PR should be auto-merged,
+# unblocking B without human intervention.
+# Run with --max-concurrency 2.
+
+workstreams:
+  - id: ws_a
+    auto_merge: true
+  - id: ws_b
+
+tasks:
+  - id: greeting
+    workstream_id: ws_a
+    description: >-
+      Create src/agentrelaydemos/greeting.py containing a function
+      greet(name: str) -> str that returns "Hello, {name}!".
+      Also create test/test_greeting.py with pytest tests verifying
+      greet("Alice") == "Hello, Alice!" and greet("World") == "Hello, World!".
+    dependencies: []
+
+  - id: farewell
+    workstream_id: ws_b
+    description: >-
+      Create src/agentrelaydemos/farewell.py containing a function
+      farewell(name: str) -> str that returns "{greeting} Goodbye, {name}!"
+      where {greeting} comes from calling greet(name) (import greet from
+      agentrelaydemos.greeting).
+      Also create test/test_farewell.py with pytest tests verifying
+      farewell("Alice") == "Hello, Alice! Goodbye, Alice!".
+    dependencies:
+      - greeting

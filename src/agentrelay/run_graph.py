@@ -31,6 +31,7 @@ from agentrelay.orchestrator import (
     OrchestratorConfig,
     OrchestratorOutcome,
     OrchestratorResult,
+    build_integration_auto_merger,
     build_integration_merge_checker,
     build_standard_runner,
     build_standard_workstream_runner,
@@ -262,6 +263,7 @@ async def run_graph(
         config=config,
         listener=ConsoleListener(verbose=verbose),
         integration_merge_checker=build_integration_merge_checker(),
+        integration_auto_merger=build_integration_auto_merger(),
     )
     return await orchestrator.run()
 
@@ -284,8 +286,9 @@ def dry_run(graph_path: Path) -> None:
     for ws_id in graph.workstream_ids():
         ws = graph.workstream(ws_id)
         parent = ws.parent_workstream_id or "(root)"
+        auto = "  auto_merge" if ws.auto_merge else ""
         print(
-            f"  {ws_id}  parent={parent}  base={ws.base_branch}  target={ws.merge_target_branch}"
+            f"  {ws_id}  parent={parent}  base={ws.base_branch}  target={ws.merge_target_branch}{auto}"
         )
 
     print("\nExecution order:")

@@ -25,9 +25,13 @@ class WorkstreamSpec:
             integration branches or worktrees. Defaults to ``"main"``.
         merge_target_branch: Branch name the workstream ultimately merges into.
             Defaults to ``"main"``.
+        auto_merge: When ``True``, the orchestrator merges the integration PR
+            automatically after creation — provided no task in the workstream
+            recorded a design concern.  Defaults to ``False``.
     """
 
     id: str
     parent_workstream_id: Optional[str] = None
     base_branch: str = "main"
     merge_target_branch: str = "main"
+    auto_merge: bool = False

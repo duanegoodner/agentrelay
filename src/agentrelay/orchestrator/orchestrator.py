@@ -25,6 +25,7 @@ from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 from agentrelay.workstream import (
+    IntegrationAutoMerger,
     IntegrationMergeChecker,
     WorkstreamRunner,
     WorkstreamRuntime,
@@ -155,6 +156,7 @@ class Orchestrator:
     config: OrchestratorConfig = field(default_factory=OrchestratorConfig)
     listener: Optional[OrchestratorListener] = None
     integration_merge_checker: Optional[IntegrationMergeChecker] = None
+    integration_auto_merger: Optional[IntegrationAutoMerger] = None
 
     async def run(
         self,
@@ -716,7 +718,14 @@ class _OrchestratorRun:
                 ws_runtime.mark_merge_ready()
 
     def _process_merge_ready_workstreams(self) -> None:
-        """Create integration PRs for workstreams that have reached MERGE_READY."""
+        """Create integration PRs for workstreams that have reached MERGE_READY.
+
+        When a workstream has ``auto_merge=True`` on its spec and none of its
+        tasks recorded design concerns, the integration PR is merged
+        immediately after creation (via the configured
+        :class:`IntegrationAutoMerger`).  Otherwise the PR is left for human
+        review.
+        """
         graph = self._orchestrator.graph
         for workstream_id in graph.workstream_ids():
             ws_runtime = self._workstream_runtimes[workstream_id]
@@ -753,6 +762,66 @@ class _OrchestratorRun:
                         ),
                     ),
                 )
+
+                if result.status == WorkstreamStatus.PR_CREATED:
+                    self._try_auto_merge(workstream_id, ws_runtime)
+
+    def _try_auto_merge(
+        self, workstream_id: str, ws_runtime: WorkstreamRuntime
+    ) -> None:
+        """Attempt to auto-merge a workstream's integration PR.
+
+        Auto-merge is attempted only when all of:
+        - The workstream spec has ``auto_merge=True``.
+        - An :class:`IntegrationAutoMerger` is configured on the orchestrator.
+        - No task in the workstream recorded a design concern.
+
+        On success the workstream transitions to ``MERGED`` and a
+        ``workstream_auto_merged`` event is emitted.  On failure (merge call
+        raises) a ``workstream_auto_merge_failed`` event is emitted and the
+        workstream remains ``PR_CREATED`` for human review.  When auto-merge
+        is skipped due to concerns, a ``workstream_auto_merge_skipped`` event
+        is emitted.
+        """
+        spec = ws_runtime.spec
+        if not spec.auto_merge:
+            return
+
+        merger = self._orchestrator.integration_auto_merger
+        if merger is None:
+            return
+
+        has_concerns = any(s.concerns for s in ws_runtime.artifacts.task_summaries)
+        if has_concerns:
+            self._emit(
+                OrchestratorEvent(
+                    kind="workstream_auto_merge_skipped",
+                    workstream_id=workstream_id,
+                    message="design concerns found — leaving for human review",
+                ),
+            )
+            return
+
+        try:
+            merger.merge(ws_runtime)
+        except Exception as exc:  # noqa: BLE001
+            self._emit(
+                OrchestratorEvent(
+                    kind="workstream_auto_merge_failed",
+                    workstream_id=workstream_id,
+                    message=str(exc),
+                ),
+            )
+            return
+
+        ws_runtime.mark_merged()
+        self._emit(
+            OrchestratorEvent(
+                kind="workstream_auto_merged",
+                workstream_id=workstream_id,
+                message=ws_runtime.artifacts.merge_pr_url,
+            ),
+        )
 
     def _poll_integration_merges(self) -> None:
         """Check PR_CREATED workstreams for merge on the remote platform.
