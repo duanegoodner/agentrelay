@@ -9,30 +9,26 @@ new or changed types and relationships, then re-render via `pixi run diagram`.
 
 ## Views
 
-**Standard** — public API types with collapsed `implementations/` packages. This is
-the default view for understanding the architecture.
+**Module overview** — inter-module dependency graph. One box per module, arrows
+showing which modules depend on which.
 
-[View standard diagram (SVG)](diagrams/uml/diagram-standard.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
+[View module overview (SVG)](diagrams/uml/diagram-modules.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
 
-**Detailed** — everything: private types, implementation classes, and all relationships.
-Use this for deep dives into specific packages.
+**Per-module diagrams** — each module gets a focused diagram showing its full
+types plus simplified stubs for external dependencies. Located in
+`diagrams/uml/modules/diagram-{module-name}.svg`. These are the primary
+reference for understanding individual modules.
+
+Per-module diagrams are auto-generated from `diagram-detailed.d2` by
+`tools/generate_module_diagrams.py`. External dependency stubs are shown at
+reduced opacity with only the types that have relationships with the focus
+module.
+
+**Detailed** — everything in one diagram: all types, all relationships, all
+modules. Use this for cross-cutting analysis or when you need to see the full
+picture.
 
 [View detailed diagram (SVG)](diagrams/uml/diagram-detailed.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
-
-Two intermediate variants are also generated for reference:
-
-- `diagrams/uml/diagram-no-private.svg` — public types with full implementation detail
-- `diagrams/uml/diagram-no-impl.svg` — all types with collapsed implementations
-
-## Filtering conventions
-
-Diagram variants are auto-generated from `diagrams/uml/diagram-detailed.d2` by `tools/generate_diagrams.py`
-using composable filters from `tools/d2_filters.py`:
-
-- **Private filter**: strips nodes whose D2 identifier starts with `_` (matching the
-  Python private naming convention) and any relationship arrows referencing them.
-- **Impl filter**: collapses `*_impl_pkg` containers to a `"(N classes hidden)"`
-  placeholder and strips relationship arrows referencing nodes inside them.
 
 ## Conventions
 

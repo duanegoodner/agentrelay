@@ -16,21 +16,6 @@ RENDER_LAYOUT="tala"
 RENDER_SCALE=0.3
 RENDER_PAD=50
 
-# ── Per-variant overrides (uncomment to customize) ──────────────────
-# STANDARD_RENDER_SCALE=0.4
-# STANDARD_D2_FONT_SIZE=55
-# NO_IMPL_RENDER_SCALE=0.35
-
-# ── Helper: resolve per-variant value or fall back to default ───────
-variant_val() {
-  local variant_upper="${1^^}"       # e.g. "standard" -> "STANDARD"
-  variant_upper="${variant_upper//-/_}" # e.g. "NO-PRIVATE" -> "NO_PRIVATE"
-  local param="$2"                   # e.g. "RENDER_SCALE"
-  local default="$3"
-  local varname="${variant_upper}_${param}"
-  echo "${!varname:-$default}"
-}
-
 # ── Build the D2 preamble (globals + style classes) ──────────────────
 build_preamble() {
   cat <<PREAMBLE
@@ -76,34 +61,22 @@ classes: {
 PREAMBLE
 }
 
-# ── Generate filtered D2 variants with style preamble ────────────────
+# ── Generate per-module diagrams from detailed source ─────────────────
 # Convert the multi-line preamble into --preamble args (one per line).
 preamble_args=()
 while IFS= read -r line; do
   preamble_args+=(--preamble "$line")
 done < <(build_preamble)
 
-python -m tools.generate_diagrams "${preamble_args[@]}"
 python -m tools.generate_module_diagrams "${preamble_args[@]}"
 
-# ── Render full-diagram SVGs ─────────────────────────────────────────
-for variant in detailed no-private no-impl standard; do
-  scale=$(variant_val "$variant" RENDER_SCALE "$RENDER_SCALE")
-  pad=$(variant_val "$variant" RENDER_PAD "$RENDER_PAD")
-  layout=$(variant_val "$variant" RENDER_LAYOUT "$RENDER_LAYOUT")
-
-  if [ "$variant" = "detailed" ]; then
-    # Detailed diagram is the source — prepend preamble directly for rendering.
-    {
-      build_preamble
-      echo ""
-      cat "docs/diagrams/uml/diagram-detailed.d2"
-    } | d2 --layout "$layout" --scale "$scale" --pad "$pad" - "docs/diagrams/uml/diagram-detailed.svg"
-  else
-    d2 --layout "$layout" --scale "$scale" --pad "$pad" \
-      "docs/diagrams/uml/diagram-${variant}.d2" "docs/diagrams/uml/diagram-${variant}.svg"
-  fi
-done
+# ── Render diagram-detailed SVG ──────────────────────────────────────
+{
+  build_preamble
+  echo ""
+  cat "docs/diagrams/uml/diagram-detailed.d2"
+} | d2 --layout "$RENDER_LAYOUT" --scale "$RENDER_SCALE" --pad "$RENDER_PAD" \
+    - "docs/diagrams/uml/diagram-detailed.svg"
 
 # ── Render per-module SVGs ───────────────────────────────────────────
 MODULE_DIR="docs/diagrams/uml/modules"
