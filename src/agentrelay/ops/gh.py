@@ -1,8 +1,8 @@
 """GitHub CLI operations — thin subprocess wrappers for PR management.
 
 Pure subprocess wrappers. No agentrelay domain types — just strings and
-:class:`~pathlib.Path`. All functions raise :class:`subprocess.CalledProcessError`
-on failure.
+:class:`~pathlib.Path`. Most functions raise :class:`subprocess.CalledProcessError`
+on failure; :func:`pr_is_merged` is an exception — see its docstring.
 """
 
 from __future__ import annotations
@@ -119,6 +119,31 @@ def pr_merge(pr_url: str) -> None:
         check=True,
         capture_output=True,
     )
+
+
+def pr_is_merged(pr_url: str) -> bool:
+    """Check whether a pull request has been merged.
+
+    Runs ``gh pr view <url> --json state --jq '.state'``.
+
+    Unlike the other functions in this module, this returns ``False``
+    on :class:`subprocess.CalledProcessError` instead of raising.  The
+    function is designed for polling loops where transient network or
+    CLI failures should not crash the orchestrator.
+
+    Returns:
+        ``True`` if the PR state is ``"MERGED"``, ``False`` otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ["gh", "pr", "view", pr_url, "--json", "state", "--jq", ".state"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return result.stdout.strip() == "MERGED"
+    except subprocess.CalledProcessError:
+        return False
 
 
 def pr_body(pr_url: str) -> str:

@@ -169,3 +169,70 @@ def test_constructor_rejects_workstream_key_id_mismatch() -> None:
             tasks_by_id={"a": task_a},
             workstreams_by_id={"not-a": _workstream("a")},
         )
+
+
+# --- upstream_workstream_ids ---
+
+
+def test_upstream_workstream_ids_same_workstream_returns_empty() -> None:
+    """Dependencies in the same workstream produce no upstream workstream IDs."""
+    task_a = _task("a", workstream_id="ws")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws")
+    graph = TaskGraph.from_tasks([task_a, task_b], workstreams=[_workstream("ws")])
+
+    assert graph.upstream_workstream_ids("b") == ()
+
+
+def test_upstream_workstream_ids_cross_workstream() -> None:
+    """A dependency in a different workstream appears in the result."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        [task_a, task_b],
+        workstreams=[_workstream("ws_a"), _workstream("ws_b")],
+    )
+
+    assert graph.upstream_workstream_ids("b") == ("ws_a",)
+
+
+def test_upstream_workstream_ids_multiple_workstreams() -> None:
+    """Dependencies in multiple different workstreams are all returned."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", workstream_id="ws_b")
+    task_c = _task("c", dependencies=("a", "b"), workstream_id="ws_c")
+    graph = TaskGraph.from_tasks(
+        [task_a, task_b, task_c],
+        workstreams=[_workstream("ws_a"), _workstream("ws_b"), _workstream("ws_c")],
+    )
+
+    assert graph.upstream_workstream_ids("c") == ("ws_a", "ws_b")
+
+
+def test_upstream_workstream_ids_no_dependencies_returns_empty() -> None:
+    """A root task with no dependencies has no upstream workstreams."""
+    task_a = _task("a", workstream_id="ws_a")
+    graph = TaskGraph.from_tasks([task_a], workstreams=[_workstream("ws_a")])
+
+    assert graph.upstream_workstream_ids("a") == ()
+
+
+def test_upstream_workstream_ids_unknown_task_raises() -> None:
+    """Unknown task ID raises KeyError."""
+    task_a = _task("a")
+    graph = TaskGraph.from_tasks([task_a])
+
+    with pytest.raises(KeyError, match="no-such-task"):
+        graph.upstream_workstream_ids("no-such-task")
+
+
+def test_upstream_workstream_ids_deduplicates() -> None:
+    """Multiple deps in the same foreign workstream produce one entry."""
+    task_a1 = _task("a1", workstream_id="ws_a")
+    task_a2 = _task("a2", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a1", "a2"), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        [task_a1, task_a2, task_b],
+        workstreams=[_workstream("ws_a"), _workstream("ws_b")],
+    )
+
+    assert graph.upstream_workstream_ids("b") == ("ws_a",)

@@ -45,6 +45,9 @@ from agentrelay.task_runner.implementations.task_teardown import WorktreeTaskTea
 from agentrelay.task_runtime.runtime import TaskRuntime
 from agentrelay.workstream.core.runner import StandardWorkstreamRunner
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
+from agentrelay.workstream.implementations.integration_merge_checker import (
+    GhIntegrationMergeChecker,
+)
 from agentrelay.workstream.implementations.workstream_integrator import (
     GhWorkstreamIntegrator,
 )
@@ -217,3 +220,12 @@ def build_standard_workstream_runner(
         _integrator=GhWorkstreamIntegrator(repo_path=repo_path),
         _teardown=GitWorkstreamTeardown(repo_path=repo_path),
     )
+
+
+def build_integration_merge_checker() -> GhIntegrationMergeChecker:
+    """Build the standard integration merge checker for GitHub CLI.
+
+    Returns:
+        A :class:`GhIntegrationMergeChecker` instance.
+    """
+    return GhIntegrationMergeChecker()

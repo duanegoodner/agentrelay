@@ -7,6 +7,7 @@ continues to work after promotion from a single module to a package.
 from agentrelay.orchestrator.builders import (
     TaskRuntimeBuilder,
     WorkstreamRuntimeBuilder,
+    build_integration_merge_checker,
     build_standard_runner,
     build_standard_workstream_runner,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "TaskOutcomeClass",
     "TaskRuntimeBuilder",
     "WorkstreamRuntimeBuilder",
+    "build_integration_merge_checker",
     "build_standard_runner",
     "build_standard_workstream_runner",
 ]

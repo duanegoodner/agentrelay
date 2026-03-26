@@ -31,6 +31,7 @@ from agentrelay.orchestrator import (
     OrchestratorConfig,
     OrchestratorOutcome,
     OrchestratorResult,
+    build_integration_merge_checker,
     build_standard_runner,
     build_standard_workstream_runner,
 )
@@ -260,6 +261,7 @@ async def run_graph(
         workstream_runner=workstream_runner,
         config=config,
         listener=ConsoleListener(verbose=verbose),
+        integration_merge_checker=build_integration_merge_checker(),
     )
     return await orchestrator.run()
 

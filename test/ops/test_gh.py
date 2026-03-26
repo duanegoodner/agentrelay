@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentrelay.ops.gh import pr_body, pr_create, pr_merge
+from agentrelay.ops.gh import pr_body, pr_create, pr_is_merged, pr_merge
 
 
 class TestPrCreate:
@@ -89,6 +89,55 @@ class TestPrMerge:
         mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
         with pytest.raises(subprocess.CalledProcessError):
             pr_merge("https://github.com/org/repo/pull/99")
+
+
+class TestPrIsMerged:
+    """Tests for pr_is_merged."""
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_true_when_merged(self, mock_run: MagicMock) -> None:
+        """Returns True when gh reports state as MERGED."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="MERGED\n", stderr=""
+        )
+        assert pr_is_merged("https://github.com/org/repo/pull/42") is True
+        mock_run.assert_called_once_with(
+            [
+                "gh",
+                "pr",
+                "view",
+                "https://github.com/org/repo/pull/42",
+                "--json",
+                "state",
+                "--jq",
+                ".state",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_false_when_open(self, mock_run: MagicMock) -> None:
+        """Returns False when PR is still open."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="OPEN\n", stderr=""
+        )
+        assert pr_is_merged("https://github.com/org/repo/pull/42") is False
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_false_when_closed(self, mock_run: MagicMock) -> None:
+        """Returns False when PR is closed without merge."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="CLOSED\n", stderr=""
+        )
+        assert pr_is_merged("https://github.com/org/repo/pull/42") is False
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_false_on_subprocess_error(self, mock_run: MagicMock) -> None:
+        """Returns False on CalledProcessError instead of raising."""
+        mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
+        assert pr_is_merged("https://github.com/org/repo/pull/42") is False
 
 
 class TestPrBody:

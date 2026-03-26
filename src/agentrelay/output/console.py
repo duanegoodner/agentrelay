@@ -117,6 +117,19 @@ class ConsoleListener:
             f"integration FAILED: {msg}",
         )
 
+    def _on_workstream_merged(self, event: OrchestratorEvent) -> None:
+        detail = "integration PR merged"
+        if event.message:
+            detail += f" \u2192 {event.message}"
+        self._print(event.timestamp, event.workstream_id or "?", detail)
+
+    def _on_waiting_for_integration_merge(self, event: OrchestratorEvent) -> None:
+        self._print(
+            event.timestamp,
+            "orchestrator",
+            "waiting for integration PR merge...",
+        )
+
     # -- Verbose-only step events (from StandardTaskRunner) --
 
     def _on_task_prepared(self, event: OrchestratorEvent) -> None:

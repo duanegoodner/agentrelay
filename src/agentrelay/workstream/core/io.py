@@ -58,7 +58,24 @@ class WorkstreamTeardown(Protocol):
         ...
 
 
+@runtime_checkable
+class IntegrationMergeChecker(Protocol):
+    """Check whether a workstream's integration PR has been merged."""
+
+    def is_merged(self, workstream_runtime: WorkstreamRuntime) -> bool:
+        """Return True if the integration PR for this workstream is merged.
+
+        Args:
+            workstream_runtime: Workstream runtime to check.
+
+        Returns:
+            True if the integration PR has been merged on the target platform.
+        """
+        ...
+
+
 __all__ = [
+    "IntegrationMergeChecker",
     "WorkstreamIntegrator",
     "WorkstreamPreparer",
     "WorkstreamTeardown",
