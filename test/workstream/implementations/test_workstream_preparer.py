@@ -140,6 +140,26 @@ class TestGitWorkstreamPreparer:
             "develop",
         )
 
+    @patch("agentrelay.workstream.implementations.workstream_preparer.git")
+    def test_fetches_base_branch_before_worktree_add(
+        self,
+        mock_git: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """Fetches the base branch and updates local ref before creating worktree."""
+        preparer = _make_preparer(repo_path=tmp_path)
+        runtime = _make_runtime()
+
+        preparer.prepare_workstream(runtime)
+
+        mock_git.fetch_branch.assert_called_once_with(tmp_path, "main")
+        mock_git.update_local_ref.assert_called_once_with(
+            tmp_path, "main", "origin/main"
+        )
+        # Verify fetch happens before worktree_add via call order.
+        call_names = [c[0] for c in mock_git.method_calls]
+        assert call_names.index("fetch_branch") < call_names.index("worktree_add")
+
     def test_satisfies_workstream_preparer_protocol(self) -> None:
         """GitWorkstreamPreparer satisfies the WorkstreamPreparer protocol."""
         preparer = _make_preparer()

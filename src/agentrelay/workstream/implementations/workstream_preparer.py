@@ -42,6 +42,15 @@ class GitWorkstreamPreparer:
         worktree_path = self.repo_path / ".worktrees" / self.graph_name / spec.id
 
         try:
+            # Ensure the base branch is current before creating the worktree.
+            # Integration PR merges happen on the remote; the local ref may be
+            # stale unless we fetch + update before branching from it.
+            git.fetch_branch(self.repo_path, spec.base_branch)
+            git.update_local_ref(
+                self.repo_path,
+                spec.base_branch,
+                f"origin/{spec.base_branch}",
+            )
             git.worktree_add(
                 self.repo_path, worktree_path, branch_name, spec.base_branch
             )

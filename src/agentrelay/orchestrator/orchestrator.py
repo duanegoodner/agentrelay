@@ -25,6 +25,7 @@ from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 from agentrelay.workstream import (
+    IntegrationMergeChecker,
     WorkstreamRunner,
     WorkstreamRuntime,
     WorkstreamStatus,
@@ -73,6 +74,9 @@ class OrchestratorConfig:
         fail_fast_on_workstream_error: When ``True``, a workstream-level failure
             prevents preparing any new (PENDING) workstreams. In-flight work
             in already-active workstreams is not cancelled.
+        merge_poll_interval: Seconds between polls for integration PR merge
+            status.  Only used when an :class:`IntegrationMergeChecker` is
+            configured on the :class:`Orchestrator`.
     """
 
     max_concurrency: int = 1
@@ -80,6 +84,7 @@ class OrchestratorConfig:
     task_teardown_mode: TearDownMode = TearDownMode.ON_SUCCESS
     fail_fast_on_internal_error: bool = True
     fail_fast_on_workstream_error: bool = True
+    merge_poll_interval: float = 30.0
 
 
 @dataclass(frozen=True)
@@ -149,6 +154,7 @@ class Orchestrator:
     workstream_runner: WorkstreamRunner
     config: OrchestratorConfig = field(default_factory=OrchestratorConfig)
     listener: Optional[OrchestratorListener] = None
+    integration_merge_checker: Optional[IntegrationMergeChecker] = None
 
     async def run(
         self,
@@ -219,21 +225,38 @@ class _OrchestratorRun:
 
     async def execute(self) -> OrchestratorResult:
         """Run the scheduling loop and return the terminal result."""
+        config = self._orchestrator.config
         while True:
             if self._all_tasks_terminal() or self._fatal_error is not None:
                 break
 
+            self._poll_integration_merges()
             self._dispatch_ready_tasks()
 
             if not self._running:
+                if self._has_pending_integration_merges():
+                    self._emit(
+                        OrchestratorEvent(
+                            kind="waiting_for_integration_merge",
+                        ),
+                    )
+                    await asyncio.sleep(config.merge_poll_interval)
+                    continue
                 if not self._handle_deadlock():
                     break
                 continue
 
+            wait_timeout: Optional[float] = None
+            if self._has_pending_integration_merges():
+                wait_timeout = config.merge_poll_interval
+
             done, _ = await asyncio.wait(
-                self._running.values(), return_when=asyncio.FIRST_COMPLETED
+                self._running.values(),
+                return_when=asyncio.FIRST_COMPLETED,
+                timeout=wait_timeout,
             )
-            await self._process_completed_tasks(done)
+            if done:
+                await self._process_completed_tasks(done)
 
         return self._build_result()
 
@@ -245,6 +268,8 @@ class _OrchestratorRun:
             raise ValueError("OrchestratorConfig.max_concurrency must be >= 1.")
         if config.max_task_attempts < 1:
             raise ValueError("OrchestratorConfig.max_task_attempts must be >= 1.")
+        if config.merge_poll_interval <= 0:
+            raise ValueError("OrchestratorConfig.merge_poll_interval must be > 0.")
 
     def _init_task_runtimes(
         self, task_runtimes: Optional[Mapping[str, TaskRuntime]]
@@ -594,6 +619,15 @@ class _OrchestratorRun:
                 return False
             current = graph.workstream(current).parent_workstream_id
 
+        # Cross-workstream dependency gate: upstream workstreams (containing
+        # dependencies in different workstreams) must be MERGED before dispatch.
+        for upstream_ws_id in graph.upstream_workstream_ids(task_id):
+            if (
+                self._workstream_runtimes[upstream_ws_id].status
+                != WorkstreamStatus.MERGED
+            ):
+                return False
+
         return True
 
     def _mark_blocked_pending_tasks_failed(self) -> bool:
@@ -646,6 +680,21 @@ class _OrchestratorRun:
             ):
                 return f"waiting for parent workstream '{parent_id}' to complete integration"
             parent_id = graph.workstream(parent_id).parent_workstream_id
+
+        # Cross-workstream dependency gate.
+        for upstream_ws_id in graph.upstream_workstream_ids(task_id):
+            upstream_runtime = self._workstream_runtimes[upstream_ws_id]
+            if upstream_runtime.status == WorkstreamStatus.FAILED:
+                return f"upstream workstream '{upstream_ws_id}' failed"
+            if upstream_runtime.status != WorkstreamStatus.MERGED:
+                if self._orchestrator.integration_merge_checker is None:
+                    return (
+                        f"upstream workstream '{upstream_ws_id}' awaiting"
+                        " integration merge (no merge checker configured)"
+                    )
+                # Checker configured — not permanently blocked, just waiting.
+                return None
+
         return None
 
     def _refresh_workstream_terminal_states(self) -> None:
@@ -704,6 +753,51 @@ class _OrchestratorRun:
                         ),
                     ),
                 )
+
+    def _poll_integration_merges(self) -> None:
+        """Check PR_CREATED workstreams for merge on the remote platform.
+
+        For each workstream in ``PR_CREATED`` status, asks the configured
+        :class:`IntegrationMergeChecker` whether the integration PR has been
+        merged.  When a merge is detected, writes the ``merged`` signal file
+        and emits a ``workstream_merged`` event.
+
+        No-op when no :attr:`Orchestrator.integration_merge_checker` is set.
+        """
+        checker = self._orchestrator.integration_merge_checker
+        if checker is None:
+            return
+        graph = self._orchestrator.graph
+        for workstream_id in graph.workstream_ids():
+            ws_runtime = self._workstream_runtimes[workstream_id]
+            if ws_runtime.status != WorkstreamStatus.PR_CREATED:
+                continue
+            if checker.is_merged(ws_runtime):
+                ws_runtime.mark_merged()
+                self._emit(
+                    OrchestratorEvent(
+                        kind="workstream_merged",
+                        workstream_id=workstream_id,
+                        message=ws_runtime.artifacts.merge_pr_url,
+                    ),
+                )
+
+    def _has_pending_integration_merges(self) -> bool:
+        """True if any pending task is waiting for an upstream integration merge."""
+        if self._orchestrator.integration_merge_checker is None:
+            return False
+        graph = self._orchestrator.graph
+        for task_id in graph.task_ids():
+            runtime = self._task_runtimes[task_id]
+            if runtime.status != TaskStatus.PENDING:
+                continue
+            for ws_id in graph.upstream_workstream_ids(task_id):
+                if (
+                    self._workstream_runtimes[ws_id].status
+                    == WorkstreamStatus.PR_CREATED
+                ):
+                    return True
+        return False
 
     def _should_block_new_workstreams(self) -> bool:
         """Check whether new workstream preparation should be blocked."""

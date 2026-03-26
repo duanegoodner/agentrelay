@@ -367,6 +367,32 @@ class TaskGraph:
         self._require_workstream_id(workstream_id)
         return self._child_workstream_ids[workstream_id]
 
+    def upstream_workstream_ids(self, task_id: str) -> tuple[str, ...]:
+        """Return workstream IDs of cross-workstream dependencies.
+
+        For a given task, returns the set of workstream IDs that contain at
+        least one dependency of this task but differ from the task's own
+        workstream.  These upstream workstreams must have their integration PRs
+        merged before this task can be dispatched.
+
+        Args:
+            task_id: Task identifier to inspect.
+
+        Raises:
+            KeyError: If ``task_id`` is not present in this graph.
+
+        Returns:
+            tuple[str, ...]: Upstream workstream IDs in sorted order.
+        """
+        self._require_task_id(task_id)
+        task_ws = self._tasks_by_id[task_id].workstream_id
+        upstream: set[str] = set()
+        for dep_id in self._dependency_ids[task_id]:
+            dep_ws = self._tasks_by_id[dep_id].workstream_id
+            if dep_ws != task_ws:
+                upstream.add(dep_ws)
+        return tuple(sorted(upstream))
+
     def _require_task_id(self, task_id: str) -> None:
         """Assert that a task ID exists in this graph.
 

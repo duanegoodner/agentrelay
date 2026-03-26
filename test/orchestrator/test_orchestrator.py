@@ -746,3 +746,222 @@ def test_workstream_integration_failure_downgrades_outcome() -> None:
     assert result.task_runtimes["a"].status == TaskStatus.PR_MERGED
     assert result.workstream_runtimes["default"].status == WorkstreamStatus.FAILED
     assert any(event.kind == "workstream_integration_failed" for event in result.events)
+
+
+# ---------------------------------------------------------------------------
+# Cross-workstream dispatch gating
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class ScriptedMergeChecker:
+    """IntegrationMergeChecker double that reports merged after N polls."""
+
+    polls_before_merged: dict[str, int] = field(default_factory=dict)
+    _poll_counts: dict[str, int] = field(default_factory=dict)
+
+    def is_merged(self, workstream_runtime: WorkstreamRuntime) -> bool:  # noqa: D102
+        ws_id = workstream_runtime.spec.id
+        threshold = self.polls_before_merged.get(ws_id, 0)
+        count = self._poll_counts.get(ws_id, 0) + 1
+        self._poll_counts[ws_id] = count
+        return count > threshold
+
+
+def test_cross_workstream_task_blocks_until_upstream_merged() -> None:
+    """Task B in ws_b blocks until ws_a reaches MERGED status."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(WorkstreamSpec(id="ws_a"), WorkstreamSpec(id="ws_b")),
+    )
+    runner = ScriptedTaskRunner()
+    checker = ScriptedMergeChecker(polls_before_merged={"ws_a": 1})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2, merge_poll_interval=0.01),
+            integration_merge_checker=checker,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    # a runs first, then b after ws_a is merged.
+    assert [tid for tid, _, _ in runner.calls] == ["a", "b"]
+    assert result.workstream_runtimes["ws_a"].status == WorkstreamStatus.MERGED
+    assert result.workstream_runtimes["ws_b"].status == WorkstreamStatus.PR_CREATED
+
+
+def test_same_workstream_dep_unaffected_by_cross_ws_gate() -> None:
+    """Dependencies within the same workstream still dispatch normally."""
+    task_a = _task("a", workstream_id="ws")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(WorkstreamSpec(id="ws"),),
+    )
+    runner = ScriptedTaskRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert [tid for tid, _, _ in runner.calls] == ["a", "b"]
+
+
+def test_cross_workstream_without_checker_is_deadlock() -> None:
+    """Without a merge checker, cross-workstream tasks are permanently blocked."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(WorkstreamSpec(id="ws_a"), WorkstreamSpec(id="ws_b")),
+    )
+    runner = ScriptedTaskRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2),
+            integration_merge_checker=None,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
+    assert result.task_runtimes["a"].status == TaskStatus.PR_MERGED
+    assert result.task_runtimes["b"].status == TaskStatus.FAILED
+    assert "no merge checker" in (result.task_runtimes["b"].state.error or "")
+
+
+def test_cross_workstream_upstream_failure_blocks_downstream() -> None:
+    """If upstream workstream fails, downstream task is blocked."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(WorkstreamSpec(id="ws_a"), WorkstreamSpec(id="ws_b")),
+    )
+    runner = ScriptedTaskRunner(script={("a", 0): "fail"})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
+    assert result.task_runtimes["a"].status == TaskStatus.FAILED
+    assert result.task_runtimes["b"].status == TaskStatus.FAILED
+
+
+def test_workstream_merged_event_emitted() -> None:
+    """A workstream_merged event is emitted when the checker detects a merge."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(WorkstreamSpec(id="ws_a"), WorkstreamSpec(id="ws_b")),
+    )
+    checker = ScriptedMergeChecker(polls_before_merged={"ws_a": 0})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2, merge_poll_interval=0.01),
+            integration_merge_checker=checker,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    merged_events = [e for e in result.events if e.kind == "workstream_merged"]
+    assert len(merged_events) == 1
+    assert merged_events[0].workstream_id == "ws_a"
+
+
+def test_waiting_for_integration_merge_event_emitted() -> None:
+    """A waiting_for_integration_merge event is emitted when polling."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b),
+        workstreams=(WorkstreamSpec(id="ws_a"), WorkstreamSpec(id="ws_b")),
+    )
+    # Require 2 polls before merge so we get at least one waiting event.
+    checker = ScriptedMergeChecker(polls_before_merged={"ws_a": 2})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=2, merge_poll_interval=0.01),
+            integration_merge_checker=checker,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert any(e.kind == "waiting_for_integration_merge" for e in result.events)
+
+
+def test_merge_poll_interval_validation() -> None:
+    """merge_poll_interval <= 0 raises ValueError."""
+    task = _task("a")
+    graph = TaskGraph.from_tasks((task,))
+    with pytest.raises(ValueError, match="merge_poll_interval"):
+        asyncio.run(
+            Orchestrator(
+                graph=graph,
+                task_runner=ScriptedTaskRunner(),
+                workstream_runner=_noop_ws_runner(),
+                config=OrchestratorConfig(merge_poll_interval=0),
+            ).run()
+        )
+
+
+def test_diamond_cross_workstream_all_complete() -> None:
+    """Diamond graph across 4 workstreams completes with merge checker."""
+    task_a = _task("a", workstream_id="ws_a")
+    task_b = _task("b", dependencies=("a",), workstream_id="ws_b")
+    task_c = _task("c", dependencies=("a",), workstream_id="ws_c")
+    task_d = _task("d", dependencies=("b", "c"), workstream_id="ws_d")
+    graph = TaskGraph.from_tasks(
+        (task_a, task_b, task_c, task_d),
+        workstreams=(
+            WorkstreamSpec(id="ws_a"),
+            WorkstreamSpec(id="ws_b"),
+            WorkstreamSpec(id="ws_c"),
+            WorkstreamSpec(id="ws_d"),
+        ),
+    )
+    checker = ScriptedMergeChecker(
+        polls_before_merged={"ws_a": 0, "ws_b": 0, "ws_c": 0}
+    )
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=ScriptedTaskRunner(),
+            workstream_runner=_noop_ws_runner(),
+            config=OrchestratorConfig(max_concurrency=4, merge_poll_interval=0.01),
+            integration_merge_checker=checker,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.task_runtimes["d"].status == TaskStatus.PR_MERGED
