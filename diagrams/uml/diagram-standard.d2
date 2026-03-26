@@ -149,6 +149,7 @@ workstream_pkg: "workstream/" {
       parent_workstream_id: "str | None"
       base_branch: str
       merge_target_branch: str
+      auto_merge: bool
     }
 
     WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
@@ -219,6 +220,11 @@ workstream_pkg: "workstream/" {
       +is_merged(workstream_runtime): bool
     }
 
+    IntegrationAutoMerger: "IntegrationAutoMerger <<protocol>>" {
+      shape: class
+      +merge(workstream_runtime): void
+    }
+
     WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
       shape: class
       workstream_id: str
@@ -242,7 +248,7 @@ workstream_pkg: "workstream/" {
   }
 
   workstream_impl_pkg: "implementations/" {
-    "(4 classes hidden)"
+    "(5 classes hidden)"
   }
 }
 
@@ -483,6 +489,7 @@ orchestrator_pkg: "orchestrator/" {
     config: OrchestratorConfig
     listener: "OrchestratorListener | None"
     integration_merge_checker: "IntegrationMergeChecker | None"
+    integration_auto_merger: "IntegrationAutoMerger | None"
     +run(task_runtimes, workstream_runtimes): OrchestratorResult
   }
 
@@ -854,6 +861,7 @@ workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.Workstr
 workstream_pkg.workstream_impl_pkg -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: satisfies { class: implementation }
 
 # --- orchestrator ---
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
@@ -868,6 +876,7 @@ orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.Tear
 orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: "listener (optional)" { class: composition }
 orchestrator_pkg.OrchestratorListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: "polls merge status" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: "auto-merges integration PRs" { class: composition }
 orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
 
