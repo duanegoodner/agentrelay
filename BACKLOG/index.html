@@ -1891,6 +1891,15 @@
 <ul>
 <li>Add additional <code>AgentFramework</code> implementations beyond <code>CLAUDE_CODE</code>.</li>
 <li>Expand <code>AgentEnvironment</code> beyond tmux when real use-cases are validated.</li>
+<li><strong>Decouple <code>task_helper.py</code> from GitHub CLI</strong>: <code>TaskHelper.complete()</code>
+  makes a direct <code>subprocess.run(["gh", "pr", "create", ...])</code> call,
+  bypassing the protocol/ops abstraction used everywhere else in the
+  orchestrator. This is the one spot where agent-side code is
+  GitHub-specific without an abstraction layer. Evaluate whether to route
+  through an ops function or make the PR creation mechanism configurable
+  (e.g., via an env var or manifest field that tells the agent which
+  platform CLI to use). Low urgency — only matters if/when supporting
+  non-GitHub platforms.</li>
 </ul>
 <h2 id="graph-execution">Graph Execution</h2>
 <ul>
