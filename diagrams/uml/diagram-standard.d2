@@ -214,6 +214,11 @@ workstream_pkg: "workstream/" {
       +teardown_workstream(workstream_runtime): void
     }
 
+    IntegrationMergeChecker: "IntegrationMergeChecker <<protocol>>" {
+      shape: class
+      +is_merged(workstream_runtime): bool
+    }
+
     WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
       shape: class
       workstream_id: str
@@ -237,7 +242,7 @@ workstream_pkg: "workstream/" {
   }
 
   workstream_impl_pkg: "implementations/" {
-    "(3 classes hidden)"
+    "(4 classes hidden)"
   }
 }
 
@@ -261,6 +266,7 @@ task_graph_pkg: "task_graph/" {
     +workstream(workstream_id): WorkstreamSpec
     +tasks_in_workstream(workstream_id): "tuple[str, ...]"
     +child_workstream_ids(workstream_id): "tuple[str, ...]"
+    +upstream_workstream_ids(task_id): "tuple[str, ...]"
   }
 
 
@@ -441,6 +447,7 @@ orchestrator_pkg: "orchestrator/" {
     task_teardown_mode: TearDownMode
     fail_fast_on_internal_error: bool
     fail_fast_on_workstream_error: bool
+    merge_poll_interval: float
   }
 
   OrchestratorEvent: "OrchestratorEvent <<frozen dataclass>>" {
@@ -475,6 +482,7 @@ orchestrator_pkg: "orchestrator/" {
     workstream_runner: WorkstreamRunner
     config: OrchestratorConfig
     listener: "OrchestratorListener | None"
+    integration_merge_checker: "IntegrationMergeChecker | None"
     +run(task_runtimes, workstream_runtimes): OrchestratorResult
   }
 
@@ -535,6 +543,7 @@ ops_pkg: "ops/" {
     +pr_create(repo_dir, title, body, base, head): str
     +pr_merge(pr_url): void
     +pr_body(pr_url): str
+    +pr_is_merged(pr_url): bool
   }
 
   signals: "signals <<module>>" {
@@ -844,6 +853,7 @@ workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.Workstr
 workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: satisfies { class: implementation }
 
 # --- orchestrator ---
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
@@ -857,6 +867,7 @@ orchestrator_pkg.OrchestratorEvent -> orchestrator_pkg.TaskOutcomeClass: classif
 orchestrator_pkg.OrchestratorConfig -> task_runner_pkg.task_runner_core_pkg.TearDownMode: "teardown policy" { class: composition }
 orchestrator_pkg.Orchestrator -> orchestrator_pkg.OrchestratorListener: "listener (optional)" { class: composition }
 orchestrator_pkg.OrchestratorListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: "polls merge status" { class: composition }
 orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
 

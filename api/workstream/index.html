@@ -1101,6 +1101,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.workstream.IntegrationMergeChecker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IntegrationMergeChecker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IntegrationMergeChecker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.IntegrationMergeChecker.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamIntegrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1458,6 +1486,34 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhIntegrationMergeChecker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GhIntegrationMergeChecker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GhIntegrationMergeChecker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhIntegrationMergeChecker.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1599,6 +1655,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.workstream.IntegrationMergeChecker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IntegrationMergeChecker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="IntegrationMergeChecker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.IntegrationMergeChecker.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamIntegrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1956,6 +2040,34 @@
       
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhIntegrationMergeChecker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GhIntegrationMergeChecker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GhIntegrationMergeChecker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhIntegrationMergeChecker.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2099,6 +2211,185 @@ implementations: Concrete protocol implementations.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.IntegrationMergeChecker" class="doc doc-heading">
+            <code>IntegrationMergeChecker</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Check whether a workstream's integration PR has been merged.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IntegrationMergeChecker</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check whether a workstream&#39;s integration PR has been merged.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the integration PR for this workstream is merged.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            workstream_runtime: Workstream runtime to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the integration PR has been merged on the target platform.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.IntegrationMergeChecker.is_merged" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_merged</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return True if the integration PR for this workstream is merged.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>workstream_runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream runtime to check.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>True if the integration PR has been merged on the target platform.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if the integration PR for this workstream is merged.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        workstream_runtime: Workstream runtime to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the integration PR has been merged on the target platform.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -4731,6 +5022,218 @@ Defaults to <code>"main"</code>.</p>
 
 
 
+<h2 id="agentrelay.workstream.GhIntegrationMergeChecker" class="doc doc-heading">
+            <code>GhIntegrationMergeChecker</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Check integration PR merge status via GitHub CLI.</p>
+<p>Reads the merge PR URL from workstream artifacts and delegates
+to :func:<code>~agentrelay.ops.gh.pr_is_merged</code>.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/implementations/integration_merge_checker.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GhIntegrationMergeChecker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check integration PR merge status via GitHub CLI.</span>
+
+<span class="sd">    Reads the merge PR URL from workstream artifacts and delegates</span>
+<span class="sd">    to :func:`~agentrelay.ops.gh.pr_is_merged`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return True if the workstream&#39;s integration PR is merged on GitHub.</span>
+
+<span class="sd">        Returns ``False`` when no integration PR URL is available.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            workstream_runtime: Workstream runtime to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the integration PR has been merged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pr_url</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">merge_pr_url</span>
+        <span class="k">if</span> <span class="n">pr_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_is_merged</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.GhIntegrationMergeChecker.is_merged" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_merged</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return True if the workstream's integration PR is merged on GitHub.</p>
+<p>Returns <code>False</code> when no integration PR URL is available.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>workstream_runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkstreamRuntime
+
+
+  
+      dataclass
+   (agentrelay.workstream.core.runtime.WorkstreamRuntime)" href="#agentrelay.workstream.WorkstreamRuntime">WorkstreamRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Workstream runtime to check.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>True if the integration PR has been merged.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/implementations/integration_merge_checker.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if the workstream&#39;s integration PR is merged on GitHub.</span>
+
+<span class="sd">    Returns ``False`` when no integration PR URL is available.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        workstream_runtime: Workstream runtime to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the integration PR has been merged.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pr_url</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">merge_pr_url</span>
+    <span class="k">if</span> <span class="n">pr_url</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_is_merged</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="agentrelay.workstream.GhWorkstreamIntegrator" class="doc doc-heading">
             <code>GhWorkstreamIntegrator</code>
 
@@ -5029,7 +5532,16 @@ so that task PRs can target it.</p>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GitWorkstreamPreparer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision a worktree and integration branch for a workstream lane.</span>
 
@@ -5055,6 +5567,15 @@ so that task PRs can target it.</p>
         <span class="n">worktree_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="s2">&quot;.worktrees&quot;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">id</span>
 
         <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Ensure the base branch is current before creating the worktree.</span>
+            <span class="c1"># Integration PR merges happen on the remote; the local ref may be</span>
+            <span class="c1"># stale unless we fetch + update before branching from it.</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">)</span>
+            <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+                <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
             <span class="p">)</span>
@@ -5167,7 +5688,16 @@ so that task PRs can target it.</p>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision worktree and integration branch for this workstream.</span>
 
 <span class="sd">    Args:</span>
@@ -5178,6 +5708,15 @@ so that task PRs can target it.</p>
     <span class="n">worktree_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="s2">&quot;.worktrees&quot;</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span> <span class="o">/</span> <span class="n">spec</span><span class="o">.</span><span class="n">id</span>
 
     <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Ensure the base branch is current before creating the worktree.</span>
+        <span class="c1"># Integration PR merges happen on the remote; the local ref may be</span>
+        <span class="c1"># stale unless we fetch + update before branching from it.</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">)</span>
+        <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
         <span class="p">)</span>

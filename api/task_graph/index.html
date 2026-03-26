@@ -1223,6 +1223,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_graph.TaskGraph.upstream_workstream_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upstream_workstream_ids
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1730,6 +1741,17 @@
     <span class="md-ellipsis">
       
         child_workstream_ids
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_graph.TaskGraph.upstream_workstream_ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        upstream_workstream_ids
       
     </span>
   </a>
@@ -3088,7 +3110,33 @@ hierarchies. <code>1</code> allows parent -&gt; child only.</p>
 <span class="normal">389</span>
 <span class="normal">390</span>
 <span class="normal">391</span>
-<span class="normal">392</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Immutable DAG of :class:`Task` specifications keyed by task ID.</span>
 
@@ -3405,6 +3453,32 @@ hierarchies. <code>1</code> allows parent -&gt; child only.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_require_workstream_id</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_child_workstream_ids</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">upstream_workstream_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return workstream IDs of cross-workstream dependencies.</span>
+
+<span class="sd">        For a given task, returns the set of workstream IDs that contain at</span>
+<span class="sd">        least one dependency of this task but differ from the task&#39;s own</span>
+<span class="sd">        workstream.  These upstream workstreams must have their integration PRs</span>
+<span class="sd">        merged before this task can be dispatched.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            task_id: Task identifier to inspect.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            KeyError: If ``task_id`` is not present in this graph.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            tuple[str, ...]: Upstream workstream IDs in sorted order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_require_task_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+        <span class="n">task_ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_id</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">workstream_id</span>
+        <span class="n">upstream</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">dep_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dependency_ids</span><span class="p">[</span><span class="n">task_id</span><span class="p">]:</span>
+            <span class="n">dep_ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_id</span><span class="p">[</span><span class="n">dep_id</span><span class="p">]</span><span class="o">.</span><span class="n">workstream_id</span>
+            <span class="k">if</span> <span class="n">dep_ws</span> <span class="o">!=</span> <span class="n">task_ws</span><span class="p">:</span>
+                <span class="n">upstream</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dep_ws</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">upstream</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_require_task_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Assert that a task ID exists in this graph.</span>
@@ -5232,6 +5306,158 @@ unknown task ID.</p>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_require_workstream_id</span><span class="p">(</span><span class="n">workstream_id</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_child_workstream_ids</span><span class="p">[</span><span class="n">workstream_id</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.task_graph.TaskGraph.upstream_workstream_ids" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">upstream_workstream_ids</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return workstream IDs of cross-workstream dependencies.</p>
+<p>For a given task, returns the set of workstream IDs that contain at
+least one dependency of this task but differ from the task's own
+workstream.  These upstream workstreams must have their integration PRs
+merged before this task can be dispatched.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>task_id</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task identifier to inspect.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="KeyError">KeyError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>task_id</code> is not present in this graph.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>tuple[str, ...]: Upstream workstream IDs in sorted order.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_graph/graph.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upstream_workstream_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return workstream IDs of cross-workstream dependencies.</span>
+
+<span class="sd">    For a given task, returns the set of workstream IDs that contain at</span>
+<span class="sd">    least one dependency of this task but differ from the task&#39;s own</span>
+<span class="sd">    workstream.  These upstream workstreams must have their integration PRs</span>
+<span class="sd">    merged before this task can be dispatched.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        task_id: Task identifier to inspect.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        KeyError: If ``task_id`` is not present in this graph.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple[str, ...]: Upstream workstream IDs in sorted order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_require_task_id</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+    <span class="n">task_ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_id</span><span class="p">[</span><span class="n">task_id</span><span class="p">]</span><span class="o">.</span><span class="n">workstream_id</span>
+    <span class="n">upstream</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">dep_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dependency_ids</span><span class="p">[</span><span class="n">task_id</span><span class="p">]:</span>
+        <span class="n">dep_ws</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tasks_by_id</span><span class="p">[</span><span class="n">dep_id</span><span class="p">]</span><span class="o">.</span><span class="n">workstream_id</span>
+        <span class="k">if</span> <span class="n">dep_ws</span> <span class="o">!=</span> <span class="n">task_ws</span><span class="p">:</span>
+            <span class="n">upstream</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">dep_ws</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">upstream</span><span class="p">))</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
