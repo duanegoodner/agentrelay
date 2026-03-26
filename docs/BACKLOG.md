@@ -414,16 +414,6 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).
 
-## Diagram Rendering
-
-- **`diagram-no-impl.d2` exceeds TALA layout size limit**: As the D2 diagram
-  grows, the `diagram-no-impl` view (all types with collapsed implementations)
-  fails to render with TALA: `Reached a bad state: Dimensions w:20515, h:30905
-  reached after stage NodePlacement`. The other three views (detailed,
-  no-private, standard) render fine. Options: split the diagram into
-  sub-diagrams, reduce the no-impl view further, or switch to a different
-  layout engine for that view. Observed during PR D.
-
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).

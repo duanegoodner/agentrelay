@@ -1,0 +1,88 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# Module dependency overview
+# Auto-generated from diagram-detailed.d2
+
+task_py: "task.py"
+environments_py: "environments.py"
+agent_pkg: "agent/"
+workstream_pkg: "workstream/"
+task_graph_pkg: "task_graph/"
+task_runtime_pkg: "task_runtime/"
+task_runner_pkg: "task_runner/"
+orchestrator_pkg: "orchestrator/"
+ops_pkg: "ops/"
+errors_pkg: "errors/"
+agent_comm_protocol_pkg: "agent_comm_protocol/"
+agent_sdk_pkg: "agent_sdk/"
+output_pkg: "output/"
+tools_py: "tools.py"
+run_graph_py: "run_graph.py"
+reset_graph_py: "reset_graph.py"
+
+task_py -> workstream_pkg { class: dependency }
+task_py -> environments_py { class: dependency }
+task_graph_pkg -> task_py { class: dependency }
+task_graph_pkg -> workstream_pkg { class: dependency }
+orchestrator_pkg -> task_graph_pkg { class: dependency }
+orchestrator_pkg -> task_runtime_pkg { class: dependency }
+orchestrator_pkg -> workstream_pkg { class: dependency }
+task_runner_pkg -> task_runtime_pkg { class: dependency }
+task_runner_pkg -> agent_pkg { class: dependency }
+task_runner_pkg -> errors_pkg { class: dependency }
+orchestrator_pkg -> task_runner_pkg { class: dependency }
+task_runtime_pkg -> task_py { class: dependency }
+task_runtime_pkg -> agent_pkg { class: dependency }
+workstream_pkg -> ops_pkg { class: dependency }
+agent_comm_protocol_pkg -> task_py { class: dependency }
+task_runner_pkg -> ops_pkg { class: dependency }
+task_runner_pkg -> agent_comm_protocol_pkg { class: dependency }
+agent_pkg -> ops_pkg { class: dependency }
+run_graph_py -> task_graph_pkg { class: dependency }
+run_graph_py -> orchestrator_pkg { class: dependency }
+run_graph_py -> ops_pkg { class: dependency }
+run_graph_py -> output_pkg { class: dependency }
+reset_graph_py -> ops_pkg { class: dependency }
+output_pkg -> orchestrator_pkg { class: dependency }
+agent_sdk_pkg -> agent_comm_protocol_pkg { class: dependency }
+agent_sdk_pkg -> ops_pkg { class: dependency }
+agent_comm_protocol_pkg -> tools_py { class: dependency }
+run_graph_py -> tools_py { class: dependency }

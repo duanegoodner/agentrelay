@@ -1,0 +1,248 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  workstream/ — workstream specs, runtime, and runner
+# ─────────────────────────────────────────────
+workstream_pkg: "workstream/" {
+  workstream_core_pkg: "core/" {
+    WorkstreamSpec: "WorkstreamSpec <<frozen dataclass>>" {
+      shape: class
+      id: str
+      parent_workstream_id: "str | None"
+      base_branch: str
+      merge_target_branch: str
+      auto_merge: bool
+    }
+
+    WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
+      shape: class
+      PENDING
+      ACTIVE
+      MERGE_READY
+      PR_CREATED
+      MERGED
+      FAILED
+    }
+
+    WorkstreamState: "WorkstreamState <<mutable dataclass>>" {
+      shape: class
+      signal_dir: "Path | None"
+      worktree_path: "Path | None"
+      branch_name: "str | None"
+      error: "str | None"
+    }
+
+    WorkstreamArtifacts: "WorkstreamArtifacts <<mutable dataclass>>" {
+      shape: class
+      merge_pr_url: "str | None"
+      concerns: "list[str]"
+      task_summaries: "list[TaskSummary]"
+    }
+
+    TaskSummary: "TaskSummary <<frozen dataclass>>" {
+      shape: class
+      task_id: str
+      description: "str | None"
+      pr_url: "str | None"
+      concerns: "tuple[str, ...]"
+      ops_concerns: "tuple[str, ...]"
+    }
+
+    WorkstreamRuntime: "WorkstreamRuntime <<mutable dataclass>>" {
+      shape: class
+      spec: WorkstreamSpec
+      state: WorkstreamState
+      artifacts: WorkstreamArtifacts
+      +status(): WorkstreamStatus
+      +mark_pending(): void
+      +mark_active(): void
+      +mark_merge_ready(): void
+      +mark_pr_created(pr_url): void
+      +mark_merged(): void
+      +mark_failed(error): void
+    }
+
+    WorkstreamPreparer: "WorkstreamPreparer <<protocol>>" {
+      shape: class
+      +prepare_workstream(workstream_runtime): void
+    }
+
+    WorkstreamIntegrator: "WorkstreamIntegrator <<protocol>>" {
+      shape: class
+      +create_integration_pr(workstream_runtime): void
+    }
+
+    WorkstreamTeardown: "WorkstreamTeardown <<protocol>>" {
+      shape: class
+      +teardown_workstream(workstream_runtime): void
+    }
+
+    IntegrationMergeChecker: "IntegrationMergeChecker <<protocol>>" {
+      shape: class
+      +is_merged(workstream_runtime): bool
+    }
+
+    IntegrationAutoMerger: "IntegrationAutoMerger <<protocol>>" {
+      shape: class
+      +merge(workstream_runtime): void
+    }
+
+    WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
+      shape: class
+      workstream_id: str
+      status: WorkstreamStatus
+      error: "str | None"
+    }
+
+    WorkstreamRunner: "WorkstreamRunner <<protocol>>" {
+      shape: class
+      +prepare(workstream_runtime): void
+      +integrate(workstream_runtime): WorkstreamRunResult
+      +teardown(workstream_runtime): void
+    }
+
+    StandardWorkstreamRunner: "StandardWorkstreamRunner <<mutable dataclass>>" {
+      shape: class
+      _preparer: WorkstreamPreparer
+      _integrator: WorkstreamIntegrator
+      _teardown: WorkstreamTeardown
+      +prepare(workstream_runtime): void
+      +integrate(workstream_runtime): WorkstreamRunResult
+      +teardown(workstream_runtime): void
+    }
+  }
+
+  workstream_impl_pkg: "implementations/" {
+    GitWorkstreamPreparer: "GitWorkstreamPreparer <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      graph_name: str
+      +prepare_workstream(workstream_runtime): void
+    }
+
+    GhWorkstreamIntegrator: "GhWorkstreamIntegrator <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +create_integration_pr(workstream_runtime): void
+    }
+
+    GitWorkstreamTeardown: "GitWorkstreamTeardown <<dataclass>>" {
+      shape: class
+      repo_path: Path
+      +teardown_workstream(workstream_runtime): void
+    }
+
+    GhIntegrationMergeChecker: "GhIntegrationMergeChecker <<dataclass>>" {
+      shape: class
+      +is_merged(workstream_runtime): bool
+    }
+
+    GhIntegrationAutoMerger: "GhIntegrationAutoMerger <<dataclass>>" {
+      shape: class
+      +merge(workstream_runtime): void
+    }
+  }
+}
+
+
+# ─── External dependencies ───
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  gh: "gh <<module>>" { shape: class }
+  git: "git <<module>>" { shape: class }
+}
+
+orchestrator_pkg: "orchestrator/" {
+  style.opacity: 0.5
+  Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
+  WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" { shape: class }
+  builders: "builders <<module>>" { shape: class }
+}
+
+task_graph_pkg: "task_graph/" {
+  style.opacity: 0.5
+  TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
+}
+
+task_py: "task.py" {
+  style.opacity: 0.5
+  Task: "Task <<frozen dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
+task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker: registers { class: dependency }
+orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger: registers { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: spec { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamState: state { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamArtifacts: artifacts { class: composition }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: satisfies { class: implementation }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: _preparer { class: composition }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamIntegrator: _integrator { class: composition }
+workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: _teardown { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamRunner -> workstream_pkg.workstream_core_pkg.WorkstreamRunResult: returns { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamRunResult -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> workstream_pkg.workstream_core_pkg.WorkstreamPreparer: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> workstream_pkg.workstream_core_pkg.WorkstreamIntegrator: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> workstream_pkg.workstream_core_pkg.WorkstreamTeardown: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: "delegates workstream lifecycle" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: "polls merge status" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: "auto-merges integration PRs" { class: composition }
+orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.TaskSummary: task_summaries { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: "status (computed)" { class: dependency }

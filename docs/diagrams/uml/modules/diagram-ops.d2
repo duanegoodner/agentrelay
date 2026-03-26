@@ -1,0 +1,161 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  ops/ — infrastructure primitives (private)
+# ─────────────────────────────────────────────
+ops_pkg: "ops/" {
+  git: "git <<module>>" {
+    shape: class
+    module_path: ops.git
+    +worktree_add(repo, path, branch, start_point): void
+    +worktree_remove(repo, path): void
+    +current_branch(repo): "str | None"
+    +checkout(repo, branch): void
+    +branch_create(repo, branch, start_point, force): void
+    +branch_delete(repo, branch): void
+    +pull_ff_only(repo): bool
+    +fetch_branch(repo, branch): void
+    +update_local_ref(repo, branch, remote_ref): void
+    +push_branch(repo, branch, set_upstream): void
+    +push_delete_branch(repo, branch): void
+    +ls_remote_branch_exists(repo, branch): bool
+    +set_config(repo, key, value): void
+  }
+
+  tmux: "tmux <<module>>" {
+    shape: class
+    module_path: ops.tmux
+    +new_window(session, name, cwd): str
+    +send_keys(pane_id, keys, press_enter): void
+    +capture_pane(pane_id, full_history): str
+    +kill_window(pane_id): void
+    +wait_for_tui_ready(pane_id, marker, timeout): bool
+  }
+
+  gh: "gh <<module>>" {
+    shape: class
+    module_path: ops.gh
+    +pr_create(repo_dir, title, body, base, head): str
+    +pr_merge(pr_url): void
+    +pr_body(pr_url): str
+    +pr_is_merged(pr_url): bool
+  }
+
+  signals: "signals <<module>>" {
+    shape: class
+    module_path: ops.signals
+    +ensure_signal_dir(signal_dir): Path
+    +write_json(signal_dir, filename, data): void
+    +write_text(signal_dir, filename, content): void
+    +read_signal_file(signal_dir, filename): "str | None"
+    +poll_signal_files(signal_dir, filenames, interval): str
+  }
+}
+
+
+# ─── External dependencies ───
+
+agent_pkg: "agent/" {
+  style.opacity: 0.5
+  agent_impl_pkg: "implementations/" {
+    TmuxAddress: "TmuxAddress <<frozen dataclass>>" { shape: class }
+  }
+}
+
+agent_sdk_pkg: "agent_sdk/" {
+  style.opacity: 0.5
+  TaskHelper: "TaskHelper <<class>>" { shape: class }
+}
+
+reset_graph_py: "reset_graph.py" {
+  style.opacity: 0.5
+  reset_graph_functions: "reset_graph <<module>>" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  run_graph_functions: "run_graph <<module>>" { shape: class }
+}
+
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_impl_pkg: "implementations/" {
+    GhTaskMerger: "GhTaskMerger" { shape: class }
+    ShellGateChecker: "ShellGateChecker" { shape: class }
+    SignalCompletionChecker: "SignalCompletionChecker" { shape: class }
+    WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" { shape: class }
+    WorktreeTaskTeardown: "WorktreeTaskTeardown" { shape: class }
+  }
+}
+
+workstream_pkg: "workstream/" {
+  style.opacity: 0.5
+  workstream_impl_pkg: "implementations/" {
+    GhIntegrationAutoMerger: "GhIntegrationAutoMerger" { shape: class }
+    GhIntegrationMergeChecker: "GhIntegrationMergeChecker" { shape: class }
+    GhWorkstreamIntegrator: "GhWorkstreamIntegrator" { shape: class }
+    GitWorkstreamPreparer: "GitWorkstreamPreparer <<dataclass>>" { shape: class }
+    GitWorkstreamTeardown: "GitWorkstreamTeardown" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.ShellGateChecker -> ops_pkg.signals: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
+agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
+run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dependency }
+run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
+reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class: dependency }
+reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
+agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }

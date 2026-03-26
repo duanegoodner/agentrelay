@@ -11,7 +11,16 @@
       "Bash(d2 --layout=tala docs/diagrams/uml/diagram-no-impl.d2 docs/diagrams/uml/diagram-no-impl.svg)",
       "Bash(find /data/git/agentrelay/main -name *adr* -o -name *ADR*)",
       "Edit(/.claude/skills/kickoff/**)",
-      "Bash(find /data/git/agentrelay/main -name \"*.py\" -type f -exec grep -l \"IntegrationMergeChecker\" {})"
+      "Bash(find /data/git/agentrelay/main -name \"*.py\" -type f -exec grep -l \"IntegrationMergeChecker\" {})",
+      "Bash(for category:*)",
+      "Read(//data/git/agentrelay/main/graphs/$category/**)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(/tmp/extract_types.py:*)",
+      "Bash(python /tmp/extract_types.py)",
+      "Bash(/tmp/diagram_summary.txt:*)",
+      "Bash(python -m tools.generate_module_diagrams --list)",
+      "Bash(ls docs/diagrams/uml/diagram-no-*.d2 docs/diagrams/uml/diagram-no-*.svg docs/diagrams/uml/diagram-standard.d2 docs/diagrams/uml/diagram-standard.svg)",
+      "Bash(grep -E \"^d|\\\\.py$\")"
     ],
     "additionalDirectories": [
       "/data/git/agentrelay/main/.claude/skills"
