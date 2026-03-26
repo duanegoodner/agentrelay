@@ -1,5 +1,7 @@
 # task_graph
 
+[View module diagram](../../diagrams/uml/modules/diagram-task-graph.svg){: target="_blank" }
+
 ::: agentrelay.task_graph
 
 ::: agentrelay.task_graph._indexing

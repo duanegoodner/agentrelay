@@ -19,7 +19,8 @@
       "Bash(python /tmp/extract_types.py)",
       "Bash(/tmp/diagram_summary.txt:*)",
       "Bash(python -m tools.generate_module_diagrams --list)",
-      "Bash(ls docs/diagrams/uml/diagram-no-*.d2 docs/diagrams/uml/diagram-no-*.svg docs/diagrams/uml/diagram-standard.d2 docs/diagrams/uml/diagram-standard.svg)"
+      "Bash(ls docs/diagrams/uml/diagram-no-*.d2 docs/diagrams/uml/diagram-no-*.svg docs/diagrams/uml/diagram-standard.d2 docs/diagrams/uml/diagram-standard.svg)",
+      "Bash(grep -E \"^d|\\\\.py$\")"
     ],
     "additionalDirectories": [
       "/data/git/agentrelay/main/.claude/skills"

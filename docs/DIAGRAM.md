@@ -24,6 +24,25 @@ Per-module diagrams are auto-generated from `diagram-detailed.d2` by
 reduced opacity with only the types that have relationships with the focus
 module.
 
+| Module | Diagram |
+|---|---|
+| agent/ | [diagram-agent.svg](diagrams/uml/modules/diagram-agent.svg){: target="_blank" } |
+| agent_comm_protocol/ | [diagram-agent-comm-protocol.svg](diagrams/uml/modules/diagram-agent-comm-protocol.svg){: target="_blank" } |
+| agent_sdk/ | [diagram-agent-sdk.svg](diagrams/uml/modules/diagram-agent-sdk.svg){: target="_blank" } |
+| environments.py | [diagram-environments.svg](diagrams/uml/modules/diagram-environments.svg){: target="_blank" } |
+| errors/ | [diagram-errors.svg](diagrams/uml/modules/diagram-errors.svg){: target="_blank" } |
+| ops/ | [diagram-ops.svg](diagrams/uml/modules/diagram-ops.svg){: target="_blank" } |
+| orchestrator/ | [diagram-orchestrator.svg](diagrams/uml/modules/diagram-orchestrator.svg){: target="_blank" } |
+| output/ | [diagram-output.svg](diagrams/uml/modules/diagram-output.svg){: target="_blank" } |
+| reset_graph.py | [diagram-reset-graph.svg](diagrams/uml/modules/diagram-reset-graph.svg){: target="_blank" } |
+| run_graph.py | [diagram-run-graph.svg](diagrams/uml/modules/diagram-run-graph.svg){: target="_blank" } |
+| task.py | [diagram-task.svg](diagrams/uml/modules/diagram-task.svg){: target="_blank" } |
+| task_graph/ | [diagram-task-graph.svg](diagrams/uml/modules/diagram-task-graph.svg){: target="_blank" } |
+| task_runner/ | [diagram-task-runner.svg](diagrams/uml/modules/diagram-task-runner.svg){: target="_blank" } |
+| task_runtime/ | [diagram-task-runtime.svg](diagrams/uml/modules/diagram-task-runtime.svg){: target="_blank" } |
+| tools.py | [diagram-tools.svg](diagrams/uml/modules/diagram-tools.svg){: target="_blank" } |
+| workstream/ | [diagram-workstream.svg](diagrams/uml/modules/diagram-workstream.svg){: target="_blank" } |
+
 **Detailed** — everything in one diagram: all types, all relationships, all
 modules. Use this for cross-cutting analysis or when you need to see the full
 picture.

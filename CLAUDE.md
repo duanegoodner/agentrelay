@@ -88,9 +88,13 @@ Rules:
 - PR body must include a `## Test plan` checklist (automated + human-verifiable items)
 - Update `docs/HISTORY.md` with a new entry for each merged PR
 - Update `docs/diagrams/uml/diagram-detailed.d2` and re-render (`pixi run diagram`)
-  in every PR that touches `src/agentrelay/`. Rendering requires the TALA layout engine
-  (`d2plugin-tala`) installed locally. A pre-commit hook blocks commits where `.d2` changed
-  without a corresponding `.svg` update. Run `pixi run setup-hooks` once to enable.
+  in every PR that touches `src/agentrelay/`. Rendering updates the detailed SVG,
+  regenerates all per-module diagrams (`docs/diagrams/uml/modules/`), and regenerates
+  the module overview (`diagram-modules`). Requires the TALA layout engine
+  (`d2plugin-tala`) installed locally. A pre-commit hook blocks commits where `.d2`
+  changed without a corresponding `.svg` update. Run `pixi run setup-hooks` once to enable.
+- When adding a new module: add its diagram link to `docs/DIAGRAM.md` (per-module table)
+  and to its API reference page (if one exists) under `docs/api/`.
 
 ## Coding conventions
 
