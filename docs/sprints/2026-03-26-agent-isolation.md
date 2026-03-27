@@ -43,14 +43,18 @@ profiles, and the motivating incident.
   type needed — the `StepDispatch` key `(framework, env_type)` is unchanged.
 - `NullSandbox` preserves current behavior exactly (Level 0).
 
-**IsolationConfig on AgentConfig:**
+**Four-level isolation inheritance:**
 
-- `IsolationConfig` lives on `AgentConfig` (alongside framework, model,
-  environment). This means `Task.primary_agent.isolation` and
-  `Task.review.agent.isolation` can differ.
-- Three-level inheritance: graph → workstream → task. Each level can set
-  `isolation:` in YAML; unset fields inherit from parent. Resolution happens
-  during YAML parsing in `TaskGraphBuilder`.
+- Isolation is configurable at four levels: graph → workstream → task → agent.
+  Each level can set `isolation:` in YAML; unset fields inherit from parent.
+  Resolution happens during YAML parsing in `TaskGraphBuilder`.
+- `Task.isolation: Optional[IsolationConfig]` — task-level override. Applies
+  to all agents in the task (primary + review) unless an agent overrides.
+- `AgentConfig.isolation: Optional[IsolationConfig]` — agent-level override.
+  Allows primary and review agents to differ (e.g., review agent gets
+  read-only PAT while primary gets standard).
+- The builder resolves the full chain and stores the final resolved config
+  (all fields set, no `None`s) on each `AgentConfig.isolation`.
 
 **Credentials via protocol, injected as env vars:**
 
@@ -105,13 +109,13 @@ pattern as `ops/tmux.py`).
 
 ```yaml
 name: isolated-graph
-isolation:                    # graph default
+isolation:                    # graph default (level 1)
   sandbox: oci
   token_tier: standard
 
 workstreams:
   - id: ws_review
-    isolation:                # workstream override
+    isolation:                # workstream override (level 2)
       token_tier: read_only
   - id: ws_merge
     isolation:
@@ -126,14 +130,23 @@ tasks:
   - id: implement
     workstream: ws_merge
     role: implementer
-    # inherits: sandbox=oci, token_tier=elevated (from ws_merge)
+    isolation:                # task override (level 3) — applies to all agents
+      token_tier: standard
+    # primary_agent inherits: sandbox=oci, token_tier=standard (from task)
+    # review agent (if any) also inherits task-level isolation
 
-  - id: merge_task
-    workstream: ws_merge
+  - id: reviewed_task
+    workstream: ws_review
     role: generic
-    isolation:                # task override
-      token_tier: elevated
-    dependencies: [implement]
+    isolation:                # task override (level 3)
+      token_tier: read_only
+    review:
+      agent:
+        isolation:            # agent override (level 4) — review agent only
+          token_tier: elevated
+    # primary_agent: sandbox=oci, token_tier=read_only (from task)
+    # review agent: sandbox=oci, token_tier=elevated (from agent override)
+    dependencies: [write_tests]
 ```
 
 ---
@@ -155,22 +168,27 @@ tasks:
   `setup(context) -> None`, `teardown(context) -> None`
 - `NullSandbox` implementation: returns command unchanged, setup/teardown
   are no-ops
-- Add `isolation: IsolationConfig` field to `AgentConfig`
-  (default = `IsolationConfig()` → SandboxType.NONE)
+- Add `isolation: Optional[IsolationConfig]` to `Task` — task-level override,
+  applies to all agents in the task unless an agent overrides
+- Add `isolation: Optional[IsolationConfig]` to `AgentConfig` — agent-level
+  override, allows primary and review agents to differ
 - Add `isolation: Optional[IsolationConfig]` to `WorkstreamSpec`
 - YAML parsing: `_parse_isolation_config()` in builder.py
-- Three-level inheritance: graph → workstream → task
+- Four-level inheritance: graph → workstream → task → agent
   - Parse raw isolation config at each level (all fields Optional)
   - Merge function: child overrides parent for explicitly set fields,
     inherits unset fields
-  - Final resolved config stored on each `Task.primary_agent.isolation`
+  - Final resolved config (all fields set) stored on each
+    `AgentConfig.isolation` after full chain resolution
 
 **Key files modified:**
-- `src/agentrelay/task.py` — `AgentConfig` gains `isolation` field
+- `src/agentrelay/task.py` — `Task` gains `isolation` field,
+  `AgentConfig` gains `isolation` field
 - `src/agentrelay/workstream/core/workstream.py` — `WorkstreamSpec` gains
   `isolation` field
 - `src/agentrelay/task_graph/builder.py` — `_parse_isolation_config()`,
-  update `_parse_agent_config()`, `_parse_workstream()`, three-level merge
+  update `_parse_task()`, `_parse_agent_config()`, `_parse_workstream()`,
+  four-level merge logic
 - New: `src/agentrelay/sandbox/` package
 
 **Acceptance criteria:**
@@ -178,9 +196,10 @@ tasks:
       (SandboxType.NONE, TokenTier.STANDARD)
 - [ ] `AgentSandbox` protocol defined with `@runtime_checkable`
 - [ ] `NullSandbox` satisfies protocol, returns command unchanged
-- [ ] YAML graphs with `isolation:` parse at graph, workstream, and task
-      levels
-- [ ] Three-level inheritance: task overrides workstream overrides graph
+- [ ] YAML graphs with `isolation:` parse at graph, workstream, task,
+      and agent levels
+- [ ] Four-level inheritance: agent overrides task overrides workstream
+      overrides graph; unset fields inherit
 - [ ] Graphs without `isolation:` use defaults (zero behavior change)
 - [ ] `pixi run check` passes
 - [ ] All existing tests pass unchanged
