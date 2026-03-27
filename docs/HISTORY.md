@@ -4,6 +4,28 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-26
+
+### Per-module diagrams, diagram cleanup, and sprint plan (PR #137)
+
+- **Per-module UML diagrams**: New `tools/generate_module_diagrams.py` extracts
+  16 focused diagrams from `diagram-detailed.d2` — one per module, showing full
+  types plus simplified external dependency stubs at reduced opacity. Also
+  generates `diagram-modules.d2` inter-module overview.
+- **Removed filtered variants**: Deleted `diagram-no-private`, `diagram-no-impl`,
+  and `diagram-standard` views along with `tools/generate_diagrams.py` and
+  `tools/d2_filters.py`. Per-module diagrams replace them as the primary
+  reference for understanding individual modules.
+- **Diagram links in docs**: Each API reference page links to its module diagram.
+  `docs/DIAGRAM.md` includes a table of all 16 module diagrams.
+- **Sprint plan**: Added `docs/sprints/2026-03-26-agent-isolation.md` — 6-PR
+  sprint for tunable agent isolation (Docker containers, scoped PATs,
+  `AgentSandbox` protocol, `FrameworkConfigAdapter`, credential provisioning).
+- **Backlog cleanup**: Marked cross-workstream ordering as resolved (PR #134),
+  auto-merge as resolved (PR #135), removed diagram rendering size limit item.
+
+---
+
 ## 2026-03-24
 
 ### Wire ADR production into agent instructions (PR E)

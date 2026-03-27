@@ -24,15 +24,11 @@ Near-term items for the current architecture track.
 
 ## Agent Isolation
 
-- **Separate Linux user + scoped GitHub PAT for agent sessions**: Currently
-  agents run as the human user, sharing SSH keys, `gh` credentials, and full
-  filesystem access. A dedicated `claude-agent` OS user with a fine-grained
-  GitHub PAT (scoped to the target repo, no admin privileges) would enforce
-  identity separation, filesystem isolation via permissions, and prevent agents
-  from merging PRs intended for human review. Bubblewrap (`bwrap`) or similar
-  sandboxing can further restrict worktree visibility. See
-  `docs/discussions/AGENT_ISOLATION.md` for full discussion of options
-  (bwrap, Docker, git hooks, CODEOWNERS, deploy keys vs PATs).
+~~Separate Linux user + scoped GitHub PAT for agent sessions.~~ **Being
+addressed in sprint 2026-03-26** (`docs/sprints/2026-03-26-agent-isolation.md`):
+container-per-task Docker isolation, `AgentSandbox` protocol, scoped PATs via
+`CredentialProvider`, three-level inheritance (graph → workstream → task). See
+`docs/discussions/AGENT_ISOLATION_REFINED.md` for full analysis.
 
 ## Extensibility
 
@@ -199,10 +195,6 @@ source-only specs; the supplementary `.md` spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).
 
-### ~~Test reviewer: no-commit PR failure~~ — resolved in PR #125
-
-### ~~Git push without upstream~~ — resolved in PR #125
-
 ### Task status semantics for PR-less completion
 
 PR #125 introduced PR-less completion for review-only tasks, but reuses
@@ -239,68 +231,20 @@ functional but not reader-friendly:
 
 ## Agent-Assisted Integration Branch Merging
 
-Configurable merge strategies for integration PRs. Currently the orchestrator
-creates integration PRs and leaves them for human review (`human` mode, since
-PR A2). Additional strategies:
+~~`auto` merge strategy~~ — resolved in PR #135 (`auto_merge` on `WorkstreamSpec`,
+concern-gated). Remaining strategy:
 
-- **`auto`** — If no merge conflicts, merge automatically. If conflicts exist,
-  fall back to human review.
 - **`agent`** — If merge conflicts, launch a Claude Code agent in a tmux pane
   to resolve them. Require the test suite to pass before completing the merge.
   If the agent cannot resolve, fall back to human review.
 
-Implementation sketch:
-- Add a `merge_strategy` field to `WorkstreamSpec` or `OrchestratorConfig`.
-- For `auto`: attempt `gh pr merge`, fall back to `human` on failure.
-- For `agent`: create a tmux pane, instruct Claude Code to resolve conflicts
-  and run tests. Agent uses TaskHelper-like API to signal success or failure.
+## ~~Cross-Workstream Dependency Ordering~~ — resolved
 
-Originally planned as PR F in sprint 2026-03-19, deferred because the retry
-and gate work surfaced more foundational issues (signal cleanup, prepare-on-retry,
-agent SDK retry support) that should be addressed first. Best tackled in a
-sprint focused on integration reliability alongside the cross-workstream
-dependency ordering and agent SDK retry items below.
-
-## Cross-Workstream Dependency Ordering
-
-Two related questions about correctness when tasks span workstreams:
-
-### Human merge and status signaling
-
-Integration PRs are left for human merge (by design, since PR A2). When a
-human merges a workstream's integration branch to main, does the orchestrator
-need the human to write a status signal file (e.g., marking the workstream
-as MERGED) so that downstream tasks/workstreams can be initiated? Or does the
-orchestrator detect the merge via some other mechanism? If signal files are
-needed, we should either automate this (GitHub webhook, polling) or document
-the manual step clearly.
-
-### Premature cross-workstream task dispatch
-
-If Task A is in Workstream X and Task B is in Workstream Y, and B depends
-on A: does the orchestrator wait until Workstream X's integration branch
-has been merged to main before starting Task B? The concern is that the
-orchestrator could see Task A as PR_MERGED (its task PR merged to the
-integration branch) and dispatch Task B before Workstream X's integration
-PR is merged to main — meaning Task B's worktree wouldn't have Task A's
-changes. Need to verify whether the current orchestrator scheduling logic
-prevents this, or if this is a gap.
-
-### Observed agent workaround (PR C e2e testing, 2026-03-23)
-
-Running `diamond_4_workstreams.yaml`, the `double_calc` agent discovered
-that `base_calc.py` was missing from its worktree. It inspected available
-branches with `git show`, found the code on the `base_calc` task branch,
-and ran `git merge agentrelay/diamond-4-workstreams/base_calc --no-edit`
-to pull the dependency's code into its own branch. This worked — but the
-agent did not report an ops concern despite the workaround being a
-significant deviation from the expected workflow. Implications:
-- The workaround succeeded because worktrees share the git object store,
-  so other workstreams' branches are locally available.
-- Merging another task's branch directly could cause conflicts when
-  integration PRs are merged to main (duplicate commits).
-- The agent silently working around infrastructure gaps without raising
-  ops concerns makes these gaps harder to detect systematically.
+Resolved in PR #134 (sprint 2026-03-25). Cross-workstream dispatch gating
+via `_workstream_can_run()` + `IntegrationMergeChecker` polling. Upstream
+workstreams must be MERGED before downstream tasks dispatch. The motivating
+agent workaround (unilateral PR merge) can no longer occur. See
+`docs/discussions/AGENT_ISOLATION_REFINED.md` for the incident analysis.
 
 ## Concern Guidance Level Experimentation
 
