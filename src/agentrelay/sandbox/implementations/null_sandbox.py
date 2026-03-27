@@ -19,28 +19,28 @@ class NullSandbox:
     ``SandboxType.NONE``.
     """
 
-    def wrap_command(self, cmd: str, _context: SandboxContext) -> str:
+    def wrap_command(self, cmd: str, context: SandboxContext) -> str:
         """Return the command unchanged.
 
         Args:
             cmd: The raw agent command.
-            _context: Execution context (unused).
+            context: Execution context (unused).
 
         Returns:
             The original command string, unmodified.
         """
         return cmd
 
-    def setup(self, _context: SandboxContext) -> None:
+    def setup(self, context: SandboxContext) -> None:
         """No-op setup.
 
         Args:
-            _context: Execution context (unused).
+            context: Execution context (unused).
         """
 
-    def teardown(self, _context: SandboxContext) -> None:
+    def teardown(self, context: SandboxContext) -> None:
         """No-op teardown.
 
         Args:
-            _context: Execution context (unused).
+            context: Execution context (unused).
         """

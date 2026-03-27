@@ -69,7 +69,7 @@ agent_pkg: "agent/" {
       shape: class
       -_address: TmuxAddress
       +address(): TmuxAddress
-      +from_config(config, task_id, worktree_path, signal_dir): TmuxAgent
+      +from_config(config, task_id, worktree_path, cmd): TmuxAgent
       +send_kickoff(instructions_path): void
     }
   }

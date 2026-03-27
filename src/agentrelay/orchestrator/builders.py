@@ -22,6 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+from agentrelay.sandbox import ClaudeCodeAdapter, NullSandbox
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
@@ -159,7 +160,12 @@ def build_standard_runner(
     Returns:
         A fully wired :class:`StandardTaskRunner`.
     """
-    tmux_launcher = TmuxTaskLauncher()
+    tmux_launcher = TmuxTaskLauncher(
+        adapter=ClaudeCodeAdapter(),
+        sandbox=NullSandbox(),
+        repo_path=repo_path,
+        graph_name=graph_name,
+    )
     tmux_kickoff = TmuxTaskKickoff()
 
     def _make_preparer(runtime: TaskRuntime) -> TaskPreparer:

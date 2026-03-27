@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
 from agentrelay.agent import TmuxAddress, TmuxAgent
+from agentrelay.sandbox import ClaudeCodeAdapter, NullSandbox, SandboxContext
 from agentrelay.task import AgentConfig, AgentRole, Task, TmuxEnvironment
 from agentrelay.task_runner.core.io import TaskLauncher
 from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLauncher
@@ -31,6 +32,15 @@ def _make_runtime(
     return runtime
 
 
+def _make_launcher() -> TmuxTaskLauncher:
+    return TmuxTaskLauncher(
+        adapter=ClaudeCodeAdapter(),
+        sandbox=NullSandbox(),
+        repo_path=Path("/repo"),
+        graph_name="demo",
+    )
+
+
 class TestTmuxTaskLauncher:
     """Tests for TmuxTaskLauncher.launch."""
 
@@ -45,7 +55,7 @@ class TestTmuxTaskLauncher:
         mock_from_config.return_value = expected_agent
 
         runtime = _make_runtime()
-        launcher = TmuxTaskLauncher()
+        launcher = _make_launcher()
         agent = launcher.launch(runtime)
 
         assert agent is expected_agent
@@ -53,13 +63,17 @@ class TestTmuxTaskLauncher:
             config=runtime.task.primary_agent,
             task_id="task_1",
             worktree_path=Path("/repo/.workflow/demo/worktrees/task_1"),
-            signal_dir=Path("/repo/.workflow/demo/signals/task_1"),
+            cmd=(
+                'AGENTRELAY_SIGNAL_DIR="/repo/.workflow/demo/signals/task_1"'
+                " claude --model claude-sonnet-4-6"
+                " --dangerously-skip-permissions"
+            ),
         )
 
     def test_raises_when_worktree_path_is_none(self) -> None:
         """Raises ValueError if worktree_path is not set."""
         runtime = _make_runtime(worktree_path=None)
-        launcher = TmuxTaskLauncher()
+        launcher = _make_launcher()
 
         with pytest.raises(ValueError, match="worktree_path"):
             launcher.launch(runtime)
@@ -67,12 +81,87 @@ class TestTmuxTaskLauncher:
     def test_raises_when_signal_dir_is_none(self) -> None:
         """Raises ValueError if signal_dir is not set."""
         runtime = _make_runtime(signal_dir=None)
-        launcher = TmuxTaskLauncher()
+        launcher = _make_launcher()
 
         with pytest.raises(ValueError, match="signal_dir"):
             launcher.launch(runtime)
 
     def test_satisfies_task_launcher_protocol(self) -> None:
         """TmuxTaskLauncher satisfies the TaskLauncher protocol."""
-        launcher = TmuxTaskLauncher()
+        launcher = _make_launcher()
         assert isinstance(launcher, TaskLauncher)
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_calls_adapter_build_command(self, mock_from_config: MagicMock) -> None:
+        """Launcher calls adapter.build_command with config and signal_dir."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_adapter = MagicMock()
+        mock_adapter.build_command.return_value = "test-cmd"
+        launcher = TmuxTaskLauncher(
+            adapter=mock_adapter,
+            sandbox=NullSandbox(),
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        runtime = _make_runtime()
+
+        launcher.launch(runtime)
+
+        mock_adapter.build_command.assert_called_once_with(
+            runtime.task.primary_agent,
+            Path("/repo/.workflow/demo/signals/task_1"),
+        )
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_calls_sandbox_setup_and_wrap(self, mock_from_config: MagicMock) -> None:
+        """Launcher calls sandbox.setup then sandbox.wrap_command."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_sandbox = MagicMock()
+        mock_sandbox.wrap_command.return_value = "wrapped-cmd"
+        launcher = TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=mock_sandbox,
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        runtime = _make_runtime()
+
+        launcher.launch(runtime)
+
+        expected_context = SandboxContext(
+            worktree_path=Path("/repo/.workflow/demo/worktrees/task_1"),
+            signal_dir=Path("/repo/.workflow/demo/signals/task_1"),
+            repo_path=Path("/repo"),
+            task_id="task_1",
+            graph_name="demo",
+        )
+        mock_sandbox.setup.assert_called_once_with(expected_context)
+        mock_sandbox.wrap_command.assert_called_once()
+        # setup is called before wrap_command
+        assert mock_sandbox.setup.call_args_list[0] == call(expected_context)
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_passes_wrapped_command_to_from_config(
+        self, mock_from_config: MagicMock
+    ) -> None:
+        """Launcher passes sandbox-wrapped command to TmuxAgent.from_config."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_sandbox = MagicMock()
+        mock_sandbox.wrap_command.return_value = "docker run ... claude ..."
+        launcher = TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=mock_sandbox,
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        runtime = _make_runtime()
+
+        launcher.launch(runtime)
+
+        assert mock_from_config.call_args.kwargs["cmd"] == "docker run ... claude ..."
