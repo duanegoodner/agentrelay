@@ -50,6 +50,7 @@ workstream_pkg: "workstream/" {
       base_branch: str
       merge_target_branch: str
       auto_merge: bool
+      isolation: "IsolationConfig | None"
     }
 
     WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
@@ -198,6 +199,13 @@ orchestrator_pkg: "orchestrator/" {
   builders: "builders <<module>>" { shape: class }
 }
 
+sandbox_pkg: "sandbox/" {
+  style.opacity: 0.5
+  sandbox_core_pkg: "core/" {
+    IsolationConfig: "IsolationConfig" { shape: class }
+  }
+}
+
 task_graph_pkg: "task_graph/" {
   style.opacity: 0.5
   TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
@@ -212,6 +220,7 @@ task_py: "task.py" {
 # ─── Relationships ───
 
 task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
+workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
 orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }

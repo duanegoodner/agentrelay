@@ -37,6 +37,7 @@ task_py: "task.py" {
     model: "str | None"
     adr_verbosity: AdrVerbosity
     environment: AgentEnvironment
+    isolation: "IsolationConfig | None"
   }
 
   ReviewConfig: "ReviewConfig <<frozen dataclass>>" {
@@ -57,6 +58,7 @@ task_py: "task.py" {
     primary_agent: AgentConfig
     review: "ReviewConfig | None"
     workstream_id: str
+    isolation: "IsolationConfig | None"
   }
 }
 
@@ -124,6 +126,7 @@ workstream_pkg: "workstream/" {
       base_branch: str
       merge_target_branch: str
       auto_merge: bool
+      isolation: "IsolationConfig | None"
     }
 
     WorkstreamStatus: "WorkstreamStatus <<enumeration>>" {
@@ -915,6 +918,60 @@ reset_graph_py: "reset_graph.py" {
   }
 }
 
+# ─────────────────────────────────────────────
+#  sandbox/ — sandbox configuration and protocols
+# ─────────────────────────────────────────────
+sandbox_pkg: "sandbox/" {
+  sandbox_core_pkg: "core/" {
+    SandboxType: "SandboxType <<enumeration>>" {
+      shape: class
+      NONE
+      CONTAINER
+    }
+
+    TokenTier: "TokenTier <<enumeration>>" {
+      shape: class
+      READ_ONLY
+      STANDARD
+      ELEVATED
+    }
+
+    IsolationConfig: "IsolationConfig <<frozen dataclass>>" {
+      shape: class
+      sandbox_type: SandboxType
+      token_tier: TokenTier
+      image: "str | None"
+      runtime: "str | None"
+    }
+
+    SandboxContext: "SandboxContext <<frozen dataclass>>" {
+      shape: class
+      worktree_path: Path
+      signal_dir: Path
+      repo_path: Path
+      task_id: str
+      graph_name: str
+      env_vars: "dict[str, str]"
+    }
+
+    AgentSandbox: "AgentSandbox <<protocol>>" {
+      shape: class
+      "+wrap_command(cmd, context)": str
+      "+setup(context)": void
+      "+teardown(context)": void
+    }
+  }
+
+  sandbox_impl_pkg: "implementations/" {
+    NullSandbox: "NullSandbox" {
+      shape: class
+      "+wrap_command(cmd, context)": str
+      "+setup(context)": void
+      "+teardown(context)": void
+    }
+  }
+}
+
 # ═════════════════════════════════════════════
 #  Relationships
 # ═════════════════════════════════════════════
@@ -932,6 +989,15 @@ task_py.ReviewConfig -> task_py.AgentConfig: agent { class: composition }
 # --- environments ---
 task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
 environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: implementation }
+
+# --- sandbox ---
+sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.SandboxType: sandbox_type { class: composition }
+sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.TokenTier: token_tier { class: composition }
+sandbox_pkg.sandbox_core_pkg.AgentSandbox -> sandbox_pkg.sandbox_core_pkg.SandboxContext: context { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.NullSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: satisfies { class: implementation }
+task_py.AgentConfig -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
+task_py.Task -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 
 # --- agent ---
 agent_pkg.agent_impl_pkg.TmuxAddress -> agent_pkg.agent_core_pkg.AgentAddress { class: inheritance }

@@ -57,9 +57,12 @@ output_pkg: "output/"
 tools_py: "tools.py"
 run_graph_py: "run_graph.py"
 reset_graph_py: "reset_graph.py"
+sandbox_pkg: "sandbox/"
 
 task_py -> workstream_pkg { class: dependency }
 task_py -> environments_py { class: dependency }
+task_py -> sandbox_pkg { class: dependency }
+workstream_pkg -> sandbox_pkg { class: dependency }
 task_graph_pkg -> task_py { class: dependency }
 task_graph_pkg -> workstream_pkg { class: dependency }
 orchestrator_pkg -> task_graph_pkg { class: dependency }
