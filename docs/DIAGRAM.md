@@ -36,6 +36,7 @@ module.
 | output/ | [diagram-output.svg](diagrams/uml/modules/diagram-output.svg){: target="_blank" } |
 | reset_graph.py | [diagram-reset-graph.svg](diagrams/uml/modules/diagram-reset-graph.svg){: target="_blank" } |
 | run_graph.py | [diagram-run-graph.svg](diagrams/uml/modules/diagram-run-graph.svg){: target="_blank" } |
+| sandbox/ | [diagram-sandbox.svg](diagrams/uml/modules/diagram-sandbox.svg){: target="_blank" } |
 | task.py | [diagram-task.svg](diagrams/uml/modules/diagram-task.svg){: target="_blank" } |
 | task_graph/ | [diagram-task-graph.svg](diagrams/uml/modules/diagram-task-graph.svg){: target="_blank" } |
 | task_runner/ | [diagram-task-runner.svg](diagrams/uml/modules/diagram-task-runner.svg){: target="_blank" } |

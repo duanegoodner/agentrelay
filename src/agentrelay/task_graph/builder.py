@@ -7,6 +7,7 @@ graph objects.
 
 from __future__ import annotations
 
+import dataclasses
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +16,7 @@ from typing import Any, Optional
 import yaml
 
 from agentrelay.environments import TmuxEnvironment
+from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
 from agentrelay.task import (
     AdrVerbosity,
     AgentConfig,
@@ -26,6 +28,21 @@ from agentrelay.task import (
 )
 from agentrelay.task_graph.graph import TaskGraph
 from agentrelay.workstream import WorkstreamSpec
+
+
+@dataclass(frozen=True)
+class _RawIsolationConfig:
+    """Parsed isolation config with all-Optional fields (None = inherit).
+
+    Used only during parsing to represent partial isolation configuration
+    at each level of the inheritance chain. Resolved to a fully-populated
+    :class:`IsolationConfig` after four-level merge.
+    """
+
+    sandbox_type: Optional[SandboxType] = None
+    token_tier: Optional[TokenTier] = None
+    image: Optional[str] = None
+    runtime: Optional[str] = None
 
 
 @dataclass(frozen=True)
@@ -43,6 +60,9 @@ class _RawTaskSpec:
         primary_agent: Primary agent configuration.
         review: Optional review configuration.
         workstream_id: Workstream ID for this task.
+        isolation_raw: Task-level raw isolation config.
+        primary_agent_isolation_raw: Primary agent raw isolation config.
+        review_agent_isolation_raw: Review agent raw isolation config.
     """
 
     id: str
@@ -55,6 +75,9 @@ class _RawTaskSpec:
     primary_agent: AgentConfig
     review: Optional[ReviewConfig]
     workstream_id: str
+    isolation_raw: Optional[_RawIsolationConfig] = None
+    primary_agent_isolation_raw: Optional[_RawIsolationConfig] = None
+    review_agent_isolation_raw: Optional[_RawIsolationConfig] = None
 
 
 class TaskGraphBuilder:
@@ -96,10 +119,13 @@ class TaskGraphBuilder:
         _reject_unknown_keys(
             graph,
             "graph",
-            {"name", "tasks", "workstreams", "max_workstream_depth"},
+            {"name", "tasks", "workstreams", "max_workstream_depth", "isolation"},
         )
         name = _require_non_empty_string(_read_required(graph, "name", "graph"), "name")
-        workstreams = _parse_workstreams(
+
+        graph_raw_iso = _parse_raw_isolation(graph.get("isolation"), "graph.isolation")
+
+        workstreams, ws_raw_iso = _parse_workstreams(
             graph.get("workstreams"),
             "graph.workstreams",
         )
@@ -130,9 +156,49 @@ class TaskGraphBuilder:
         _validate_dependencies_exist(raw_specs, raw_by_id)
         task_ids = _topological_task_ids(raw_specs)
 
+        # --- Resolve isolation: four-level inheritance ---
+
+        # Resolve workstream isolation (graph → workstream)
+        if workstreams:
+            resolved_ws_list: list[WorkstreamSpec] = []
+            for ws in workstreams:
+                merged = _merge_raw_isolation(graph_raw_iso, ws_raw_iso.get(ws.id))
+                ws_iso = _resolve_isolation(merged)
+                resolved_ws_list.append(dataclasses.replace(ws, isolation=ws_iso))
+            workstreams = tuple(resolved_ws_list)
+
+        # Build tasks with resolved isolation
         built_tasks: dict[str, Task] = {}
         for task_id in task_ids:
             spec = raw_by_id[task_id]
+
+            # Chain: graph → workstream → task
+            ws_raw = ws_raw_iso.get(spec.workstream_id)
+            task_chain = _merge_raw_isolation(
+                _merge_raw_isolation(graph_raw_iso, ws_raw),
+                spec.isolation_raw,
+            )
+            task_iso = _resolve_isolation(task_chain)
+
+            # Primary agent: task chain → agent override
+            primary_chain = _merge_raw_isolation(
+                task_chain, spec.primary_agent_isolation_raw
+            )
+            primary_iso = _resolve_isolation(primary_chain)
+            primary_agent = dataclasses.replace(
+                spec.primary_agent, isolation=primary_iso
+            )
+
+            # Review agent: task chain → review agent override
+            review = spec.review
+            if review is not None:
+                review_chain = _merge_raw_isolation(
+                    task_chain, spec.review_agent_isolation_raw
+                )
+                review_iso = _resolve_isolation(review_chain)
+                review_agent = dataclasses.replace(review.agent, isolation=review_iso)
+                review = dataclasses.replace(review, agent=review_agent)
+
             built_tasks[task_id] = Task(
                 id=spec.id,
                 role=spec.role,
@@ -141,9 +207,10 @@ class TaskGraphBuilder:
                 dependencies=spec.dependency_ids,
                 completion_gate=spec.completion_gate,
                 max_gate_attempts=spec.max_gate_attempts,
-                primary_agent=spec.primary_agent,
-                review=spec.review,
+                primary_agent=primary_agent,
+                review=review,
                 workstream_id=spec.workstream_id,
+                isolation=task_iso,
             )
 
         return TaskGraph.from_tasks(
@@ -170,6 +237,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
             "primary_agent",
             "review",
             "workstream_id",
+            "isolation",
         },
     )
 
@@ -193,15 +261,19 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
     max_gate_attempts = _parse_optional_positive_int(
         mapping.get("max_gate_attempts"), path + ".max_gate_attempts"
     )
-    primary_agent = _parse_agent_config(
+    primary_agent, primary_iso_raw = _parse_agent_config(
         mapping.get("primary_agent"), path + ".primary_agent"
     )
-    review = _parse_review_config(mapping.get("review"), path + ".review")
+    review, review_iso_raw = _parse_review_config(
+        mapping.get("review"), path + ".review"
+    )
     workstream_id = _parse_optional_string(
         mapping.get("workstream_id"), path + ".workstream_id"
     )
     if workstream_id is None:
         workstream_id = "default"
+
+    isolation_raw = _parse_raw_isolation(mapping.get("isolation"), path + ".isolation")
 
     return _RawTaskSpec(
         id=task_id,
@@ -214,35 +286,44 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
         primary_agent=primary_agent,
         review=review,
         workstream_id=workstream_id,
+        isolation_raw=isolation_raw,
+        primary_agent_isolation_raw=primary_iso_raw,
+        review_agent_isolation_raw=review_iso_raw,
     )
 
 
 def _parse_workstreams(
     value: Any,
     path: str,
-) -> Optional[tuple[WorkstreamSpec, ...]]:
+) -> tuple[
+    Optional[tuple[WorkstreamSpec, ...]], dict[str, Optional[_RawIsolationConfig]]
+]:
     if value is None:
-        return None
+        return None, {}
     if not isinstance(value, list):
         raise _schema_error(path, "must be a list")
     if not value:
         raise _schema_error(path, "must contain at least one workstream")
 
     result: list[WorkstreamSpec] = []
+    ws_raw_iso: dict[str, Optional[_RawIsolationConfig]] = {}
     seen_ids: set[str] = set()
     for index, item in enumerate(value):
         item_path = f"{path}[{index}]"
-        workstream = _parse_workstream(item, item_path)
+        workstream, iso_raw = _parse_workstream(item, item_path)
         if workstream.id in seen_ids:
             raise _schema_error(
                 item_path + ".id", f"duplicate workstream id '{workstream.id}'"
             )
         seen_ids.add(workstream.id)
         result.append(workstream)
-    return tuple(result)
+        ws_raw_iso[workstream.id] = iso_raw
+    return tuple(result), ws_raw_iso
 
 
-def _parse_workstream(value: Any, path: str) -> WorkstreamSpec:
+def _parse_workstream(
+    value: Any, path: str
+) -> tuple[WorkstreamSpec, Optional[_RawIsolationConfig]]:
     mapping = _require_mapping(value, path)
     _reject_unknown_keys(
         mapping,
@@ -253,6 +334,7 @@ def _parse_workstream(value: Any, path: str) -> WorkstreamSpec:
             "base_branch",
             "merge_target_branch",
             "auto_merge",
+            "isolation",
         },
     )
 
@@ -274,13 +356,17 @@ def _parse_workstream(value: Any, path: str) -> WorkstreamSpec:
     raw_auto_merge = mapping.get("auto_merge", False)
     if not isinstance(raw_auto_merge, bool):
         raise _schema_error(path + ".auto_merge", "must be a boolean")
-    return WorkstreamSpec(
+
+    iso_raw = _parse_raw_isolation(mapping.get("isolation"), path + ".isolation")
+
+    ws = WorkstreamSpec(
         id=workstream_id,
         parent_workstream_id=parent_workstream_id,
         base_branch=base_branch,
         merge_target_branch=merge_target_branch,
         auto_merge=raw_auto_merge,
     )
+    return ws, iso_raw
 
 
 def _parse_role(value: Any, path: str) -> AgentRole:
@@ -334,25 +420,31 @@ def _parse_path_list(value: Any, path: str) -> tuple[Path, ...]:
     return tuple(items)
 
 
-def _parse_agent_config(value: Any, path: str) -> AgentConfig:
+def _parse_agent_config(
+    value: Any, path: str
+) -> tuple[AgentConfig, Optional[_RawIsolationConfig]]:
     if value is None:
-        return AgentConfig()
+        return AgentConfig(), None
     mapping = _require_mapping(value, path)
     _reject_unknown_keys(
         mapping,
         path,
-        {"framework", "model", "adr_verbosity", "environment"},
+        {"framework", "model", "adr_verbosity", "environment", "isolation"},
     )
 
     framework = _parse_framework(mapping.get("framework"), path + ".framework")
     model = _parse_optional_string(mapping.get("model"), path + ".model")
     verbosity = _parse_verbosity(mapping.get("adr_verbosity"), path + ".adr_verbosity")
     environment = _parse_environment(mapping.get("environment"), path + ".environment")
-    return AgentConfig(
-        framework=framework,
-        model=model,
-        adr_verbosity=verbosity,
-        environment=environment,
+    iso_raw = _parse_raw_isolation(mapping.get("isolation"), path + ".isolation")
+    return (
+        AgentConfig(
+            framework=framework,
+            model=model,
+            adr_verbosity=verbosity,
+            environment=environment,
+        ),
+        iso_raw,
     )
 
 
@@ -404,19 +496,128 @@ def _parse_environment(value: Any, path: str) -> TmuxEnvironment:
     return TmuxEnvironment()
 
 
-def _parse_review_config(value: Any, path: str) -> Optional[ReviewConfig]:
+def _parse_review_config(
+    value: Any, path: str
+) -> tuple[Optional[ReviewConfig], Optional[_RawIsolationConfig]]:
     if value is None:
-        return None
+        return None, None
     mapping = _require_mapping(value, path)
     _reject_unknown_keys(mapping, path, {"agent", "review_on_attempt"})
     agent_data = _read_required(mapping, "agent", path)
-    agent = _parse_agent_config(agent_data, path + ".agent")
+    agent, review_iso_raw = _parse_agent_config(agent_data, path + ".agent")
     review_on_attempt = _parse_optional_positive_int(
         mapping.get("review_on_attempt", 1),
         path + ".review_on_attempt",
     )
     assert review_on_attempt is not None
-    return ReviewConfig(agent=agent, review_on_attempt=review_on_attempt)
+    return (
+        ReviewConfig(agent=agent, review_on_attempt=review_on_attempt),
+        review_iso_raw,
+    )
+
+
+# ── Isolation parsing and resolution ──
+
+
+def _parse_raw_isolation(value: Any, path: str) -> Optional[_RawIsolationConfig]:
+    """Parse a raw isolation config mapping. Returns None if absent."""
+    if value is None:
+        return None
+    mapping = _require_mapping(value, path)
+    _reject_unknown_keys(mapping, path, {"sandbox", "token_tier", "image", "runtime"})
+    sandbox_type = _parse_optional_sandbox_type(
+        mapping.get("sandbox"), path + ".sandbox"
+    )
+    token_tier = _parse_optional_token_tier(
+        mapping.get("token_tier"), path + ".token_tier"
+    )
+    image = _parse_optional_string(mapping.get("image"), path + ".image")
+    runtime = _parse_optional_string(mapping.get("runtime"), path + ".runtime")
+    return _RawIsolationConfig(
+        sandbox_type=sandbox_type,
+        token_tier=token_tier,
+        image=image,
+        runtime=runtime,
+    )
+
+
+def _parse_optional_sandbox_type(value: Any, path: str) -> Optional[SandboxType]:
+    """Parse a sandbox type string, returning None if absent."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise _schema_error(path, "must be a string")
+    normalized = value.strip()
+    for st in SandboxType:
+        if normalized.lower() == st.value:
+            return st
+        if normalized.upper() == st.name:
+            return st
+    allowed = ", ".join(st.value for st in SandboxType)
+    raise _schema_error(path, f"invalid sandbox type '{value}'. Allowed: {allowed}")
+
+
+def _parse_optional_token_tier(value: Any, path: str) -> Optional[TokenTier]:
+    """Parse a token tier string, returning None if absent."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise _schema_error(path, "must be a string")
+    normalized = value.strip()
+    for tt in TokenTier:
+        if normalized.lower() == tt.value:
+            return tt
+        if normalized.upper() == tt.name:
+            return tt
+    allowed = ", ".join(tt.value for tt in TokenTier)
+    raise _schema_error(path, f"invalid token tier '{value}'. Allowed: {allowed}")
+
+
+def _merge_raw_isolation(
+    parent: Optional[_RawIsolationConfig],
+    child: Optional[_RawIsolationConfig],
+) -> Optional[_RawIsolationConfig]:
+    """Merge two raw isolation configs. Child overrides parent per-field."""
+    if parent is None and child is None:
+        return None
+    if parent is None:
+        return child
+    if child is None:
+        return parent
+    return _RawIsolationConfig(
+        sandbox_type=(
+            child.sandbox_type
+            if child.sandbox_type is not None
+            else parent.sandbox_type
+        ),
+        token_tier=(
+            child.token_tier if child.token_tier is not None else parent.token_tier
+        ),
+        image=child.image if child.image is not None else parent.image,
+        runtime=child.runtime if child.runtime is not None else parent.runtime,
+    )
+
+
+def _resolve_isolation(
+    raw: Optional[_RawIsolationConfig],
+) -> Optional[IsolationConfig]:
+    """Resolve a raw isolation config to a fully-populated IsolationConfig.
+
+    Returns None if no isolation was configured anywhere in the chain.
+    """
+    if raw is None:
+        return None
+    return IsolationConfig(
+        sandbox_type=(
+            raw.sandbox_type if raw.sandbox_type is not None else SandboxType.NONE
+        ),
+        token_tier=raw.token_tier if raw.token_tier is not None else TokenTier.STANDARD,
+        image=raw.image,
+        runtime=raw.runtime,
+    )
+
+
+# ── Generic parsing utilities ──
 
 
 def _parse_optional_string(value: Any, path: str) -> Optional[str]:

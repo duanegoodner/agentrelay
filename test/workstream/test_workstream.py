@@ -2,6 +2,7 @@
 
 import pytest
 
+from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
 from agentrelay.workstream import WorkstreamSpec
 
 
@@ -52,3 +53,18 @@ class TestWorkstreamSpec:
         spec1 = WorkstreamSpec(id="feature_a", base_branch="main")
         spec2 = WorkstreamSpec(id="feature_a", base_branch="main")
         assert spec1 == spec2
+
+    def test_default_isolation_is_none(self) -> None:
+        """WorkstreamSpec defaults isolation to None."""
+        spec = WorkstreamSpec(id="default")
+        assert spec.isolation is None
+
+    def test_workstream_with_isolation(self) -> None:
+        """WorkstreamSpec can specify an IsolationConfig."""
+        iso = IsolationConfig(
+            sandbox_type=SandboxType.CONTAINER,
+            token_tier=TokenTier.READ_ONLY,
+        )
+        spec = WorkstreamSpec(id="isolated", isolation=iso)
+        assert spec.isolation == iso
+        assert spec.isolation.sandbox_type == SandboxType.CONTAINER
