@@ -106,7 +106,7 @@ class TestTmuxAgentFromConfig:
             config=config,
             task_id="task_1",
             worktree_path=Path("/tmp/worktree"),
-            signal_dir=Path("/tmp/signals"),
+            cmd="claude --dangerously-skip-permissions",
         )
 
         mock_new_window.assert_called_once_with(
@@ -128,7 +128,7 @@ class TestTmuxAgentFromConfig:
             config=config,
             task_id="task_1",
             worktree_path=Path("/tmp/worktree"),
-            signal_dir=Path("/tmp/signals"),
+            cmd="claude --dangerously-skip-permissions",
         )
 
         assert isinstance(agent, TmuxAgent)
@@ -137,46 +137,22 @@ class TestTmuxAgentFromConfig:
 
     @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
     @patch("agentrelay.agent.implementations.tmux_agent.tmux.new_window")
-    def test_sends_claude_command_with_model(
+    def test_sends_provided_command(
         self, mock_new_window: MagicMock, mock_send_keys: MagicMock
     ) -> None:
-        """Sends claude command with --model flag when model is set."""
+        """Sends the provided command string unchanged to tmux."""
         mock_new_window.return_value = "%42"
-        config = AgentConfig(model="claude-opus-4-6")
+        config = AgentConfig()
+        test_cmd = 'AGENTRELAY_SIGNAL_DIR="/tmp/signals" claude --model opus --dangerously-skip-permissions'
 
         TmuxAgent.from_config(
             config=config,
             task_id="task_1",
             worktree_path=Path("/tmp/worktree"),
-            signal_dir=Path("/tmp/signals"),
+            cmd=test_cmd,
         )
 
-        cmd = mock_send_keys.call_args[0][1]
-        assert "AGENTRELAY_SIGNAL_DIR=" in cmd
-        assert "/tmp/signals" in cmd
-        assert "--model claude-opus-4-6" in cmd
-        assert "--dangerously-skip-permissions" in cmd
-
-    @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
-    @patch("agentrelay.agent.implementations.tmux_agent.tmux.new_window")
-    def test_sends_claude_command_without_model(
-        self, mock_new_window: MagicMock, mock_send_keys: MagicMock
-    ) -> None:
-        """Sends claude command without --model flag when model is None."""
-        mock_new_window.return_value = "%42"
-        config = AgentConfig(model=None)
-
-        TmuxAgent.from_config(
-            config=config,
-            task_id="task_1",
-            worktree_path=Path("/tmp/worktree"),
-            signal_dir=Path("/tmp/signals"),
-        )
-
-        cmd = mock_send_keys.call_args[0][1]
-        assert "--model" not in cmd
-        assert "claude" in cmd
-        assert "--dangerously-skip-permissions" in cmd
+        mock_send_keys.assert_called_once_with("%42", test_cmd)
 
 
 # ── Tests for TmuxAgent.send_kickoff ──

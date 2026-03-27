@@ -42,34 +42,28 @@ class TmuxAgent(Agent):
         config: AgentConfig,
         task_id: str,
         worktree_path: Path,
-        signal_dir: Path,
+        cmd: str,
     ) -> TmuxAgent:
-        """Create a tmux pane, launch Claude Code, and return the TmuxAgent handle.
+        """Create a tmux pane, send a pre-built command, and return the TmuxAgent handle.
 
         Creates a new tmux window in the session specified by config.environment,
-        launches Claude Code with the specified model configuration, and returns
-        a TmuxAgent object that can be used to communicate with the running process.
+        sends the provided command string, and returns a TmuxAgent object that
+        can be used to communicate with the running process.
 
         Args:
-            config: AgentConfig specifying framework, model, adr_verbosity, and
-                environment. config.environment must be TmuxEnvironment.
-                config.model is passed as --model flag (None = framework default).
+            config: AgentConfig specifying environment.
+                config.environment must be TmuxEnvironment.
             task_id: Identifier for this task (used as tmux window name).
             worktree_path: Path to the git worktree where the agent will work.
-            signal_dir: Path to the signal directory where task files are written.
+            cmd: Pre-built command string to send to the tmux pane. Typically
+                constructed by an :class:`AgentFrameworkAdapter` and wrapped
+                by an :class:`AgentSandbox`.
 
         Returns:
             A TmuxAgent instance with its address set to the created tmux pane.
         """
         session = config.environment.session
         pane_id = tmux.new_window(session, task_id, worktree_path)
-
-        model_flag = f" --model {config.model}" if config.model else ""
-        cmd = (
-            f'AGENTRELAY_SIGNAL_DIR="{signal_dir}"'
-            f" claude{model_flag}"
-            f" --dangerously-skip-permissions"
-        )
         tmux.send_keys(pane_id, cmd)
 
         return cls(_address=TmuxAddress(session=session, pane_id=pane_id))

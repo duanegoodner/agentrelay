@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: Planning.**
+> **Status: In progress.** PR A merged (#139). Next: PR B.
 
 ## Goal
 
@@ -153,12 +153,13 @@ tasks:
 
 ## PR plan
 
-### PR A: Sandbox data models + AgentSandbox protocol + NullSandbox
+### PR A: Sandbox data models + AgentSandbox protocol + NullSandbox — MERGED (#139)
 
 - Branch: `feat/sandbox-protocol`
+- Note: `SandboxType.CONTAINER` used instead of `OCI` (user preference).
 
 **Scope:**
-- `SandboxType` enum: `NONE`, `OCI` (future: `BWRAP`)
+- `SandboxType` enum: `NONE`, `CONTAINER` (future: `BWRAP`)
 - `TokenTier` enum: `READ_ONLY`, `STANDARD`, `ELEVATED`
 - `IsolationConfig` frozen dataclass: `sandbox_type`, `token_tier`, `image`,
   `runtime` (docker/podman)
@@ -192,17 +193,18 @@ tasks:
 - New: `src/agentrelay/sandbox/` package
 
 **Acceptance criteria:**
-- [ ] `IsolationConfig` frozen dataclass with sensible defaults
+- [x] `IsolationConfig` frozen dataclass with sensible defaults
       (SandboxType.NONE, TokenTier.STANDARD)
-- [ ] `AgentSandbox` protocol defined with `@runtime_checkable`
-- [ ] `NullSandbox` satisfies protocol, returns command unchanged
-- [ ] YAML graphs with `isolation:` parse at graph, workstream, task,
+- [x] `AgentSandbox` protocol defined with `@runtime_checkable`
+- [x] `NullSandbox` satisfies protocol, returns command unchanged
+- [x] YAML graphs with `isolation:` parse at graph, workstream, task,
       and agent levels
-- [ ] Four-level inheritance: agent overrides task overrides workstream
+- [x] Four-level inheritance: agent overrides task overrides workstream
       overrides graph; unset fields inherit
-- [ ] Graphs without `isolation:` use defaults (zero behavior change)
-- [ ] `pixi run check` passes
-- [ ] All existing tests pass unchanged
+- [x] Graphs without `isolation:` use defaults (zero behavior change)
+- [x] `pixi run check` passes (1032 tests, 43 new)
+- [x] All existing tests pass unchanged
+- [x] E2E regression: `diamond_4_workstreams_auto_merge.yaml` passes
 
 ---
 

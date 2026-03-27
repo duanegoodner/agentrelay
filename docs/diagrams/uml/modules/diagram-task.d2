@@ -122,6 +122,7 @@ environments_py: "environments.py" {
 sandbox_pkg: "sandbox/" {
   style.opacity: 0.5
   sandbox_core_pkg: "core/" {
+    AgentFrameworkAdapter: "AgentFrameworkAdapter" { shape: class }
     IsolationConfig: "IsolationConfig" { shape: class }
   }
 }
@@ -155,6 +156,7 @@ task_py.AgentConfig -> task_py.AgentFramework: framework { class: composition }
 task_py.AgentConfig -> task_py.AdrVerbosity: adr_verbosity { class: composition }
 task_py.ReviewConfig -> task_py.AgentConfig: agent { class: composition }
 task_py.AgentConfig -> environments_py.AgentEnvironment: environment { class: composition }
+sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter -> task_py.AgentConfig: config { class: dependency }
 task_py.AgentConfig -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_py.Task -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_graph_pkg.TaskGraph -> task_py.Task: contains { class: composition }
