@@ -61,6 +61,7 @@ sandbox_pkg: "sandbox/"
 
 task_py -> workstream_pkg { class: dependency }
 task_py -> environments_py { class: dependency }
+sandbox_pkg -> task_py { class: dependency }
 task_py -> sandbox_pkg { class: dependency }
 workstream_pkg -> sandbox_pkg { class: dependency }
 task_graph_pkg -> task_py { class: dependency }

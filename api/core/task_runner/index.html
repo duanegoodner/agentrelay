@@ -7061,9 +7061,68 @@ then parses the signal file content and any <code>concerns.log</code> /
 
 
 
-        <p>Launch a Claude Code agent in a tmux pane.</p>
-<p>Delegates to :meth:<code>TmuxAgent.from_config</code> to create a tmux window,
-launch the Claude Code process, and return a live agent handle.</p>
+        <p>Launch an agent in a tmux pane using a framework adapter and sandbox.</p>
+<p>Orchestrates the command-building pipeline: the adapter builds the
+framework-specific CLI command, the sandbox wraps it with isolation,
+and :meth:<code>TmuxAgent.from_config</code> sends the final command to a tmux pane.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.TmuxTaskLauncher.adapter">adapter</span></code></td>
+            <td>
+                  <code><span title="agentrelay.sandbox.AgentFrameworkAdapter">AgentFrameworkAdapter</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Framework adapter that builds the raw CLI command.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.TmuxTaskLauncher.sandbox">sandbox</span></code></td>
+            <td>
+                  <code><span title="agentrelay.sandbox.AgentSandbox">AgentSandbox</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sandbox that wraps the command with isolation.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.TmuxTaskLauncher.repo_path">repo_path</span></code></td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the main repository.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.TmuxTaskLauncher.graph_name">graph_name</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the task graph being executed.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
 
@@ -7074,9 +7133,7 @@ launch the Claude Code process, and return a live agent handle.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_launcher.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
 <span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
@@ -7106,16 +7163,61 @@ launch the Claude Code process, and return a live agent handle.</p>
 <span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
-<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TmuxTaskLauncher</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch a Claude Code agent in a tmux pane.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch an agent in a tmux pane using a framework adapter and sandbox.</span>
 
-<span class="sd">    Delegates to :meth:`TmuxAgent.from_config` to create a tmux window,</span>
-<span class="sd">    launch the Claude Code process, and return a live agent handle.</span>
+<span class="sd">    Orchestrates the command-building pipeline: the adapter builds the</span>
+<span class="sd">    framework-specific CLI command, the sandbox wraps it with isolation,</span>
+<span class="sd">    and :meth:`TmuxAgent.from_config` sends the final command to a tmux pane.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        adapter: Framework adapter that builds the raw CLI command.</span>
+<span class="sd">        sandbox: Sandbox that wraps the command with isolation.</span>
+<span class="sd">        repo_path: Path to the main repository.</span>
+<span class="sd">        graph_name: Name of the task graph being executed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">adapter</span><span class="p">:</span> <span class="n">AgentFrameworkAdapter</span>
+    <span class="n">sandbox</span><span class="p">:</span> <span class="n">AgentSandbox</span>
+    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Launch and return the primary agent for this task runtime.</span>
+
+<span class="sd">        Builds the agent command via the adapter, wraps it with the sandbox,</span>
+<span class="sd">        and sends it to a new tmux pane.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            runtime: Runtime envelope to launch against.  Must have</span>
@@ -7133,11 +7235,24 @@ launch the Claude Code process, and return a live agent handle.</p>
         <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runtime.state.signal_dir must be set before launch&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
-            <span class="n">config</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="p">,</span>
-            <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
+
+        <span class="n">context</span> <span class="o">=</span> <span class="n">SandboxContext</span><span class="p">(</span>
             <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
             <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
+            <span class="n">repo_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
+            <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -7167,6 +7282,8 @@ launch the Claude Code process, and return a live agent handle.</p>
     <div class="doc doc-contents ">
 
         <p>Launch and return the primary agent for this task runtime.</p>
+<p>Builds the agent command via the adapter, wraps it with the sandbox,
+and sends it to a new tmux pane.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -7255,21 +7372,7 @@ launch the Claude Code process, and return a live agent handle.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_launcher.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -7279,8 +7382,41 @@ launch the Claude Code process, and return a live agent handle.</p>
 <span class="normal">44</span>
 <span class="normal">45</span>
 <span class="normal">46</span>
-<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch and return the primary agent for this task runtime.</span>
+
+<span class="sd">    Builds the agent command via the adapter, wraps it with the sandbox,</span>
+<span class="sd">    and sends it to a new tmux pane.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        runtime: Runtime envelope to launch against.  Must have</span>
@@ -7298,11 +7434,24 @@ launch the Claude Code process, and return a live agent handle.</p>
     <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runtime.state.signal_dir must be set before launch&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
-        <span class="n">config</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="p">,</span>
-        <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="n">SandboxContext</span><span class="p">(</span>
         <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
         <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
+        <span class="n">repo_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
+        <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>

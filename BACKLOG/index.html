@@ -586,6 +586,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#task-graph-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Graph Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#graph-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1457,6 +1468,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#task-graph-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Graph Model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#graph-execution" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1751,6 +1773,72 @@ container-per-task Docker isolation, <code>AgentSandbox</code> protocol, scoped 
   platform CLI to use). Low urgency — only matters if/when supporting
   non-GitHub platforms.</li>
 </ul>
+<h2 id="task-graph-model">Task Graph Model</h2>
+<ul>
+<li>
+<p><strong>Multi-graph orchestration</strong>: The current model runs a single <code>TaskGraph</code>
+  per invocation — eagerly parsed, frozen, immutable. For larger or more
+  dynamic workflows, a <code>MultiGraphOrchestrator</code> could coordinate multiple
+  <code>TaskGraph</code> instances with dependency edges between them. Key aspects:</p>
+</li>
+<li>
+<p><strong>Graph as the unit of lazy instantiation</strong>: Rather than making individual
+    tasks lazy (which would break the frozen model, validation-at-construction,
+    and index precomputation), keep each graph eager/frozen/validated and move
+    dynamism up one level. Graphs are instantiated on demand, run to completion,
+    and released — preserving all the reliability properties of the current model.</p>
+</li>
+<li>
+<p><strong>YAML as the inter-graph contract</strong>: Each graph remains a YAML file. A
+    planning agent (or human) produces YAML files that define downstream graphs.
+    The multi-graph orchestrator validates and instantiates them. This gives
+    auditability for free — every graph that ran is a YAML file on disk.</p>
+</li>
+<li>
+<p><strong>Use cases</strong>:</p>
+<ul>
+<li><em>Scale</em>: A project with hundreds of tasks split across multiple YAML files.
+  The orchestrator instantiates graphs in dependency order, allowing completed
+  graphs to go out of scope and free resources.</li>
+<li><em>Dynamic planning</em>: As a running graph produces artifacts (PR summaries,
+  concerns, ops concerns), a planning agent monitors those outputs and
+  constructs YAML files for follow-up graphs (refactors, test coverage,
+  fixes for discovered problems). The planning agent's output is just YAML —
+  clean separation between execution agents (do work) and planning agents
+  (decide what work to do next).</li>
+<li><em>Concurrent graphs</em>: Multiple <code>TaskGraph</code> instances running simultaneously.
+  The current infrastructure nearly supports this — worktrees and signal dirs
+  are already namespaced by graph name (<code>.workflow/&lt;graph&gt;/</code>). The main
+  challenge is merge ordering across graphs, which would need cross-graph
+  gating similar to the existing cross-workstream gating.</li>
+</ul>
+</li>
+<li>
+<p><strong>Resource handoff</strong>: When a graph completes, it may need to hand off
+    resources (worktrees, branch refs, merge state) to a downstream graph.
+    Precise ownership transfer is critical — see Rust migration notes below.</p>
+</li>
+<li>
+<p><strong>Comparison to LangGraph</strong>: LangGraph uses a static-topology,
+    dynamic-routing model — the compiled graph is immutable, and runtime
+    dynamism comes from conditional edges, <code>Send</code> fan-out, and tool-calling
+    loops within fixed node sets. A LangGraph maintainer noted that building
+    a fresh subgraph inside a node at runtime is technically possible but
+    "not the pattern LangGraph is optimized for." The multi-graph approach
+    described here is flat composition (peer graphs with dependency edges),
+    not nesting (subgraph owned by a parent node). This is closer to
+    Airflow's DAG dependencies or Temporal's child workflows.</p>
+</li>
+<li>
+<p><strong>Prerequisites</strong>: The existing frozen/eager single-graph model is the
+    right fit for current scale. Multi-graph orchestration is worth pursuing
+    when the number of tasks per project exceeds what a single graph handles
+    comfortably, or when dynamic planning (agents deciding what work comes
+    next) becomes a real use case. A Rust migration (see below) would make
+    the concurrency, ownership, and lifecycle management aspects
+    significantly more tractable.</p>
+</li>
+</ul>
 <h2 id="graph-execution">Graph Execution</h2>
 <ul>
 <li><strong>CLI flags for fail-fast config</strong>: <code>OrchestratorConfig.fail_fast_on_internal_error</code>
@@ -1993,15 +2081,58 @@ bottleneck (agents and network I/O dominate), but Rust's ownership model
 enforces correct state management at compile time — valuable as the task
 graph grows in complexity and the orchestrator gains more responsibilities
 (retry logic, gate execution, agent-assisted merging).</p>
+<p><strong>Multi-graph orchestration strengthens the case for Rust.</strong> The single-graph
+orchestrator is simple enough that Python asyncio works well, but coordinating
+multiple concurrent graphs amplifies several concerns:</p>
+<ul>
+<li><strong>Ownership and lifecycle</strong>: When a completed graph hands off resources
+  (worktrees, signal dirs, branch refs, merge state) to a downstream graph,
+  Python relies on convention to prevent stale references. Rust's ownership
+  model makes invalid states unrepresentable — moving a <code>CompletedGraphResult</code>
+  into a downstream graph's input is a compile-time guarantee.</li>
+<li><strong>Concurrent graph execution</strong>: Multiple graphs with their own async
+  scheduling, competing for shared resources (git repo, Docker networks, tmux
+  sessions). Rust's <code>Send</code>/<code>Sync</code> bounds and <code>Arc&lt;Mutex&lt;T&gt;&gt;</code> enforce safe
+  shared access at compile time, replacing Python's "hope the locks are right."</li>
+<li><strong>Resource cleanup</strong>: A graph that crashes mid-execution must clean up
+  containers, worktrees, branches, networks. Rust's <code>Drop</code> trait guarantees
+  cleanup when ownership ends — even on panic. With multiple concurrent graphs,
+  missed cleanup has multiplicative blast radius.</li>
+<li><strong>Cross-graph state machines</strong>: The dispatch pipeline (DAG deps → workstream
+  state → cross-workstream gates → blocked reasons) is already the most complex
+  code. Lifting it to cross-graph scope means more state transitions and
+  invariants. Rust's exhaustive <code>match</code> on enums catches unhandled cases at
+  compile time; Python's <code>if/elif</code> chains silently skip them.</li>
+<li><strong>Scale</strong>: Hundreds of tasks across multiple concurrent graphs means more
+  polling loops, signal file checks, and subprocess calls. Python's GIL and
+  asyncio overhead may matter. Rust's zero-cost abstractions and true
+  parallelism via tokio handle this naturally.</li>
+</ul>
 <p>Suggested phased approach:
 1. <strong>Engine proxy</strong>: Rust CLI that handles LLM API calls (learn Rust I/O,
    JSON, env vars). Use <code>rig-core</code> crate.
 2. <strong>Graph runner</strong>: Move DAG scheduling to Rust using <code>petgraph</code> (learn
-   ownership, trait-based abstraction).
+   ownership, trait-based abstraction). Design with multi-graph composition
+   in mind from the start — even if the initial port handles a single graph,
+   the trait boundaries and ownership model should accommodate a future
+   <code>MultiGraphOrchestrator</code> without major rework.
 3. <strong>Full harness</strong>: Move tmux/process management to Rust with <code>tokio</code>
    (learn async, PTY handling).</p>
 <p>Stay in Python while the design is still evolving rapidly; migrate when
 state complexity or scale becomes a pain point.</p>
+<p><strong>Transition timing</strong>: The natural start point is after the agent isolation
+sprint (2026-03-26) completes — at that point all core protocol boundaries
+(<code>AgentSandbox</code>, <code>FrameworkConfigAdapter</code>, <code>CredentialProvider</code>, task runner
+step protocols, workstream lifecycle) will be stable and validated e2e with
+container execution. Phase 1 (engine proxy) could begin in parallel with
+isolation PRs E/F since it's a standalone Rust learning project that doesn't
+touch the orchestrator.</p>
+<p><strong>Pre-migration gate: full e2e test pass.</strong> Before starting any Rust work,
+run e2e tests against every graph category (<code>smoke/</code>, <code>concerns/</code>, <code>roles/</code>,
+<code>failure/</code>, <code>workstreams/</code>, <code>gates/</code>, <code>adr/</code>). Earlier sprint e2e runs
+surfaced issues that may not all be captured in the backlog — a full pass
+will rediscover them and ensure the Python implementation is a reliable
+reference for the Rust port.</p>
 <p>See <code>docs/discussions/OPENROUTER_BIFROST_RUST.md</code> for full discussion.</p>
 <h2 id="agent-worktree-awareness">Agent Worktree Awareness</h2>
 <ul>

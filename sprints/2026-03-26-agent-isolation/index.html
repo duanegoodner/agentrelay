@@ -1154,10 +1154,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox" class="md-nav__link">
+  <a href="#pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox-merged-139" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: Sandbox data models + AgentSandbox protocol + NullSandbox
+        PR A: Sandbox data models + AgentSandbox protocol + NullSandbox — MERGED (#139)
       
     </span>
   </a>
@@ -1254,7 +1254,7 @@
 
 <h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
 <blockquote>
-<p><strong>Status: Planning.</strong></p>
+<p><strong>Status: In progress.</strong> PR A merged (#139). Next: PR B.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Design and implement tunable agent isolation infrastructure — per-graph,
@@ -1392,12 +1392,13 @@ pattern as <code>ops/tmux.py</code>).</p>
 </code></pre></div>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
-<h3 id="pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox">PR A: Sandbox data models + AgentSandbox protocol + NullSandbox</h3>
+<h3 id="pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox-merged-139">PR A: Sandbox data models + AgentSandbox protocol + NullSandbox — MERGED (#139)</h3>
 <ul>
 <li>Branch: <code>feat/sandbox-protocol</code></li>
+<li>Note: <code>SandboxType.CONTAINER</code> used instead of <code>OCI</code> (user preference).</li>
 </ul>
 <p><strong>Scope:</strong>
-- <code>SandboxType</code> enum: <code>NONE</code>, <code>OCI</code> (future: <code>BWRAP</code>)
+- <code>SandboxType</code> enum: <code>NONE</code>, <code>CONTAINER</code> (future: <code>BWRAP</code>)
 - <code>TokenTier</code> enum: <code>READ_ONLY</code>, <code>STANDARD</code>, <code>ELEVATED</code>
 - <code>IsolationConfig</code> frozen dataclass: <code>sandbox_type</code>, <code>token_tier</code>, <code>image</code>,
   <code>runtime</code> (docker/podman)
@@ -1429,17 +1430,18 @@ pattern as <code>ops/tmux.py</code>).</p>
   four-level merge logic
 - New: <code>src/agentrelay/sandbox/</code> package</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>IsolationConfig</code> frozen dataclass with sensible defaults
+- [x] <code>IsolationConfig</code> frozen dataclass with sensible defaults
       (SandboxType.NONE, TokenTier.STANDARD)
-- [ ] <code>AgentSandbox</code> protocol defined with <code>@runtime_checkable</code>
-- [ ] <code>NullSandbox</code> satisfies protocol, returns command unchanged
-- [ ] YAML graphs with <code>isolation:</code> parse at graph, workstream, task,
+- [x] <code>AgentSandbox</code> protocol defined with <code>@runtime_checkable</code>
+- [x] <code>NullSandbox</code> satisfies protocol, returns command unchanged
+- [x] YAML graphs with <code>isolation:</code> parse at graph, workstream, task,
       and agent levels
-- [ ] Four-level inheritance: agent overrides task overrides workstream
+- [x] Four-level inheritance: agent overrides task overrides workstream
       overrides graph; unset fields inherit
-- [ ] Graphs without <code>isolation:</code> use defaults (zero behavior change)
-- [ ] <code>pixi run check</code> passes
-- [ ] All existing tests pass unchanged</p>
+- [x] Graphs without <code>isolation:</code> use defaults (zero behavior change)
+- [x] <code>pixi run check</code> passes (1032 tests, 43 new)
+- [x] All existing tests pass unchanged
+- [x] E2E regression: <code>diamond_4_workstreams_auto_merge.yaml</code> passes</p>
 <hr />
 <h3 id="pr-b-frameworkconfigadapter-refactor-tmuxagent-command-building">PR B: FrameworkConfigAdapter + refactor TmuxAgent command building</h3>
 <ul>
