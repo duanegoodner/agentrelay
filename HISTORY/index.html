@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-26
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-module-diagrams-diagram-cleanup-and-sprint-plan-pr-137" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-module diagrams, diagram cleanup, and sprint plan (PR #137)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-24" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1833,6 +1861,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-26
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-26">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-module-diagrams-diagram-cleanup-and-sprint-plan-pr-137" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-module diagrams, diagram cleanup, and sprint plan (PR #137)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-24" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2552,6 +2608,26 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-26">2026-03-26</h2>
+<h3 id="per-module-diagrams-diagram-cleanup-and-sprint-plan-pr-137">Per-module diagrams, diagram cleanup, and sprint plan (PR #137)</h3>
+<ul>
+<li><strong>Per-module UML diagrams</strong>: New <code>tools/generate_module_diagrams.py</code> extracts
+  16 focused diagrams from <code>diagram-detailed.d2</code> — one per module, showing full
+  types plus simplified external dependency stubs at reduced opacity. Also
+  generates <code>diagram-modules.d2</code> inter-module overview.</li>
+<li><strong>Removed filtered variants</strong>: Deleted <code>diagram-no-private</code>, <code>diagram-no-impl</code>,
+  and <code>diagram-standard</code> views along with <code>tools/generate_diagrams.py</code> and
+  <code>tools/d2_filters.py</code>. Per-module diagrams replace them as the primary
+  reference for understanding individual modules.</li>
+<li><strong>Diagram links in docs</strong>: Each API reference page links to its module diagram.
+  <code>docs/DIAGRAM.md</code> includes a table of all 16 module diagrams.</li>
+<li><strong>Sprint plan</strong>: Added <code>docs/sprints/2026-03-26-agent-isolation.md</code> — 6-PR
+  sprint for tunable agent isolation (Docker containers, scoped PATs,
+  <code>AgentSandbox</code> protocol, <code>FrameworkConfigAdapter</code>, credential provisioning).</li>
+<li><strong>Backlog cleanup</strong>: Marked cross-workstream ordering as resolved (PR #134),
+  auto-merge as resolved (PR #135), removed diagram rendering size limit item.</li>
+</ul>
 <hr />
 <h2 id="2026-03-24">2026-03-24</h2>
 <h3 id="wire-adr-production-into-agent-instructions-pr-e">Wire ADR production into agent instructions (PR E)</h3>

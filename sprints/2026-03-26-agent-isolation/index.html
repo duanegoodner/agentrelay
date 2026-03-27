@@ -1291,14 +1291,18 @@ profiles, and the motivating incident.</p>
   type needed — the <code>StepDispatch</code> key <code>(framework, env_type)</code> is unchanged.</li>
 <li><code>NullSandbox</code> preserves current behavior exactly (Level 0).</li>
 </ul>
-<p><strong>IsolationConfig on AgentConfig:</strong></p>
+<p><strong>Four-level isolation inheritance:</strong></p>
 <ul>
-<li><code>IsolationConfig</code> lives on <code>AgentConfig</code> (alongside framework, model,
-  environment). This means <code>Task.primary_agent.isolation</code> and
-  <code>Task.review.agent.isolation</code> can differ.</li>
-<li>Three-level inheritance: graph → workstream → task. Each level can set
-  <code>isolation:</code> in YAML; unset fields inherit from parent. Resolution happens
-  during YAML parsing in <code>TaskGraphBuilder</code>.</li>
+<li>Isolation is configurable at four levels: graph → workstream → task → agent.
+  Each level can set <code>isolation:</code> in YAML; unset fields inherit from parent.
+  Resolution happens during YAML parsing in <code>TaskGraphBuilder</code>.</li>
+<li><code>Task.isolation: Optional[IsolationConfig]</code> — task-level override. Applies
+  to all agents in the task (primary + review) unless an agent overrides.</li>
+<li><code>AgentConfig.isolation: Optional[IsolationConfig]</code> — agent-level override.
+  Allows primary and review agents to differ (e.g., review agent gets
+  read-only PAT while primary gets standard).</li>
+<li>The builder resolves the full chain and stores the final resolved config
+  (all fields set, no <code>None</code>s) on each <code>AgentConfig.isolation</code>.</li>
 </ul>
 <p><strong>Credentials via protocol, injected as env vars:</strong></p>
 <ul>
@@ -1347,13 +1351,13 @@ profiles, and the motivating incident.</p>
 pattern as <code>ops/tmux.py</code>).</p>
 <h3 id="example-yaml-with-isolation">Example YAML with isolation</h3>
 <div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">isolated-graph</span>
-<span class="nt">isolation</span><span class="p">:</span><span class="w">                    </span><span class="c1"># graph default</span>
+<span class="nt">isolation</span><span class="p">:</span><span class="w">                    </span><span class="c1"># graph default (level 1)</span>
 <span class="w">  </span><span class="nt">sandbox</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oci</span>
 <span class="w">  </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">standard</span>
 
 <span class="nt">workstreams</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_review</span>
-<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># workstream override</span>
+<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># workstream override (level 2)</span>
 <span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read_only</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_merge</span>
 <span class="w">    </span><span class="nt">isolation</span><span class="p">:</span>
@@ -1368,14 +1372,23 @@ pattern as <code>ops/tmux.py</code>).</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implement</span>
 <span class="w">    </span><span class="nt">workstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_merge</span>
 <span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implementer</span>
-<span class="w">    </span><span class="c1"># inherits: sandbox=oci, token_tier=elevated (from ws_merge)</span>
+<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># task override (level 3) — applies to all agents</span>
+<span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">standard</span>
+<span class="w">    </span><span class="c1"># primary_agent inherits: sandbox=oci, token_tier=standard (from task)</span>
+<span class="w">    </span><span class="c1"># review agent (if any) also inherits task-level isolation</span>
 
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merge_task</span>
-<span class="w">    </span><span class="nt">workstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_merge</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reviewed_task</span>
+<span class="w">    </span><span class="nt">workstream</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_review</span>
 <span class="w">    </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">generic</span>
-<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># task override</span>
-<span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">elevated</span>
-<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">implement</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">isolation</span><span class="p">:</span><span class="w">                </span><span class="c1"># task override (level 3)</span>
+<span class="w">      </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read_only</span>
+<span class="w">    </span><span class="nt">review</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">agent</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">isolation</span><span class="p">:</span><span class="w">            </span><span class="c1"># agent override (level 4) — review agent only</span>
+<span class="w">          </span><span class="nt">token_tier</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">elevated</span>
+<span class="w">    </span><span class="c1"># primary_agent: sandbox=oci, token_tier=read_only (from task)</span>
+<span class="w">    </span><span class="c1"># review agent: sandbox=oci, token_tier=elevated (from agent override)</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">write_tests</span><span class="p p-Indicator">]</span>
 </code></pre></div>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
@@ -1394,30 +1407,36 @@ pattern as <code>ops/tmux.py</code>).</p>
   <code>setup(context) -&gt; None</code>, <code>teardown(context) -&gt; None</code>
 - <code>NullSandbox</code> implementation: returns command unchanged, setup/teardown
   are no-ops
-- Add <code>isolation: IsolationConfig</code> field to <code>AgentConfig</code>
-  (default = <code>IsolationConfig()</code> → SandboxType.NONE)
+- Add <code>isolation: Optional[IsolationConfig]</code> to <code>Task</code> — task-level override,
+  applies to all agents in the task unless an agent overrides
+- Add <code>isolation: Optional[IsolationConfig]</code> to <code>AgentConfig</code> — agent-level
+  override, allows primary and review agents to differ
 - Add <code>isolation: Optional[IsolationConfig]</code> to <code>WorkstreamSpec</code>
 - YAML parsing: <code>_parse_isolation_config()</code> in builder.py
-- Three-level inheritance: graph → workstream → task
+- Four-level inheritance: graph → workstream → task → agent
   - Parse raw isolation config at each level (all fields Optional)
   - Merge function: child overrides parent for explicitly set fields,
     inherits unset fields
-  - Final resolved config stored on each <code>Task.primary_agent.isolation</code></p>
+  - Final resolved config (all fields set) stored on each
+    <code>AgentConfig.isolation</code> after full chain resolution</p>
 <p><strong>Key files modified:</strong>
-- <code>src/agentrelay/task.py</code> — <code>AgentConfig</code> gains <code>isolation</code> field
+- <code>src/agentrelay/task.py</code> — <code>Task</code> gains <code>isolation</code> field,
+  <code>AgentConfig</code> gains <code>isolation</code> field
 - <code>src/agentrelay/workstream/core/workstream.py</code> — <code>WorkstreamSpec</code> gains
   <code>isolation</code> field
 - <code>src/agentrelay/task_graph/builder.py</code> — <code>_parse_isolation_config()</code>,
-  update <code>_parse_agent_config()</code>, <code>_parse_workstream()</code>, three-level merge
+  update <code>_parse_task()</code>, <code>_parse_agent_config()</code>, <code>_parse_workstream()</code>,
+  four-level merge logic
 - New: <code>src/agentrelay/sandbox/</code> package</p>
 <p><strong>Acceptance criteria:</strong>
 - [ ] <code>IsolationConfig</code> frozen dataclass with sensible defaults
       (SandboxType.NONE, TokenTier.STANDARD)
 - [ ] <code>AgentSandbox</code> protocol defined with <code>@runtime_checkable</code>
 - [ ] <code>NullSandbox</code> satisfies protocol, returns command unchanged
-- [ ] YAML graphs with <code>isolation:</code> parse at graph, workstream, and task
-      levels
-- [ ] Three-level inheritance: task overrides workstream overrides graph
+- [ ] YAML graphs with <code>isolation:</code> parse at graph, workstream, task,
+      and agent levels
+- [ ] Four-level inheritance: agent overrides task overrides workstream
+      overrides graph; unset fields inherit
 - [ ] Graphs without <code>isolation:</code> use defaults (zero behavior change)
 - [ ] <code>pixi run check</code> passes
 - [ ] All existing tests pass unchanged</p>

@@ -686,28 +686,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-reviewer-no-commit-pr-failure-resolved-in-pr-125" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ~~Test reviewer: no-commit PR failure~~ — resolved in PR #125
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#git-push-without-upstream-resolved-in-pr-125" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ~~Git push without upstream~~ — resolved in PR #125
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#task-status-semantics-for-pr-less-completion" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -746,52 +724,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cross-workstream-dependency-ordering" class="md-nav__link">
+  <a href="#cross-workstream-dependency-ordering-resolved" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cross-Workstream Dependency Ordering
+        ~~Cross-Workstream Dependency Ordering~~ — resolved
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Cross-Workstream Dependency Ordering">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#human-merge-and-status-signaling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Human merge and status signaling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#premature-cross-workstream-task-dispatch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Premature cross-workstream task dispatch
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#observed-agent-workaround-pr-c-e2e-testing-2026-03-23" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Observed agent workaround (PR C e2e testing, 2026-03-23)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1618,28 +1557,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#test-reviewer-no-commit-pr-failure-resolved-in-pr-125" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ~~Test reviewer: no-commit PR failure~~ — resolved in PR #125
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#git-push-without-upstream-resolved-in-pr-125" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ~~Git push without upstream~~ — resolved in PR #125
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#task-status-semantics-for-pr-less-completion" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1678,52 +1595,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cross-workstream-dependency-ordering" class="md-nav__link">
+  <a href="#cross-workstream-dependency-ordering-resolved" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Cross-Workstream Dependency Ordering
+        ~~Cross-Workstream Dependency Ordering~~ — resolved
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Cross-Workstream Dependency Ordering">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#human-merge-and-status-signaling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Human merge and status signaling
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#premature-cross-workstream-task-dispatch" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Premature cross-workstream task dispatch
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#observed-agent-workaround-pr-c-e2e-testing-2026-03-23" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Observed agent workaround (PR C e2e testing, 2026-03-23)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1854,17 +1732,11 @@
 <li>Define a migration path so prototype-only concepts land behind stable abstractions.</li>
 </ul>
 <h2 id="agent-isolation">Agent Isolation</h2>
-<ul>
-<li><strong>Separate Linux user + scoped GitHub PAT for agent sessions</strong>: Currently
-  agents run as the human user, sharing SSH keys, <code>gh</code> credentials, and full
-  filesystem access. A dedicated <code>claude-agent</code> OS user with a fine-grained
-  GitHub PAT (scoped to the target repo, no admin privileges) would enforce
-  identity separation, filesystem isolation via permissions, and prevent agents
-  from merging PRs intended for human review. Bubblewrap (<code>bwrap</code>) or similar
-  sandboxing can further restrict worktree visibility. See
-  <code>docs/discussions/AGENT_ISOLATION.md</code> for full discussion of options
-  (bwrap, Docker, git hooks, CODEOWNERS, deploy keys vs PATs).</li>
-</ul>
+<p>~~Separate Linux user + scoped GitHub PAT for agent sessions.~~ <strong>Being
+addressed in sprint 2026-03-26</strong> (<code>docs/sprints/2026-03-26-agent-isolation.md</code>):
+container-per-task Docker isolation, <code>AgentSandbox</code> protocol, scoped PATs via
+<code>CredentialProvider</code>, three-level inheritance (graph → workstream → task). See
+<code>docs/discussions/AGENT_ISOLATION_REFINED.md</code> for full analysis.</p>
 <h2 id="extensibility">Extensibility</h2>
 <ul>
 <li>Add additional <code>AgentFramework</code> implementations beyond <code>CLAUDE_CODE</code>.</li>
@@ -2020,8 +1892,6 @@ information and risks drift. The spec_writer template should default to
 source-only specs; the supplementary <code>.md</code> spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).</p>
-<h3 id="test-reviewer-no-commit-pr-failure-resolved-in-pr-125">~~Test reviewer: no-commit PR failure~~ — resolved in PR #125</h3>
-<h3 id="git-push-without-upstream-resolved-in-pr-125">~~Git push without upstream~~ — resolved in PR #125</h3>
 <h3 id="task-status-semantics-for-pr-less-completion">Task status semantics for PR-less completion</h3>
 <p>PR #125 introduced PR-less completion for review-only tasks, but reuses
 <code>PR_MERGED</code> as the terminal success status even when no PR was created.
@@ -2053,59 +1923,19 @@ functional but not reader-friendly:
 - <strong>Concern presentation</strong>: Concerns are listed per-task, which is good,
   but could benefit from a summary/highlight for cross-cutting concerns.</p>
 <h2 id="agent-assisted-integration-branch-merging">Agent-Assisted Integration Branch Merging</h2>
-<p>Configurable merge strategies for integration PRs. Currently the orchestrator
-creates integration PRs and leaves them for human review (<code>human</code> mode, since
-PR A2). Additional strategies:</p>
+<p>~~<code>auto</code> merge strategy~~ — resolved in PR #135 (<code>auto_merge</code> on <code>WorkstreamSpec</code>,
+concern-gated). Remaining strategy:</p>
 <ul>
-<li><strong><code>auto</code></strong> — If no merge conflicts, merge automatically. If conflicts exist,
-  fall back to human review.</li>
 <li><strong><code>agent</code></strong> — If merge conflicts, launch a Claude Code agent in a tmux pane
   to resolve them. Require the test suite to pass before completing the merge.
   If the agent cannot resolve, fall back to human review.</li>
 </ul>
-<p>Implementation sketch:
-- Add a <code>merge_strategy</code> field to <code>WorkstreamSpec</code> or <code>OrchestratorConfig</code>.
-- For <code>auto</code>: attempt <code>gh pr merge</code>, fall back to <code>human</code> on failure.
-- For <code>agent</code>: create a tmux pane, instruct Claude Code to resolve conflicts
-  and run tests. Agent uses TaskHelper-like API to signal success or failure.</p>
-<p>Originally planned as PR F in sprint 2026-03-19, deferred because the retry
-and gate work surfaced more foundational issues (signal cleanup, prepare-on-retry,
-agent SDK retry support) that should be addressed first. Best tackled in a
-sprint focused on integration reliability alongside the cross-workstream
-dependency ordering and agent SDK retry items below.</p>
-<h2 id="cross-workstream-dependency-ordering">Cross-Workstream Dependency Ordering</h2>
-<p>Two related questions about correctness when tasks span workstreams:</p>
-<h3 id="human-merge-and-status-signaling">Human merge and status signaling</h3>
-<p>Integration PRs are left for human merge (by design, since PR A2). When a
-human merges a workstream's integration branch to main, does the orchestrator
-need the human to write a status signal file (e.g., marking the workstream
-as MERGED) so that downstream tasks/workstreams can be initiated? Or does the
-orchestrator detect the merge via some other mechanism? If signal files are
-needed, we should either automate this (GitHub webhook, polling) or document
-the manual step clearly.</p>
-<h3 id="premature-cross-workstream-task-dispatch">Premature cross-workstream task dispatch</h3>
-<p>If Task A is in Workstream X and Task B is in Workstream Y, and B depends
-on A: does the orchestrator wait until Workstream X's integration branch
-has been merged to main before starting Task B? The concern is that the
-orchestrator could see Task A as PR_MERGED (its task PR merged to the
-integration branch) and dispatch Task B before Workstream X's integration
-PR is merged to main — meaning Task B's worktree wouldn't have Task A's
-changes. Need to verify whether the current orchestrator scheduling logic
-prevents this, or if this is a gap.</p>
-<h3 id="observed-agent-workaround-pr-c-e2e-testing-2026-03-23">Observed agent workaround (PR C e2e testing, 2026-03-23)</h3>
-<p>Running <code>diamond_4_workstreams.yaml</code>, the <code>double_calc</code> agent discovered
-that <code>base_calc.py</code> was missing from its worktree. It inspected available
-branches with <code>git show</code>, found the code on the <code>base_calc</code> task branch,
-and ran <code>git merge agentrelay/diamond-4-workstreams/base_calc --no-edit</code>
-to pull the dependency's code into its own branch. This worked — but the
-agent did not report an ops concern despite the workaround being a
-significant deviation from the expected workflow. Implications:
-- The workaround succeeded because worktrees share the git object store,
-  so other workstreams' branches are locally available.
-- Merging another task's branch directly could cause conflicts when
-  integration PRs are merged to main (duplicate commits).
-- The agent silently working around infrastructure gaps without raising
-  ops concerns makes these gaps harder to detect systematically.</p>
+<h2 id="cross-workstream-dependency-ordering-resolved">~~Cross-Workstream Dependency Ordering~~ — resolved</h2>
+<p>Resolved in PR #134 (sprint 2026-03-25). Cross-workstream dispatch gating
+via <code>_workstream_can_run()</code> + <code>IntegrationMergeChecker</code> polling. Upstream
+workstreams must be MERGED before downstream tasks dispatch. The motivating
+agent workaround (unilateral PR merge) can no longer occur. See
+<code>docs/discussions/AGENT_ISOLATION_REFINED.md</code> for the incident analysis.</p>
 <h2 id="concern-guidance-level-experimentation">Concern Guidance Level Experimentation</h2>
 <p>PR #129 shipped "prompted" guidance (cross-check steps in role templates) which
 works reliably with Sonnet. Further investigation deferred:</p>
