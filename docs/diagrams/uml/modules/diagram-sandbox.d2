@@ -1,0 +1,120 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  sandbox/ — sandbox configuration and protocols
+# ─────────────────────────────────────────────
+sandbox_pkg: "sandbox/" {
+  sandbox_core_pkg: "core/" {
+    SandboxType: "SandboxType <<enumeration>>" {
+      shape: class
+      NONE
+      CONTAINER
+    }
+
+    TokenTier: "TokenTier <<enumeration>>" {
+      shape: class
+      READ_ONLY
+      STANDARD
+      ELEVATED
+    }
+
+    IsolationConfig: "IsolationConfig <<frozen dataclass>>" {
+      shape: class
+      sandbox_type: SandboxType
+      token_tier: TokenTier
+      image: "str | None"
+      runtime: "str | None"
+    }
+
+    SandboxContext: "SandboxContext <<frozen dataclass>>" {
+      shape: class
+      worktree_path: Path
+      signal_dir: Path
+      repo_path: Path
+      task_id: str
+      graph_name: str
+      env_vars: "dict[str, str]"
+    }
+
+    AgentSandbox: "AgentSandbox <<protocol>>" {
+      shape: class
+      "+wrap_command(cmd, context)": str
+      "+setup(context)": void
+      "+teardown(context)": void
+    }
+  }
+
+  sandbox_impl_pkg: "implementations/" {
+    NullSandbox: "NullSandbox" {
+      shape: class
+      "+wrap_command(cmd, context)": str
+      "+setup(context)": void
+      "+teardown(context)": void
+    }
+  }
+}
+
+
+# ─── External dependencies ───
+
+task_py: "task.py" {
+  style.opacity: 0.5
+  AgentConfig: "AgentConfig <<frozen dataclass>>" { shape: class }
+  Task: "Task <<frozen dataclass>>" { shape: class }
+}
+
+workstream_pkg: "workstream/" {
+  style.opacity: 0.5
+  workstream_core_pkg: "core/" {
+    WorkstreamSpec: "WorkstreamSpec <<frozen dataclass>>" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.SandboxType: sandbox_type { class: composition }
+sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.TokenTier: token_tier { class: composition }
+sandbox_pkg.sandbox_core_pkg.AgentSandbox -> sandbox_pkg.sandbox_core_pkg.SandboxContext: context { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.NullSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: satisfies { class: implementation }
+task_py.AgentConfig -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
+task_py.Task -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
+workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }

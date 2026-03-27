@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Optional
 
 from agentrelay.environments import AgentEnvironment, TmuxEnvironment
+from agentrelay.sandbox import IsolationConfig
 
 # ── Enums ──
 
@@ -121,6 +122,7 @@ class AgentConfig:
     model: Optional[str] = None
     adr_verbosity: AdrVerbosity = AdrVerbosity.NONE
     environment: AgentEnvironment = field(default_factory=TmuxEnvironment)
+    isolation: Optional[IsolationConfig] = None
 
 
 @dataclass(frozen=True)
@@ -184,3 +186,4 @@ class Task:
     primary_agent: AgentConfig = field(default_factory=AgentConfig)
     review: Optional[ReviewConfig] = None
     workstream_id: str = "default"
+    isolation: Optional[IsolationConfig] = None

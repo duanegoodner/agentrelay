@@ -8,6 +8,8 @@ integration branch strategy.
 from dataclasses import dataclass
 from typing import Optional
 
+from agentrelay.sandbox import IsolationConfig
+
 
 @dataclass(frozen=True)
 class WorkstreamSpec:
@@ -35,3 +37,4 @@ class WorkstreamSpec:
     base_branch: str = "main"
     merge_target_branch: str = "main"
     auto_merge: bool = False
+    isolation: Optional[IsolationConfig] = None

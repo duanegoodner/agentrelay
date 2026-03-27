@@ -3,6 +3,7 @@
 import pytest
 
 from agentrelay.environments import TmuxEnvironment
+from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
 from agentrelay.task import (
     AdrVerbosity,
     AgentConfig,
@@ -300,6 +301,21 @@ class TestAgentConfig:
         assert config.adr_verbosity == AdrVerbosity.DETAILED
         assert config.environment == env
 
+    def test_default_isolation_is_none(self) -> None:
+        """AgentConfig defaults isolation to None."""
+        config = AgentConfig()
+        assert config.isolation is None
+
+    def test_custom_isolation(self) -> None:
+        """AgentConfig can specify an IsolationConfig."""
+        iso = IsolationConfig(
+            sandbox_type=SandboxType.CONTAINER,
+            token_tier=TokenTier.ELEVATED,
+        )
+        config = AgentConfig(isolation=iso)
+        assert config.isolation == iso
+        assert config.isolation.token_tier == TokenTier.ELEVATED
+
 
 # ── Tests for ReviewConfig ──
 
@@ -530,3 +546,18 @@ class TestTask:
         task = Task(id="task", role=AgentRole.GENERIC)
         assert task.primary_agent.framework == AgentFramework.CLAUDE_CODE
         assert task.primary_agent.model is None
+
+    def test_default_isolation_is_none(self) -> None:
+        """Task defaults isolation to None."""
+        task = Task(id="task", role=AgentRole.GENERIC)
+        assert task.isolation is None
+
+    def test_task_with_isolation(self) -> None:
+        """Task can specify an IsolationConfig."""
+        iso = IsolationConfig(
+            sandbox_type=SandboxType.CONTAINER,
+            token_tier=TokenTier.STANDARD,
+        )
+        task = Task(id="task", role=AgentRole.GENERIC, isolation=iso)
+        assert task.isolation == iso
+        assert task.isolation.sandbox_type == SandboxType.CONTAINER
