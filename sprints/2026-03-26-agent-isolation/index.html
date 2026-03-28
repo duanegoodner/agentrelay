@@ -1165,10 +1165,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b-frameworkconfigadapter-refactor-tmuxagent-command-building" class="md-nav__link">
+  <a href="#pr-b-agentframeworkadapter-refactor-tmuxagent-command-building-merged-140" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B: FrameworkConfigAdapter + refactor TmuxAgent command building
+        PR B: AgentFrameworkAdapter + refactor TmuxAgent command building — MERGED (#140)
       
     </span>
   </a>
@@ -1254,7 +1254,7 @@
 
 <h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR A merged (#139). Next: PR B.</p>
+<p><strong>Status: In progress.</strong> PRs A–B merged (#139, #140). Next: PR C.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Design and implement tunable agent isolation infrastructure — per-graph,
@@ -1443,35 +1443,42 @@ pattern as <code>ops/tmux.py</code>).</p>
 - [x] All existing tests pass unchanged
 - [x] E2E regression: <code>diamond_4_workstreams_auto_merge.yaml</code> passes</p>
 <hr />
-<h3 id="pr-b-frameworkconfigadapter-refactor-tmuxagent-command-building">PR B: FrameworkConfigAdapter + refactor TmuxAgent command building</h3>
+<h3 id="pr-b-agentframeworkadapter-refactor-tmuxagent-command-building-merged-140">PR B: AgentFrameworkAdapter + refactor TmuxAgent command building — MERGED (#140)</h3>
 <ul>
 <li>Branch: <code>feat/framework-adapter</code></li>
+<li>Note: Protocol renamed from <code>FrameworkConfigAdapter</code> to
+  <code>AgentFrameworkAdapter</code> (names what it is, not what it wraps).</li>
+<li>Design change: <code>TmuxAgent.from_config()</code> accepts pre-built <code>cmd: str</code>
+  instead of adapter + sandbox directly. <code>TmuxTaskLauncher</code> orchestrates
+  the adapter → sandbox pipeline — cleaner separation of concerns.</li>
 </ul>
 <p><strong>Scope:</strong>
-- <code>FrameworkConfigAdapter</code> protocol:
+- <code>AgentFrameworkAdapter</code> protocol:
   <code>build_command(config: AgentConfig, signal_dir: Path) -&gt; str</code>
 - <code>ClaudeCodeAdapter</code>: extracts command-building from
-  <code>TmuxAgent.from_config()</code> lines 67–72
-- Refactor <code>TmuxAgent.from_config()</code> to accept
-  <code>adapter: FrameworkConfigAdapter</code> and <code>sandbox: AgentSandbox</code>
-- Flow: adapter builds command → sandbox wraps it → tmux sends wrapped
-  command
-- Update <code>TmuxTaskLauncher</code> to construct adapter and sandbox
-- Update <code>build_standard_runner()</code> to thread dependencies into launcher</p>
+  <code>TmuxAgent.from_config()</code>
+- Refactor <code>TmuxAgent.from_config()</code> to accept <code>cmd: str</code> (pre-built
+  command) instead of building the command internally
+- <code>TmuxTaskLauncher</code> orchestrates: <code>adapter.build_command()</code> →
+  <code>sandbox.setup()</code> → <code>sandbox.wrap_command()</code> → <code>TmuxAgent.from_config(cmd)</code>
+- <code>build_standard_runner()</code> wires <code>ClaudeCodeAdapter</code> + <code>NullSandbox</code> into
+  launcher</p>
 <p><strong>Key files modified:</strong>
 - <code>src/agentrelay/agent/implementations/tmux_agent.py</code> — <code>from_config()</code>
-  accepts adapter + sandbox
-- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code>
+  accepts <code>cmd: str</code> instead of <code>signal_dir: Path</code>
+- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code> — gains
+  <code>adapter</code>, <code>sandbox</code>, <code>repo_path</code>, <code>graph_name</code> fields
 - <code>src/agentrelay/orchestrator/builders.py</code>
 - New: <code>src/agentrelay/sandbox/core/adapters.py</code>,
   <code>src/agentrelay/sandbox/implementations/claude_code_adapter.py</code></p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>ClaudeCodeAdapter.build_command()</code> produces identical command string
-      to current <code>TmuxAgent.from_config()</code>
-- [ ] <code>TmuxAgent.from_config()</code> with <code>NullSandbox</code> + <code>ClaudeCodeAdapter</code>
-      is behaviorally identical to current code
-- [ ] Command building testable independently of tmux
-- [ ] <code>pixi run check</code> passes</p>
+- [x] <code>ClaudeCodeAdapter.build_command()</code> produces identical command string
+      to previous <code>TmuxAgent.from_config()</code>
+- [x] <code>TmuxAgent.from_config()</code> with <code>NullSandbox</code> + <code>ClaudeCodeAdapter</code>
+      is behaviorally identical to previous code
+- [x] Command building testable independently of tmux
+- [x] <code>pixi run check</code> passes (1039 tests, 7 new)
+- [x] E2E regression: <code>diamond_4_workstreams_auto_merge.yaml</code> passes</p>
 <hr />
 <h3 id="pr-c-credentialprovider-filecredentialprovider">PR C: CredentialProvider + FileCredentialProvider</h3>
 <ul>

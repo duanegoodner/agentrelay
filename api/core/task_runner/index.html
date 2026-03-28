@@ -7100,6 +7100,18 @@ and :meth:<code>TmuxAgent.from_config</code> sends the final command to a tmux p
             </td>
           </tr>
           <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.TmuxTaskLauncher.credential_provider">credential_provider</span></code></td>
+            <td>
+                  <code><span title="agentrelay.sandbox.CredentialProvider">CredentialProvider</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Credential provider that resolves token tier
+to environment variables.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.TmuxTaskLauncher.repo_path">repo_path</span></code></td>
             <td>
                   <code><span title="pathlib.Path">Path</span></code>
@@ -7133,13 +7145,7 @@ and :meth:<code>TmuxAgent.from_config</code> sends the final command to a tmux p
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_launcher.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
 <span class="normal">26</span>
@@ -7193,7 +7199,21 @@ and :meth:<code>TmuxAgent.from_config</code> sends the final command to a tmux p
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TmuxTaskLauncher</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch an agent in a tmux pane using a framework adapter and sandbox.</span>
 
@@ -7204,12 +7224,15 @@ and :meth:<code>TmuxAgent.from_config</code> sends the final command to a tmux p
 <span class="sd">    Attributes:</span>
 <span class="sd">        adapter: Framework adapter that builds the raw CLI command.</span>
 <span class="sd">        sandbox: Sandbox that wraps the command with isolation.</span>
+<span class="sd">        credential_provider: Credential provider that resolves token tier</span>
+<span class="sd">            to environment variables.</span>
 <span class="sd">        repo_path: Path to the main repository.</span>
 <span class="sd">        graph_name: Name of the task graph being executed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">adapter</span><span class="p">:</span> <span class="n">AgentFrameworkAdapter</span>
     <span class="n">sandbox</span><span class="p">:</span> <span class="n">AgentSandbox</span>
+    <span class="n">credential_provider</span><span class="p">:</span> <span class="n">CredentialProvider</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
 
@@ -7238,12 +7261,17 @@ and :meth:<code>TmuxAgent.from_config</code> sends the final command to a tmux p
         <span class="n">config</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
 
+        <span class="n">isolation</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">isolation</span>
+        <span class="n">tier</span> <span class="o">=</span> <span class="n">isolation</span><span class="o">.</span><span class="n">token_tier</span> <span class="k">if</span> <span class="n">isolation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">TokenTier</span><span class="o">.</span><span class="n">STANDARD</span>
+        <span class="n">env_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">credential_provider</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">tier</span><span class="p">)</span>
+
         <span class="n">context</span> <span class="o">=</span> <span class="n">SandboxContext</span><span class="p">(</span>
             <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
             <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
             <span class="n">repo_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
             <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
             <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+            <span class="n">env_vars</span><span class="o">=</span><span class="n">env_vars</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
@@ -7372,16 +7400,7 @@ and sends it to a new tmux pane.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_launcher.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
@@ -7412,7 +7431,21 @@ and sends it to a new tmux pane.</p>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch and return the primary agent for this task runtime.</span>
 
 <span class="sd">    Builds the agent command via the adapter, wraps it with the sandbox,</span>
@@ -7437,12 +7470,17 @@ and sends it to a new tmux pane.</p>
     <span class="n">config</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
 
+    <span class="n">isolation</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">isolation</span>
+    <span class="n">tier</span> <span class="o">=</span> <span class="n">isolation</span><span class="o">.</span><span class="n">token_tier</span> <span class="k">if</span> <span class="n">isolation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">TokenTier</span><span class="o">.</span><span class="n">STANDARD</span>
+    <span class="n">env_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">credential_provider</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">tier</span><span class="p">)</span>
+
     <span class="n">context</span> <span class="o">=</span> <span class="n">SandboxContext</span><span class="p">(</span>
         <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
         <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
         <span class="n">repo_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
         <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
         <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+        <span class="n">env_vars</span><span class="o">=</span><span class="n">env_vars</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>

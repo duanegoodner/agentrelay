@@ -1761,6 +1761,9 @@ container-per-task Docker isolation, <code>AgentSandbox</code> protocol, scoped 
 <code>docs/discussions/AGENT_ISOLATION_REFINED.md</code> for full analysis.</p>
 <h2 id="extensibility">Extensibility</h2>
 <ul>
+<li><code>EnvCredentialProvider</code> — credential provider that reads from environment
+  variables (e.g. <code>AGENTRELAY_PAT_READ_ONLY</code>, <code>AGENTRELAY_PAT_STANDARD</code>) for
+  CI/CD environments where secrets come from the runner, not a local YAML file.</li>
 <li>Add additional <code>AgentFramework</code> implementations beyond <code>CLAUDE_CODE</code>.</li>
 <li>Expand <code>AgentEnvironment</code> beyond tmux when real use-cases are validated.</li>
 <li><strong>Decouple <code>task_helper.py</code> from GitHub CLI</strong>: <code>TaskHelper.complete()</code>
