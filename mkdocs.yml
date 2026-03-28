@@ -61,11 +61,19 @@ nav:
   - API Reference:
     - Overview: api/index.md
     - agent: api/agent/index.md
+    - agent_comm_protocol: api/core/agent_comm_protocol.md
+    - agent_sdk: api/core/agent_sdk.md
     - environments: api/core/environments.md
     - errors: api/core/errors.md
+    - ops: api/core/ops.md
     - orchestrator: api/core/orchestrator.md
+    - output: api/core/output.md
+    - reset_graph: api/core/reset_graph.md
+    - run_graph: api/core/run_graph.md
+    - sandbox: api/sandbox/index.md
     - task: api/core/task.md
     - task_graph: api/task_graph/index.md
     - task_runner: api/core/task_runner.md
     - task_runtime: api/task_runtime/index.md
+    - tools: api/core/tools.md
     - workstream: api/workstream/index.md
