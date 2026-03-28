@@ -290,6 +290,36 @@ def set_config(repo: Path, key: str, value: str) -> None:
     )
 
 
+def worktree_git_dir(worktree_path: Path) -> Path:
+    """Return the main ``.git/`` directory for a git worktree.
+
+    A worktree's ``.git`` is a file containing
+    ``gitdir: <repo>/.git/worktrees/<name>``.  This reads that file and
+    resolves to the parent ``.git/`` directory two levels up.
+
+    Args:
+        worktree_path: Root of the git worktree.
+
+    Returns:
+        Absolute path to the main ``.git/`` directory.
+
+    Raises:
+        ValueError: If ``.git`` is not a file or does not start with
+            ``gitdir:``.
+    """
+    git_file = worktree_path / ".git"
+    if not git_file.is_file():
+        raise ValueError(f"{git_file} is not a file (not a worktree?)")
+    content = git_file.read_text().strip()
+    if not content.startswith("gitdir:"):
+        raise ValueError(f"{git_file} does not contain a gitdir line")
+    gitdir = Path(content.removeprefix("gitdir:").strip())
+    if not gitdir.is_absolute():
+        gitdir = (worktree_path / gitdir).resolve()
+    # gitdir points to .git/worktrees/<name>; go up two levels to .git/
+    return gitdir.parent.parent
+
+
 def push_force_with_lease(repo: Path, branch: str) -> None:
     """Force-push *branch* to origin with lease safety.
 

@@ -309,7 +309,7 @@ class TestAgentConfig:
     def test_custom_isolation(self) -> None:
         """AgentConfig can specify an IsolationConfig."""
         iso = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.ELEVATED,
         )
         config = AgentConfig(isolation=iso)
@@ -555,9 +555,9 @@ class TestTask:
     def test_task_with_isolation(self) -> None:
         """Task can specify an IsolationConfig."""
         iso = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.STANDARD,
         )
         task = Task(id="task", role=AgentRole.GENERIC, isolation=iso)
         assert task.isolation == iso
-        assert task.isolation.sandbox_type == SandboxType.CONTAINER
+        assert task.isolation.sandbox_type == SandboxType.OCI

@@ -10,10 +10,12 @@ from agentrelay.sandbox.implementations.claude_code_adapter import ClaudeCodeAda
 from agentrelay.sandbox.implementations.file_credentials import FileCredentialProvider
 from agentrelay.sandbox.implementations.null_credentials import NullCredentialProvider
 from agentrelay.sandbox.implementations.null_sandbox import NullSandbox
+from agentrelay.sandbox.implementations.oci_sandbox import OciSandbox
 
 __all__ = [
     "ClaudeCodeAdapter",
     "FileCredentialProvider",
     "NullCredentialProvider",
     "NullSandbox",
+    "OciSandbox",
 ]

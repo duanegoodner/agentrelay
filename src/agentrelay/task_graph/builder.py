@@ -16,7 +16,7 @@ from typing import Any, Optional
 import yaml
 
 from agentrelay.environments import TmuxEnvironment
-from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
+from agentrelay.sandbox import ContainerRuntime, IsolationConfig, SandboxType, TokenTier
 from agentrelay.task import (
     AdrVerbosity,
     AgentConfig,
@@ -42,7 +42,7 @@ class _RawIsolationConfig:
     sandbox_type: Optional[SandboxType] = None
     token_tier: Optional[TokenTier] = None
     image: Optional[str] = None
-    runtime: Optional[str] = None
+    runtime: Optional[ContainerRuntime] = None
 
 
 @dataclass(frozen=True)
@@ -532,7 +532,9 @@ def _parse_raw_isolation(value: Any, path: str) -> Optional[_RawIsolationConfig]
         mapping.get("token_tier"), path + ".token_tier"
     )
     image = _parse_optional_string(mapping.get("image"), path + ".image")
-    runtime = _parse_optional_string(mapping.get("runtime"), path + ".runtime")
+    runtime = _parse_optional_container_runtime(
+        mapping.get("runtime"), path + ".runtime"
+    )
     return _RawIsolationConfig(
         sandbox_type=sandbox_type,
         token_tier=token_tier,
@@ -571,6 +573,26 @@ def _parse_optional_token_tier(value: Any, path: str) -> Optional[TokenTier]:
             return tt
     allowed = ", ".join(tt.value for tt in TokenTier)
     raise _schema_error(path, f"invalid token tier '{value}'. Allowed: {allowed}")
+
+
+def _parse_optional_container_runtime(
+    value: Any, path: str
+) -> Optional[ContainerRuntime]:
+    """Parse a container runtime string, returning None if absent."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise _schema_error(path, "must be a string")
+    normalized = value.strip()
+    for cr in ContainerRuntime:
+        if normalized.lower() == cr.value:
+            return cr
+        if normalized.upper() == cr.name:
+            return cr
+    allowed = ", ".join(cr.value for cr in ContainerRuntime)
+    raise _schema_error(
+        path, f"invalid container runtime '{value}'. Allowed: {allowed}"
+    )
 
 
 def _merge_raw_isolation(

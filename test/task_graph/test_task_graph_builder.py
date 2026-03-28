@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from agentrelay.sandbox import SandboxType, TokenTier
+from agentrelay.sandbox import ContainerRuntime, SandboxType, TokenTier
 from agentrelay.task import (
     AdrVerbosity,
     AgentFramework,
@@ -425,18 +425,18 @@ def test_from_dict_graph_isolation_inherited_by_agents() -> None:
     """Graph-level isolation is inherited by all task agents."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container", "token_tier": "elevated"},
+        "isolation": {"sandbox": "oci", "token_tier": "elevated"},
         "tasks": [{"id": "t1"}],
     }
     graph = TaskGraphBuilder.from_dict(data)
     task = graph.task("t1")
 
     assert task.isolation is not None
-    assert task.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.isolation.sandbox_type == SandboxType.OCI
     assert task.isolation.token_tier == TokenTier.ELEVATED
 
     assert task.primary_agent.isolation is not None
-    assert task.primary_agent.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.primary_agent.isolation.sandbox_type == SandboxType.OCI
     assert task.primary_agent.isolation.token_tier == TokenTier.ELEVATED
 
 
@@ -444,7 +444,7 @@ def test_from_dict_graph_isolation_inherited_by_workstream() -> None:
     """Graph-level isolation is inherited by workstreams."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container"},
+        "isolation": {"sandbox": "oci"},
         "workstreams": [{"id": "ws"}],
         "tasks": [{"id": "t1", "workstream_id": "ws"}],
     }
@@ -452,7 +452,7 @@ def test_from_dict_graph_isolation_inherited_by_workstream() -> None:
     ws = graph.workstream("ws")
 
     assert ws.isolation is not None
-    assert ws.isolation.sandbox_type == SandboxType.CONTAINER
+    assert ws.isolation.sandbox_type == SandboxType.OCI
     assert ws.isolation.token_tier == TokenTier.STANDARD  # default
 
 
@@ -460,7 +460,7 @@ def test_from_dict_workstream_isolation_overrides_graph() -> None:
     """Workstream-level isolation overrides graph for set fields."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container", "token_tier": "standard"},
+        "isolation": {"sandbox": "oci", "token_tier": "standard"},
         "workstreams": [{"id": "ws", "isolation": {"token_tier": "elevated"}}],
         "tasks": [{"id": "t1", "workstream_id": "ws"}],
     }
@@ -469,7 +469,7 @@ def test_from_dict_workstream_isolation_overrides_graph() -> None:
 
     # Workstream overrides token_tier, inherits sandbox from graph
     assert task.primary_agent.isolation is not None
-    assert task.primary_agent.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.primary_agent.isolation.sandbox_type == SandboxType.OCI
     assert task.primary_agent.isolation.token_tier == TokenTier.ELEVATED
 
 
@@ -477,7 +477,7 @@ def test_from_dict_task_isolation_overrides_workstream() -> None:
     """Task-level isolation overrides workstream."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container"},
+        "isolation": {"sandbox": "oci"},
         "workstreams": [{"id": "ws", "isolation": {"token_tier": "elevated"}}],
         "tasks": [
             {
@@ -491,7 +491,7 @@ def test_from_dict_task_isolation_overrides_workstream() -> None:
     task = graph.task("t1")
 
     assert task.isolation is not None
-    assert task.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.isolation.sandbox_type == SandboxType.OCI
     assert task.isolation.token_tier == TokenTier.READ_ONLY
 
     assert task.primary_agent.isolation is not None
@@ -502,7 +502,7 @@ def test_from_dict_agent_isolation_overrides_task() -> None:
     """Agent-level isolation overrides task."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container", "token_tier": "standard"},
+        "isolation": {"sandbox": "oci", "token_tier": "standard"},
         "tasks": [
             {
                 "id": "t1",
@@ -524,14 +524,14 @@ def test_from_dict_agent_isolation_overrides_task() -> None:
     assert task.primary_agent.isolation is not None
     assert task.primary_agent.isolation.token_tier == TokenTier.ELEVATED
     # Sandbox inherited from graph
-    assert task.primary_agent.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.primary_agent.isolation.sandbox_type == SandboxType.OCI
 
 
 def test_from_dict_four_level_chain_selective_overrides() -> None:
     """Full four-level chain with selective field overrides at each level."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container"},
+        "isolation": {"sandbox": "oci"},
         "workstreams": [{"id": "ws", "isolation": {"token_tier": "elevated"}}],
         "tasks": [
             {
@@ -548,24 +548,24 @@ def test_from_dict_four_level_chain_selective_overrides() -> None:
     agent_iso = graph.task("t1").primary_agent.isolation
 
     assert agent_iso is not None
-    assert agent_iso.sandbox_type == SandboxType.CONTAINER  # from graph
+    assert agent_iso.sandbox_type == SandboxType.OCI  # from graph
     assert agent_iso.token_tier == TokenTier.ELEVATED  # from workstream
     assert agent_iso.image == "custom:latest"  # from task
-    assert agent_iso.runtime == "podman"  # from agent
+    assert agent_iso.runtime == ContainerRuntime.PODMAN  # from agent
 
 
 def test_from_dict_partial_isolation_inherits_defaults() -> None:
     """Partial isolation fills unset fields with defaults."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container"},
+        "isolation": {"sandbox": "oci"},
         "tasks": [{"id": "t1"}],
     }
     graph = TaskGraphBuilder.from_dict(data)
     iso = graph.task("t1").primary_agent.isolation
 
     assert iso is not None
-    assert iso.sandbox_type == SandboxType.CONTAINER
+    assert iso.sandbox_type == SandboxType.OCI
     assert iso.token_tier == TokenTier.STANDARD  # default
     assert iso.image is None  # default
     assert iso.runtime is None  # default
@@ -575,7 +575,7 @@ def test_from_dict_review_agent_gets_own_isolation_override() -> None:
     """Review agent can have its own isolation override."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container", "token_tier": "standard"},
+        "isolation": {"sandbox": "oci", "token_tier": "standard"},
         "tasks": [
             {
                 "id": "t1",
@@ -598,14 +598,14 @@ def test_from_dict_review_agent_gets_own_isolation_override() -> None:
     assert task.review is not None
     assert task.review.agent.isolation is not None
     assert task.review.agent.isolation.token_tier == TokenTier.READ_ONLY
-    assert task.review.agent.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.review.agent.isolation.sandbox_type == SandboxType.OCI
 
 
 def test_from_dict_review_agent_inherits_task_chain_when_no_override() -> None:
     """Review agent inherits the task chain when it has no isolation override."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "container", "token_tier": "elevated"},
+        "isolation": {"sandbox": "oci", "token_tier": "elevated"},
         "tasks": [
             {
                 "id": "t1",
@@ -618,7 +618,7 @@ def test_from_dict_review_agent_inherits_task_chain_when_no_override() -> None:
 
     assert task.review is not None
     assert task.review.agent.isolation is not None
-    assert task.review.agent.isolation.sandbox_type == SandboxType.CONTAINER
+    assert task.review.agent.isolation.sandbox_type == SandboxType.OCI
     assert task.review.agent.isolation.token_tier == TokenTier.ELEVATED
 
 
@@ -656,15 +656,15 @@ def test_from_dict_invalid_token_tier_rejected() -> None:
 
 
 def test_from_dict_sandbox_type_accepts_enum_name() -> None:
-    """Sandbox type can be specified via enum name (CONTAINER)."""
+    """Sandbox type can be specified via enum name (OCI)."""
     data = {
         "name": "g",
-        "isolation": {"sandbox": "CONTAINER"},
+        "isolation": {"sandbox": "OCI"},
         "tasks": [{"id": "t1"}],
     }
     graph = TaskGraphBuilder.from_dict(data)
     assert graph.task("t1").isolation is not None
-    assert graph.task("t1").isolation.sandbox_type == SandboxType.CONTAINER
+    assert graph.task("t1").isolation.sandbox_type == SandboxType.OCI
 
 
 def test_from_dict_token_tier_accepts_enum_name() -> None:
@@ -684,7 +684,7 @@ def test_from_dict_isolation_with_image_and_runtime() -> None:
     data = {
         "name": "g",
         "isolation": {
-            "sandbox": "container",
+            "sandbox": "oci",
             "image": "agentrelay-agent:v1",
             "runtime": "podman",
         },
@@ -694,7 +694,30 @@ def test_from_dict_isolation_with_image_and_runtime() -> None:
     iso = graph.task("t1").primary_agent.isolation
     assert iso is not None
     assert iso.image == "agentrelay-agent:v1"
-    assert iso.runtime == "podman"
+    assert iso.runtime == ContainerRuntime.PODMAN
+
+
+def test_from_dict_invalid_runtime_rejected() -> None:
+    """Invalid container runtime string is rejected."""
+    data = {
+        "name": "g",
+        "isolation": {"runtime": "lxc"},
+        "tasks": [{"id": "t1"}],
+    }
+    with pytest.raises(ValueError, match="invalid container runtime"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_runtime_accepts_enum_name() -> None:
+    """Container runtime can be specified via enum name (PODMAN)."""
+    data = {
+        "name": "g",
+        "isolation": {"runtime": "PODMAN"},
+        "tasks": [{"id": "t1"}],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.task("t1").isolation is not None
+    assert graph.task("t1").isolation.runtime == ContainerRuntime.PODMAN
 
 
 def test_from_dict_no_isolation_with_workstreams() -> None:
