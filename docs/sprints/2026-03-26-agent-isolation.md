@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: In progress.** PR A merged (#139). Next: PR B.
+> **Status: In progress.** PRs A–B merged (#139, #140). Next: PR C.
 
 ## Goal
 
@@ -208,37 +208,44 @@ tasks:
 
 ---
 
-### PR B: FrameworkConfigAdapter + refactor TmuxAgent command building
+### PR B: AgentFrameworkAdapter + refactor TmuxAgent command building — MERGED (#140)
 
 - Branch: `feat/framework-adapter`
+- Note: Protocol renamed from `FrameworkConfigAdapter` to
+  `AgentFrameworkAdapter` (names what it is, not what it wraps).
+- Design change: `TmuxAgent.from_config()` accepts pre-built `cmd: str`
+  instead of adapter + sandbox directly. `TmuxTaskLauncher` orchestrates
+  the adapter → sandbox pipeline — cleaner separation of concerns.
 
 **Scope:**
-- `FrameworkConfigAdapter` protocol:
+- `AgentFrameworkAdapter` protocol:
   `build_command(config: AgentConfig, signal_dir: Path) -> str`
 - `ClaudeCodeAdapter`: extracts command-building from
-  `TmuxAgent.from_config()` lines 67–72
-- Refactor `TmuxAgent.from_config()` to accept
-  `adapter: FrameworkConfigAdapter` and `sandbox: AgentSandbox`
-- Flow: adapter builds command → sandbox wraps it → tmux sends wrapped
-  command
-- Update `TmuxTaskLauncher` to construct adapter and sandbox
-- Update `build_standard_runner()` to thread dependencies into launcher
+  `TmuxAgent.from_config()`
+- Refactor `TmuxAgent.from_config()` to accept `cmd: str` (pre-built
+  command) instead of building the command internally
+- `TmuxTaskLauncher` orchestrates: `adapter.build_command()` →
+  `sandbox.setup()` → `sandbox.wrap_command()` → `TmuxAgent.from_config(cmd)`
+- `build_standard_runner()` wires `ClaudeCodeAdapter` + `NullSandbox` into
+  launcher
 
 **Key files modified:**
 - `src/agentrelay/agent/implementations/tmux_agent.py` — `from_config()`
-  accepts adapter + sandbox
-- `src/agentrelay/task_runner/implementations/task_launcher.py`
+  accepts `cmd: str` instead of `signal_dir: Path`
+- `src/agentrelay/task_runner/implementations/task_launcher.py` — gains
+  `adapter`, `sandbox`, `repo_path`, `graph_name` fields
 - `src/agentrelay/orchestrator/builders.py`
 - New: `src/agentrelay/sandbox/core/adapters.py`,
   `src/agentrelay/sandbox/implementations/claude_code_adapter.py`
 
 **Acceptance criteria:**
-- [ ] `ClaudeCodeAdapter.build_command()` produces identical command string
-      to current `TmuxAgent.from_config()`
-- [ ] `TmuxAgent.from_config()` with `NullSandbox` + `ClaudeCodeAdapter`
-      is behaviorally identical to current code
-- [ ] Command building testable independently of tmux
-- [ ] `pixi run check` passes
+- [x] `ClaudeCodeAdapter.build_command()` produces identical command string
+      to previous `TmuxAgent.from_config()`
+- [x] `TmuxAgent.from_config()` with `NullSandbox` + `ClaudeCodeAdapter`
+      is behaviorally identical to previous code
+- [x] Command building testable independently of tmux
+- [x] `pixi run check` passes (1039 tests, 7 new)
+- [x] E2E regression: `diamond_4_workstreams_auto_merge.yaml` passes
 
 ---
 

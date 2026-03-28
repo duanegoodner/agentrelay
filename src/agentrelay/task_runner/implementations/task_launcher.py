@@ -10,7 +10,13 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from agentrelay.agent import Agent, TmuxAgent
-from agentrelay.sandbox import AgentFrameworkAdapter, AgentSandbox, SandboxContext
+from agentrelay.sandbox import (
+    AgentFrameworkAdapter,
+    AgentSandbox,
+    CredentialProvider,
+    SandboxContext,
+    TokenTier,
+)
 from agentrelay.task_runtime import TaskRuntime
 
 
@@ -25,12 +31,15 @@ class TmuxTaskLauncher:
     Attributes:
         adapter: Framework adapter that builds the raw CLI command.
         sandbox: Sandbox that wraps the command with isolation.
+        credential_provider: Credential provider that resolves token tier
+            to environment variables.
         repo_path: Path to the main repository.
         graph_name: Name of the task graph being executed.
     """
 
     adapter: AgentFrameworkAdapter
     sandbox: AgentSandbox
+    credential_provider: CredentialProvider
     repo_path: Path
     graph_name: str
 
@@ -59,12 +68,17 @@ class TmuxTaskLauncher:
         config = runtime.task.primary_agent
         cmd = self.adapter.build_command(config, runtime.state.signal_dir)
 
+        isolation = config.isolation
+        tier = isolation.token_tier if isolation is not None else TokenTier.STANDARD
+        env_vars = self.credential_provider.resolve(tier)
+
         context = SandboxContext(
             worktree_path=runtime.state.worktree_path,
             signal_dir=runtime.state.signal_dir,
             repo_path=self.repo_path,
             task_id=runtime.task.id,
             graph_name=self.graph_name,
+            env_vars=env_vars,
         )
         self.sandbox.setup(context)
         cmd = self.sandbox.wrap_command(cmd, context)

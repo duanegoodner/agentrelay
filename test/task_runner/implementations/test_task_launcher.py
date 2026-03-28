@@ -8,7 +8,15 @@ from unittest.mock import MagicMock, call, patch
 import pytest
 
 from agentrelay.agent import TmuxAddress, TmuxAgent
-from agentrelay.sandbox import ClaudeCodeAdapter, NullSandbox, SandboxContext
+from agentrelay.sandbox import (
+    ClaudeCodeAdapter,
+    IsolationConfig,
+    NullCredentialProvider,
+    NullSandbox,
+    SandboxContext,
+    SandboxType,
+    TokenTier,
+)
 from agentrelay.task import AgentConfig, AgentRole, Task, TmuxEnvironment
 from agentrelay.task_runner.core.io import TaskLauncher
 from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLauncher
@@ -36,6 +44,7 @@ def _make_launcher() -> TmuxTaskLauncher:
     return TmuxTaskLauncher(
         adapter=ClaudeCodeAdapter(),
         sandbox=NullSandbox(),
+        credential_provider=NullCredentialProvider(),
         repo_path=Path("/repo"),
         graph_name="demo",
     )
@@ -102,6 +111,7 @@ class TestTmuxTaskLauncher:
         launcher = TmuxTaskLauncher(
             adapter=mock_adapter,
             sandbox=NullSandbox(),
+            credential_provider=NullCredentialProvider(),
             repo_path=Path("/repo"),
             graph_name="demo",
         )
@@ -125,6 +135,7 @@ class TestTmuxTaskLauncher:
         launcher = TmuxTaskLauncher(
             adapter=ClaudeCodeAdapter(),
             sandbox=mock_sandbox,
+            credential_provider=NullCredentialProvider(),
             repo_path=Path("/repo"),
             graph_name="demo",
         )
@@ -157,6 +168,7 @@ class TestTmuxTaskLauncher:
         launcher = TmuxTaskLauncher(
             adapter=ClaudeCodeAdapter(),
             sandbox=mock_sandbox,
+            credential_provider=NullCredentialProvider(),
             repo_path=Path("/repo"),
             graph_name="demo",
         )
@@ -165,3 +177,67 @@ class TestTmuxTaskLauncher:
         launcher.launch(runtime)
 
         assert mock_from_config.call_args.kwargs["cmd"] == "docker run ... claude ..."
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_resolves_credentials_with_default_tier(
+        self, mock_from_config: MagicMock
+    ) -> None:
+        """Defaults to STANDARD tier when isolation is None."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_credential_provider = MagicMock()
+        mock_credential_provider.resolve.return_value = {}
+        mock_sandbox = MagicMock()
+        mock_sandbox.wrap_command.return_value = "cmd"
+        launcher = TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=mock_sandbox,
+            credential_provider=mock_credential_provider,
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        runtime = _make_runtime()
+
+        launcher.launch(runtime)
+
+        mock_credential_provider.resolve.assert_called_once_with(TokenTier.STANDARD)
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_uses_isolation_token_tier_when_present(
+        self, mock_from_config: MagicMock
+    ) -> None:
+        """Uses isolation.token_tier for credential resolution when set."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_credential_provider = MagicMock()
+        mock_credential_provider.resolve.return_value = {"GH_TOKEN": "ghp_xxx"}
+        mock_sandbox = MagicMock()
+        mock_sandbox.wrap_command.return_value = "cmd"
+        launcher = TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=mock_sandbox,
+            credential_provider=mock_credential_provider,
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        config = AgentConfig(
+            model="claude-sonnet-4-6",
+            environment=TmuxEnvironment(session="mysession"),
+            isolation=IsolationConfig(
+                sandbox_type=SandboxType.CONTAINER,
+                token_tier=TokenTier.ELEVATED,
+            ),
+        )
+        runtime = TaskRuntime(
+            task=Task(id="task_1", role=AgentRole.GENERIC, primary_agent=config)
+        )
+        runtime.state.worktree_path = Path("/repo/.workflow/demo/worktrees/task_1")
+        runtime.state.signal_dir = Path("/repo/.workflow/demo/signals/task_1")
+
+        launcher.launch(runtime)
+
+        mock_credential_provider.resolve.assert_called_once_with(TokenTier.ELEVATED)
+        ctx_arg = mock_sandbox.setup.call_args[0][0]
+        assert ctx_arg.env_vars == {"GH_TOKEN": "ghp_xxx"}
