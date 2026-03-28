@@ -3,6 +3,7 @@
 from pathlib import Path
 
 from agentrelay.orchestrator.builders import build_standard_runner
+from agentrelay.sandbox import NullCredentialProvider
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import StandardTaskRunner
@@ -135,3 +136,17 @@ def test_teardown_dispatch_returns_worktree_teardown() -> None:
     teardown = runner._teardown(runtime)
     assert isinstance(teardown, WorktreeTaskTeardown)
     assert teardown.keep_panes is True
+
+
+def test_launcher_has_null_credential_provider() -> None:
+    """Default launcher uses NullCredentialProvider."""
+    graph = _graph_with_deps()
+    runner = build_standard_runner(
+        repo_path=Path("/repo"),
+        graph_name="test_graph",
+        graph=graph,
+    )
+    runtime = TaskRuntime(task=graph.task("a"))
+    launcher = runner._launcher(runtime)
+    assert isinstance(launcher, TmuxTaskLauncher)
+    assert isinstance(launcher.credential_provider, NullCredentialProvider)

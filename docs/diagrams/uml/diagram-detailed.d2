@@ -965,6 +965,11 @@ sandbox_pkg: "sandbox/" {
       shape: class
       "+build_command(config, signal_dir)": str
     }
+
+    CredentialProvider: "CredentialProvider <<protocol>>" {
+      shape: class
+      "+resolve(tier)": "dict[str, str]"
+    }
   }
 
   sandbox_impl_pkg: "implementations/" {
@@ -978,6 +983,17 @@ sandbox_pkg: "sandbox/" {
     ClaudeCodeAdapter: "ClaudeCodeAdapter" {
       shape: class
       "+build_command(config, signal_dir)": str
+    }
+
+    NullCredentialProvider: "NullCredentialProvider" {
+      shape: class
+      "+resolve(tier)": "dict[str, str]"
+    }
+
+    FileCredentialProvider: "FileCredentialProvider" {
+      shape: class
+      path: Path
+      "+resolve(tier)": "dict[str, str]"
     }
   }
 }
@@ -1007,6 +1023,9 @@ sandbox_pkg.sandbox_core_pkg.AgentSandbox -> sandbox_pkg.sandbox_core_pkg.Sandbo
 sandbox_pkg.sandbox_impl_pkg.NullSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: satisfies { class: implementation }
 sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter -> task_py.AgentConfig: config { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.ClaudeCodeAdapter -> sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter: satisfies { class: implementation }
+sandbox_pkg.sandbox_core_pkg.CredentialProvider -> sandbox_pkg.sandbox_core_pkg.TokenTier: tier { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.NullCredentialProvider -> sandbox_pkg.sandbox_core_pkg.CredentialProvider: satisfies { class: implementation }
+sandbox_pkg.sandbox_impl_pkg.FileCredentialProvider -> sandbox_pkg.sandbox_core_pkg.CredentialProvider: satisfies { class: implementation }
 task_py.AgentConfig -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_py.Task -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }

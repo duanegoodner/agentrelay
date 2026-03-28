@@ -22,7 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from agentrelay.sandbox import ClaudeCodeAdapter, NullSandbox
+from agentrelay.sandbox import ClaudeCodeAdapter, NullCredentialProvider, NullSandbox
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
@@ -163,6 +163,7 @@ def build_standard_runner(
     tmux_launcher = TmuxTaskLauncher(
         adapter=ClaudeCodeAdapter(),
         sandbox=NullSandbox(),
+        credential_provider=NullCredentialProvider(),
         repo_path=repo_path,
         graph_name=graph_name,
     )
