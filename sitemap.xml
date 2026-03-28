@@ -53,6 +53,14 @@
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/agent_comm_protocol/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/agent_sdk/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
          <loc>https://duanegoodner.github.io/agentrelay/api/core/environments/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
@@ -61,7 +69,23 @@
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/ops/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
          <loc>https://duanegoodner.github.io/agentrelay/api/core/orchestrator/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/output/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/reset_graph/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/run_graph/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>
@@ -70,6 +94,14 @@
     </url>
     <url>
          <loc>https://duanegoodner.github.io/agentrelay/api/core/task_runner/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/core/tools/</loc>
+         <lastmod>2026-03-28</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/api/sandbox/</loc>
          <lastmod>2026-03-28</lastmod>
     </url>
     <url>

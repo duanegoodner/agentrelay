@@ -1,0 +1,3487 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/api/core/agent_comm_protocol/">
+      
+      
+        <link rel="prev" href="../../agent/">
+      
+      
+        <link rel="next" href="../agent_sdk/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>agent_comm_protocol - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agent_comm_protocol" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              agent_comm_protocol
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent_comm_protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.DependencyInfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DependencyInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.TaskManifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskManifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.WorkflowPolicies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkflowPolicies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.build_manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_manifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.manifest_to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        manifest_to_dict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.build_policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_policies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.policies_to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        policies_to_dict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.resolve_instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_instructions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        agent_comm_protocol
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.DependencyInfo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DependencyInfo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.TaskManifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskManifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.WorkflowPolicies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorkflowPolicies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.build_manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_manifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.manifest_to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        manifest_to_dict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.build_policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        build_policies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.policies_to_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        policies_to_dict
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_comm_protocol.resolve_instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_instructions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<div class="api-page"><h1 id="agent_comm_protocol">agent_comm_protocol</h1>
+<p><a href="../../../diagrams/uml/modules/diagram-agent-comm-protocol.svg" target="_blank">View module diagram</a></p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="agentrelay.agent_comm_protocol"></a>
+    <div class="doc doc-contents first">
+
+        <p>Protocol schemas, builders, and template resolution for agent communication.</p>
+<p>This package implements Layers 1-3 of the agent communication protocol:</p>
+<ul>
+<li><strong>Layer 1</strong>: :class:<code>TaskManifest</code> — structured facts about a task.</li>
+<li><strong>Layer 2</strong>: :func:<code>resolve_instructions</code> — role-specific work instructions.</li>
+<li><strong>Layer 3</strong>: :class:<code>WorkflowPolicies</code> — composable workflow configuration.</li>
+</ul>
+<p>All types and functions are framework-agnostic.  Framework adapters
+(in <code>task_runner/implementations/</code>) consume these outputs.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent_comm_protocol.DependencyInfo" class="doc doc-heading">
+            <code>DependencyInfo</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Description of a dependency task for manifest purposes.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.DependencyInfo.description">description</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Human-readable description of the dependency task,
+or <code>None</code> if no description is available.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent_comm_protocol/manifest.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DependencyInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Description of a dependency task for manifest purposes.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        description: Human-readable description of the dependency task,</span>
+<span class="sd">            or ``None`` if no description is available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent_comm_protocol.TaskManifest" class="doc doc-heading">
+            <code>TaskManifest</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Frozen Layer-1 manifest: pure facts about a task.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.schema_version">schema_version</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Schema version string.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.task_id">task_id</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Unique task identifier.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.role">role</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="AgentRole (agentrelay.task.AgentRole)" href="../task/#agentrelay.task.AgentRole">AgentRole</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Agent role for this task.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.description">description</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Human-readable task description, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.src_paths">src_paths</span></code></td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="pathlib.Path">Path</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Source file paths.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.test_paths">test_paths</span></code></td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="pathlib.Path">Path</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Test file paths.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.spec_path">spec_path</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Supplementary spec file path, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.branch_name">branch_name</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Feature branch for this task's work.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.integration_branch">integration_branch</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Branch this task's PR targets.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.attempt_num">attempt_num</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Current attempt number (0-indexed).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.graph_name">graph_name</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the containing graph, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.dependencies">dependencies</span></code></td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <a class="autorefs autorefs-internal" title="DependencyInfo
+
+
+  
+      dataclass
+   (agentrelay.agent_comm_protocol.manifest.DependencyInfo)" href="#agentrelay.agent_comm_protocol.DependencyInfo">DependencyInfo</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Mapping of dependency task IDs to :class:<code>DependencyInfo</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.tools">tools</span></code></td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declared tool names from the graph YAML.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent_comm_protocol/manifest.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskManifest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frozen Layer-1 manifest: pure facts about a task.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        schema_version: Schema version string.</span>
+<span class="sd">        task_id: Unique task identifier.</span>
+<span class="sd">        role: Agent role for this task.</span>
+<span class="sd">        description: Human-readable task description, or ``None``.</span>
+<span class="sd">        src_paths: Source file paths.</span>
+<span class="sd">        test_paths: Test file paths.</span>
+<span class="sd">        spec_path: Supplementary spec file path, or ``None``.</span>
+<span class="sd">        branch_name: Feature branch for this task&#39;s work.</span>
+<span class="sd">        integration_branch: Branch this task&#39;s PR targets.</span>
+<span class="sd">        attempt_num: Current attempt number (0-indexed).</span>
+<span class="sd">        graph_name: Name of the containing graph, or ``None``.</span>
+<span class="sd">        dependencies: Mapping of dependency task IDs to :class:`DependencyInfo`.</span>
+<span class="sd">        tools: Declared tool names from the graph YAML.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">src_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">test_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">spec_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">attempt_num</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">dependencies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">DependencyInfo</span><span class="p">]</span>
+    <span class="n">tools</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent_comm_protocol.WorkflowPolicies" class="doc doc-heading">
+            <code>WorkflowPolicies</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Frozen Layer-3 policies: composable workflow configuration.</p>
+<p>Each optional field is independently <code>None</code> (behavior absent) or
+present (behavior active).  Framework adapters read these policies and
+translate them into framework-specific actions.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.schema_version">schema_version</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Schema version string.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.commit_policy">commit_policy</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="agentrelay.agent_comm_protocol.policies._CommitPolicy">_CommitPolicy</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Commit and push policy, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.pr_policy">pr_policy</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="agentrelay.agent_comm_protocol.policies._PrPolicy">_PrPolicy</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>PR creation policy, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.completion_gate">completion_gate</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="agentrelay.agent_comm_protocol.policies._CompletionGatePolicy">_CompletionGatePolicy</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Gate loop policy, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.review">review</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="agentrelay.agent_comm_protocol.policies._ReviewPolicy">_ReviewPolicy</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Self-review policy, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.adr">adr</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="agentrelay.agent_comm_protocol.policies._AdrPolicy">_AdrPolicy</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>ADR writing policy, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_comm_protocol.WorkflowPolicies.verification">verification</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="agentrelay.agent_comm_protocol.policies._VerificationPolicy">_VerificationPolicy</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Verification command policy, or <code>None</code>.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent_comm_protocol/policies.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorkflowPolicies</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frozen Layer-3 policies: composable workflow configuration.</span>
+
+<span class="sd">    Each optional field is independently ``None`` (behavior absent) or</span>
+<span class="sd">    present (behavior active).  Framework adapters read these policies and</span>
+<span class="sd">    translate them into framework-specific actions.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        schema_version: Schema version string.</span>
+<span class="sd">        commit_policy: Commit and push policy, or ``None``.</span>
+<span class="sd">        pr_policy: PR creation policy, or ``None``.</span>
+<span class="sd">        completion_gate: Gate loop policy, or ``None``.</span>
+<span class="sd">        review: Self-review policy, or ``None``.</span>
+<span class="sd">        adr: ADR writing policy, or ``None``.</span>
+<span class="sd">        verification: Verification command policy, or ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">commit_policy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_CommitPolicy</span><span class="p">]</span>
+    <span class="n">pr_policy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_PrPolicy</span><span class="p">]</span>
+    <span class="n">completion_gate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_CompletionGatePolicy</span><span class="p">]</span>
+    <span class="n">review</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_ReviewPolicy</span><span class="p">]</span>
+    <span class="n">adr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_AdrPolicy</span><span class="p">]</span>
+    <span class="n">verification</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_VerificationPolicy</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.agent_comm_protocol.build_manifest" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_manifest</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">integration_branch</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">attempt_num</span><span class="p">,</span> <span class="n">dependency_descriptions</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">())</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build a :class:<code>TaskManifest</code> from task spec and contextual data.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>task</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="Task
+
+
+  
+      dataclass
+   (agentrelay.task.Task)" href="../task/#agentrelay.task.Task">Task</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Frozen task specification.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>branch_name</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Git branch for this task's work.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>integration_branch</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Branch this task's PR targets.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>graph_name</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the containing task graph.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>attempt_num</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Current execution attempt (0-indexed).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dependency_descriptions</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Optional">Optional</span>[<span title="str">str</span>]]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Map of dependency task ID to description
+(<code>None</code> if the dependency has no description).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>tools</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span>[<span title="str">str</span>, ...]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Declared tool names from the graph YAML.</p>
+              </div>
+            </td>
+            <td>
+                  <code>()</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskManifest
+
+
+  
+      dataclass
+   (agentrelay.agent_comm_protocol.manifest.TaskManifest)" href="#agentrelay.agent_comm_protocol.TaskManifest">TaskManifest</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Frozen manifest with all task facts.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_comm_protocol/manifest.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_manifest</span><span class="p">(</span>
+    <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">graph_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">attempt_num</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">dependency_descriptions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">tools</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskManifest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a :class:`TaskManifest` from task spec and contextual data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        task: Frozen task specification.</span>
+<span class="sd">        branch_name: Git branch for this task&#39;s work.</span>
+<span class="sd">        integration_branch: Branch this task&#39;s PR targets.</span>
+<span class="sd">        graph_name: Name of the containing task graph.</span>
+<span class="sd">        attempt_num: Current execution attempt (0-indexed).</span>
+<span class="sd">        dependency_descriptions: Map of dependency task ID to description</span>
+<span class="sd">            (``None`` if the dependency has no description).</span>
+<span class="sd">        tools: Declared tool names from the graph YAML.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Frozen manifest with all task facts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">TaskManifest</span><span class="p">(</span>
+        <span class="n">schema_version</span><span class="o">=</span><span class="n">MANIFEST_SCHEMA_VERSION</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">role</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="n">src_paths</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">src</span><span class="p">,</span>
+        <span class="n">test_paths</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">test</span><span class="p">,</span>
+        <span class="n">spec_path</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+        <span class="n">branch_name</span><span class="o">=</span><span class="n">branch_name</span><span class="p">,</span>
+        <span class="n">integration_branch</span><span class="o">=</span><span class="n">integration_branch</span><span class="p">,</span>
+        <span class="n">attempt_num</span><span class="o">=</span><span class="n">attempt_num</span><span class="p">,</span>
+        <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">,</span>
+        <span class="n">dependencies</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">dep_id</span><span class="p">:</span> <span class="n">DependencyInfo</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">desc</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">dep_id</span><span class="p">,</span> <span class="n">desc</span> <span class="ow">in</span> <span class="n">dependency_descriptions</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">},</span>
+        <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.agent_comm_protocol.manifest_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Serialize a :class:<code>TaskManifest</code> to a JSON-compatible dict.</p>
+<p>The dict structure matches the Layer-1 schema defined in
+<code>docs/AGENT_COMM_PROTOCOL.md</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>manifest</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskManifest
+
+
+  
+      dataclass
+   (agentrelay.agent_comm_protocol.manifest.TaskManifest)" href="#agentrelay.agent_comm_protocol.TaskManifest">TaskManifest</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Frozen manifest to serialize.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Nested dict with <code>schema_version</code>, <code>task</code>, <code>paths</code>,</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>workspace</code>, <code>execution</code>, and <code>dependencies</code> sections.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_comm_protocol/manifest.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a :class:`TaskManifest` to a JSON-compatible dict.</span>
+
+<span class="sd">    The dict structure matches the Layer-1 schema defined in</span>
+<span class="sd">    ``docs/AGENT_COMM_PROTOCOL.md``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        manifest: Frozen manifest to serialize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Nested dict with ``schema_version``, ``task``, ``paths``,</span>
+<span class="sd">        ``workspace``, ``execution``, and ``dependencies`` sections.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">schema_version</span><span class="p">,</span>
+        <span class="s2">&quot;task&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;src&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">src_paths</span><span class="p">],</span>
+            <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">test_paths</span><span class="p">],</span>
+            <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;workspace&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;branch_name&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">branch_name</span><span class="p">,</span>
+            <span class="s2">&quot;integration_branch&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;execution&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;attempt_num&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
+            <span class="s2">&quot;graph_name&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="n">dep_id</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">description</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">dep_id</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;tools&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">tools</span><span class="p">),</span>
+    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.agent_comm_protocol.build_policies" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">build_policies</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">integration_branch</span><span class="p">,</span> <span class="n">default_max_gate_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Build :class:<code>WorkflowPolicies</code> from a task spec and contextual data.</p>
+<p>Derives policies from the task's configuration:</p>
+<ul>
+<li><code>commit_policy</code>: always present (<code>commit_and_push</code>).</li>
+<li><code>pr_policy</code>: always present; <code>base_branch</code> from <em>integration_branch</em>.</li>
+<li><code>completion_gate</code>: present if <code>task.completion_gate</code> is set.</li>
+<li><code>review</code>: present if <code>task.review</code> is set.</li>
+<li><code>adr</code>: present if <code>task.primary_agent.adr_verbosity</code> is not <code>NONE</code>.</li>
+<li><code>verification</code>: present for <code>TEST_WRITER</code> and <code>TEST_REVIEWER</code> roles
+  (default <code>pytest --collect-only</code>).</li>
+</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>task</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="Task
+
+
+  
+      dataclass
+   (agentrelay.task.Task)" href="../task/#agentrelay.task.Task">Task</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Frozen task specification.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>integration_branch</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Branch for PR base.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>default_max_gate_attempts</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Fallback when <code>task.max_gate_attempts</code>
+is <code>None</code> but <code>task.completion_gate</code> is set.</p>
+              </div>
+            </td>
+            <td>
+                  <code>5</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkflowPolicies
+
+
+  
+      dataclass
+   (agentrelay.agent_comm_protocol.policies.WorkflowPolicies)" href="#agentrelay.agent_comm_protocol.WorkflowPolicies">WorkflowPolicies</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Composable workflow configuration.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_comm_protocol/policies.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_policies</span><span class="p">(</span>
+    <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span>
+    <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">default_max_gate_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkflowPolicies</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build :class:`WorkflowPolicies` from a task spec and contextual data.</span>
+
+<span class="sd">    Derives policies from the task&#39;s configuration:</span>
+
+<span class="sd">    - ``commit_policy``: always present (``commit_and_push``).</span>
+<span class="sd">    - ``pr_policy``: always present; ``base_branch`` from *integration_branch*.</span>
+<span class="sd">    - ``completion_gate``: present if ``task.completion_gate`` is set.</span>
+<span class="sd">    - ``review``: present if ``task.review`` is set.</span>
+<span class="sd">    - ``adr``: present if ``task.primary_agent.adr_verbosity`` is not ``NONE``.</span>
+<span class="sd">    - ``verification``: present for ``TEST_WRITER`` and ``TEST_REVIEWER`` roles</span>
+<span class="sd">      (default ``pytest --collect-only``).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        task: Frozen task specification.</span>
+<span class="sd">        integration_branch: Branch for PR base.</span>
+<span class="sd">        default_max_gate_attempts: Fallback when ``task.max_gate_attempts``</span>
+<span class="sd">            is ``None`` but ``task.completion_gate`` is set.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Composable workflow configuration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">commit_policy</span> <span class="o">=</span> <span class="n">_CommitPolicy</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">_WorkflowAction</span><span class="o">.</span><span class="n">COMMIT_AND_PUSH</span><span class="p">)</span>
+
+    <span class="n">pr_policy</span> <span class="o">=</span> <span class="n">_PrPolicy</span><span class="p">(</span>
+        <span class="n">action</span><span class="o">=</span><span class="n">_WorkflowAction</span><span class="o">.</span><span class="n">CREATE_PR</span><span class="p">,</span>
+        <span class="n">base_branch</span><span class="o">=</span><span class="n">integration_branch</span><span class="p">,</span>
+        <span class="n">title_template</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{task_id}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">body_sections</span><span class="o">=</span><span class="p">(</span><span class="n">_PrBodySection</span><span class="o">.</span><span class="n">SUMMARY</span><span class="p">,</span> <span class="n">_PrBodySection</span><span class="o">.</span><span class="n">FILES_CHANGED</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">completion_gate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_CompletionGatePolicy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">completion_gate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">completion_gate</span> <span class="o">=</span> <span class="n">_CompletionGatePolicy</span><span class="p">(</span>
+            <span class="n">command</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">completion_gate</span><span class="p">,</span>
+            <span class="n">max_attempts</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">max_gate_attempts</span> <span class="ow">or</span> <span class="n">default_max_gate_attempts</span><span class="p">,</span>
+            <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;gate_last_output.txt&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">review</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_ReviewPolicy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">review</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">review</span> <span class="o">=</span> <span class="n">_ReviewPolicy</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">review_on_attempt</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">review</span><span class="o">.</span><span class="n">review_on_attempt</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">adr</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_AdrPolicy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">adr_verbosity</span> <span class="o">!=</span> <span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+        <span class="n">adr</span> <span class="o">=</span> <span class="n">_AdrPolicy</span><span class="p">(</span><span class="n">verbosity</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">adr_verbosity</span><span class="p">)</span>
+
+    <span class="n">verification</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_VerificationPolicy</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">role</span> <span class="ow">in</span> <span class="p">(</span><span class="n">AgentRole</span><span class="o">.</span><span class="n">TEST_WRITER</span><span class="p">,</span> <span class="n">AgentRole</span><span class="o">.</span><span class="n">TEST_REVIEWER</span><span class="p">):</span>
+        <span class="n">verification</span> <span class="o">=</span> <span class="n">_VerificationPolicy</span><span class="p">(</span><span class="n">commands</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;pytest --collect-only&quot;</span><span class="p">,))</span>
+
+    <span class="k">return</span> <span class="n">WorkflowPolicies</span><span class="p">(</span>
+        <span class="n">schema_version</span><span class="o">=</span><span class="n">POLICIES_SCHEMA_VERSION</span><span class="p">,</span>
+        <span class="n">commit_policy</span><span class="o">=</span><span class="n">commit_policy</span><span class="p">,</span>
+        <span class="n">pr_policy</span><span class="o">=</span><span class="n">pr_policy</span><span class="p">,</span>
+        <span class="n">completion_gate</span><span class="o">=</span><span class="n">completion_gate</span><span class="p">,</span>
+        <span class="n">review</span><span class="o">=</span><span class="n">review</span><span class="p">,</span>
+        <span class="n">adr</span><span class="o">=</span><span class="n">adr</span><span class="p">,</span>
+        <span class="n">verification</span><span class="o">=</span><span class="n">verification</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.agent_comm_protocol.policies_to_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">policies_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Serialize :class:<code>WorkflowPolicies</code> to a JSON-compatible dict.</p>
+<p>The dict structure matches the Layer-3 schema defined in
+<code>docs/AGENT_COMM_PROTOCOL.md</code>.  <code>None</code>-valued policies become
+JSON <code>null</code>.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>policies</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="WorkflowPolicies
+
+
+  
+      dataclass
+   (agentrelay.agent_comm_protocol.policies.WorkflowPolicies)" href="#agentrelay.agent_comm_protocol.WorkflowPolicies">WorkflowPolicies</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Frozen policies to serialize.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="typing.Any">Any</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dict with <code>schema_version</code> and one key per policy type.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_comm_protocol/policies.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">policies_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="p">:</span> <span class="n">WorkflowPolicies</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize :class:`WorkflowPolicies` to a JSON-compatible dict.</span>
+
+<span class="sd">    The dict structure matches the Layer-3 schema defined in</span>
+<span class="sd">    ``docs/AGENT_COMM_PROTOCOL.md``.  ``None``-valued policies become</span>
+<span class="sd">    JSON ``null``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        policies: Frozen policies to serialize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict with ``schema_version`` and one key per policy type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;schema_version&quot;</span><span class="p">:</span> <span class="n">policies</span><span class="o">.</span><span class="n">schema_version</span><span class="p">,</span>
+        <span class="s2">&quot;commit_policy&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_policy_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="o">.</span><span class="n">commit_policy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">policies</span><span class="o">.</span><span class="n">commit_policy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;pr_policy&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_policy_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="o">.</span><span class="n">pr_policy</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">policies</span><span class="o">.</span><span class="n">pr_policy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;completion_gate&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_policy_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="o">.</span><span class="n">completion_gate</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">policies</span><span class="o">.</span><span class="n">completion_gate</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;review&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_policy_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="o">.</span><span class="n">review</span><span class="p">)</span> <span class="k">if</span> <span class="n">policies</span><span class="o">.</span><span class="n">review</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;adr&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">_policy_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="o">.</span><span class="n">adr</span><span class="p">)</span> <span class="k">if</span> <span class="n">policies</span><span class="o">.</span><span class="n">adr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="s2">&quot;verification&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_policy_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="o">.</span><span class="n">verification</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">policies</span><span class="o">.</span><span class="n">verification</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="agentrelay.agent_comm_protocol.resolve_instructions" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">resolve_instructions</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">adapter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Resolve work instructions by loading and parameterizing a role template.</p>
+<p>The assembled document is structured as a work order:</p>
+<ol>
+<li><strong>Role</strong> — who the agent is and what it's doing.</li>
+<li><strong>Tools</strong> — environment tools available (if any).</li>
+<li><strong>What to Do</strong> — role-specific steps from the template, or the
+   task description for GENERIC roles.</li>
+<li><strong>Architecture Decision Record</strong> — ADR writing instructions (if
+   <code>adr_verbosity</code> is not <code>NONE</code>).</li>
+<li><strong>Submitting Your Work</strong> — how to commit, create a PR, and signal
+   the orchestrator.</li>
+<li><strong>Task Details</strong> — the task author's description (non-generic only,
+   when present).</li>
+</ol>
+<p>Template variables (<code>$var</code> syntax via :class:<code>string.Template</code>):</p>
+<ul>
+<li><code>$description</code> — task description</li>
+<li><code>$src_paths</code> — space-joined source paths, or <code>"(none specified)"</code></li>
+<li><code>$test_paths</code> — space-joined test paths, or <code>"(none specified)"</code></li>
+<li><code>$spec_path</code> — spec path, or <code>"(none specified)"</code></li>
+<li><code>$task_id</code> — task identifier</li>
+</ul>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>role</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="AgentRole (agentrelay.task.AgentRole)" href="../task/#agentrelay.task.AgentRole">AgentRole</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Agent role determining which template to load.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>manifest</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskManifest
+
+
+  
+      dataclass
+   (agentrelay.agent_comm_protocol.manifest.TaskManifest)" href="#agentrelay.agent_comm_protocol.TaskManifest">TaskManifest</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Task manifest providing substitution values.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>adapter_name</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Optional adapter name for adapter-specific override.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>adr_verbosity</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="AdrVerbosity (agentrelay.task.AdrVerbosity)" href="../task/#agentrelay.task.AdrVerbosity">AdrVerbosity</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>ADR detail level. <code>NONE</code> (default) omits the section.</p>
+              </div>
+            </td>
+            <td>
+                  <code><span title="agentrelay.task.AdrVerbosity.NONE">NONE</span></code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Resolved markdown instruction text.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="FileNotFoundError">FileNotFoundError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If no template found for a non-GENERIC role.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If GENERIC role has no description.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_comm_protocol/templates.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span><span class="p">,</span>
+    <span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">,</span>
+    <span class="n">adapter_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">adr_verbosity</span><span class="p">:</span> <span class="n">AdrVerbosity</span> <span class="o">=</span> <span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve work instructions by loading and parameterizing a role template.</span>
+
+<span class="sd">    The assembled document is structured as a work order:</span>
+
+<span class="sd">    1. **Role** — who the agent is and what it&#39;s doing.</span>
+<span class="sd">    2. **Tools** — environment tools available (if any).</span>
+<span class="sd">    3. **What to Do** — role-specific steps from the template, or the</span>
+<span class="sd">       task description for GENERIC roles.</span>
+<span class="sd">    4. **Architecture Decision Record** — ADR writing instructions (if</span>
+<span class="sd">       ``adr_verbosity`` is not ``NONE``).</span>
+<span class="sd">    5. **Submitting Your Work** — how to commit, create a PR, and signal</span>
+<span class="sd">       the orchestrator.</span>
+<span class="sd">    6. **Task Details** — the task author&#39;s description (non-generic only,</span>
+<span class="sd">       when present).</span>
+
+<span class="sd">    Template variables (``$var`` syntax via :class:`string.Template`):</span>
+
+<span class="sd">    - ``$description`` — task description</span>
+<span class="sd">    - ``$src_paths`` — space-joined source paths, or ``&quot;(none specified)&quot;``</span>
+<span class="sd">    - ``$test_paths`` — space-joined test paths, or ``&quot;(none specified)&quot;``</span>
+<span class="sd">    - ``$spec_path`` — spec path, or ``&quot;(none specified)&quot;``</span>
+<span class="sd">    - ``$task_id`` — task identifier</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        role: Agent role determining which template to load.</span>
+<span class="sd">        manifest: Task manifest providing substitution values.</span>
+<span class="sd">        adapter_name: Optional adapter name for adapter-specific override.</span>
+<span class="sd">        adr_verbosity: ADR detail level. ``NONE`` (default) omits the section.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Resolved markdown instruction text.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        FileNotFoundError: If no template found for a non-GENERIC role.</span>
+<span class="sd">        ValueError: If GENERIC role has no description.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;# Instructions for Task </span><span class="si">{</span><span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;## Role</span><span class="se">\n\n</span><span class="si">{</span><span class="n">_ROLE_SENTENCES</span><span class="p">[</span><span class="n">role</span><span class="p">]</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;Follow the instructions below to complete the task.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Tools (flat H2, only if declared).</span>
+    <span class="n">tools_text</span> <span class="o">=</span> <span class="n">tool_guidance</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">tools</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tools_text</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## Tools</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">tools_text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="c1"># What to Do.</span>
+    <span class="k">if</span> <span class="n">role</span> <span class="o">==</span> <span class="n">AgentRole</span><span class="o">.</span><span class="n">GENERIC</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;GENERIC role requires a task description, but task &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&#39; has description=None.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">&quot;## What to Do</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">_concerns_note</span><span class="p">()</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">template_text</span> <span class="o">=</span> <span class="n">_load_template</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">adapter_name</span><span class="p">)</span>
+        <span class="n">substitutions</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;src_paths&quot;</span><span class="p">:</span> <span class="n">_format_paths</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">src_paths</span><span class="p">),</span>
+            <span class="s2">&quot;test_paths&quot;</span><span class="p">:</span> <span class="n">_format_paths</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">test_paths</span><span class="p">),</span>
+            <span class="s2">&quot;spec_path&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">_NONE_PLACEHOLDER</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
+            <span class="s2">&quot;concerns_note&quot;</span><span class="p">:</span> <span class="n">_concerns_note</span><span class="p">(),</span>
+        <span class="p">}</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">Template</span><span class="p">(</span><span class="n">template_text</span><span class="p">)</span><span class="o">.</span><span class="n">substitute</span><span class="p">(</span><span class="n">substitutions</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## What to Do</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">resolved</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+    <span class="c1"># Architecture Decision Record (conditional, cross-cutting).</span>
+    <span class="n">adr_text</span> <span class="o">=</span> <span class="n">_adr_section</span><span class="p">(</span><span class="n">adr_verbosity</span><span class="p">,</span> <span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">adr_text</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adr_text</span><span class="p">)</span>
+
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_submission_section</span><span class="p">(</span><span class="n">manifest</span><span class="p">))</span>
+
+    <span class="c1"># Task Details (non-generic, when description exists).</span>
+    <span class="k">if</span> <span class="n">role</span> <span class="o">!=</span> <span class="n">AgentRole</span><span class="o">.</span><span class="n">GENERIC</span> <span class="ow">and</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## Task Details</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
