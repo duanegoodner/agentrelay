@@ -613,6 +613,7 @@ ops_pkg: "ops/" {
     +push_delete_branch(repo, branch): void
     +ls_remote_branch_exists(repo, branch): bool
     +set_config(repo, key, value): void
+    +worktree_git_dir(worktree_path): Path
   }
 
   tmux: "tmux <<module>>" {
@@ -642,6 +643,19 @@ ops_pkg: "ops/" {
     +write_text(signal_dir, filename, content): void
     +read_signal_file(signal_dir, filename): "str | None"
     +poll_signal_files(signal_dir, filenames, interval): str
+  }
+
+  docker: "docker <<module>>" {
+    shape: class
+    module_path: ops.docker
+    +is_available(runtime): bool
+    +image_exists(image, runtime): bool
+    +network_exists(name, runtime): bool
+    +network_create(name, runtime): void
+    +network_remove(name, runtime): void
+    +stop(container_name, runtime): void
+    +rm(container_name, runtime): void
+    +build_run_command(name, image, cmd, volumes, env_vars): str
   }
 }
 
@@ -926,7 +940,13 @@ sandbox_pkg: "sandbox/" {
     SandboxType: "SandboxType <<enumeration>>" {
       shape: class
       NONE
-      CONTAINER
+      OCI
+    }
+
+    ContainerRuntime: "ContainerRuntime <<enumeration>>" {
+      shape: class
+      DOCKER
+      PODMAN
     }
 
     TokenTier: "TokenTier <<enumeration>>" {
@@ -941,7 +961,7 @@ sandbox_pkg: "sandbox/" {
       sandbox_type: SandboxType
       token_tier: TokenTier
       image: "str | None"
-      runtime: "str | None"
+      runtime: "ContainerRuntime | None"
     }
 
     SandboxContext: "SandboxContext <<frozen dataclass>>" {
@@ -974,6 +994,13 @@ sandbox_pkg: "sandbox/" {
 
   sandbox_impl_pkg: "implementations/" {
     NullSandbox: "NullSandbox" {
+      shape: class
+      "+wrap_command(cmd, context)": str
+      "+setup(context)": void
+      "+teardown(context)": void
+    }
+
+    OciSandbox: "OciSandbox" {
       shape: class
       "+wrap_command(cmd, context)": str
       "+setup(context)": void
@@ -1019,8 +1046,12 @@ environments_py.TmuxEnvironment -> environments_py.AgentEnvironment { class: imp
 # --- sandbox ---
 sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.SandboxType: sandbox_type { class: composition }
 sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.TokenTier: token_tier { class: composition }
+sandbox_pkg.sandbox_core_pkg.IsolationConfig -> sandbox_pkg.sandbox_core_pkg.ContainerRuntime: runtime { class: composition }
 sandbox_pkg.sandbox_core_pkg.AgentSandbox -> sandbox_pkg.sandbox_core_pkg.SandboxContext: context { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.NullSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: satisfies { class: implementation }
+sandbox_pkg.sandbox_impl_pkg.OciSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: satisfies { class: implementation }
+sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.docker: uses { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.git: uses { class: dependency }
 sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter -> task_py.AgentConfig: config { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.ClaudeCodeAdapter -> sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter: satisfies { class: implementation }
 sandbox_pkg.sandbox_core_pkg.CredentialProvider -> sandbox_pkg.sandbox_core_pkg.TokenTier: tier { class: dependency }

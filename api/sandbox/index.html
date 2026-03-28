@@ -1187,6 +1187,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.ContainerRuntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContainerRuntime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.sandbox.IsolationConfig" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1439,6 +1450,56 @@
         
           <li class="md-nav__item">
   <a href="#agentrelay.sandbox.NullSandbox.teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        teardown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OciSandbox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OciSandbox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox.setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox.wrap_command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wrap_command
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox.teardown" class="md-nav__link">
     <span class="md-ellipsis">
       
         teardown
@@ -1703,6 +1764,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.ContainerRuntime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ContainerRuntime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.sandbox.IsolationConfig" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1955,6 +2027,56 @@
         
           <li class="md-nav__item">
   <a href="#agentrelay.sandbox.NullSandbox.teardown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        teardown
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OciSandbox
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OciSandbox">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox.setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox.wrap_command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        wrap_command
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.OciSandbox.teardown" class="md-nav__link">
     <span class="md-ellipsis">
       
         teardown
@@ -2272,6 +2394,111 @@ wrapped by an :class:<code>AgentSandbox</code> before execution.</p>
 
 
 
+<h2 id="agentrelay.sandbox.ContainerRuntime" class="doc doc-heading">
+            <code>ContainerRuntime</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Container runtime binary for OCI sandbox execution.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.ContainerRuntime.DOCKER">DOCKER</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Docker container runtime.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.ContainerRuntime.PODMAN">PODMAN</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Podman container runtime.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ContainerRuntime</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Container runtime binary for OCI sandbox execution.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        DOCKER: Docker container runtime.</span>
+<span class="sd">        PODMAN: Podman container runtime.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DOCKER</span> <span class="o">=</span> <span class="s2">&quot;docker&quot;</span>
+    <span class="n">PODMAN</span> <span class="o">=</span> <span class="s2">&quot;podman&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="agentrelay.sandbox.IsolationConfig" class="doc doc-heading">
             <code>IsolationConfig</code>
 
@@ -2309,7 +2536,7 @@ during YAML parsing before constructing this type.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Type of sandbox boundary (none or container).</p>
+                <p>Type of sandbox boundary (none or OCI container).</p>
               </div>
             </td>
           </tr>
@@ -2338,12 +2565,11 @@ during YAML parsing before constructing this type.</p>
           <tr class="doc-section-item">
             <td><code><span title="agentrelay.sandbox.IsolationConfig.runtime">runtime</span></code></td>
             <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="ContainerRuntime (agentrelay.sandbox.core.config.ContainerRuntime)" href="#agentrelay.sandbox.ContainerRuntime">ContainerRuntime</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Container runtime binary (e.g., <code>"docker"</code>, <code>"podman"</code>),
-or None for default.</p>
+                <p>Container runtime, or None for default (Docker).</p>
               </div>
             </td>
           </tr>
@@ -2359,25 +2585,24 @@ or None for default.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
-<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">IsolationConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fully-resolved sandbox configuration for an agent or task.</span>
 
@@ -2385,17 +2610,16 @@ or None for default.</p>
 <span class="sd">    during YAML parsing before constructing this type.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        sandbox_type: Type of sandbox boundary (none or container).</span>
+<span class="sd">        sandbox_type: Type of sandbox boundary (none or OCI container).</span>
 <span class="sd">        token_tier: Permission tier for credential injection.</span>
 <span class="sd">        image: Container image name, or None for default.</span>
-<span class="sd">        runtime: Container runtime binary (e.g., ``&quot;docker&quot;``, ``&quot;podman&quot;``),</span>
-<span class="sd">            or None for default.</span>
+<span class="sd">        runtime: Container runtime, or None for default (Docker).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">sandbox_type</span><span class="p">:</span> <span class="n">SandboxType</span>
     <span class="n">token_tier</span><span class="p">:</span> <span class="n">TokenTier</span>
     <span class="n">image</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">runtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">runtime</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ContainerRuntime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2532,28 +2756,28 @@ environment variables it needs to set up and wrap agent commands.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SandboxContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution context passed to sandbox operations.</span>
 
@@ -2640,12 +2864,12 @@ environment variables it needs to set up and wrap agent commands.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.sandbox.SandboxType.CONTAINER">CONTAINER</span></code></td>
+            <td><code><span title="agentrelay.sandbox.SandboxType.OCI">OCI</span></code></td>
             <td>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Agent runs inside a container (Docker/Podman).</p>
+                <p>Agent runs inside an OCI container (Docker/Podman).</p>
               </div>
             </td>
           </tr>
@@ -2661,25 +2885,25 @@ environment variables it needs to set up and wrap agent commands.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
 <span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
-<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SandboxType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SandboxType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of sandbox execution boundary.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        NONE: No sandbox — agent runs directly on the host.</span>
-<span class="sd">        CONTAINER: Agent runs inside a container (Docker/Podman).</span>
+<span class="sd">        OCI: Agent runs inside an OCI container (Docker/Podman).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">NONE</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span>
-    <span class="n">CONTAINER</span> <span class="o">=</span> <span class="s2">&quot;container&quot;</span>
+    <span class="n">OCI</span> <span class="o">=</span> <span class="s2">&quot;oci&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2776,9 +3000,7 @@ environment variables it needs to set up and wrap agent commands.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -2787,7 +3009,9 @@ environment variables it needs to set up and wrap agent commands.</p>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenTier</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenTier</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Permission tier for credential injection into sandboxed agents.</span>
 
 <span class="sd">    Attributes:</span>
@@ -4782,6 +5006,621 @@ and <code>setup</code>/<code>teardown</code> do nothing. This is the default san
 <span class="sd">    Args:</span>
 <span class="sd">        context: Execution context (unused).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.sandbox.OciSandbox" class="doc doc-heading">
+            <code>OciSandbox</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>OCI container sandbox — wraps agent commands in <code>docker run</code>.</p>
+<p>Mounts the git worktree, signal directory, and main <code>.git/</code>
+directory into the container at their original absolute paths so
+that internal git references resolve without modification.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.OciSandbox._image">_image</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Container image to use.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.OciSandbox._runtime">_runtime</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Container runtime binary name (<code>"docker"</code> or
+<code>"podman"</code>).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OCI container sandbox — wraps agent commands in ``docker run``.</span>
+
+<span class="sd">    Mounts the git worktree, signal directory, and main ``.git/``</span>
+<span class="sd">    directory into the container at their original absolute paths so</span>
+<span class="sd">    that internal git references resolve without modification.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        _image: Container image to use.</span>
+<span class="sd">        _runtime: Container runtime binary name (``&quot;docker&quot;`` or</span>
+<span class="sd">            ``&quot;podman&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">runtime</span><span class="p">:</span> <span class="n">ContainerRuntime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="n">image</span> <span class="ow">or</span> <span class="n">_DEFAULT_IMAGE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span> <span class="o">=</span> <span class="p">(</span><span class="n">runtime</span> <span class="ow">or</span> <span class="n">ContainerRuntime</span><span class="o">.</span><span class="n">DOCKER</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate runtime available, create network if needed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            context: Execution context with graph name for network naming.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the container runtime is not available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">is_available</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Container runtime &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="si">}</span><span class="s2">&#39; is not available&quot;</span><span class="p">)</span>
+        <span class="n">network</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_exists</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
+            <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_create</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap an agent command in ``docker run`` with bind mounts and env vars.</span>
+
+<span class="sd">        Mounts:</span>
+<span class="sd">            - worktree_path → worktree_path (read-write)</span>
+<span class="sd">            - signal_dir → signal_dir (read-write)</span>
+<span class="sd">            - main .git/ dir → same path (read-only)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            cmd: The raw agent command to execute inside the container.</span>
+<span class="sd">            context: Execution context with paths and environment.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The full ``docker run ...`` command string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">git_dir</span> <span class="o">=</span> <span class="n">git_ops</span><span class="o">.</span><span class="n">worktree_git_dir</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)</span>
+        <span class="n">volumes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)),</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)),</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="s2">&quot;ro&quot;</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
+            <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
+            <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
+            <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
+            <span class="n">env_vars</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+            <span class="n">network</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">workdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span>
+            <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stop and remove the container, swallowing errors if already gone.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            context: Execution context with task ID for container naming.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">docker_ops</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">docker_ops</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">pass</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.sandbox.OciSandbox.setup" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate runtime available, create network if needed.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SandboxContext
+
+
+  
+      dataclass
+   (agentrelay.sandbox.core.config.SandboxContext)" href="#agentrelay.sandbox.SandboxContext">SandboxContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Execution context with graph name for network naming.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="RuntimeError">RuntimeError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the container runtime is not available.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate runtime available, create network if needed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context: Execution context with graph name for network naming.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        RuntimeError: If the container runtime is not available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">is_available</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Container runtime &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="si">}</span><span class="s2">&#39; is not available&quot;</span><span class="p">)</span>
+    <span class="n">network</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_exists</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
+        <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_create</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.sandbox.OciSandbox.wrap_command" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Wrap an agent command in <code>docker run</code> with bind mounts and env vars.</p>
+
+
+<details class="mounts" open>
+  <summary>Mounts</summary>
+  <ul>
+<li>worktree_path → worktree_path (read-write)</li>
+<li>signal_dir → signal_dir (read-write)</li>
+<li>main .git/ dir → same path (read-only)</li>
+</ul>
+</details>
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>cmd</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The raw agent command to execute inside the container.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SandboxContext
+
+
+  
+      dataclass
+   (agentrelay.sandbox.core.config.SandboxContext)" href="#agentrelay.sandbox.SandboxContext">SandboxContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Execution context with paths and environment.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The full <code>docker run ...</code> command string.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap an agent command in ``docker run`` with bind mounts and env vars.</span>
+
+<span class="sd">    Mounts:</span>
+<span class="sd">        - worktree_path → worktree_path (read-write)</span>
+<span class="sd">        - signal_dir → signal_dir (read-write)</span>
+<span class="sd">        - main .git/ dir → same path (read-only)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        cmd: The raw agent command to execute inside the container.</span>
+<span class="sd">        context: Execution context with paths and environment.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The full ``docker run ...`` command string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">git_dir</span> <span class="o">=</span> <span class="n">git_ops</span><span class="o">.</span><span class="n">worktree_git_dir</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)</span>
+    <span class="n">volumes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)),</span>
+        <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)),</span>
+        <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="s2">&quot;ro&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
+        <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
+        <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
+        <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
+        <span class="n">env_vars</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+        <span class="n">network</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">workdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span>
+        <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.sandbox.OciSandbox.teardown" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">teardown</span><span class="p">(</span><span class="n">context</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Stop and remove the container, swallowing errors if already gone.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>context</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="SandboxContext
+
+
+  
+      dataclass
+   (agentrelay.sandbox.core.config.SandboxContext)" href="#agentrelay.sandbox.SandboxContext">SandboxContext</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Execution context with task ID for container naming.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop and remove the container, swallowing errors if already gone.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context: Execution context with task ID for container naming.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">docker_ops</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">docker_ops</span><span class="o">.</span><span class="n">rm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+        <span class="k">pass</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

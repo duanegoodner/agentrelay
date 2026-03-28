@@ -1400,10 +1400,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-c-credentialprovider-filecredentialprovider" class="md-nav__link">
+  <a href="#pr-c-credentialprovider-filecredentialprovider-merged-141" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR C: CredentialProvider + FileCredentialProvider
+        PR C: CredentialProvider + FileCredentialProvider — MERGED (#141)
       
     </span>
   </a>
@@ -1478,7 +1478,7 @@
 
 <h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PRs A–B merged (#139, #140). Next: PR C.</p>
+<p><strong>Status: In progress.</strong> PRs A–C merged (#139, #140, #141). Next: PR D.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Design and implement tunable agent isolation infrastructure — per-graph,
@@ -1619,10 +1619,10 @@ pattern as <code>ops/tmux.py</code>).</p>
 <h3 id="pr-a-sandbox-data-models-agentsandbox-protocol-nullsandbox-merged-139">PR A: Sandbox data models + AgentSandbox protocol + NullSandbox — MERGED (#139)</h3>
 <ul>
 <li>Branch: <code>feat/sandbox-protocol</code></li>
-<li>Note: <code>SandboxType.CONTAINER</code> used instead of <code>OCI</code> (user preference).</li>
+<li>Note: <code>SandboxType.OCI</code> (renamed from <code>CONTAINER</code> in PR D).</li>
 </ul>
 <p><strong>Scope:</strong>
-- <code>SandboxType</code> enum: <code>NONE</code>, <code>CONTAINER</code> (future: <code>BWRAP</code>)
+- <code>SandboxType</code> enum: <code>NONE</code>, <code>OCI</code> (future: <code>BWRAP</code>)
 - <code>TokenTier</code> enum: <code>READ_ONLY</code>, <code>STANDARD</code>, <code>ELEVATED</code>
 - <code>IsolationConfig</code> frozen dataclass: <code>sandbox_type</code>, <code>token_tier</code>, <code>image</code>,
   <code>runtime</code> (docker/podman)
@@ -1704,16 +1704,18 @@ pattern as <code>ops/tmux.py</code>).</p>
 - [x] <code>pixi run check</code> passes (1039 tests, 7 new)
 - [x] E2E regression: <code>diamond_4_workstreams_auto_merge.yaml</code> passes</p>
 <hr />
-<h3 id="pr-c-credentialprovider-filecredentialprovider">PR C: CredentialProvider + FileCredentialProvider</h3>
+<h3 id="pr-c-credentialprovider-filecredentialprovider-merged-141">PR C: CredentialProvider + FileCredentialProvider — MERGED (#141)</h3>
 <ul>
 <li>Branch: <code>feat/credential-provider</code></li>
+<li>Note: <code>EnvCredentialProvider</code> deferred to backlog (not needed for
+  initial isolation; CI/CD use case). Only <code>NullCredentialProvider</code> and
+  <code>FileCredentialProvider</code> shipped.</li>
 </ul>
 <p><strong>Scope:</strong>
 - <code>CredentialProvider</code> protocol: <code>resolve(tier: TokenTier) -&gt; dict[str, str]</code>
-- <code>FileCredentialProvider</code>: reads <code>~/.config/agentrelay/credentials.yaml</code>
-- <code>EnvCredentialProvider</code>: reads from env vars
-  (<code>AGENTRELAY_PAT_READ_ONLY</code>, etc.)
-- <code>NullCredentialProvider</code>: returns empty dict (for SandboxType.NONE)
+- <code>FileCredentialProvider</code>: reads tiered credentials from a YAML file,
+  merges <code>defaults</code> with tier-specific env vars
+- <code>NullCredentialProvider</code>: returns empty dict (default for SandboxType.NONE)
 - Credential file schema:
   <div class="highlight"><pre><span></span><code><span class="nt">token_tiers</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">read_only</span><span class="p">:</span>
@@ -1726,60 +1728,66 @@ pattern as <code>ops/tmux.py</code>).</p>
 <span class="w">  </span><span class="nt">ANTHROPIC_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sk-ant-xxxx</span>
 </code></pre></div>
 - Wire into sandbox flow: <code>SandboxContext.env_vars</code> populated from
-  credential resolution
-- Wire into <code>build_standard_runner()</code>: credential provider constructed
-  and passed to launcher</p>
+  credential resolution via <code>TmuxTaskLauncher</code>
+- Wire <code>NullCredentialProvider</code> into <code>build_standard_runner()</code> as default</p>
 <p><strong>Key files modified:</strong>
 - New: <code>src/agentrelay/sandbox/core/credentials.py</code>,
-  <code>src/agentrelay/sandbox/implementations/file_credentials.py</code>
+  <code>src/agentrelay/sandbox/implementations/file_credentials.py</code>,
+  <code>src/agentrelay/sandbox/implementations/null_credentials.py</code>
 - <code>src/agentrelay/orchestrator/builders.py</code>
 - <code>src/agentrelay/task_runner/implementations/task_launcher.py</code></p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>FileCredentialProvider</code> reads YAML config and resolves token tiers
-- [ ] <code>EnvCredentialProvider</code> reads from env vars
-- [ ] Missing tier raises clear error
-- [ ] <code>NullCredentialProvider</code> returns empty dict (default for
+- [x] <code>FileCredentialProvider</code> reads YAML config and resolves token tiers
+- [x] Missing tier raises clear error
+- [x] <code>NullCredentialProvider</code> returns empty dict (default for
       SandboxType.NONE)
-- [ ] Credentials flow into <code>SandboxContext.env_vars</code> during launch
-- [ ] <code>pixi run check</code> passes</p>
+- [x] Credentials flow into <code>SandboxContext.env_vars</code> during launch
+- [x] <code>pixi run check</code> passes (1061 tests, 22 new)</p>
 <hr />
 <h3 id="pr-d-docker-ops-layer-ocisandbox-implementation">PR D: Docker ops layer + OciSandbox implementation</h3>
 <ul>
 <li>Branch: <code>feat/oci-sandbox</code></li>
+<li>Note: Renamed <code>SandboxType.CONTAINER</code> → <code>SandboxType.OCI</code> for naming
+  consistency with <code>OciSandbox</code>. Added <code>ContainerRuntime</code> enum
+  (<code>DOCKER</code>, <code>PODMAN</code>) to replace the raw string <code>runtime</code> field on
+  <code>IsolationConfig</code>.</li>
 </ul>
 <p><strong>Scope:</strong>
-- <code>ops/docker.py</code>: thin subprocess wrappers — <code>run()</code>,
-  <code>network_create()</code>, <code>network_remove()</code>, <code>stop()</code>, <code>rm()</code>,
-  <code>is_available()</code>, <code>image_exists()</code>
+- Rename <code>SandboxType.CONTAINER</code> → <code>SandboxType.OCI</code> across codebase
+- <code>ContainerRuntime</code> enum in <code>config.py</code>, <code>IsolationConfig.runtime</code>
+  changed from <code>Optional[str]</code> to <code>Optional[ContainerRuntime]</code>
+- <code>_parse_optional_container_runtime()</code> in builder (same pattern as
+  <code>_parse_optional_sandbox_type</code>)
+- <code>ops/docker.py</code>: thin subprocess wrappers — <code>is_available()</code>,
+  <code>image_exists()</code>, <code>network_exists()</code>, <code>network_create()</code>,
+  <code>network_remove()</code>, <code>stop()</code>, <code>rm()</code>, <code>build_run_command()</code>
+- <code>ops/git.py</code>: <code>worktree_git_dir()</code> — reads worktree <code>.git</code> file to
+  find main repo <code>.git/</code> path
 - <code>OciSandbox</code> implementation:
-  - <code>wrap_command()</code>: builds <code>docker run -it --rm
-    --name agentrelay-&lt;task_id&gt;
-    -v &lt;worktree&gt;:&lt;worktree&gt;
-    -v &lt;signal_dir&gt;:&lt;signal_dir&gt;
-    -v &lt;git_dir&gt;:&lt;git_dir&gt;:ro
-    -e GH_TOKEN=... -e ANTHROPIC_API_KEY=...
-    --network &lt;network&gt; -w &lt;worktree&gt; &lt;image&gt; &lt;cmd&gt;</code>
+  - <code>wrap_command()</code>: builds <code>docker run -it --rm</code> with bind mounts
+    (worktree, signal dir, .git dir read-only), env vars, network
   - <code>setup()</code>: validates Docker available, creates network if needed
-  - <code>teardown()</code>: stops + removes container if still running
-- Git dir resolution helper: reads worktree <code>.git</code> file to find main
-  repo <code>.git/</code> path
-- <code>runtime</code> field on <code>IsolationConfig</code> (<code>"docker"</code> or <code>"podman"</code>) selects
-  the binary
-- Wire <code>SandboxType.OCI</code> into launcher</p>
+  - <code>teardown()</code>: stops + removes container, swallows errors
+- Per-task sandbox selection in <code>builders.py</code>: <code>_make_launcher()</code> factory
+  inspects <code>IsolationConfig.sandbox_type</code> to choose NullSandbox or
+  OciSandbox</p>
 <p><strong>Key files modified:</strong>
+- <code>src/agentrelay/sandbox/core/config.py</code> — <code>SandboxType.OCI</code>,
+  <code>ContainerRuntime</code> enum, <code>IsolationConfig.runtime</code> type change
 - New: <code>src/agentrelay/ops/docker.py</code>
 - New: <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code>
-- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code>
-- <code>src/agentrelay/orchestrator/builders.py</code></p>
+- <code>src/agentrelay/ops/git.py</code> — <code>worktree_git_dir()</code>
+- <code>src/agentrelay/task_graph/builder.py</code> — <code>ContainerRuntime</code> parsing
+- <code>src/agentrelay/orchestrator/builders.py</code> — per-task sandbox selection</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>ops/docker.py</code> wrappers follow <code>ops/tmux.py</code> pattern
-- [ ] <code>OciSandbox.wrap_command()</code> produces correct <code>docker run</code> string
+- [x] <code>ops/docker.py</code> wrappers follow <code>ops/tmux.py</code> pattern
+- [x] <code>OciSandbox.wrap_command()</code> produces correct <code>docker run</code> string
       with all bind mounts and env vars
-- [ ] Git dir resolution reads <code>.git</code> file and extracts gitdir path
-- [ ] Worktree, signal dir, and <code>.git</code> dir mounted at same absolute paths
-- [ ] <code>OciSandbox.setup()</code> fails fast if Docker not available
-- [ ] Container name includes task_id for debuggability
-- [ ] <code>pixi run check</code> passes (Docker ops tests use subprocess mocking)</p>
+- [x] Git dir resolution reads <code>.git</code> file and extracts gitdir path
+- [x] Worktree, signal dir, and <code>.git</code> dir mounted at same absolute paths
+- [x] <code>OciSandbox.setup()</code> fails fast if Docker not available
+- [x] Container name includes task_id for debuggability
+- [x] <code>pixi run check</code> passes (Docker ops tests use subprocess mocking)</p>
 <hr />
 <h3 id="pr-e-docker-image-network-lifecycle-cli-flags">PR E: Docker image + network lifecycle + CLI flags</h3>
 <ul>

@@ -58,6 +58,7 @@ ops_pkg: "ops/" {
     +push_delete_branch(repo, branch): void
     +ls_remote_branch_exists(repo, branch): bool
     +set_config(repo, key, value): void
+    +worktree_git_dir(worktree_path): Path
   }
 
   tmux: "tmux <<module>>" {
@@ -88,6 +89,19 @@ ops_pkg: "ops/" {
     +read_signal_file(signal_dir, filename): "str | None"
     +poll_signal_files(signal_dir, filenames, interval): str
   }
+
+  docker: "docker <<module>>" {
+    shape: class
+    module_path: ops.docker
+    +is_available(runtime): bool
+    +image_exists(image, runtime): bool
+    +network_exists(name, runtime): bool
+    +network_create(name, runtime): void
+    +network_remove(name, runtime): void
+    +stop(container_name, runtime): void
+    +rm(container_name, runtime): void
+    +build_run_command(name, image, cmd, volumes, env_vars): str
+  }
 }
 
 
@@ -115,6 +129,13 @@ run_graph_py: "run_graph.py" {
   run_graph_functions: "run_graph <<module>>" { shape: class }
 }
 
+sandbox_pkg: "sandbox/" {
+  style.opacity: 0.5
+  sandbox_impl_pkg: "implementations/" {
+    OciSandbox: "OciSandbox" { shape: class }
+  }
+}
+
 task_runner_pkg: "task_runner/" {
   style.opacity: 0.5
   task_runner_impl_pkg: "implementations/" {
@@ -140,6 +161,8 @@ workstream_pkg: "workstream/" {
 
 # ─── Relationships ───
 
+sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.docker: uses { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
