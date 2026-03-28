@@ -1,11 +1,13 @@
 """Core configuration types for agent sandboxing.
 
 This module defines the data types that describe sandbox isolation levels,
-token permission tiers, and execution contexts for sandboxed agents.
+token permission tiers, container runtimes, and execution contexts for
+sandboxed agents.
 
 Enums:
-    SandboxType: Type of sandbox execution boundary (none, container).
+    SandboxType: Type of sandbox execution boundary (none, OCI container).
     TokenTier: Permission tier for credential injection.
+    ContainerRuntime: Container runtime binary (docker, podman).
 
 Classes:
     IsolationConfig: Frozen, fully-resolved sandbox configuration.
@@ -23,11 +25,11 @@ class SandboxType(str, Enum):
 
     Attributes:
         NONE: No sandbox — agent runs directly on the host.
-        CONTAINER: Agent runs inside a container (Docker/Podman).
+        OCI: Agent runs inside an OCI container (Docker/Podman).
     """
 
     NONE = "none"
-    CONTAINER = "container"
+    OCI = "oci"
 
 
 class TokenTier(str, Enum):
@@ -44,6 +46,18 @@ class TokenTier(str, Enum):
     ELEVATED = "elevated"
 
 
+class ContainerRuntime(str, Enum):
+    """Container runtime binary for OCI sandbox execution.
+
+    Attributes:
+        DOCKER: Docker container runtime.
+        PODMAN: Podman container runtime.
+    """
+
+    DOCKER = "docker"
+    PODMAN = "podman"
+
+
 @dataclass(frozen=True)
 class IsolationConfig:
     """Fully-resolved sandbox configuration for an agent or task.
@@ -52,17 +66,16 @@ class IsolationConfig:
     during YAML parsing before constructing this type.
 
     Attributes:
-        sandbox_type: Type of sandbox boundary (none or container).
+        sandbox_type: Type of sandbox boundary (none or OCI container).
         token_tier: Permission tier for credential injection.
         image: Container image name, or None for default.
-        runtime: Container runtime binary (e.g., ``"docker"``, ``"podman"``),
-            or None for default.
+        runtime: Container runtime, or None for default (Docker).
     """
 
     sandbox_type: SandboxType
     token_tier: TokenTier
     image: Optional[str] = None
-    runtime: Optional[str] = None
+    runtime: Optional[ContainerRuntime] = None
 
 
 @dataclass(frozen=True)

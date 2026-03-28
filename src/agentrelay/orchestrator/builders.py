@@ -22,7 +22,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from agentrelay.sandbox import ClaudeCodeAdapter, NullCredentialProvider, NullSandbox
+from agentrelay.sandbox import (
+    ClaudeCodeAdapter,
+    NullCredentialProvider,
+    NullSandbox,
+    OciSandbox,
+    SandboxType,
+)
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
@@ -160,13 +166,21 @@ def build_standard_runner(
     Returns:
         A fully wired :class:`StandardTaskRunner`.
     """
-    tmux_launcher = TmuxTaskLauncher(
-        adapter=ClaudeCodeAdapter(),
-        sandbox=NullSandbox(),
-        credential_provider=NullCredentialProvider(),
-        repo_path=repo_path,
-        graph_name=graph_name,
-    )
+
+    def _make_launcher(runtime: TaskRuntime) -> TmuxTaskLauncher:
+        isolation = runtime.task.primary_agent.isolation
+        if isolation is not None and isolation.sandbox_type == SandboxType.OCI:
+            sandbox = OciSandbox(image=isolation.image, runtime=isolation.runtime)
+        else:
+            sandbox = NullSandbox()
+        return TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=sandbox,
+            credential_provider=NullCredentialProvider(),
+            repo_path=repo_path,
+            graph_name=graph_name,
+        )
+
     tmux_kickoff = TmuxTaskKickoff()
 
     def _make_preparer(runtime: TaskRuntime) -> TaskPreparer:
@@ -191,7 +205,7 @@ def build_standard_runner(
 
     return StandardTaskRunner(
         _preparer=StepDispatch(default=_make_preparer),
-        _launcher=StepDispatch(default=lambda rt: tmux_launcher),
+        _launcher=StepDispatch(default=_make_launcher),
         _kickoff=StepDispatch(default=lambda rt: tmux_kickoff),
         _completion_checker=StepDispatch(default=_make_completion_checker),
         _gate_checker=ShellGateChecker(),

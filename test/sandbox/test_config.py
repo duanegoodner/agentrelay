@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from agentrelay.sandbox import (
+    ContainerRuntime,
     IsolationConfig,
     SandboxContext,
     SandboxType,
@@ -17,12 +18,12 @@ class TestSandboxType:
 
     def test_all_values_exist(self) -> None:
         assert SandboxType.NONE.value == "none"
-        assert SandboxType.CONTAINER.value == "container"
+        assert SandboxType.OCI.value == "oci"
 
     def test_is_string_enum(self) -> None:
         assert SandboxType.NONE == "none"
-        assert SandboxType.CONTAINER == "container"
-        assert SandboxType.NONE != "container"
+        assert SandboxType.OCI == "oci"
+        assert SandboxType.NONE != "oci"
 
     def test_all_values_are_strings(self) -> None:
         for st in SandboxType:
@@ -46,20 +47,37 @@ class TestTokenTier:
             assert isinstance(tt.value, str)
 
 
+class TestContainerRuntime:
+    """Tests for ContainerRuntime enum."""
+
+    def test_all_values_exist(self) -> None:
+        assert ContainerRuntime.DOCKER.value == "docker"
+        assert ContainerRuntime.PODMAN.value == "podman"
+
+    def test_is_string_enum(self) -> None:
+        assert ContainerRuntime.DOCKER == "docker"
+        assert ContainerRuntime.PODMAN == "podman"
+        assert ContainerRuntime.DOCKER != "podman"
+
+    def test_all_values_are_strings(self) -> None:
+        for cr in ContainerRuntime:
+            assert isinstance(cr.value, str)
+
+
 class TestIsolationConfig:
     """Tests for IsolationConfig frozen dataclass."""
 
     def test_construction_with_all_fields(self) -> None:
         config = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.ELEVATED,
             image="agentrelay-agent:latest",
-            runtime="podman",
+            runtime=ContainerRuntime.PODMAN,
         )
-        assert config.sandbox_type == SandboxType.CONTAINER
+        assert config.sandbox_type == SandboxType.OCI
         assert config.token_tier == TokenTier.ELEVATED
         assert config.image == "agentrelay-agent:latest"
-        assert config.runtime == "podman"
+        assert config.runtime == ContainerRuntime.PODMAN
 
     def test_optional_fields_default_to_none(self) -> None:
         config = IsolationConfig(
@@ -75,33 +93,33 @@ class TestIsolationConfig:
             token_tier=TokenTier.STANDARD,
         )
         with pytest.raises(AttributeError):
-            config.sandbox_type = SandboxType.CONTAINER  # type: ignore[misc]
+            config.sandbox_type = SandboxType.OCI  # type: ignore[misc]
 
     def test_is_hashable(self) -> None:
         config = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.STANDARD,
         )
         assert hash(config) == hash(config)
 
     def test_equality(self) -> None:
         a = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.READ_ONLY,
         )
         b = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.READ_ONLY,
         )
         assert a == b
 
     def test_inequality(self) -> None:
         a = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.READ_ONLY,
         )
         b = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.ELEVATED,
         )
         assert a != b

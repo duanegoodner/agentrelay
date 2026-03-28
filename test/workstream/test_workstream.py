@@ -62,9 +62,9 @@ class TestWorkstreamSpec:
     def test_workstream_with_isolation(self) -> None:
         """WorkstreamSpec can specify an IsolationConfig."""
         iso = IsolationConfig(
-            sandbox_type=SandboxType.CONTAINER,
+            sandbox_type=SandboxType.OCI,
             token_tier=TokenTier.READ_ONLY,
         )
         spec = WorkstreamSpec(id="isolated", isolation=iso)
         assert spec.isolation == iso
-        assert spec.isolation.sandbox_type == SandboxType.CONTAINER
+        assert spec.isolation.sandbox_type == SandboxType.OCI

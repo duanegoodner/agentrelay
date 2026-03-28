@@ -226,7 +226,7 @@ class TestTmuxTaskLauncher:
             model="claude-sonnet-4-6",
             environment=TmuxEnvironment(session="mysession"),
             isolation=IsolationConfig(
-                sandbox_type=SandboxType.CONTAINER,
+                sandbox_type=SandboxType.OCI,
                 token_tier=TokenTier.ELEVATED,
             ),
         )

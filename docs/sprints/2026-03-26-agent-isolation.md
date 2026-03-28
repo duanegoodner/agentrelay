@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: In progress.** PRs A–B merged (#139, #140). Next: PR C.
+> **Status: In progress.** PRs A–C merged (#139, #140, #141). Next: PR D.
 
 ## Goal
 
@@ -156,10 +156,10 @@ tasks:
 ### PR A: Sandbox data models + AgentSandbox protocol + NullSandbox — MERGED (#139)
 
 - Branch: `feat/sandbox-protocol`
-- Note: `SandboxType.CONTAINER` used instead of `OCI` (user preference).
+- Note: `SandboxType.OCI` (renamed from `CONTAINER` in PR D).
 
 **Scope:**
-- `SandboxType` enum: `NONE`, `CONTAINER` (future: `BWRAP`)
+- `SandboxType` enum: `NONE`, `OCI` (future: `BWRAP`)
 - `TokenTier` enum: `READ_ONLY`, `STANDARD`, `ELEVATED`
 - `IsolationConfig` frozen dataclass: `sandbox_type`, `token_tier`, `image`,
   `runtime` (docker/podman)
@@ -249,16 +249,18 @@ tasks:
 
 ---
 
-### PR C: CredentialProvider + FileCredentialProvider
+### PR C: CredentialProvider + FileCredentialProvider — MERGED (#141)
 
 - Branch: `feat/credential-provider`
+- Note: `EnvCredentialProvider` deferred to backlog (not needed for
+  initial isolation; CI/CD use case). Only `NullCredentialProvider` and
+  `FileCredentialProvider` shipped.
 
 **Scope:**
 - `CredentialProvider` protocol: `resolve(tier: TokenTier) -> dict[str, str]`
-- `FileCredentialProvider`: reads `~/.config/agentrelay/credentials.yaml`
-- `EnvCredentialProvider`: reads from env vars
-  (`AGENTRELAY_PAT_READ_ONLY`, etc.)
-- `NullCredentialProvider`: returns empty dict (for SandboxType.NONE)
+- `FileCredentialProvider`: reads tiered credentials from a YAML file,
+  merges `defaults` with tier-specific env vars
+- `NullCredentialProvider`: returns empty dict (default for SandboxType.NONE)
 - Credential file schema:
   ```yaml
   token_tiers:
@@ -272,66 +274,72 @@ tasks:
     ANTHROPIC_API_KEY: sk-ant-xxxx
   ```
 - Wire into sandbox flow: `SandboxContext.env_vars` populated from
-  credential resolution
-- Wire into `build_standard_runner()`: credential provider constructed
-  and passed to launcher
+  credential resolution via `TmuxTaskLauncher`
+- Wire `NullCredentialProvider` into `build_standard_runner()` as default
 
 **Key files modified:**
 - New: `src/agentrelay/sandbox/core/credentials.py`,
-  `src/agentrelay/sandbox/implementations/file_credentials.py`
+  `src/agentrelay/sandbox/implementations/file_credentials.py`,
+  `src/agentrelay/sandbox/implementations/null_credentials.py`
 - `src/agentrelay/orchestrator/builders.py`
 - `src/agentrelay/task_runner/implementations/task_launcher.py`
 
 **Acceptance criteria:**
-- [ ] `FileCredentialProvider` reads YAML config and resolves token tiers
-- [ ] `EnvCredentialProvider` reads from env vars
-- [ ] Missing tier raises clear error
-- [ ] `NullCredentialProvider` returns empty dict (default for
+- [x] `FileCredentialProvider` reads YAML config and resolves token tiers
+- [x] Missing tier raises clear error
+- [x] `NullCredentialProvider` returns empty dict (default for
       SandboxType.NONE)
-- [ ] Credentials flow into `SandboxContext.env_vars` during launch
-- [ ] `pixi run check` passes
+- [x] Credentials flow into `SandboxContext.env_vars` during launch
+- [x] `pixi run check` passes (1061 tests, 22 new)
 
 ---
 
 ### PR D: Docker ops layer + OciSandbox implementation
 
 - Branch: `feat/oci-sandbox`
+- Note: Renamed `SandboxType.CONTAINER` → `SandboxType.OCI` for naming
+  consistency with `OciSandbox`. Added `ContainerRuntime` enum
+  (`DOCKER`, `PODMAN`) to replace the raw string `runtime` field on
+  `IsolationConfig`.
 
 **Scope:**
-- `ops/docker.py`: thin subprocess wrappers — `run()`,
-  `network_create()`, `network_remove()`, `stop()`, `rm()`,
-  `is_available()`, `image_exists()`
+- Rename `SandboxType.CONTAINER` → `SandboxType.OCI` across codebase
+- `ContainerRuntime` enum in `config.py`, `IsolationConfig.runtime`
+  changed from `Optional[str]` to `Optional[ContainerRuntime]`
+- `_parse_optional_container_runtime()` in builder (same pattern as
+  `_parse_optional_sandbox_type`)
+- `ops/docker.py`: thin subprocess wrappers — `is_available()`,
+  `image_exists()`, `network_exists()`, `network_create()`,
+  `network_remove()`, `stop()`, `rm()`, `build_run_command()`
+- `ops/git.py`: `worktree_git_dir()` — reads worktree `.git` file to
+  find main repo `.git/` path
 - `OciSandbox` implementation:
-  - `wrap_command()`: builds `docker run -it --rm
-    --name agentrelay-<task_id>
-    -v <worktree>:<worktree>
-    -v <signal_dir>:<signal_dir>
-    -v <git_dir>:<git_dir>:ro
-    -e GH_TOKEN=... -e ANTHROPIC_API_KEY=...
-    --network <network> -w <worktree> <image> <cmd>`
+  - `wrap_command()`: builds `docker run -it --rm` with bind mounts
+    (worktree, signal dir, .git dir read-only), env vars, network
   - `setup()`: validates Docker available, creates network if needed
-  - `teardown()`: stops + removes container if still running
-- Git dir resolution helper: reads worktree `.git` file to find main
-  repo `.git/` path
-- `runtime` field on `IsolationConfig` (`"docker"` or `"podman"`) selects
-  the binary
-- Wire `SandboxType.OCI` into launcher
+  - `teardown()`: stops + removes container, swallows errors
+- Per-task sandbox selection in `builders.py`: `_make_launcher()` factory
+  inspects `IsolationConfig.sandbox_type` to choose NullSandbox or
+  OciSandbox
 
 **Key files modified:**
+- `src/agentrelay/sandbox/core/config.py` — `SandboxType.OCI`,
+  `ContainerRuntime` enum, `IsolationConfig.runtime` type change
 - New: `src/agentrelay/ops/docker.py`
 - New: `src/agentrelay/sandbox/implementations/oci_sandbox.py`
-- `src/agentrelay/task_runner/implementations/task_launcher.py`
-- `src/agentrelay/orchestrator/builders.py`
+- `src/agentrelay/ops/git.py` — `worktree_git_dir()`
+- `src/agentrelay/task_graph/builder.py` — `ContainerRuntime` parsing
+- `src/agentrelay/orchestrator/builders.py` — per-task sandbox selection
 
 **Acceptance criteria:**
-- [ ] `ops/docker.py` wrappers follow `ops/tmux.py` pattern
-- [ ] `OciSandbox.wrap_command()` produces correct `docker run` string
+- [x] `ops/docker.py` wrappers follow `ops/tmux.py` pattern
+- [x] `OciSandbox.wrap_command()` produces correct `docker run` string
       with all bind mounts and env vars
-- [ ] Git dir resolution reads `.git` file and extracts gitdir path
-- [ ] Worktree, signal dir, and `.git` dir mounted at same absolute paths
-- [ ] `OciSandbox.setup()` fails fast if Docker not available
-- [ ] Container name includes task_id for debuggability
-- [ ] `pixi run check` passes (Docker ops tests use subprocess mocking)
+- [x] Git dir resolution reads `.git` file and extracts gitdir path
+- [x] Worktree, signal dir, and `.git` dir mounted at same absolute paths
+- [x] `OciSandbox.setup()` fails fast if Docker not available
+- [x] Container name includes task_id for debuggability
+- [x] `pixi run check` passes (Docker ops tests use subprocess mocking)
 
 ---
 

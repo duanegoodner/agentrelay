@@ -18,6 +18,7 @@ from agentrelay.ops.git import (
     set_config,
     update_local_ref,
     worktree_add,
+    worktree_git_dir,
     worktree_remove,
 )
 
@@ -464,3 +465,59 @@ class TestLsRemoteBranchExists:
         """Returns False for a branch that does not exist on origin."""
         clone, _bare = tmp_git_repo_with_remote
         assert ls_remote_branch_exists(clone, "no-such-branch") is False
+
+
+# ── worktree_git_dir ──
+
+
+class TestWorktreeGitDir:
+    """Tests for worktree_git_dir."""
+
+    def test_resolves_absolute_gitdir(self, tmp_path: Path) -> None:
+        """Reads .git file with absolute gitdir and returns main .git/ dir."""
+        git_dir = tmp_path / "repo" / ".git"
+        git_dir.mkdir(parents=True)
+        worktrees_dir = git_dir / "worktrees" / "my-branch"
+        worktrees_dir.mkdir(parents=True)
+
+        wt_path = tmp_path / "worktree"
+        wt_path.mkdir()
+        (wt_path / ".git").write_text(f"gitdir: {worktrees_dir}\n")
+
+        result = worktree_git_dir(wt_path)
+        assert result == git_dir
+
+    def test_resolves_relative_gitdir(self, tmp_path: Path) -> None:
+        """Handles relative gitdir path by resolving against worktree."""
+        repo = tmp_path / "repo"
+        git_dir = repo / ".git"
+        git_dir.mkdir(parents=True)
+        worktrees_dir = git_dir / "worktrees" / "my-branch"
+        worktrees_dir.mkdir(parents=True)
+
+        wt_path = tmp_path / "worktree"
+        wt_path.mkdir()
+        # Relative path from worktree to gitdir (e.g. ../repo/.git/worktrees/my-branch)
+        rel = Path("..") / "repo" / ".git" / "worktrees" / "my-branch"
+        (wt_path / ".git").write_text(f"gitdir: {rel}\n")
+
+        result = worktree_git_dir(wt_path)
+        assert result == git_dir
+
+    def test_raises_when_git_is_directory(self, tmp_path: Path) -> None:
+        """Raises ValueError when .git is a directory (not a worktree)."""
+        wt_path = tmp_path / "repo"
+        wt_path.mkdir()
+        (wt_path / ".git").mkdir()
+
+        with pytest.raises(ValueError, match="not a file"):
+            worktree_git_dir(wt_path)
+
+    def test_raises_when_no_gitdir_prefix(self, tmp_path: Path) -> None:
+        """Raises ValueError when .git file lacks gitdir: prefix."""
+        wt_path = tmp_path / "worktree"
+        wt_path.mkdir()
+        (wt_path / ".git").write_text("something unexpected\n")
+
+        with pytest.raises(ValueError, match="does not contain a gitdir line"):
+            worktree_git_dir(wt_path)

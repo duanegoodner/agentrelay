@@ -13,6 +13,7 @@ Subpackages:
 
 from agentrelay.sandbox.core.adapters import AgentFrameworkAdapter
 from agentrelay.sandbox.core.config import (
+    ContainerRuntime,
     IsolationConfig,
     SandboxContext,
     SandboxType,
@@ -24,16 +25,19 @@ from agentrelay.sandbox.implementations.claude_code_adapter import ClaudeCodeAda
 from agentrelay.sandbox.implementations.file_credentials import FileCredentialProvider
 from agentrelay.sandbox.implementations.null_credentials import NullCredentialProvider
 from agentrelay.sandbox.implementations.null_sandbox import NullSandbox
+from agentrelay.sandbox.implementations.oci_sandbox import OciSandbox
 
 __all__ = [
     "AgentFrameworkAdapter",
     "AgentSandbox",
     "ClaudeCodeAdapter",
+    "ContainerRuntime",
     "CredentialProvider",
     "FileCredentialProvider",
     "IsolationConfig",
     "NullCredentialProvider",
     "NullSandbox",
+    "OciSandbox",
     "SandboxContext",
     "SandboxType",
     "TokenTier",
