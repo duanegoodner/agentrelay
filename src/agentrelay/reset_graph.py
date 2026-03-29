@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import gh, git
 
 _BRANCH_PREFIX = "agentrelay"
@@ -151,6 +152,32 @@ def execute_reset(plan: ResetPlan) -> list[str]:
     """
     log: list[str] = list(plan.log)
     repo = plan.repo_path
+
+    # Step 0: Stop and remove Docker containers (best-effort).
+    try:
+        containers = docker_ops.ps_by_label(f"agentrelay.graph={plan.graph_name}")
+        for name in containers:
+            try:
+                docker_ops.stop(name)
+            except subprocess.CalledProcessError:
+                pass
+            try:
+                docker_ops.rm(name)
+            except subprocess.CalledProcessError:
+                pass
+        if containers:
+            log.append(f"Stopped/removed {len(containers)} Docker container(s)")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass  # Docker not available or no containers found
+
+    # Step 0b: Remove Docker network (best-effort).
+    network_name = f"agentrelay-{plan.graph_name}"
+    try:
+        if docker_ops.network_exists(network_name):
+            docker_ops.network_remove(network_name)
+            log.append(f"Removed Docker network {network_name}")
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
 
     # Step 1: Close open PRs.
     for pr in plan.open_prs:

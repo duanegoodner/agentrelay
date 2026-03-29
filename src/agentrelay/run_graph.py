@@ -25,6 +25,7 @@ from typing import Any, Optional
 
 import yaml
 
+from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import git, signals, tmux
 from agentrelay.orchestrator import (
     Orchestrator,
@@ -37,6 +38,7 @@ from agentrelay.orchestrator import (
     build_standard_workstream_runner,
 )
 from agentrelay.output import ConsoleListener, print_summary
+from agentrelay.sandbox import CredentialProvider, FileCredentialProvider, SandboxType
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
 from agentrelay.tools import ToolValidationError, validate_tools
@@ -201,6 +203,22 @@ def _record_run_start(repo_path: Path, graph_name: str) -> None:
     )
 
 
+def _any_task_uses_oci(graph: TaskGraph) -> bool:
+    """Check whether any task in the graph uses OCI sandbox isolation.
+
+    Args:
+        graph: Validated immutable task graph.
+
+    Returns:
+        ``True`` if at least one task has ``SandboxType.OCI``.
+    """
+    for task_id in graph.task_ids():
+        isolation = graph.task(task_id).primary_agent.isolation
+        if isolation is not None and isolation.sandbox_type == SandboxType.OCI:
+            return True
+    return False
+
+
 async def run_graph(
     graph_path: Path,
     repo_path: Path,
@@ -209,6 +227,7 @@ async def run_graph(
     keep_panes: bool = False,
     model_override: Optional[str] = None,
     config: Optional[OrchestratorConfig] = None,
+    credential_provider: Optional[CredentialProvider] = None,
     verbose: bool = False,
 ) -> OrchestratorResult:
     """Build all components from a graph YAML and run the orchestrator.
@@ -225,6 +244,8 @@ async def run_graph(
         model_override: Override model for all agents (overrides YAML value).
         config: Orchestrator configuration.  Defaults to
             :class:`OrchestratorConfig` defaults.
+        credential_provider: Credential provider for sandboxed agents.
+            When ``None``, :class:`NullCredentialProvider` is used.
         verbose: Show detailed step-level output during execution.
 
     Returns:
@@ -245,27 +266,46 @@ async def run_graph(
     validate_tools(tools)
     _record_run_start(repo_path, graph.name)
 
-    task_runner = build_standard_runner(
-        repo_path=repo_path,
-        graph_name=graph.name,
-        graph=graph,
-        keep_panes=effective_keep_panes,
-        tools=tools,
-    )
-    workstream_runner = build_standard_workstream_runner(
-        repo_path=repo_path,
-        graph_name=graph.name,
-    )
-    orchestrator = Orchestrator(
-        graph=graph,
-        task_runner=task_runner,
-        workstream_runner=workstream_runner,
-        config=config,
-        listener=ConsoleListener(verbose=verbose),
-        integration_merge_checker=build_integration_merge_checker(),
-        integration_auto_merger=build_integration_auto_merger(),
-    )
-    return await orchestrator.run()
+    # Create Docker network if any task uses OCI sandbox.
+    uses_oci = _any_task_uses_oci(graph)
+    network_name = f"agentrelay-{graph.name}" if uses_oci else None
+
+    if network_name is not None:
+        if not docker_ops.is_available():
+            raise RuntimeError(
+                "Docker is required for OCI sandbox but is not available"
+            )
+        docker_ops.network_create(network_name)
+
+    try:
+        task_runner = build_standard_runner(
+            repo_path=repo_path,
+            graph_name=graph.name,
+            graph=graph,
+            keep_panes=effective_keep_panes,
+            tools=tools,
+            credential_provider=credential_provider,
+        )
+        workstream_runner = build_standard_workstream_runner(
+            repo_path=repo_path,
+            graph_name=graph.name,
+        )
+        orchestrator = Orchestrator(
+            graph=graph,
+            task_runner=task_runner,
+            workstream_runner=workstream_runner,
+            config=config,
+            listener=ConsoleListener(verbose=verbose),
+            integration_merge_checker=build_integration_merge_checker(),
+            integration_auto_merger=build_integration_auto_merger(),
+        )
+        return await orchestrator.run()
+    finally:
+        if network_name is not None:
+            try:
+                docker_ops.network_remove(network_name)
+            except Exception:
+                pass  # Best-effort cleanup
 
 
 def dry_run(graph_path: Path) -> None:
@@ -392,6 +432,11 @@ def main() -> None:
         help="Override model for all agents",
     )
     parser.add_argument(
+        "--credentials",
+        default=None,
+        help="Path to credentials YAML file for sandboxed agents",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate graph and print execution plan without running",
@@ -420,6 +465,14 @@ def main() -> None:
             _dry_run_conflict_check(repo_path, graph_name)
         return
 
+    credential_provider: Optional[CredentialProvider] = None
+    if args.credentials is not None:
+        creds_path = Path(args.credentials).resolve()
+        if not creds_path.is_file():
+            print(f"Error: credentials file not found: {creds_path}", file=sys.stderr)
+            sys.exit(1)
+        credential_provider = FileCredentialProvider(creds_path)
+
     config = _build_config_from_args(args)
 
     try:
@@ -430,10 +483,11 @@ def main() -> None:
                 tmux_session=args.tmux_session,
                 model_override=args.model,
                 config=config,
+                credential_provider=credential_provider,
                 verbose=args.verbose,
             )
         )
-    except (_ConflictError, _SessionError, ToolValidationError) as exc:
+    except (_ConflictError, _SessionError, ToolValidationError, RuntimeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 

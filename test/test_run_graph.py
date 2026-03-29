@@ -8,10 +8,15 @@ import pytest
 
 from agentrelay.orchestrator.builders import build_standard_workstream_runner
 from agentrelay.run_graph import (
+    _any_task_uses_oci,
     _apply_overrides,
     _extract_operational_config,
+    _load_and_prepare_graph,
     dry_run,
 )
+from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
+from agentrelay.task import AgentConfig, AgentRole, Task
+from agentrelay.task_graph import TaskGraph
 from agentrelay.workstream.implementations.workstream_integrator import (
     GhWorkstreamIntegrator,
 )
@@ -210,3 +215,98 @@ def test_build_standard_workstream_runner_teardown_config(tmp_path: Path) -> Non
     teardown = runner._teardown
     assert isinstance(teardown, GitWorkstreamTeardown)
     assert teardown.repo_path == tmp_path
+
+
+# --- _any_task_uses_oci ---
+
+
+def test_any_task_uses_oci_false_when_no_isolation() -> None:
+    """Returns False when no tasks have isolation config."""
+    graph = TaskGraph.from_tasks(
+        (
+            Task(id="a", role=AgentRole.GENERIC),
+            Task(id="b", role=AgentRole.GENERIC, dependencies=("a",)),
+        )
+    )
+    assert _any_task_uses_oci(graph) is False
+
+
+def test_any_task_uses_oci_true_when_oci_task() -> None:
+    """Returns True when at least one task uses OCI sandbox."""
+    oci_config = AgentConfig(
+        isolation=IsolationConfig(
+            sandbox_type=SandboxType.OCI,
+            token_tier=TokenTier.STANDARD,
+        ),
+    )
+    graph = TaskGraph.from_tasks(
+        (
+            Task(id="a", role=AgentRole.GENERIC),
+            Task(id="b", role=AgentRole.GENERIC, primary_agent=oci_config),
+        )
+    )
+    assert _any_task_uses_oci(graph) is True
+
+
+def test_any_task_uses_oci_false_when_all_none_sandbox() -> None:
+    """Returns False when all tasks explicitly use SandboxType.NONE."""
+    none_config = AgentConfig(
+        isolation=IsolationConfig(
+            sandbox_type=SandboxType.NONE,
+            token_tier=TokenTier.STANDARD,
+        ),
+    )
+    graph = TaskGraph.from_tasks(
+        (Task(id="a", role=AgentRole.GENERIC, primary_agent=none_config),)
+    )
+    assert _any_task_uses_oci(graph) is False
+
+
+def test_any_task_uses_oci_round_trip_from_yaml(tmp_path: Path) -> None:
+    """YAML with isolation: {sandbox: oci} is detected by _any_task_uses_oci."""
+    content = """\
+name: oci-yaml-test
+isolation:
+  sandbox: oci
+  token_tier: standard
+tasks:
+  - id: task_a
+    description: Task with OCI isolation
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    graph, _, _, _ = _load_and_prepare_graph(path)
+    assert _any_task_uses_oci(graph) is True
+
+
+def test_any_task_uses_oci_round_trip_no_isolation_yaml(tmp_path: Path) -> None:
+    """YAML without isolation config is not detected as OCI."""
+    content = """\
+name: plain-test
+tasks:
+  - id: task_a
+    description: Plain task
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    graph, _, _, _ = _load_and_prepare_graph(path)
+    assert _any_task_uses_oci(graph) is False
+
+
+# --- docker_build.sh syntax ---
+
+
+def test_docker_build_script_is_valid_bash() -> None:
+    """tools/docker_build.sh passes bash syntax check."""
+    import subprocess
+
+    script = Path(__file__).resolve().parent.parent / "tools" / "docker_build.sh"
+    assert script.is_file(), f"Script not found: {script}"
+    result = subprocess.run(
+        ["bash", "-n", str(script)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, f"Bash syntax error: {result.stderr}"

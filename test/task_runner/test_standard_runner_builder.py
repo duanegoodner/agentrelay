@@ -1,9 +1,10 @@
 """Tests for build_standard_runner builder function."""
 
 from pathlib import Path
+from unittest.mock import MagicMock
 
 from agentrelay.orchestrator.builders import build_standard_runner
-from agentrelay.sandbox import NullCredentialProvider
+from agentrelay.sandbox import CredentialProvider, NullCredentialProvider
 from agentrelay.task import AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import StandardTaskRunner
@@ -150,3 +151,19 @@ def test_launcher_has_null_credential_provider() -> None:
     launcher = runner._launcher(runtime)
     assert isinstance(launcher, TmuxTaskLauncher)
     assert isinstance(launcher.credential_provider, NullCredentialProvider)
+
+
+def test_launcher_uses_custom_credential_provider() -> None:
+    """Custom credential_provider is passed through to launcher."""
+    mock_cp = MagicMock(spec=CredentialProvider)
+    graph = _graph_with_deps()
+    runner = build_standard_runner(
+        repo_path=Path("/repo"),
+        graph_name="test_graph",
+        graph=graph,
+        credential_provider=mock_cp,
+    )
+    runtime = TaskRuntime(task=graph.task("a"))
+    launcher = runner._launcher(runtime)
+    assert isinstance(launcher, TmuxTaskLauncher)
+    assert launcher.credential_provider is mock_cp

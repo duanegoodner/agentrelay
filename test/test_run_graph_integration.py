@@ -6,7 +6,7 @@ import asyncio
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from agentrelay.errors import IntegrationFailureClass
 from agentrelay.orchestrator import (
@@ -294,3 +294,111 @@ def test_run_graph_with_task_failure(tmp_path: Path) -> None:
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert result.task_runtimes["task_a"].status == TaskStatus.FAILED
+
+
+def test_run_graph_passes_credential_provider(tmp_path: Path) -> None:
+    """Credential provider is forwarded to build_standard_runner."""
+    graph_path = _write_graph_yaml(tmp_path)
+    task_runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+    mock_cp = MagicMock()
+
+    with (
+        patch(
+            "agentrelay.run_graph.build_standard_runner",
+            return_value=task_runner,
+        ) as mock_build_runner,
+        patch(
+            "agentrelay.run_graph.build_standard_workstream_runner",
+            return_value=ws_runner,
+        ),
+        patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
+    ):
+        asyncio.run(
+            run_graph(
+                graph_path=graph_path,
+                repo_path=tmp_path,
+                credential_provider=mock_cp,
+            )
+        )
+
+    call_kwargs = mock_build_runner.call_args[1]
+    assert call_kwargs["credential_provider"] is mock_cp
+
+
+def _write_graph_yaml_with_oci(tmp_path: Path) -> Path:
+    content = """\
+name: oci-test
+isolation:
+  sandbox: oci
+  token_tier: standard
+tasks:
+  - id: task_a
+    description: OCI task
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    return path
+
+
+def test_run_graph_creates_and_removes_network_for_oci(tmp_path: Path) -> None:
+    """Docker network is created before run and removed after."""
+    graph_path = _write_graph_yaml_with_oci(tmp_path)
+    task_runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+
+    with (
+        patch(
+            "agentrelay.run_graph.build_standard_runner",
+            return_value=task_runner,
+        ),
+        patch(
+            "agentrelay.run_graph.build_standard_workstream_runner",
+            return_value=ws_runner,
+        ),
+        patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
+        patch("agentrelay.run_graph.docker_ops") as mock_docker,
+    ):
+        mock_docker.is_available.return_value = True
+        asyncio.run(
+            run_graph(
+                graph_path=graph_path,
+                repo_path=tmp_path,
+            )
+        )
+
+    mock_docker.network_create.assert_called_once_with("agentrelay-oci-test")
+    mock_docker.network_remove.assert_called_once_with("agentrelay-oci-test")
+
+
+def test_run_graph_skips_network_when_no_oci(tmp_path: Path) -> None:
+    """Docker network ops are not called when no tasks use OCI."""
+    graph_path = _write_graph_yaml(tmp_path)
+    task_runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+
+    with (
+        patch(
+            "agentrelay.run_graph.build_standard_runner",
+            return_value=task_runner,
+        ),
+        patch(
+            "agentrelay.run_graph.build_standard_workstream_runner",
+            return_value=ws_runner,
+        ),
+        patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
+        patch("agentrelay.run_graph.docker_ops") as mock_docker,
+    ):
+        asyncio.run(
+            run_graph(
+                graph_path=graph_path,
+                repo_path=tmp_path,
+            )
+        )
+
+    mock_docker.network_create.assert_not_called()
+    mock_docker.network_remove.assert_not_called()

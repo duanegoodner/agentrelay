@@ -4,6 +4,33 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-29
+
+### Docker images, network lifecycle, and CLI credentials (sprint 2026-03-26 PR E)
+
+- **Three-layer Docker image**: `docker/base/Dockerfile` (ubuntu:24.04, git, gh,
+  python3, agent SDK), `docker/toolchain/python/Dockerfile` (adds pixi),
+  `docker/framework/claude-code/Dockerfile` (adds Claude Code via native installer).
+  Build all layers with `pixi run docker-build`.
+- **Docker network lifecycle**: `run_graph.py` creates a Docker network
+  (`agentrelay-<graph>`) before orchestration and removes it in a finally block.
+  Only activated when any task uses OCI sandbox.
+- **`--credentials` CLI flag**: Path to credentials YAML file, wires
+  `FileCredentialProvider` into the task runner builder.
+- **Docker label-based container tracking**: Containers are labeled with
+  `agentrelay.graph` and `agentrelay.task` for programmatic lookups.
+  Container names include graph name: `agentrelay-<graph>-<task>`.
+- **Reset Docker cleanup**: `reset_graph.py` stops/removes containers by label
+  and removes the Docker network (best-effort, swallows errors).
+- **OciSandbox validate-not-create**: `setup()` now validates network exists
+  (raises RuntimeError if missing) instead of creating it.
+- New `ops/docker.py` functions: `ps_by_label()`, `labels` parameter on
+  `build_run_command()`.
+- `build_standard_runner()` accepts optional `credential_provider` parameter.
+- 1123 tests (16 new).
+
+---
+
 ## 2026-03-26
 
 ### Per-module diagrams, diagram cleanup, and sprint plan (PR #137)
