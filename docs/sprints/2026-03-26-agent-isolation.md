@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: In progress.** PRs A–D merged (#139, #140, #141, #143). PR E in review. Next: PR F.
+> **Status: Complete.** All PRs merged (#139, #140, #141, #143, #144, #145).
 
 ## Goal
 
@@ -294,7 +294,7 @@ tasks:
 
 ---
 
-### PR D: Docker ops layer + OciSandbox implementation
+### PR D: Docker ops layer + OciSandbox implementation — MERGED (#143)
 
 - Branch: `feat/oci-sandbox`
 - Note: Renamed `SandboxType.CONTAINER` → `SandboxType.OCI` for naming
@@ -343,7 +343,7 @@ tasks:
 
 ---
 
-### PR E: Docker image + network lifecycle + CLI flags
+### PR E: Docker image + network lifecycle + CLI flags — MERGED (#144)
 
 - Branch: `feat/docker-image`
 
@@ -415,14 +415,14 @@ tasks:
 - `docs/BACKLOG.md`, `docs/ARCHITECTURE.md`, `docs/HISTORY.md`
 
 **Acceptance criteria:**
-- [ ] Agent instructions include isolation boundary guidance when sandbox
+- [x] Agent instructions include isolation boundary guidance when sandbox
       is configured
-- [ ] `IS_AI_AGENT=true` injected into container env
+- [x] `IS_AI_AGENT=true` injected into container env
 - [ ] E2E: `basic_oci.yaml` completes with agent in Docker container
 - [ ] E2E: agent in container can read worktree, write to signal dir,
       push to task branch
 - [ ] E2E: agent in container cannot merge PRs (read_only/standard PAT)
-- [ ] `pixi run check` passes
+- [x] `pixi run check` passes
 
 ---
 

@@ -1,0 +1,33 @@
+name: isolation-token-tiers
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Graph-level OCI sandbox with standard token tier.
+isolation:
+  sandbox: oci
+  token_tier: standard
+
+workstreams:
+  - id: ws_standard
+  - id: ws_readonly
+
+tasks:
+  - id: standard_task
+    workstream_id: ws_standard
+    description: >-
+      Create src/agentrelaydemos/std_task.py with a function
+      double(x: int) -> int that returns x * 2.
+      Also create test/test_std_task.py with a pytest test for double.
+    dependencies: []
+
+  - id: readonly_task
+    workstream_id: ws_readonly
+    isolation:
+      token_tier: read_only
+    description: >-
+      Create src/agentrelaydemos/ro_task.py with a function
+      triple(x: int) -> int that returns x * 3.
+      Also create test/test_ro_task.py with a pytest test for triple.
+    dependencies: []

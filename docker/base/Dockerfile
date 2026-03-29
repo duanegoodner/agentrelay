@@ -22,7 +22,12 @@ COPY pyproject.toml /opt/agentrelay/pyproject.toml
 COPY src/ /opt/agentrelay/src/
 RUN pip3 install --break-system-packages /opt/agentrelay
 
+# Install agent git hooks (read-only for agent user).
+COPY docker/hooks/pre-push /etc/agentrelay/hooks/pre-push
+RUN chmod +x /etc/agentrelay/hooks/pre-push
+
 # Non-root agent user.
 RUN useradd -m -s /bin/bash agent
 USER agent
+RUN git config --global core.hooksPath /etc/agentrelay/hooks
 WORKDIR /home/agent

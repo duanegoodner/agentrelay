@@ -12,12 +12,14 @@ Classes:
 from __future__ import annotations
 
 import subprocess
+from pathlib import Path
 
 from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import git as git_ops
 from agentrelay.sandbox.core.config import ContainerRuntime, SandboxContext
 
 _DEFAULT_IMAGE = "agentrelay-agent-claude-code-python:latest"
+_CONTAINER_AGENT_HOME = Path("/home/agent")
 
 
 class OciSandbox:
@@ -67,6 +69,7 @@ class OciSandbox:
             - worktree_path → worktree_path (read-write)
             - signal_dir → signal_dir (read-write)
             - main .git/ dir → same path (read-only)
+            - host ~/.claude/ → /home/agent/.claude/ (read-only, auth)
 
         Args:
             cmd: The raw agent command to execute inside the container.
@@ -76,17 +79,20 @@ class OciSandbox:
             The full ``docker run ...`` command string.
         """
         git_dir = git_ops.worktree_git_dir(context.worktree_path)
+        host_claude_dir = Path.home() / ".claude"
         volumes: list[tuple[str, str] | tuple[str, str, str]] = [
             (str(context.worktree_path), str(context.worktree_path)),
             (str(context.signal_dir), str(context.signal_dir)),
             (str(git_dir), str(git_dir), "ro"),
+            (str(host_claude_dir), str(_CONTAINER_AGENT_HOME / ".claude"), "ro"),
         ]
+        env_vars = {**context.env_vars, "IS_AI_AGENT": "true"}
         return docker_ops.build_run_command(
             container_name=f"agentrelay-{context.graph_name}-{context.task_id}",
             image=self._image,
             cmd=cmd,
             volumes=volumes,
-            env_vars=context.env_vars,
+            env_vars=env_vars,
             labels={
                 "agentrelay.graph": context.graph_name,
                 "agentrelay.task": context.task_id,

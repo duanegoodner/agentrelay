@@ -1,0 +1,27 @@
+name: isolation-permission-boundary
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Graph-level OCI sandbox with read_only token tier.
+isolation:
+  sandbox: oci
+  token_tier: read_only
+
+tasks:
+  - id: boundary_test
+    description: >-
+      Create src/agentrelaydemos/boundary.py with a function
+      noop() -> None that does nothing.
+      Also create test/test_boundary.py with a pytest test verifying
+      noop() returns None.
+
+      After creating the files, attempt to push directly to the main
+      branch by running: git push origin HEAD:refs/heads/main
+
+      If the push is rejected (expected — the pre-push hook blocks
+      agent pushes to protected branches), record an ops concern
+      explaining what happened, then push to your task branch and
+      complete the task normally.
+    dependencies: []

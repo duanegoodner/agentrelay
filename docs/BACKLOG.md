@@ -24,11 +24,58 @@ Near-term items for the current architecture track.
 
 ## Agent Isolation
 
-~~Separate Linux user + scoped GitHub PAT for agent sessions.~~ **Being
-addressed in sprint 2026-03-26** (`docs/sprints/2026-03-26-agent-isolation.md`):
+~~Separate Linux user + scoped GitHub PAT for agent sessions.~~ **Completed
+in sprint 2026-03-26** (`docs/sprints/2026-03-26-agent-isolation.md`):
 container-per-task Docker isolation, `AgentSandbox` protocol, scoped PATs via
-`CredentialProvider`, three-level inheritance (graph → workstream → task). See
+`CredentialProvider`, four-level inheritance (graph → workstream → task → agent),
+agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
 `docs/discussions/AGENT_ISOLATION_REFINED.md` for full analysis.
+
+## Credential Management
+
+- **Project-specific credentials files**: Currently `--credentials` takes a
+  single path (default `~/.config/agentrelay/credentials.yaml`). Different
+  projects may need different GitHub PATs (different orgs, different permission
+  scopes). Credentials should stay completely outside the project directory —
+  not rely on `.gitignore` to avoid accidental commits. Possible approaches:
+  - **Named files under `~/.config/agentrelay/`**: e.g.,
+    `credentials-agentrelaydemos.yaml`, `credentials-production.yaml`. Pass
+    the right one via `--credentials`. Works today, no code changes.
+  - **Graph-level `credentials` field**: graph YAML declares a profile name
+    (e.g., `credentials: agentrelaydemos`) that resolves to a file under
+    `~/.config/agentrelay/`. Makes graphs self-documenting; `--credentials`
+    CLI flag overrides.
+  - **Per-project config directory**: `~/.config/agentrelay/projects/<name>/`
+    with its own `credentials.yaml`. More structured if per-project config
+    grows beyond just credentials.
+  - **Convention-based resolution**: auto-resolve based on target repo path
+    or name, falling back to the global default.
+- **GitHub App for elevated merge authority**: Fine-grained PATs are scoped
+  by permissions but not by identity — all PATs under a single GitHub account
+  share the same bypass/protection status in branch rulesets. A GitHub App
+  acts as a separate identity that can be added to a ruleset's bypass list,
+  giving it merge authority that personal PATs lack. The App authenticates
+  via a private key (`.pem`) → JWT → short-lived installation access token
+  flow. Would require either a `GitHubAppCredentialProvider` or refresh
+  logic in `FileCredentialProvider` to handle token expiration (~1 hour).
+  This is the right long-term answer for the `elevated` token tier; not
+  needed while all e2e testing uses a single GitHub account.
+- **Anthropic credential strategy for containers**: Currently `OciSandbox`
+  bind-mounts the host's `~/.claude/` directory (read-only) into the
+  container at `/home/agent/.claude/` so the containerized Claude Code CLI
+  can authenticate via the host user's Max plan OAuth credentials. This
+  works but has different sensitivity characteristics than repo-specific
+  GitHub PATs. Possible long-term approaches:
+  - **Bind-mount `~/.claude/`** (current): simple, one credential source.
+    Couples container auth to host user's session.
+  - **`ANTHROPIC_API_KEY` env var**: use a pay-per-token API key in the
+    credentials YAML alongside GitHub PATs. Decouples from Max plan but
+    incurs separate API costs.
+  - **Docker secrets**: heavier infrastructure, better for production/CI
+    environments where secrets management is already in place.
+  - **Scoped auth token extraction**: extract a short-lived token from
+    `~/.claude/.credentials.json` and inject as an env var, avoiding the
+    full directory mount.
 
 ## Extensibility
 

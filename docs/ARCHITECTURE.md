@@ -53,6 +53,19 @@ truth for concrete implementation details.
 - **Narrow interfaces**: `Agent`, `AgentAddress`, and environment typing keep launcher logic decoupled.
 - **Contract-first integrations**: external side effects are modeled as typed protocols/errors before concrete implementations.
 
+## Agent Isolation
+
+Agents can be sandboxed in OCI containers (Docker/Podman) configured via
+`IsolationConfig` at four levels: graph, workstream, task, and agent. The
+`AgentSandbox` protocol (`NullSandbox`, `OciSandbox`) wraps agent commands
+with isolation boundaries. Credentials are injected via the
+`CredentialProvider` protocol with three token tiers (read-only, standard,
+elevated). Containerized agents receive `IS_AI_AGENT=true` and a git
+pre-push hook blocks pushes to protected branches (main/master). Agent
+instructions include an `## Isolation Boundary` section describing
+accessible and inaccessible resources, what exists beyond the boundary,
+and how to report when blocked.
+
 ## Execution Boundary
 
 The current architecture layer includes a real orchestrator, task lifecycle runner,

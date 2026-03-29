@@ -12,6 +12,7 @@ definitions and a README with run instructions and verification notes.
 | `failure/` | Task failure signaling, dependency blocking, workstream isolation |
 | `roles/` | Role-specific templates and multi-role pipeline handoff |
 | `workstreams/` | Diamond fan-in topology, cross-workstream dependencies, same-workstream serialization |
+| `isolation/` | Agent sandboxing, credential scoping, and permission boundaries |
 
 ## Adding a new category
 
