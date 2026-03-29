@@ -1478,7 +1478,7 @@
 
 <h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PRs A–C merged (#139, #140, #141). Next: PR D.</p>
+<p><strong>Status: In progress.</strong> PRs A–D merged (#139, #140, #141, #143). PR E in review. Next: PR F.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Design and implement tunable agent isolation infrastructure — per-graph,
@@ -1815,14 +1815,16 @@ pattern as <code>ops/tmux.py</code>).</p>
 - <code>src/agentrelay/reset_graph.py</code> — Docker cleanup
 - <code>pixi.toml</code> — <code>docker-build</code> task</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Docker image builds successfully
-- [ ] Image contains git, gh, python3, node, claude-code, agent SDK
-- [ ] Image runs as non-root user
-- [ ] <code>--sandbox oci</code> triggers OciSandbox path
-- [ ] <code>--sandbox none</code> (default) preserves current behavior
-- [ ] Docker network created/destroyed around graph execution
-- [ ] <code>reset_graph.py</code> cleans up Docker resources
-- [ ] <code>pixi run check</code> passes</p>
+- [x] Three-layer Docker image (base, python toolchain, claude-code framework)
+- [x] Image contains git, gh, python3, pixi, claude-code, agent SDK
+- [x] Image runs as non-root <code>agent</code> user
+- [x] <code>--credentials</code> CLI flag wires FileCredentialProvider
+- [x] Docker network created/destroyed around graph execution (OCI only)
+- [x] Docker label-based container tracking (<code>agentrelay.graph</code>, <code>agentrelay.task</code>)
+- [x] Graph-scoped container naming: <code>agentrelay-{graph}-{task}</code>
+- [x] OciSandbox.setup() validates network (doesn't create)
+- [x] <code>reset_graph.py</code> cleans up Docker containers and network
+- [x] <code>pixi run check</code> passes (1123 tests, 16 new)</p>
 <hr />
 <h3 id="pr-f-agent-boundary-instructions-e2e-isolation-test-graphs">PR F: Agent boundary instructions + e2e isolation test graphs</h3>
 <ul>

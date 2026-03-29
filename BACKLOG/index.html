@@ -2335,6 +2335,19 @@ multiple concurrent graphs amplifies several concerns:</p>
   asyncio overhead may matter. Rust's zero-cost abstractions and true
   parallelism via tokio handle this naturally.</li>
 </ul>
+<p><strong>Thread allocation model (tokio):</strong> The orchestrator is I/O-bound —
+launching subprocesses, polling signal files, making GitHub API calls, and
+waiting. Async is the natural fit. Use a tokio multi-thread runtime with a
+small thread pool (~= CPU core count). Each orchestrator is a top-level
+async task; within each, individual tasks are async futures that yield while
+waiting on I/O. For multi-graph, all orchestrators share one tokio runtime
+(the scheduler multiplexes them across the thread pool). If hard isolation
+between orchestrators is needed (one panicking shouldn't affect another),
+each can run on its own single-threaded tokio runtime in a dedicated OS
+thread — but start with a shared runtime and isolate only if needed.
+Thread-per-task is wasteful (30 threads mostly sleeping); thread-per-
+orchestrator is reasonable but loses the benefit of tokio's work-stealing
+across orchestrators.</p>
 <p>Suggested phased approach:
 1. <strong>Engine proxy</strong>: Rust CLI that handles LLM API calls (learn Rust I/O,
    JSON, env vars). Use <code>rig-core</code> crate.

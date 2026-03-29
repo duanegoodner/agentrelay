@@ -5166,7 +5166,15 @@ that internal git references resolve without modification.</p>
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;OCI container sandbox — wraps agent commands in ``docker run``.</span>
 
 <span class="sd">    Mounts the git worktree, signal directory, and main ``.git/``</span>
@@ -5188,19 +5196,23 @@ that internal git references resolve without modification.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span> <span class="o">=</span> <span class="p">(</span><span class="n">runtime</span> <span class="ow">or</span> <span class="n">ContainerRuntime</span><span class="o">.</span><span class="n">DOCKER</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate runtime available, create network if needed.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate runtime and network are available.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            context: Execution context with graph name for network naming.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            RuntimeError: If the container runtime is not available.</span>
+<span class="sd">            RuntimeError: If the container runtime is not available or</span>
+<span class="sd">                the Docker network does not exist.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">is_available</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Container runtime &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="si">}</span><span class="s2">&#39; is not available&quot;</span><span class="p">)</span>
         <span class="n">network</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_exists</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
-            <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_create</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Docker network &#39;</span><span class="si">{</span><span class="n">network</span><span class="si">}</span><span class="s2">&#39; does not exist. &quot;</span>
+                <span class="s2">&quot;Network must be created by run_graph before task execution.&quot;</span>
+            <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Wrap an agent command in ``docker run`` with bind mounts and env vars.</span>
@@ -5224,11 +5236,15 @@ that internal git references resolve without modification.</p>
             <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="s2">&quot;ro&quot;</span><span class="p">),</span>
         <span class="p">]</span>
         <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
-            <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
             <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
             <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
             <span class="n">env_vars</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;agentrelay.graph&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+                <span class="s2">&quot;agentrelay.task&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
+            <span class="p">},</span>
             <span class="n">network</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">workdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span>
             <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">,</span>
@@ -5240,7 +5256,7 @@ that internal git references resolve without modification.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            context: Execution context with task ID for container naming.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">docker_ops</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
@@ -5276,7 +5292,7 @@ that internal git references resolve without modification.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Validate runtime available, create network if needed.</p>
+        <p>Validate runtime and network are available.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -5330,7 +5346,8 @@ that internal git references resolve without modification.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>If the container runtime is not available.</p>
+                <p>If the container runtime is not available or
+the Docker network does not exist.</p>
               </div>
             </td>
           </tr>
@@ -5353,20 +5370,28 @@ that internal git references resolve without modification.</p>
 <span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
-<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate runtime available, create network if needed.</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate runtime and network are available.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        context: Execution context with graph name for network naming.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        RuntimeError: If the container runtime is not available.</span>
+<span class="sd">        RuntimeError: If the container runtime is not available or</span>
+<span class="sd">            the Docker network does not exist.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">is_available</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Container runtime &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="si">}</span><span class="s2">&#39; is not available&quot;</span><span class="p">)</span>
     <span class="n">network</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_exists</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">):</span>
-        <span class="n">docker_ops</span><span class="o">.</span><span class="n">network_create</span><span class="p">(</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Docker network &#39;</span><span class="si">{</span><span class="n">network</span><span class="si">}</span><span class="s2">&#39; does not exist. &quot;</span>
+            <span class="s2">&quot;Network must be created by run_graph before task execution.&quot;</span>
+        <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5473,11 +5498,7 @@ that internal git references resolve without modification.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
 <span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
@@ -5503,7 +5524,15 @@ that internal git references resolve without modification.</p>
 <span class="normal">86</span>
 <span class="normal">87</span>
 <span class="normal">88</span>
-<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap an agent command in ``docker run`` with bind mounts and env vars.</span>
 
 <span class="sd">    Mounts:</span>
@@ -5525,11 +5554,15 @@ that internal git references resolve without modification.</p>
         <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="s2">&quot;ro&quot;</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
-        <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
         <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
         <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
         <span class="n">env_vars</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+        <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;agentrelay.graph&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+            <span class="s2">&quot;agentrelay.task&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
+        <span class="p">},</span>
         <span class="n">network</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">workdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span>
         <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">,</span>
@@ -5592,27 +5625,27 @@ that internal git references resolve without modification.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
-<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop and remove the container, swallowing errors if already gone.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        context: Execution context with task ID for container naming.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">docker_ops</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
