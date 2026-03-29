@@ -56,6 +56,7 @@ run_graph_py: "run_graph.py" {
 
 ops_pkg: "ops/" {
   style.opacity: 0.5
+  docker: "docker <<module>>" { shape: class }
   git: "git <<module>>" { shape: class }
   signals: "signals <<module>>" { shape: class }
 }
@@ -96,4 +97,5 @@ run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dep
 run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.ConsoleListener: creates { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.console_functions: "prints summary" { class: dependency }
+run_graph_py.run_graph_functions -> ops_pkg.docker: "network lifecycle" { class: dependency }
 run_graph_py.run_graph_functions -> tools_py.tools_functions: "validate_tools()" { class: dependency }

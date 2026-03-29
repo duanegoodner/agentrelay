@@ -655,7 +655,8 @@ ops_pkg: "ops/" {
     +network_remove(name, runtime): void
     +stop(container_name, runtime): void
     +rm(container_name, runtime): void
-    +build_run_command(name, image, cmd, volumes, env_vars): str
+    +ps_by_label(label, runtime): "list[str]"
+    +build_run_command(name, image, cmd, volumes, env_vars, labels): str
   }
 }
 
@@ -1228,11 +1229,13 @@ run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dep
 run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.ConsoleListener: creates { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.console_functions: "prints summary" { class: dependency }
+run_graph_py.run_graph_functions -> ops_pkg.docker: "network lifecycle" { class: dependency }
 
 # --- reset_graph ---
 reset_graph_py.reset_graph_functions -> reset_graph_py.ResetPlan: "builds / executes" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
+reset_graph_py.reset_graph_functions -> ops_pkg.docker: "container/network cleanup" { class: dependency }
 
 # --- output ---
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }

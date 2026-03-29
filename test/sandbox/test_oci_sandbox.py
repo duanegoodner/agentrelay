@@ -41,7 +41,7 @@ class TestOciSandboxDefaults:
 
     def test_default_image(self) -> None:
         sandbox = OciSandbox()
-        assert sandbox._image == "agentrelay-agent:latest"
+        assert sandbox._image == "agentrelay-agent-claude-code-python:latest"
 
     def test_default_runtime(self) -> None:
         sandbox = OciSandbox()
@@ -60,23 +60,22 @@ class TestOciSandboxSetup:
     """Tests for OciSandbox.setup."""
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
-    def test_creates_network_when_not_exists(self, mock_docker: MagicMock) -> None:
+    def test_raises_when_network_not_exists(self, mock_docker: MagicMock) -> None:
         mock_docker.is_available.return_value = True
         mock_docker.network_exists.return_value = False
 
         sandbox = OciSandbox()
-        sandbox.setup(_make_context())
+        with pytest.raises(RuntimeError, match="does not exist"):
+            sandbox.setup(_make_context())
 
         mock_docker.is_available.assert_called_once_with("docker")
         mock_docker.network_exists.assert_called_once_with(
             "agentrelay-test-graph", "docker"
         )
-        mock_docker.network_create.assert_called_once_with(
-            "agentrelay-test-graph", "docker"
-        )
+        mock_docker.network_create.assert_not_called()
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
-    def test_skips_network_create_when_exists(self, mock_docker: MagicMock) -> None:
+    def test_succeeds_when_network_exists(self, mock_docker: MagicMock) -> None:
         mock_docker.is_available.return_value = True
         mock_docker.network_exists.return_value = True
 
@@ -96,13 +95,13 @@ class TestOciSandboxSetup:
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_uses_custom_runtime(self, mock_docker: MagicMock) -> None:
         mock_docker.is_available.return_value = True
-        mock_docker.network_exists.return_value = False
+        mock_docker.network_exists.return_value = True
 
         sandbox = OciSandbox(runtime=ContainerRuntime.PODMAN)
         sandbox.setup(_make_context())
 
         mock_docker.is_available.assert_called_once_with("podman")
-        mock_docker.network_create.assert_called_once_with(
+        mock_docker.network_exists.assert_called_once_with(
             "agentrelay-test-graph", "podman"
         )
 
@@ -125,7 +124,7 @@ class TestOciSandboxWrapCommand:
         assert result == "docker run ..."
         mock_git.worktree_git_dir.assert_called_once_with(ctx.worktree_path)
         mock_docker.build_run_command.assert_called_once_with(
-            container_name="agentrelay-task_a",
+            container_name="agentrelay-test-graph-task_a",
             image="myimage:v1",
             cmd="claude --model opus",
             volumes=[
@@ -140,6 +139,10 @@ class TestOciSandboxWrapCommand:
                 ("/repo/.git", "/repo/.git", "ro"),
             ],
             env_vars={"GH_TOKEN": "ghp_xxx"},
+            labels={
+                "agentrelay.graph": "test-graph",
+                "agentrelay.task": "task_a",
+            },
             network="agentrelay-test-graph",
             workdir=str(ctx.worktree_path),
             runtime="docker",
@@ -167,8 +170,10 @@ class TestOciSandboxTeardown:
         sandbox = OciSandbox()
         sandbox.teardown(_make_context())
 
-        mock_docker.stop.assert_called_once_with("agentrelay-task_a", "docker")
-        mock_docker.rm.assert_called_once_with("agentrelay-task_a", "docker")
+        mock_docker.stop.assert_called_once_with(
+            "agentrelay-test-graph-task_a", "docker"
+        )
+        mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "docker")
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_swallows_stop_error(self, mock_docker: MagicMock) -> None:
@@ -178,7 +183,7 @@ class TestOciSandboxTeardown:
         sandbox = OciSandbox()
         sandbox.teardown(_make_context())
 
-        mock_docker.rm.assert_called_once_with("agentrelay-task_a", "docker")
+        mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "docker")
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_swallows_rm_error(self, mock_docker: MagicMock) -> None:
@@ -194,5 +199,7 @@ class TestOciSandboxTeardown:
         sandbox = OciSandbox(runtime=ContainerRuntime.PODMAN)
         sandbox.teardown(_make_context())
 
-        mock_docker.stop.assert_called_once_with("agentrelay-task_a", "podman")
-        mock_docker.rm.assert_called_once_with("agentrelay-task_a", "podman")
+        mock_docker.stop.assert_called_once_with(
+            "agentrelay-test-graph-task_a", "podman"
+        )
+        mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "podman")

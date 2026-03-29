@@ -24,6 +24,7 @@ from typing import Optional
 
 from agentrelay.sandbox import (
     ClaudeCodeAdapter,
+    CredentialProvider,
     NullCredentialProvider,
     NullSandbox,
     OciSandbox,
@@ -123,6 +124,7 @@ def build_standard_runner(
     poll_interval: float = 2.0,
     context_content: Optional[str] = None,
     tools: tuple[str, ...] = (),
+    credential_provider: Optional[CredentialProvider] = None,
 ) -> StandardTaskRunner:
     """Build the standard runner for worktree + tmux + Claude Code.
 
@@ -176,7 +178,7 @@ def build_standard_runner(
         return TmuxTaskLauncher(
             adapter=ClaudeCodeAdapter(),
             sandbox=sandbox,
-            credential_provider=NullCredentialProvider(),
+            credential_provider=credential_provider or NullCredentialProvider(),
             repo_path=repo_path,
             graph_name=graph_name,
         )

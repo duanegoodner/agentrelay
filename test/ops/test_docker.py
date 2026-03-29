@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from agentrelay.ops.docker import (
     build_run_command,
     image_exists,
@@ -13,6 +11,7 @@ from agentrelay.ops.docker import (
     network_create,
     network_exists,
     network_remove,
+    ps_by_label,
     rm,
     stop,
 )
@@ -245,8 +244,18 @@ class TestBuildRunCommand:
         assert "-w /repo/wt" in result
         assert "agentrelay-agent:latest" in result
 
+    def test_labels(self) -> None:
+        result = build_run_command(
+            container_name="ctr",
+            image="img",
+            cmd="cmd",
+            labels={"agentrelay.graph": "mygraph", "agentrelay.task": "task_a"},
+        )
+        assert "--label agentrelay.graph=mygraph" in result
+        assert "--label agentrelay.task=task_a" in result
+
     def test_no_optional_args(self) -> None:
-        """Command without optional args omits volume/env/network/workdir flags."""
+        """Command without optional args omits volume/env/network/workdir/label flags."""
         result = build_run_command(
             container_name="ctr",
             image="img",
@@ -254,5 +263,51 @@ class TestBuildRunCommand:
         )
         assert "-v" not in result
         assert "-e" not in result
+        assert "--label" not in result
         assert "--network" not in result
         assert "-w" not in result
+
+
+# ── ps_by_label ──
+
+
+class TestPsByLabel:
+    """Tests for ps_by_label."""
+
+    @patch("agentrelay.ops.docker.subprocess.run")
+    def test_returns_container_names(self, mock_run: MagicMock) -> None:
+        mock_run.return_value.stdout = "container-a\ncontainer-b\n"
+        result = ps_by_label("agentrelay.graph=mygraph")
+        assert result == ["container-a", "container-b"]
+        mock_run.assert_called_once_with(
+            [
+                "docker",
+                "ps",
+                "-a",
+                "--filter",
+                "label=agentrelay.graph=mygraph",
+                "--format",
+                "{{.Names}}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    @patch("agentrelay.ops.docker.subprocess.run")
+    def test_returns_empty_list_when_no_containers(self, mock_run: MagicMock) -> None:
+        mock_run.return_value.stdout = ""
+        result = ps_by_label("agentrelay.graph=mygraph")
+        assert result == []
+
+    @patch("agentrelay.ops.docker.subprocess.run")
+    def test_uses_custom_runtime(self, mock_run: MagicMock) -> None:
+        mock_run.return_value.stdout = ""
+        ps_by_label("agentrelay.graph=g", runtime="podman")
+        assert mock_run.call_args[0][0][0] == "podman"
+
+    @patch("agentrelay.ops.docker.subprocess.run")
+    def test_filters_empty_lines(self, mock_run: MagicMock) -> None:
+        mock_run.return_value.stdout = "container-a\n\n\n"
+        result = ps_by_label("agentrelay.graph=mygraph")
+        assert result == ["container-a"]

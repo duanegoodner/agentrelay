@@ -107,6 +107,27 @@ def rm(container_name: str, runtime: str = "docker") -> None:
     )
 
 
+def ps_by_label(label: str, runtime: str = "docker") -> list[str]:
+    """List container names matching a label filter.
+
+    Runs ``<runtime> ps -a --filter label=<label> --format '{{.Names}}'``.
+
+    Args:
+        label: Label filter string (e.g. ``"agentrelay.graph=mygraph"``).
+        runtime: Container runtime binary name.
+
+    Returns:
+        List of container name strings (may be empty).
+    """
+    result = subprocess.run(
+        [runtime, "ps", "-a", "--filter", f"label={label}", "--format", "{{.Names}}"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return [name for name in result.stdout.strip().split("\n") if name]
+
+
 def build_run_command(
     container_name: str,
     image: str,
@@ -114,6 +135,7 @@ def build_run_command(
     *,
     volumes: list[tuple[str, str] | tuple[str, str, str]] | None = None,
     env_vars: dict[str, str] | None = None,
+    labels: dict[str, str] | None = None,
     network: str | None = None,
     workdir: str | None = None,
     runtime: str = "docker",
@@ -130,6 +152,7 @@ def build_run_command(
         cmd: Command string to execute inside the container.
         volumes: Bind mount specifications.
         env_vars: Environment variables to inject (``-e``).
+        labels: Container labels to attach (``--label``).
         network: Docker network to attach (``--network``).
         workdir: Working directory inside the container (``-w``).
         runtime: Container runtime binary name.
@@ -149,6 +172,9 @@ def build_run_command(
 
     for key, value in (env_vars or {}).items():
         parts.extend(["-e", f"{key}={value}"])
+
+    for key, value in (labels or {}).items():
+        parts.extend(["--label", f"{key}={value}"])
 
     if network is not None:
         parts.extend(["--network", network])

@@ -267,3 +267,71 @@ def test_run_graph_writes_run_info(tmp_git_repo: Path) -> None:
     assert "start_head" in info
     assert "started_at" in info
     assert len(info["start_head"]) == 40  # Full SHA
+
+
+# --- Docker cleanup in execute_reset ---
+
+
+def test_execute_reset_cleans_docker_containers(reset_repo: Path) -> None:
+    """Docker containers matching graph label are stopped and removed."""
+    with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
+        plan = plan_reset("test-graph", reset_repo)
+
+    with (patch("agentrelay.reset_graph.docker_ops") as mock_docker,):
+        mock_docker.ps_by_label.return_value = [
+            "agentrelay-test-graph-task_a",
+            "agentrelay-test-graph-task_b",
+        ]
+        mock_docker.network_exists.return_value = False
+        log = execute_reset(plan)
+
+    mock_docker.ps_by_label.assert_called_once_with("agentrelay.graph=test-graph")
+    assert mock_docker.stop.call_count == 2
+    assert mock_docker.rm.call_count == 2
+    assert any("2 Docker container(s)" in msg for msg in log)
+
+
+def test_execute_reset_removes_docker_network(reset_repo: Path) -> None:
+    """Docker network matching graph name is removed."""
+    with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
+        plan = plan_reset("test-graph", reset_repo)
+
+    with (patch("agentrelay.reset_graph.docker_ops") as mock_docker,):
+        mock_docker.ps_by_label.return_value = []
+        mock_docker.network_exists.return_value = True
+        log = execute_reset(plan)
+
+    mock_docker.network_remove.assert_called_once_with("agentrelay-test-graph")
+    assert any("Removed Docker network" in msg for msg in log)
+
+
+def test_execute_reset_swallows_docker_errors(reset_repo: Path) -> None:
+    """Reset completes even if Docker operations fail."""
+    with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
+        plan = plan_reset("test-graph", reset_repo)
+
+    with (patch("agentrelay.reset_graph.docker_ops") as mock_docker,):
+        mock_docker.ps_by_label.side_effect = subprocess.CalledProcessError(1, "docker")
+        mock_docker.network_exists.side_effect = subprocess.CalledProcessError(
+            1, "docker"
+        )
+        log = execute_reset(plan)
+
+    # Non-Docker steps should still execute.
+    assert any("Removed worktree directory" in msg for msg in log)
+    assert any("Removed workflow directory" in msg for msg in log)
+
+
+def test_execute_reset_handles_no_docker(reset_repo: Path) -> None:
+    """Reset completes even if Docker is not installed."""
+    with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
+        plan = plan_reset("test-graph", reset_repo)
+
+    with (patch("agentrelay.reset_graph.docker_ops") as mock_docker,):
+        mock_docker.ps_by_label.side_effect = FileNotFoundError("docker")
+        mock_docker.network_exists.side_effect = FileNotFoundError("docker")
+        log = execute_reset(plan)
+
+    # Non-Docker steps should still execute.
+    assert any("Removed worktree directory" in msg for msg in log)
+    assert any("Removed workflow directory" in msg for msg in log)

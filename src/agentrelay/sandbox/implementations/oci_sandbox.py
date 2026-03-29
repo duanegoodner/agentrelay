@@ -17,7 +17,7 @@ from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import git as git_ops
 from agentrelay.sandbox.core.config import ContainerRuntime, SandboxContext
 
-_DEFAULT_IMAGE = "agentrelay-agent:latest"
+_DEFAULT_IMAGE = "agentrelay-agent-claude-code-python:latest"
 
 
 class OciSandbox:
@@ -42,19 +42,23 @@ class OciSandbox:
         self._runtime = (runtime or ContainerRuntime.DOCKER).value
 
     def setup(self, context: SandboxContext) -> None:
-        """Validate runtime available, create network if needed.
+        """Validate runtime and network are available.
 
         Args:
             context: Execution context with graph name for network naming.
 
         Raises:
-            RuntimeError: If the container runtime is not available.
+            RuntimeError: If the container runtime is not available or
+                the Docker network does not exist.
         """
         if not docker_ops.is_available(self._runtime):
             raise RuntimeError(f"Container runtime '{self._runtime}' is not available")
         network = f"agentrelay-{context.graph_name}"
         if not docker_ops.network_exists(network, self._runtime):
-            docker_ops.network_create(network, self._runtime)
+            raise RuntimeError(
+                f"Docker network '{network}' does not exist. "
+                "Network must be created by run_graph before task execution."
+            )
 
     def wrap_command(self, cmd: str, context: SandboxContext) -> str:
         """Wrap an agent command in ``docker run`` with bind mounts and env vars.
@@ -78,11 +82,15 @@ class OciSandbox:
             (str(git_dir), str(git_dir), "ro"),
         ]
         return docker_ops.build_run_command(
-            container_name=f"agentrelay-{context.task_id}",
+            container_name=f"agentrelay-{context.graph_name}-{context.task_id}",
             image=self._image,
             cmd=cmd,
             volumes=volumes,
             env_vars=context.env_vars,
+            labels={
+                "agentrelay.graph": context.graph_name,
+                "agentrelay.task": context.task_id,
+            },
             network=f"agentrelay-{context.graph_name}",
             workdir=str(context.worktree_path),
             runtime=self._runtime,
@@ -94,7 +102,7 @@ class OciSandbox:
         Args:
             context: Execution context with task ID for container naming.
         """
-        name = f"agentrelay-{context.task_id}"
+        name = f"agentrelay-{context.graph_name}-{context.task_id}"
         try:
             docker_ops.stop(name, self._runtime)
         except subprocess.CalledProcessError:

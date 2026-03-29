@@ -67,6 +67,7 @@ reset_graph_py: "reset_graph.py" {
 
 ops_pkg: "ops/" {
   style.opacity: 0.5
+  docker: "docker <<module>>" { shape: class }
   gh: "gh <<module>>" { shape: class }
   git: "git <<module>>" { shape: class }
 }
@@ -77,3 +78,4 @@ ops_pkg: "ops/" {
 reset_graph_py.reset_graph_functions -> reset_graph_py.ResetPlan: "builds / executes" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
+reset_graph_py.reset_graph_functions -> ops_pkg.docker: "container/network cleanup" { class: dependency }

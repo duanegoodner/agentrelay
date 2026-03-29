@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: In progress.** PRs A–C merged (#139, #140, #141). Next: PR D.
+> **Status: In progress.** PRs A–D merged (#139, #140, #141, #143). PR E in review. Next: PR F.
 
 ## Goal
 
@@ -371,14 +371,16 @@ tasks:
 - `pixi.toml` — `docker-build` task
 
 **Acceptance criteria:**
-- [ ] Docker image builds successfully
-- [ ] Image contains git, gh, python3, node, claude-code, agent SDK
-- [ ] Image runs as non-root user
-- [ ] `--sandbox oci` triggers OciSandbox path
-- [ ] `--sandbox none` (default) preserves current behavior
-- [ ] Docker network created/destroyed around graph execution
-- [ ] `reset_graph.py` cleans up Docker resources
-- [ ] `pixi run check` passes
+- [x] Three-layer Docker image (base, python toolchain, claude-code framework)
+- [x] Image contains git, gh, python3, pixi, claude-code, agent SDK
+- [x] Image runs as non-root `agent` user
+- [x] `--credentials` CLI flag wires FileCredentialProvider
+- [x] Docker network created/destroyed around graph execution (OCI only)
+- [x] Docker label-based container tracking (`agentrelay.graph`, `agentrelay.task`)
+- [x] Graph-scoped container naming: `agentrelay-{graph}-{task}`
+- [x] OciSandbox.setup() validates network (doesn't create)
+- [x] `reset_graph.py` cleans up Docker containers and network
+- [x] `pixi run check` passes (1123 tests, 16 new)
 
 ---
 
