@@ -60,9 +60,13 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   logic in `FileCredentialProvider` to handle token expiration (~1 hour).
   This is the right long-term answer for the `elevated` token tier; not
   needed while all e2e testing uses a single GitHub account.
-- **Anthropic credential strategy for containers**: Currently using
-  `ANTHROPIC_API_KEY` env var (pay-per-token) for containerized agents.
-  Possible long-term approaches:
+- **Switch back to Anthropic Max plan for containers**: Currently using
+  `ANTHROPIC_API_KEY` env var (pay-per-token) as a workaround. The Max
+  plan is preferred — the API key was only adopted to avoid interactive
+  auth prompts, but those prompts occur regardless (Claude Code first-run
+  setup). Resolving the first-run issue (see below) would unblock
+  switching back to Max plan auth.
+  Possible approaches:
   - **`ANTHROPIC_API_KEY` env var** (current): reliable, no interactive
     auth. Incurs separate API costs outside the Max plan.
   - **Max plan OAuth in containers**: bind-mount host `~/.claude/` into
@@ -83,6 +87,24 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   - **Scoped auth token extraction**: extract a short-lived token from
     `~/.claude/.credentials.json` and inject as an env var, avoiding the
     full directory mount.
+- **Claude Code first-run prompts in containers**: Every container launch
+  triggers Claude Code's interactive first-time setup (API key confirmation,
+  folder trust, etc.) because containers are ephemeral (`--rm`). The
+  orchestrator's kickoff prompt is sent via tmux send-keys and gets consumed
+  by these startup prompts before Claude Code is ready for task input.
+  Possible fixes:
+  - **Pre-initialize in image build**: run `claude` once during
+    `docker build` to complete first-run setup, persisting the state in
+    the image layer.
+  - **Container warm-up step**: add a setup phase in `OciSandbox.setup()`
+    that runs Claude Code briefly to complete initialization before the
+    agent task launches.
+  - **Pass initial prompt as CLI argument**: use `claude -p "Read ..."` or
+    `claude --prompt "..."` instead of tmux send-keys, bypassing the
+    timing issue entirely.
+  - **Suppress interactive prompts**: investigate Claude Code CLI flags
+    or env vars that skip first-run prompts (e.g., `--no-interactive`,
+    pre-seeding config files).
 - **Container UID/username cleanup**: `OciSandbox` runs the container as
   the host user's UID via `--user` to match file ownership on bind mounts.
   On Ubuntu 24.04 base images, UID 1000 maps to the pre-existing `ubuntu`

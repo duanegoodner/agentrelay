@@ -6,7 +6,7 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-29
 
-### Agent boundary instructions, IS_AI_AGENT env var, and git pre-push hooks (sprint 2026-03-26 PR F)
+### Agent boundary instructions, container fixes, and e2e isolation graphs (sprint 2026-03-26 PR F1)
 
 - **Isolation boundary instructions**: `resolve_instructions()` gains a
   `sandbox_type` parameter. When `SandboxType.OCI`, a `## Isolation Boundary`
@@ -17,9 +17,13 @@ Chronological log of significant changes to the main codebase. For full details 
 - **Git pre-push hook**: Baked into Docker base image at
   `/etc/agentrelay/hooks/pre-push`. Blocks pushes to `main`/`master` when
   `IS_AI_AGENT=true`. Global `core.hooksPath` configured for agent user.
+- **Container execution fixes**: `bash -c` shell wrapper, `--group-add` for
+  host GID file permissions, `.git` dir read-write mount, `TERM` env var for
+  TUI rendering, `chmod` for cross-UID claude binary access, `safe.directory`
+  wildcard in container git config.
 - **E2E isolation test graphs**: `basic_oci.yaml`, `token_tiers.yaml`,
-  `permission_boundary.yaml` in `graphs/isolation/`.
-- Sprint 2026-03-26 agent isolation complete.
+  `permission_boundary.yaml` in `graphs/isolation/`. `basic_oci.yaml`
+  validated end-to-end.
 
 ---
 
