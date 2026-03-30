@@ -384,7 +384,7 @@ tasks:
 
 ---
 
-### PR F1: Agent boundary instructions + container fixes — MERGED (#NNN)
+### PR F1: Agent boundary instructions + container fixes — MERGED (#145)
 
 - Branch: `feat/isolation-instructions`
 
