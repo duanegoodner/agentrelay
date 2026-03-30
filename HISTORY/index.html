@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-e2e-infrastructure-fixes-sprint-2026-03-26-pr-fcleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Container e2e infrastructure fixes (sprint 2026-03-26 PR Fcleanup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-29" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2124,6 +2152,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-03-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-03-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-03-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#container-e2e-infrastructure-fixes-sprint-2026-03-26-pr-fcleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Container e2e infrastructure fixes (sprint 2026-03-26 PR Fcleanup)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-29" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2910,6 +2966,29 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-03-30">2026-03-30</h2>
+<h3 id="container-e2e-infrastructure-fixes-sprint-2026-03-26-pr-fcleanup">Container e2e infrastructure fixes (sprint 2026-03-26 PR Fcleanup)</h3>
+<ul>
+<li><strong>UID alignment</strong>: Docker base image creates <code>agent</code> user with UID 1000
+  (matching typical host UID). Removes <code>ubuntu</code> user, eliminates
+  <code>--group-add</code> workaround, and fixes <code>PermissionError</code> on reset cleanup.</li>
+<li><strong>Git credential helper</strong>: Configured in Docker image so <code>git push</code> over
+  HTTPS uses injected <code>GH_TOKEN</code> automatically. Agents no longer need to
+  construct token URLs manually.</li>
+<li><strong>Claude Code first-run suppression</strong>: Pre-seeded <code>~/.claude/settings.json</code>
+  in framework image + <code>DISABLE_AUTOUPDATER</code> and
+  <code>CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC</code> env vars in <code>OciSandbox</code>.
+  Prevents onboarding prompts from consuming the orchestrator's kickoff.</li>
+<li><strong>reset_graph improvements</strong>: <code>git worktree prune</code> after directory removal,
+  local branch cleanup via <code>branch_list_local()</code> (catches branches missed by
+  remote-only listing), <code>force_rm()</code> for Docker containers (handles exited
+  containers that <code>stop</code> + <code>rm</code> missed).</li>
+<li><strong>E2e script decoupling</strong>: <code>e2e_run.sh</code>, <code>e2e_reset.sh</code>, and <code>e2e_check.sh</code>
+  now use <code>--manifest-path</code> to run from agentrelay's pixi env. Target repo no
+  longer needs agentrelay as a dependency.</li>
+<li>Removed <code>--user</code> and <code>--group-add</code> parameters from <code>docker.build_run_command()</code>.</li>
+</ul>
 <hr />
 <h2 id="2026-03-29">2026-03-29</h2>
 <h3 id="agent-boundary-instructions-container-fixes-and-e2e-isolation-graphs-sprint-2026-03-26-pr-f1">Agent boundary instructions, container fixes, and e2e isolation graphs (sprint 2026-03-26 PR F1)</h3>
