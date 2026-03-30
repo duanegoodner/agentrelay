@@ -4,6 +4,31 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-30
+
+### Container e2e infrastructure fixes (sprint 2026-03-26 PR Fcleanup)
+
+- **UID alignment**: Docker base image creates `agent` user with UID 1000
+  (matching typical host UID). Removes `ubuntu` user, eliminates
+  `--group-add` workaround, and fixes `PermissionError` on reset cleanup.
+- **Git credential helper**: Configured in Docker image so `git push` over
+  HTTPS uses injected `GH_TOKEN` automatically. Agents no longer need to
+  construct token URLs manually.
+- **Claude Code first-run suppression**: Pre-seeded `~/.claude/settings.json`
+  in framework image + `DISABLE_AUTOUPDATER` and
+  `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` env vars in `OciSandbox`.
+  Prevents onboarding prompts from consuming the orchestrator's kickoff.
+- **reset_graph improvements**: `git worktree prune` after directory removal,
+  local branch cleanup via `branch_list_local()` (catches branches missed by
+  remote-only listing), `force_rm()` for Docker containers (handles exited
+  containers that `stop` + `rm` missed).
+- **E2e script decoupling**: `e2e_run.sh`, `e2e_reset.sh`, and `e2e_check.sh`
+  now use `--manifest-path` to run from agentrelay's pixi env. Target repo no
+  longer needs agentrelay as a dependency.
+- Removed `--user` and `--group-add` parameters from `docker.build_run_command()`.
+
+---
+
 ## 2026-03-29
 
 ### Agent boundary instructions, container fixes, and e2e isolation graphs (sprint 2026-03-26 PR F1)

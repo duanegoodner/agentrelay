@@ -4,8 +4,8 @@
 # Usage: tools/e2e_reset.sh <graph.yaml> <target-repo-path>
 #
 # The graph path is resolved relative to the agentrelay repo root.
-# The script cd's to the target repo and uses its pixi environment.
-# Passes --yes to skip the interactive confirmation prompt.
+# The script cd's to the target repo but runs reset from agentrelay's
+# own pixi environment. Passes --yes to skip confirmation.
 
 set -euo pipefail
 
@@ -63,4 +63,4 @@ echo "[e2e-reset] Resetting graph: $GRAPH_ABS"
 echo "[e2e-reset] Target repo:     $(pwd)"
 echo ""
 
-exec pixi run python -m agentrelay.reset_graph "$GRAPH_ABS" --yes
+exec pixi run --manifest-path "$REPO_ROOT/pixi.toml" python -m agentrelay.reset_graph "$GRAPH_ABS" --yes

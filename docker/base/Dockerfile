@@ -26,9 +26,12 @@ RUN pip3 install --break-system-packages /opt/agentrelay
 COPY docker/hooks/pre-push /etc/agentrelay/hooks/pre-push
 RUN chmod +x /etc/agentrelay/hooks/pre-push
 
-# Non-root agent user.
-RUN useradd -m -s /bin/bash agent
+# Non-root agent user (UID 1000 to match typical host UID).
+RUN userdel -r ubuntu 2>/dev/null || true \
+    && useradd -m -s /bin/bash -u 1000 agent
 USER agent
 RUN git config --global core.hooksPath /etc/agentrelay/hooks \
-    && git config --global --add safe.directory '*'
+    && git config --global --add safe.directory '*' \
+    && git config --global credential.helper \
+       '!f() { echo "username=x-access-token"; echo "password=${GH_TOKEN}"; }; f'
 WORKDIR /home/agent

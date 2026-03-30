@@ -127,7 +127,7 @@ class TestOciSandboxWrapCommand:
         mock_docker.build_run_command.assert_called_once_with(
             container_name="agentrelay-test-graph-task_a",
             image="myimage:v1",
-            cmd="claude --model opus",
+            cmd="claude-trust-workdir && claude --model opus",
             volumes=[
                 (
                     str(ctx.worktree_path),
@@ -143,6 +143,8 @@ class TestOciSandboxWrapCommand:
                 "GH_TOKEN": "ghp_xxx",
                 "IS_AI_AGENT": "true",
                 "TERM": os.environ.get("TERM", "xterm-256color"),
+                "DISABLE_AUTOUPDATER": "1",
+                "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
             },
             labels={
                 "agentrelay.graph": "test-graph",
@@ -150,7 +152,6 @@ class TestOciSandboxWrapCommand:
             },
             network="agentrelay-test-graph",
             workdir=str(ctx.worktree_path),
-            group_add=str(os.getgid()),
             runtime="docker",
         )
 
@@ -184,6 +185,26 @@ class TestOciSandboxWrapCommand:
         call_kwargs = mock_docker.build_run_command.call_args.kwargs
         assert call_kwargs["env_vars"]["MY_VAR"] == "val"
         assert call_kwargs["env_vars"]["IS_AI_AGENT"] == "true"
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_renames_anthropic_api_key(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """ANTHROPIC_API_KEY is renamed to _ANTHROPIC_API_KEY to avoid prompt."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command(
+            "claude",
+            _make_context(env_vars={"ANTHROPIC_API_KEY": "sk-xxx", "GH_TOKEN": "ghp_xxx"}),
+        )
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert "ANTHROPIC_API_KEY" not in call_kwargs["env_vars"]
+        assert call_kwargs["env_vars"]["_ANTHROPIC_API_KEY"] == "sk-xxx"
+        assert call_kwargs["env_vars"]["GH_TOKEN"] == "ghp_xxx"
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")

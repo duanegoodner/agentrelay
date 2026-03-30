@@ -50,6 +50,18 @@ def worktree_remove(repo: Path, worktree_path: Path) -> None:
     )
 
 
+def worktree_prune(repo: Path) -> None:
+    """Prune stale worktree references.
+
+    Runs ``git -C <repo> worktree prune``.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "worktree", "prune"],
+        check=True,
+        capture_output=True,
+    )
+
+
 def checkout(repo: Path, branch: str) -> None:
     """Checkout an existing branch.
 
@@ -106,6 +118,35 @@ def branch_delete(repo: Path, branch: str) -> None:
         check=True,
         capture_output=True,
     )
+
+
+def branch_list_local(repo: Path, pattern: str) -> list[str]:
+    """List local branches matching a glob pattern.
+
+    Runs ``git -C <repo> branch --list <pattern> --format='%(refname:short)'``.
+
+    Args:
+        repo: Repository path.
+        pattern: Glob pattern (e.g. ``"agentrelay/mygraph/*"``).
+
+    Returns:
+        List of matching branch names (may be empty).
+    """
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "branch",
+            "--list",
+            pattern,
+            "--format=%(refname:short)",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return [b for b in result.stdout.strip().split("\n") if b]
 
 
 def pull_ff_only(repo: Path) -> bool:

@@ -107,6 +107,18 @@ def rm(container_name: str, runtime: str = "docker") -> None:
     )
 
 
+def force_rm(container_name: str, runtime: str = "docker") -> None:
+    """Force-remove a container (running or stopped).
+
+    Runs ``<runtime> rm -f <name>``.
+    """
+    subprocess.run(
+        [runtime, "rm", "-f", container_name],
+        check=True,
+        capture_output=True,
+    )
+
+
 def ps_by_label(label: str, runtime: str = "docker") -> list[str]:
     """List container names matching a label filter.
 
@@ -138,8 +150,6 @@ def build_run_command(
     labels: dict[str, str] | None = None,
     network: str | None = None,
     workdir: str | None = None,
-    user: str | None = None,
-    group_add: str | None = None,
     runtime: str = "docker",
 ) -> str:
     """Build a ``docker run`` command string (not executed).
@@ -157,8 +167,6 @@ def build_run_command(
         labels: Container labels to attach (``--label``).
         network: Docker network to attach (``--network``).
         workdir: Working directory inside the container (``-w``).
-        user: User/group to run as (``--user``), e.g. ``"1000:1000"``.
-        group_add: Supplementary group ID (``--group-add``).
         runtime: Container runtime binary name.
 
     Returns:
@@ -182,12 +190,6 @@ def build_run_command(
 
     if network is not None:
         parts.extend(["--network", network])
-
-    if user is not None:
-        parts.extend(["--user", user])
-
-    if group_add is not None:
-        parts.extend(["--group-add", group_add])
 
     if workdir is not None:
         parts.extend(["-w", workdir])

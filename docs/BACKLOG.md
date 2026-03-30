@@ -60,64 +60,34 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   logic in `FileCredentialProvider` to handle token expiration (~1 hour).
   This is the right long-term answer for the `elevated` token tier; not
   needed while all e2e testing uses a single GitHub account.
-- **Switch back to Anthropic Max plan for containers**: Currently using
-  `ANTHROPIC_API_KEY` env var (pay-per-token) as a workaround. The Max
-  plan is preferred — the API key was only adopted to avoid interactive
-  auth prompts, but those prompts occur regardless (Claude Code first-run
-  setup). Resolving the first-run issue (see below) would unblock
-  switching back to Max plan auth.
-  Possible approaches:
-  - **`ANTHROPIC_API_KEY` env var** (current): reliable, no interactive
-    auth. Incurs separate API costs outside the Max plan.
-  - **Max plan OAuth in containers**: bind-mount host `~/.claude/` into
-    container so Claude Code reuses the host's OAuth credentials. Initial
-    testing showed this triggers interactive first-time setup inside the
-    container (auth prompts, browser redirect) even with credentials
-    mounted — likely because the mount is read-only and Claude Code needs
-    to write session/cache files, or because user context differs
-    (`duane` → `agent`). Possible mitigations:
-    - Mount `~/.claude/` read-write (simpler but allows container to
-      modify host auth state).
-    - Pre-authenticate during image build (`claude login` in Dockerfile)
-      or via a container warm-up step before task dispatch.
-    - Extract the OAuth token from `.credentials.json` and inject as an
-      env var, bypassing the full directory mount.
-  - **Docker secrets**: heavier infrastructure, better for production/CI
-    environments where secrets management is already in place.
-  - **Scoped auth token extraction**: extract a short-lived token from
-    `~/.claude/.credentials.json` and inject as an env var, avoiding the
-    full directory mount.
-- **Claude Code first-run prompts in containers**: Every container launch
-  triggers Claude Code's interactive first-time setup (API key confirmation,
-  folder trust, etc.) because containers are ephemeral (`--rm`). The
-  orchestrator's kickoff prompt is sent via tmux send-keys and gets consumed
-  by these startup prompts before Claude Code is ready for task input.
-  Possible fixes:
-  - **Pre-initialize in image build**: run `claude` once during
-    `docker build` to complete first-run setup, persisting the state in
-    the image layer.
-  - **Container warm-up step**: add a setup phase in `OciSandbox.setup()`
-    that runs Claude Code briefly to complete initialization before the
-    agent task launches.
-  - **Pass initial prompt as CLI argument**: use `claude -p "Read ..."` or
-    `claude --prompt "..."` instead of tmux send-keys, bypassing the
-    timing issue entirely.
-  - **Suppress interactive prompts**: investigate Claude Code CLI flags
-    or env vars that skip first-run prompts (e.g., `--no-interactive`,
-    pre-seeding config files).
-- **Container UID/username cleanup**: `OciSandbox` runs the container as
-  the host user's UID via `--user` to match file ownership on bind mounts.
-  On Ubuntu 24.04 base images, UID 1000 maps to the pre-existing `ubuntu`
-  user rather than the `agent` user (UID 1001) created in the Dockerfile.
-  This works but is confusing (`whoami` shows `ubuntu`, not `agent`).
-  Possible fixes:
-  - Remove the `ubuntu` user during image build (`userdel ubuntu`) and
-    create `agent` with UID 1000 instead.
-  - Create `agent` with a dynamic UID at container start (entrypoint
-    script that runs `useradd` with the host UID before exec'ing the
-    command).
-  - Accept the mismatch and document it — the `HOME=/home/agent` env var
-    ensures git config is found regardless of username.
+- **Max plan OAuth credentials in containers**: Currently using
+  `ANTHROPIC_API_KEY` env var (pay-per-token) via `apiKeyHelper` in
+  settings (PR Fcleanup renamed the env var to `_ANTHROPIC_API_KEY` to
+  avoid Claude Code's interactive confirmation prompt). The Max plan is
+  preferred to avoid separate API costs. The image already supports both
+  strategies without rebuilding — credential approach is a runtime concern:
+  - **API key** (current): `CredentialProvider` injects
+    `_ANTHROPIC_API_KEY` → `apiKeyHelper` echoes it. Works today.
+  - **Max plan OAuth**: mount host `~/.claude/.credentials.json` into
+    container as a read-only volume. Claude Code reads OAuth tokens
+    directly. Requires:
+    - New volume mount in `OciSandbox.wrap_command()` for the credentials
+      file (path from a new config field or CLI flag).
+    - Verify Claude Code doesn't need write access to `.credentials.json`
+      (token refresh writes back). If it does, mount read-write or
+      extract the access token and inject as `ANTHROPIC_AUTH_TOKEN` env
+      var instead.
+    - Skip `apiKeyHelper` when no API key is in the credential provider
+      output (helper would echo empty string).
+    - Test with UID-aligned container (UID 1000 should match host file
+      ownership).
+- ~~**Claude Code first-run prompts in containers**~~ — **Resolved in PR
+  Fcleanup**: pre-seeded `~/.claude/settings.json` in framework Dockerfile +
+  suppression env vars (`DISABLE_AUTOUPDATER`,
+  `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`) in `OciSandbox.wrap_command()`.
+- ~~**Container UID/username cleanup**~~ — **Resolved in PR Fcleanup**: Docker
+  base image removes `ubuntu` user and creates `agent` with UID 1000. Removed
+  `--user` and `--group-add` from `build_run_command()`.
 
 ## Extensibility
 
@@ -206,14 +176,10 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover
   suffixed directories.
-- **`reset_graph` leaves stale local branches and worktree refs**:
-  `reset_graph.py` removes the worktree directory and workflow directory but
-  does not run `git worktree prune` or delete local branches created during
-  the run (e.g., `agentrelay/<graph>/<task>`,
-  `agentrelay/<graph>/<ws>/integration`). On the next run, `git branch -f`
-  fails because git still considers the branch "used by" the now-deleted
-  worktree. Fix: add `git worktree prune` and local branch deletion to the
-  reset flow. Discovered during isolation e2e testing (2026-03-29).
+- ~~**`reset_graph` leaves stale local branches and worktree refs**~~ —
+  **Resolved in PR Fcleanup**: added `git worktree prune`,
+  `branch_list_local()` for local branch cleanup, and `force_rm()` for
+  Docker container cleanup.
 
 ## Removed Modules (revisit when needed)
 

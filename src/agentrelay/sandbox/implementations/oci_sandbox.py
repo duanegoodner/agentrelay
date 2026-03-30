@@ -82,15 +82,29 @@ class OciSandbox:
             (str(context.signal_dir), str(context.signal_dir)),
             (str(git_dir), str(git_dir)),
         ]
+        # Rename ANTHROPIC_API_KEY to _ANTHROPIC_API_KEY so Claude Code
+        # doesn't detect it and show an interactive confirmation prompt.
+        # The apiKeyHelper in settings.json echoes $_ANTHROPIC_API_KEY.
+        renamed_vars = {}
+        for key, value in context.env_vars.items():
+            if key == "ANTHROPIC_API_KEY":
+                renamed_vars["_ANTHROPIC_API_KEY"] = value
+            else:
+                renamed_vars[key] = value
         env_vars = {
-            **context.env_vars,
+            **renamed_vars,
             "IS_AI_AGENT": "true",
             "TERM": os.environ.get("TERM", "xterm-256color"),
+            "DISABLE_AUTOUPDATER": "1",
+            "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
         }
+        # Seed Claude Code folder trust for the container workdir.
+        # The trust-workdir script is baked into the framework image.
+        full_cmd = f"claude-trust-workdir && {cmd}"
         return docker_ops.build_run_command(
             container_name=f"agentrelay-{context.graph_name}-{context.task_id}",
             image=self._image,
-            cmd=cmd,
+            cmd=full_cmd,
             volumes=volumes,
             env_vars=env_vars,
             labels={
@@ -99,7 +113,6 @@ class OciSandbox:
             },
             network=f"agentrelay-{context.graph_name}",
             workdir=str(context.worktree_path),
-            group_add=str(os.getgid()),
             runtime=self._runtime,
         )
 
