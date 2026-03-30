@@ -286,10 +286,10 @@ def _isolation_section(sandbox_type: Optional[SandboxType]) -> str:
         "- **Your signal directory** (read-write): where you write completion "
         "and failure signals via the `agentrelay-complete` / "
         "`agentrelay-failed` commands.",
-        "- **The git object store** (read-only): you can read all branches "
+        "- **The git object store** (read-write): you can read all branches "
         "and commits in the repository via `git log`, `git show`, `git diff`, "
         "etc. This is useful for understanding upstream changes and "
-        "dependencies. You cannot modify the `.git` directory directly.",
+        "dependencies. Only commit and push to your assigned task branch.",
         "",
         "### What You Cannot Access",
         "",

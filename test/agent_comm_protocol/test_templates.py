@@ -344,14 +344,14 @@ class TestIsolationSection:
         )
         assert "signal directory" in text.lower()
 
-    def test_isolation_section_mentions_git_read_only(self) -> None:
-        """Isolation section describes git object store as read-only."""
+    def test_isolation_section_mentions_git_access(self) -> None:
+        """Isolation section describes git object store access."""
         text = resolve_instructions(
             AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
         )
         isolation_text = text.split("## Isolation Boundary")[1]
-        assert "read-only" in isolation_text.lower()
         assert "git" in isolation_text.lower()
+        assert "task branch" in isolation_text.lower()
 
     def test_isolation_section_mentions_ops_concern(self) -> None:
         """Isolation section tells agents to use ops concern tool when blocked."""

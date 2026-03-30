@@ -60,22 +60,42 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   logic in `FileCredentialProvider` to handle token expiration (~1 hour).
   This is the right long-term answer for the `elevated` token tier; not
   needed while all e2e testing uses a single GitHub account.
-- **Anthropic credential strategy for containers**: Currently `OciSandbox`
-  bind-mounts the host's `~/.claude/` directory (read-only) into the
-  container at `/home/agent/.claude/` so the containerized Claude Code CLI
-  can authenticate via the host user's Max plan OAuth credentials. This
-  works but has different sensitivity characteristics than repo-specific
-  GitHub PATs. Possible long-term approaches:
-  - **Bind-mount `~/.claude/`** (current): simple, one credential source.
-    Couples container auth to host user's session.
-  - **`ANTHROPIC_API_KEY` env var**: use a pay-per-token API key in the
-    credentials YAML alongside GitHub PATs. Decouples from Max plan but
-    incurs separate API costs.
+- **Anthropic credential strategy for containers**: Currently using
+  `ANTHROPIC_API_KEY` env var (pay-per-token) for containerized agents.
+  Possible long-term approaches:
+  - **`ANTHROPIC_API_KEY` env var** (current): reliable, no interactive
+    auth. Incurs separate API costs outside the Max plan.
+  - **Max plan OAuth in containers**: bind-mount host `~/.claude/` into
+    container so Claude Code reuses the host's OAuth credentials. Initial
+    testing showed this triggers interactive first-time setup inside the
+    container (auth prompts, browser redirect) even with credentials
+    mounted — likely because the mount is read-only and Claude Code needs
+    to write session/cache files, or because user context differs
+    (`duane` → `agent`). Possible mitigations:
+    - Mount `~/.claude/` read-write (simpler but allows container to
+      modify host auth state).
+    - Pre-authenticate during image build (`claude login` in Dockerfile)
+      or via a container warm-up step before task dispatch.
+    - Extract the OAuth token from `.credentials.json` and inject as an
+      env var, bypassing the full directory mount.
   - **Docker secrets**: heavier infrastructure, better for production/CI
     environments where secrets management is already in place.
   - **Scoped auth token extraction**: extract a short-lived token from
     `~/.claude/.credentials.json` and inject as an env var, avoiding the
     full directory mount.
+- **Container UID/username cleanup**: `OciSandbox` runs the container as
+  the host user's UID via `--user` to match file ownership on bind mounts.
+  On Ubuntu 24.04 base images, UID 1000 maps to the pre-existing `ubuntu`
+  user rather than the `agent` user (UID 1001) created in the Dockerfile.
+  This works but is confusing (`whoami` shows `ubuntu`, not `agent`).
+  Possible fixes:
+  - Remove the `ubuntu` user during image build (`userdel ubuntu`) and
+    create `agent` with UID 1000 instead.
+  - Create `agent` with a dynamic UID at container start (entrypoint
+    script that runs `useradd` with the host UID before exec'ing the
+    command).
+  - Accept the mismatch and document it — the `HOME=/home/agent` env var
+    ensures git config is found regardless of username.
 
 ## Extensibility
 
@@ -164,6 +184,14 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover
   suffixed directories.
+- **`reset_graph` leaves stale local branches and worktree refs**:
+  `reset_graph.py` removes the worktree directory and workflow directory but
+  does not run `git worktree prune` or delete local branches created during
+  the run (e.g., `agentrelay/<graph>/<task>`,
+  `agentrelay/<graph>/<ws>/integration`). On the next run, `git branch -f`
+  fails because git still considers the branch "used by" the now-deleted
+  worktree. Fix: add `git worktree prune` and local branch deletion to the
+  reset flow. Discovered during isolation e2e testing (2026-03-29).
 
 ## Removed Modules (revisit when needed)
 

@@ -29,5 +29,6 @@ RUN chmod +x /etc/agentrelay/hooks/pre-push
 # Non-root agent user.
 RUN useradd -m -s /bin/bash agent
 USER agent
-RUN git config --global core.hooksPath /etc/agentrelay/hooks
+RUN git config --global core.hooksPath /etc/agentrelay/hooks \
+    && git config --global --add safe.directory '*'
 WORKDIR /home/agent

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -109,15 +110,13 @@ class TestOciSandboxSetup:
 class TestOciSandboxWrapCommand:
     """Tests for OciSandbox.wrap_command."""
 
-    @patch("agentrelay.sandbox.implementations.oci_sandbox.Path.home")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_builds_correct_docker_run(
-        self, mock_docker: MagicMock, mock_git: MagicMock, mock_home: MagicMock
+        self, mock_docker: MagicMock, mock_git: MagicMock
     ) -> None:
         mock_git.worktree_git_dir.return_value = Path("/repo/.git")
         mock_docker.build_run_command.return_value = "docker run ..."
-        mock_home.return_value = Path("/home/testuser")
 
         sandbox = OciSandbox(image="myimage:v1")
         ctx = _make_context()
@@ -138,29 +137,31 @@ class TestOciSandboxWrapCommand:
                     str(ctx.signal_dir),
                     str(ctx.signal_dir),
                 ),
-                ("/repo/.git", "/repo/.git", "ro"),
-                ("/home/testuser/.claude", "/home/agent/.claude", "ro"),
+                ("/repo/.git", "/repo/.git"),
             ],
-            env_vars={"GH_TOKEN": "ghp_xxx", "IS_AI_AGENT": "true"},
+            env_vars={
+                "GH_TOKEN": "ghp_xxx",
+                "IS_AI_AGENT": "true",
+                "TERM": os.environ.get("TERM", "xterm-256color"),
+            },
             labels={
                 "agentrelay.graph": "test-graph",
                 "agentrelay.task": "task_a",
             },
             network="agentrelay-test-graph",
             workdir=str(ctx.worktree_path),
+            group_add=str(os.getgid()),
             runtime="docker",
         )
 
-    @patch("agentrelay.sandbox.implementations.oci_sandbox.Path.home")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_injects_is_ai_agent_env_var(
-        self, mock_docker: MagicMock, mock_git: MagicMock, mock_home: MagicMock
+        self, mock_docker: MagicMock, mock_git: MagicMock
     ) -> None:
         """IS_AI_AGENT=true is injected into container env vars."""
         mock_git.worktree_git_dir.return_value = Path("/repo/.git")
         mock_docker.build_run_command.return_value = "docker run ..."
-        mock_home.return_value = Path("/home/testuser")
 
         sandbox = OciSandbox()
         sandbox.wrap_command("claude", _make_context())
@@ -168,16 +169,14 @@ class TestOciSandboxWrapCommand:
         call_kwargs = mock_docker.build_run_command.call_args.kwargs
         assert call_kwargs["env_vars"]["IS_AI_AGENT"] == "true"
 
-    @patch("agentrelay.sandbox.implementations.oci_sandbox.Path.home")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_preserves_existing_env_vars_with_is_ai_agent(
-        self, mock_docker: MagicMock, mock_git: MagicMock, mock_home: MagicMock
+        self, mock_docker: MagicMock, mock_git: MagicMock
     ) -> None:
         """IS_AI_AGENT is added alongside existing env vars."""
         mock_git.worktree_git_dir.return_value = Path("/repo/.git")
         mock_docker.build_run_command.return_value = "docker run ..."
-        mock_home.return_value = Path("/home/testuser")
 
         sandbox = OciSandbox()
         sandbox.wrap_command("claude", _make_context(env_vars={"MY_VAR": "val"}))
@@ -186,15 +185,13 @@ class TestOciSandboxWrapCommand:
         assert call_kwargs["env_vars"]["MY_VAR"] == "val"
         assert call_kwargs["env_vars"]["IS_AI_AGENT"] == "true"
 
-    @patch("agentrelay.sandbox.implementations.oci_sandbox.Path.home")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_uses_custom_runtime(
-        self, mock_docker: MagicMock, mock_git: MagicMock, mock_home: MagicMock
+        self, mock_docker: MagicMock, mock_git: MagicMock
     ) -> None:
         mock_git.worktree_git_dir.return_value = Path("/repo/.git")
         mock_docker.build_run_command.return_value = "podman run ..."
-        mock_home.return_value = Path("/home/testuser")
 
         sandbox = OciSandbox(runtime=ContainerRuntime.PODMAN)
         sandbox.wrap_command("cmd", _make_context())
