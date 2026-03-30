@@ -14,7 +14,7 @@ Usage: pixi run e2e-check <target-repo-path> [--env <type>]
 
 Preflight check on a target repository for E2E testing.
 
-Validates: git repo, pixi setup, agentrelay dependency, Python version,
+Validates: git repo, pixi setup, agentrelay importable (from agentrelay env),
 gh auth, agent environment (default: tmux), working tree cleanliness,
 and leftover graph state.
 
@@ -89,34 +89,23 @@ else
   check "pixi.toml" fail "no pixi.toml found"
 fi
 
-# 3. agentrelay in pypi-dependencies.
-if grep -q 'agentrelay' "$TARGET_REPO/pixi.toml" 2>/dev/null; then
-  if grep -q 'editable.*true' "$TARGET_REPO/pixi.toml" 2>/dev/null; then
-    check "agentrelay dependency" pass "editable"
-  else
-    check "agentrelay dependency" warn "not editable"
-  fi
-else
-  check "agentrelay dependency" fail "not found in pixi.toml"
-fi
-
-# 4. Python version.
-PY_VERSION=$(cd "$TARGET_REPO" && pixi run python --version 2>&1) || PY_VERSION=""
+# 3. Python version (from agentrelay's pixi env).
+PY_VERSION=$(pixi run --manifest-path "$REPO_ROOT/pixi.toml" python --version 2>&1) || PY_VERSION=""
 if [ -n "$PY_VERSION" ]; then
-  check "Python" pass "$PY_VERSION"
+  check "Python (agentrelay env)" pass "$PY_VERSION"
 else
-  check "Python" fail "pixi run python failed"
+  check "Python (agentrelay env)" fail "pixi run python failed"
 fi
 
-# 5. agentrelay importable.
-AR_LOCATION=$(cd "$TARGET_REPO" && pixi run python -c "import agentrelay; print(agentrelay.__file__)" 2>&1) || AR_LOCATION=""
+# 4. agentrelay importable (from agentrelay's pixi env).
+AR_LOCATION=$(pixi run --manifest-path "$REPO_ROOT/pixi.toml" python -c "import agentrelay; print(agentrelay.__file__)" 2>&1) || AR_LOCATION=""
 if [ -n "$AR_LOCATION" ]; then
   check "agentrelay importable" pass "$AR_LOCATION"
 else
   check "agentrelay importable" fail "import failed"
 fi
 
-# 6. Working tree clean.
+# 5. Working tree clean.
 DIRTY=$(cd "$TARGET_REPO" && git status --porcelain 2>&1)
 if [ -z "$DIRTY" ]; then
   check "Working tree clean" pass
@@ -125,14 +114,14 @@ else
   check "Working tree clean" warn "$DIRTY_COUNT uncommitted change(s)"
 fi
 
-# 7. gh auth.
+# 6. gh auth.
 if gh auth status >/dev/null 2>&1; then
   check "GitHub CLI authenticated" pass
 else
   check "GitHub CLI authenticated" fail "run: gh auth login"
 fi
 
-# 8. Agent environment.
+# 7. Agent environment.
 case "$ENV_TYPE" in
   tmux)
     if command -v tmux >/dev/null 2>&1; then
@@ -147,7 +136,7 @@ case "$ENV_TYPE" in
     ;;
 esac
 
-# 9. Conflict check — look for leftover state from graphs in agentrelay/graphs/.
+# 8. Conflict check — look for leftover state from graphs in agentrelay/graphs/.
 CONFLICT_COUNT=0
 for GRAPH_FILE in "$REPO_ROOT"/graphs/*.yaml; do
   [ -f "$GRAPH_FILE" ] || continue

@@ -240,6 +240,34 @@ def test_execute_reset_skips_main_when_out_of_order(reset_repo: Path) -> None:
     assert not (reset_repo / ".workflow" / "test-graph").exists()
 
 
+def test_execute_reset_prunes_worktrees(reset_repo: Path) -> None:
+    """Worktree prune runs after directory removal."""
+    with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
+        plan = plan_reset("test-graph", reset_repo)
+
+    log = execute_reset(plan)
+
+    assert any("Pruned stale git worktree references" in msg for msg in log)
+
+
+def test_execute_reset_deletes_local_branches(reset_repo: Path) -> None:
+    """Local branches matching the graph prefix are deleted."""
+    # The fixture creates agentrelay/test-graph/task_a and
+    # agentrelay/test-graph/default/integration as local branches.
+    with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
+        plan = plan_reset("test-graph", reset_repo)
+
+    log = execute_reset(plan)
+
+    assert any("Deleted local branch" in msg for msg in log)
+
+    # No local branches with the graph prefix should remain.
+    from agentrelay.ops.git import branch_list_local
+
+    remaining = branch_list_local(reset_repo, "agentrelay/test-graph/*")
+    assert remaining == []
+
+
 def test_execute_reset_idempotent(reset_repo: Path) -> None:
     """Running reset twice doesn't error."""
     with patch("agentrelay.reset_graph.gh.pr_list", return_value=[]):
@@ -286,8 +314,7 @@ def test_execute_reset_cleans_docker_containers(reset_repo: Path) -> None:
         log = execute_reset(plan)
 
     mock_docker.ps_by_label.assert_called_once_with("agentrelay.graph=test-graph")
-    assert mock_docker.stop.call_count == 2
-    assert mock_docker.rm.call_count == 2
+    assert mock_docker.force_rm.call_count == 2
     assert any("2 Docker container(s)" in msg for msg in log)
 
 

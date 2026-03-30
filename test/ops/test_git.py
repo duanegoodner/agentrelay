@@ -10,6 +10,7 @@ import pytest
 from agentrelay.ops.git import (
     branch_create,
     branch_delete,
+    branch_list_local,
     current_branch,
     fetch_branch,
     ls_remote_branch_exists,
@@ -19,6 +20,7 @@ from agentrelay.ops.git import (
     update_local_ref,
     worktree_add,
     worktree_git_dir,
+    worktree_prune,
     worktree_remove,
 )
 
@@ -121,6 +123,49 @@ class TestWorktreeRemove:
             worktree_remove(tmp_git_repo, wt)
 
 
+class TestWorktreePrune:
+    """Tests for worktree_prune."""
+
+    def test_prunes_stale_worktree(self, tmp_git_repo: Path) -> None:
+        """Prunes references to worktrees whose directories were deleted."""
+        import shutil
+
+        wt = tmp_git_repo.parent / "worktree"
+        worktree_add(tmp_git_repo, wt, "feat/prune-me", "main")
+        assert wt.is_dir()
+
+        # Remove directory without git's knowledge.
+        shutil.rmtree(wt)
+
+        # Before prune, git still thinks the worktree exists.
+        result = subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "worktree", "list", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        assert "worktree" in result.stdout
+
+        worktree_prune(tmp_git_repo)
+
+        # After prune, the stale reference is cleaned up.
+        result = subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "worktree", "list", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        # Only the main worktree should remain.
+        worktree_lines = [
+            line for line in result.stdout.splitlines() if line.startswith("worktree ")
+        ]
+        assert len(worktree_lines) == 1
+
+    def test_no_op_when_nothing_to_prune(self, tmp_git_repo: Path) -> None:
+        """Does not error when there are no stale worktrees."""
+        worktree_prune(tmp_git_repo)
+
+
 # ── Branch tests ──
 
 
@@ -184,6 +229,32 @@ class TestBranchDelete:
         """Raises when branch does not exist."""
         with pytest.raises(subprocess.CalledProcessError):
             branch_delete(tmp_git_repo, "no-such-branch")
+
+
+class TestBranchListLocal:
+    """Tests for branch_list_local."""
+
+    def test_lists_matching_branches(self, tmp_git_repo: Path) -> None:
+        """Returns branches matching a glob pattern."""
+        branch_create(tmp_git_repo, "agentrelay/graph/task_a", "main")
+        branch_create(tmp_git_repo, "agentrelay/graph/task_b", "main")
+        branch_create(tmp_git_repo, "agentrelay/other/task_c", "main")
+
+        result = branch_list_local(tmp_git_repo, "agentrelay/graph/*")
+        assert sorted(result) == [
+            "agentrelay/graph/task_a",
+            "agentrelay/graph/task_b",
+        ]
+
+    def test_returns_empty_when_no_match(self, tmp_git_repo: Path) -> None:
+        """Returns empty list when no branches match."""
+        result = branch_list_local(tmp_git_repo, "agentrelay/no-such/*")
+        assert result == []
+
+    def test_returns_empty_for_no_branches(self, tmp_git_repo: Path) -> None:
+        """Returns empty list when pattern matches nothing."""
+        result = branch_list_local(tmp_git_repo, "nonexistent/*")
+        assert result == []
 
 
 # ── Remote-requiring tests ──

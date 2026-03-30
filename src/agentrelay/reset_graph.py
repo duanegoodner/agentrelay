@@ -153,20 +153,16 @@ def execute_reset(plan: ResetPlan) -> list[str]:
     log: list[str] = list(plan.log)
     repo = plan.repo_path
 
-    # Step 0: Stop and remove Docker containers (best-effort).
+    # Step 0: Force-remove Docker containers (best-effort).
     try:
         containers = docker_ops.ps_by_label(f"agentrelay.graph={plan.graph_name}")
         for name in containers:
             try:
-                docker_ops.stop(name)
-            except subprocess.CalledProcessError:
-                pass
-            try:
-                docker_ops.rm(name)
+                docker_ops.force_rm(name)
             except subprocess.CalledProcessError:
                 pass
         if containers:
-            log.append(f"Stopped/removed {len(containers)} Docker container(s)")
+            log.append(f"Removed {len(containers)} Docker container(s)")
     except (subprocess.CalledProcessError, FileNotFoundError):
         pass  # Docker not available or no containers found
 
@@ -206,17 +202,61 @@ def execute_reset(plan: ResetPlan) -> list[str]:
         except subprocess.CalledProcessError:
             log.append(f"Failed to delete remote branch {branch}, skipping")
 
-    # Step 3b: Delete local branches (best-effort).
-    for branch in plan.remote_branches:
+    # Step 3b: Delete local branches matching graph prefix.
+    try:
+        local_branches = git.branch_list_local(repo, f"{plan.branch_prefix}*")
+    except subprocess.CalledProcessError:
+        local_branches = []
+    for branch in local_branches:
         try:
             git.branch_delete(repo, branch)
+            log.append(f"Deleted local branch {branch}")
         except subprocess.CalledProcessError:
-            pass  # Local branch may not exist
+            pass
 
     # Step 4: Remove worktree directory.
     if plan.worktree_dir.is_dir():
-        shutil.rmtree(plan.worktree_dir)
-        log.append(f"Removed worktree directory {plan.worktree_dir}")
+        try:
+            shutil.rmtree(plan.worktree_dir)
+            log.append(f"Removed worktree directory {plan.worktree_dir}")
+        except PermissionError:
+            # Container-created files may be owned by a different UID.
+            # Try cleanup via a privileged Docker container.
+            try:
+                subprocess.run(
+                    [
+                        "docker",
+                        "run",
+                        "--rm",
+                        "-v",
+                        f"{plan.worktree_dir}:/cleanup",
+                        "ubuntu:24.04",
+                        "rm",
+                        "-rf",
+                        "/cleanup",
+                    ],
+                    check=True,
+                    capture_output=True,
+                )
+                # Directory contents deleted; remove the now-empty mount point.
+                if plan.worktree_dir.is_dir():
+                    shutil.rmtree(plan.worktree_dir, ignore_errors=True)
+                log.append(
+                    f"Removed worktree directory {plan.worktree_dir} (via Docker)"
+                )
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                log.append(
+                    f"WARNING: Cannot remove {plan.worktree_dir} — "
+                    "files owned by container UID. "
+                    f"Run: sudo rm -rf {plan.worktree_dir}"
+                )
+
+    # Step 4b: Prune stale worktree references.
+    try:
+        git.worktree_prune(repo)
+        log.append("Pruned stale git worktree references")
+    except subprocess.CalledProcessError:
+        log.append("Failed to prune worktree references, skipping")
 
     # Step 5: Remove workflow directory.
     if plan.workflow_dir.is_dir():

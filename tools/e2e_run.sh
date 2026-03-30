@@ -4,7 +4,8 @@
 # Usage: tools/e2e_run.sh <graph.yaml> <target-repo-path> [extra run_graph flags...]
 #
 # The graph path is resolved relative to the agentrelay repo root.
-# The script cd's to the target repo and uses its pixi environment.
+# The script cd's to the target repo but runs the orchestrator from
+# agentrelay's own pixi environment (not the target repo's).
 
 set -euo pipefail
 
@@ -68,4 +69,4 @@ echo "[e2e] Running graph: $GRAPH_ABS"
 echo "[e2e] Target repo:   $(pwd)"
 echo ""
 
-exec pixi run python -m agentrelay.run_graph "$GRAPH_ABS" "$@"
+exec pixi run --manifest-path "$REPO_ROOT/pixi.toml" python -m agentrelay.run_graph "$GRAPH_ABS" "$@"

@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 
 from agentrelay.ops.docker import (
     build_run_command,
+    force_rm,
     image_exists,
     is_available,
     network_create,
@@ -152,6 +153,27 @@ class TestRm:
             check=True,
             capture_output=True,
         )
+
+
+# ── force_rm ──
+
+
+class TestForceRm:
+    """Tests for force_rm."""
+
+    @patch("agentrelay.ops.docker.subprocess.run")
+    def test_calls_rm_with_force(self, mock_run: MagicMock) -> None:
+        force_rm("mycontainer")
+        mock_run.assert_called_once_with(
+            ["docker", "rm", "-f", "mycontainer"],
+            check=True,
+            capture_output=True,
+        )
+
+    @patch("agentrelay.ops.docker.subprocess.run")
+    def test_uses_custom_runtime(self, mock_run: MagicMock) -> None:
+        force_rm("c", runtime="podman")
+        assert mock_run.call_args[0][0][0] == "podman"
 
 
 # ── build_run_command ──
