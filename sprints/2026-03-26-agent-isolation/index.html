@@ -1444,6 +1444,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pr-fcleanup-container-e2e-infrastructure-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR Fcleanup: Container e2e infrastructure fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pr-f2-remaining-e2e-isolation-testing" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1882,11 +1893,45 @@ pattern as <code>ops/tmux.py</code>).</p>
       push to task branch
 - [x] <code>pixi run check</code> passes (1148 tests)</p>
 <hr />
+<h3 id="pr-fcleanup-container-e2e-infrastructure-fixes">PR Fcleanup: Container e2e infrastructure fixes</h3>
+<ul>
+<li>Branch: TBD</li>
+<li>Depends on: PR F1</li>
+<li>Details: <code>docs/sprints/supplementary-info-agent-isolation.md</code></li>
+</ul>
+<p><strong>Scope:</strong>
+Seven issues discovered during F1 e2e testing that make the
+reset/run/debug cycle slow and painful. All must be resolved before
+continuing with F2 e2e testing.</p>
+<ol>
+<li><code>reset_graph</code> leaves stale local branches and worktree refs</li>
+<li>Container UID mismatch — agent UID 1001 vs host UID 1000</li>
+<li>Claude Code first-run prompts consume kickoff in containers</li>
+<li>Reset doesn't clean up Docker containers/networks from failed runs</li>
+<li>Reset fails on container-created files (PermissionError)</li>
+<li>E2e script coupled to target repo's pixi env</li>
+<li>Git credential helper not configured in container</li>
+</ol>
+<p><strong>Key files likely modified:</strong>
+- <code>src/agentrelay/reset_graph.py</code>
+- <code>docker/base/Dockerfile</code>
+- <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code>
+- <code>tools/e2e_run.sh</code>, <code>tools/e2e_reset.sh</code></p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>pixi run e2e-reset</code> fully resets (no manual worktree prune, branch
+      delete, or sudo rm needed)
+- [ ] Container runs as UID 1000 (<code>agent</code> user) — no <code>ubuntu</code> user
+      confusion, no <code>sudo</code> needed for cleanup
+- [ ] Claude Code starts without interactive prompts in container
+- [ ] Agent can <code>git push</code> using injected <code>GH_TOKEN</code> without manual URL
+      construction
+- [ ] E2e script runs orchestrator from agentrelay's pixi env
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
 <h3 id="pr-f2-remaining-e2e-isolation-testing">PR F2: Remaining e2e isolation testing</h3>
 <ul>
-<li>Branch: TBD (after container cleanup PR)</li>
-<li>Depends on: container cleanup PR (reset gap, UID alignment, first-run
-  prompts)</li>
+<li>Branch: TBD (after Fcleanup)</li>
+<li>Depends on: PR Fcleanup</li>
 </ul>
 <p><strong>Scope:</strong>
 - E2E: <code>token_tiers.yaml</code> — verify correct PAT injection per tier

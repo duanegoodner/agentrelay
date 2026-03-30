@@ -1,0 +1,1657 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/supplementary-info-agent-isolation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Supplementary Info — Agent Isolation Sprint (PR Fcleanup) - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#supplementary-info-agent-isolation-sprint-pr-fcleanup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Supplementary Info — Agent Isolation Sprint (PR Fcleanup)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-reset_graph-leaves-stale-local-branches-and-worktree-refs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. reset_graph leaves stale local branches and worktree refs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-container-uid-mismatch-agent1001-vs-host1000" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Container UID mismatch (agent=1001 vs host=1000)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-claude-code-first-run-prompts-consume-kickoff-in-containers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Claude Code first-run prompts consume kickoff in containers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-reset-doesnt-clean-up-docker-containersnetworks-from-failed-runs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Reset doesn't clean up Docker containers/networks from failed runs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-reset-fails-on-container-created-files-permissionerror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Reset fails on container-created files (PermissionError)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-e2e-script-coupled-to-target-repos-pixi-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. E2e script coupled to target repo's pixi env
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-git-credential-helper-not-configured-in-container" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Git credential helper not configured in container
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="supplementary-info-agent-isolation-sprint-pr-fcleanup">Supplementary Info — Agent Isolation Sprint (PR Fcleanup)</h1>
+<p>Detailed descriptions of the seven issues discovered during PR F1 e2e
+testing. Each section describes the problem, how it manifested, and the
+impact on the e2e workflow.</p>
+<hr />
+<h2 id="1-reset_graph-leaves-stale-local-branches-and-worktree-refs">1. reset_graph leaves stale local branches and worktree refs</h2>
+<p><strong>Problem:</strong> <code>reset_graph.py</code> removes the worktree directory
+(<code>shutil.rmtree</code>) and the workflow directory, but does not:
+- Run <code>git worktree prune</code> to clean up git's worktree registry
+- Delete local branches created during the run</p>
+<p><strong>How it manifested:</strong> After every <code>pixi run e2e-reset</code>, the next
+<code>pixi run e2e</code> failed with:</p>
+<div class="highlight"><pre><span></span><code>_WorkspaceIntegrationError: Failed to create branch for task &#39;hello_fn&#39;:
+  Command &#39;[&#39;git&#39;, &#39;branch&#39;, &#39;-f&#39;, &#39;...&#39;, &#39;...&#39;]&#39; returned non-zero exit status 128.
+</code></pre></div>
+<p>Because git still considered the branch "used by" the now-deleted
+worktree. Required manual <code>git worktree prune &amp;&amp; git branch -D ...</code>
+after every reset.</p>
+<p><strong>Impact:</strong> This was the single biggest time sink — every failed e2e
+attempt required ~4 manual commands to fully clean up.</p>
+<p><strong>Fix direction:</strong> Add <code>git worktree prune</code> and local branch deletion
+(all branches matching <code>agentrelay/&lt;graph&gt;/*</code>) to <code>reset_graph.py</code>'s
+<code>execute_reset()</code> function, after the directory removal step.</p>
+<p><strong>Relevant code:</strong> <code>src/agentrelay/reset_graph.py</code> — <code>execute_reset()</code>
+function, after <code>shutil.rmtree(plan.worktree_dir)</code>.</p>
+<hr />
+<h2 id="2-container-uid-mismatch-agent1001-vs-host1000">2. Container UID mismatch (agent=1001 vs host=1000)</h2>
+<p><strong>Problem:</strong> The Docker image creates user <code>agent</code> with UID 1001. The
+host user (<code>duane</code>) is UID 1000. Ubuntu 24.04 base images include a
+pre-existing <code>ubuntu</code> user at UID 1000.</p>
+<p>Bind-mounted directories (worktree, signal dir) are created by the host
+user (UID 1000) with mode 0775. The container's <code>agent</code> user (UID 1001)
+is not in the host user's group, so it cannot write to these directories.</p>
+<p><strong>How it manifested:</strong> Agent got <code>EACCES: permission denied</code> when trying
+to write files, commit, or write signal files (<code>.done</code>, <code>.failed</code>,
+<code>ops_concerns.log</code>).</p>
+<p><strong>Current workaround:</strong> <code>--group-add</code> with host GID gives the container
+process supplementary group access to host-owned directories. This works
+for the forward direction (container writing to host dirs) but not the
+reverse (host cleaning up container-created files — see item 5).</p>
+<p><strong>Impact:</strong> Required multiple iterations to diagnose. The <code>--user</code>
+approach (running as host UID) fixed permissions but broke the Claude
+Code TUI rendering and the HOME directory resolution.</p>
+<p><strong>Fix direction:</strong> In the Dockerfile, remove the <code>ubuntu</code> user
+(<code>userdel ubuntu</code>) and create <code>agent</code> with UID 1000. This aligns UIDs
+so no <code>--group-add</code> or <code>--user</code> workarounds are needed, and
+container-created files are owned by the host UID.</p>
+<p><strong>Relevant code:</strong>
+- <code>docker/base/Dockerfile</code> — user creation
+- <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code> — <code>--group-add</code>
+  in <code>wrap_command()</code></p>
+<hr />
+<h2 id="3-claude-code-first-run-prompts-consume-kickoff-in-containers">3. Claude Code first-run prompts consume kickoff in containers</h2>
+<p><strong>Problem:</strong> Every container launch triggers Claude Code's interactive
+first-time setup prompts:
+- API key confirmation
+- Folder trust confirmation
+- Possibly other first-run dialogs</p>
+<p>Because containers are ephemeral (<code>--rm</code>), every run is a "first time."
+The orchestrator sends the kickoff prompt ("Read instructions.md and
+follow the steps exactly.") via <code>tmux send-keys</code>, but this text is
+consumed by the startup prompts before Claude Code's main input is ready.</p>
+<p><strong>How it manifested:</strong> Claude Code launched and completed its startup
+prompts, then sat waiting for input. The orchestrator showed "waiting for
+completion signal" indefinitely. Required manual entry of the kickoff
+prompt.</p>
+<p><strong>Impact:</strong> Every e2e run required manual interaction — negates the
+automation value of the orchestrator for containerized agents.</p>
+<p><strong>Fix direction (in priority order):</strong>
+1. <strong>Suppress interactive prompts</strong>: Investigate Claude Code CLI flags or
+   env vars that skip first-run setup. Pre-seed config files in the
+   image (e.g., write <code>~/.claude/settings.json</code> with trust and API key
+   confirmation during <code>docker build</code>).
+2. <strong>Pass prompt as CLI argument</strong>: Use <code>claude -p "Read ..."</code> or
+   <code>claude --prompt "..."</code> instead of tmux send-keys, bypassing the
+   timing issue.
+3. <strong>Container warm-up step</strong>: Run Claude Code briefly in
+   <code>OciSandbox.setup()</code> to complete first-run initialization before the
+   real task launches.</p>
+<p><strong>Relevant code:</strong>
+- <code>src/agentrelay/agent/implementations/tmux_agent.py</code> —
+  <code>send_kickoff()</code> (line 85)
+- <code>src/agentrelay/sandbox/implementations/claude_code_adapter.py</code> —
+  command construction
+- <code>docker/framework/claude-code/Dockerfile</code> — could pre-seed config</p>
+<hr />
+<h2 id="4-reset-doesnt-clean-up-docker-containersnetworks-from-failed-runs">4. Reset doesn't clean up Docker containers/networks from failed runs</h2>
+<p><strong>Problem:</strong> When an e2e run fails mid-execution (e.g., the agent
+crashes, the orchestrator is killed with Ctrl+C, or a container error
+occurs), Docker containers may still be running and the Docker network
+may still exist. The next <code>pixi run e2e</code> fails because:
+- The container name is already in use
+- The network already exists (though <code>run_graph.py</code> handles this better
+  now)</p>
+<p><code>reset_graph.py</code> has Docker cleanup logic (added in PR E / #144) that
+stops/removes containers by label and removes the network. However, this
+cleanup is best-effort and can miss containers that exited but weren't
+removed (no <code>--rm</code> didn't apply, or the container was killed).</p>
+<p><strong>How it manifested:</strong> After Ctrl+C'ing a stuck run, the next attempt
+sometimes failed with network or container name conflicts.</p>
+<p><strong>Impact:</strong> Required manual <code>docker stop</code> / <code>docker rm</code> / <code>docker
+network rm</code> between attempts.</p>
+<p><strong>Fix direction:</strong> Make the reset Docker cleanup more robust:
+- Always run <code>docker ps -a --filter label=agentrelay.graph=&lt;name&gt;</code> and
+  force-remove all matching containers
+- Always attempt network removal
+- Add Docker cleanup to the e2e-reset script as well (currently only in
+  <code>reset_graph.py</code>)</p>
+<p><strong>Relevant code:</strong>
+- <code>src/agentrelay/reset_graph.py</code> — Docker cleanup section
+- <code>tools/e2e_reset.sh</code> — could add Docker cleanup</p>
+<hr />
+<h2 id="5-reset-fails-on-container-created-files-permissionerror">5. Reset fails on container-created files (PermissionError)</h2>
+<p><strong>Problem:</strong> Files created inside the container by the <code>agent</code> user (UID
+1001) are owned by UID 1001 on the host filesystem. When <code>reset_graph.py</code>
+tries to <code>shutil.rmtree()</code> the worktree directory, it fails with
+<code>PermissionError</code> on these files because the host user (UID 1000)
+doesn't have write permission to UID 1001-owned files.</p>
+<p><strong>How it manifested:</strong>
+<div class="highlight"><pre><span></span><code>PermissionError: [Errno 13] Permission denied:
+  &#39;.worktrees/isolation-basic-oci/default/.pixi&#39;
+</code></pre></div></p>
+<p>Required <code>sudo rm -rf</code> to clean up.</p>
+<p><strong>Impact:</strong> Every reset after a partially successful run required sudo.</p>
+<p><strong>Fix direction:</strong> This is largely resolved by fixing item 2 (UID
+alignment). If the container runs as UID 1000, all files it creates are
+owned by UID 1000, and the host user can delete them normally.</p>
+<p>As a defense-in-depth measure, <code>reset_graph.py</code> could also catch
+<code>PermissionError</code> during <code>rmtree</code> and log a warning with instructions
+(or attempt cleanup via <code>docker run --rm -v ... rm -rf ...</code> using the
+container runtime itself).</p>
+<p><strong>Relevant code:</strong> <code>src/agentrelay/reset_graph.py</code> — <code>execute_reset()</code>,
+<code>shutil.rmtree()</code> calls.</p>
+<hr />
+<h2 id="6-e2e-script-coupled-to-target-repos-pixi-env">6. E2e script coupled to target repo's pixi env</h2>
+<p><strong>Problem:</strong> <code>tools/e2e_run.sh</code> (line 71) does:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TARGET_REPO</span><span class="s2">&quot;</span>
+<span class="nb">exec</span><span class="w"> </span>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GRAPH_ABS</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+<p>This runs the orchestrator via the <em>target repo's</em> pixi environment,
+which requires <code>agentrelay</code> to be installed as a dependency in the target
+repo's <code>pixi.toml</code>. If the target repo removes or changes that
+dependency, the orchestrator breaks.</p>
+<p><strong>How it manifested:</strong> After temporarily removing the agentrelay path
+dependency from agentrelaydemos' <code>pixi.toml</code> (to fix an in-container
+pixi error), the e2e script itself broke:
+<div class="highlight"><pre><span></span><code>ModuleNotFoundError: No module named &#39;agentrelay&#39;
+</code></pre></div></p>
+<p>Required reverting the target repo change to restore orchestrator
+functionality.</p>
+<p><strong>Impact:</strong> The target repo's dependency management is tightly coupled to
+the orchestrator's ability to run. Changes to the target repo can break
+the orchestrator.</p>
+<p><strong>Fix direction:</strong> Change <code>e2e_run.sh</code> to run the orchestrator from the
+agentrelay repo's pixi environment instead:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TARGET_REPO</span><span class="s2">&quot;</span>
+<span class="nb">exec</span><span class="w"> </span>pixi<span class="w"> </span>run<span class="w"> </span>--manifest-path<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$REPO_ROOT</span><span class="s2">/pixi.toml&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GRAPH_ABS</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$@</span><span class="s2">&quot;</span>
+</code></pre></div></p>
+<p>Or set <code>PIXI_PROJECT_MANIFEST</code> to point to the agentrelay repo. The
+target repo's pixi env is only needed by agents (inside containers or
+worktrees), not by the orchestrator.</p>
+<p>Similarly update <code>e2e_reset.sh</code> and <code>e2e_check.sh</code>.</p>
+<p><strong>Relevant code:</strong>
+- <code>tools/e2e_run.sh</code> — line 71
+- <code>tools/e2e_reset.sh</code> — similar pattern
+- <code>tools/e2e_check.sh</code> — similar pattern</p>
+<hr />
+<h2 id="7-git-credential-helper-not-configured-in-container">7. Git credential helper not configured in container</h2>
+<p><strong>Problem:</strong> The container has <code>GH_TOKEN</code> injected as an env var, and
+<code>gh auth status</code> shows authentication is working (gh CLI reads
+<code>GH_TOKEN</code>). However, git push/pull over HTTPS doesn't use <code>GH_TOKEN</code>
+automatically — it needs a credential helper configured.</p>
+<p><strong>How it manifested:</strong> The agent's <code>git push</code> failed:
+<div class="highlight"><pre><span></span><code>fatal: could not read Username for &#39;https://github.com&#39;: No such device
+or address
+</code></pre></div></p>
+<p>The agent worked around this by manually constructing the URL:
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span><span class="s2">&quot;https://x-access-token:</span><span class="nv">$GH_TOKEN</span><span class="s2">@github.com/owner/repo.git&quot;</span><span class="w"> </span>branch
+</code></pre></div></p>
+<p>This works but is fragile and relies on the agent being clever enough to
+figure it out.</p>
+<p><strong>Impact:</strong> The agent wasted cycles diagnosing the push failure and
+constructing the workaround URL. A less capable model might fail the
+task entirely.</p>
+<p><strong>Fix direction:</strong> Configure <code>gh</code> as the git credential helper in the
+Docker image:
+<div class="highlight"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>gh<span class="w"> </span>auth<span class="w"> </span>setup-git
+</code></pre></div></p>
+<p>Or configure git to use <code>GH_TOKEN</code> directly:
+<div class="highlight"><pre><span></span><code><span class="k">RUN</span><span class="w"> </span>git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>credential.helper<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">&#39;!f() { echo &quot;username=x-access-token&quot;; echo &quot;password=$GH_TOKEN&quot;; }; f&#39;</span>
+</code></pre></div></p>
+<p>The <code>gh auth setup-git</code> approach is cleaner — it configures the
+credential helper to use whatever auth <code>gh</code> has (which reads <code>GH_TOKEN</code>
+from the environment automatically).</p>
+<p><strong>Relevant code:</strong>
+- <code>docker/base/Dockerfile</code> — git/gh configuration
+- Possibly <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code> if
+  the setup needs to happen at runtime rather than build time</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
