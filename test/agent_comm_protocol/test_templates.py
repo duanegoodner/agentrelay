@@ -9,6 +9,7 @@ import pytest
 
 from agentrelay.agent_comm_protocol.manifest import TaskManifest
 from agentrelay.agent_comm_protocol.templates import resolve_instructions
+from agentrelay.sandbox import SandboxType
 from agentrelay.task import AdrVerbosity, AgentRole
 
 
@@ -298,3 +299,116 @@ class TestAdrSection:
             )
             leftover = re.findall(r"\$[a-z_]+", text)
             assert leftover == [], f"Role {role}: leftover placeholders {leftover}"
+
+
+class TestIsolationSection:
+    """Tests for isolation boundary section injection in instructions."""
+
+    def test_isolation_section_absent_when_none(self) -> None:
+        """No isolation section when sandbox_type is None (default)."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## Isolation Boundary" not in text
+
+    def test_isolation_section_absent_when_sandbox_none(self) -> None:
+        """No isolation section when sandbox_type is NONE."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.NONE
+        )
+        assert "## Isolation Boundary" not in text
+
+    def test_isolation_section_present_when_oci(self) -> None:
+        """Isolation section appears when sandbox_type is OCI."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        assert "## Isolation Boundary" in text
+
+    def test_isolation_section_mentions_container(self) -> None:
+        """Isolation section mentions running in a container."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        assert "container" in text.lower()
+
+    def test_isolation_section_mentions_worktree(self) -> None:
+        """Isolation section describes worktree access."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        assert "worktree" in text.lower()
+
+    def test_isolation_section_mentions_signal_directory(self) -> None:
+        """Isolation section describes signal directory access."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        assert "signal directory" in text.lower()
+
+    def test_isolation_section_mentions_git_access(self) -> None:
+        """Isolation section describes git object store access."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        isolation_text = text.split("## Isolation Boundary")[1]
+        assert "git" in isolation_text.lower()
+        assert "task branch" in isolation_text.lower()
+
+    def test_isolation_section_mentions_ops_concern(self) -> None:
+        """Isolation section tells agents to use ops concern tool when blocked."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        assert "agentrelay-ops-concern" in text.split("## Isolation Boundary")[1]
+
+    def test_isolation_section_describes_beyond_boundary(self) -> None:
+        """Isolation section describes what exists beyond the boundary."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        isolation_text = text.split("## Isolation Boundary")[1]
+        assert "orchestrator" in isolation_text.lower()
+
+    def test_isolation_section_prohibits_self_remediation(self) -> None:
+        """Isolation section warns against merging/cherry-picking."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        isolation_text = text.split("## Isolation Boundary")[1].lower()
+        assert "merging" in isolation_text or "cherry-picking" in isolation_text
+
+    def test_isolation_section_after_what_to_do(self) -> None:
+        """Isolation section appears after What to Do section."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        what_to_do_pos = text.index("## What to Do")
+        isolation_pos = text.index("## Isolation Boundary")
+        assert what_to_do_pos < isolation_pos
+
+    def test_isolation_section_before_submission(self) -> None:
+        """Isolation section appears before Submitting Your Work section."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        isolation_pos = text.index("## Isolation Boundary")
+        submission_pos = text.index("## Submitting Your Work")
+        assert isolation_pos < submission_pos
+
+    def test_isolation_section_for_generic_role(self) -> None:
+        """Isolation section works with GENERIC role too."""
+        m = _manifest(description="Do something custom")
+        text = resolve_instructions(AgentRole.GENERIC, m, sandbox_type=SandboxType.OCI)
+        assert "## Isolation Boundary" in text
+
+    def test_isolation_with_adr_ordering(self) -> None:
+        """When both ADR and isolation are present, ADR comes first."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            adr_verbosity=AdrVerbosity.STANDARD,
+            sandbox_type=SandboxType.OCI,
+        )
+        adr_pos = text.index("## Architecture Decision Record")
+        isolation_pos = text.index("## Isolation Boundary")
+        submission_pos = text.index("## Submitting Your Work")
+        assert adr_pos < isolation_pos < submission_pos

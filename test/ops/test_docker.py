@@ -168,7 +168,7 @@ class TestBuildRunCommand:
         )
         assert "docker run -it --rm --name test-ctr" in result
         assert "myimage:latest" in result
-        assert result.endswith("'echo hello'")
+        assert result.endswith("bash -c 'echo hello'")
 
     def test_volumes(self) -> None:
         result = build_run_command(

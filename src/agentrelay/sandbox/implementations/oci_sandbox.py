@@ -11,6 +11,7 @@ Classes:
 
 from __future__ import annotations
 
+import os
 import subprocess
 
 from agentrelay.ops import docker as docker_ops
@@ -66,7 +67,7 @@ class OciSandbox:
         Mounts:
             - worktree_path → worktree_path (read-write)
             - signal_dir → signal_dir (read-write)
-            - main .git/ dir → same path (read-only)
+            - main .git/ dir → same path (read-write, needed for commits)
 
         Args:
             cmd: The raw agent command to execute inside the container.
@@ -79,20 +80,26 @@ class OciSandbox:
         volumes: list[tuple[str, str] | tuple[str, str, str]] = [
             (str(context.worktree_path), str(context.worktree_path)),
             (str(context.signal_dir), str(context.signal_dir)),
-            (str(git_dir), str(git_dir), "ro"),
+            (str(git_dir), str(git_dir)),
         ]
+        env_vars = {
+            **context.env_vars,
+            "IS_AI_AGENT": "true",
+            "TERM": os.environ.get("TERM", "xterm-256color"),
+        }
         return docker_ops.build_run_command(
             container_name=f"agentrelay-{context.graph_name}-{context.task_id}",
             image=self._image,
             cmd=cmd,
             volumes=volumes,
-            env_vars=context.env_vars,
+            env_vars=env_vars,
             labels={
                 "agentrelay.graph": context.graph_name,
                 "agentrelay.task": context.task_id,
             },
             network=f"agentrelay-{context.graph_name}",
             workdir=str(context.worktree_path),
+            group_add=str(os.getgid()),
             runtime=self._runtime,
         )
 

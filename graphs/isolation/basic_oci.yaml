@@ -1,0 +1,19 @@
+name: isolation-basic-oci
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Graph-level OCI sandbox — all tasks run in Docker containers.
+isolation:
+  sandbox: oci
+  token_tier: standard
+
+tasks:
+  - id: hello_fn
+    description: >-
+      Create src/agentrelaydemos/hello_iso.py containing a function
+      hello(name: str) -> str that returns "Hello, {name}!".
+      Also create test/test_hello_iso.py with a pytest test verifying
+      hello("World") returns "Hello, World!".
+    dependencies: []

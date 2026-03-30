@@ -1,0 +1,22 @@
+#!/bin/bash
+# Git pre-push hook: block agent pushes to protected branches.
+#
+# When IS_AI_AGENT=true, reject pushes whose remote ref targets
+# refs/heads/main or refs/heads/master. Agents should only push
+# to their task branches.
+
+if [ "$IS_AI_AGENT" != "true" ]; then
+    exit 0
+fi
+
+while read local_ref local_oid remote_ref remote_oid; do
+    case "$remote_ref" in
+        refs/heads/main|refs/heads/master)
+            echo "ERROR: Agent push to protected branch '$remote_ref' blocked." >&2
+            echo "Agents may only push to task branches." >&2
+            exit 1
+            ;;
+    esac
+done
+
+exit 0

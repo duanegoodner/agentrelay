@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: In progress.** PRs A–D merged (#139, #140, #141, #143). PR E in review. Next: PR F.
+> **Status: In progress.** PRs A–E merged (#139, #140, #141, #143, #144). PR F split into F1 (shipped) and F2 (remaining e2e).
 
 ## Goal
 
@@ -294,7 +294,7 @@ tasks:
 
 ---
 
-### PR D: Docker ops layer + OciSandbox implementation
+### PR D: Docker ops layer + OciSandbox implementation — MERGED (#143)
 
 - Branch: `feat/oci-sandbox`
 - Note: Renamed `SandboxType.CONTAINER` → `SandboxType.OCI` for naming
@@ -343,7 +343,7 @@ tasks:
 
 ---
 
-### PR E: Docker image + network lifecycle + CLI flags
+### PR E: Docker image + network lifecycle + CLI flags — MERGED (#144)
 
 - Branch: `feat/docker-image`
 
@@ -384,44 +384,73 @@ tasks:
 
 ---
 
-### PR F: Agent boundary instructions + e2e isolation test graphs
+### PR F1: Agent boundary instructions + container fixes — MERGED (#145)
 
 - Branch: `feat/isolation-instructions`
 
 **Scope:**
 - Agent instruction additions (role templates):
-  - Isolation boundary section: "You are running in an isolated
-    environment. Do not attempt to access resources outside your worktree."
-  - "What to do when blocked" guidance: record ops concern, mark task
-    failed with actionable reason
+  - `## Isolation Boundary` section with four subsections: What You Can
+    Access, What You Cannot Access, What Exists Beyond Your Boundary,
+    When You Are Blocked
   - Conditional: only included when `isolation.sandbox_type != NONE`
+  - `resolve_instructions()` gains `sandbox_type` parameter
 - `IS_AI_AGENT=true` env var set on all containerized agents
 - Git hooks (pre-push) that block pushes to protected branches when
-  `IS_AI_AGENT=true`
+  `IS_AI_AGENT=true`, baked into Docker base image
+- Container execution fixes discovered during e2e testing:
+  - `bash -c` shell wrapper for `docker run` command interpretation
+  - `--group-add` with host GID for file permission compatibility
+  - `.git` dir mounted read-write (needed for commits)
+  - `TERM` env var injection for Claude Code TUI rendering
+  - `chmod` on `/home/agent` and `.local/` for cross-UID execution
+  - `safe.directory` wildcard in container git config
+  - `--user` and `--group-add` params on `build_run_command()`
 - New `graphs/isolation/` e2e test category:
-  - `basic_oci.yaml`: simple task with `isolation: {sandbox: oci}` —
-    verify agent completes in container
-  - `token_tiers.yaml`: tasks with different token tiers — verify correct
-    PAT injection
-  - `permission_boundary.yaml`: agent instructed to attempt out-of-scope
-    action — verify it fails/reports
-- Update `docs/BACKLOG.md`: mark agent isolation items as addressed
-- Update `docs/ARCHITECTURE.md`: add isolation section
-- Update `docs/HISTORY.md`: sprint entry
+  - `basic_oci.yaml`, `token_tiers.yaml`, `permission_boundary.yaml`
+- Documentation: BACKLOG (credential mgmt, GitHub App, Anthropic strategy,
+  reset gap, UID cleanup, first-run prompts), ARCHITECTURE (isolation
+  section), HISTORY (PR F1 entry)
 
 **Key files modified:**
 - `src/agentrelay/agent_comm_protocol/templates.py`
+- `src/agentrelay/sandbox/implementations/oci_sandbox.py`
+- `src/agentrelay/task_runner/implementations/task_preparer.py`
+- `src/agentrelay/ops/docker.py`
+- `docker/base/Dockerfile`, `docker/framework/claude-code/Dockerfile`
+- New: `docker/hooks/pre-push`
 - New: `graphs/isolation/` directory with test graphs
 - `docs/BACKLOG.md`, `docs/ARCHITECTURE.md`, `docs/HISTORY.md`
 
 **Acceptance criteria:**
-- [ ] Agent instructions include isolation boundary guidance when sandbox
+- [x] Agent instructions include isolation boundary guidance when sandbox
       is configured
-- [ ] `IS_AI_AGENT=true` injected into container env
-- [ ] E2E: `basic_oci.yaml` completes with agent in Docker container
-- [ ] E2E: agent in container can read worktree, write to signal dir,
+- [x] `IS_AI_AGENT=true` injected into container env
+- [x] E2E: `basic_oci.yaml` completes with agent in Docker container
+- [x] E2E: agent in container can read worktree, write to signal dir,
       push to task branch
+- [x] `pixi run check` passes (1148 tests)
+
+---
+
+### PR F2: Remaining e2e isolation testing
+
+- Branch: TBD (after container cleanup PR)
+- Depends on: container cleanup PR (reset gap, UID alignment, first-run
+  prompts)
+
+**Scope:**
+- E2E: `token_tiers.yaml` — verify correct PAT injection per tier
+- E2E: `permission_boundary.yaml` — verify pre-push hook blocks agent
+  push to main, agent records ops concern
+- Any fixes discovered during those tests
+- Final acceptance criteria sign-off
+
+**Acceptance criteria:**
+- [ ] E2E: `token_tiers.yaml` completes with correct credential scoping
 - [ ] E2E: agent in container cannot merge PRs (read_only/standard PAT)
+- [ ] E2E: `permission_boundary.yaml` — agent records ops concern when
+      push to main is blocked
 - [ ] `pixi run check` passes
 
 ---

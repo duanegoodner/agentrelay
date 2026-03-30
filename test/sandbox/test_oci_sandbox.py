@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -136,17 +137,53 @@ class TestOciSandboxWrapCommand:
                     str(ctx.signal_dir),
                     str(ctx.signal_dir),
                 ),
-                ("/repo/.git", "/repo/.git", "ro"),
+                ("/repo/.git", "/repo/.git"),
             ],
-            env_vars={"GH_TOKEN": "ghp_xxx"},
+            env_vars={
+                "GH_TOKEN": "ghp_xxx",
+                "IS_AI_AGENT": "true",
+                "TERM": os.environ.get("TERM", "xterm-256color"),
+            },
             labels={
                 "agentrelay.graph": "test-graph",
                 "agentrelay.task": "task_a",
             },
             network="agentrelay-test-graph",
             workdir=str(ctx.worktree_path),
+            group_add=str(os.getgid()),
             runtime="docker",
         )
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_injects_is_ai_agent_env_var(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """IS_AI_AGENT=true is injected into container env vars."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert call_kwargs["env_vars"]["IS_AI_AGENT"] == "true"
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_preserves_existing_env_vars_with_is_ai_agent(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """IS_AI_AGENT is added alongside existing env vars."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude", _make_context(env_vars={"MY_VAR": "val"}))
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert call_kwargs["env_vars"]["MY_VAR"] == "val"
+        assert call_kwargs["env_vars"]["IS_AI_AGENT"] == "true"
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
