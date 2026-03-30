@@ -433,11 +433,48 @@ tasks:
 
 ---
 
+### PR Fcleanup: Container e2e infrastructure fixes
+
+- Branch: TBD
+- Depends on: PR F1
+- Details: `docs/sprints/supplementary-info-agent-isolation.md`
+
+**Scope:**
+Seven issues discovered during F1 e2e testing that make the
+reset/run/debug cycle slow and painful. All must be resolved before
+continuing with F2 e2e testing.
+
+1. `reset_graph` leaves stale local branches and worktree refs
+2. Container UID mismatch — agent UID 1001 vs host UID 1000
+3. Claude Code first-run prompts consume kickoff in containers
+4. Reset doesn't clean up Docker containers/networks from failed runs
+5. Reset fails on container-created files (PermissionError)
+6. E2e script coupled to target repo's pixi env
+7. Git credential helper not configured in container
+
+**Key files likely modified:**
+- `src/agentrelay/reset_graph.py`
+- `docker/base/Dockerfile`
+- `src/agentrelay/sandbox/implementations/oci_sandbox.py`
+- `tools/e2e_run.sh`, `tools/e2e_reset.sh`
+
+**Acceptance criteria:**
+- [ ] `pixi run e2e-reset` fully resets (no manual worktree prune, branch
+      delete, or sudo rm needed)
+- [ ] Container runs as UID 1000 (`agent` user) — no `ubuntu` user
+      confusion, no `sudo` needed for cleanup
+- [ ] Claude Code starts without interactive prompts in container
+- [ ] Agent can `git push` using injected `GH_TOKEN` without manual URL
+      construction
+- [ ] E2e script runs orchestrator from agentrelay's pixi env
+- [ ] `pixi run check` passes
+
+---
+
 ### PR F2: Remaining e2e isolation testing
 
-- Branch: TBD (after container cleanup PR)
-- Depends on: container cleanup PR (reset gap, UID alignment, first-run
-  prompts)
+- Branch: TBD (after Fcleanup)
+- Depends on: PR Fcleanup
 
 **Scope:**
 - E2E: `token_tiers.yaml` — verify correct PAT injection per tier
