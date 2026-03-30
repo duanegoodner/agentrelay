@@ -1444,10 +1444,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-fcleanup-container-e2e-infrastructure-fixes" class="md-nav__link">
+  <a href="#pr-fcleanup-container-e2e-infrastructure-fixes-merged-146" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR Fcleanup: Container e2e infrastructure fixes
+        PR Fcleanup: Container e2e infrastructure fixes — MERGED (#146)
       
     </span>
   </a>
@@ -1500,7 +1500,7 @@
 
 <h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PRs A–E merged (#139, #140, #141, #143, #144). PR F split into F1 (shipped) and F2 (remaining e2e).</p>
+<p><strong>Status: In progress.</strong> PRs A–E merged (#139–#144), F1 merged (#145), Fcleanup merged (#146). Remaining: PR F2 (e2e: token_tiers, permission_boundary).</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Design and implement tunable agent isolation infrastructure — per-graph,
@@ -1893,16 +1893,14 @@ pattern as <code>ops/tmux.py</code>).</p>
       push to task branch
 - [x] <code>pixi run check</code> passes (1148 tests)</p>
 <hr />
-<h3 id="pr-fcleanup-container-e2e-infrastructure-fixes">PR Fcleanup: Container e2e infrastructure fixes</h3>
+<h3 id="pr-fcleanup-container-e2e-infrastructure-fixes-merged-146">PR Fcleanup: Container e2e infrastructure fixes — MERGED (#146)</h3>
 <ul>
-<li>Branch: TBD</li>
+<li>Branch: <code>feat/container-e2e-cleanup</code></li>
 <li>Depends on: PR F1</li>
-<li>Details: <code>docs/sprints/supplementary-info-agent-isolation.md</code></li>
 </ul>
 <p><strong>Scope:</strong>
-Seven issues discovered during F1 e2e testing that make the
-reset/run/debug cycle slow and painful. All must be resolved before
-continuing with F2 e2e testing.</p>
+Seven issues discovered during F1 e2e testing, plus additional first-run
+prompt suppression discovered during Fcleanup e2e validation.</p>
 <ol>
 <li><code>reset_graph</code> leaves stale local branches and worktree refs</li>
 <li>Container UID mismatch — agent UID 1001 vs host UID 1000</li>
@@ -1912,21 +1910,27 @@ continuing with F2 e2e testing.</p>
 <li>E2e script coupled to target repo's pixi env</li>
 <li>Git credential helper not configured in container</li>
 </ol>
-<p><strong>Key files likely modified:</strong>
-- <code>src/agentrelay/reset_graph.py</code>
-- <code>docker/base/Dockerfile</code>
-- <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code>
-- <code>tools/e2e_run.sh</code>, <code>tools/e2e_reset.sh</code></p>
+<p><strong>Key files modified:</strong>
+- <code>docker/base/Dockerfile</code> — UID 1000, credential helper
+- <code>docker/framework/claude-code/Dockerfile</code> — pre-seeded config, trust script
+- <code>docker/framework/claude-code/trust-workdir.py</code> — runtime folder trust
+- <code>src/agentrelay/ops/docker.py</code> — <code>force_rm()</code>, removed <code>user</code>/<code>group_add</code>
+- <code>src/agentrelay/ops/git.py</code> — <code>worktree_prune()</code>, <code>branch_list_local()</code>
+- <code>src/agentrelay/reset_graph.py</code> — prune, local branches, PermissionError fallback
+- <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code> — env var rename,
+  trust-workdir prepend, suppression env vars
+- <code>tools/e2e_run.sh</code>, <code>tools/e2e_reset.sh</code>, <code>tools/e2e_check.sh</code> — <code>--manifest-path</code></p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>pixi run e2e-reset</code> fully resets (no manual worktree prune, branch
+- [x] <code>pixi run e2e-reset</code> fully resets (no manual worktree prune, branch
       delete, or sudo rm needed)
-- [ ] Container runs as UID 1000 (<code>agent</code> user) — no <code>ubuntu</code> user
+- [x] Container runs as UID 1000 (<code>agent</code> user) — no <code>ubuntu</code> user
       confusion, no <code>sudo</code> needed for cleanup
-- [ ] Claude Code starts without interactive prompts in container
-- [ ] Agent can <code>git push</code> using injected <code>GH_TOKEN</code> without manual URL
+- [x] Claude Code starts without interactive prompts in container
+- [x] Agent can <code>git push</code> using injected <code>GH_TOKEN</code> without manual URL
       construction
-- [ ] E2e script runs orchestrator from agentrelay's pixi env
-- [ ] <code>pixi run check</code> passes</p>
+- [x] E2e script runs orchestrator from agentrelay's pixi env
+- [x] <code>pixi run check</code> passes (1158 tests, 10 new)
+- [x] E2E: <code>basic_oci.yaml</code> completes end-to-end (39s, no manual intervention)</p>
 <hr />
 <h3 id="pr-f2-remaining-e2e-isolation-testing">PR F2: Remaining e2e isolation testing</h3>
 <ul>
