@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: In progress.** PRs A–E merged (#139, #140, #141, #143, #144). PR F split into F1 (shipped) and F2 (remaining e2e).
+> **Status: In progress.** PRs A–E merged (#139–#144), F1 merged (#145), Fcleanup merged (#146). Remaining: PR F2 (e2e: token_tiers, permission_boundary).
 
 ## Goal
 
@@ -433,16 +433,14 @@ tasks:
 
 ---
 
-### PR Fcleanup: Container e2e infrastructure fixes
+### PR Fcleanup: Container e2e infrastructure fixes — MERGED (#146)
 
-- Branch: TBD
+- Branch: `feat/container-e2e-cleanup`
 - Depends on: PR F1
-- Details: `docs/sprints/supplementary-info-agent-isolation.md`
 
 **Scope:**
-Seven issues discovered during F1 e2e testing that make the
-reset/run/debug cycle slow and painful. All must be resolved before
-continuing with F2 e2e testing.
+Seven issues discovered during F1 e2e testing, plus additional first-run
+prompt suppression discovered during Fcleanup e2e validation.
 
 1. `reset_graph` leaves stale local branches and worktree refs
 2. Container UID mismatch — agent UID 1001 vs host UID 1000
@@ -452,22 +450,28 @@ continuing with F2 e2e testing.
 6. E2e script coupled to target repo's pixi env
 7. Git credential helper not configured in container
 
-**Key files likely modified:**
-- `src/agentrelay/reset_graph.py`
-- `docker/base/Dockerfile`
-- `src/agentrelay/sandbox/implementations/oci_sandbox.py`
-- `tools/e2e_run.sh`, `tools/e2e_reset.sh`
+**Key files modified:**
+- `docker/base/Dockerfile` — UID 1000, credential helper
+- `docker/framework/claude-code/Dockerfile` — pre-seeded config, trust script
+- `docker/framework/claude-code/trust-workdir.py` — runtime folder trust
+- `src/agentrelay/ops/docker.py` — `force_rm()`, removed `user`/`group_add`
+- `src/agentrelay/ops/git.py` — `worktree_prune()`, `branch_list_local()`
+- `src/agentrelay/reset_graph.py` — prune, local branches, PermissionError fallback
+- `src/agentrelay/sandbox/implementations/oci_sandbox.py` — env var rename,
+  trust-workdir prepend, suppression env vars
+- `tools/e2e_run.sh`, `tools/e2e_reset.sh`, `tools/e2e_check.sh` — `--manifest-path`
 
 **Acceptance criteria:**
-- [ ] `pixi run e2e-reset` fully resets (no manual worktree prune, branch
+- [x] `pixi run e2e-reset` fully resets (no manual worktree prune, branch
       delete, or sudo rm needed)
-- [ ] Container runs as UID 1000 (`agent` user) — no `ubuntu` user
+- [x] Container runs as UID 1000 (`agent` user) — no `ubuntu` user
       confusion, no `sudo` needed for cleanup
-- [ ] Claude Code starts without interactive prompts in container
-- [ ] Agent can `git push` using injected `GH_TOKEN` without manual URL
+- [x] Claude Code starts without interactive prompts in container
+- [x] Agent can `git push` using injected `GH_TOKEN` without manual URL
       construction
-- [ ] E2e script runs orchestrator from agentrelay's pixi env
-- [ ] `pixi run check` passes
+- [x] E2e script runs orchestrator from agentrelay's pixi env
+- [x] `pixi run check` passes (1158 tests, 10 new)
+- [x] E2E: `basic_oci.yaml` completes end-to-end (39s, no manual intervention)
 
 ---
 
