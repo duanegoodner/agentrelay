@@ -5084,8 +5084,7 @@ that internal git references resolve without modification.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 23</span>
-<span class="normal"> 24</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 24</span>
 <span class="normal"> 25</span>
 <span class="normal"> 26</span>
 <span class="normal"> 27</span>
@@ -5174,7 +5173,14 @@ that internal git references resolve without modification.</p>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;OCI container sandbox — wraps agent commands in ``docker run``.</span>
 
 <span class="sd">    Mounts the git worktree, signal directory, and main ``.git/``</span>
@@ -5220,7 +5226,7 @@ that internal git references resolve without modification.</p>
 <span class="sd">        Mounts:</span>
 <span class="sd">            - worktree_path → worktree_path (read-write)</span>
 <span class="sd">            - signal_dir → signal_dir (read-write)</span>
-<span class="sd">            - main .git/ dir → same path (read-only)</span>
+<span class="sd">            - main .git/ dir → same path (read-write, needed for commits)</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            cmd: The raw agent command to execute inside the container.</span>
@@ -5233,20 +5239,26 @@ that internal git references resolve without modification.</p>
         <span class="n">volumes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)),</span>
             <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)),</span>
-            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="s2">&quot;ro&quot;</span><span class="p">),</span>
+            <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">)),</span>
         <span class="p">]</span>
+        <span class="n">env_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="o">**</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+            <span class="s2">&quot;IS_AI_AGENT&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;TERM&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TERM&quot;</span><span class="p">,</span> <span class="s2">&quot;xterm-256color&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
         <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
             <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
             <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
             <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
-            <span class="n">env_vars</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+            <span class="n">env_vars</span><span class="o">=</span><span class="n">env_vars</span><span class="p">,</span>
             <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;agentrelay.graph&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
                 <span class="s2">&quot;agentrelay.task&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">network</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">workdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span>
+            <span class="n">group_add</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getgid</span><span class="p">()),</span>
             <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -5357,8 +5369,7 @@ the Docker network does not exist.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">44</span>
-<span class="normal">45</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
@@ -5374,7 +5385,8 @@ the Docker network does not exist.</p>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">61</span>
+<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate runtime and network are available.</span>
 
 <span class="sd">    Args:</span>
@@ -5417,7 +5429,7 @@ the Docker network does not exist.</p>
   <ul>
 <li>worktree_path → worktree_path (read-write)</li>
 <li>signal_dir → signal_dir (read-write)</li>
-<li>main .git/ dir → same path (read-only)</li>
+<li>main .git/ dir → same path (read-write, needed for commits)</li>
 </ul>
 </details>
 
@@ -5498,47 +5510,53 @@ the Docker network does not exist.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap an agent command in ``docker run`` with bind mounts and env vars.</span>
 
 <span class="sd">    Mounts:</span>
 <span class="sd">        - worktree_path → worktree_path (read-write)</span>
 <span class="sd">        - signal_dir → signal_dir (read-write)</span>
-<span class="sd">        - main .git/ dir → same path (read-only)</span>
+<span class="sd">        - main .git/ dir → same path (read-write, needed for commits)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        cmd: The raw agent command to execute inside the container.</span>
@@ -5551,20 +5569,26 @@ the Docker network does not exist.</p>
     <span class="n">volumes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)),</span>
         <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)),</span>
-        <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="s2">&quot;ro&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">)),</span>
     <span class="p">]</span>
+    <span class="n">env_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="o">**</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+        <span class="s2">&quot;IS_AI_AGENT&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TERM&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TERM&quot;</span><span class="p">,</span> <span class="s2">&quot;xterm-256color&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
     <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
         <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
         <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
         <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
-        <span class="n">env_vars</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+        <span class="n">env_vars</span><span class="o">=</span><span class="n">env_vars</span><span class="p">,</span>
         <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;agentrelay.graph&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
             <span class="s2">&quot;agentrelay.task&quot;</span><span class="p">:</span> <span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">network</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">workdir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span>
+        <span class="n">group_add</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getgid</span><span class="p">()),</span>
         <span class="n">runtime</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -5625,21 +5649,21 @@ the Docker network does not exist.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
-<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop and remove the container, swallowing errors if already gone.</span>
 
 <span class="sd">    Args:</span>

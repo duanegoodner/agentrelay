@@ -3055,7 +3055,7 @@ JSON <code>null</code>.</p>
 
 
 <h2 id="agentrelay.agent_comm_protocol.resolve_instructions" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">resolve_instructions</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">adapter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">resolve_instructions</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">adapter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">sandbox_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -3071,6 +3071,8 @@ JSON <code>null</code>.</p>
    task description for GENERIC roles.</li>
 <li><strong>Architecture Decision Record</strong> — ADR writing instructions (if
    <code>adr_verbosity</code> is not <code>NONE</code>).</li>
+<li><strong>Isolation Boundary</strong> — what the agent can/cannot access and
+   what exists beyond its boundary (if <code>sandbox_type</code> is <code>OCI</code>).</li>
 <li><strong>Submitting Your Work</strong> — how to commit, create a PR, and signal
    the orchestrator.</li>
 <li><strong>Task Details</strong> — the task author's description (non-generic only,
@@ -3166,6 +3168,24 @@ JSON <code>null</code>.</p>
                   <code><span title="agentrelay.task.AdrVerbosity.NONE">NONE</span></code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>sandbox_type</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="SandboxType (agentrelay.sandbox.SandboxType)" href="../../sandbox/#agentrelay.sandbox.SandboxType">SandboxType</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Sandbox type. When <code>OCI</code>, an isolation boundary
+section is included describing what the agent can and cannot
+access.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -3228,8 +3248,7 @@ JSON <code>null</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_comm_protocol/templates.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 52</span>
-<span class="normal"> 53</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 53</span>
 <span class="normal"> 54</span>
 <span class="normal"> 55</span>
 <span class="normal"> 56</span>
@@ -3321,11 +3340,24 @@ JSON <code>null</code>.</p>
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span><span class="p">,</span>
     <span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">,</span>
     <span class="n">adapter_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">adr_verbosity</span><span class="p">:</span> <span class="n">AdrVerbosity</span> <span class="o">=</span> <span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+    <span class="n">sandbox_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SandboxType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve work instructions by loading and parameterizing a role template.</span>
 
@@ -3337,9 +3369,11 @@ JSON <code>null</code>.</p>
 <span class="sd">       task description for GENERIC roles.</span>
 <span class="sd">    4. **Architecture Decision Record** — ADR writing instructions (if</span>
 <span class="sd">       ``adr_verbosity`` is not ``NONE``).</span>
-<span class="sd">    5. **Submitting Your Work** — how to commit, create a PR, and signal</span>
+<span class="sd">    5. **Isolation Boundary** — what the agent can/cannot access and</span>
+<span class="sd">       what exists beyond its boundary (if ``sandbox_type`` is ``OCI``).</span>
+<span class="sd">    6. **Submitting Your Work** — how to commit, create a PR, and signal</span>
 <span class="sd">       the orchestrator.</span>
-<span class="sd">    6. **Task Details** — the task author&#39;s description (non-generic only,</span>
+<span class="sd">    7. **Task Details** — the task author&#39;s description (non-generic only,</span>
 <span class="sd">       when present).</span>
 
 <span class="sd">    Template variables (``$var`` syntax via :class:`string.Template`):</span>
@@ -3355,6 +3389,9 @@ JSON <code>null</code>.</p>
 <span class="sd">        manifest: Task manifest providing substitution values.</span>
 <span class="sd">        adapter_name: Optional adapter name for adapter-specific override.</span>
 <span class="sd">        adr_verbosity: ADR detail level. ``NONE`` (default) omits the section.</span>
+<span class="sd">        sandbox_type: Sandbox type. When ``OCI``, an isolation boundary</span>
+<span class="sd">            section is included describing what the agent can and cannot</span>
+<span class="sd">            access.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Resolved markdown instruction text.</span>
@@ -3407,6 +3444,11 @@ JSON <code>null</code>.</p>
     <span class="n">adr_text</span> <span class="o">=</span> <span class="n">_adr_section</span><span class="p">(</span><span class="n">adr_verbosity</span><span class="p">,</span> <span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">adr_text</span><span class="p">:</span>
         <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">adr_text</span><span class="p">)</span>
+
+    <span class="c1"># Isolation Boundary (conditional, cross-cutting).</span>
+    <span class="n">isolation_text</span> <span class="o">=</span> <span class="n">_isolation_section</span><span class="p">(</span><span class="n">sandbox_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">isolation_text</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">isolation_text</span><span class="p">)</span>
 
     <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_submission_section</span><span class="p">(</span><span class="n">manifest</span><span class="p">))</span>
 

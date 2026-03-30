@@ -1411,10 +1411,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-d-docker-ops-layer-ocisandbox-implementation" class="md-nav__link">
+  <a href="#pr-d-docker-ops-layer-ocisandbox-implementation-merged-143" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR D: Docker ops layer + OciSandbox implementation
+        PR D: Docker ops layer + OciSandbox implementation — MERGED (#143)
       
     </span>
   </a>
@@ -1422,10 +1422,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-e-docker-image-network-lifecycle-cli-flags" class="md-nav__link">
+  <a href="#pr-e-docker-image-network-lifecycle-cli-flags-merged-144" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR E: Docker image + network lifecycle + CLI flags
+        PR E: Docker image + network lifecycle + CLI flags — MERGED (#144)
       
     </span>
   </a>
@@ -1433,10 +1433,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-f-agent-boundary-instructions-e2e-isolation-test-graphs" class="md-nav__link">
+  <a href="#pr-f1-agent-boundary-instructions-container-fixes-merged-145" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR F: Agent boundary instructions + e2e isolation test graphs
+        PR F1: Agent boundary instructions + container fixes — MERGED (#145)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-f2-remaining-e2e-isolation-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F2: Remaining e2e isolation testing
       
     </span>
   </a>
@@ -1478,7 +1489,7 @@
 
 <h1 id="sprint-notes-2026-03-26-agent-isolation">Sprint Notes — 2026-03-26: Agent Isolation</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PRs A–D merged (#139, #140, #141, #143). PR E in review. Next: PR F.</p>
+<p><strong>Status: In progress.</strong> PRs A–E merged (#139, #140, #141, #143, #144). PR F split into F1 (shipped) and F2 (remaining e2e).</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Design and implement tunable agent isolation infrastructure — per-graph,
@@ -1744,7 +1755,7 @@ pattern as <code>ops/tmux.py</code>).</p>
 - [x] Credentials flow into <code>SandboxContext.env_vars</code> during launch
 - [x] <code>pixi run check</code> passes (1061 tests, 22 new)</p>
 <hr />
-<h3 id="pr-d-docker-ops-layer-ocisandbox-implementation">PR D: Docker ops layer + OciSandbox implementation</h3>
+<h3 id="pr-d-docker-ops-layer-ocisandbox-implementation-merged-143">PR D: Docker ops layer + OciSandbox implementation — MERGED (#143)</h3>
 <ul>
 <li>Branch: <code>feat/oci-sandbox</code></li>
 <li>Note: Renamed <code>SandboxType.CONTAINER</code> → <code>SandboxType.OCI</code> for naming
@@ -1789,7 +1800,7 @@ pattern as <code>ops/tmux.py</code>).</p>
 - [x] Container name includes task_id for debuggability
 - [x] <code>pixi run check</code> passes (Docker ops tests use subprocess mocking)</p>
 <hr />
-<h3 id="pr-e-docker-image-network-lifecycle-cli-flags">PR E: Docker image + network lifecycle + CLI flags</h3>
+<h3 id="pr-e-docker-image-network-lifecycle-cli-flags-merged-144">PR E: Docker image + network lifecycle + CLI flags — MERGED (#144)</h3>
 <ul>
 <li>Branch: <code>feat/docker-image</code></li>
 </ul>
@@ -1826,42 +1837,68 @@ pattern as <code>ops/tmux.py</code>).</p>
 - [x] <code>reset_graph.py</code> cleans up Docker containers and network
 - [x] <code>pixi run check</code> passes (1123 tests, 16 new)</p>
 <hr />
-<h3 id="pr-f-agent-boundary-instructions-e2e-isolation-test-graphs">PR F: Agent boundary instructions + e2e isolation test graphs</h3>
+<h3 id="pr-f1-agent-boundary-instructions-container-fixes-merged-145">PR F1: Agent boundary instructions + container fixes — MERGED (#145)</h3>
 <ul>
 <li>Branch: <code>feat/isolation-instructions</code></li>
 </ul>
 <p><strong>Scope:</strong>
 - Agent instruction additions (role templates):
-  - Isolation boundary section: "You are running in an isolated
-    environment. Do not attempt to access resources outside your worktree."
-  - "What to do when blocked" guidance: record ops concern, mark task
-    failed with actionable reason
+  - <code>## Isolation Boundary</code> section with four subsections: What You Can
+    Access, What You Cannot Access, What Exists Beyond Your Boundary,
+    When You Are Blocked
   - Conditional: only included when <code>isolation.sandbox_type != NONE</code>
+  - <code>resolve_instructions()</code> gains <code>sandbox_type</code> parameter
 - <code>IS_AI_AGENT=true</code> env var set on all containerized agents
 - Git hooks (pre-push) that block pushes to protected branches when
-  <code>IS_AI_AGENT=true</code>
+  <code>IS_AI_AGENT=true</code>, baked into Docker base image
+- Container execution fixes discovered during e2e testing:
+  - <code>bash -c</code> shell wrapper for <code>docker run</code> command interpretation
+  - <code>--group-add</code> with host GID for file permission compatibility
+  - <code>.git</code> dir mounted read-write (needed for commits)
+  - <code>TERM</code> env var injection for Claude Code TUI rendering
+  - <code>chmod</code> on <code>/home/agent</code> and <code>.local/</code> for cross-UID execution
+  - <code>safe.directory</code> wildcard in container git config
+  - <code>--user</code> and <code>--group-add</code> params on <code>build_run_command()</code>
 - New <code>graphs/isolation/</code> e2e test category:
-  - <code>basic_oci.yaml</code>: simple task with <code>isolation: {sandbox: oci}</code> —
-    verify agent completes in container
-  - <code>token_tiers.yaml</code>: tasks with different token tiers — verify correct
-    PAT injection
-  - <code>permission_boundary.yaml</code>: agent instructed to attempt out-of-scope
-    action — verify it fails/reports
-- Update <code>docs/BACKLOG.md</code>: mark agent isolation items as addressed
-- Update <code>docs/ARCHITECTURE.md</code>: add isolation section
-- Update <code>docs/HISTORY.md</code>: sprint entry</p>
+  - <code>basic_oci.yaml</code>, <code>token_tiers.yaml</code>, <code>permission_boundary.yaml</code>
+- Documentation: BACKLOG (credential mgmt, GitHub App, Anthropic strategy,
+  reset gap, UID cleanup, first-run prompts), ARCHITECTURE (isolation
+  section), HISTORY (PR F1 entry)</p>
 <p><strong>Key files modified:</strong>
 - <code>src/agentrelay/agent_comm_protocol/templates.py</code>
+- <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code>
+- <code>src/agentrelay/task_runner/implementations/task_preparer.py</code>
+- <code>src/agentrelay/ops/docker.py</code>
+- <code>docker/base/Dockerfile</code>, <code>docker/framework/claude-code/Dockerfile</code>
+- New: <code>docker/hooks/pre-push</code>
 - New: <code>graphs/isolation/</code> directory with test graphs
 - <code>docs/BACKLOG.md</code>, <code>docs/ARCHITECTURE.md</code>, <code>docs/HISTORY.md</code></p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] Agent instructions include isolation boundary guidance when sandbox
+- [x] Agent instructions include isolation boundary guidance when sandbox
       is configured
-- [ ] <code>IS_AI_AGENT=true</code> injected into container env
-- [ ] E2E: <code>basic_oci.yaml</code> completes with agent in Docker container
-- [ ] E2E: agent in container can read worktree, write to signal dir,
+- [x] <code>IS_AI_AGENT=true</code> injected into container env
+- [x] E2E: <code>basic_oci.yaml</code> completes with agent in Docker container
+- [x] E2E: agent in container can read worktree, write to signal dir,
       push to task branch
+- [x] <code>pixi run check</code> passes (1148 tests)</p>
+<hr />
+<h3 id="pr-f2-remaining-e2e-isolation-testing">PR F2: Remaining e2e isolation testing</h3>
+<ul>
+<li>Branch: TBD (after container cleanup PR)</li>
+<li>Depends on: container cleanup PR (reset gap, UID alignment, first-run
+  prompts)</li>
+</ul>
+<p><strong>Scope:</strong>
+- E2E: <code>token_tiers.yaml</code> — verify correct PAT injection per tier
+- E2E: <code>permission_boundary.yaml</code> — verify pre-push hook blocks agent
+  push to main, agent records ops concern
+- Any fixes discovered during those tests
+- Final acceptance criteria sign-off</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] E2E: <code>token_tiers.yaml</code> completes with correct credential scoping
 - [ ] E2E: agent in container cannot merge PRs (read_only/standard PAT)
+- [ ] E2E: <code>permission_boundary.yaml</code> — agent records ops concern when
+      push to main is blocked
 - [ ] <code>pixi run check</code> passes</p>
 <hr />
 <h2 id="risks-and-mitigations">Risks and mitigations</h2>

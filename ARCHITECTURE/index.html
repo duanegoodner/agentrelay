@@ -343,6 +343,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Isolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#execution-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1477,6 +1488,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agent-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Isolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#execution-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1577,6 +1599,17 @@ truth for concrete implementation details.</p>
 <li><strong>Narrow interfaces</strong>: <code>Agent</code>, <code>AgentAddress</code>, and environment typing keep launcher logic decoupled.</li>
 <li><strong>Contract-first integrations</strong>: external side effects are modeled as typed protocols/errors before concrete implementations.</li>
 </ul>
+<h2 id="agent-isolation">Agent Isolation</h2>
+<p>Agents can be sandboxed in OCI containers (Docker/Podman) configured via
+<code>IsolationConfig</code> at four levels: graph, workstream, task, and agent. The
+<code>AgentSandbox</code> protocol (<code>NullSandbox</code>, <code>OciSandbox</code>) wraps agent commands
+with isolation boundaries. Credentials are injected via the
+<code>CredentialProvider</code> protocol with three token tiers (read-only, standard,
+elevated). Containerized agents receive <code>IS_AI_AGENT=true</code> and a git
+pre-push hook blocks pushes to protected branches (main/master). Agent
+instructions include an <code>## Isolation Boundary</code> section describing
+accessible and inaccessible resources, what exists beyond the boundary,
+and how to report when blocked.</p>
 <h2 id="execution-boundary">Execution Boundary</h2>
 <p>The current architecture layer includes a real orchestrator, task lifecycle runner,
 workstream lifecycle runner, and a CLI entry point (<code>run_graph.py</code>). All production

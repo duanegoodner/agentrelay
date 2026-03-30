@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#agent-boundary-instructions-container-fixes-and-e2e-isolation-graphs-sprint-2026-03-26-pr-f1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent boundary instructions, container fixes, and e2e isolation graphs (sprint 2026-03-26 PR F1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#docker-images-network-lifecycle-and-cli-credentials-sprint-2026-03-26-pr-e" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2125,6 +2136,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#agent-boundary-instructions-container-fixes-and-e2e-isolation-graphs-sprint-2026-03-26-pr-f1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent boundary instructions, container fixes, and e2e isolation graphs (sprint 2026-03-26 PR F1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#docker-images-network-lifecycle-and-cli-credentials-sprint-2026-03-26-pr-e" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2890,6 +2912,26 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-29">2026-03-29</h2>
+<h3 id="agent-boundary-instructions-container-fixes-and-e2e-isolation-graphs-sprint-2026-03-26-pr-f1">Agent boundary instructions, container fixes, and e2e isolation graphs (sprint 2026-03-26 PR F1)</h3>
+<ul>
+<li><strong>Isolation boundary instructions</strong>: <code>resolve_instructions()</code> gains a
+  <code>sandbox_type</code> parameter. When <code>SandboxType.OCI</code>, a <code>## Isolation Boundary</code>
+  section is injected describing what the agent can/cannot access, what exists
+  beyond its boundary, and how to report when blocked.</li>
+<li><strong><code>IS_AI_AGENT=true</code> env var</strong>: Injected by <code>OciSandbox.wrap_command()</code> into
+  all containerized agents. Foundation for runtime agent detection.</li>
+<li><strong>Git pre-push hook</strong>: Baked into Docker base image at
+  <code>/etc/agentrelay/hooks/pre-push</code>. Blocks pushes to <code>main</code>/<code>master</code> when
+  <code>IS_AI_AGENT=true</code>. Global <code>core.hooksPath</code> configured for agent user.</li>
+<li><strong>Container execution fixes</strong>: <code>bash -c</code> shell wrapper, <code>--group-add</code> for
+  host GID file permissions, <code>.git</code> dir read-write mount, <code>TERM</code> env var for
+  TUI rendering, <code>chmod</code> for cross-UID claude binary access, <code>safe.directory</code>
+  wildcard in container git config.</li>
+<li><strong>E2E isolation test graphs</strong>: <code>basic_oci.yaml</code>, <code>token_tiers.yaml</code>,
+  <code>permission_boundary.yaml</code> in <code>graphs/isolation/</code>. <code>basic_oci.yaml</code>
+  validated end-to-end.</li>
+</ul>
+<hr />
 <h3 id="docker-images-network-lifecycle-and-cli-credentials-sprint-2026-03-26-pr-e">Docker images, network lifecycle, and CLI credentials (sprint 2026-03-26 PR E)</h3>
 <ul>
 <li><strong>Three-layer Docker image</strong>: <code>docker/base/Dockerfile</code> (ubuntu:24.04, git, gh,
