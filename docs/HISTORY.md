@@ -6,6 +6,24 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-03-30
 
+### Remaining e2e isolation testing (sprint 2026-03-26 PR F2)
+
+- **token_tiers e2e**: Verified correct credential scoping across token tiers.
+  `standard_task` (standard tier) pushed, created PR, and succeeded.
+  `readonly_task` (read_only tier) pushed but failed at PR creation (403 —
+  token lacks `pull_requests: write` scope). Agent recorded an ops concern
+  about the missing permission. Graph outcome: `COMPLETED_WITH_FAILURES`.
+- **permission_boundary e2e**: Verified pre-push hook blocks agent push to
+  main. Agent attempted `git push origin HEAD:refs/heads/main`, hook rejected
+  it (`IS_AI_AGENT=true`), agent recorded an ops concern with the exact hook
+  error message, then recovered by pushing to its task branch and completing
+  normally. Graph outcome: `SUCCEEDED` (48s).
+- **permission_boundary.yaml fix**: Changed `token_tier` from `read_only` to
+  `standard` so the test exercises the pre-push hook rather than a PAT
+  permission denial.
+
+---
+
 ### Container e2e infrastructure fixes (sprint 2026-03-26 PR Fcleanup)
 
 - **UID alignment**: Docker base image creates `agent` user with UID 1000
