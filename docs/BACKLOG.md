@@ -74,6 +74,21 @@ Near-term items for the current architecture track.
   cheap-model task using API key, a complex task using Max plan OAuth).
   Deferred until the consolidated credential YAML format is stable and
   real use cases justify per-task credential selection.
+## Container Infrastructure
+
+- **Agent framework pre-seed versioning**: The Docker image pre-seeds
+  config files (`.claude.json`, `statsig.json`) and startup scripts
+  (`claude-setup-credentials`, `claude-trust-workdir`) to suppress
+  interactive prompts in ephemeral containers. These pre-seed schemes
+  are tightly coupled to the agent framework version — a new Claude Code
+  release could change onboarding flows, settings schema, or credential
+  handling, breaking the existing scheme. On each new agent framework
+  release, verify that the current pre-seed works. Consider maintaining
+  a mapping of framework version → pre-seed scheme so older framework
+  versions remain usable (useful if a new release introduces regressions
+  and we need to pin to an older version). This also applies to any
+  future agent frameworks beyond Claude Code.
+
 ## Extensibility
 
 - `EnvCredentialProvider` — credential provider that reads from environment
@@ -517,3 +532,11 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
+- **Isolation environment visibility in terminal output**: When agents
+  run in OCI containers, the orchestrator's terminal output should
+  surface container lifecycle events — container launch (image, name,
+  network), container shutdown/removal, and any sandbox setup/teardown
+  errors. Currently the `ConsoleListener` reports task-level events
+  (started, succeeded, failed) but nothing about the isolation layer.
+  Could be added via the existing `on_event` callback in
+  `StandardTaskRunner` or as new event types in the listener protocol.
