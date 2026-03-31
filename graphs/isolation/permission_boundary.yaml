@@ -7,7 +7,7 @@ tools:
 # Graph-level OCI sandbox with read_only token tier.
 isolation:
   sandbox: oci
-  token_tier: read_only
+  token_tier: standard
 
 tasks:
   - id: boundary_test

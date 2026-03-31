@@ -198,7 +198,9 @@ class TestOciSandboxWrapCommand:
         sandbox = OciSandbox()
         sandbox.wrap_command(
             "claude",
-            _make_context(env_vars={"ANTHROPIC_API_KEY": "sk-xxx", "GH_TOKEN": "ghp_xxx"}),
+            _make_context(
+                env_vars={"ANTHROPIC_API_KEY": "sk-xxx", "GH_TOKEN": "ghp_xxx"}
+            ),
         )
 
         call_kwargs = mock_docker.build_run_command.call_args.kwargs
