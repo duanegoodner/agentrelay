@@ -4,6 +4,43 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-03-31
+
+### OAuth and consolidated Anthropic credentials for containers (sprint 2026-03-30 PR A)
+
+- **Container startup script** (`setup-credentials.py`): Generates
+  `~/.claude/settings.json` at container startup instead of pre-seeding
+  at build time. API key mode includes `apiKeyHelper`; OAuth mode omits
+  it so Claude Code reads `.credentials.json` natively. Also copies
+  OAuth credentials from read-only mount to writable location for token
+  refresh.
+- **Dockerfile update**: Removed baked-in `settings.json`. Added
+  `claude-setup-credentials` to the startup chain (before
+  `claude-trust-workdir`).
+- **Consolidated credentials YAML**: New `anthropic` section with named,
+  typed entries replacing the old `defaults` section. `CredentialType`
+  enum (`api_key`, `oauth`) and `AnthropicCredential` frozen dataclass.
+  `api_key` entries support `key` (inline) or `key_file` (read from
+  file, tilde-expanded, whitespace-stripped) to keep secrets portable.
+- **OciSandbox**: Accepts `AnthropicCredential | None` instead of raw
+  path. Type-aware injection: `_ANTHROPIC_API_KEY` env var for API key
+  mode, read-only volume mount for OAuth mode. Defensive guard rejects
+  `ANTHROPIC_API_KEY` in `SandboxContext.env_vars`.
+- **CLI**: `--anthropic-credential <name>` selects a named credential.
+  Auto-selects when single entry, errors clearly with multiple. Graph
+  YAML `anthropic_credential` operational key provides a default
+  (CLI overrides).
+- **FileCredentialProvider**: `resolve()` returns tier-only env vars
+  (no more defaults merge). New `resolve_anthropic()` method with
+  name lookup or auto-select. `anthropic_names` property.
+- **Docs**: Credentials YAML schema in `SCHEMA.md`, three example
+  credential files (`credentials-api-key.yaml`, `credentials-oauth.yaml`,
+  `credentials-both.yaml`).
+- 1187 tests (29 new). E2E validated both API key and OAuth modes with
+  `basic_oci.yaml`.
+
+---
+
 ## 2026-03-30
 
 ### Remaining e2e isolation testing (sprint 2026-03-26 PR F2)
