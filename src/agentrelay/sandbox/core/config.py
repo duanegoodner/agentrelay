@@ -1,16 +1,18 @@
 """Core configuration types for agent sandboxing.
 
 This module defines the data types that describe sandbox isolation levels,
-token permission tiers, container runtimes, and execution contexts for
-sandboxed agents.
+token permission tiers, container runtimes, credential types, and execution
+contexts for sandboxed agents.
 
 Enums:
     SandboxType: Type of sandbox execution boundary (none, OCI container).
     TokenTier: Permission tier for credential injection.
     ContainerRuntime: Container runtime binary (docker, podman).
+    CredentialType: Type of Anthropic credential (API key, OAuth).
 
 Classes:
     IsolationConfig: Frozen, fully-resolved sandbox configuration.
+    AnthropicCredential: Resolved Anthropic credential for agent auth.
     SandboxContext: Frozen execution context passed to sandbox operations.
 """
 
@@ -56,6 +58,42 @@ class ContainerRuntime(str, Enum):
 
     DOCKER = "docker"
     PODMAN = "podman"
+
+
+class CredentialType(str, Enum):
+    """Type of Anthropic credential for agent authentication.
+
+    Attributes:
+        API_KEY: Pay-per-token API key (injected as env var).
+        OAUTH: Max plan OAuth token file (``.credentials.json``).
+    """
+
+    API_KEY = "api_key"
+    OAUTH = "oauth"
+
+
+@dataclass(frozen=True)
+class AnthropicCredential:
+    """Resolved Anthropic credential for agent authentication.
+
+    Holds a named credential entry from the credentials YAML
+    ``anthropic`` section, with type-specific fields populated.
+
+    Attributes:
+        name: Key from the YAML ``anthropic`` section (e.g.,
+            ``"dev_api_key"``, ``"max_plan"``).
+        credential_type: Whether this is an API key or OAuth credential.
+        api_key: The API key string.  Set when ``credential_type``
+            is :attr:`CredentialType.API_KEY`, ``None`` otherwise.
+        oauth_path: Path to the ``.credentials.json`` file.  Set when
+            ``credential_type`` is :attr:`CredentialType.OAUTH`,
+            ``None`` otherwise.
+    """
+
+    name: str
+    credential_type: CredentialType
+    api_key: Optional[str] = None
+    oauth_path: Optional[Path] = None
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,14 @@
-# Task Graph YAML Schema
+# YAML Schema Reference
 
-This page documents the YAML schema accepted by
-`agentrelay.task_graph.TaskGraphBuilder.from_yaml(...)`.
+This page documents the YAML schemas used by agentrelay: the **task graph**
+schema (accepted by `TaskGraphBuilder`) and the **credentials** schema
+(accepted by `FileCredentialProvider`).
+
+---
+
+## Task Graph YAML
+
+Schema accepted by `agentrelay.task_graph.TaskGraphBuilder.from_yaml(...)`.
 
 ## Top-level object
 
@@ -26,9 +33,12 @@ recognized by `run_graph.py`, which extracts them before passing the dict to
 - `tmux_session`: string. Override tmux session name for all agents.
 - `keep_panes`: boolean. Leave agent tmux windows open after completion.
 - `model`: string. Override model for all agents.
+- `tools`: list of strings. Declared tool names (e.g., `["pixi"]`).
+- `anthropic_credential`: string. Default Anthropic credential name from
+  the credentials YAML. Overridden by `--anthropic-credential` CLI flag.
 
-These can also be set via CLI flags (`--tmux-session`, `--model`). CLI flags
-take precedence over YAML values.
+These can also be set via CLI flags (`--tmux-session`, `--model`,
+`--anthropic-credential`). CLI flags take precedence over YAML values.
 
 ## Task object
 
@@ -92,3 +102,81 @@ Validation rules:
 - Minimal graph: [docs/examples/minimal.yaml](examples/minimal.yaml)
 - Parent/child workstreams: [docs/examples/workstreams.yaml](examples/workstreams.yaml)
 - Mixed default + explicit workstreams: [docs/examples/mixed-default-and-explicit-workstreams.yaml](examples/mixed-default-and-explicit-workstreams.yaml)
+
+---
+
+## Credentials YAML
+
+Schema accepted by `agentrelay.sandbox.FileCredentialProvider`.  Passed to
+`run_graph.py` via `--credentials <path>`.
+
+### Top-level object
+
+Optional keys (all are optional; an empty mapping `{}` is valid):
+
+- `token_tiers`: mapping of tier name → env var mapping.
+- `anthropic`: mapping of credential name → credential entry.
+
+### token_tiers
+
+Maps `TokenTier` values (`read_only`, `standard`, `elevated`) to
+dictionaries of environment variables injected into sandboxed agents.
+Typically used for GitHub PATs.
+
+```yaml
+token_tiers:
+  read_only:
+    GH_TOKEN: ghp_xxxx
+  standard:
+    GH_TOKEN: ghp_yyyy
+  elevated:
+    GH_TOKEN: ghp_zzzz
+```
+
+### anthropic
+
+Named Anthropic credential entries.  Each entry has a `type` field
+(`api_key` or `oauth`) and type-specific fields.
+
+**`api_key` entry** — pay-per-token API key:
+
+- `type`: `api_key` (required)
+- `key`: string. The Anthropic API key (inline).
+- `key_file`: string. Path to a file containing the API key. Tilde
+  (`~`) is expanded. The file is read at startup; leading/trailing
+  whitespace is stripped.
+
+Exactly one of `key` or `key_file` must be provided.
+
+**`oauth` entry** — Max plan OAuth credentials file:
+
+- `type`: `oauth` (required)
+- `path`: string (required). Path to `~/.claude/.credentials.json`.
+  Tilde (`~`) is expanded.
+
+```yaml
+anthropic:
+  dev_api_key:
+    type: api_key
+    key: sk-ant-xxxx                       # inline
+  dev_api_key_file:
+    type: api_key
+    key_file: ~/.config/anthropic/api_key  # from file
+  max_plan:
+    type: oauth
+    path: ~/.claude/.credentials.json
+```
+
+### Selection rules
+
+- If `anthropic` has exactly **one** entry, it is auto-selected.
+- If **multiple** entries exist, use `--anthropic-credential <name>` on
+  the CLI or `anthropic_credential: <name>` in the graph YAML.
+- If no `anthropic` section exists, no Anthropic authentication is
+  configured for containerized agents.
+
+### Canonical examples
+
+- API key only: [docs/examples/credentials-api-key.yaml](examples/credentials-api-key.yaml)
+- OAuth only: [docs/examples/credentials-oauth.yaml](examples/credentials-oauth.yaml)
+- Both (requires explicit selection): [docs/examples/credentials-both.yaml](examples/credentials-both.yaml)

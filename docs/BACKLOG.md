@@ -19,17 +19,11 @@ Near-term items for the current architecture track.
 
 ## Integration
 
-- Map v01 graph/task-launch behavior onto current architecture interfaces.
-- Define a migration path so prototype-only concepts land behind stable abstractions.
-
-## Agent Isolation
-
-~~Separate Linux user + scoped GitHub PAT for agent sessions.~~ **Completed
-in sprint 2026-03-26** (`docs/sprints/2026-03-26-agent-isolation.md`):
-container-per-task Docker isolation, `AgentSandbox` protocol, scoped PATs via
-`CredentialProvider`, four-level inheritance (graph → workstream → task → agent),
-agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
-`docs/discussions/AGENT_ISOLATION_REFINED.md` for full analysis.
+- **Prototype feature audit**: Audit `src/agentrelay/prototypes/v01/`
+  functionality, compare against the primary architecture, and determine if
+  any features from the prototype are missing and ought to be added. The
+  prototype was clumsy but had useful capabilities that shouldn't be
+  accidentally dropped.
 
 ## Credential Management
 
@@ -50,44 +44,50 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
     grows beyond just credentials.
   - **Convention-based resolution**: auto-resolve based on target repo path
     or name, falling back to the global default.
-- **GitHub App for elevated merge authority**: Fine-grained PATs are scoped
-  by permissions but not by identity — all PATs under a single GitHub account
-  share the same bypass/protection status in branch rulesets. A GitHub App
-  acts as a separate identity that can be added to a ruleset's bypass list,
-  giving it merge authority that personal PATs lack. The App authenticates
-  via a private key (`.pem`) → JWT → short-lived installation access token
-  flow. Would require either a `GitHubAppCredentialProvider` or refresh
-  logic in `FileCredentialProvider` to handle token expiration (~1 hour).
-  This is the right long-term answer for the `elevated` token tier; not
-  needed while all e2e testing uses a single GitHub account.
-- **Max plan OAuth credentials in containers**: Currently using
-  `ANTHROPIC_API_KEY` env var (pay-per-token) via `apiKeyHelper` in
-  settings (PR Fcleanup renamed the env var to `_ANTHROPIC_API_KEY` to
-  avoid Claude Code's interactive confirmation prompt). The Max plan is
-  preferred to avoid separate API costs. The image already supports both
-  strategies without rebuilding — credential approach is a runtime concern:
-  - **API key** (current): `CredentialProvider` injects
-    `_ANTHROPIC_API_KEY` → `apiKeyHelper` echoes it. Works today.
-  - **Max plan OAuth**: mount host `~/.claude/.credentials.json` into
-    container as a read-only volume. Claude Code reads OAuth tokens
-    directly. Requires:
-    - New volume mount in `OciSandbox.wrap_command()` for the credentials
-      file (path from a new config field or CLI flag).
-    - Verify Claude Code doesn't need write access to `.credentials.json`
-      (token refresh writes back). If it does, mount read-write or
-      extract the access token and inject as `ANTHROPIC_AUTH_TOKEN` env
-      var instead.
-    - Skip `apiKeyHelper` when no API key is in the credential provider
-      output (helper would echo empty string).
-    - Test with UID-aligned container (UID 1000 should match host file
-      ownership).
-- ~~**Claude Code first-run prompts in containers**~~ — **Resolved in PR
-  Fcleanup**: pre-seeded `~/.claude/settings.json` in framework Dockerfile +
-  suppression env vars (`DISABLE_AUTOUPDATER`,
-  `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC`) in `OciSandbox.wrap_command()`.
-- ~~**Container UID/username cleanup**~~ — **Resolved in PR Fcleanup**: Docker
-  base image removes `ubuntu` user and creates `agent` with UID 1000. Removed
-  `--user` and `--group-add` from `build_run_command()`.
+- **Merge authority for isolated agents**: Currently, isolated (containerized)
+  agents cannot merge PRs into main — the `elevated` token tier has no actual
+  permission differentiation from `standard`. We need the ability to
+  selectively grant isolated agents merge-to-main capability while still
+  enforcing the same safeguards as non-isolated merge agents (no merge when
+  design concerns are raised, concern-gated auto-merge).
+  Possible approaches:
+  - **GitHub App**: A GitHub App acts as a separate identity that can be
+    added to a branch ruleset's bypass list, giving merge authority that
+    personal PATs lack (fine-grained PATs all share the human user's
+    identity). Authenticates via private key (`.pem`) → JWT → short-lived
+    installation access token (~1 hour). Would require a
+    `GitHubAppCredentialProvider` or refresh logic in
+    `FileCredentialProvider`.
+  - **Ruleset-scoped PAT**: If GitHub adds per-PAT bypass support in branch
+    rulesets, a dedicated elevated PAT could be granted merge access
+    directly. Simpler than a GitHub App but depends on GitHub feature
+    availability.
+  - **Orchestrator-mediated merge**: Instead of giving the agent direct
+    merge credentials, the agent signals "ready to merge" and the
+    orchestrator (running on the host with full credentials) performs the
+    merge after validating concern status. This keeps merge authority
+    entirely outside the container but requires a new signal/protocol.
+- **4-layer credential inheritance**: Anthropic credential selection
+  (API key vs OAuth) could follow the same graph → workstream → task →
+  agent inheritance pattern used by `IsolationConfig`. Different tasks
+  might use different credential tiers or auth methods (e.g., a
+  cheap-model task using API key, a complex task using Max plan OAuth).
+  Deferred until the consolidated credential YAML format is stable and
+  real use cases justify per-task credential selection.
+## Container Infrastructure
+
+- **Agent framework pre-seed versioning**: The Docker image pre-seeds
+  config files (`.claude.json`, `statsig.json`) and startup scripts
+  (`claude-setup-credentials`, `claude-trust-workdir`) to suppress
+  interactive prompts in ephemeral containers. These pre-seed schemes
+  are tightly coupled to the agent framework version — a new Claude Code
+  release could change onboarding flows, settings schema, or credential
+  handling, breaking the existing scheme. On each new agent framework
+  release, verify that the current pre-seed works. Consider maintaining
+  a mapping of framework version → pre-seed scheme so older framework
+  versions remain usable (useful if a new release introduces regressions
+  and we need to pin to an older version). This also applies to any
+  future agent frameworks beyond Claude Code.
 
 ## Extensibility
 
@@ -176,11 +176,6 @@ agent boundary instructions, `IS_AI_AGENT` env var, git pre-push hooks. See
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover
   suffixed directories.
-- ~~**`reset_graph` leaves stale local branches and worktree refs**~~ —
-  **Resolved in PR Fcleanup**: added `git worktree prune`,
-  `branch_list_local()` for local branch cleanup, and `force_rm()` for
-  Docker container cleanup.
-
 ## Removed Modules (revisit when needed)
 
 - `spec/` (`SpecRepresentation` protocol, `PythonStubSpec`) — removed in PR #106 (feat/dependency-cleanup). Was intended to abstract spec file formats for spec-writer agents.
@@ -250,6 +245,30 @@ integration PR body.
     becomes a measurable problem (token cost, context window pressure, or
     performance). The simpler rendered-output model is the right default.
 
+## Framework-Specific Agent Configuration
+
+When running agents with a specific framework (e.g., Claude Code), the
+orchestrator could leverage framework-specific persistence and configuration
+mechanisms to improve agent behavior:
+
+- **CLAUDE.md**: Inject project-specific instructions into the worktree's
+  CLAUDE.md (build commands, coding conventions, repo layout). More durable
+  and framework-native than instructions.md for Claude Code agents.
+- **Skills**: Pre-configure slash commands (e.g., `/commit`, `/test`) in the
+  worktree so agents have standardized workflows without relying on
+  instruction prose.
+- **MEMORY.md**: Seed agent memory with project context, architecture notes,
+  or lessons from prior runs. Could be populated from orchestrator state
+  (upstream task summaries, concern history).
+- **settings.json**: Per-task Claude Code settings (allowed tools, MCP
+  servers, permission profiles).
+
+The `AgentFrameworkAdapter` protocol is the natural integration point —
+`ClaudeCodeAdapter.build_command()` already knows the worktree path and
+could prepare framework-specific files before launch. Design question:
+should this be adapter responsibility (framework-aware file setup) or a
+separate step in the task preparer pipeline?
+
 ## Agent Build Environment Awareness
 
 Agents don't always know how to invoke commands in the target repo's build
@@ -270,40 +289,6 @@ increasing sophistication:
   - A dedicated agent periodically reviews ops concerns and applies fixes
     (e.g., updating CLAUDE.md, adjusting orchestrator templates).
   - Human reviews ops concerns and decides on fixes.
-
-~~Related: the TaskHelper completion step is fragile — agents struggle with
-inline Python in zsh. A CLI wrapper would be more robust.~~ Resolved in
-PR #120 (`agentrelay-complete`, `agentrelay-failed`, `agentrelay-concern`)
-and PR #125 (`agentrelay-complete-no-pr`).
-
-## Agent Ops Concerns
-
-Agents encounter operational issues during task execution — wrong build
-commands, missing dependencies, permission errors, flaky tests, unexpected
-repo layout — that are distinct from design concerns about the spec or code.
-Even when the agent eventually works around the problem, the friction is
-worth capturing so it can be fixed systematically.
-
-- **New concern type**: `helper.record_ops_concern("description")` (or a
-  `category` parameter on `record_concern`). Ops concerns are written to a
-  separate file (e.g., `ops_concerns.log`) or tagged in the existing
-  `concerns.log` so the orchestrator can distinguish them from design concerns.
-- **Visibility**: Ops concerns surface in the integration PR body, console
-  output, and post-run summary — separately from design concerns so they
-  don't get lost in the noise.
-- **Resolution paths**:
-  - **Agent self-fix**: Agent records the concern and also applies a local
-    workaround (e.g., switches to `pixi run`). The concern still gets logged
-    so the root cause can be addressed.
-  - **Orchestrator-driven fix**: Orchestrator aggregates ops concerns across
-    runs and applies automated fixes (e.g., updating instructions templates,
-    injecting env context).
-  - **Human review**: Periodic triage of ops concerns to identify patterns
-    and make durable fixes (CLAUDE.md updates, template changes, new backlog
-    items).
-- **Examples of ops concerns**: wrong Python/package manager invocation,
-  shell escaping issues with TaskHelper, missing directories, import path
-  confusion in worktrees, test collection failures from environment mismatch.
 
 ## Role-Specific Workflow Issues
 
@@ -359,14 +344,6 @@ concern-gated). Remaining strategy:
 - **`agent`** — If merge conflicts, launch a Claude Code agent in a tmux pane
   to resolve them. Require the test suite to pass before completing the merge.
   If the agent cannot resolve, fall back to human review.
-
-## ~~Cross-Workstream Dependency Ordering~~ — resolved
-
-Resolved in PR #134 (sprint 2026-03-25). Cross-workstream dispatch gating
-via `_workstream_can_run()` + `IntegrationMergeChecker` polling. Upstream
-workstreams must be MERGED before downstream tasks dispatch. The motivating
-agent workaround (unilateral PR merge) can no longer occur. See
-`docs/discussions/AGENT_ISOLATION_REFINED.md` for the incident analysis.
 
 ## Concern Guidance Level Experimentation
 
@@ -539,7 +516,27 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).
 
+## Documentation
+
+- **API Reference mkdocs rendering issues**: Some API reference pages render
+  poorly — `ops` page shows raw reStructuredText instead of formatted output
+  (Sphinx-style `::` code blocks not recognized by mkdocstrings). Parts of
+  the `run_graph` and `tools` pages also appear off. Likely cause: some
+  module/package docstrings use Sphinx reStructuredText conventions instead
+  of the Google-style docstrings expected by mkdocstrings. Fix: audit all
+  `__init__.py` and module-level docstrings for Sphinx-isms (`::` literal
+  blocks, `:param:` fields, `:type:` annotations) and convert to Google
+  style.
+
 ## Observability
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
+- **Isolation environment visibility in terminal output**: When agents
+  run in OCI containers, the orchestrator's terminal output should
+  surface container lifecycle events — container launch (image, name,
+  network), container shutdown/removal, and any sandbox setup/teardown
+  errors. Currently the `ConsoleListener` reports task-level events
+  (started, succeeded, failed) but nothing about the isolation layer.
+  Could be added via the existing `on_event` callback in
+  `StandardTaskRunner` or as new event types in the listener protocol.

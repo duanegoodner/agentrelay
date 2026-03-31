@@ -11,7 +11,9 @@ import pytest
 
 from agentrelay.sandbox import (
     AgentSandbox,
+    AnthropicCredential,
     ContainerRuntime,
+    CredentialType,
     SandboxContext,
 )
 from agentrelay.sandbox.implementations.oci_sandbox import OciSandbox
@@ -55,6 +57,10 @@ class TestOciSandboxDefaults:
     def test_custom_runtime(self) -> None:
         sandbox = OciSandbox(runtime=ContainerRuntime.PODMAN)
         assert sandbox._runtime == "podman"
+
+    def test_default_anthropic_credential_is_none(self) -> None:
+        sandbox = OciSandbox()
+        assert sandbox._anthropic_credential is None
 
 
 class TestOciSandboxSetup:
@@ -127,7 +133,7 @@ class TestOciSandboxWrapCommand:
         mock_docker.build_run_command.assert_called_once_with(
             container_name="agentrelay-test-graph-task_a",
             image="myimage:v1",
-            cmd="claude-trust-workdir && claude --model opus",
+            cmd="claude-setup-credentials && claude-trust-workdir && claude --model opus",
             volumes=[
                 (
                     str(ctx.worktree_path),
@@ -188,25 +194,20 @@ class TestOciSandboxWrapCommand:
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
-    def test_renames_anthropic_api_key(
+    def test_rejects_anthropic_api_key_in_env_vars(
         self, mock_docker: MagicMock, mock_git: MagicMock
     ) -> None:
-        """ANTHROPIC_API_KEY is renamed to _ANTHROPIC_API_KEY to avoid prompt."""
+        """ANTHROPIC_API_KEY in env_vars raises ValueError."""
         mock_git.worktree_git_dir.return_value = Path("/repo/.git")
-        mock_docker.build_run_command.return_value = "docker run ..."
 
         sandbox = OciSandbox()
-        sandbox.wrap_command(
-            "claude",
-            _make_context(
-                env_vars={"ANTHROPIC_API_KEY": "sk-xxx", "GH_TOKEN": "ghp_xxx"}
-            ),
-        )
-
-        call_kwargs = mock_docker.build_run_command.call_args.kwargs
-        assert "ANTHROPIC_API_KEY" not in call_kwargs["env_vars"]
-        assert call_kwargs["env_vars"]["_ANTHROPIC_API_KEY"] == "sk-xxx"
-        assert call_kwargs["env_vars"]["GH_TOKEN"] == "ghp_xxx"
+        with pytest.raises(ValueError, match="ANTHROPIC_API_KEY must not be"):
+            sandbox.wrap_command(
+                "claude",
+                _make_context(
+                    env_vars={"ANTHROPIC_API_KEY": "sk-xxx", "GH_TOKEN": "ghp_xxx"}
+                ),
+            )
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
@@ -220,6 +221,85 @@ class TestOciSandboxWrapCommand:
         sandbox.wrap_command("cmd", _make_context())
 
         assert mock_docker.build_run_command.call_args.kwargs["runtime"] == "podman"
+
+
+class TestOciSandboxAnthropicCredential:
+    """Tests for Anthropic credential injection."""
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_api_key_credential_injects_env_var(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """API_KEY credential injects _ANTHROPIC_API_KEY into env vars."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        cred = AnthropicCredential(
+            name="test", credential_type=CredentialType.API_KEY, api_key="sk-test"
+        )
+        sandbox = OciSandbox(anthropic_credential=cred)
+        sandbox.wrap_command("claude", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert call_kwargs["env_vars"]["_ANTHROPIC_API_KEY"] == "sk-test"
+        # No OAuth mount
+        assert len(call_kwargs["volumes"]) == 3
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_oauth_credential_mounts_file(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """OAUTH credential mounts the credentials file read-only."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        creds_path = Path("/host/.claude/.credentials.json")
+        cred = AnthropicCredential(
+            name="max", credential_type=CredentialType.OAUTH, oauth_path=creds_path
+        )
+        sandbox = OciSandbox(anthropic_credential=cred)
+        sandbox.wrap_command("claude", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        volumes = call_kwargs["volumes"]
+        assert (str(creds_path), "/tmp/.claude-credentials.json", "ro") in volumes
+        # No _ANTHROPIC_API_KEY injected
+        assert "_ANTHROPIC_API_KEY" not in call_kwargs["env_vars"]
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_no_credential_no_api_key_no_mount(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """Without credential, no _ANTHROPIC_API_KEY and no extra mount."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert "_ANTHROPIC_API_KEY" not in call_kwargs["env_vars"]
+        assert len(call_kwargs["volumes"]) == 3
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_startup_chain_includes_setup_credentials(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """Command prefix includes claude-setup-credentials before trust-workdir."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude --model opus", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert call_kwargs["cmd"] == (
+            "claude-setup-credentials && claude-trust-workdir && claude --model opus"
+        )
 
 
 class TestOciSandboxTeardown:

@@ -38,7 +38,12 @@ from agentrelay.orchestrator import (
     build_standard_workstream_runner,
 )
 from agentrelay.output import ConsoleListener, print_summary
-from agentrelay.sandbox import CredentialProvider, FileCredentialProvider, SandboxType
+from agentrelay.sandbox import (
+    AnthropicCredential,
+    CredentialProvider,
+    FileCredentialProvider,
+    SandboxType,
+)
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
 from agentrelay.tools import ToolValidationError, validate_tools
@@ -46,28 +51,32 @@ from agentrelay.tools import ToolValidationError, validate_tools
 
 def _extract_operational_config(
     raw: dict[str, Any],
-) -> tuple[Optional[str], bool, Optional[str], tuple[str, ...]]:
+) -> tuple[Optional[str], bool, Optional[str], tuple[str, ...], Optional[str]]:
     """Pop operational keys from a raw YAML dict before graph parsing.
 
     The graph YAML may include operational keys (``tmux_session``,
-    ``keep_panes``, ``model``, ``tools``) that are not part of the
-    structural graph schema.  These must be removed before passing to
-    :meth:`TaskGraphBuilder.from_dict` (which rejects unknown keys).
+    ``keep_panes``, ``model``, ``tools``, ``anthropic_credential``)
+    that are not part of the structural graph schema.  These must be
+    removed before passing to :meth:`TaskGraphBuilder.from_dict`
+    (which rejects unknown keys).
 
     Args:
         raw: Mutable raw YAML dict.  Modified in place.
 
     Returns:
-        Tuple of ``(tmux_session, keep_panes, model_default, tools)``.
+        Tuple of ``(tmux_session, keep_panes, model_default, tools,
+        anthropic_credential)``.
         ``tmux_session`` is ``None`` if not specified in the YAML.
         ``tools`` defaults to an empty tuple.
+        ``anthropic_credential`` is ``None`` if not specified.
     """
     tmux_session: Optional[str] = raw.pop("tmux_session", None)
     keep_panes: bool = raw.pop("keep_panes", False)
     model: Optional[str] = raw.pop("model", None)
     raw_tools = raw.pop("tools", None)
     tools: tuple[str, ...] = tuple(raw_tools) if raw_tools else ()
-    return tmux_session, keep_panes, model, tools
+    anthropic_credential: Optional[str] = raw.pop("anthropic_credential", None)
+    return tmux_session, keep_panes, model, tools, anthropic_credential
 
 
 def _apply_overrides(
@@ -103,7 +112,7 @@ def _load_and_prepare_graph(
     *,
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
-) -> tuple[TaskGraph, Optional[str], bool, tuple[str, ...]]:
+) -> tuple[TaskGraph, Optional[str], bool, tuple[str, ...], Optional[str]]:
     """Load YAML, extract operational config, apply overrides, build graph.
 
     Args:
@@ -112,10 +121,13 @@ def _load_and_prepare_graph(
         model_override: CLI override for agent model.
 
     Returns:
-        Tuple of ``(graph, effective_tmux_session, effective_keep_panes, tools)``.
+        Tuple of ``(graph, effective_tmux_session, effective_keep_panes,
+        tools, anthropic_credential_name)``.
     """
     raw = yaml.safe_load(graph_path.read_text())
-    yaml_session, yaml_keep_panes, yaml_model, tools = _extract_operational_config(raw)
+    yaml_session, yaml_keep_panes, yaml_model, tools, yaml_anthropic = (
+        _extract_operational_config(raw)
+    )
 
     effective_session = tmux_session if tmux_session is not None else yaml_session
     effective_model = model_override if model_override is not None else yaml_model
@@ -123,7 +135,7 @@ def _load_and_prepare_graph(
     _apply_overrides(raw, tmux_session=effective_session, model=effective_model)
 
     graph = TaskGraphBuilder.from_dict(raw)
-    return graph, effective_session, yaml_keep_panes, tools
+    return graph, effective_session, yaml_keep_panes, tools, yaml_anthropic
 
 
 class _ConflictError(RuntimeError):
@@ -228,6 +240,7 @@ async def run_graph(
     model_override: Optional[str] = None,
     config: Optional[OrchestratorConfig] = None,
     credential_provider: Optional[CredentialProvider] = None,
+    anthropic_credential_name: Optional[str] = None,
     verbose: bool = False,
 ) -> OrchestratorResult:
     """Build all components from a graph YAML and run the orchestrator.
@@ -246,6 +259,9 @@ async def run_graph(
             :class:`OrchestratorConfig` defaults.
         credential_provider: Credential provider for sandboxed agents.
             When ``None``, :class:`NullCredentialProvider` is used.
+        anthropic_credential_name: Name of the Anthropic credential to
+            use from the credentials YAML ``anthropic`` section.  CLI
+            override; falls back to graph YAML ``anthropic_credential``.
         verbose: Show detailed step-level output during execution.
 
     Returns:
@@ -254,7 +270,7 @@ async def run_graph(
     if config is None:
         config = OrchestratorConfig()
 
-    graph, _, yaml_keep_panes, tools = _load_and_prepare_graph(
+    graph, _, yaml_keep_panes, tools, yaml_anthropic_name = _load_and_prepare_graph(
         graph_path, tmux_session=tmux_session, model_override=model_override
     )
     effective_keep_panes = keep_panes or yaml_keep_panes
@@ -265,6 +281,14 @@ async def run_graph(
     _validate_tmux_sessions(graph)
     validate_tools(tools)
     _record_run_start(repo_path, graph.name)
+
+    # Resolve Anthropic credential: CLI flag > graph YAML default > auto-select.
+    effective_anthropic_name = anthropic_credential_name or yaml_anthropic_name
+    anthropic_credential: Optional[AnthropicCredential] = None
+    if isinstance(credential_provider, FileCredentialProvider):
+        anthropic_credential = credential_provider.resolve_anthropic(
+            effective_anthropic_name
+        )
 
     # Create Docker network if any task uses OCI sandbox.
     uses_oci = _any_task_uses_oci(graph)
@@ -285,6 +309,7 @@ async def run_graph(
             keep_panes=effective_keep_panes,
             tools=tools,
             credential_provider=credential_provider,
+            anthropic_credential=anthropic_credential,
         )
         workstream_runner = build_standard_workstream_runner(
             repo_path=repo_path,
@@ -314,7 +339,7 @@ def dry_run(graph_path: Path) -> None:
     Args:
         graph_path: Path to the graph YAML file.
     """
-    graph, _, _, tools = _load_and_prepare_graph(graph_path)
+    graph, _, _, tools, _ = _load_and_prepare_graph(graph_path)
 
     print(f"Graph: {graph.name}")
     print(f"Tasks: {len(graph.task_ids())}")
@@ -437,6 +462,11 @@ def main() -> None:
         help="Path to credentials YAML file for sandboxed agents",
     )
     parser.add_argument(
+        "--anthropic-credential",
+        default=None,
+        help="Name of Anthropic credential from credentials YAML file",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate graph and print execution plan without running",
@@ -484,10 +514,17 @@ def main() -> None:
                 model_override=args.model,
                 config=config,
                 credential_provider=credential_provider,
+                anthropic_credential_name=args.anthropic_credential,
                 verbose=args.verbose,
             )
         )
-    except (_ConflictError, _SessionError, ToolValidationError, RuntimeError) as exc:
+    except (
+        _ConflictError,
+        _SessionError,
+        ToolValidationError,
+        ValueError,
+        RuntimeError,
+    ) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
 

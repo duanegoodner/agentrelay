@@ -5,7 +5,9 @@ from pathlib import Path
 import pytest
 
 from agentrelay.sandbox import (
+    AnthropicCredential,
     CredentialProvider,
+    CredentialType,
     FileCredentialProvider,
     TokenTier,
 )
@@ -35,37 +37,6 @@ class TestFileCredentialProvider:
         assert provider.resolve(TokenTier.READ_ONLY) == {"GH_TOKEN": "ghp_ro"}
         assert provider.resolve(TokenTier.STANDARD) == {"GH_TOKEN": "ghp_std"}
 
-    def test_resolve_merges_defaults(self, tmp_path: Path) -> None:
-        """Defaults are merged with tier-specific vars."""
-        cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text(
-            "defaults:\n"
-            "  ANTHROPIC_API_KEY: sk-ant-xxx\n"
-            "token_tiers:\n"
-            "  standard:\n"
-            "    GH_TOKEN: ghp_std\n"
-        )
-        provider = FileCredentialProvider(path=cred_file)
-        result = provider.resolve(TokenTier.STANDARD)
-        assert result == {
-            "ANTHROPIC_API_KEY": "sk-ant-xxx",
-            "GH_TOKEN": "ghp_std",
-        }
-
-    def test_tier_overrides_defaults_on_collision(self, tmp_path: Path) -> None:
-        """Tier-specific value wins when key exists in both defaults and tier."""
-        cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text(
-            "defaults:\n"
-            "  GH_TOKEN: ghp_default\n"
-            "token_tiers:\n"
-            "  elevated:\n"
-            "    GH_TOKEN: ghp_elevated\n"
-        )
-        provider = FileCredentialProvider(path=cred_file)
-        result = provider.resolve(TokenTier.ELEVATED)
-        assert result == {"GH_TOKEN": "ghp_elevated"}
-
     def test_missing_tier_raises(self, tmp_path: Path) -> None:
         """Raises ValueError when requested tier is not in the file."""
         cred_file = tmp_path / "creds.yaml"
@@ -74,17 +45,10 @@ class TestFileCredentialProvider:
         with pytest.raises(ValueError, match="elevated"):
             provider.resolve(TokenTier.ELEVATED)
 
-    def test_no_defaults_section(self, tmp_path: Path) -> None:
-        """File without defaults section returns only tier-specific vars."""
-        cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text("token_tiers:\n" "  read_only:\n" "    GH_TOKEN: ghp_ro\n")
-        provider = FileCredentialProvider(path=cred_file)
-        assert provider.resolve(TokenTier.READ_ONLY) == {"GH_TOKEN": "ghp_ro"}
-
     def test_no_token_tiers_section_raises_on_resolve(self, tmp_path: Path) -> None:
         """File without token_tiers section raises on any resolve."""
         cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text("defaults:\n  KEY: val\n")
+        cred_file.write_text("{}\n")
         provider = FileCredentialProvider(path=cred_file)
         with pytest.raises(ValueError, match="standard"):
             provider.resolve(TokenTier.STANDARD)
@@ -134,11 +98,233 @@ class TestFileCredentialProvider:
     def test_resolve_returns_new_dict_each_call(self, tmp_path: Path) -> None:
         """Each call returns a new dict (mutation-safe)."""
         cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text(
-            "defaults:\n  KEY: val\n" "token_tiers:\n  standard:\n    GH_TOKEN: ghp\n"
-        )
+        cred_file.write_text("token_tiers:\n  standard:\n    GH_TOKEN: ghp\n")
         provider = FileCredentialProvider(path=cred_file)
         d1 = provider.resolve(TokenTier.STANDARD)
         d2 = provider.resolve(TokenTier.STANDARD)
         assert d1 == d2
         assert d1 is not d2
+
+
+class TestResolveAnthropic:
+    """Tests for resolve_anthropic method."""
+
+    def test_no_section_returns_none(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text("token_tiers:\n  standard: {}\n")
+        provider = FileCredentialProvider(path=cred_file)
+        assert provider.resolve_anthropic() is None
+
+    def test_single_entry_auto_selects(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  my_key:\n"
+            "    type: api_key\n"
+            "    key: sk-ant-test\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic()
+        assert cred is not None
+        assert cred.name == "my_key"
+        assert cred.credential_type == CredentialType.API_KEY
+        assert cred.api_key == "sk-ant-test"
+
+    def test_select_by_name(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  dev:\n"
+            "    type: api_key\n"
+            "    key: sk-dev\n"
+            "  max:\n"
+            "    type: oauth\n"
+            "    path: ~/.claude/.credentials.json\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("max")
+        assert cred is not None
+        assert cred.name == "max"
+        assert cred.credential_type == CredentialType.OAUTH
+        assert cred.oauth_path == Path("~/.claude/.credentials.json").expanduser()
+
+    def test_multiple_entries_no_name_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  dev:\n"
+            "    type: api_key\n"
+            "    key: sk-dev\n"
+            "  max:\n"
+            "    type: oauth\n"
+            "    path: ~/.claude/.credentials.json\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        with pytest.raises(ValueError, match="Multiple Anthropic credentials"):
+            provider.resolve_anthropic()
+
+    def test_unknown_name_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  dev:\n"
+            "    type: api_key\n"
+            "    key: sk-dev\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        with pytest.raises(ValueError, match="not found"):
+            provider.resolve_anthropic("nonexistent")
+
+    def test_api_key_type_fields(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  test:\n"
+            "    type: api_key\n"
+            "    key: sk-ant-xxx\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("test")
+        assert isinstance(cred, AnthropicCredential)
+        assert cred.credential_type == CredentialType.API_KEY
+        assert cred.api_key == "sk-ant-xxx"
+        assert cred.oauth_path is None
+
+    def test_oauth_type_fields(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  test:\n"
+            "    type: oauth\n"
+            "    path: ~/.claude/.credentials.json\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("test")
+        assert isinstance(cred, AnthropicCredential)
+        assert cred.credential_type == CredentialType.OAUTH
+        assert cred.oauth_path == Path("~/.claude/.credentials.json").expanduser()
+        assert cred.api_key is None
+
+    def test_anthropic_names_property(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  zebra:\n"
+            "    type: api_key\n"
+            "    key: sk-z\n"
+            "  alpha:\n"
+            "    type: api_key\n"
+            "    key: sk-a\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        assert provider.anthropic_names == ["alpha", "zebra"]
+
+    def test_missing_type_field_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    key: sk-xxx\n"
+        )
+        with pytest.raises(ValueError, match="must have a 'type' field"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_api_key_missing_key_and_key_file_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: api_key\n"
+        )
+        with pytest.raises(ValueError, match="'key' or 'key_file'"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_api_key_from_file(self, tmp_path: Path) -> None:
+        key_file = tmp_path / "api_key"
+        key_file.write_text("sk-ant-from-file")
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  test:\n"
+            "    type: api_key\n"
+            f"    key_file: {key_file}\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("test")
+        assert cred is not None
+        assert cred.api_key == "sk-ant-from-file"
+
+    def test_api_key_file_strips_whitespace(self, tmp_path: Path) -> None:
+        key_file = tmp_path / "api_key"
+        key_file.write_text("  sk-ant-padded  \n")
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  test:\n"
+            "    type: api_key\n"
+            f"    key_file: {key_file}\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("test")
+        assert cred is not None
+        assert cred.api_key == "sk-ant-padded"
+
+    def test_api_key_file_not_found_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: api_key\n"
+            f"    key_file: {tmp_path / 'nonexistent'}\n"
+        )
+        with pytest.raises(ValueError, match="key_file not found"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_api_key_both_key_and_key_file_raises(self, tmp_path: Path) -> None:
+        key_file = tmp_path / "api_key"
+        key_file.write_text("sk-ant-file")
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: api_key\n"
+            "    key: sk-ant-inline\n"
+            f"    key_file: {key_file}\n"
+        )
+        with pytest.raises(ValueError, match="both 'key' and 'key_file'"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_oauth_missing_path_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: oauth\n"
+        )
+        with pytest.raises(ValueError, match="must have a 'path' field"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_invalid_type_value_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: invalid\n"
+        )
+        with pytest.raises(ValueError, match="must be one of"):
+            FileCredentialProvider(path=cred_file)
