@@ -177,10 +177,6 @@
          <lastmod>2026-03-31</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/sprints/2026-03-30-oauth-containers/</loc>
-         <lastmod>2026-03-31</lastmod>
-    </url>
-    <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-03-10-arch-improvements/</loc>
          <lastmod>2026-03-31</lastmod>
     </url>
@@ -202,6 +198,10 @@
     </url>
     <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-03-26-supplementary-info-agent-isolation/</loc>
+         <lastmod>2026-03-31</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-03-30-oauth-containers/</loc>
          <lastmod>2026-03-31</lastmod>
     </url>
 </urlset>
