@@ -1187,10 +1187,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.AnthropicCredential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnthropicCredential
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.sandbox.ContainerRuntime" class="md-nav__link">
     <span class="md-ellipsis">
       
         ContainerRuntime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.CredentialType" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CredentialType
       
     </span>
   </a>
@@ -1360,6 +1382,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.FileCredentialProvider.anthropic_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        anthropic_names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#agentrelay.sandbox.FileCredentialProvider.__init__" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1375,6 +1408,17 @@
     <span class="md-ellipsis">
       
         resolve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.FileCredentialProvider.resolve_anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_anthropic
       
     </span>
   </a>
@@ -1764,10 +1808,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.AnthropicCredential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AnthropicCredential
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.sandbox.ContainerRuntime" class="md-nav__link">
     <span class="md-ellipsis">
       
         ContainerRuntime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.CredentialType" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CredentialType
       
     </span>
   </a>
@@ -1937,6 +2003,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.FileCredentialProvider.anthropic_names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        anthropic_names
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#agentrelay.sandbox.FileCredentialProvider.__init__" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1952,6 +2029,17 @@
     <span class="md-ellipsis">
       
         resolve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.sandbox.FileCredentialProvider.resolve_anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        resolve_anthropic
       
     </span>
   </a>
@@ -2394,6 +2482,167 @@ wrapped by an :class:<code>AgentSandbox</code> before execution.</p>
 
 
 
+<h2 id="agentrelay.sandbox.AnthropicCredential" class="doc doc-heading">
+            <code>AnthropicCredential</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Resolved Anthropic credential for agent authentication.</p>
+<p>Holds a named credential entry from the credentials YAML
+<code>anthropic</code> section, with type-specific fields populated.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.AnthropicCredential.name">name</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Key from the YAML <code>anthropic</code> section (e.g.,
+<code>"dev_api_key"</code>, <code>"max_plan"</code>).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.AnthropicCredential.credential_type">credential_type</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="CredentialType (agentrelay.sandbox.core.config.CredentialType)" href="#agentrelay.sandbox.CredentialType">CredentialType</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether this is an API key or OAuth credential.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.AnthropicCredential.api_key">api_key</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The API key string.  Set when <code>credential_type</code>
+is :attr:<code>CredentialType.API_KEY</code>, <code>None</code> otherwise.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.AnthropicCredential.oauth_path">oauth_path</span></code></td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Path to the <code>.credentials.json</code> file.  Set when
+<code>credential_type</code> is :attr:<code>CredentialType.OAUTH</code>,
+<code>None</code> otherwise.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnthropicCredential</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolved Anthropic credential for agent authentication.</span>
+
+<span class="sd">    Holds a named credential entry from the credentials YAML</span>
+<span class="sd">    ``anthropic`` section, with type-specific fields populated.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name: Key from the YAML ``anthropic`` section (e.g.,</span>
+<span class="sd">            ``&quot;dev_api_key&quot;``, ``&quot;max_plan&quot;``).</span>
+<span class="sd">        credential_type: Whether this is an API key or OAuth credential.</span>
+<span class="sd">        api_key: The API key string.  Set when ``credential_type``</span>
+<span class="sd">            is :attr:`CredentialType.API_KEY`, ``None`` otherwise.</span>
+<span class="sd">        oauth_path: Path to the ``.credentials.json`` file.  Set when</span>
+<span class="sd">            ``credential_type`` is :attr:`CredentialType.OAUTH`,</span>
+<span class="sd">            ``None`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">credential_type</span><span class="p">:</span> <span class="n">CredentialType</span>
+    <span class="n">api_key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">oauth_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="agentrelay.sandbox.ContainerRuntime" class="doc doc-heading">
             <code>ContainerRuntime</code>
 
@@ -2452,16 +2701,16 @@ wrapped by an :class:<code>AgentSandbox</code> before execution.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
-<span class="normal">58</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ContainerRuntime</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ContainerRuntime</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Container runtime binary for OCI sandbox execution.</span>
 
 <span class="sd">    Attributes:</span>
@@ -2471,6 +2720,111 @@ wrapped by an :class:<code>AgentSandbox</code> before execution.</p>
 
     <span class="n">DOCKER</span> <span class="o">=</span> <span class="s2">&quot;docker&quot;</span>
     <span class="n">PODMAN</span> <span class="o">=</span> <span class="s2">&quot;podman&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.sandbox.CredentialType" class="doc doc-heading">
+            <code>CredentialType</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Type of Anthropic credential for agent authentication.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.CredentialType.API_KEY">API_KEY</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Pay-per-token API key (injected as env var).</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.CredentialType.OAUTH">OAUTH</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Max plan OAuth token file (<code>.credentials.json</code>).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CredentialType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of Anthropic credential for agent authentication.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        API_KEY: Pay-per-token API key (injected as env var).</span>
+<span class="sd">        OAUTH: Max plan OAuth token file (``.credentials.json``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">API_KEY</span> <span class="o">=</span> <span class="s2">&quot;api_key&quot;</span>
+    <span class="n">OAUTH</span> <span class="o">=</span> <span class="s2">&quot;oauth&quot;</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2585,24 +2939,24 @@ during YAML parsing before constructing this type.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">IsolationConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fully-resolved sandbox configuration for an agent or task.</span>
 
@@ -2756,28 +3110,28 @@ environment variables it needs to set up and wrap agent commands.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SandboxContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution context passed to sandbox operations.</span>
 
@@ -2885,16 +3239,16 @@ environment variables it needs to set up and wrap agent commands.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
 <span class="normal">26</span>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SandboxType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">SandboxType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Type of sandbox execution boundary.</span>
 
 <span class="sd">    Attributes:</span>
@@ -3000,9 +3354,7 @@ environment variables it needs to set up and wrap agent commands.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/core/config.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
@@ -3011,7 +3363,9 @@ environment variables it needs to set up and wrap agent commands.</p>
 <span class="normal">43</span>
 <span class="normal">44</span>
 <span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenTier</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TokenTier</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Permission tier for credential injection into sandboxed agents.</span>
 
 <span class="sd">    Attributes:</span>
@@ -3951,10 +4305,9 @@ environment variable, optional model flag, and permission skip flag.</p>
 
 
         <p>Resolve credential environment variables from a YAML file.</p>
-<p>The YAML file contains an optional <code>defaults</code> mapping (injected for
-every tier) and a <code>token_tiers</code> mapping keyed by tier value. On
-:meth:<code>resolve</code>, the defaults are merged with the requested tier's
-entries; tier-specific values override defaults on key collision.</p>
+<p>The YAML file contains a <code>token_tiers</code> mapping keyed by tier value
+and an optional <code>anthropic</code> mapping of named Anthropic credentials.
+On :meth:<code>resolve</code>, the requested tier's entries are returned.</p>
 <p>The file is read once at construction time and cached.</p>
 
 
@@ -3990,24 +4343,7 @@ entries; tier-specific values override defaults on key collision.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/implementations/file_credentials.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 31</span>
-<span class="normal"> 32</span>
-<span class="normal"> 33</span>
-<span class="normal"> 34</span>
-<span class="normal"> 35</span>
-<span class="normal"> 36</span>
-<span class="normal"> 37</span>
-<span class="normal"> 38</span>
-<span class="normal"> 39</span>
-<span class="normal"> 40</span>
-<span class="normal"> 41</span>
-<span class="normal"> 42</span>
-<span class="normal"> 43</span>
-<span class="normal"> 44</span>
-<span class="normal"> 45</span>
-<span class="normal"> 46</span>
-<span class="normal"> 47</span>
-<span class="normal"> 48</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 48</span>
 <span class="normal"> 49</span>
 <span class="normal"> 50</span>
 <span class="normal"> 51</span>
@@ -4063,13 +4399,123 @@ entries; tier-specific values override defaults on key collision.</p>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
-<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FileCredentialProvider</span><span class="p">:</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FileCredentialProvider</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve credential environment variables from a YAML file.</span>
 
-<span class="sd">    The YAML file contains an optional ``defaults`` mapping (injected for</span>
-<span class="sd">    every tier) and a ``token_tiers`` mapping keyed by tier value. On</span>
-<span class="sd">    :meth:`resolve`, the defaults are merged with the requested tier&#39;s</span>
-<span class="sd">    entries; tier-specific values override defaults on key collision.</span>
+<span class="sd">    The YAML file contains a ``token_tiers`` mapping keyed by tier value</span>
+<span class="sd">    and an optional ``anthropic`` mapping of named Anthropic credentials.</span>
+<span class="sd">    On :meth:`resolve`, the requested tier&#39;s entries are returned.</span>
 
 <span class="sd">    The file is read once at construction time and cached.</span>
 
@@ -4095,9 +4541,7 @@ entries; tier-specific values override defaults on key collision.</p>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Credential file must be a YAML mapping, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;defaults&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span>
+
         <span class="n">raw_tiers</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token_tiers&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_tiers</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -4112,11 +4556,71 @@ entries; tier-specific values override defaults on key collision.</p>
                 <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tier_key</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tier_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
+        <span class="c1"># Parse optional anthropic credentials section.</span>
+        <span class="n">raw_anthropic</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anthropic&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_anthropic</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;anthropic must be a mapping, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">raw_anthropic</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AnthropicCredential</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">raw_anthropic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be a mapping, &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have a &#39;type&#39; field&quot;</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">ctype</span> <span class="o">=</span> <span class="n">CredentialType</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.type must be one of &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">CredentialType</span><span class="p">]</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">:</span>
+                <span class="n">has_key</span> <span class="o">=</span> <span class="s2">&quot;key&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+                <span class="n">has_key_file</span> <span class="o">=</span> <span class="s2">&quot;key_file&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+                <span class="k">if</span> <span class="n">has_key</span> <span class="ow">and</span> <span class="n">has_key_file</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> has both &#39;key&#39; and &#39;key_file&#39;; &quot;</span>
+                        <span class="s2">&quot;specify exactly one&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="n">has_key</span><span class="p">:</span>
+                    <span class="n">api_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">has_key_file</span><span class="p">:</span>
+                    <span class="n">key_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;key_file&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">api_key</span> <span class="o">=</span> <span class="n">key_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.key_file not found: </span><span class="si">{</span><span class="n">key_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> with type &#39;api_key&#39; must have &quot;</span>
+                        <span class="s2">&quot;a &#39;key&#39; or &#39;key_file&#39; field&quot;</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">AnthropicCredential</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                    <span class="n">credential_type</span><span class="o">=</span><span class="n">ctype</span><span class="p">,</span>
+                    <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">OAUTH</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> with type &#39;oauth&#39; must have a &#39;path&#39; field&quot;</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">AnthropicCredential</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                    <span class="n">credential_type</span><span class="o">=</span><span class="n">ctype</span><span class="p">,</span>
+                    <span class="n">oauth_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(),</span>
+                <span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">:</span> <span class="n">TokenTier</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve credentials for the given token tier.</span>
 
-<span class="sd">        Returns defaults merged with the tier-specific credentials.</span>
-<span class="sd">        Tier-specific values override defaults on key collision.</span>
+<span class="sd">        Returns the tier-specific credential environment variables.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            tier: Permission tier to resolve credentials for.</span>
@@ -4134,9 +4638,46 @@ entries; tier-specific values override defaults on key collision.</p>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">; available tiers: &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">)</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="p">[</span><span class="n">tier</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="p">[</span><span class="n">tier</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_anthropic</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AnthropicCredential</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolve a named Anthropic credential.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            name: Credential name from the YAML ``anthropic`` section.</span>
+<span class="sd">                When ``None``, auto-selects if exactly one entry exists.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The resolved credential, or ``None`` if no ``anthropic``</span>
+<span class="sd">            section is defined.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``name`` is not found, or if multiple entries</span>
+<span class="sd">                exist and ``name`` is not specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Anthropic credential </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">; &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;available: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Multiple Anthropic credentials defined in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;specify one with --anthropic-credential: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">anthropic_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sorted list of available Anthropic credential names.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -4149,6 +4690,28 @@ entries; tier-specific values override defaults on key collision.</p>
 
 
 
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="agentrelay.sandbox.FileCredentialProvider.anthropic_names" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">anthropic_names</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Sorted list of available Anthropic credential names.</p>
+
+    </div>
+
+</div>
 
 
 
@@ -4234,40 +4797,99 @@ unexpected structure.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/file_credentials.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and parse the credential YAML file.</span>
 
 <span class="sd">    Args:</span>
@@ -4285,9 +4907,7 @@ unexpected structure.</p>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Credential file must be a YAML mapping, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;defaults&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-    <span class="p">}</span>
+
     <span class="n">raw_tiers</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token_tiers&quot;</span><span class="p">,</span> <span class="p">{})</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_tiers</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -4301,6 +4921,67 @@ unexpected structure.</p>
                 <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">tier_vars</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">tier_key</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tier_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+    <span class="c1"># Parse optional anthropic credentials section.</span>
+    <span class="n">raw_anthropic</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;anthropic&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_anthropic</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;anthropic must be a mapping, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">raw_anthropic</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AnthropicCredential</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">raw_anthropic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must be a mapping, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> must have a &#39;type&#39; field&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ctype</span> <span class="o">=</span> <span class="n">CredentialType</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.type must be one of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">CredentialType</span><span class="p">]</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ctype</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">:</span>
+            <span class="n">has_key</span> <span class="o">=</span> <span class="s2">&quot;key&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+            <span class="n">has_key_file</span> <span class="o">=</span> <span class="s2">&quot;key_file&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+            <span class="k">if</span> <span class="n">has_key</span> <span class="ow">and</span> <span class="n">has_key_file</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> has both &#39;key&#39; and &#39;key_file&#39;; &quot;</span>
+                    <span class="s2">&quot;specify exactly one&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_key</span><span class="p">:</span>
+                <span class="n">api_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">has_key_file</span><span class="p">:</span>
+                <span class="n">key_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;key_file&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">api_key</span> <span class="o">=</span> <span class="n">key_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.key_file not found: </span><span class="si">{</span><span class="n">key_path</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> with type &#39;api_key&#39; must have &quot;</span>
+                    <span class="s2">&quot;a &#39;key&#39; or &#39;key_file&#39; field&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">AnthropicCredential</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">credential_type</span><span class="o">=</span><span class="n">ctype</span><span class="p">,</span>
+                <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ctype</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">OAUTH</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;path&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;anthropic.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> with type &#39;oauth&#39; must have a &#39;path&#39; field&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">AnthropicCredential</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+                <span class="n">credential_type</span><span class="o">=</span><span class="n">ctype</span><span class="p">,</span>
+                <span class="n">oauth_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(),</span>
+            <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -4319,8 +5000,7 @@ unexpected structure.</p>
     <div class="doc doc-contents ">
 
         <p>Resolve credentials for the given token tier.</p>
-<p>Returns defaults merged with the tier-specific credentials.
-Tier-specific values override defaults on key collision.</p>
+<p>Returns the tier-specific credential environment variables.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -4403,35 +5083,31 @@ credential file.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/file_credentials.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">:</span> <span class="n">TokenTier</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tier</span><span class="p">:</span> <span class="n">TokenTier</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve credentials for the given token tier.</span>
 
-<span class="sd">    Returns defaults merged with the tier-specific credentials.</span>
-<span class="sd">    Tier-specific values override defaults on key collision.</span>
+<span class="sd">    Returns the tier-specific credential environment variables.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        tier: Permission tier to resolve credentials for.</span>
@@ -4449,9 +5125,193 @@ credential file.</p>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">; available tiers: &quot;</span>
             <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_defaults</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="p">[</span><span class="n">tier</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tiers</span><span class="p">[</span><span class="n">tier</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.sandbox.FileCredentialProvider.resolve_anthropic" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">resolve_anthropic</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Resolve a named Anthropic credential.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>name</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Credential name from the YAML <code>anthropic</code> section.
+When <code>None</code>, auto-selects if exactly one entry exists.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="AnthropicCredential
+
+
+  
+      dataclass
+   (agentrelay.sandbox.core.config.AnthropicCredential)" href="#agentrelay.sandbox.AnthropicCredential">AnthropicCredential</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The resolved credential, or <code>None</code> if no <code>anthropic</code></p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="AnthropicCredential
+
+
+  
+      dataclass
+   (agentrelay.sandbox.core.config.AnthropicCredential)" href="#agentrelay.sandbox.AnthropicCredential">AnthropicCredential</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>section is defined.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>name</code> is not found, or if multiple entries
+exist and <code>name</code> is not specified.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/sandbox/implementations/file_credentials.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_anthropic</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AnthropicCredential</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a named Anthropic credential.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        name: Credential name from the YAML ``anthropic`` section.</span>
+<span class="sd">            When ``None``, auto-selects if exactly one entry exists.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The resolved credential, or ``None`` if no ``anthropic``</span>
+<span class="sd">        section is defined.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``name`` is not found, or if multiple entries</span>
+<span class="sd">            exist and ``name`` is not specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Anthropic credential </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> not found in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;available: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Multiple Anthropic credentials defined in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">; &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;specify one with --anthropic-credential: &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_anthropic</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -5072,6 +5932,17 @@ that internal git references resolve without modification.</p>
               </div>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.OciSandbox._anthropic_credential">_anthropic_credential</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Resolved Anthropic credential for
+agent authentication, or <code>None</code> for no Anthropic auth.</p>
+              </div>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -5084,12 +5955,7 @@ that internal git references resolve without modification.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 24</span>
-<span class="normal"> 25</span>
-<span class="normal"> 26</span>
-<span class="normal"> 27</span>
-<span class="normal"> 28</span>
-<span class="normal"> 29</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 29</span>
 <span class="normal"> 30</span>
 <span class="normal"> 31</span>
 <span class="normal"> 32</span>
@@ -5193,7 +6059,33 @@ that internal git references resolve without modification.</p>
 <span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span>
-<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;OCI container sandbox — wraps agent commands in ``docker run``.</span>
 
 <span class="sd">    Mounts the git worktree, signal directory, and main ``.git/``</span>
@@ -5204,15 +6096,19 @@ that internal git references resolve without modification.</p>
 <span class="sd">        _image: Container image to use.</span>
 <span class="sd">        _runtime: Container runtime binary name (``&quot;docker&quot;`` or</span>
 <span class="sd">            ``&quot;podman&quot;``).</span>
+<span class="sd">        _anthropic_credential: Resolved Anthropic credential for</span>
+<span class="sd">            agent authentication, or ``None`` for no Anthropic auth.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">runtime</span><span class="p">:</span> <span class="n">ContainerRuntime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">anthropic_credential</span><span class="p">:</span> <span class="n">AnthropicCredential</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="n">image</span> <span class="ow">or</span> <span class="n">_DEFAULT_IMAGE</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span> <span class="o">=</span> <span class="p">(</span><span class="n">runtime</span> <span class="ow">or</span> <span class="n">ContainerRuntime</span><span class="o">.</span><span class="n">DOCKER</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic_credential</span> <span class="o">=</span> <span class="n">anthropic_credential</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate runtime and network are available.</span>
@@ -5247,32 +6143,49 @@ that internal git references resolve without modification.</p>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The full ``docker run ...`` command string.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``ANTHROPIC_API_KEY`` is found in</span>
+<span class="sd">                ``context.env_vars`` (should come from</span>
+<span class="sd">                :class:`AnthropicCredential`, not env vars).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;ANTHROPIC_API_KEY must not be in SandboxContext.env_vars; &quot;</span>
+                <span class="s2">&quot;use the &#39;anthropic&#39; section in the credentials YAML instead&quot;</span>
+            <span class="p">)</span>
+
         <span class="n">git_dir</span> <span class="o">=</span> <span class="n">git_ops</span><span class="o">.</span><span class="n">worktree_git_dir</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)</span>
         <span class="n">volumes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)),</span>
             <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)),</span>
             <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">)),</span>
         <span class="p">]</span>
-        <span class="c1"># Rename ANTHROPIC_API_KEY to _ANTHROPIC_API_KEY so Claude Code</span>
-        <span class="c1"># doesn&#39;t detect it and show an interactive confirmation prompt.</span>
-        <span class="c1"># The apiKeyHelper in settings.json echoes $_ANTHROPIC_API_KEY.</span>
-        <span class="n">renamed_vars</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span>
-                <span class="n">renamed_vars</span><span class="p">[</span><span class="s2">&quot;_ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">renamed_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># Anthropic credential injection — type-specific handling.</span>
+        <span class="n">extra_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic_credential</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic_credential</span>
+            <span class="k">if</span> <span class="n">cred</span><span class="o">.</span><span class="n">credential_type</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">cred</span><span class="o">.</span><span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">extra_env</span><span class="p">[</span><span class="s2">&quot;_ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cred</span><span class="o">.</span><span class="n">api_key</span>
+            <span class="k">elif</span> <span class="n">cred</span><span class="o">.</span><span class="n">credential_type</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">OAUTH</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">cred</span><span class="o">.</span><span class="n">oauth_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="n">volumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cred</span><span class="o">.</span><span class="n">oauth_path</span><span class="p">),</span> <span class="s2">&quot;/tmp/.claude-credentials.json&quot;</span><span class="p">,</span> <span class="s2">&quot;ro&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+
         <span class="n">env_vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="o">**</span><span class="n">renamed_vars</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">extra_env</span><span class="p">,</span>
             <span class="s2">&quot;IS_AI_AGENT&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
             <span class="s2">&quot;TERM&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TERM&quot;</span><span class="p">,</span> <span class="s2">&quot;xterm-256color&quot;</span><span class="p">),</span>
             <span class="s2">&quot;DISABLE_AUTOUPDATER&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
             <span class="s2">&quot;CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="c1"># Seed Claude Code folder trust for the container workdir.</span>
-        <span class="c1"># The trust-workdir script is baked into the framework image.</span>
-        <span class="n">full_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;claude-trust-workdir &amp;&amp; </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="c1"># Startup chain: generate settings.json, seed folder trust, then agent.</span>
+        <span class="c1"># Both scripts are baked into the framework image.</span>
+        <span class="n">full_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;claude-setup-credentials &amp;&amp; claude-trust-workdir &amp;&amp; </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
             <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
@@ -5395,16 +6308,7 @@ the Docker network does not exist.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
@@ -5412,7 +6316,16 @@ the Docker network does not exist.</p>
 <span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
-<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate runtime and network are available.</span>
 
 <span class="sd">    Args:</span>
@@ -5534,18 +6447,34 @@ the Docker network does not exist.</p>
     </table>
 
 
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ValueError">ValueError</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If <code>ANTHROPIC_API_KEY</code> is found in
+<code>context.env_vars</code> (should come from
+:class:<code>AnthropicCredential</code>, not env vars).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 73</span>
 <span class="normal"> 74</span>
 <span class="normal"> 75</span>
 <span class="normal"> 76</span>
@@ -5589,7 +6518,33 @@ the Docker network does not exist.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">wrap_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap an agent command in ``docker run`` with bind mounts and env vars.</span>
 
 <span class="sd">    Mounts:</span>
@@ -5603,32 +6558,49 @@ the Docker network does not exist.</p>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The full ``docker run ...`` command string.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``ANTHROPIC_API_KEY`` is found in</span>
+<span class="sd">            ``context.env_vars`` (should come from</span>
+<span class="sd">            :class:`AnthropicCredential`, not env vars).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;ANTHROPIC_API_KEY must not be in SandboxContext.env_vars; &quot;</span>
+            <span class="s2">&quot;use the &#39;anthropic&#39; section in the credentials YAML instead&quot;</span>
+        <span class="p">)</span>
+
     <span class="n">git_dir</span> <span class="o">=</span> <span class="n">git_ops</span><span class="o">.</span><span class="n">worktree_git_dir</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)</span>
     <span class="n">volumes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">)),</span>
         <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)),</span>
         <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">git_dir</span><span class="p">)),</span>
     <span class="p">]</span>
-    <span class="c1"># Rename ANTHROPIC_API_KEY to _ANTHROPIC_API_KEY so Claude Code</span>
-    <span class="c1"># doesn&#39;t detect it and show an interactive confirmation prompt.</span>
-    <span class="c1"># The apiKeyHelper in settings.json echoes $_ANTHROPIC_API_KEY.</span>
-    <span class="n">renamed_vars</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;ANTHROPIC_API_KEY&quot;</span><span class="p">:</span>
-            <span class="n">renamed_vars</span><span class="p">[</span><span class="s2">&quot;_ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">renamed_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1"># Anthropic credential injection — type-specific handling.</span>
+    <span class="n">extra_env</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic_credential</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_anthropic_credential</span>
+        <span class="k">if</span> <span class="n">cred</span><span class="o">.</span><span class="n">credential_type</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">API_KEY</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">cred</span><span class="o">.</span><span class="n">api_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">extra_env</span><span class="p">[</span><span class="s2">&quot;_ANTHROPIC_API_KEY&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cred</span><span class="o">.</span><span class="n">api_key</span>
+        <span class="k">elif</span> <span class="n">cred</span><span class="o">.</span><span class="n">credential_type</span> <span class="o">==</span> <span class="n">CredentialType</span><span class="o">.</span><span class="n">OAUTH</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">cred</span><span class="o">.</span><span class="n">oauth_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">volumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">cred</span><span class="o">.</span><span class="n">oauth_path</span><span class="p">),</span> <span class="s2">&quot;/tmp/.claude-credentials.json&quot;</span><span class="p">,</span> <span class="s2">&quot;ro&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
     <span class="n">env_vars</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="o">**</span><span class="n">renamed_vars</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">context</span><span class="o">.</span><span class="n">env_vars</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">extra_env</span><span class="p">,</span>
         <span class="s2">&quot;IS_AI_AGENT&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
         <span class="s2">&quot;TERM&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;TERM&quot;</span><span class="p">,</span> <span class="s2">&quot;xterm-256color&quot;</span><span class="p">),</span>
         <span class="s2">&quot;DISABLE_AUTOUPDATER&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
         <span class="s2">&quot;CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
     <span class="p">}</span>
-    <span class="c1"># Seed Claude Code folder trust for the container workdir.</span>
-    <span class="c1"># The trust-workdir script is baked into the framework image.</span>
-    <span class="n">full_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;claude-trust-workdir &amp;&amp; </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># Startup chain: generate settings.json, seed folder trust, then agent.</span>
+    <span class="c1"># Both scripts are baked into the framework image.</span>
+    <span class="n">full_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;claude-setup-credentials &amp;&amp; claude-trust-workdir &amp;&amp; </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
         <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
@@ -5701,21 +6673,21 @@ the Docker network does not exist.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop and remove the container, swallowing errors if already gone.</span>
 
 <span class="sd">    Args:</span>

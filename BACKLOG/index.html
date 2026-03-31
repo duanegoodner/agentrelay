@@ -564,10 +564,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-isolation" class="md-nav__link">
+  <a href="#credential-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Isolation
+        Credential Management
       
     </span>
   </a>
@@ -575,10 +575,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#credential-management" class="md-nav__link">
+  <a href="#container-infrastructure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Credential Management
+        Container Infrastructure
       
     </span>
   </a>
@@ -663,10 +663,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-build-environment-awareness" class="md-nav__link">
+  <a href="#framework-specific-agent-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Build Environment Awareness
+        Framework-Specific Agent Configuration
       
     </span>
   </a>
@@ -674,10 +674,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-ops-concerns" class="md-nav__link">
+  <a href="#agent-build-environment-awareness" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Ops Concerns
+        Agent Build Environment Awareness
       
     </span>
   </a>
@@ -739,17 +739,6 @@
     <span class="md-ellipsis">
       
         Agent-Assisted Integration Branch Merging
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cross-workstream-dependency-ordering-resolved" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ~~Cross-Workstream Dependency Ordering~~ — resolved
       
     </span>
   </a>
@@ -827,6 +816,17 @@
     <span class="md-ellipsis">
       
         Signal Directory Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
       
     </span>
   </a>
@@ -1681,10 +1681,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-isolation" class="md-nav__link">
+  <a href="#credential-management" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Isolation
+        Credential Management
       
     </span>
   </a>
@@ -1692,10 +1692,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#credential-management" class="md-nav__link">
+  <a href="#container-infrastructure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Credential Management
+        Container Infrastructure
       
     </span>
   </a>
@@ -1780,10 +1780,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-build-environment-awareness" class="md-nav__link">
+  <a href="#framework-specific-agent-configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Build Environment Awareness
+        Framework-Specific Agent Configuration
       
     </span>
   </a>
@@ -1791,10 +1791,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-ops-concerns" class="md-nav__link">
+  <a href="#agent-build-environment-awareness" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Agent Ops Concerns
+        Agent Build Environment Awareness
       
     </span>
   </a>
@@ -1856,17 +1856,6 @@
     <span class="md-ellipsis">
       
         Agent-Assisted Integration Branch Merging
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cross-workstream-dependency-ordering-resolved" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        ~~Cross-Workstream Dependency Ordering~~ — resolved
       
     </span>
   </a>
@@ -1951,6 +1940,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1996,16 +1996,12 @@
 </ul>
 <h2 id="integration">Integration</h2>
 <ul>
-<li>Map v01 graph/task-launch behavior onto current architecture interfaces.</li>
-<li>Define a migration path so prototype-only concepts land behind stable abstractions.</li>
+<li><strong>Prototype feature audit</strong>: Audit <code>src/agentrelay/prototypes/v01/</code>
+  functionality, compare against the primary architecture, and determine if
+  any features from the prototype are missing and ought to be added. The
+  prototype was clumsy but had useful capabilities that shouldn't be
+  accidentally dropped.</li>
 </ul>
-<h2 id="agent-isolation">Agent Isolation</h2>
-<p>~~Separate Linux user + scoped GitHub PAT for agent sessions.~~ <strong>Completed
-in sprint 2026-03-26</strong> (<code>docs/sprints/2026-03-26-agent-isolation.md</code>):
-container-per-task Docker isolation, <code>AgentSandbox</code> protocol, scoped PATs via
-<code>CredentialProvider</code>, four-level inheritance (graph → workstream → task → agent),
-agent boundary instructions, <code>IS_AI_AGENT</code> env var, git pre-push hooks. See
-<code>docs/discussions/AGENT_ISOLATION_REFINED.md</code> for full analysis.</p>
 <h2 id="credential-management">Credential Management</h2>
 <ul>
 <li><strong>Project-specific credentials files</strong>: Currently <code>--credentials</code> takes a
@@ -2025,46 +2021,51 @@ agent boundary instructions, <code>IS_AI_AGENT</code> env var, git pre-push hook
     grows beyond just credentials.</li>
 <li><strong>Convention-based resolution</strong>: auto-resolve based on target repo path
     or name, falling back to the global default.</li>
-<li><strong>GitHub App for elevated merge authority</strong>: Fine-grained PATs are scoped
-  by permissions but not by identity — all PATs under a single GitHub account
-  share the same bypass/protection status in branch rulesets. A GitHub App
-  acts as a separate identity that can be added to a ruleset's bypass list,
-  giving it merge authority that personal PATs lack. The App authenticates
-  via a private key (<code>.pem</code>) → JWT → short-lived installation access token
-  flow. Would require either a <code>GitHubAppCredentialProvider</code> or refresh
-  logic in <code>FileCredentialProvider</code> to handle token expiration (~1 hour).
-  This is the right long-term answer for the <code>elevated</code> token tier; not
-  needed while all e2e testing uses a single GitHub account.</li>
-<li><strong>Max plan OAuth credentials in containers</strong>: Currently using
-  <code>ANTHROPIC_API_KEY</code> env var (pay-per-token) via <code>apiKeyHelper</code> in
-  settings (PR Fcleanup renamed the env var to <code>_ANTHROPIC_API_KEY</code> to
-  avoid Claude Code's interactive confirmation prompt). The Max plan is
-  preferred to avoid separate API costs. The image already supports both
-  strategies without rebuilding — credential approach is a runtime concern:</li>
-<li><strong>API key</strong> (current): <code>CredentialProvider</code> injects
-    <code>_ANTHROPIC_API_KEY</code> → <code>apiKeyHelper</code> echoes it. Works today.</li>
-<li><strong>Max plan OAuth</strong>: mount host <code>~/.claude/.credentials.json</code> into
-    container as a read-only volume. Claude Code reads OAuth tokens
-    directly. Requires:<ul>
-<li>New volume mount in <code>OciSandbox.wrap_command()</code> for the credentials
-  file (path from a new config field or CLI flag).</li>
-<li>Verify Claude Code doesn't need write access to <code>.credentials.json</code>
-  (token refresh writes back). If it does, mount read-write or
-  extract the access token and inject as <code>ANTHROPIC_AUTH_TOKEN</code> env
-  var instead.</li>
-<li>Skip <code>apiKeyHelper</code> when no API key is in the credential provider
-  output (helper would echo empty string).</li>
-<li>Test with UID-aligned container (UID 1000 should match host file
-  ownership).</li>
+<li><strong>Merge authority for isolated agents</strong>: Currently, isolated (containerized)
+  agents cannot merge PRs into main — the <code>elevated</code> token tier has no actual
+  permission differentiation from <code>standard</code>. We need the ability to
+  selectively grant isolated agents merge-to-main capability while still
+  enforcing the same safeguards as non-isolated merge agents (no merge when
+  design concerns are raised, concern-gated auto-merge).
+  Possible approaches:</li>
+<li><strong>GitHub App</strong>: A GitHub App acts as a separate identity that can be
+    added to a branch ruleset's bypass list, giving merge authority that
+    personal PATs lack (fine-grained PATs all share the human user's
+    identity). Authenticates via private key (<code>.pem</code>) → JWT → short-lived
+    installation access token (~1 hour). Would require a
+    <code>GitHubAppCredentialProvider</code> or refresh logic in
+    <code>FileCredentialProvider</code>.</li>
+<li><strong>Ruleset-scoped PAT</strong>: If GitHub adds per-PAT bypass support in branch
+    rulesets, a dedicated elevated PAT could be granted merge access
+    directly. Simpler than a GitHub App but depends on GitHub feature
+    availability.</li>
+<li><strong>Orchestrator-mediated merge</strong>: Instead of giving the agent direct
+    merge credentials, the agent signals "ready to merge" and the
+    orchestrator (running on the host with full credentials) performs the
+    merge after validating concern status. This keeps merge authority
+    entirely outside the container but requires a new signal/protocol.</li>
+<li><strong>4-layer credential inheritance</strong>: Anthropic credential selection
+  (API key vs OAuth) could follow the same graph → workstream → task →
+  agent inheritance pattern used by <code>IsolationConfig</code>. Different tasks
+  might use different credential tiers or auth methods (e.g., a
+  cheap-model task using API key, a complex task using Max plan OAuth).
+  Deferred until the consolidated credential YAML format is stable and
+  real use cases justify per-task credential selection.</li>
 </ul>
-</li>
-<li>~~<strong>Claude Code first-run prompts in containers</strong>~~ — <strong>Resolved in PR
-  Fcleanup</strong>: pre-seeded <code>~/.claude/settings.json</code> in framework Dockerfile +
-  suppression env vars (<code>DISABLE_AUTOUPDATER</code>,
-  <code>CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC</code>) in <code>OciSandbox.wrap_command()</code>.</li>
-<li>~~<strong>Container UID/username cleanup</strong>~~ — <strong>Resolved in PR Fcleanup</strong>: Docker
-  base image removes <code>ubuntu</code> user and creates <code>agent</code> with UID 1000. Removed
-  <code>--user</code> and <code>--group-add</code> from <code>build_run_command()</code>.</li>
+<h2 id="container-infrastructure">Container Infrastructure</h2>
+<ul>
+<li><strong>Agent framework pre-seed versioning</strong>: The Docker image pre-seeds
+  config files (<code>.claude.json</code>, <code>statsig.json</code>) and startup scripts
+  (<code>claude-setup-credentials</code>, <code>claude-trust-workdir</code>) to suppress
+  interactive prompts in ephemeral containers. These pre-seed schemes
+  are tightly coupled to the agent framework version — a new Claude Code
+  release could change onboarding flows, settings schema, or credential
+  handling, breaking the existing scheme. On each new agent framework
+  release, verify that the current pre-seed works. Consider maintaining
+  a mapping of framework version → pre-seed scheme so older framework
+  versions remain usable (useful if a new release introduces regressions
+  and we need to pin to an older version). This also applies to any
+  future agent frameworks beyond Claude Code.</li>
 </ul>
 <h2 id="extensibility">Extensibility</h2>
 <ul>
@@ -2163,10 +2164,6 @@ agent boundary instructions, <code>IS_AI_AGENT</code> env var, git pre-push hook
   <code>.workflow/&lt;graph&gt;</code> and <code>.worktrees/&lt;graph&gt;</code> directory names so multiple runs
   of the same graph can coexist. Requires updating <code>reset_graph</code> to discover
   suffixed directories.</li>
-<li>~~<strong><code>reset_graph</code> leaves stale local branches and worktree refs</strong>~~ —
-  <strong>Resolved in PR Fcleanup</strong>: added <code>git worktree prune</code>,
-  <code>branch_list_local()</code> for local branch cleanup, and <code>force_rm()</code> for
-  Docker container cleanup.</li>
 </ul>
 <h2 id="removed-modules-revisit-when-needed">Removed Modules (revisit when needed)</h2>
 <ul>
@@ -2233,6 +2230,28 @@ without a structured foundation; this item addresses the root cause.</p>
     becomes a measurable problem (token cost, context window pressure, or
     performance). The simpler rendered-output model is the right default.</li>
 </ul>
+<h2 id="framework-specific-agent-configuration">Framework-Specific Agent Configuration</h2>
+<p>When running agents with a specific framework (e.g., Claude Code), the
+orchestrator could leverage framework-specific persistence and configuration
+mechanisms to improve agent behavior:</p>
+<ul>
+<li><strong>CLAUDE.md</strong>: Inject project-specific instructions into the worktree's
+  CLAUDE.md (build commands, coding conventions, repo layout). More durable
+  and framework-native than instructions.md for Claude Code agents.</li>
+<li><strong>Skills</strong>: Pre-configure slash commands (e.g., <code>/commit</code>, <code>/test</code>) in the
+  worktree so agents have standardized workflows without relying on
+  instruction prose.</li>
+<li><strong>MEMORY.md</strong>: Seed agent memory with project context, architecture notes,
+  or lessons from prior runs. Could be populated from orchestrator state
+  (upstream task summaries, concern history).</li>
+<li><strong>settings.json</strong>: Per-task Claude Code settings (allowed tools, MCP
+  servers, permission profiles).</li>
+</ul>
+<p>The <code>AgentFrameworkAdapter</code> protocol is the natural integration point —
+<code>ClaudeCodeAdapter.build_command()</code> already knows the worktree path and
+could prepare framework-specific files before launch. Design question:
+should this be adapter responsibility (framework-aware file setup) or a
+separate step in the task preparer pipeline?</p>
 <h2 id="agent-build-environment-awareness">Agent Build Environment Awareness</h2>
 <p>Agents don't always know how to invoke commands in the target repo's build
 system (e.g., using bare <code>python -m pytest</code> instead of <code>pixi run pytest</code>).
@@ -2252,38 +2271,6 @@ increasing sophistication:</p>
 <li>A dedicated agent periodically reviews ops concerns and applies fixes
     (e.g., updating CLAUDE.md, adjusting orchestrator templates).</li>
 <li>Human reviews ops concerns and decides on fixes.</li>
-</ul>
-<p>~~Related: the TaskHelper completion step is fragile — agents struggle with
-inline Python in zsh. A CLI wrapper would be more robust.~~ Resolved in
-PR #120 (<code>agentrelay-complete</code>, <code>agentrelay-failed</code>, <code>agentrelay-concern</code>)
-and PR #125 (<code>agentrelay-complete-no-pr</code>).</p>
-<h2 id="agent-ops-concerns">Agent Ops Concerns</h2>
-<p>Agents encounter operational issues during task execution — wrong build
-commands, missing dependencies, permission errors, flaky tests, unexpected
-repo layout — that are distinct from design concerns about the spec or code.
-Even when the agent eventually works around the problem, the friction is
-worth capturing so it can be fixed systematically.</p>
-<ul>
-<li><strong>New concern type</strong>: <code>helper.record_ops_concern("description")</code> (or a
-  <code>category</code> parameter on <code>record_concern</code>). Ops concerns are written to a
-  separate file (e.g., <code>ops_concerns.log</code>) or tagged in the existing
-  <code>concerns.log</code> so the orchestrator can distinguish them from design concerns.</li>
-<li><strong>Visibility</strong>: Ops concerns surface in the integration PR body, console
-  output, and post-run summary — separately from design concerns so they
-  don't get lost in the noise.</li>
-<li><strong>Resolution paths</strong>:</li>
-<li><strong>Agent self-fix</strong>: Agent records the concern and also applies a local
-    workaround (e.g., switches to <code>pixi run</code>). The concern still gets logged
-    so the root cause can be addressed.</li>
-<li><strong>Orchestrator-driven fix</strong>: Orchestrator aggregates ops concerns across
-    runs and applies automated fixes (e.g., updating instructions templates,
-    injecting env context).</li>
-<li><strong>Human review</strong>: Periodic triage of ops concerns to identify patterns
-    and make durable fixes (CLAUDE.md updates, template changes, new backlog
-    items).</li>
-<li><strong>Examples of ops concerns</strong>: wrong Python/package manager invocation,
-  shell escaping issues with TaskHelper, missing directories, import path
-  confusion in worktrees, test collection failures from environment mismatch.</li>
 </ul>
 <h2 id="role-specific-workflow-issues">Role-Specific Workflow Issues</h2>
 <h3 id="spec-writer-source-of-truth-for-specs">Spec writer: source-of-truth for specs</h3>
@@ -2332,12 +2319,6 @@ concern-gated). Remaining strategy:</p>
   to resolve them. Require the test suite to pass before completing the merge.
   If the agent cannot resolve, fall back to human review.</li>
 </ul>
-<h2 id="cross-workstream-dependency-ordering-resolved">~~Cross-Workstream Dependency Ordering~~ — resolved</h2>
-<p>Resolved in PR #134 (sprint 2026-03-25). Cross-workstream dispatch gating
-via <code>_workstream_can_run()</code> + <code>IntegrationMergeChecker</code> polling. Upstream
-workstreams must be MERGED before downstream tasks dispatch. The motivating
-agent workaround (unilateral PR merge) can no longer occur. See
-<code>docs/discussions/AGENT_ISOLATION_REFINED.md</code> for the incident analysis.</p>
 <h2 id="concern-guidance-level-experimentation">Concern Guidance Level Experimentation</h2>
 <p>PR #129 shipped "prompted" guidance (cross-check steps in role templates) which
 works reliably with Sonnet. Further investigation deferred:</p>
@@ -2495,10 +2476,30 @@ reference for the Rust port.</p>
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).</li>
 </ul>
+<h2 id="documentation">Documentation</h2>
+<ul>
+<li><strong>API Reference mkdocs rendering issues</strong>: Some API reference pages render
+  poorly — <code>ops</code> page shows raw reStructuredText instead of formatted output
+  (Sphinx-style <code>::</code> code blocks not recognized by mkdocstrings). Parts of
+  the <code>run_graph</code> and <code>tools</code> pages also appear off. Likely cause: some
+  module/package docstrings use Sphinx reStructuredText conventions instead
+  of the Google-style docstrings expected by mkdocstrings. Fix: audit all
+  <code>__init__.py</code> and module-level docstrings for Sphinx-isms (<code>::</code> literal
+  blocks, <code>:param:</code> fields, <code>:type:</code> annotations) and convert to Google
+  style.</li>
+</ul>
 <h2 id="observability">Observability</h2>
 <ul>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
 <li>Define the minimal durable signals needed for reliable resume behavior.</li>
+<li><strong>Isolation environment visibility in terminal output</strong>: When agents
+  run in OCI containers, the orchestrator's terminal output should
+  surface container lifecycle events — container launch (image, name,
+  network), container shutdown/removal, and any sandbox setup/teardown
+  errors. Currently the <code>ConsoleListener</code> reports task-level events
+  (started, succeeded, failed) but nothing about the isolation layer.
+  Could be added via the existing <code>on_event</code> callback in
+  <code>StandardTaskRunner</code> or as new event types in the listener protocol.</li>
 </ul>
 
 
