@@ -144,7 +144,12 @@ Named Anthropic credential entries.  Each entry has a `type` field
 **`api_key` entry** — pay-per-token API key:
 
 - `type`: `api_key` (required)
-- `key`: string (required). The Anthropic API key.
+- `key`: string. The Anthropic API key (inline).
+- `key_file`: string. Path to a file containing the API key. Tilde
+  (`~`) is expanded. The file is read at startup; leading/trailing
+  whitespace is stripped.
+
+Exactly one of `key` or `key_file` must be provided.
 
 **`oauth` entry** — Max plan OAuth credentials file:
 
@@ -156,7 +161,10 @@ Named Anthropic credential entries.  Each entry has a `type` field
 anthropic:
   dev_api_key:
     type: api_key
-    key: sk-ant-xxxx
+    key: sk-ant-xxxx                       # inline
+  dev_api_key_file:
+    type: api_key
+    key_file: ~/.config/anthropic/api_key  # from file
   max_plan:
     type: oauth
     path: ~/.claude/.credentials.json

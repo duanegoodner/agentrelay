@@ -19,7 +19,10 @@ Expected YAML schema::
     anthropic:
       dev_api_key:
         type: api_key
-        key: sk-ant-xxxx
+        key: sk-ant-xxxx          # inline key
+      dev_api_key_file:
+        type: api_key
+        key_file: ~/.config/anthropic/api_key  # read from file
       max_plan:
         type: oauth
         path: ~/.claude/.credentials.json
@@ -123,14 +126,32 @@ class FileCredentialProvider:
                     f"{[t.value for t in CredentialType]}, got {entry['type']!r}"
                 )
             if ctype == CredentialType.API_KEY:
-                if "key" not in entry:
+                has_key = "key" in entry
+                has_key_file = "key_file" in entry
+                if has_key and has_key_file:
                     raise ValueError(
-                        f"anthropic.{name} with type 'api_key' must have a 'key' field"
+                        f"anthropic.{name} has both 'key' and 'key_file'; "
+                        "specify exactly one"
+                    )
+                if has_key:
+                    api_key = str(entry["key"])
+                elif has_key_file:
+                    key_path = Path(str(entry["key_file"])).expanduser()
+                    try:
+                        api_key = key_path.read_text().strip()
+                    except FileNotFoundError:
+                        raise ValueError(
+                            f"anthropic.{name}.key_file not found: {key_path}"
+                        )
+                else:
+                    raise ValueError(
+                        f"anthropic.{name} with type 'api_key' must have "
+                        "a 'key' or 'key_file' field"
                     )
                 self._anthropic[str(name)] = AnthropicCredential(
                     name=str(name),
                     credential_type=ctype,
-                    api_key=str(entry["key"]),
+                    api_key=api_key,
                 )
             elif ctype == CredentialType.OAUTH:
                 if "path" not in entry:

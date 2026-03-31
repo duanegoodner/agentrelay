@@ -267,7 +267,7 @@ class TestResolveAnthropic:
         with pytest.raises(ValueError, match="must have a 'type' field"):
             FileCredentialProvider(path=cred_file)
 
-    def test_api_key_missing_key_raises(self, tmp_path: Path) -> None:
+    def test_api_key_missing_key_and_key_file_raises(self, tmp_path: Path) -> None:
         cred_file = tmp_path / "creds.yaml"
         cred_file.write_text(
             "token_tiers:\n  standard: {}\n"
@@ -275,7 +275,66 @@ class TestResolveAnthropic:
             "  bad:\n"
             "    type: api_key\n"
         )
-        with pytest.raises(ValueError, match="must have a 'key' field"):
+        with pytest.raises(ValueError, match="'key' or 'key_file'"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_api_key_from_file(self, tmp_path: Path) -> None:
+        key_file = tmp_path / "api_key"
+        key_file.write_text("sk-ant-from-file")
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  test:\n"
+            "    type: api_key\n"
+            f"    key_file: {key_file}\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("test")
+        assert cred is not None
+        assert cred.api_key == "sk-ant-from-file"
+
+    def test_api_key_file_strips_whitespace(self, tmp_path: Path) -> None:
+        key_file = tmp_path / "api_key"
+        key_file.write_text("  sk-ant-padded  \n")
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  test:\n"
+            "    type: api_key\n"
+            f"    key_file: {key_file}\n"
+        )
+        provider = FileCredentialProvider(path=cred_file)
+        cred = provider.resolve_anthropic("test")
+        assert cred is not None
+        assert cred.api_key == "sk-ant-padded"
+
+    def test_api_key_file_not_found_raises(self, tmp_path: Path) -> None:
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: api_key\n"
+            f"    key_file: {tmp_path / 'nonexistent'}\n"
+        )
+        with pytest.raises(ValueError, match="key_file not found"):
+            FileCredentialProvider(path=cred_file)
+
+    def test_api_key_both_key_and_key_file_raises(self, tmp_path: Path) -> None:
+        key_file = tmp_path / "api_key"
+        key_file.write_text("sk-ant-file")
+        cred_file = tmp_path / "creds.yaml"
+        cred_file.write_text(
+            "token_tiers:\n  standard: {}\n"
+            "anthropic:\n"
+            "  bad:\n"
+            "    type: api_key\n"
+            "    key: sk-ant-inline\n"
+            f"    key_file: {key_file}\n"
+        )
+        with pytest.raises(ValueError, match="both 'key' and 'key_file'"):
             FileCredentialProvider(path=cred_file)
 
     def test_oauth_missing_path_raises(self, tmp_path: Path) -> None:
