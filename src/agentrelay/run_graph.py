@@ -228,6 +228,7 @@ async def run_graph(
     model_override: Optional[str] = None,
     config: Optional[OrchestratorConfig] = None,
     credential_provider: Optional[CredentialProvider] = None,
+    claude_credentials_path: Optional[Path] = None,
     verbose: bool = False,
 ) -> OrchestratorResult:
     """Build all components from a graph YAML and run the orchestrator.
@@ -246,6 +247,9 @@ async def run_graph(
             :class:`OrchestratorConfig` defaults.
         credential_provider: Credential provider for sandboxed agents.
             When ``None``, :class:`NullCredentialProvider` is used.
+        claude_credentials_path: Host path to Claude Code OAuth
+            credentials file (``.credentials.json``).  When provided,
+            each OCI container gets a copy for Max plan authentication.
         verbose: Show detailed step-level output during execution.
 
     Returns:
@@ -285,6 +289,7 @@ async def run_graph(
             keep_panes=effective_keep_panes,
             tools=tools,
             credential_provider=credential_provider,
+            claude_credentials_path=claude_credentials_path,
         )
         workstream_runner = build_standard_workstream_runner(
             repo_path=repo_path,
@@ -437,6 +442,11 @@ def main() -> None:
         help="Path to credentials YAML file for sandboxed agents",
     )
     parser.add_argument(
+        "--claude-credentials",
+        default=None,
+        help="Path to Claude Code OAuth credentials file (.credentials.json)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate graph and print execution plan without running",
@@ -473,6 +483,16 @@ def main() -> None:
             sys.exit(1)
         credential_provider = FileCredentialProvider(creds_path)
 
+    claude_credentials_path: Optional[Path] = None
+    if args.claude_credentials is not None:
+        claude_credentials_path = Path(args.claude_credentials).resolve()
+        if not claude_credentials_path.is_file():
+            print(
+                f"Error: Claude credentials file not found: {claude_credentials_path}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
     config = _build_config_from_args(args)
 
     try:
@@ -484,6 +504,7 @@ def main() -> None:
                 model_override=args.model,
                 config=config,
                 credential_provider=credential_provider,
+                claude_credentials_path=claude_credentials_path,
                 verbose=args.verbose,
             )
         )

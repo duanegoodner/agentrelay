@@ -127,7 +127,7 @@ class TestOciSandboxWrapCommand:
         mock_docker.build_run_command.assert_called_once_with(
             container_name="agentrelay-test-graph-task_a",
             image="myimage:v1",
-            cmd="claude-trust-workdir && claude --model opus",
+            cmd="claude-setup-credentials && claude-trust-workdir && claude --model opus",
             volumes=[
                 (
                     str(ctx.worktree_path),
@@ -263,3 +263,61 @@ class TestOciSandboxTeardown:
             "agentrelay-test-graph-task_a", "podman"
         )
         mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "podman")
+
+
+class TestOciSandboxOAuth:
+    """Tests for OAuth credential file mounting."""
+
+    def test_default_claude_credentials_path_is_none(self) -> None:
+        sandbox = OciSandbox()
+        assert sandbox._claude_credentials_path is None
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_mounts_credentials_file_read_only(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """OAuth credentials file is mounted read-only at /tmp/.claude-credentials.json."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        creds_path = Path("/host/.claude/.credentials.json")
+        sandbox = OciSandbox(claude_credentials_path=creds_path)
+        sandbox.wrap_command("claude", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        volumes = call_kwargs["volumes"]
+        assert (str(creds_path), "/tmp/.claude-credentials.json", "ro") in volumes
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_no_credentials_mount_when_path_is_none(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """Without OAuth path, only the standard 3 volumes are mounted."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        volumes = call_kwargs["volumes"]
+        assert len(volumes) == 3
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_startup_chain_includes_setup_credentials(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """Command prefix includes claude-setup-credentials before trust-workdir."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude --model opus", _make_context())
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert call_kwargs["cmd"] == (
+            "claude-setup-credentials && claude-trust-workdir && claude --model opus"
+        )

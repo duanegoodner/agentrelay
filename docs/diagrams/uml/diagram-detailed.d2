@@ -1003,6 +1003,7 @@ sandbox_pkg: "sandbox/" {
 
     OciSandbox: "OciSandbox" {
       shape: class
+      "-_claude_credentials_path": "Path | None"
       "+wrap_command(cmd, context)": str
       "+setup(context)": void
       "+teardown(context)": void

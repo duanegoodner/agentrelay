@@ -125,6 +125,7 @@ def build_standard_runner(
     context_content: Optional[str] = None,
     tools: tuple[str, ...] = (),
     credential_provider: Optional[CredentialProvider] = None,
+    claude_credentials_path: Optional[Path] = None,
 ) -> StandardTaskRunner:
     """Build the standard runner for worktree + tmux + Claude Code.
 
@@ -172,7 +173,11 @@ def build_standard_runner(
     def _make_launcher(runtime: TaskRuntime) -> TmuxTaskLauncher:
         isolation = runtime.task.primary_agent.isolation
         if isolation is not None and isolation.sandbox_type == SandboxType.OCI:
-            sandbox = OciSandbox(image=isolation.image, runtime=isolation.runtime)
+            sandbox = OciSandbox(
+                image=isolation.image,
+                runtime=isolation.runtime,
+                claude_credentials_path=claude_credentials_path,
+            )
         else:
             sandbox = NullSandbox()
         return TmuxTaskLauncher(

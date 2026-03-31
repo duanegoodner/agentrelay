@@ -4,8 +4,15 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from agentrelay.orchestrator.builders import build_standard_runner
-from agentrelay.sandbox import CredentialProvider, NullCredentialProvider
-from agentrelay.task import AgentRole, Task
+from agentrelay.sandbox import (
+    CredentialProvider,
+    IsolationConfig,
+    NullCredentialProvider,
+    OciSandbox,
+    SandboxType,
+    TokenTier,
+)
+from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import StandardTaskRunner
 from agentrelay.task_runner.implementations import (
@@ -167,3 +174,50 @@ def test_launcher_uses_custom_credential_provider() -> None:
     launcher = runner._launcher(runtime)
     assert isinstance(launcher, TmuxTaskLauncher)
     assert launcher.credential_provider is mock_cp
+
+
+def _graph_with_oci() -> TaskGraph:
+    task_a = Task(
+        id="a",
+        role=AgentRole.GENERIC,
+        description="OCI task",
+        primary_agent=AgentConfig(
+            isolation=IsolationConfig(
+                sandbox_type=SandboxType.OCI,
+                token_tier=TokenTier.STANDARD,
+            ),
+        ),
+    )
+    return TaskGraph.from_tasks((task_a,))
+
+
+def test_oci_launcher_has_no_claude_credentials_by_default() -> None:
+    """OCI sandbox has no claude_credentials_path when not provided."""
+    graph = _graph_with_oci()
+    runner = build_standard_runner(
+        repo_path=Path("/repo"),
+        graph_name="test_graph",
+        graph=graph,
+    )
+    runtime = TaskRuntime(task=graph.task("a"))
+    launcher = runner._launcher(runtime)
+    assert isinstance(launcher, TmuxTaskLauncher)
+    assert isinstance(launcher.sandbox, OciSandbox)
+    assert launcher.sandbox._claude_credentials_path is None
+
+
+def test_oci_launcher_passes_claude_credentials_to_sandbox() -> None:
+    """claude_credentials_path is forwarded to OciSandbox."""
+    creds = Path("/host/.claude/.credentials.json")
+    graph = _graph_with_oci()
+    runner = build_standard_runner(
+        repo_path=Path("/repo"),
+        graph_name="test_graph",
+        graph=graph,
+        claude_credentials_path=creds,
+    )
+    runtime = TaskRuntime(task=graph.task("a"))
+    launcher = runner._launcher(runtime)
+    assert isinstance(launcher, TmuxTaskLauncher)
+    assert isinstance(launcher.sandbox, OciSandbox)
+    assert launcher.sandbox._claude_credentials_path == creds

@@ -327,6 +327,37 @@ def test_run_graph_passes_credential_provider(tmp_path: Path) -> None:
     assert call_kwargs["credential_provider"] is mock_cp
 
 
+def test_run_graph_passes_claude_credentials_path(tmp_path: Path) -> None:
+    """claude_credentials_path is forwarded to build_standard_runner."""
+    graph_path = _write_graph_yaml(tmp_path)
+    task_runner = ScriptedTaskRunner()
+    ws_runner = NoOpWorkstreamRunner()
+    creds_path = Path("/host/.claude/.credentials.json")
+
+    with (
+        patch(
+            "agentrelay.run_graph.build_standard_runner",
+            return_value=task_runner,
+        ) as mock_build_runner,
+        patch(
+            "agentrelay.run_graph.build_standard_workstream_runner",
+            return_value=ws_runner,
+        ),
+        patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._validate_tmux_sessions"),
+    ):
+        asyncio.run(
+            run_graph(
+                graph_path=graph_path,
+                repo_path=tmp_path,
+                claude_credentials_path=creds_path,
+            )
+        )
+
+    call_kwargs = mock_build_runner.call_args[1]
+    assert call_kwargs["claude_credentials_path"] is creds_path
+
+
 def _write_graph_yaml_with_oci(tmp_path: Path) -> Path:
     content = """\
 name: oci-test

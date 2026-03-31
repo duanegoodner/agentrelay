@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+from pathlib import Path
 
 from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import git as git_ops
@@ -32,15 +33,20 @@ class OciSandbox:
         _image: Container image to use.
         _runtime: Container runtime binary name (``"docker"`` or
             ``"podman"``).
+        _claude_credentials_path: Host path to Claude Code OAuth
+            credentials file (``.credentials.json``), or ``None``
+            for API key mode.
     """
 
     def __init__(
         self,
         image: str | None = None,
         runtime: ContainerRuntime | None = None,
+        claude_credentials_path: Path | None = None,
     ) -> None:
         self._image = image or _DEFAULT_IMAGE
         self._runtime = (runtime or ContainerRuntime.DOCKER).value
+        self._claude_credentials_path = claude_credentials_path
 
     def setup(self, context: SandboxContext) -> None:
         """Validate runtime and network are available.
@@ -82,6 +88,15 @@ class OciSandbox:
             (str(context.signal_dir), str(context.signal_dir)),
             (str(git_dir), str(git_dir)),
         ]
+        # Mount OAuth credentials file read-only if provided.
+        if self._claude_credentials_path is not None:
+            volumes.append(
+                (
+                    str(self._claude_credentials_path),
+                    "/tmp/.claude-credentials.json",
+                    "ro",
+                )
+            )
         # Rename ANTHROPIC_API_KEY to _ANTHROPIC_API_KEY so Claude Code
         # doesn't detect it and show an interactive confirmation prompt.
         # The apiKeyHelper in settings.json echoes $_ANTHROPIC_API_KEY.
@@ -98,9 +113,9 @@ class OciSandbox:
             "DISABLE_AUTOUPDATER": "1",
             "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
         }
-        # Seed Claude Code folder trust for the container workdir.
-        # The trust-workdir script is baked into the framework image.
-        full_cmd = f"claude-trust-workdir && {cmd}"
+        # Startup chain: generate settings.json, seed folder trust, then agent.
+        # Both scripts are baked into the framework image.
+        full_cmd = f"claude-setup-credentials && claude-trust-workdir && {cmd}"
         return docker_ops.build_run_command(
             container_name=f"agentrelay-{context.graph_name}-{context.task_id}",
             image=self._image,
