@@ -77,18 +77,6 @@ class FileCredentialProvider:
                 f"Credential file must be a YAML mapping, got {type(data).__name__}"
             )
 
-        # Migration guard: reject old `defaults` section with ANTHROPIC_API_KEY.
-        defaults = data.get("defaults", {})
-        if isinstance(defaults, dict) and "ANTHROPIC_API_KEY" in defaults:
-            raise ValueError(
-                "The 'defaults' section with ANTHROPIC_API_KEY is no longer supported. "
-                "Move Anthropic credentials to the 'anthropic' section:\n\n"
-                "  anthropic:\n"
-                "    my_key:\n"
-                "      type: api_key\n"
-                "      key: <your-api-key>\n"
-            )
-
         raw_tiers = data.get("token_tiers", {})
         if not isinstance(raw_tiers, dict):
             raise ValueError(

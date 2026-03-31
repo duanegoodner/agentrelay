@@ -106,36 +106,6 @@ class TestFileCredentialProvider:
         assert d1 is not d2
 
 
-class TestFileCredentialProviderMigration:
-    """Tests for defaults → anthropic migration guard."""
-
-    def test_defaults_with_anthropic_key_raises_migration_error(
-        self, tmp_path: Path
-    ) -> None:
-        cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text(
-            "defaults:\n"
-            "  ANTHROPIC_API_KEY: sk-ant-xxx\n"
-            "token_tiers:\n"
-            "  standard:\n"
-            "    GH_TOKEN: ghp_std\n"
-        )
-        with pytest.raises(ValueError, match="no longer supported"):
-            FileCredentialProvider(path=cred_file)
-
-    def test_defaults_without_anthropic_key_allowed(self, tmp_path: Path) -> None:
-        """defaults section without ANTHROPIC_API_KEY is accepted (no migration needed)."""
-        cred_file = tmp_path / "creds.yaml"
-        cred_file.write_text(
-            "defaults:\n"
-            "  SOME_OTHER_KEY: value\n"
-            "token_tiers:\n"
-            "  standard: {}\n"
-        )
-        # Should not raise.
-        FileCredentialProvider(path=cred_file)
-
-
 class TestResolveAnthropic:
     """Tests for resolve_anthropic method."""
 

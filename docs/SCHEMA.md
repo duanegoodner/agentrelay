@@ -116,9 +116,6 @@ Optional keys (all are optional; an empty mapping `{}` is valid):
 
 - `token_tiers`: mapping of tier name → env var mapping.
 - `anthropic`: mapping of credential name → credential entry.
-- `defaults`: mapping of env var name → value. **Deprecated** — a
-  `defaults` section containing `ANTHROPIC_API_KEY` raises a migration
-  error. Move Anthropic credentials to the `anthropic` section.
 
 ### token_tiers
 
