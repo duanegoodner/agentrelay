@@ -32,11 +32,12 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 
 def test_extract_operational_config_defaults() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    session, keep, model, tools = _extract_operational_config(raw)
+    session, keep, model, tools, anthropic = _extract_operational_config(raw)
     assert session is None
     assert keep is False
     assert model is None
     assert tools == ()
+    assert anthropic is None
 
 
 def test_extract_operational_config_reads_yaml_values() -> None:
@@ -47,7 +48,7 @@ def test_extract_operational_config_reads_yaml_values() -> None:
         "keep_panes": True,
         "model": "claude-opus-4-6",
     }
-    session, keep, model, tools = _extract_operational_config(raw)
+    session, keep, model, tools, _ = _extract_operational_config(raw)
     assert session == "custom"
     assert keep is True
     assert model == "claude-opus-4-6"
@@ -62,20 +63,28 @@ def test_extract_operational_config_pops_keys() -> None:
         "keep_panes": True,
         "model": "m",
         "tools": ["pixi"],
+        "anthropic_credential": "max_plan",
     }
     _extract_operational_config(raw)
     assert "tmux_session" not in raw
     assert "keep_panes" not in raw
     assert "model" not in raw
     assert "tools" not in raw
+    assert "anthropic_credential" not in raw
     assert "name" in raw
 
 
 def test_extract_operational_config_parses_tools() -> None:
     raw: dict = {"name": "g", "tasks": [], "tools": ["pixi", "npm"]}
-    _, _, _, tools = _extract_operational_config(raw)
+    _, _, _, tools, _ = _extract_operational_config(raw)
     assert tools == ("pixi", "npm")
     assert "tasks" in raw
+
+
+def test_extract_operational_config_reads_anthropic_credential() -> None:
+    raw: dict = {"name": "g", "tasks": [], "anthropic_credential": "max_plan"}
+    _, _, _, _, anthropic = _extract_operational_config(raw)
+    assert anthropic == "max_plan"
 
 
 # --- _apply_overrides ---
@@ -276,7 +285,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _ = _load_and_prepare_graph(path)
+    graph, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is True
 
 
@@ -291,7 +300,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _ = _load_and_prepare_graph(path)
+    graph, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is False
 
 

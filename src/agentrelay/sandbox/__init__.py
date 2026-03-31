@@ -13,7 +13,9 @@ Subpackages:
 
 from agentrelay.sandbox.core.adapters import AgentFrameworkAdapter
 from agentrelay.sandbox.core.config import (
+    AnthropicCredential,
     ContainerRuntime,
+    CredentialType,
     IsolationConfig,
     SandboxContext,
     SandboxType,
@@ -30,9 +32,11 @@ from agentrelay.sandbox.implementations.oci_sandbox import OciSandbox
 __all__ = [
     "AgentFrameworkAdapter",
     "AgentSandbox",
+    "AnthropicCredential",
     "ClaudeCodeAdapter",
     "ContainerRuntime",
     "CredentialProvider",
+    "CredentialType",
     "FileCredentialProvider",
     "IsolationConfig",
     "NullCredentialProvider",

@@ -62,6 +62,20 @@ sandbox_pkg: "sandbox/" {
       ELEVATED
     }
 
+    CredentialType: "CredentialType <<enumeration>>" {
+      shape: class
+      API_KEY
+      OAUTH
+    }
+
+    AnthropicCredential: "AnthropicCredential <<frozen dataclass>>" {
+      shape: class
+      name: str
+      credential_type: CredentialType
+      api_key: "str | None"
+      oauth_path: "Path | None"
+    }
+
     IsolationConfig: "IsolationConfig <<frozen dataclass>>" {
       shape: class
       sandbox_type: SandboxType
@@ -108,7 +122,7 @@ sandbox_pkg: "sandbox/" {
 
     OciSandbox: "OciSandbox" {
       shape: class
-      "-_claude_credentials_path": "Path | None"
+      "-_anthropic_credential": "AnthropicCredential | None"
       "+wrap_command(cmd, context)": str
       "+setup(context)": void
       "+teardown(context)": void
@@ -165,6 +179,8 @@ sandbox_pkg.sandbox_impl_pkg.NullSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSa
 sandbox_pkg.sandbox_impl_pkg.OciSandbox -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: satisfies { class: implementation }
 sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.docker: uses { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.git: uses { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.OciSandbox -> sandbox_pkg.sandbox_core_pkg.AnthropicCredential: _anthropic_credential { class: composition }
+sandbox_pkg.sandbox_core_pkg.AnthropicCredential -> sandbox_pkg.sandbox_core_pkg.CredentialType: credential_type { class: composition }
 sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter -> task_py.AgentConfig: config { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.ClaudeCodeAdapter -> sandbox_pkg.sandbox_core_pkg.AgentFrameworkAdapter: satisfies { class: implementation }
 sandbox_pkg.sandbox_core_pkg.CredentialProvider -> sandbox_pkg.sandbox_core_pkg.TokenTier: tier { class: dependency }

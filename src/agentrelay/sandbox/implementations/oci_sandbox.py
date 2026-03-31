@@ -13,11 +13,15 @@ from __future__ import annotations
 
 import os
 import subprocess
-from pathlib import Path
 
 from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import git as git_ops
-from agentrelay.sandbox.core.config import ContainerRuntime, SandboxContext
+from agentrelay.sandbox.core.config import (
+    AnthropicCredential,
+    ContainerRuntime,
+    CredentialType,
+    SandboxContext,
+)
 
 _DEFAULT_IMAGE = "agentrelay-agent-claude-code-python:latest"
 
@@ -33,20 +37,19 @@ class OciSandbox:
         _image: Container image to use.
         _runtime: Container runtime binary name (``"docker"`` or
             ``"podman"``).
-        _claude_credentials_path: Host path to Claude Code OAuth
-            credentials file (``.credentials.json``), or ``None``
-            for API key mode.
+        _anthropic_credential: Resolved Anthropic credential for
+            agent authentication, or ``None`` for no Anthropic auth.
     """
 
     def __init__(
         self,
         image: str | None = None,
         runtime: ContainerRuntime | None = None,
-        claude_credentials_path: Path | None = None,
+        anthropic_credential: AnthropicCredential | None = None,
     ) -> None:
         self._image = image or _DEFAULT_IMAGE
         self._runtime = (runtime or ContainerRuntime.DOCKER).value
-        self._claude_credentials_path = claude_credentials_path
+        self._anthropic_credential = anthropic_credential
 
     def setup(self, context: SandboxContext) -> None:
         """Validate runtime and network are available.
@@ -81,33 +84,41 @@ class OciSandbox:
 
         Returns:
             The full ``docker run ...`` command string.
+
+        Raises:
+            ValueError: If ``ANTHROPIC_API_KEY`` is found in
+                ``context.env_vars`` (should come from
+                :class:`AnthropicCredential`, not env vars).
         """
+        if "ANTHROPIC_API_KEY" in context.env_vars:
+            raise ValueError(
+                "ANTHROPIC_API_KEY must not be in SandboxContext.env_vars; "
+                "use the 'anthropic' section in the credentials YAML instead"
+            )
+
         git_dir = git_ops.worktree_git_dir(context.worktree_path)
         volumes: list[tuple[str, str] | tuple[str, str, str]] = [
             (str(context.worktree_path), str(context.worktree_path)),
             (str(context.signal_dir), str(context.signal_dir)),
             (str(git_dir), str(git_dir)),
         ]
-        # Mount OAuth credentials file read-only if provided.
-        if self._claude_credentials_path is not None:
-            volumes.append(
-                (
-                    str(self._claude_credentials_path),
-                    "/tmp/.claude-credentials.json",
-                    "ro",
+
+        # Anthropic credential injection — type-specific handling.
+        extra_env: dict[str, str] = {}
+        if self._anthropic_credential is not None:
+            cred = self._anthropic_credential
+            if cred.credential_type == CredentialType.API_KEY:
+                assert cred.api_key is not None
+                extra_env["_ANTHROPIC_API_KEY"] = cred.api_key
+            elif cred.credential_type == CredentialType.OAUTH:
+                assert cred.oauth_path is not None
+                volumes.append(
+                    (str(cred.oauth_path), "/tmp/.claude-credentials.json", "ro")
                 )
-            )
-        # Rename ANTHROPIC_API_KEY to _ANTHROPIC_API_KEY so Claude Code
-        # doesn't detect it and show an interactive confirmation prompt.
-        # The apiKeyHelper in settings.json echoes $_ANTHROPIC_API_KEY.
-        renamed_vars = {}
-        for key, value in context.env_vars.items():
-            if key == "ANTHROPIC_API_KEY":
-                renamed_vars["_ANTHROPIC_API_KEY"] = value
-            else:
-                renamed_vars[key] = value
+
         env_vars = {
-            **renamed_vars,
+            **context.env_vars,
+            **extra_env,
             "IS_AI_AGENT": "true",
             "TERM": os.environ.get("TERM", "xterm-256color"),
             "DISABLE_AUTOUPDATER": "1",

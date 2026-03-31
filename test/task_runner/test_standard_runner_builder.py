@@ -191,8 +191,8 @@ def _graph_with_oci() -> TaskGraph:
     return TaskGraph.from_tasks((task_a,))
 
 
-def test_oci_launcher_has_no_claude_credentials_by_default() -> None:
-    """OCI sandbox has no claude_credentials_path when not provided."""
+def test_oci_launcher_has_no_anthropic_credential_by_default() -> None:
+    """OCI sandbox has no anthropic_credential when not provided."""
     graph = _graph_with_oci()
     runner = build_standard_runner(
         repo_path=Path("/repo"),
@@ -203,21 +203,27 @@ def test_oci_launcher_has_no_claude_credentials_by_default() -> None:
     launcher = runner._launcher(runtime)
     assert isinstance(launcher, TmuxTaskLauncher)
     assert isinstance(launcher.sandbox, OciSandbox)
-    assert launcher.sandbox._claude_credentials_path is None
+    assert launcher.sandbox._anthropic_credential is None
 
 
-def test_oci_launcher_passes_claude_credentials_to_sandbox() -> None:
-    """claude_credentials_path is forwarded to OciSandbox."""
-    creds = Path("/host/.claude/.credentials.json")
+def test_oci_launcher_passes_anthropic_credential_to_sandbox() -> None:
+    """anthropic_credential is forwarded to OciSandbox."""
+    from agentrelay.sandbox import AnthropicCredential, CredentialType
+
+    cred = AnthropicCredential(
+        name="test",
+        credential_type=CredentialType.API_KEY,
+        api_key="sk-test",
+    )
     graph = _graph_with_oci()
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
         graph=graph,
-        claude_credentials_path=creds,
+        anthropic_credential=cred,
     )
     runtime = TaskRuntime(task=graph.task("a"))
     launcher = runner._launcher(runtime)
     assert isinstance(launcher, TmuxTaskLauncher)
     assert isinstance(launcher.sandbox, OciSandbox)
-    assert launcher.sandbox._claude_credentials_path == creds
+    assert launcher.sandbox._anthropic_credential is cred

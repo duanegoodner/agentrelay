@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Optional
 
 from agentrelay.sandbox import (
+    AnthropicCredential,
     ClaudeCodeAdapter,
     CredentialProvider,
     NullCredentialProvider,
@@ -125,7 +126,7 @@ def build_standard_runner(
     context_content: Optional[str] = None,
     tools: tuple[str, ...] = (),
     credential_provider: Optional[CredentialProvider] = None,
-    claude_credentials_path: Optional[Path] = None,
+    anthropic_credential: Optional[AnthropicCredential] = None,
 ) -> StandardTaskRunner:
     """Build the standard runner for worktree + tmux + Claude Code.
 
@@ -176,7 +177,7 @@ def build_standard_runner(
             sandbox = OciSandbox(
                 image=isolation.image,
                 runtime=isolation.runtime,
-                claude_credentials_path=claude_credentials_path,
+                anthropic_credential=anthropic_credential,
             )
         else:
             sandbox = NullSandbox()
