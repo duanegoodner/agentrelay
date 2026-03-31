@@ -1,6 +1,6 @@
 # Sprint Notes — 2026-03-26: Agent Isolation
 
-> **Status: Complete.** PRs A–E merged (#139–#144), F1 merged (#145), Fcleanup merged (#146), F2 merged (#TBD). All e2e isolation tests validated.
+> **Status: Complete.** PRs A–E merged (#139–#144), F1 merged (#145), Fcleanup merged (#146), F2 merged (#147). All e2e isolation tests validated.
 
 ## Goal
 
@@ -475,7 +475,7 @@ prompt suppression discovered during Fcleanup e2e validation.
 
 ---
 
-### PR F2: Remaining e2e isolation testing — MERGED (#TBD)
+### PR F2: Remaining e2e isolation testing — MERGED (#147)
 
 - Branch: `feat/e2e-isolation-remaining`
 - Depends on: PR Fcleanup
