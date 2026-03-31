@@ -527,6 +527,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#remaining-e2e-isolation-testing-sprint-2026-03-26-pr-f2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remaining e2e isolation testing (sprint 2026-03-26 PR F2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#container-e2e-infrastructure-fixes-sprint-2026-03-26-pr-fcleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2164,6 +2175,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#remaining-e2e-isolation-testing-sprint-2026-03-26-pr-f2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remaining e2e isolation testing (sprint 2026-03-26 PR F2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#container-e2e-infrastructure-fixes-sprint-2026-03-26-pr-fcleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2968,6 +2990,23 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-03-30">2026-03-30</h2>
+<h3 id="remaining-e2e-isolation-testing-sprint-2026-03-26-pr-f2">Remaining e2e isolation testing (sprint 2026-03-26 PR F2)</h3>
+<ul>
+<li><strong>token_tiers e2e</strong>: Verified correct credential scoping across token tiers.
+  <code>standard_task</code> (standard tier) pushed, created PR, and succeeded.
+  <code>readonly_task</code> (read_only tier) pushed but failed at PR creation (403 —
+  token lacks <code>pull_requests: write</code> scope). Agent recorded an ops concern
+  about the missing permission. Graph outcome: <code>COMPLETED_WITH_FAILURES</code>.</li>
+<li><strong>permission_boundary e2e</strong>: Verified pre-push hook blocks agent push to
+  main. Agent attempted <code>git push origin HEAD:refs/heads/main</code>, hook rejected
+  it (<code>IS_AI_AGENT=true</code>), agent recorded an ops concern with the exact hook
+  error message, then recovered by pushing to its task branch and completing
+  normally. Graph outcome: <code>SUCCEEDED</code> (48s).</li>
+<li><strong>permission_boundary.yaml fix</strong>: Changed <code>token_tier</code> from <code>read_only</code> to
+  <code>standard</code> so the test exercises the pre-push hook rather than a PAT
+  permission denial.</li>
+</ul>
+<hr />
 <h3 id="container-e2e-infrastructure-fixes-sprint-2026-03-26-pr-fcleanup">Container e2e infrastructure fixes (sprint 2026-03-26 PR Fcleanup)</h3>
 <ul>
 <li><strong>UID alignment</strong>: Docker base image creates <code>agent</code> user with UID 1000
