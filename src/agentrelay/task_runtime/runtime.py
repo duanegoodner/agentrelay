@@ -65,6 +65,15 @@ SUCCESS_STATUSES: frozenset[TaskStatus] = frozenset(
     }
 )
 
+#: Artifact filenames preserved in ``signal_dir/attempts/<N>/`` before retry cleanup.
+_ARCHIVABLE_ARTIFACTS: tuple[str, ...] = (
+    "agent.log",
+    "gate_last_output.txt",
+    "summary.md",
+    "concerns.log",
+    "ops_concerns.log",
+)
+
 
 def _read_task_status_from_signals(signal_dir: Path) -> TaskStatus:
     """Determine task status from signal files on disk.
@@ -210,6 +219,17 @@ class TaskRuntime:
             if path.is_file():
                 path.unlink()
 
+    def _archive_attempt_artifacts(self) -> None:
+        """Copy diagnostic artifacts to ``attempts/<attempt_num>/`` for post-run inspection."""
+        if self.state.signal_dir is None:
+            return
+        attempt_dir = self.state.signal_dir / "attempts" / str(self.state.attempt_num)
+        for name in _ARCHIVABLE_ARTIFACTS:
+            src = self.state.signal_dir / name
+            if src.is_file():
+                attempt_dir.mkdir(parents=True, exist_ok=True)
+                (attempt_dir / name).write_bytes(src.read_bytes())
+
     def mark_pending(self) -> None:
         """Write the ``pending`` status signal file."""
         self._write_status_signal("pending")
@@ -251,6 +271,7 @@ class TaskRuntime:
             self.artifacts.concerns.append(
                 f"attempt_{self.state.attempt_num}_error: {self.state.error}"
             )
+        self._archive_attempt_artifacts()
         self._clear_status_signals()
         self._clear_agent_signals()
         if self.state.signal_dir is not None:
