@@ -3,12 +3,42 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
 from agentrelay.agent_sdk.task_helper import NO_PR_SENTINEL, TaskHelper
+
+
+def _gh_side_effect(
+    *,
+    list_url: str = "",
+    create_url: str = "https://github.com/org/repo/pull/42",
+) -> object:
+    """Return a side_effect callable for subprocess.run that routes by gh subcommand."""
+
+    def _side_effect(
+        args: list[str], **kwargs: object
+    ) -> subprocess.CompletedProcess[str]:
+        # gh pr list / gh pr create → args[1]="pr", args[2]="list"/"create"
+        # gh api repos/... → args[1]="api"
+        if len(args) > 2 and args[1] == "pr":
+            subcmd = args[2]
+            if subcmd == "list":
+                return subprocess.CompletedProcess(
+                    args, 0, stdout=list_url + "\n", stderr=""
+                )
+            if subcmd == "create":
+                return subprocess.CompletedProcess(
+                    args, 0, stdout=create_url + "\n", stderr=""
+                )
+        if args[1] == "api":
+            return subprocess.CompletedProcess(args, 0, stdout="", stderr="")
+        raise ValueError(f"Unexpected gh command: {args}")
+
+    return _side_effect
 
 
 def _write_manifest(signal_dir: Path, **overrides: object) -> None:
@@ -145,12 +175,13 @@ def test_create_pr_includes_ops_concerns_in_body(tmp_path: Path) -> None:
     helper.record_ops_concern("slow build")
 
     with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
-        mock_run.return_value.stdout = "https://github.com/org/repo/pull/42\n"
+        mock_run.side_effect = _gh_side_effect()
         helper.create_pr(body="task body")
 
-    args = mock_run.call_args[0][0]
-    body_idx = args.index("--body")
-    body = args[body_idx + 1]
+    # The create call is the second call (after the probe).
+    create_args = mock_run.call_args_list[1][0][0]
+    body_idx = create_args.index("--body")
+    body = create_args[body_idx + 1]
     assert "## Ops Concerns" in body
     assert "slow build" in body
 
@@ -166,12 +197,12 @@ def test_create_pr_includes_both_concern_types(tmp_path: Path) -> None:
     helper.record_ops_concern("missing dep")
 
     with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
-        mock_run.return_value.stdout = "https://github.com/org/repo/pull/42\n"
+        mock_run.side_effect = _gh_side_effect()
         helper.create_pr(body="task body")
 
-    args = mock_run.call_args[0][0]
-    body_idx = args.index("--body")
-    body = args[body_idx + 1]
+    create_args = mock_run.call_args_list[1][0][0]
+    body_idx = create_args.index("--body")
+    body = create_args[body_idx + 1]
     assert "## Concerns" in body
     assert "spec ambiguity" in body
     assert "## Ops Concerns" in body
@@ -187,18 +218,18 @@ def test_create_pr_calls_gh(tmp_path: Path) -> None:
     )
 
     with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
-        mock_run.return_value.stdout = "https://github.com/org/repo/pull/42\n"
+        mock_run.side_effect = _gh_side_effect()
         pr_url = helper.create_pr()
 
     assert pr_url == "https://github.com/org/repo/pull/42"
-    mock_run.assert_called_once()
-    args = mock_run.call_args[0][0]
-    assert args[0] == "gh"
-    assert "--base" in args
-    base_idx = args.index("--base")
-    assert args[base_idx + 1] == "agentrelay/g/default/integration"
-    head_idx = args.index("--head")
-    assert args[head_idx + 1] == "agentrelay/g/my_task"
+    assert mock_run.call_count == 2  # probe + create
+    create_args = mock_run.call_args_list[1][0][0]
+    assert create_args[0] == "gh"
+    assert "--base" in create_args
+    base_idx = create_args.index("--base")
+    assert create_args[base_idx + 1] == "agentrelay/g/default/integration"
+    head_idx = create_args.index("--head")
+    assert create_args[head_idx + 1] == "agentrelay/g/my_task"
 
 
 # -- Complete (combined workflow) --
@@ -232,3 +263,83 @@ def test_complete_creates_pr_and_signals_done(tmp_path: Path) -> None:
 
     content = (tmp_path / ".done").read_text()
     assert "https://example.com/pr/1" in content
+
+
+# -- PR reuse on retry --
+
+
+def test_create_pr_no_existing_pr_probes_then_creates(tmp_path: Path) -> None:
+    """When no open PR exists, probe returns empty and gh pr create runs."""
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="my_task",
+        branch_name="agentrelay/g/my_task",
+        integration_branch="agentrelay/g/default/integration",
+    )
+
+    with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
+        mock_run.side_effect = _gh_side_effect()
+        pr_url = helper.create_pr()
+
+    assert pr_url == "https://github.com/org/repo/pull/42"
+    assert mock_run.call_count == 2
+    probe_args = mock_run.call_args_list[0][0][0]
+    assert probe_args[2] == "list"
+    create_args = mock_run.call_args_list[1][0][0]
+    assert create_args[2] == "create"
+
+
+def test_create_pr_reuses_existing_pr(tmp_path: Path) -> None:
+    """When an open PR exists, it is reused and gh pr create is not called."""
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="my_task",
+        branch_name="agentrelay/g/my_task",
+        integration_branch="agentrelay/g/default/integration",
+    )
+
+    existing = "https://github.com/org/repo/pull/7"
+    with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
+        mock_run.side_effect = _gh_side_effect(list_url=existing)
+        pr_url = helper.create_pr()
+
+    assert pr_url == existing
+    assert mock_run.call_count == 2  # probe + api PATCH (no create)
+    probe_args = mock_run.call_args_list[0][0][0]
+    assert probe_args[2] == "list"
+    api_args = mock_run.call_args_list[1][0][0]
+    assert api_args[1] == "api"
+    assert "repos/org/repo/pulls/7" in api_args
+
+
+def test_create_pr_reuse_updates_body_with_concerns(tmp_path: Path) -> None:
+    """When reusing a PR, the body passed to gh api PATCH includes concerns."""
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="my_task",
+        branch_name="agentrelay/g/my_task",
+        integration_branch="agentrelay/g/default/integration",
+    )
+    helper.record_concern("retry concern")
+    helper.record_ops_concern("retry ops issue")
+
+    existing = "https://github.com/org/repo/pull/7"
+    with patch("agentrelay.agent_sdk.task_helper.subprocess.run") as mock_run:
+        mock_run.side_effect = _gh_side_effect(list_url=existing)
+        helper.create_pr(body="attempt 2 body")
+
+    api_args = mock_run.call_args_list[1][0][0]
+    # Body is passed as "-f" "body=..." to gh api
+    body_flag_indices = [i for i, a in enumerate(api_args) if a == "-f"]
+    body_values = [
+        api_args[i + 1]
+        for i in body_flag_indices
+        if api_args[i + 1].startswith("body=")
+    ]
+    assert len(body_values) == 1
+    body = body_values[0].removeprefix("body=")
+    assert "attempt 2 body" in body
+    assert "## Concerns" in body
+    assert "retry concern" in body
+    assert "## Ops Concerns" in body
+    assert "retry ops issue" in body
