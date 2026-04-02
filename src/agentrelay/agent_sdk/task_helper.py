@@ -100,7 +100,11 @@ class TaskHelper:
         title: str | None = None,
         body: str | None = None,
     ) -> str:
-        """Create a pull request targeting the integration branch.
+        """Create or reuse a pull request targeting the integration branch.
+
+        If an open PR from this branch to the integration branch already
+        exists (e.g. from a previous attempt), reuses it and updates its
+        body. Otherwise creates a new PR.
 
         Automatically appends any recorded concerns as a "Concerns" section
         in the PR body.
@@ -110,10 +114,10 @@ class TaskHelper:
             body: PR body/description. Defaults to ``"Automated task PR"``.
 
         Returns:
-            The URL of the created pull request.
+            The URL of the created (or reused) pull request.
 
         Raises:
-            subprocess.CalledProcessError: If ``gh pr create`` fails.
+            subprocess.CalledProcessError: If a ``gh`` command fails.
         """
         full_body = body or "Automated task PR"
         concerns = self._read_concerns()
@@ -124,6 +128,51 @@ class TaskHelper:
         if ops_concerns:
             ops_list = "\n".join(f"- {c}" for c in ops_concerns)
             full_body += f"\n\n## Ops Concerns\n\n{ops_list}"
+
+        # Check for existing open PR targeting the same base (retry scenario).
+        probe = subprocess.run(
+            [
+                "gh",
+                "pr",
+                "list",
+                "--head",
+                self.branch_name,
+                "--base",
+                self.integration_branch,
+                "--state",
+                "open",
+                "--json",
+                "url",
+                "-q",
+                ".[0].url",
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        existing_url = probe.stdout.strip()
+
+        if existing_url:
+            # Update the body via REST API to avoid the gh pr edit GraphQL
+            # "Projects (classic)" deprecation error.
+            rest_path = existing_url.replace("https://github.com/", "repos/").replace(
+                "/pull/", "/pulls/"
+            )
+            subprocess.run(
+                [
+                    "gh",
+                    "api",
+                    rest_path,
+                    "-X",
+                    "PATCH",
+                    "-f",
+                    f"body={full_body}",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            return existing_url
 
         result = subprocess.run(
             [

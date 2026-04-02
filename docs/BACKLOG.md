@@ -7,6 +7,29 @@ Near-term items for the current architecture track.
 ## Core Execution
 
 - Expand orchestrator support for richer resume hooks and durable state checkpoints.
+- **Human-triggered partial graph re-run**: Allow a human monitoring a graph
+  execution to intervene and re-run a subset of tasks — for example, after
+  reviewing a missed note that indicates a completed task's output is
+  incomplete, or after manually fixing an upstream artifact. The mechanism
+  could be a CLI command that accepts a list of task IDs to re-run, resets
+  their status and worktrees, and resumes the orchestrator from that point.
+  Differs from the existing `max_task_attempts` auto-retry in that it is
+  human-initiated, post-completion, and may affect tasks that succeeded but
+  produced insufficient output. Design after the basic context-sharing
+  infrastructure (graph YAML delivery, `agentrelay-note`, missed notes
+  detection) is in place and we have e2e experience with missed-note scenarios.
+  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+- **Orchestrator-driven partial re-run via LLM judgment**: Extend the above
+  with an orchestrator capability to autonomously decide whether a missed note
+  (or other runtime signal) justifies re-running part of the graph, without
+  requiring human intervention. This would require the orchestrator to consult
+  an LLM agent — either as an on-demand subprocess or as a persistent
+  "planning agent" attribute on the orchestrator — to evaluate the missed note
+  content and the affected task's output and produce a re-run recommendation.
+  Prerequisite: human-triggered partial re-run (above) must exist first, as the
+  orchestrator would use the same machinery. High complexity; defer until the
+  simpler human-intervention mechanism is validated in practice.
+  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
 - **Human intervention on task failure**: When an agent declares a task failed,
   allow a human to fix the problem (e.g., correct an upstream file, adjust the
   worktree) and then trigger a retry of the failed task without restarting the
@@ -482,6 +505,40 @@ reference for the Rust port.
 
 See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
+## Agent Context Sharing
+
+- **Per-task signal dir visibility restrictions**: For very large graphs, it may
+  be useful to restrict what sections of the graph's signal store each agent can
+  see — via filesystem ACLs or, in OCI isolation mode, container bind mount
+  scoping. Agents that know their visibility is bounded won't waste time
+  searching outside it, and the constraint could serve as a lightweight form of
+  information hiding across graph sections. Implement after the basic pull-based
+  context-sharing infrastructure (graph YAML delivery, `agentrelay-read`,
+  `agentrelay-note`) is stable and validated in e2e.
+  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+
+- **`strict_notes` policy for missed-note blocking**: By default, missed
+  `agentrelay-note` messages (notes that arrived in a task's inbox after its
+  final checkpoint) are surfaced as warnings but do not block auto-merge.
+  A `strict_notes` option would cause missed notes to block auto-merge and
+  require human review, treating the note channel as a stronger signal.
+  Should support granular scoping — graph-level default with per-workstream,
+  per-task, and per-agent overrides — following the same inheritance pattern
+  as `IsolationConfig`. Default should remain permissive (best-effort semantics
+  for `agentrelay-note`); `strict_notes` is opt-in for workflows where missed
+  notes are genuinely dangerous.
+  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+
+- **Concurrent note delivery via orchestrator injection**: If e2e observation
+  shows that the structured-checkpoint inbox model misses too many notes sent by
+  concurrent tasks, a future option is having the orchestrator watch inbox
+  directories and inject a brief notification into the target tmux pane via
+  `tmux send-keys`. Very unlikely to be needed: the design principle is that
+  hard dependencies belong in the graph structure, and `agentrelay-note` is
+  best-effort for opportunistic hints. The final pre-PR inbox re-check catches
+  virtually all practical cases.
+  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+
 ## Agent Worktree Awareness
 
 - **Agent navigates out of worktree**: During E2E testing (PR D, retry graph
@@ -518,6 +575,16 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
 ## Documentation
 
+- **Target repo branch protection assumption**: agentrelay assumes target repos
+  are configured with branch protection requiring at least one human approval
+  before merging to main. This is load-bearing for the isolation model — it
+  ensures PRs created by containerized agents (even those with elevated PATs)
+  cannot be auto-merged without human review, since no PAT shares the human
+  user's bypass identity in GitHub branch rulesets. Document this assumption
+  explicitly in `ARCHITECTURE.md` and `SCHEMA.md`, and consider adding a
+  preflight warning to `pixi run e2e-check` if the target repo lacks a
+  qualifying protection rule.
+
 - **API Reference mkdocs rendering issues**: Some API reference pages render
   poorly — `ops` page shows raw reStructuredText instead of formatted output
   (Sphinx-style `::` code blocks not recognized by mkdocstrings). Parts of
@@ -532,6 +599,26 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
+- **Orchestrator log files**: The orchestrator currently writes all output to
+  the terminal (via `ConsoleListener`) with no persistent log file. For long
+  runs or post-mortem debugging, a durable log is valuable. Design questions:
+  one log per graph run (`.workflow/<graph>/orchestrator.log`), or a separate
+  file per event type? Structured (JSON) or human-readable? Should subsume or
+  complement the existing per-task `agent.log` (tmux scrollback). Consider
+  alongside the "standardize runtime artifacts" item above — they are likely
+  the same effort.
+- **Orchestrator writes graph artifacts to the repo**: Give the orchestrator the
+  ability to commit files to the target repo (or write to GitHub as issues,
+  gists, PR comments, or wiki pages) as a first-class operation — separate from
+  the per-task PR workflow. Use cases include: committing `late_insights.log`,
+  graph run summaries, concern aggregates, and other non-code artifacts that
+  should be durable and version-controlled but don't belong in a task PR.
+  Design questions: should this be a new `ops/git.py` function
+  (`commit_files_to_main`), a separate "graph artifact" workstream, or a
+  GitHub-specific mechanism (issues, wiki)? The simplest starting point is
+  probably a post-run commit to main by the orchestrator for a set of
+  well-known artifact files (`.workflow/<graph>/late_insights.log`,
+  `orchestrator.log`, etc.).
 - **Isolation environment visibility in terminal output**: When agents
   run in OCI containers, the orchestrator's terminal output should
   surface container lifecycle events — container launch (image, name,
