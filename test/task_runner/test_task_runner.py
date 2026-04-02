@@ -46,6 +46,8 @@ def _make_runtime(
         runtime.mark_pr_created()
     elif status == TaskStatus.PR_MERGED:
         runtime.mark_pr_merged()
+    elif status == TaskStatus.COMPLETED:
+        runtime.mark_completed()
     elif status == TaskStatus.FAILED:
         runtime.mark_failed("test failure")
     return runtime
@@ -199,9 +201,9 @@ def test_run_done_signal_without_pr_url_succeeds_without_merge() -> None:
         "teardown",
     ]
     assert "merge_pr" not in fake.calls
-    assert runtime.status == TaskStatus.PR_MERGED
+    assert runtime.status == TaskStatus.COMPLETED
     assert runtime.artifacts.pr_url is None
-    assert result.status == TaskStatus.PR_MERGED
+    assert result.status == TaskStatus.COMPLETED
 
 
 @pytest.mark.parametrize(
@@ -297,6 +299,19 @@ def test_teardown_mode_on_success_skips_teardown_after_failure() -> None:
 
     assert result.status == TaskStatus.FAILED
     assert "teardown" not in fake.calls
+
+
+def test_teardown_mode_on_success_tears_down_after_completed() -> None:
+    """ON_SUCCESS teardown fires for COMPLETED (PR-less success) too."""
+    fake = FakeIO(signal=TaskCompletionSignal(outcome="done", pr_url=None))
+    runtime = _make_runtime()
+
+    result = asyncio.run(
+        _make_runner(fake).run(runtime, teardown_mode=TearDownMode.ON_SUCCESS)
+    )
+
+    assert result.status == TaskStatus.COMPLETED
+    assert "teardown" in fake.calls
 
 
 def test_completion_signal_concerns_default_empty() -> None:
@@ -480,7 +495,7 @@ def test_run_pr_less_completion_skips_summary(mock_gh: Any) -> None:
 
     result = asyncio.run(runner.run(runtime))
 
-    assert result.status == TaskStatus.PR_MERGED
+    assert result.status == TaskStatus.COMPLETED
     mock_gh.pr_body.assert_not_called()
 
 
@@ -630,7 +645,7 @@ def test_gate_skipped_for_pr_less_completion() -> None:
 
     result = asyncio.run(runner.run(runtime))
 
-    assert result.status == TaskStatus.PR_MERGED
+    assert result.status == TaskStatus.COMPLETED
     assert "check_gate" not in fake.calls
 
 

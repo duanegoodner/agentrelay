@@ -23,7 +23,7 @@ from agentrelay.orchestrator.builders import (
 )
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
-from agentrelay.task_runtime import TaskRuntime, TaskStatus
+from agentrelay.task_runtime import SUCCESS_STATUSES, TaskRuntime, TaskStatus
 from agentrelay.workstream import (
     IntegrationAutoMerger,
     IntegrationMergeChecker,
@@ -37,12 +37,12 @@ class TaskOutcomeClass(str, Enum):
     """Classification of one task attempt outcome from the orchestrator boundary.
 
     Attributes:
-        SUCCESS: Task reached ``PR_MERGED``.
+        SUCCESS: Task reached a terminal success status (``PR_MERGED`` or ``COMPLETED``).
         EXPECTED_FAILURE: Task run returned ``FAILED``.
         INTERNAL_ERROR: Task run raised an exception.
     """
 
-    SUCCESS = "success"
+    SUCCESS = "success"  # Task reached a terminal success status
     EXPECTED_FAILURE = "expected_failure"
     INTERNAL_ERROR = "internal_error"
 
@@ -51,7 +51,7 @@ class OrchestratorOutcome(str, Enum):
     """Terminal outcome for one orchestrator run.
 
     Attributes:
-        SUCCEEDED: All tasks reached ``PR_MERGED``.
+        SUCCEEDED: All tasks reached a terminal success status.
         COMPLETED_WITH_FAILURES: No fatal internal error, but one or more tasks
             ended ``FAILED``.
         FATAL_INTERNAL_ERROR: A task run raised and orchestration failed fast.
@@ -206,7 +206,7 @@ class _OrchestratorRun:
         self._completed_ids: set[str] = {
             task_id
             for task_id, runtime in self._task_runtimes.items()
-            if runtime.status == TaskStatus.PR_MERGED
+            if runtime.status in SUCCESS_STATUSES
         }
         self._attempts_used = self._initialize_attempts_used()
         self._normalize_failed_for_retry()
@@ -314,7 +314,7 @@ class _OrchestratorRun:
                     "Resume from RUNNING/PR_CREATED is not yet supported. "
                     f"Task '{task_id}' is in state {status.value!r}."
                 )
-            if status in (TaskStatus.PR_MERGED, TaskStatus.FAILED):
+            if status in SUCCESS_STATUSES or status == TaskStatus.FAILED:
                 attempts_used[task_id] = runtime.state.attempt_num + 1
             else:
                 attempts_used[task_id] = runtime.state.attempt_num
@@ -422,7 +422,7 @@ class _OrchestratorRun:
                     break
                 continue
 
-            if result.status == TaskStatus.PR_MERGED:
+            if result.status in SUCCESS_STATUSES:
                 self._process_task_success(task_id, attempt_num)
                 continue
 
@@ -474,7 +474,7 @@ class _OrchestratorRun:
         return False
 
     def _process_task_success(self, task_id: str, attempt_num: int) -> None:
-        """Handle a task that reached PR_MERGED."""
+        """Handle a task that reached a terminal success status."""
         runtime = self._task_runtimes[task_id]
         self._completed_ids.add(task_id)
         self._emit(
@@ -582,7 +582,7 @@ class _OrchestratorRun:
 
     def _all_tasks_terminal(self) -> bool:
         return all(
-            runtime.status in (TaskStatus.PR_MERGED, TaskStatus.FAILED)
+            runtime.status in SUCCESS_STATUSES or runtime.status == TaskStatus.FAILED
             for runtime in self._task_runtimes.values()
         )
 
@@ -712,7 +712,7 @@ class _OrchestratorRun:
                 continue
             task_ids = graph.tasks_in_workstream(workstream_id)
             if not task_ids or all(
-                self._task_runtimes[task_id].status == TaskStatus.PR_MERGED
+                self._task_runtimes[task_id].status in SUCCESS_STATUSES
                 for task_id in task_ids
             ):
                 ws_runtime.mark_merge_ready()
@@ -900,7 +900,10 @@ class _OrchestratorRun:
         """Mark in-flight tasks as failed when orchestration aborts."""
         for task_id in self._running:
             runtime = self._task_runtimes[task_id]
-            if runtime.status not in (TaskStatus.PR_MERGED, TaskStatus.FAILED):
+            if (
+                runtime.status not in SUCCESS_STATUSES
+                and runtime.status != TaskStatus.FAILED
+            ):
                 runtime.mark_failed(reason)
             else:
                 runtime.state.error = reason

@@ -340,6 +340,20 @@ class TestTaskRuntime:
         assert len(runtime.artifacts.concerns) == 1
         assert runtime.artifacts.pr_url == "https://github.com/org/repo/pull/42"
 
+    def test_pr_less_execution_lifecycle(self) -> None:
+        """TaskRuntime tracks PR-less execution: PENDING -> RUNNING -> COMPLETED."""
+        task = Task(id="review", role=AgentRole.TEST_REVIEWER)
+        runtime = TaskRuntime(task=task)
+        runtime.state.signal_dir = _signal_dir()
+        runtime.mark_pending()
+
+        runtime.mark_running()
+        assert runtime.status == TaskStatus.RUNNING
+
+        runtime.mark_completed()
+        assert runtime.status == TaskStatus.COMPLETED
+        assert runtime.artifacts.pr_url is None
+
     def test_task_spec_unchanged(self) -> None:
         """TaskRuntime holds frozen Task; spec doesn't change."""
         task = Task(

@@ -5,6 +5,7 @@ from immutable task specs.
 """
 
 from agentrelay.task_runtime.runtime import (
+    SUCCESS_STATUSES,
     TaskArtifacts,
     TaskRuntime,
     TaskState,
@@ -12,6 +13,7 @@ from agentrelay.task_runtime.runtime import (
 )
 
 __all__ = [
+    "SUCCESS_STATUSES",
     "TaskArtifacts",
     "TaskRuntime",
     "TaskState",

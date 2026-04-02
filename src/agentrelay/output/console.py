@@ -256,6 +256,7 @@ def print_summary(
     headers = ("Task", "Status", "Workstream", "Attempts", "Duration", "PR")
     status_labels = {
         TaskStatus.PR_MERGED: "succeeded",
+        TaskStatus.COMPLETED: "succeeded",
         TaskStatus.FAILED: "failed",
         TaskStatus.RUNNING: "running",
         TaskStatus.PR_CREATED: "pr_created",
