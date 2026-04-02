@@ -48,6 +48,7 @@ task_runtime_pkg: "task_runtime/" {
     RUNNING
     PR_CREATED
     PR_MERGED
+    COMPLETED
     FAILED
   }
 
@@ -80,6 +81,7 @@ task_runtime_pkg: "task_runtime/" {
     +mark_running(): void
     +mark_pr_created(): void
     +mark_pr_merged(): void
+    +mark_completed(): void
     +mark_failed(error): void
     +prepare_for_attempt(attempt_num): void
     +reset_for_retry(): void

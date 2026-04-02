@@ -349,6 +349,7 @@ def _make_result(
                 TaskStatus.RUNNING: runtime.mark_running,
                 TaskStatus.PR_CREATED: runtime.mark_pr_created,
                 TaskStatus.PR_MERGED: runtime.mark_pr_merged,
+                TaskStatus.COMPLETED: runtime.mark_completed,
             }
             _mark[status]()
         if status == TaskStatus.PR_MERGED:
@@ -370,7 +371,7 @@ def _make_result(
                 workstream_id=ws_id,
                 outcome_class=(
                     TaskOutcomeClass.SUCCESS
-                    if status == TaskStatus.PR_MERGED
+                    if status in (TaskStatus.PR_MERGED, TaskStatus.COMPLETED)
                     else TaskOutcomeClass.EXPECTED_FAILURE
                 ),
             )
@@ -461,6 +462,16 @@ class TestPrintSummary:
         assert "spec issue" in output
         assert "Ops Concerns:" in output
         assert "build flaky" in output
+
+    def test_completed_task_shows_succeeded(self) -> None:
+        result = _make_result(
+            tasks=(("review_fn", TaskStatus.COMPLETED, "default"),),
+        )
+        buf = io.StringIO()
+        print_summary(result, stream=buf)
+        output = buf.getvalue()
+        assert "succeeded" in output
+        assert "review_fn" in output
 
     def test_empty_graph_no_table(self) -> None:
         result = _make_result()

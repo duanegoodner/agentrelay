@@ -92,6 +92,7 @@ class TestTaskStatus:
         assert TaskStatus.RUNNING.value == "running"
         assert TaskStatus.PR_CREATED.value == "pr_created"
         assert TaskStatus.PR_MERGED.value == "pr_merged"
+        assert TaskStatus.COMPLETED.value == "completed"
         assert TaskStatus.FAILED.value == "failed"
 
     def test_is_string_enum(self) -> None:
@@ -101,10 +102,11 @@ class TestTaskStatus:
 
     def test_status_progression(self) -> None:
         """Statuses represent a logical execution flow."""
-        # PENDING -> RUNNING -> PR_CREATED -> PR_MERGED
+        # PENDING -> RUNNING -> PR_CREATED -> PR_MERGED (PR-backed)
+        # PENDING -> RUNNING -> COMPLETED (PR-less)
         # or PENDING -> RUNNING -> FAILED
         statuses = list(TaskStatus)
-        assert len(statuses) == 5
+        assert len(statuses) == 6
 
 
 # ── Tests for AgentEnvironment ──

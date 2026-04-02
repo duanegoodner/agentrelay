@@ -31,7 +31,7 @@ from agentrelay.task_runner.core.io import (
     TaskPreparer,
     TaskTeardown,
 )
-from agentrelay.task_runtime import TaskRuntime, TaskStatus
+from agentrelay.task_runtime import SUCCESS_STATUSES, TaskRuntime, TaskStatus
 
 # Allowed lifecycle transitions for one task execution.
 ALLOWED_TASK_TRANSITIONS: Mapping[TaskStatus, tuple[TaskStatus, ...]] = (
@@ -41,10 +41,12 @@ ALLOWED_TASK_TRANSITIONS: Mapping[TaskStatus, tuple[TaskStatus, ...]] = (
             TaskStatus.RUNNING: (
                 TaskStatus.PR_CREATED,
                 TaskStatus.PR_MERGED,
+                TaskStatus.COMPLETED,
                 TaskStatus.FAILED,
             ),
             TaskStatus.PR_CREATED: (TaskStatus.PR_MERGED, TaskStatus.FAILED),
             TaskStatus.PR_MERGED: (),
+            TaskStatus.COMPLETED: (),
             TaskStatus.FAILED: (),
         }
     )
@@ -58,6 +60,7 @@ _MARK_DISPATCH: Mapping[TaskStatus, str] = MappingProxyType(
         TaskStatus.RUNNING: "mark_running",
         TaskStatus.PR_CREATED: "mark_pr_created",
         TaskStatus.PR_MERGED: "mark_pr_merged",
+        TaskStatus.COMPLETED: "mark_completed",
     }
 )
 
@@ -73,7 +76,8 @@ class TearDownMode(str, Enum):
     Attributes:
         ALWAYS: Always call teardown at end of run.
         NEVER: Never call teardown.
-        ON_SUCCESS: Call teardown only when task reaches ``PR_MERGED``.
+        ON_SUCCESS: Call teardown only when task reaches a terminal success
+            status (``PR_MERGED`` or ``COMPLETED``).
     """
 
     ALWAYS = "always"
@@ -299,7 +303,7 @@ class StandardTaskRunner:
                 self._transition(runtime, TaskStatus.PR_MERGED)
             else:
                 # PR-less completion (e.g., review-only task with no changes).
-                self._transition(runtime, TaskStatus.PR_MERGED)
+                self._transition(runtime, TaskStatus.COMPLETED)
         finally:
             if self._should_teardown(teardown_mode, runtime.status):
                 try:
@@ -406,4 +410,4 @@ class StandardTaskRunner:
             return True
         if teardown_mode == TearDownMode.NEVER:
             return False
-        return terminal_status == TaskStatus.PR_MERGED
+        return terminal_status in SUCCESS_STATUSES

@@ -81,6 +81,10 @@ class ScriptedTaskRunner:
                 failure_class=IntegrationFailureClass.EXPECTED_TASK_FAILURE,
             )
 
+        if action == "success_no_pr":
+            runtime.mark_completed()
+            return TaskRunResult.from_runtime(runtime)
+
         runtime.artifacts.pr_url = f"https://example.com/{task_id}/{attempt_num}"
         runtime.mark_pr_merged()
         return TaskRunResult.from_runtime(runtime)
@@ -1152,4 +1156,69 @@ def test_auto_merge_cross_workstream_unblocks_downstream() -> None:
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     assert merger.merge_calls == ["ws_a"]
     assert result.workstream_runtimes["ws_a"].status == WorkstreamStatus.MERGED
+    assert result.task_runtimes["b"].status == TaskStatus.PR_MERGED
+
+
+# ---------------------------------------------------------------------------
+# COMPLETED status (PR-less success) tests
+# ---------------------------------------------------------------------------
+
+
+def test_completed_task_satisfies_dependency() -> None:
+    """A COMPLETED (PR-less) task satisfies downstream dependencies."""
+    graph = TaskGraph.from_tasks(
+        (_task("a"), _task("b", dependencies=("a",))),
+    )
+    runner = ScriptedTaskRunner(script={("a", 0): "success_no_pr"})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.task_runtimes["a"].status == TaskStatus.COMPLETED
+    assert result.task_runtimes["b"].status == TaskStatus.PR_MERGED
+
+
+def test_all_completed_workstream_reaches_merge_ready() -> None:
+    """Workstream with all COMPLETED tasks proceeds to integration."""
+    graph = TaskGraph.from_tasks((_task("a"),))
+    runner = ScriptedTaskRunner(script={("a", 0): "success_no_pr"})
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.task_runtimes["a"].status == TaskStatus.COMPLETED
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.PR_CREATED
+
+
+def test_mixed_pr_merged_and_completed_workstream_succeeds() -> None:
+    """Workstream with both PR_MERGED and COMPLETED tasks succeeds."""
+    graph = TaskGraph.from_tasks(
+        (_task("a"), _task("b", dependencies=("a",))),
+    )
+    runner = ScriptedTaskRunner(
+        script={("a", 0): "success_no_pr"},  # b defaults to "success" (PR_MERGED)
+    )
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=_noop_ws_runner(),
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.task_runtimes["a"].status == TaskStatus.COMPLETED
     assert result.task_runtimes["b"].status == TaskStatus.PR_MERGED

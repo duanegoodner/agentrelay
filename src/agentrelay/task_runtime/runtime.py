@@ -4,7 +4,8 @@ This module defines the execution state enum and mutable types for tracking
 task execution state and accumulating work artifacts.
 
 Enums:
-    TaskStatus: Execution state of a task (PENDING, RUNNING, PR_CREATED, PR_MERGED, FAILED).
+    TaskStatus: Execution state of a task
+        (PENDING, RUNNING, PR_CREATED, PR_MERGED, COMPLETED, FAILED).
 
 Classes:
     TaskState: Mutable operational state of a running task.
@@ -33,6 +34,7 @@ class TaskStatus(str, Enum):
         RUNNING: Task is currently being executed by an agent.
         PR_CREATED: Agent completed work; pull request exists against worktree branch.
         PR_MERGED: Pull request has been merged into the worktree primary branch.
+        COMPLETED: Task completed successfully without creating a PR.
         FAILED: Task execution failed.
     """
 
@@ -40,6 +42,7 @@ class TaskStatus(str, Enum):
     RUNNING = "running"
     PR_CREATED = "pr_created"  # Agent done; PR exists against worktree branch
     PR_MERGED = "pr_merged"  # PR merged into worktree primary branch
+    COMPLETED = "completed"  # PR-less task finished successfully
     FAILED = "failed"
 
 
@@ -50,6 +53,16 @@ _TASK_STATUS_SEQUENCE: tuple[TaskStatus, ...] = (
     TaskStatus.RUNNING,
     TaskStatus.PR_CREATED,
     TaskStatus.PR_MERGED,
+    TaskStatus.COMPLETED,
+)
+
+#: Terminal success statuses — used by orchestrator and task runner to check
+#: whether a task has succeeded (with or without a PR).
+SUCCESS_STATUSES: frozenset[TaskStatus] = frozenset(
+    {
+        TaskStatus.PR_MERGED,
+        TaskStatus.COMPLETED,
+    }
 )
 
 
@@ -212,6 +225,10 @@ class TaskRuntime:
     def mark_pr_merged(self) -> None:
         """Write the ``pr_merged`` status signal file."""
         self._write_status_signal("pr_merged")
+
+    def mark_completed(self) -> None:
+        """Write the ``completed`` status signal file."""
+        self._write_status_signal("completed")
 
     def mark_failed(self, error: str) -> None:
         """Write the ``failed`` status signal file with the error message.

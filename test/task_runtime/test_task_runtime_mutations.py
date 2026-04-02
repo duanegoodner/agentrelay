@@ -141,3 +141,18 @@ class TestMarkPrMerged:
         rt = _runtime(with_signal_dir=True)
         rt.mark_pr_merged()
         assert rt.status == TaskStatus.PR_MERGED
+
+
+class TestMarkCompleted:
+    """Tests for TaskRuntime.mark_completed."""
+
+    def test_sets_completed(self) -> None:
+        rt = _runtime(with_signal_dir=True)
+        rt.mark_completed()
+        assert rt.status == TaskStatus.COMPLETED
+
+    def test_writes_signal_file(self) -> None:
+        rt = _runtime(with_signal_dir=True)
+        rt.mark_completed()
+        assert rt.state.signal_dir is not None
+        assert (rt.state.signal_dir / "status" / "completed").exists()

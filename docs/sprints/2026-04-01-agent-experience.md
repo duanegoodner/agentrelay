@@ -72,7 +72,7 @@ None of the PRs below depend on that design.
 
 ## PR plan
 
-### PR A: Fix `agentrelay-complete` retry failure
+### PR A: Fix `agentrelay-complete` retry failure — Merged (#149)
 
 - Branch: `feat/agent-sdk-retry-fix`
 
@@ -91,14 +91,29 @@ for branch … already exists." The agent must manually work around it — fragi
   the correct integration branch, not a leftover from a different graph run.
   Both `branch_name` and `integration_branch` are already available on
   `TaskHelper`.
+- On reuse, body is updated via `gh api` REST endpoint (not `gh pr edit`)
+  to avoid the GraphQL "Projects (classic)" deprecation error.
 - Unit tests: normal PR creation (no existing PR), existing PR detected and
-  reused, PR exists but targets wrong base (ignored, new PR created).
+  reused, body update with concerns on reuse. 1190 tests (3 new).
 
 **Acceptance criteria:**
-- [ ] `agentrelay-complete` succeeds on retry when a PR already exists
-- [ ] Existing PR URL is returned (no new PR created)
-- [ ] Other `gh pr create` failure modes still propagate as errors
-- [ ] `pixi run check` passes
+- [x] `agentrelay-complete` succeeds on retry when a PR already exists
+- [x] Existing PR URL is returned (no new PR created)
+- [x] Other `gh pr create` failure modes still propagate as errors
+- [x] `pixi run check` passes
+
+**Observations:**
+- `gh pr edit` fails with exit code 1 due to GitHub "Projects (classic)"
+  deprecation in the GraphQL API (`projectCards` field). The edit itself
+  succeeds but `check=True` sees the non-zero exit. Workaround: use
+  `gh api repos/{owner}/{repo}/pulls/{number} -X PATCH -f body=...`
+  (REST API, no GraphQL). This also affects our own repo — discovered
+  while updating PR #149's body.
+- E2E validated with `graphs/failure/retry_on_gate_failure.yaml`
+  (`--max-task-attempts 2`). Second agent's `agentrelay-complete`
+  succeeds silently — probe finds existing PR, updates body via REST,
+  writes `.done` signal. Task still fails as expected (gate targets
+  nonexistent test file).
 
 ---
 

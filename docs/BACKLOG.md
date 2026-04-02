@@ -325,23 +325,15 @@ source-only specs; the supplementary `.md` spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).
 
-### Task status semantics for PR-less completion
+### Skip integration PR when all tasks are PR-less
 
-PR #125 introduced PR-less completion for review-only tasks, but reuses
-`PR_MERGED` as the terminal success status even when no PR was created.
-This works mechanically (downstream dependency checks and workstream
-terminal state logic both key on `PR_MERGED`) but is semantically
-misleading. A dedicated `COMPLETED` (or `COMPLETED_WITHOUT_PR`) status
-would be more accurate. Changes needed:
-- Add the new status to `TaskStatus` enum.
-- Update `ALLOWED_TASK_TRANSITIONS`: `RUNNING` → `COMPLETED` (for
-  PR-less) alongside the existing `RUNNING` → `PR_CREATED` path.
-- Update all call sites that check `PR_MERGED` as "task succeeded" to
-  also accept the new status (orchestrator dependency resolution,
-  workstream terminal state, teardown mode, console output, integration
-  PR body builder).
-- Consider whether the new status needs its own signal file in the
-  `status/` directory.
+When every task in a workstream completes without a PR (e.g., a
+workstream containing only `test_reviewer` tasks), the integration branch
+has no commits different from `main`. `GhWorkstreamIntegrator` still
+attempts `gh pr create`, which fails because GitHub rejects empty PRs.
+The workstream should detect that no task produced a PR and skip
+integration entirely — transition directly to MERGED (or a new terminal
+state) instead of attempting a no-op integration PR.
 
 ### Integration PR body quality
 
