@@ -708,10 +708,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-status-semantics-for-pr-less-completion" class="md-nav__link">
+  <a href="#skip-integration-pr-when-all-tasks-are-pr-less" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task status semantics for PR-less completion
+        Skip integration PR when all tasks are PR-less
       
     </span>
   </a>
@@ -1836,10 +1836,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#task-status-semantics-for-pr-less-completion" class="md-nav__link">
+  <a href="#skip-integration-pr-when-all-tasks-are-pr-less" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Task status semantics for PR-less completion
+        Skip integration PR when all tasks are PR-less
       
     </span>
   </a>
@@ -2326,22 +2326,14 @@ information and risks drift. The spec_writer template should default to
 source-only specs; the supplementary <code>.md</code> spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).</p>
-<h3 id="task-status-semantics-for-pr-less-completion">Task status semantics for PR-less completion</h3>
-<p>PR #125 introduced PR-less completion for review-only tasks, but reuses
-<code>PR_MERGED</code> as the terminal success status even when no PR was created.
-This works mechanically (downstream dependency checks and workstream
-terminal state logic both key on <code>PR_MERGED</code>) but is semantically
-misleading. A dedicated <code>COMPLETED</code> (or <code>COMPLETED_WITHOUT_PR</code>) status
-would be more accurate. Changes needed:
-- Add the new status to <code>TaskStatus</code> enum.
-- Update <code>ALLOWED_TASK_TRANSITIONS</code>: <code>RUNNING</code> → <code>COMPLETED</code> (for
-  PR-less) alongside the existing <code>RUNNING</code> → <code>PR_CREATED</code> path.
-- Update all call sites that check <code>PR_MERGED</code> as "task succeeded" to
-  also accept the new status (orchestrator dependency resolution,
-  workstream terminal state, teardown mode, console output, integration
-  PR body builder).
-- Consider whether the new status needs its own signal file in the
-  <code>status/</code> directory.</p>
+<h3 id="skip-integration-pr-when-all-tasks-are-pr-less">Skip integration PR when all tasks are PR-less</h3>
+<p>When every task in a workstream completes without a PR (e.g., a
+workstream containing only <code>test_reviewer</code> tasks), the integration branch
+has no commits different from <code>main</code>. <code>GhWorkstreamIntegrator</code> still
+attempts <code>gh pr create</code>, which fails because GitHub rejects empty PRs.
+The workstream should detect that no task produced a PR and skip
+integration entirely — transition directly to MERGED (or a new terminal
+state) instead of attempting a no-op integration PR.</p>
 <h3 id="integration-pr-body-quality">Integration PR body quality</h3>
 <p>The integration PR body produced by <code>GhWorkstreamIntegrator</code> is
 functional but not reader-friendly:

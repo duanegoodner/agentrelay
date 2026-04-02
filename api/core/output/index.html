@@ -2097,7 +2097,8 @@ protocol. Prints timestamped event lines to <em>stream</em> as events arrive.</p
 <span class="normal">322</span>
 <span class="normal">323</span>
 <span class="normal">324</span>
-<span class="normal">325</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span>
+<span class="normal">325</span>
+<span class="normal">326</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span>
     <span class="n">result</span><span class="p">:</span> <span class="n">OrchestratorResult</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">stream</span><span class="p">:</span> <span class="n">TextIO</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
@@ -2121,6 +2122,7 @@ protocol. Prints timestamped event lines to <em>stream</em> as events arrive.</p
     <span class="n">headers</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Task&quot;</span><span class="p">,</span> <span class="s2">&quot;Status&quot;</span><span class="p">,</span> <span class="s2">&quot;Workstream&quot;</span><span class="p">,</span> <span class="s2">&quot;Attempts&quot;</span><span class="p">,</span> <span class="s2">&quot;Duration&quot;</span><span class="p">,</span> <span class="s2">&quot;PR&quot;</span><span class="p">)</span>
     <span class="n">status_labels</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_MERGED</span><span class="p">:</span> <span class="s2">&quot;succeeded&quot;</span><span class="p">,</span>
+        <span class="n">TaskStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">:</span> <span class="s2">&quot;succeeded&quot;</span><span class="p">,</span>
         <span class="n">TaskStatus</span><span class="o">.</span><span class="n">FAILED</span><span class="p">:</span> <span class="s2">&quot;failed&quot;</span><span class="p">,</span>
         <span class="n">TaskStatus</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">:</span> <span class="s2">&quot;running&quot;</span><span class="p">,</span>
         <span class="n">TaskStatus</span><span class="o">.</span><span class="n">PR_CREATED</span><span class="p">:</span> <span class="s2">&quot;pr_created&quot;</span><span class="p">,</span>

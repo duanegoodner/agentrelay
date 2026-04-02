@@ -1350,10 +1350,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-fix-agentrelay-complete-retry-failure" class="md-nav__link">
+  <a href="#pr-a-fix-agentrelay-complete-retry-failure-merged-149" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: Fix agentrelay-complete retry failure
+        PR A: Fix agentrelay-complete retry failure — Merged (#149)
       
     </span>
   </a>
@@ -1488,7 +1488,7 @@ pull-based graph-awareness design documented in
 None of the PRs below depend on that design.</p>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
-<h3 id="pr-a-fix-agentrelay-complete-retry-failure">PR A: Fix <code>agentrelay-complete</code> retry failure</h3>
+<h3 id="pr-a-fix-agentrelay-complete-retry-failure-merged-149">PR A: Fix <code>agentrelay-complete</code> retry failure — Merged (#149)</h3>
 <ul>
 <li>Branch: <code>feat/agent-sdk-retry-fix</code></li>
 </ul>
@@ -1506,13 +1506,27 @@ for branch … already exists." The agent must manually work around it — fragi
   the correct integration branch, not a leftover from a different graph run.
   Both <code>branch_name</code> and <code>integration_branch</code> are already available on
   <code>TaskHelper</code>.
+- On reuse, body is updated via <code>gh api</code> REST endpoint (not <code>gh pr edit</code>)
+  to avoid the GraphQL "Projects (classic)" deprecation error.
 - Unit tests: normal PR creation (no existing PR), existing PR detected and
-  reused, PR exists but targets wrong base (ignored, new PR created).</p>
+  reused, body update with concerns on reuse. 1190 tests (3 new).</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>agentrelay-complete</code> succeeds on retry when a PR already exists
-- [ ] Existing PR URL is returned (no new PR created)
-- [ ] Other <code>gh pr create</code> failure modes still propagate as errors
-- [ ] <code>pixi run check</code> passes</p>
+- [x] <code>agentrelay-complete</code> succeeds on retry when a PR already exists
+- [x] Existing PR URL is returned (no new PR created)
+- [x] Other <code>gh pr create</code> failure modes still propagate as errors
+- [x] <code>pixi run check</code> passes</p>
+<p><strong>Observations:</strong>
+- <code>gh pr edit</code> fails with exit code 1 due to GitHub "Projects (classic)"
+  deprecation in the GraphQL API (<code>projectCards</code> field). The edit itself
+  succeeds but <code>check=True</code> sees the non-zero exit. Workaround: use
+  <code>gh api repos/{owner}/{repo}/pulls/{number} -X PATCH -f body=...</code>
+  (REST API, no GraphQL). This also affects our own repo — discovered
+  while updating PR #149's body.
+- E2E validated with <code>graphs/failure/retry_on_gate_failure.yaml</code>
+  (<code>--max-task-attempts 2</code>). Second agent's <code>agentrelay-complete</code>
+  succeeds silently — probe finds existing PR, updates body via REST,
+  writes <code>.done</code> signal. Task still fails as expected (gate targets
+  nonexistent test file).</p>
 <hr />
 <h3 id="pr-b-completed-task-status-for-pr-less-tasks">PR B: <code>COMPLETED</code> task status for PR-less tasks</h3>
 <ul>

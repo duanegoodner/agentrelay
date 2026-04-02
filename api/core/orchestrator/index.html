@@ -3138,7 +3138,7 @@ configured on the :class:<code>Orchestrator</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>All tasks reached <code>PR_MERGED</code>.</p>
+                <p>All tasks reached a terminal success status.</p>
               </div>
             </td>
           </tr>
@@ -3191,7 +3191,7 @@ ended <code>FAILED</code>.</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Terminal outcome for one orchestrator run.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        SUCCEEDED: All tasks reached ``PR_MERGED``.</span>
+<span class="sd">        SUCCEEDED: All tasks reached a terminal success status.</span>
 <span class="sd">        COMPLETED_WITH_FAILURES: No fatal internal error, but one or more tasks</span>
 <span class="sd">            ended ``FAILED``.</span>
 <span class="sd">        FATAL_INTERNAL_ERROR: A task run raised and orchestration failed fast.</span>
@@ -3431,7 +3431,7 @@ ended <code>FAILED</code>.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Task reached <code>PR_MERGED</code>.</p>
+                <p>Task reached a terminal success status (<code>PR_MERGED</code> or <code>COMPLETED</code>).</p>
               </div>
             </td>
           </tr>
@@ -3482,12 +3482,12 @@ ended <code>FAILED</code>.</p>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Classification of one task attempt outcome from the orchestrator boundary.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        SUCCESS: Task reached ``PR_MERGED``.</span>
+<span class="sd">        SUCCESS: Task reached a terminal success status (``PR_MERGED`` or ``COMPLETED``).</span>
 <span class="sd">        EXPECTED_FAILURE: Task run returned ``FAILED``.</span>
 <span class="sd">        INTERNAL_ERROR: Task run raised an exception.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s2">&quot;success&quot;</span>  <span class="c1"># Task reached a terminal success status</span>
     <span class="n">EXPECTED_FAILURE</span> <span class="o">=</span> <span class="s2">&quot;expected_failure&quot;</span>
     <span class="n">INTERNAL_ERROR</span> <span class="o">=</span> <span class="s2">&quot;internal_error&quot;</span>
 </code></pre></div></td></tr></table></div>
