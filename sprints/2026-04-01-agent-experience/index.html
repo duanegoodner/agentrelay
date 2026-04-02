@@ -1,0 +1,1673 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-04-01-agent-experience/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Sprint Notes — 2026-04-01: Agent Experience - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sprint-notes-2026-04-01-agent-experience" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sprint Notes — 2026-04-01: Agent Experience
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-a-fix-agentrelay-complete-retry-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A: Fix agentrelay-complete retry failure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b-completed-task-status-for-pr-less-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B: COMPLETED task status for PR-less tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-agentrelay-summary-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: agentrelay-summary CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-d-worktree-cwd-guidance-in-agent-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR D: Worktree CWD guidance in agent instructions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-e-archive-attempt-artifacts-before-retry-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E: Archive attempt artifacts before retry cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sprint-notes-2026-04-01-agent-experience">Sprint Notes — 2026-04-01: Agent Experience</h1>
+<blockquote>
+<p><strong>Status: In progress.</strong> PRs A–E planned. PR A (retry fix) complete. The
+original PR C (context.md wiring) was superseded by a broader context-sharing
+design; see <a href="../not_started/2026-TBD-context-sharing/">2026-TBD-context-sharing.md</a>.
+That sprint will follow this one.</p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>Fix known agent reliability issues surfaced during e2e testing: the
+<code>agentrelay-complete</code> retry bug, semantic correctness of PR-less task status,
+a missing <code>agentrelay-summary</code> CLI for PR-less tasks, and explicit worktree
+CWD guidance to prevent the Haiku-class commit-to-main bug at Level 0.</p>
+<h2 id="context">Context</h2>
+<p>Sprints 2026-03-26 and 2026-03-30 completed the agent isolation infrastructure
+(OCI containers, scoped PATs, credential injection, OAuth support). With the
+infrastructure layer solid, the focus shifts to agent-facing quality: the
+reliability of the SDK agents use during execution, the semantic correctness of
+task state as recorded by the orchestrator, and the information agents receive
+about their working environment.</p>
+<p>Four friction points accumulated across e2e testing and code review:</p>
+<ol>
+<li><strong><code>agentrelay-complete</code> retry failure</strong> — when a task retries after a gate
+   failure, the PR from attempt 1 already exists. <code>gh pr create</code> rejects the
+   duplicate, and the agent must manually discover the existing PR URL and call
+   <code>mark_done</code> directly (observed with Sonnet; fragile).</li>
+<li><strong><code>PR_MERGED</code> misused for PR-less completion</strong> — the terminal success
+   status for a task that never created a PR reads <code>PR_MERGED</code>. Works
+   mechanically but is misleading for auditing and tooling.</li>
+<li><strong>PR-less tasks leave no summary</strong> — <code>test_reviewer</code> and similar PR-less
+   roles produce no <code>summary.md</code>. Their output is invisible to the integration
+   PR body and to any future context-sharing mechanism.</li>
+<li><strong>Agent worktree navigation</strong> — at Level 0 (no OCI isolation), weaker
+   models (observed with Haiku) navigate out of the worktree to the main repo
+   and commit to <code>main</code>. OCI isolation hard-prevents this at Level 2 via
+   filesystem boundaries. Level 0 needs explicit instruction-level guidance.</li>
+</ol>
+<h2 id="architecture-notes">Architecture notes</h2>
+<p><strong><code>agentrelay-complete</code> retry fix:</strong> <code>TaskHelper.create_pr()</code> calls
+<code>gh pr create</code>, which fails on retry when the PR from attempt 1 already exists.
+Fix: check for an existing open PR first with <code>gh pr list --head &lt;branch&gt;
+--base &lt;integration_branch&gt; --state open</code> and reuse it if found. No protocol
+changes needed, no stderr parsing — uses stable <code>gh</code> JSON output.</p>
+<p><strong><code>COMPLETED</code> status:</strong> Adding <code>TaskStatus.COMPLETED</code> requires updating
+<code>ALLOWED_TASK_TRANSITIONS</code>, all consumers that treat <code>PR_MERGED</code> as "task
+succeeded" (dependency resolution, workstream terminal state, teardown mode,
+console output, integration PR body builder), and the <code>TaskRunner</code> completion
+path for PR-less tasks. The specific line is <code>task_runner/core/runner.py:302</code>
+where PR-less completion currently transitions to <code>PR_MERGED</code>.</p>
+<p><strong><code>agentrelay-summary</code> CLI:</strong> Writes agent-supplied text to
+<code>signal_dir/summary.md</code>. The orchestrator already reads <code>summary.md</code> during
+integration PR body assembly — no consumer changes needed. The new command
+is a peer of <code>agentrelay-complete-without-pr</code>.</p>
+<p><strong>Worktree CWD guidance:</strong> The worktree path is known at instruction assembly
+time. A "Working directory" note in the instructions (in <code>templates.py</code>) gives
+Level 0 agents explicit guidance; at Level 2 it is defense-in-depth.</p>
+<p><strong>Context sharing:</strong> The original PR C in this sprint was a simple "push
+assembled context.md at launch" approach. This has been superseded by a broader
+pull-based graph-awareness design documented in
+<a href="../not_started/2026-TBD-context-sharing/">2026-TBD-context-sharing.md</a>.
+None of the PRs below depend on that design.</p>
+<hr />
+<h2 id="pr-plan">PR plan</h2>
+<h3 id="pr-a-fix-agentrelay-complete-retry-failure">PR A: Fix <code>agentrelay-complete</code> retry failure</h3>
+<ul>
+<li>Branch: <code>feat/agent-sdk-retry-fix</code></li>
+</ul>
+<p>When a task retries after gate failure, the PR from attempt 1 already exists.
+<code>agentrelay-complete</code> calls <code>gh pr create</code>, which fails with "a pull request
+for branch … already exists." The agent must manually work around it — fragile.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/agent_sdk/task_helper.py</code> — <code>create_pr()</code>: before calling
+  <code>gh pr create</code>, check for an existing open PR with
+  <code>gh pr list --head &lt;branch&gt; --base &lt;integration_branch&gt; --state open --json url -q '.[0].url'</code>.
+  If a URL is returned, reuse it (PR already exists from a previous attempt).
+  If empty, proceed with <code>gh pr create</code> as before. This avoids parsing stderr
+  error messages, which are fragile (locale-dependent, subject to change across
+  <code>gh</code> CLI versions). The <code>--base</code> filter ensures we only reuse a PR targeting
+  the correct integration branch, not a leftover from a different graph run.
+  Both <code>branch_name</code> and <code>integration_branch</code> are already available on
+  <code>TaskHelper</code>.
+- Unit tests: normal PR creation (no existing PR), existing PR detected and
+  reused, PR exists but targets wrong base (ignored, new PR created).</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>agentrelay-complete</code> succeeds on retry when a PR already exists
+- [ ] Existing PR URL is returned (no new PR created)
+- [ ] Other <code>gh pr create</code> failure modes still propagate as errors
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-b-completed-task-status-for-pr-less-tasks">PR B: <code>COMPLETED</code> task status for PR-less tasks</h3>
+<ul>
+<li>Branch: <code>feat/completed-status</code></li>
+</ul>
+<p><code>PR_MERGED</code> is reused as the terminal success status for tasks that complete
+without a PR (e.g. <code>test_reviewer</code>). Mechanically fine but semantically wrong.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/task_runtime/runtime.py</code> — add <code>COMPLETED = "completed"</code>
+  to <code>TaskStatus</code>.
+- <code>ALLOWED_TASK_TRANSITIONS</code> — add <code>RUNNING → COMPLETED</code>.
+- <code>src/agentrelay/task_runner/core/runner.py</code> — use <code>TaskStatus.COMPLETED</code>
+  (not <code>PR_MERGED</code>) when completing without a PR.
+- All consumers that check <code>PR_MERGED</code> as "task succeeded" must also accept
+  <code>COMPLETED</code>:
+  - <code>orchestrator/</code> — dependency readiness (<code>orchestrator.py:209</code>, <code>:585</code>,
+    <code>:715</code>), dispatch pipeline, terminal state checks
+  - <code>workstream/</code> — terminal state and teardown mode
+  - <code>task_runner/</code> — teardown mode enum (<code>ON_SUCCESS</code> docstring references
+    <code>PR_MERGED</code>)
+  - <code>output/</code> — console display (<code>status_labels</code> dict)
+  - Integration PR body builder
+- Update tests for the new transition and all consumers.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] PR-less task completion records <code>COMPLETED</code> status (not <code>PR_MERGED</code>)
+- [ ] PR-backed task completion still records <code>PR_MERGED</code> (unchanged)
+- [ ] Downstream dependency resolution treats both statuses as "task succeeded"
+- [ ] Workstream terminal state logic treats both as success
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-c-agentrelay-summary-cli">PR C: <code>agentrelay-summary</code> CLI</h3>
+<ul>
+<li>Branch: <code>feat/agent-summary-command</code></li>
+</ul>
+<p>PR-less tasks produce no <code>summary.md</code>, so their results are absent from
+integration PR bodies and invisible to any future context-sharing mechanism
+(see <a href="../not_started/2026-TBD-context-sharing/">context-sharing discussion</a>).
+A new CLI command lets any agent write a summary regardless of whether it
+created a PR.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/agent_sdk/</code> — add <code>agentrelay-summary --message "..."</code>
+  CLI entry point.
+- Writes <code>message</code> to <code>signal_dir/summary.md</code> (same path the orchestrator
+  uses for PR-backed summaries — no consumer changes needed).
+- Unit tests for the new CLI command.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>agentrelay-summary --message "..."</code> writes <code>summary.md</code> to the signal
+      directory
+- [ ] Summary appears in integration PR body for tasks that used
+      <code>agentrelay-summary</code> (validates against existing orchestrator consumer)
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-d-worktree-cwd-guidance-in-agent-instructions">PR D: Worktree CWD guidance in agent instructions</h3>
+<ul>
+<li>Branch: <code>feat/worktree-cwd-guidance</code></li>
+</ul>
+<p>Weaker models (observed with Haiku in e2e) may ignore their CWD and navigate
+to the main repo, then commit to <code>main</code>. OCI isolation hard-prevents this at
+Level 2 via filesystem boundaries. Level 0 runs need explicit instruction-level
+guidance.</p>
+<p><strong>Changes:</strong>
+- Add a "Working directory" note to agent instructions in
+  <code>src/agentrelay/agent_comm_protocol/templates.py</code> (in the shared preamble
+  or the "What to Do" section): "Your working directory is <code>&lt;worktree_path&gt;</code>.
+  All file edits and git operations must occur within this directory. Do not
+  navigate to or operate on paths outside it."
+- Note: the worktree path is not currently in <code>TaskManifest</code> or the
+  <code>resolve_instructions()</code> signature. Add a <code>worktree_path: Path | None</code>
+  parameter to <code>resolve_instructions()</code> rather than adding runtime state to
+  the manifest schema. Pass <code>None</code> for tests that don't need it.
+- Unit tests: verify worktree path appears in generated instructions for all
+  roles.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Worktree path CWD guidance appears in <code>instructions.md</code> for all roles
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-e-archive-attempt-artifacts-before-retry-cleanup">PR E: Archive attempt artifacts before retry cleanup</h3>
+<ul>
+<li>Branch: <code>feat/retry-artifact-archive</code></li>
+</ul>
+<p>When a task retries after gate failure, <code>reset_for_retry()</code> clears signal files
+and the next attempt's teardown overwrites <code>agent.log</code>. The artifacts from
+attempt N are lost — there's no record of what the agent did or what the gate
+produced. This makes post-run debugging harder, especially for intermittent
+failures.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/task_runtime/runtime.py</code> — in <code>reset_for_retry()</code>, before
+  clearing signals, copy selected files to <code>signal_dir/attempts/&lt;attempt_num&gt;/</code>.
+  Files to archive: <code>agent.log</code>, <code>gate_last_output.txt</code>, <code>summary.md</code>,
+  <code>concerns.log</code>. Only copy files that exist (best-effort, no errors on missing
+  files). The <code>attempts/</code> directory is write-only — nothing reads it during
+  execution, it's purely for post-run inspection.
+- Unit tests: verify files are archived to the correct subdirectory before
+  cleanup, verify missing files are silently skipped, verify signal files
+  (<code>.done</code>, <code>.failed</code>) are not archived.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>reset_for_retry()</code> copies attempt artifacts to <code>signal_dir/attempts/&lt;N&gt;/</code>
+- [ ] Missing files are silently skipped (no errors)
+- [ ] Signal files (<code>.done</code>, <code>.failed</code>) are not archived
+- [ ] Archived files survive the retry cleanup
+- [ ] <code>pixi run check</code> passes</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

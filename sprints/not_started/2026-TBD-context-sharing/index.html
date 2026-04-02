@@ -1,0 +1,2318 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/not_started/2026-TBD-context-sharing/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Sprint Notes — Agent Context Sharing - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sprint-notes-agent-context-sharing" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sprint Notes — Agent Context Sharing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-design-principle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core design principle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-replaces-the-simple-wire-contextmd-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this replaces the simple "wire context.md" approach
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-space" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design space
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design space">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dimension-1-push-vs-pull" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dimension 1: Push vs. pull
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dimension-2-graph-yaml-exposure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dimension 2: Graph YAML exposure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dimension-3-targeted-cross-task-messaging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dimension 3: Targeted cross-task messaging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dimension-4-inbox-timing-for-concurrent-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dimension 4: Inbox timing for concurrent tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sdk-path-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK path derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-agents-receive-at-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What agents receive at launch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-agents-can-query-on-demand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What agents can query on demand
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#targeted-messaging-agentrelay-note" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Targeted messaging (agentrelay-note)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#note-and-inbox-file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Note and inbox file format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#late-insights-directory-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Late insights directory structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inbox-checkpoint-pattern-in-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inbox checkpoint pattern (in instructions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#note-lifecycle-and-failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Note lifecycle and failure modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Note lifecycle and failure modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#concurrent-miss-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrent miss detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#late-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Late insights
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#future-options-in-backlog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future options (in backlog)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oci-isolation-and-the-pull-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI isolation and the pull model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backlog-items-generated-by-this-discussion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backlog items generated by this discussion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-plan-draft-not-yet-finalized" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR plan (draft — not yet finalized)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR plan (draft — not yet finalized)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-a-graph-yaml-delivery-signal-dir-navigation-rules-oci-mount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A: Graph YAML delivery + signal dir navigation rules + OCI mount
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b-agentrelay-note-cli-inbox-late-insights-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B: agentrelay-note CLI + inbox + late insights infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-missed-notes-detection-surfacing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: Missed notes detection + surfacing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-d-agentrelay-read-convenience-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR D: agentrelay-read convenience command
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-e-tighten-oci-mounts-optional-implement-or-push-to-backlog" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E: Tighten OCI mounts (optional — implement or push to backlog)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sprint-notes-agent-context-sharing">Sprint Notes — Agent Context Sharing</h1>
+<blockquote>
+<p><strong>Status: Design complete. Draft PR plan at end — not yet scheduled.</strong>
+Originated as a design discussion; promoted to sprint plan.</p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>Give agents rich, scalable access to graph-wide context: the full task graph
+structure, results from any completed task (not just direct ancestors), and a
+mechanism for an agent to send a targeted message to a specific task when it
+discovers information that is especially relevant there.</p>
+<h2 id="core-design-principle">Core design principle</h2>
+<blockquote>
+<p><strong>Hard dependencies belong in the graph; <code>agentrelay-note</code> is best-effort.</strong></p>
+<p>If task B genuinely cannot produce correct output without task A's results,
+that is a graph dependency — model it as one. The note system is for
+opportunistic, advisory information: "I noticed something you might find
+useful." Notes that are missed (concurrent timing) or late (sent after the
+target completed) are acceptable because they are, by design, not critical
+path. This principle governs every downstream decision: auto-merge is not
+blocked by missed notes, late insights are logged but not acted on
+automatically, and the checkpoint model tolerates races.</p>
+</blockquote>
+<h2 id="why-this-replaces-the-simple-wire-contextmd-approach">Why this replaces the simple "wire context.md" approach</h2>
+<p>The original plan (from sprint 2026-04-01-agent-experience.md PR C) would have
+assembled a flat summary of upstream task results at dispatch time and written it
+to the agent's <code>context.md</code>. That approach has three problems at scale:</p>
+<ol>
+<li><strong>Context grows unboundedly</strong>: a task late in a large graph accumulates every
+   upstream result in one file, most of which is irrelevant to its specific job.</li>
+<li><strong>DAG-limited reachability</strong>: agents only see results from their direct
+   ancestors. Tasks in parallel branches of the graph are invisible even when
+   their output is highly relevant.</li>
+<li><strong>Upstream blind spots</strong>: an agent writing a summary has no awareness of
+   what downstream tasks will be doing. It cannot tailor or highlight
+   information for specific consumers, and those consumers may not even be
+   its direct descendants.</li>
+</ol>
+<h2 id="design-space">Design space</h2>
+<h3 id="dimension-1-push-vs-pull">Dimension 1: Push vs. pull</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Push (original context.md)</th>
+<th>Pull (proposed)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Who assembles context</td>
+<td>Orchestrator, at dispatch time</td>
+<td>Agent, on demand during the task</td>
+</tr>
+<tr>
+<td>What the agent receives</td>
+<td>Pre-assembled summary of upstream results</td>
+<td>Access to the full graph artifact store</td>
+</tr>
+<tr>
+<td>Size</td>
+<td>Grows with graph depth</td>
+<td>Agent fetches only what it needs</td>
+</tr>
+<tr>
+<td>Reachability</td>
+<td>Direct ancestors only</td>
+<td>Any task in the graph</td>
+</tr>
+<tr>
+<td>Freshness</td>
+<td>Snapshot at launch</td>
+<td>Live — agent can check back during a long task</td>
+</tr>
+</tbody>
+</table>
+<p>Pull is clearly the right model at scale. The remaining questions are about
+what graph knowledge to give agents upfront, and what the query API looks like.</p>
+<h3 id="dimension-2-graph-yaml-exposure">Dimension 2: Graph YAML exposure</h3>
+<p>If an agent has the graph YAML and its own task ID, it knows:
+- Every task that exists, with its description and role
+- Who depends on whom (which tasks produce outputs it might want)
+- Who it feeds into (which downstream tasks might benefit from what it discovers)
+- The signal directory path for any task (derivable from graph name + task ID)</p>
+<p>The graph YAML is already a public artifact — it initiated the run. Sharing it
+with agents costs almost nothing and gives them genuine situational awareness
+instead of a narrow keyhole view.</p>
+<p><strong>What agents need to navigate the artifact store:</strong>
+- Graph name — already in <code>manifest.json</code> at <code>execution.graph_name</code>
+- Task ID — already in <code>manifest.json</code> at <code>task.id</code>
+- Derivation rule: <code>signal_dir = &lt;repo_path&gt;/.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/</code>
+- Artifact names: <code>summary.md</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>,
+  <code>.done</code> (PR URL on line 2), <code>inbox/</code></p>
+<p>With just this, an agent can browse any completed task's artifacts with standard
+file system reads.</p>
+<p><strong>Biggest free win:</strong> Once agents have the full graph YAML, they can tailor
+their summaries for downstream consumers without any new command. An agent
+writing its <code>summary.md</code> can look at the graph YAML, see what downstream tasks
+are assigned to do, and write proactively: "Note for downstream tasks: the cache
+module is the bottleneck — task <code>perf_audit</code> should look there first." This is
+a major quality improvement that costs zero infrastructure beyond graph YAML
+delivery. It is a design goal, not just a side effect.</p>
+<p>Note: for PR-less tasks, the <code>agentrelay-summary</code> CLI command (from the
+agent-experience sprint PR C) provides the mechanism for writing <code>summary.md</code>.
+Without it, PR-less task artifacts in the pull-based model would be empty.</p>
+<h3 id="dimension-3-targeted-cross-task-messaging">Dimension 3: Targeted cross-task messaging</h3>
+<p>Agents sometimes discover something specifically actionable for a particular task
+(including tasks in parallel branches). The general summary written to <code>summary.md</code>
+may not surface this clearly enough for the target.</p>
+<p><strong>Options considered:</strong></p>
+<p><strong>a) Per-task inbox directory</strong> — each task's signal directory gets an <code>inbox/</code>
+subdirectory. Any agent writes a targeted note there: <code>inbox/&lt;source-task-id&gt;.md</code>.
+Inbox is written before the target task launches; late-arriving concurrent notes
+could be missed if checked only at launch.</p>
+<p><strong>b) <code>agentrelay-note --to &lt;task-id&gt; --message "..."</code> CLI</strong> — formalizes (a).
+Writes to <code>.workflow/&lt;graph&gt;/signals/&lt;task-id&gt;/inbox/&lt;source&gt;.md</code>.
+Sender looks up target task ID from graph YAML. Notes are markdown files —
+easy to inspect, no schema required.</p>
+<p><strong>c) Graph-level broadcast log</strong> — a single append-only <code>.workflow/&lt;graph&gt;/broadcast.log</code>
+with <code>[for: task_y] ...</code> entries. Downstream agents scan the log on launch
+and filter for their task ID. Handles late-arriving concurrent messages on
+re-check. Messier to parse.</p>
+<p><strong>d) No formal mechanism</strong> — rely on graph YAML awareness; upstream agents write
+hints in <code>summary.md</code> knowing downstream agents can find and read it.</p>
+<p><strong>Decision: option (b)</strong>, with (d) as a natural complement. Explicit, auditable,
+minimal infrastructure. Option (d) remains available for loose hints; (b) is for
+when prominence matters.</p>
+<h3 id="dimension-4-inbox-timing-for-concurrent-tasks">Dimension 4: Inbox timing for concurrent tasks</h3>
+<p>LLM agents are sequential, not event-driven. Expecting them to "detect" an
+arriving note requires either polling or push.</p>
+<p><strong>Options considered:</strong></p>
+<p><strong>Structured checkpoints</strong> — instructions define 2–3 natural pause points where
+the agent re-checks the inbox (e.g., after initial analysis before writing code;
+before PR creation / final signal write). No new infrastructure. Checkpoints
+align with moments where the agent is naturally reconsidering before a major
+action. Role-specific variants can target the most meaningful pauses for each
+role.</p>
+<p><strong>Filesystem watch sidecar</strong> — background process watches inbox and signals the
+agent. Too complex; requires a sidecar alongside Claude Code and injecting text
+into the tmux pane.</p>
+<p><strong>Accept the race condition</strong> — if truly concurrent tasks A and B are running and
+A sends B a note after B has passed its last checkpoint, B misses it. This is
+acceptable per the core design principle: hard dependencies belong in the graph.</p>
+<p><strong>Decision: structured checkpoints</strong>, with the final checkpoint at PR creation /
+signal file write being the most important. The final checkpoint is a natural
+loop: "check inbox, incorporate any changes, then re-check once more before
+submitting." This terminates after two passes (new material notes are unlikely
+to arrive in that window).</p>
+<p><strong>Looping at earlier checkpoints:</strong> explicit looping instructions ("return to
+checkpoint B") are not needed at earlier checkpoints. The agent's general
+reasoning handles revision: "if this message significantly changes your approach,
+revise your work accordingly." The agent understands what "revise" means — it
+edits what it already wrote. Formal loop instructions would be brittle and hard
+to follow for an LLM agent.</p>
+<hr />
+<h2 id="decisions">Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Graph YAML delivery method</td>
+<td>Write a copy to the agent's signal directory. The copy is immutable during the run and serves as a record of "what the graph was at orchestrator launch," even if the source YAML is later edited.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Inbox timing for concurrent tasks</td>
+<td>Structured checkpoints in instructions (2–3 natural pause points per role). Final checkpoint (pre-PR / pre-signal) has a bounded re-check loop. Concurrent notes that arrive after all checkpoints are accepted as a known limitation — hard dependencies belong in the graph.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read access scope</td>
+<td>Agents have read access to all task signal directories. Per-task visibility restrictions (e.g., only ancestors) are a backlog item for large graphs where unproductive exploration is a concern.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>agentrelay-read</code> convenience command</td>
+<td>Yes — implement it. Protects against future signal dir path changes and gives agents a clean interface.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>agentrelay-note</code> for tasks not yet launched</td>
+<td>Supported. The note command creates the inbox directory lazily; the target agent checks at launch regardless of when the note was written.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OCI isolation mount requirements</td>
+<td>Mount <code>.workflow/&lt;graph&gt;/</code> read-write as one additional bind mount. Same trust model as the existing <code>.git</code> mount. Optional follow-up PR to tighten to read-only signals + specific write paths.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Note entry timestamps</td>
+<td>Every <code>agentrelay-note</code> write (new file or append to existing) is timestamped. SDK handles this mechanically; agents just provide <code>--message</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="proposed-architecture">Proposed architecture</h2>
+<h3 id="sdk-path-derivation">SDK path derivation</h3>
+<p>The <code>agentrelay-note</code> and <code>agentrelay-read</code> commands need to resolve paths to
+other tasks' signal directories. The derivation:</p>
+<ol>
+<li>Agent has <code>$AGENTRELAY_SIGNAL_DIR</code> (e.g., <code>/data/git/repo/.workflow/mygraph/signals/task_a/</code>)</li>
+<li>Navigate up two levels to get the graph signals base: <code>.../signals/</code></li>
+<li>Append <code>&lt;target-task-id&gt;/</code> to reach any task's signal directory</li>
+</ol>
+<p>The SDK can compute this from the env var — no additional env var needed. If
+we later restructure signal directory paths, <code>agentrelay-read</code>/<code>agentrelay-note</code>
+abstract over it.</p>
+<p>For the late insights directory (graph-level), navigate up three levels from the
+signal dir to <code>.workflow/&lt;graph&gt;/</code>.</p>
+<h3 id="what-agents-receive-at-launch">What agents receive at launch</h3>
+<ul>
+<li><code>graph.yaml</code> — a copy of the full graph YAML, written to the agent's signal
+  directory at task preparation time. Immutable during the run.</li>
+<li><code>manifest.json</code> — already present; already includes <code>graph_name</code> (at
+  <code>execution.graph_name</code>) and <code>task_id</code> (at <code>task.id</code>).</li>
+<li>Instructions — include a "Graph awareness" section explaining:</li>
+<li>Your task ID and role in this graph</li>
+<li>Signal directory formula (absolute path)</li>
+<li>Artifacts available per task: <code>summary.md</code>, <code>concerns.log</code>,
+    <code>ops_concerns.log</code>, <code>.done</code> (PR URL line 2), <code>inbox/</code></li>
+<li>Inbox check guidance (at launch and at structured checkpoints)</li>
+<li>Guidance to tailor <code>summary.md</code> content for known downstream tasks</li>
+</ul>
+<h3 id="what-agents-can-query-on-demand">What agents can query on demand</h3>
+<p>Via <code>agentrelay-read</code>:
+<div class="highlight"><pre><span></span><code>agentrelay-read --task &lt;task-id&gt;                   # list available artifacts
+agentrelay-read --task &lt;task-id&gt; summary           # print summary.md
+agentrelay-read --task &lt;task-id&gt; concerns          # print concerns.log
+agentrelay-read --task &lt;task-id&gt; ops-concerns      # print ops_concerns.log
+agentrelay-read --task &lt;task-id&gt; done              # print PR URL (line 2 of .done)
+agentrelay-read --task &lt;task-id&gt; notes             # list/print all inbox notes
+agentrelay-read inbox                              # read own inbox (shorthand)
+</code></pre></div></p>
+<p>Validates that <code>&lt;task-id&gt;</code> exists in the graph YAML. The <code>inbox</code> shorthand
+(no <code>--task</code>) reads the calling agent's own inbox — the most common use case
+at each checkpoint.</p>
+<h3 id="targeted-messaging-agentrelay-note">Targeted messaging (<code>agentrelay-note</code>)</h3>
+<div class="highlight"><pre><span></span><code>agentrelay-note --to &lt;task-id&gt; --message &quot;Found that module X is tightly
+coupled to Y — this will affect the refactor you&#39;re assigned to. See PR #42
+for details.&quot;
+</code></pre></div>
+<p>Routing is transparent based on target completion state:
+- Target not yet done → writes to target's <code>inbox/&lt;source-task-id&gt;.md</code>
+- Target already done → writes to <code>.workflow/&lt;graph&gt;/late_insights/&lt;target-task-id&gt;/&lt;source-task-id&gt;.md</code></p>
+<p>Creates directories lazily as needed. Validates <code>--to</code> against <code>graph.yaml</code>.
+Inbox directory is cleared on task retry.</p>
+<h3 id="note-and-inbox-file-format">Note and inbox file format</h3>
+<p>Each <code>agentrelay-note</code> invocation writes a timestamped entry. When the target
+file does not exist, it is created with the entry. When the file already exists
+(same source sending a second note to the same target), the new entry is
+appended. This is safe because only one agent (the source) ever writes to a
+given <code>&lt;source-task-id&gt;.md</code> file — no concurrent append risk.</p>
+<p>Entry format (HTML comment timestamps — readable by humans and agents, won't
+render as visible noise in markdown viewers, trivially parseable):</p>
+<div class="highlight"><pre><span></span><code>&lt;!-- 2026-04-01T14:23:07Z --&gt;
+Found that module X is tightly coupled to Y — this will affect the refactor
+you&#39;re assigned to. See PR <span class="ni">#42</span> for details.
+
+&lt;!-- 2026-04-01T15:01:33Z --&gt;
+Follow-up: the coupling is worse than I thought — Y re-exports X&#39;s internal
+types. You&#39;ll need to break that before refactoring either side.
+</code></pre></div>
+<p>The SDK handles timestamping mechanically — the agent just provides <code>--message</code>.</p>
+<h3 id="late-insights-directory-structure">Late insights directory structure</h3>
+<p>Late insights are organized by target task, mirroring the inbox structure:</p>
+<div class="highlight"><pre><span></span><code>.workflow/&lt;graph&gt;/late_insights/
+  &lt;target-task-id&gt;/
+    &lt;source-task-id&gt;.md       # timestamped entries, same format as inbox notes
+</code></pre></div>
+<p>Example:
+<div class="highlight"><pre><span></span><code>.workflow/mygraph/late_insights/
+  task_q/
+    task_h.md       # H realized something relevant to Q after Q completed
+    task_j.md       # J also had a late insight for Q
+  task_r/
+    task_h.md       # H also had something for R
+</code></pre></div></p>
+<p><strong>Why by-target:</strong> the primary access pattern is "what did task Q miss?" — a
+human reviewing Q's output, or a future orchestrator deciding whether to re-run
+Q. Grouping by target makes that a directory listing. The secondary question
+("what did H discover after the fact?") is answered with a glob across target
+directories.</p>
+<p><strong>No concurrent write risk:</strong> each file is uniquely identified by the
+(target, source) pair, and only one agent (the source) ever writes that file.
+Two agents can write to the same target's directory concurrently but they write
+to different files.</p>
+<p><strong>Multiple insights from the same source:</strong> handled by appending within the
+per-source file (each entry timestamped), same as the inbox model.</p>
+<h3 id="inbox-checkpoint-pattern-in-instructions">Inbox checkpoint pattern (in instructions)</h3>
+<p>Instructions per role will define role-appropriate checkpoints. General pattern:</p>
+<ol>
+<li><strong>At task launch</strong>: read <code>inbox/</code> immediately. Incorporate any notes into
+   your initial understanding before doing any analysis.</li>
+<li><strong>Before committing to an approach</strong> (role-specific — e.g., after analysis
+   but before writing code): re-check inbox. If a significant note arrived,
+   revise your approach accordingly before proceeding.</li>
+<li><strong>Before creating PR / writing final signal</strong> (all roles): re-check inbox.
+   Incorporate any changes. Then re-check once more before submitting (bounded
+   re-check loop — if nothing new, proceed).</li>
+</ol>
+<p>The final checkpoint loop is the critical one: it catches virtually any note
+sent by a concurrent task that completes before the agent finishes its work.</p>
+<hr />
+<h2 id="note-lifecycle-and-failure-modes">Note lifecycle and failure modes</h2>
+<p>A note sent via <code>agentrelay-note</code> can end up in one of four states:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>When</th>
+<th>Where it lands</th>
+<th>Detection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delivered</strong></td>
+<td>Target reads it at a checkpoint</td>
+<td><code>signals/&lt;target&gt;/inbox/&lt;source&gt;.md</code></td>
+<td>Normal operation</td>
+</tr>
+<tr>
+<td><strong>Concurrent miss</strong></td>
+<td>Target was running but past final checkpoint when note was written</td>
+<td><code>signals/&lt;target&gt;/inbox/&lt;source&gt;.md</code> (mtime &gt; <code>.done</code> mtime)</td>
+<td>Orchestrator scans inbox at task completion</td>
+</tr>
+<tr>
+<td><strong>Late insight</strong></td>
+<td>Target already completed (<code>.done</code> exists at write time)</td>
+<td><code>late_insights/&lt;target&gt;/&lt;source&gt;.md</code></td>
+<td>SDK routes at write time</td>
+</tr>
+<tr>
+<td><strong>Delivered late</strong></td>
+<td>Target hadn't completed yet, but reads it at a later checkpoint after initial miss</td>
+<td><code>signals/&lt;target&gt;/inbox/&lt;source&gt;.md</code></td>
+<td>Normal operation (the checkpoint loop caught it)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="concurrent-miss-detection">Concurrent miss detection</h3>
+<p>Entirely orchestrator-side, no agent changes needed. At task completion the
+orchestrator already processes the signal directory. It scans <code>inbox/</code> and
+compares each note's modification time against the <code>.done</code> write time. Notes
+newer than <code>.done</code> are definitionally missed.</p>
+<p><strong>Surfacing:</strong>
+- <code>missed_notes.log</code> written to the signal directory alongside <code>summary.md</code> and
+  <code>agent.log</code> — lists missed note filenames and their content. Durable artifact,
+  auditable after the fact.
+- <code>ConsoleListener</code> event — surfaces missed notes in the terminal immediately,
+  similar to how concerns are reported today. Visible to anyone monitoring the
+  run.
+- Integration PR body — if any task has missed notes, include a warning section
+  ("Task X completed but missed N note(s) from concurrent tasks") so it is
+  visible in the GitHub review interface without digging into signal directories.</p>
+<p><strong>Auto-merge behavior:</strong> missed notes are warnings, not blockers by default
+(per the core design principle). A human monitoring the run can review missed
+notes and, if the missed information is serious enough, trigger a partial re-run
+of the affected tasks (see backlog: "Human-triggered partial graph re-run").</p>
+<h3 id="late-insights">Late insights</h3>
+<p>When an agent sends a note to a task that has already completed, the SDK
+detects this (<code>.done</code> exists) and routes to the late insights directory.</p>
+<ul>
+<li>Written to <code>.workflow/&lt;graph&gt;/late_insights/&lt;target-task-id&gt;/&lt;source-task-id&gt;.md</code>
+  with timestamped entries (same format as inbox notes).</li>
+<li>Orchestrator logs a terminal message each time a late insight is written
+  (via <code>ConsoleListener</code> event).</li>
+<li>Late insights are <strong>not</strong> incorporated into integration PR bodies at this
+  time. They are available for human review in
+  <code>.workflow/&lt;graph&gt;/late_insights/</code> after the run.</li>
+</ul>
+<p><strong>Future:</strong> when the orchestrator gains the ability to commit files to the repo
+(see backlog), the <code>late_insights/</code> directory becomes a natural candidate for
+auto-committed graph artifacts.</p>
+<h3 id="future-options-in-backlog">Future options (in backlog)</h3>
+<ul>
+<li><code>strict_notes</code> policy — opt-in flag (with per-workstream/task/agent scoping)
+  that causes missed notes to block auto-merge. Default remains permissive.</li>
+<li>Orchestrator-driven re-run judgment — orchestrator consults an LLM planning
+  agent to evaluate whether a missed note justifies re-running part of the graph
+  automatically. High complexity; requires human-triggered re-run to exist first.</li>
+</ul>
+<hr />
+<h2 id="oci-isolation-and-the-pull-model">OCI isolation and the pull model</h2>
+<p>The pull-based model assumes agents can read other tasks' signal directories
+and write to their inboxes and the late insights directory. At Level 0 (no OCI
+isolation) this works — all paths are on the host filesystem. At Level 2 (OCI
+containers), the current <code>OciSandbox</code> mounts only three paths:</p>
+<ol>
+<li>The task's own worktree (read-write)</li>
+<li>The task's own signal directory (read-write)</li>
+<li>The main <code>.git/</code> directory (read-write)</li>
+</ol>
+<p>Other tasks' signal directories, <code>late_insights/</code>, and the <code>graph.yaml</code> copies
+in peer signal directories are not mounted.</p>
+<p><strong>Decision: mount <code>.workflow/&lt;graph&gt;/</code> read-write</strong> as one additional bind mount
+in <code>OciSandbox.wrap_command()</code>. This gives agents read access to all task
+signal directories and write access to inboxes and <code>late_insights/</code>.</p>
+<p><strong>Trade-off:</strong> an agent could write to another task's <code>.done</code> or corrupt its
+signal files. This is the same trust level as the <code>.git</code> mount (already
+read-write, allows destructive git operations). Pragmatic for now; the per-task
+visibility restrictions backlog item addresses tighter scoping later.</p>
+<p><strong>Optional tightening (PR D):</strong> replace the single <code>.workflow/&lt;graph&gt;/</code> read-write
+mount with more granular mounts:
+- <code>.workflow/&lt;graph&gt;/signals/</code> → read-only (all task artifacts readable)
+- <code>.workflow/&lt;graph&gt;/signals/&lt;own-task-id&gt;/</code> → read-write (own signal dir,
+  already mounted today — supersedes the read-only parent for this subtree)
+- <code>.workflow/&lt;graph&gt;/late_insights/</code> → read-write (late insight writes)
+- Individual <code>inbox/</code> directories for target tasks could be mounted read-write,
+  but enumerating all possible targets at container launch time adds complexity.
+  The simpler approach is to rely on the read-only signals mount plus a
+  convention that <code>inbox/</code> directories are created under <code>late_insights/</code> or
+  in the agent's own writable area — but this conflicts with the inbox design
+  (which writes to the target's signal dir). Alternatively, use the outbox-relay
+  pattern: agent writes to its own <code>outbox/</code>, orchestrator relays to target
+  inboxes. This is cleaner but adds orchestrator complexity and relay latency.</p>
+<p><strong>Decision: implement PR D only if e2e testing shows the broad mount is
+problematic.</strong> The tightened mount is available as a backlog item if needed.</p>
+<hr />
+<h2 id="backlog-items-generated-by-this-discussion">Backlog items generated by this discussion</h2>
+<ul>
+<li>
+<p><strong>Human-triggered partial graph re-run</strong>: allow a human to re-run a subset of
+  tasks after reviewing missed notes or other post-completion signals. See
+  <code>docs/BACKLOG.md</code> (Core Execution section).</p>
+</li>
+<li>
+<p><strong>Orchestrator-driven partial re-run via LLM judgment</strong>: orchestrator consults
+  an LLM planning agent to decide whether missed notes justify an automatic
+  partial re-run. Prerequisite: human-triggered re-run. See <code>docs/BACKLOG.md</code>
+  (Core Execution section).</p>
+</li>
+<li>
+<p><strong><code>strict_notes</code> policy</strong>: opt-in flag to make missed notes block auto-merge,
+  with granular scoping (graph → workstream → task → agent inheritance). See
+  <code>docs/BACKLOG.md</code> (Agent Context Sharing section).</p>
+</li>
+<li>
+<p><strong>Per-task signal dir visibility restrictions</strong>: for very large graphs, restrict
+  what sections of the graph signal store each agent can see (via filesystem ACLs
+  or container bind mount scoping). Implement after basic infrastructure is
+  stable. See <code>docs/BACKLOG.md</code> (Agent Context Sharing section).</p>
+</li>
+<li>
+<p><strong>Concurrent note delivery via orchestrator injection</strong>: if e2e observation
+  shows structured checkpoints miss too many concurrent notes, a future option
+  is having the orchestrator watch inbox directories and inject a brief
+  notification into the target tmux pane. Very unlikely to be needed.
+  See <code>docs/BACKLOG.md</code> (Agent Context Sharing section).</p>
+</li>
+</ul>
+<hr />
+<h2 id="pr-plan-draft-not-yet-finalized">PR plan (draft — not yet finalized)</h2>
+<h3 id="pr-a-graph-yaml-delivery-signal-dir-navigation-rules-oci-mount">PR A: Graph YAML delivery + signal dir navigation rules + OCI mount</h3>
+<ul>
+<li>Branch: <code>feat/graph-context-delivery</code></li>
+</ul>
+<p><strong>Changes:</strong>
+- <code>task_runner/implementations/task_preparer.py</code> — write <code>graph.yaml</code> (a copy
+  of the source YAML content) to the agent's signal directory at prepare time.
+- <code>agent_comm_protocol/templates.py</code> — add "Graph awareness" section to
+  instructions: task ID, graph name, signal dir formula (absolute path),
+  artifact names (<code>summary.md</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>, <code>.done</code>,
+  <code>inbox/</code>), inbox check guidance, guidance on tailoring <code>summary.md</code> for
+  downstream tasks.
+- <code>sandbox/implementations/oci_sandbox.py</code> — add <code>.workflow/&lt;graph&gt;/</code> as an
+  additional read-write bind mount so containerized agents can access peer
+  signal directories, inboxes, and the late insights directory. The graph name
+  is available via <code>SandboxContext.graph_name</code>.
+- Unit tests: graph YAML written to signal dir, contents match source,
+  OCI mount list includes <code>.workflow/&lt;graph&gt;/</code>.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>graph.yaml</code> present in signal directory when task launches
+- [ ] Instructions include signal dir formula, artifact names, inbox guidance
+- [ ] OCI containers mount <code>.workflow/&lt;graph&gt;/</code> read-write
+- [ ] <code>pixi run check</code> passes
+- [ ] E2E: agent reads upstream task's <code>summary.md</code> via derived path
+- [ ] E2E (OCI): containerized agent successfully reads peer task's signal
+      directory via the <code>.workflow/&lt;graph&gt;/</code> mount</p>
+<hr />
+<h3 id="pr-b-agentrelay-note-cli-inbox-late-insights-infrastructure">PR B: <code>agentrelay-note</code> CLI + inbox + late insights infrastructure</h3>
+<ul>
+<li>Branch: <code>feat/agent-note-command</code></li>
+</ul>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/agent_sdk/</code> — <code>agentrelay-note --to &lt;task-id&gt; --message "..."</code>
+  CLI entry point. Path derivation: navigate up two levels from
+  <code>$AGENTRELAY_SIGNAL_DIR</code> to reach the graph signals base, then append
+  <code>&lt;target-task-id&gt;/inbox/</code>. At write time, checks whether the target task's
+  <code>.done</code> file exists:
+  - Target not yet done → write/append to <code>inbox/&lt;source-task-id&gt;.md</code>
+  - Target already done → write/append to
+    <code>late_insights/&lt;target-task-id&gt;/&lt;source-task-id&gt;.md</code> and emit a terminal
+    warning
+- Every entry is timestamped by the SDK (HTML comment format). Multiple notes
+  from the same source to the same target append to the same file (safe —
+  only one agent writes each file).
+- Validates <code>--to</code> against <code>graph.yaml</code> in the agent's signal directory.
+- Creates <code>inbox/</code> and <code>late_insights/&lt;target&gt;/</code> directories lazily as needed.
+- <code>ops/signals.py</code> (or equivalent) — <code>inbox/</code> listed in signal dir spec;
+  cleared on task retry.
+- Unit tests: note written correctly, timestamp format, append behavior,
+  directory created lazily, invalid task ID rejected cleanly, routing based on
+  <code>.done</code> state, late insight directory structure.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>agentrelay-note --to &lt;task-id&gt;</code> routes correctly based on target
+      completion state (inbox vs. <code>late_insights/</code>)
+- [ ] Every entry has an HTML comment timestamp
+- [ ] Multiple notes from same source to same target append correctly
+- [ ] Invalid <code>--to</code> task IDs rejected with clear error
+- [ ] Inbox cleared on task retry
+- [ ] Late insights written to <code>late_insights/&lt;target&gt;/&lt;source&gt;.md</code>
+- [ ] Terminal warning emitted for late insights
+- [ ] <code>pixi run check</code> passes
+- [ ] E2E: upstream agent sends note, downstream agent reads it at launch</p>
+<hr />
+<h3 id="pr-c-missed-notes-detection-surfacing">PR C: Missed notes detection + surfacing</h3>
+<ul>
+<li>Branch: <code>feat/missed-notes-detection</code></li>
+</ul>
+<p><strong>Orchestrator-side changes:</strong>
+- At task completion, scan <code>inbox/</code> and compare each note's mtime against the
+  <code>.done</code> write time. Notes newer than <code>.done</code> are concurrent misses.
+- Write <code>missed_notes.log</code> to the signal directory if any concurrent misses
+  exist (lists note filenames and content).
+- Emit a <code>missed_notes</code> <code>ConsoleListener</code> event (parallel to how concerns are
+  surfaced today).
+- Integration PR body builder: if a task has concurrent missed notes, include a
+  warning section in the integration PR body.
+- Neither concurrent misses nor late insights block auto-merge by default.
+- Note: late insight terminal warnings are already handled by the SDK at write
+  time (PR B). The orchestrator does not need to duplicate this — its role is
+  concurrent miss detection only, which has a natural trigger (task completion).
+- Unit tests: concurrent miss detection (mtime comparison), <code>missed_notes.log</code>
+  written/not written, console event emission.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Concurrent missed notes detected at task completion, written to
+      <code>missed_notes.log</code>, surfaced via <code>ConsoleListener</code>
+- [ ] Integration PR body includes concurrent missed notes warning where
+      applicable
+- [ ] Neither miss category blocks auto-merge
+- [ ] <code>pixi run check</code> passes
+- [ ] E2E: concurrent note arrives late → <code>missed_notes.log</code></p>
+<hr />
+<h3 id="pr-d-agentrelay-read-convenience-command">PR D: <code>agentrelay-read</code> convenience command</h3>
+<ul>
+<li>Branch: <code>feat/agent-read-command</code></li>
+</ul>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/agent_sdk/</code> — <code>agentrelay-read --task &lt;task-id&gt; [artifact]</code>
+  CLI entry point. Validates task ID against <code>graph.yaml</code>. Path derivation same
+  as <code>agentrelay-note</code> (navigate up from <code>$AGENTRELAY_SIGNAL_DIR</code>). Supports:
+  - <code>summary</code> → <code>summary.md</code>
+  - <code>concerns</code> → <code>concerns.log</code>
+  - <code>ops-concerns</code> → <code>ops_concerns.log</code>
+  - <code>done</code> → PR URL (line 2 of <code>.done</code>)
+  - <code>notes</code> → list/print all <code>inbox/*.md</code> files
+  - Bare invocation → list available artifacts
+- <code>agentrelay-read inbox</code> (no <code>--task</code>) — shorthand for reading the calling
+  agent's own inbox. This is the most common use case (at each checkpoint).
+- Unit tests: each artifact type, task ID validation, missing artifact handling,
+  <code>inbox</code> shorthand.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] All artifact types readable via <code>agentrelay-read</code>
+- [ ] <code>agentrelay-read inbox</code> reads own inbox without <code>--task</code>
+- [ ] Invalid task IDs rejected with clear error
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-e-tighten-oci-mounts-optional-implement-or-push-to-backlog">PR E: Tighten OCI mounts (optional — implement or push to backlog)</h3>
+<ul>
+<li>Branch: <code>feat/oci-mount-tighten</code></li>
+</ul>
+<p>Replace the broad <code>.workflow/&lt;graph&gt;/</code> read-write mount from PR A with more
+granular mounts for tighter isolation:</p>
+<p><strong>Options to evaluate at implementation time:</strong>
+- <code>.workflow/&lt;graph&gt;/signals/</code> read-only + own signal dir read-write + <code>inbox/</code>
+  write targets + <code>late_insights/</code> read-write
+- Outbox-relay pattern: agent writes to own <code>outbox/</code>, orchestrator relays to
+  target inboxes (eliminates cross-task writes entirely, adds relay latency)</p>
+<p><strong>Decision point:</strong> implement if e2e testing with the broad mount (PR A) shows
+agents writing to inappropriate signal files. Otherwise push to backlog.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Agents can read all signal directories
+- [ ] Agents can only write to their own signal dir, target inboxes, and
+      late insights
+- [ ] <code>pixi run check</code> passes
+- [ ] E2E: same test suite as PR A passes with tightened mounts</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
