@@ -301,6 +301,111 @@ class TestAdrSection:
             assert leftover == [], f"Role {role}: leftover placeholders {leftover}"
 
 
+class TestWorkingDirectorySection:
+    """Tests for working directory section injection in instructions."""
+
+    def test_absent_when_no_worktree_path(self) -> None:
+        """No working directory section when worktree_path is None (default)."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## Working Directory" not in text
+
+    def test_present_when_worktree_path_provided(self) -> None:
+        """Working directory section appears when worktree_path is given."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            worktree_path=Path("/worktrees/demo/ws-1"),
+        )
+        assert "## Working Directory" in text
+
+    def test_includes_worktree_path(self) -> None:
+        """Working directory section includes the actual worktree path."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            worktree_path=Path("/worktrees/demo/ws-1"),
+        )
+        assert "/worktrees/demo/ws-1" in text
+
+    def test_instructs_not_to_navigate_outside(self) -> None:
+        """Working directory section tells agents not to leave the worktree."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            worktree_path=Path("/worktrees/demo/ws-1"),
+        )
+        wd_text = text.split("## Working Directory")[1].split("##")[0]
+        assert "do not navigate" in wd_text.lower()
+
+    def test_mentions_ops_concern_for_outside_access(self) -> None:
+        """Working directory section tells agents to raise ops concern if they need outside access."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            worktree_path=Path("/worktrees/demo/ws-1"),
+        )
+        wd_text = text.split("## Working Directory")[1].split("##")[0]
+        assert "agentrelay-ops-concern" in wd_text
+
+    def test_after_role_before_what_to_do(self) -> None:
+        """Working directory section appears after Role and before What to Do."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            worktree_path=Path("/worktrees/demo/ws-1"),
+        )
+        role_pos = text.index("## Role")
+        wd_pos = text.index("## Working Directory")
+        what_to_do_pos = text.index("## What to Do")
+        assert role_pos < wd_pos < what_to_do_pos
+
+    def test_present_for_all_roles(self) -> None:
+        """Working directory section appears for every role when path is given."""
+        for role in (
+            AgentRole.TEST_WRITER,
+            AgentRole.SPEC_WRITER,
+            AgentRole.TEST_REVIEWER,
+            AgentRole.IMPLEMENTER,
+        ):
+            text = resolve_instructions(
+                role,
+                _manifest(),
+                worktree_path=Path("/worktrees/demo/ws-1"),
+            )
+            assert "## Working Directory" in text, f"Missing for {role}"
+
+    def test_present_for_generic_role(self) -> None:
+        """Working directory section works with GENERIC role."""
+        m = _manifest(description="Do something custom")
+        text = resolve_instructions(
+            AgentRole.GENERIC, m, worktree_path=Path("/worktrees/demo/ws-1")
+        )
+        assert "## Working Directory" in text
+
+    def test_present_regardless_of_sandbox_type(self) -> None:
+        """Working directory section appears for both NONE and OCI sandbox types."""
+        for sandbox in (SandboxType.NONE, SandboxType.OCI):
+            text = resolve_instructions(
+                AgentRole.TEST_WRITER,
+                _manifest(),
+                sandbox_type=sandbox,
+                worktree_path=Path("/worktrees/demo/ws-1"),
+            )
+            assert "## Working Directory" in text, f"Missing for sandbox={sandbox}"
+
+    def test_before_tools_when_tools_present(self) -> None:
+        """Working directory section appears before Tools when both present."""
+        m = _manifest(tools=("pixi",))
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            m,
+            worktree_path=Path("/worktrees/demo/ws-1"),
+        )
+        wd_pos = text.index("## Working Directory")
+        tools_pos = text.index("## Tools")
+        assert wd_pos < tools_pos
+
+
 class TestIsolationSection:
     """Tests for isolation boundary section injection in instructions."""
 

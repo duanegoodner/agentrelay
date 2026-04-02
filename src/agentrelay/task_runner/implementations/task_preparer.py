@@ -110,6 +110,7 @@ class WorktreeTaskPreparer:
             manifest,
             adr_verbosity=task.primary_agent.adr_verbosity,
             sandbox_type=isolation.sandbox_type if isolation is not None else None,
+            worktree_path=workstream_worktree_path,
         )
         signals.write_text(signal_dir, "instructions.md", instructions)
 

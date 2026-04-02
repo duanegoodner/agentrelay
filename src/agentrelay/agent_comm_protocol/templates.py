@@ -56,22 +56,25 @@ def resolve_instructions(
     adapter_name: Optional[str] = None,
     adr_verbosity: AdrVerbosity = AdrVerbosity.NONE,
     sandbox_type: Optional[SandboxType] = None,
+    worktree_path: Optional[Path] = None,
 ) -> str:
     """Resolve work instructions by loading and parameterizing a role template.
 
     The assembled document is structured as a work order:
 
     1. **Role** — who the agent is and what it's doing.
-    2. **Tools** — environment tools available (if any).
-    3. **What to Do** — role-specific steps from the template, or the
+    2. **Working Directory** — where the agent must work (if
+       ``worktree_path`` is provided).
+    3. **Tools** — environment tools available (if any).
+    4. **What to Do** — role-specific steps from the template, or the
        task description for GENERIC roles.
-    4. **Architecture Decision Record** — ADR writing instructions (if
+    5. **Architecture Decision Record** — ADR writing instructions (if
        ``adr_verbosity`` is not ``NONE``).
-    5. **Isolation Boundary** — what the agent can/cannot access and
+    6. **Isolation Boundary** — what the agent can/cannot access and
        what exists beyond its boundary (if ``sandbox_type`` is ``OCI``).
-    6. **Submitting Your Work** — how to commit, create a PR, and signal
+    7. **Submitting Your Work** — how to commit, create a PR, and signal
        the orchestrator.
-    7. **Task Details** — the task author's description (non-generic only,
+    8. **Task Details** — the task author's description (non-generic only,
        when present).
 
     Template variables (``$var`` syntax via :class:`string.Template`):
@@ -90,6 +93,9 @@ def resolve_instructions(
         sandbox_type: Sandbox type. When ``OCI``, an isolation boundary
             section is included describing what the agent can and cannot
             access.
+        worktree_path: Absolute path to the git worktree for this task.
+            When provided, a Working Directory section is included
+            instructing the agent to stay within the worktree.
 
     Returns:
         Resolved markdown instruction text.
@@ -105,6 +111,11 @@ def resolve_instructions(
             "Follow the instructions below to complete the task."
         ),
     ]
+
+    # Working Directory (conditional, early context).
+    wd_text = _working_directory_section(worktree_path)
+    if wd_text:
+        parts.append(wd_text)
 
     # Tools (flat H2, only if declared).
     tools_text = tool_guidance(manifest.tools)
@@ -155,6 +166,33 @@ def resolve_instructions(
         parts.append("## Task Details\n\n" + manifest.description)
 
     return "\n\n".join(parts) + "\n"
+
+
+def _working_directory_section(worktree_path: Optional[Path]) -> str:
+    """Build the Working Directory section for agent instructions.
+
+    Returns a complete ``## Working Directory`` section when
+    *worktree_path* is provided, or an empty string otherwise.
+
+    Args:
+        worktree_path: Absolute path to the git worktree, or ``None``.
+
+    Returns:
+        Markdown section text, or ``""`` when no path is provided.
+    """
+    if worktree_path is None:
+        return ""
+
+    return (
+        "## Working Directory\n\n"
+        f"Your working directory is `{worktree_path}`. All file edits and "
+        "git operations must occur within this directory. Do not navigate to "
+        "or operate on paths outside it.\n\n"
+        "If you believe you need access to files or resources outside your "
+        "working directory, do not attempt to access them. Instead, record "
+        "an ops concern:\n"
+        '`agentrelay-ops-concern --message "describe what you need and why"`'
+    )
 
 
 def _concerns_note() -> str:
