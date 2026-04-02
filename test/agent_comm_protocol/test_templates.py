@@ -100,6 +100,11 @@ class TestResolveInstructions:
         text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
         assert "agentrelay-complete-no-pr" in text
 
+    def test_submission_includes_summary_command(self) -> None:
+        """Submission section mentions agentrelay-summary."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "agentrelay-summary" in text
+
     def test_test_reviewer_mentions_no_pr_completion(self) -> None:
         """Test reviewer template mentions completing without a PR."""
         text = resolve_instructions(AgentRole.TEST_REVIEWER, _manifest())

@@ -162,6 +162,32 @@ def test_record_ops_concern_appends_to_file(tmp_path: Path) -> None:
     assert lines == ["pixi install took >30s", "pyright flagged unrelated warnings"]
 
 
+# -- Summary --
+
+
+def test_write_summary_creates_file(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.write_summary("## Summary\n\n- reviewed all tests")
+    assert (tmp_path / "summary.md").read_text() == "## Summary\n\n- reviewed all tests"
+
+
+def test_write_summary_overwrites_existing(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.write_summary("first draft")
+    helper.write_summary("final summary")
+    assert (tmp_path / "summary.md").read_text() == "final summary"
+
+
 # -- PR creation --
 
 

@@ -239,6 +239,18 @@ class TaskHelper:
         with open(ops_path, "a") as f:
             f.write(concern.strip() + "\n")
 
+    def write_summary(self, message: str) -> None:
+        """Write a task summary to summary.md.
+
+        Overwrites any existing summary. Use this to record what the task
+        accomplished, especially for PR-less tasks where the orchestrator
+        cannot derive a summary from a PR body.
+
+        Args:
+            message: Summary text (markdown).
+        """
+        (self.signal_dir / "summary.md").write_text(message)
+
     # -- Internal ----------------------------------------------------------
 
     def _read_concerns(self) -> list[str]:

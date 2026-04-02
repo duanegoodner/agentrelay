@@ -344,8 +344,11 @@ After completing the work above:
    Provide a meaningful PR title (concise) and body (markdown with a ## Summary section).
    Any recorded concerns are automatically appended to the PR body.
 
-If you made no code changes (e.g., review-only work), complete without a PR:
+If you made no code changes (e.g., review-only work), write a summary and complete without a PR:
    ```bash
+   agentrelay-summary --message "## Summary
+
+   - what was found or reviewed"
    agentrelay-complete-no-pr
    ```
 

@@ -224,16 +224,6 @@ Ideas to explore:
   exists, read it first" — just needs to be wired in `run_graph.py`
   or the orchestrator builder.
 
-## Agent-Written Summaries for PR-less Tasks
-
-Currently `summary.md` is only written for tasks that create a PR (the
-orchestrator fetches the PR body). PR-less tasks (e.g., test_reviewer)
-leave no summary of what they did. A CLI command like
-`agentrelay-summary --message "..."` would let any agent write a summary
-to its signal directory, independent of PR creation. This would make
-PR-less task results visible to downstream agents, auditing, and the
-integration PR body.
-
 ## Agent Instruction Architecture
 
 > **Priority**: Highly recommended as the next focus after sprint 2026-03-19
@@ -334,6 +324,19 @@ attempts `gh pr create`, which fails because GitHub rejects empty PRs.
 The workstream should detect that no task produced a PR and skip
 integration entirely — transition directly to MERGED (or a new terminal
 state) instead of attempting a no-op integration PR.
+
+### Refine integration PR body
+
+Once all task types write `summary.md` files (PR-backed tasks via
+orchestrator PR body fetch, PR-less tasks via `agentrelay-summary`),
+decide how to incorporate agent-written summaries into the integration
+PR body. Currently `_build_pr_body` in `GhWorkstreamIntegrator` uses
+`TaskSummary` objects populated from task metadata (description, PR URL,
+concerns) — it does not read `summary.md`. Options: add a `summary_text`
+field to `TaskSummary` and populate it from `summary.md`, or include
+summaries as collapsible sections. Consider whether PR-backed tasks
+should prefer the agent-written summary over the fetched PR body, and
+how to handle tasks that wrote both.
 
 ### Integration PR body quality
 

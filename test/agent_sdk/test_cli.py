@@ -114,3 +114,22 @@ class TestOpsConcernCli:
         monkeypatch.setattr("sys.argv", ["agentrelay-ops-concern"])
         with pytest.raises(SystemExit):
             cli.ops_concern()
+
+
+class TestSummaryCli:
+    def test_calls_helper_write_summary(
+        self, signal_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+        monkeypatch.setattr(
+            "sys.argv", ["agentrelay-summary", "--message", "reviewed all tests"]
+        )
+        with patch("agentrelay.agent_sdk.cli.TaskHelper") as mock_cls:
+            instance = mock_cls.from_env.return_value
+            cli.summary()
+            instance.write_summary.assert_called_once_with("reviewed all tests")
+
+    def test_message_required(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr("sys.argv", ["agentrelay-summary"])
+        with pytest.raises(SystemExit):
+            cli.summary()
