@@ -622,3 +622,20 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
   (started, succeeded, failed) but nothing about the isolation layer.
   Could be added via the existing `on_event` callback in
   `StandardTaskRunner` or as new event types in the listener protocol.
+- **agent.log not captured on task failure**: `agent.log` (tmux pane
+  scrollback) is only written during teardown, which runs conditionally
+  based on `TearDownMode`. When a task fails and teardown is skipped
+  (e.g., `ON_SUCCESS` mode), no `agent.log` is produced — so archived
+  attempt directories from `reset_for_retry()` never contain the agent's
+  scrollback. Fix: ensure scrollback capture always runs regardless of
+  teardown mode, or make it a separate step from resource cleanup.
+- **Per-attempt orchestrator event log**: Each task attempt should have a
+  log file capturing the orchestrator-side events for that attempt — the
+  same timestamped lines shown in the launch terminal (prepared, launched,
+  waiting, gate running, gate failed, etc.) but scoped to that single
+  attempt. Currently these events go to the terminal via `ConsoleListener`
+  and are not persisted per-task. A per-attempt event log in
+  `signal_dir/attempts/<N>/events.log` (or similar) would make post-run
+  debugging much easier — you'd see both the agent's perspective
+  (agent.log) and the orchestrator's perspective (events.log) for each
+  attempt side by side.
