@@ -1,9 +1,10 @@
 # Sprint Notes — 2026-04-03: Context Sharing (Phase 1)
 
-> **Status: Active.** Single-PR sprint: graph YAML delivery + artifact
-> navigation instructions + OCI mount. Messaging infrastructure
-> (agentrelay-note, agentrelay-read, missed notes detection) deferred pending
-> e2e observation. Full design in `docs/discussions/CONTEXT_SHARING.md`.
+> **Status: Complete.** PR A merged (#155). Single-PR sprint: graph YAML
+> delivery + artifact navigation instructions + OCI mount. Messaging
+> infrastructure (agentrelay-note, agentrelay-read, missed notes detection)
+> deferred pending e2e observation. Full design in
+> `docs/discussions/CONTEXT_SHARING.md`.
 
 ## Goal
 
@@ -86,7 +87,7 @@ changed to read-write or supplemented with targeted writable mounts.
 
 ## PR plan
 
-### PR A: Graph YAML delivery + artifact navigation instructions + OCI mount
+### PR A: Graph YAML delivery + artifact navigation instructions + OCI mount — Merged (#155)
 
 - Branch: `feat/graph-context-delivery`
 
@@ -108,13 +109,13 @@ changed to read-write or supplemented with targeted writable mounts.
   OCI mount list includes `.workflow/<graph>/`.
 
 **Acceptance criteria:**
-- [ ] `graph.yaml` present at `.workflow/<graph>/graph.yaml` when graph starts
-- [ ] `graph.yaml` content matches the source YAML
-- [ ] Instructions include "Graph Awareness" section with signal dir formula,
+- [x] `graph.yaml` present at `.workflow/<graph>/graph.yaml` when graph starts
+- [x] `graph.yaml` content matches the source YAML
+- [x] Instructions include "Graph Awareness" section with signal dir formula,
       artifact names, and downstream-summary guidance
-- [ ] OCI containers mount `.workflow/<graph>/` read-only
-- [ ] `pixi run check` passes
-- [ ] E2E: agent reads upstream task's `summary.md` via derived path
+- [x] OCI containers mount `.workflow/<graph>/` read-only
+- [x] `pixi run check` passes (1234 tests, 16 new)
+- [x] E2E: agent reads upstream task's `summary.md` via derived path
 - [ ] E2E (OCI): containerized agent reads peer task signal directory via
       `.workflow/<graph>/` mount
 
@@ -132,7 +133,34 @@ evaluated after e2e observation with graph YAML delivery:
 - OCI mount tightening (design doc PR E)
 - Vector DB for semantic context retrieval (long-term)
 
-## E2E observation plan
+## E2E observations
+
+**Sonnet e2e (spec→test→impl, no paths, no roles):** All 3 tasks succeeded
+first attempt. Gate passed first try. Total time ~3 minutes. Agents
+discovered file locations from upstream summaries without any `paths` fields
+or role templates. Key finding: graph awareness + generic role + good
+descriptions is sufficient for capable agents (Sonnet). This validates the
+"observation before infrastructure" approach — the note/inbox system was
+not needed.
+
+**Capability gradient insight:** Graph awareness enables a three-tier model:
+(1) strong agents + graph awareness = generic role, (2) medium agents + SDK
+helpers, (3) weak agents + roles. SDK helpers are the preferred next step
+over roles when supporting less capable agents — they close the capability
+gap (path derivation, file navigation) more directly than role templates
+close the guidance gap. Roles may eventually be removed entirely.
+
+**OCI e2e:** Not yet run with the graph awareness changes. The read-only
+mount was validated in unit tests but needs e2e confirmation with a
+containerized agent.
+
+**Haiku/Opus variants:** Not yet tested. Three graph variants created
+(`graphs/graph_awareness/spec_test_impl_{sonnet,haiku,opus}.yaml`) for
+model comparison testing.
+
+---
+
+## E2E observation plan (ongoing)
 
 After PR A merges, run e2e tests and observe:
 - Do agents read the graph YAML? Do they use it to find upstream artifacts?
