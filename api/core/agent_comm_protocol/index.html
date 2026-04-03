@@ -3055,7 +3055,7 @@ JSON <code>null</code>.</p>
 
 
 <h2 id="agentrelay.agent_comm_protocol.resolve_instructions" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">resolve_instructions</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">adapter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">sandbox_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">resolve_instructions</span><span class="p">(</span><span class="n">role</span><span class="p">,</span> <span class="n">manifest</span><span class="p">,</span> <span class="n">adapter_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span> <span class="n">sandbox_type</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">worktree_path</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -3066,6 +3066,8 @@ JSON <code>null</code>.</p>
 <p>The assembled document is structured as a work order:</p>
 <ol>
 <li><strong>Role</strong> — who the agent is and what it's doing.</li>
+<li><strong>Working Directory</strong> — where the agent must work (if
+   <code>worktree_path</code> is provided).</li>
 <li><strong>Tools</strong> — environment tools available (if any).</li>
 <li><strong>What to Do</strong> — role-specific steps from the template, or the
    task description for GENERIC roles.</li>
@@ -3180,6 +3182,24 @@ JSON <code>null</code>.</p>
                 <p>Sandbox type. When <code>OCI</code>, an isolation boundary
 section is included describing what the agent can and cannot
 access.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>worktree_path</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Absolute path to the git worktree for this task.
+When provided, a Working Directory section is included
+instructing the agent to stay within the worktree.</p>
               </div>
             </td>
             <td>
@@ -3352,28 +3372,42 @@ access.</p>
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span><span class="p">,</span>
     <span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">,</span>
     <span class="n">adapter_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">adr_verbosity</span><span class="p">:</span> <span class="n">AdrVerbosity</span> <span class="o">=</span> <span class="n">AdrVerbosity</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
     <span class="n">sandbox_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SandboxType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">worktree_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve work instructions by loading and parameterizing a role template.</span>
 
 <span class="sd">    The assembled document is structured as a work order:</span>
 
 <span class="sd">    1. **Role** — who the agent is and what it&#39;s doing.</span>
-<span class="sd">    2. **Tools** — environment tools available (if any).</span>
-<span class="sd">    3. **What to Do** — role-specific steps from the template, or the</span>
+<span class="sd">    2. **Working Directory** — where the agent must work (if</span>
+<span class="sd">       ``worktree_path`` is provided).</span>
+<span class="sd">    3. **Tools** — environment tools available (if any).</span>
+<span class="sd">    4. **What to Do** — role-specific steps from the template, or the</span>
 <span class="sd">       task description for GENERIC roles.</span>
-<span class="sd">    4. **Architecture Decision Record** — ADR writing instructions (if</span>
+<span class="sd">    5. **Architecture Decision Record** — ADR writing instructions (if</span>
 <span class="sd">       ``adr_verbosity`` is not ``NONE``).</span>
-<span class="sd">    5. **Isolation Boundary** — what the agent can/cannot access and</span>
+<span class="sd">    6. **Isolation Boundary** — what the agent can/cannot access and</span>
 <span class="sd">       what exists beyond its boundary (if ``sandbox_type`` is ``OCI``).</span>
-<span class="sd">    6. **Submitting Your Work** — how to commit, create a PR, and signal</span>
+<span class="sd">    7. **Submitting Your Work** — how to commit, create a PR, and signal</span>
 <span class="sd">       the orchestrator.</span>
-<span class="sd">    7. **Task Details** — the task author&#39;s description (non-generic only,</span>
+<span class="sd">    8. **Task Details** — the task author&#39;s description (non-generic only,</span>
 <span class="sd">       when present).</span>
 
 <span class="sd">    Template variables (``$var`` syntax via :class:`string.Template`):</span>
@@ -3392,6 +3426,9 @@ access.</p>
 <span class="sd">        sandbox_type: Sandbox type. When ``OCI``, an isolation boundary</span>
 <span class="sd">            section is included describing what the agent can and cannot</span>
 <span class="sd">            access.</span>
+<span class="sd">        worktree_path: Absolute path to the git worktree for this task.</span>
+<span class="sd">            When provided, a Working Directory section is included</span>
+<span class="sd">            instructing the agent to stay within the worktree.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Resolved markdown instruction text.</span>
@@ -3407,6 +3444,11 @@ access.</p>
             <span class="s2">&quot;Follow the instructions below to complete the task.&quot;</span>
         <span class="p">),</span>
     <span class="p">]</span>
+
+    <span class="c1"># Working Directory (conditional, early context).</span>
+    <span class="n">wd_text</span> <span class="o">=</span> <span class="n">_working_directory_section</span><span class="p">(</span><span class="n">worktree_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">wd_text</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wd_text</span><span class="p">)</span>
 
     <span class="c1"># Tools (flat H2, only if declared).</span>
     <span class="n">tools_text</span> <span class="o">=</span> <span class="n">tool_guidance</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">tools</span><span class="p">)</span>
