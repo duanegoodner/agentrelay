@@ -146,7 +146,7 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   templates_functions: "templates_functions <<module>>" {
     shape: class
     module_path: agent_comm_protocol.templates
-    +resolve_instructions(role, manifest, adapter_name, adr_verbosity): str
+    +resolve_instructions(role, manifest, adapter_name, adr_verbosity, sandbox_type, worktree_path, graph_yaml_path, signals_base_path): str
   }
 }
 
