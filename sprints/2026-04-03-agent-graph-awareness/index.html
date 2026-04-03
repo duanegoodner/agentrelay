@@ -1350,10 +1350,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-graph-yaml-delivery-artifact-navigation-instructions-oci-mount" class="md-nav__link">
+  <a href="#pr-a-graph-yaml-delivery-artifact-navigation-instructions-oci-mount-merged-155" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: Graph YAML delivery + artifact navigation instructions + OCI mount
+        PR A: Graph YAML delivery + artifact navigation instructions + OCI mount — Merged (#155)
       
     </span>
   </a>
@@ -1377,10 +1377,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#e2e-observation-plan" class="md-nav__link">
+  <a href="#e2e-observations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        E2E observation plan
+        E2E observations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2e-observation-plan-ongoing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2E observation plan (ongoing)
       
     </span>
   </a>
@@ -1406,10 +1417,11 @@
 
 <h1 id="sprint-notes-2026-04-03-context-sharing-phase-1">Sprint Notes — 2026-04-03: Context Sharing (Phase 1)</h1>
 <blockquote>
-<p><strong>Status: Active.</strong> Single-PR sprint: graph YAML delivery + artifact
-navigation instructions + OCI mount. Messaging infrastructure
-(agentrelay-note, agentrelay-read, missed notes detection) deferred pending
-e2e observation. Full design in <code>docs/discussions/CONTEXT_SHARING.md</code>.</p>
+<p><strong>Status: Complete.</strong> PR A merged (#155). Single-PR sprint: graph YAML
+delivery + artifact navigation instructions + OCI mount. Messaging
+infrastructure (agentrelay-note, agentrelay-read, missed notes detection)
+deferred pending e2e observation. Full design in
+<code>docs/discussions/CONTEXT_SHARING.md</code>.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Give agents awareness of the full task graph and the ability to find artifacts
@@ -1480,7 +1492,7 @@ If the messaging infrastructure is implemented later, the mount can be
 changed to read-write or supplemented with targeted writable mounts.</p>
 <hr />
 <h2 id="pr-plan">PR plan</h2>
-<h3 id="pr-a-graph-yaml-delivery-artifact-navigation-instructions-oci-mount">PR A: Graph YAML delivery + artifact navigation instructions + OCI mount</h3>
+<h3 id="pr-a-graph-yaml-delivery-artifact-navigation-instructions-oci-mount-merged-155">PR A: Graph YAML delivery + artifact navigation instructions + OCI mount — Merged (#155)</h3>
 <ul>
 <li>Branch: <code>feat/graph-context-delivery</code></li>
 </ul>
@@ -1501,13 +1513,13 @@ changed to read-write or supplemented with targeted writable mounts.</p>
 - Unit tests: graph YAML written to <code>.workflow/&lt;graph&gt;/</code>, contents match source,
   OCI mount list includes <code>.workflow/&lt;graph&gt;/</code>.</p>
 <p><strong>Acceptance criteria:</strong>
-- [ ] <code>graph.yaml</code> present at <code>.workflow/&lt;graph&gt;/graph.yaml</code> when graph starts
-- [ ] <code>graph.yaml</code> content matches the source YAML
-- [ ] Instructions include "Graph Awareness" section with signal dir formula,
+- [x] <code>graph.yaml</code> present at <code>.workflow/&lt;graph&gt;/graph.yaml</code> when graph starts
+- [x] <code>graph.yaml</code> content matches the source YAML
+- [x] Instructions include "Graph Awareness" section with signal dir formula,
       artifact names, and downstream-summary guidance
-- [ ] OCI containers mount <code>.workflow/&lt;graph&gt;/</code> read-only
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: agent reads upstream task's <code>summary.md</code> via derived path
+- [x] OCI containers mount <code>.workflow/&lt;graph&gt;/</code> read-only
+- [x] <code>pixi run check</code> passes (1234 tests, 16 new)
+- [x] E2E: agent reads upstream task's <code>summary.md</code> via derived path
 - [ ] E2E (OCI): containerized agent reads peer task signal directory via
       <code>.workflow/&lt;graph&gt;/</code> mount</p>
 <hr />
@@ -1522,7 +1534,28 @@ evaluated after e2e observation with graph YAML delivery:</p>
 <li>OCI mount tightening (design doc PR E)</li>
 <li>Vector DB for semantic context retrieval (long-term)</li>
 </ul>
-<h2 id="e2e-observation-plan">E2E observation plan</h2>
+<h2 id="e2e-observations">E2E observations</h2>
+<p><strong>Sonnet e2e (spec→test→impl, no paths, no roles):</strong> All 3 tasks succeeded
+first attempt. Gate passed first try. Total time ~3 minutes. Agents
+discovered file locations from upstream summaries without any <code>paths</code> fields
+or role templates. Key finding: graph awareness + generic role + good
+descriptions is sufficient for capable agents (Sonnet). This validates the
+"observation before infrastructure" approach — the note/inbox system was
+not needed.</p>
+<p><strong>Capability gradient insight:</strong> Graph awareness enables a three-tier model:
+(1) strong agents + graph awareness = generic role, (2) medium agents + SDK
+helpers, (3) weak agents + roles. SDK helpers are the preferred next step
+over roles when supporting less capable agents — they close the capability
+gap (path derivation, file navigation) more directly than role templates
+close the guidance gap. Roles may eventually be removed entirely.</p>
+<p><strong>OCI e2e:</strong> Not yet run with the graph awareness changes. The read-only
+mount was validated in unit tests but needs e2e confirmation with a
+containerized agent.</p>
+<p><strong>Haiku/Opus variants:</strong> Not yet tested. Three graph variants created
+(<code>graphs/graph_awareness/spec_test_impl_{sonnet,haiku,opus}.yaml</code>) for
+model comparison testing.</p>
+<hr />
+<h2 id="e2e-observation-plan-ongoing">E2E observation plan (ongoing)</h2>
 <p>After PR A merges, run e2e tests and observe:
 - Do agents read the graph YAML? Do they use it to find upstream artifacts?
 - Do agents tailor their <code>summary.md</code> for downstream tasks?
