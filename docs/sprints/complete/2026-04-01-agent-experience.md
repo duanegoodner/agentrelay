@@ -1,8 +1,10 @@
 # Sprint Notes — 2026-04-01: Agent Experience
 
-> **Status: In progress.** PRs A–E planned. PR A (retry fix) complete. The
-> original PR C (context.md wiring) was superseded by a broader context-sharing
-> design; see [2026-TBD-context-sharing.md](not_started/2026-TBD-context-sharing.md).
+> **Status: Complete.** All 5 PRs (A–E) merged. PRs C, D, E were developed
+> in parallel across git worktrees and merged sequentially with no conflicts.
+> The original PR C (context.md wiring) was superseded by a broader
+> context-sharing design; see
+> [2026-TBD-context-sharing.md](not_started/2026-TBD-context-sharing.md).
 > That sprint will follow this one.
 
 ## Goal
@@ -117,7 +119,7 @@ for branch … already exists." The agent must manually work around it — fragi
 
 ---
 
-### PR B: `COMPLETED` task status for PR-less tasks
+### PR B: `COMPLETED` task status for PR-less tasks — Merged (#150)
 
 - Branch: `feat/completed-status`
 
@@ -142,15 +144,15 @@ without a PR (e.g. `test_reviewer`). Mechanically fine but semantically wrong.
 - Update tests for the new transition and all consumers.
 
 **Acceptance criteria:**
-- [ ] PR-less task completion records `COMPLETED` status (not `PR_MERGED`)
-- [ ] PR-backed task completion still records `PR_MERGED` (unchanged)
-- [ ] Downstream dependency resolution treats both statuses as "task succeeded"
-- [ ] Workstream terminal state logic treats both as success
-- [ ] `pixi run check` passes
+- [x] PR-less task completion records `COMPLETED` status (not `PR_MERGED`)
+- [x] PR-backed task completion still records `PR_MERGED` (unchanged)
+- [x] Downstream dependency resolution treats both statuses as "task succeeded"
+- [x] Workstream terminal state logic treats both as success
+- [x] `pixi run check` passes
 
 ---
 
-### PR C: `agentrelay-summary` CLI
+### PR C: `agentrelay-summary` CLI — Merged (#151)
 
 - Branch: `feat/agent-summary-command`
 
@@ -168,15 +170,15 @@ created a PR.
 - Unit tests for the new CLI command.
 
 **Acceptance criteria:**
-- [ ] `agentrelay-summary --message "..."` writes `summary.md` to the signal
+- [x] `agentrelay-summary --message "..."` writes `summary.md` to the signal
       directory
-- [ ] Summary appears in integration PR body for tasks that used
+- [x] Summary appears in integration PR body for tasks that used
       `agentrelay-summary` (validates against existing orchestrator consumer)
-- [ ] `pixi run check` passes
+- [x] `pixi run check` passes
 
 ---
 
-### PR D: Worktree CWD guidance in agent instructions
+### PR D: Worktree CWD guidance in agent instructions — Merged (#152)
 
 - Branch: `feat/worktree-cwd-guidance`
 
@@ -199,12 +201,12 @@ guidance.
   roles.
 
 **Acceptance criteria:**
-- [ ] Worktree path CWD guidance appears in `instructions.md` for all roles
-- [ ] `pixi run check` passes
+- [x] Worktree path CWD guidance appears in `instructions.md` for all roles
+- [x] `pixi run check` passes
 
 ---
 
-### PR E: Archive attempt artifacts before retry cleanup
+### PR E: Archive attempt artifacts before retry cleanup — Merged (#153)
 
 - Branch: `feat/retry-artifact-archive`
 
@@ -226,8 +228,8 @@ failures.
   (`.done`, `.failed`) are not archived.
 
 **Acceptance criteria:**
-- [ ] `reset_for_retry()` copies attempt artifacts to `signal_dir/attempts/<N>/`
-- [ ] Missing files are silently skipped (no errors)
-- [ ] Signal files (`.done`, `.failed`) are not archived
-- [ ] Archived files survive the retry cleanup
-- [ ] `pixi run check` passes
+- [x] `reset_for_retry()` copies attempt artifacts to `signal_dir/attempts/<N>/`
+- [x] Missing files are silently skipped (no errors)
+- [x] Signal files (`.done`, `.failed`) are not archived
+- [x] Archived files survive the retry cleanup
+- [x] `pixi run check` passes
