@@ -185,10 +185,6 @@
          <lastmod>2026-04-03</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/sprints/2026-04-03-agent-graph-awareness/</loc>
-         <lastmod>2026-04-03</lastmod>
-    </url>
-    <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-03-10-arch-improvements/</loc>
          <lastmod>2026-04-03</lastmod>
     </url>
@@ -218,6 +214,10 @@
     </url>
     <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-01-agent-experience/</loc>
+         <lastmod>2026-04-03</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-03-agent-graph-awareness/</loc>
          <lastmod>2026-04-03</lastmod>
     </url>
 </urlset>

@@ -515,6 +515,62 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-graph-awareness-sprint-2026-04-03-pr-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent graph awareness (sprint 2026-04-03 PR A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-04-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-02
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-02">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-experience-improvements-sprint-2026-04-01-prs-ae" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent experience improvements (sprint 2026-04-01 PRs A–E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-31" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2191,6 +2247,62 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-03
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-03">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-graph-awareness-sprint-2026-04-03-pr-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent graph awareness (sprint 2026-04-03 PR A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-04-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-02
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-02">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-experience-improvements-sprint-2026-04-01-prs-ae" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent experience improvements (sprint 2026-04-01 PRs A–E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-03-31" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3044,6 +3156,59 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-04-03">2026-04-03</h2>
+<h3 id="agent-graph-awareness-sprint-2026-04-03-pr-a">Agent graph awareness (sprint 2026-04-03 PR A)</h3>
+<ul>
+<li><strong>Graph YAML delivery</strong> (<code>run_graph.py</code>): Single copy of the source graph
+  YAML written to <code>.workflow/&lt;graph&gt;/graph.yaml</code> at startup, alongside the
+  existing <code>run_info.json</code>. Byte-for-byte copy preserves comments and
+  formatting. Agents derive the path from their signal directory (navigate
+  up two levels).</li>
+<li><strong>Graph Awareness instructions</strong> (<code>templates.py</code>): New conditional
+  <code>## Graph Awareness</code> section in agent instructions. Includes: graph YAML
+  absolute path, signal directory formula
+  (<code>&lt;signals_base&gt;/&lt;task-id&gt;/</code>), per-task artifact names (<code>summary.md</code>,
+  <code>concerns.log</code>, <code>ops_concerns.log</code>, <code>.done</code>), guidance on reading upstream
+  summaries before starting work, and guidance on tailoring own summary for
+  downstream consumers visible in the graph YAML.</li>
+<li><strong>OCI read-only mount</strong> (<code>oci_sandbox.py</code>): <code>.workflow/&lt;graph&gt;/</code> mounted
+  read-only in containers so isolated agents can read peer signal directories
+  and the graph YAML. Agent's own signal directory remains read-write via
+  existing mount (overlays the read-only parent for that subtree).</li>
+<li><strong>Isolation section update</strong> (<code>templates.py</code>): "Workflow directory
+  (read-only)" added to "What You Can Access". "Signal directories" removed
+  from "What You Cannot Access".</li>
+<li><strong>Task preparer</strong> (<code>task_preparer.py</code>): Passes <code>graph_yaml_path</code> and
+  <code>signals_base_path</code> to <code>resolve_instructions()</code>.</li>
+<li><strong>Design docs</strong>: Context-sharing design moved to
+  <code>docs/discussions/CONTEXT_SHARING.md</code>. Output-driven composition design
+  added at <code>docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md</code>.</li>
+<li><strong>E2E test graphs</strong>: <code>graphs/graph_awareness/spec_test_impl_{sonnet,haiku,opus}.yaml</code>
+  — 3-task generic pipeline (spec→test→impl) with no <code>paths</code> fields and no
+  role templates. Agents discover file locations from upstream summaries.</li>
+<li>1234 tests (16 new). E2E validated: all tasks succeeded first attempt with
+  Sonnet; gate passed first try.</li>
+</ul>
+<hr />
+<h2 id="2026-04-02">2026-04-02</h2>
+<h3 id="agent-experience-improvements-sprint-2026-04-01-prs-ae">Agent experience improvements (sprint 2026-04-01 PRs A–E)</h3>
+<ul>
+<li><strong><code>agentrelay-complete</code> retry fix</strong> (PR #149): <code>create_pr()</code> probes for
+  existing open PR before calling <code>gh pr create</code>; reuses it on retry. Updates
+  body via <code>gh api</code> REST (not <code>gh pr edit</code>) to avoid GraphQL deprecation.</li>
+<li><strong><code>COMPLETED</code> task status</strong> (PR #150): New <code>TaskStatus.COMPLETED</code> for
+  PR-less tasks instead of misusing <code>PR_MERGED</code>. <code>SUCCESS_STATUSES</code> frozenset
+  centralizes the "task succeeded" check across 8 consumer sites.</li>
+<li><strong><code>agentrelay-summary</code> CLI</strong> (PR #151): New <code>agentrelay-summary --message</code>
+  CLI and <code>TaskHelper.write_summary()</code> for PR-less task summaries.</li>
+<li><strong>Worktree CWD guidance</strong> (PR #152): <code>## Working Directory</code> section in
+  agent instructions with explicit worktree path to prevent Level 0 agents
+  from navigating out of the worktree.</li>
+<li><strong>Retry artifact archive</strong> (PR #153): <code>reset_for_retry()</code> copies
+  agent.log, gate_last_output.txt, summary.md, concerns.log to
+  <code>signal_dir/attempts/&lt;N&gt;/</code> before clearing signals.</li>
+</ul>
 <hr />
 <h2 id="2026-03-31">2026-03-31</h2>
 <h3 id="oauth-and-consolidated-anthropic-credentials-for-containers-sprint-2026-03-30-pr-a">OAuth and consolidated Anthropic credentials for containers (sprint 2026-03-30 PR A)</h3>
