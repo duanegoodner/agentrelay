@@ -314,6 +314,35 @@ class TestWorktreeTaskPreparer:
         _, kwargs = mock_resolve.call_args
         assert kwargs.get("worktree_path") == Path("/worktrees/demo/ws-1")
 
+    @patch("agentrelay.task_runner.implementations.task_preparer.resolve_instructions")
+    @patch("agentrelay.task_runner.implementations.task_preparer.policies_to_dict")
+    @patch("agentrelay.task_runner.implementations.task_preparer.build_policies")
+    @patch("agentrelay.task_runner.implementations.task_preparer.manifest_to_dict")
+    @patch("agentrelay.task_runner.implementations.task_preparer.build_manifest")
+    @patch("agentrelay.task_runner.implementations.task_preparer.signals")
+    @patch("agentrelay.task_runner.implementations.task_preparer.git")
+    def test_passes_graph_paths_to_resolve_instructions(
+        self,
+        _mock_git: MagicMock,
+        _mock_signals: MagicMock,
+        mock_build_manifest: MagicMock,
+        _mock_manifest_to_dict: MagicMock,
+        _mock_build_policies: MagicMock,
+        _mock_policies_to_dict: MagicMock,
+        mock_resolve: MagicMock,
+    ) -> None:
+        """Passes graph_yaml_path and signals_base_path to resolve_instructions."""
+        mock_build_manifest.return_value = MagicMock()
+        preparer = _make_preparer()
+        runtime = _make_runtime()
+
+        preparer.prepare(runtime)
+
+        mock_resolve.assert_called_once()
+        _, kwargs = mock_resolve.call_args
+        assert kwargs.get("graph_yaml_path") == Path("/repo/.workflow/demo/graph.yaml")
+        assert kwargs.get("signals_base_path") == Path("/repo/.workflow/demo/signals")
+
     def test_satisfies_task_preparer_protocol(self) -> None:
         """WorktreeTaskPreparer satisfies the TaskPreparer protocol."""
         preparer = _make_preparer()

@@ -3,9 +3,8 @@
 > **Status: Complete.** All 5 PRs (A–E) merged. PRs C, D, E were developed
 > in parallel across git worktrees and merged sequentially with no conflicts.
 > The original PR C (context.md wiring) was superseded by a broader
-> context-sharing design; see
-> [2026-TBD-context-sharing.md](not_started/2026-TBD-context-sharing.md).
-> That sprint will follow this one.
+> context-sharing design; see `docs/discussions/CONTEXT_SHARING.md`.
+> Phase 1 of that design ships in sprint 2026-04-03.
 
 ## Goal
 
@@ -67,7 +66,7 @@ Level 0 agents explicit guidance; at Level 2 it is defense-in-depth.
 **Context sharing:** The original PR C in this sprint was a simple "push
 assembled context.md at launch" approach. This has been superseded by a broader
 pull-based graph-awareness design documented in
-[2026-TBD-context-sharing.md](not_started/2026-TBD-context-sharing.md).
+`docs/discussions/CONTEXT_SHARING.md`.
 None of the PRs below depend on that design.
 
 ---
@@ -158,7 +157,7 @@ without a PR (e.g. `test_reviewer`). Mechanically fine but semantically wrong.
 
 PR-less tasks produce no `summary.md`, so their results are absent from
 integration PR bodies and invisible to any future context-sharing mechanism
-(see [context-sharing discussion](not_started/2026-TBD-context-sharing.md)).
+(see `docs/discussions/CONTEXT_SHARING.md`).
 A new CLI command lets any agent write a summary regardless of whether it
 created a PR.
 

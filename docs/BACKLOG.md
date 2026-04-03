@@ -18,7 +18,7 @@ Near-term items for the current architecture track.
   produced insufficient output. Design after the basic context-sharing
   infrastructure (graph YAML delivery, `agentrelay-note`, missed notes
   detection) is in place and we have e2e experience with missed-note scenarios.
-  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+  See `docs/discussions/CONTEXT_SHARING.md`.
 - **Orchestrator-driven partial re-run via LLM judgment**: Extend the above
   with an orchestrator capability to autonomously decide whether a missed note
   (or other runtime signal) justifies re-running part of the graph, without
@@ -29,7 +29,7 @@ Near-term items for the current architecture track.
   Prerequisite: human-triggered partial re-run (above) must exist first, as the
   orchestrator would use the same machinery. High complexity; defer until the
   simpler human-intervention mechanism is validated in practice.
-  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+  See `docs/discussions/CONTEXT_SHARING.md`.
 - **Human intervention on task failure**: When an agent declares a task failed,
   allow a human to fix the problem (e.g., correct an upstream file, adjust the
   worktree) and then trigger a retry of the failed task without restarting the
@@ -119,6 +119,17 @@ Near-term items for the current architecture track.
   CI/CD environments where secrets come from the runner, not a local YAML file.
 - Add additional `AgentFramework` implementations beyond `CLAUDE_CODE`.
 - Expand `AgentEnvironment` beyond tmux when real use-cases are validated.
+- **SDK tooling calibrated to agent capability**: The current SDK design
+  assumes agents with strong tool use (file reads, path derivation, directory
+  navigation) — e.g., Claude Code with Sonnet/Opus. Less capable agents
+  (smaller local models, weaker tool use, smaller context windows) may need
+  richer SDK commands to compensate. For example, an agent that struggles with
+  path derivation would benefit from `agentrelay-read --task <id> summary`
+  more than a capable agent that can just `cat` the file. As the system moves
+  toward mixed-framework/mixed-model agent teams, evaluate whether the SDK
+  surface area needs a "high-assistance" mode — more structured commands,
+  pre-resolved paths, explicit guidance — alongside the current "minimal
+  instructions + filesystem access" approach.
 - **Decouple `task_helper.py` from GitHub CLI**: `TaskHelper.complete()`
   makes a direct `subprocess.run(["gh", "pr", "create", ...])` call,
   bypassing the protocol/ops abstraction used everywhere else in the
@@ -223,6 +234,28 @@ Ideas to explore:
   (field + write logic) and every role template says "If context.md
   exists, read it first" — just needs to be wired in `run_graph.py`
   or the orchestrator builder.
+
+## Output-Driven Task Composition
+
+- **Output manifests and `agentrelay-declare`**: Agents declare what files they
+  created or modified, with semantic categories (stubs, tests, implementation,
+  spec, etc.) via a new SDK command. Writes `outputs.json` to the signal
+  directory. Foundation for `inputs_from` and `expected_outputs` below. Depends
+  on e2e observation from sprint 2026-04-03 (agent graph awareness) to validate
+  that agents use graph-wide context effectively.
+- **`inputs_from` graph YAML extension**: Downstream tasks reference upstream
+  outputs by task ID and optional category instead of hardcoded file paths.
+  Orchestrator resolves inputs at prepare time by reading upstream
+  `outputs.json`. Coexists with the existing `paths` field — both can be used
+  on the same task.
+- **`expected_outputs` graph YAML extension**: Structural expectations on task
+  outputs (category + count bounds) validated pre-gate by the orchestrator.
+  Agents raise concerns when their output structure deviates significantly.
+- **Role template simplification**: As structured I/O contracts make more of
+  the role-specific guidance derivable from data, simplify or generalize role
+  templates. Preserve role-specific concern guidance.
+
+Full design: `docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md`.
 
 ## Agent Instruction Architecture
 
@@ -502,60 +535,84 @@ See `docs/discussions/OPENROUTER_BIFROST_RUST.md` for full discussion.
 
 ## Agent Context Sharing
 
+A detailed design for targeted inter-agent messaging (`agentrelay-note`,
+`agentrelay-read`, inbox/late-insights infrastructure, missed notes detection)
+is documented in `docs/discussions/CONTEXT_SHARING.md`. The design was
+produced during sprint planning for the context-sharing sprint (2026-04-03),
+but the messaging infrastructure was deferred in favor of shipping graph YAML
+delivery first and observing how agents use graph-wide awareness before
+building the note system. Items below are ordered by expected implementation
+sequence; all depend on e2e observation after graph YAML delivery ships.
+
+- **`agentrelay-note` CLI + inbox + late insights**: Targeted cross-task
+  messaging. Agent sends a note to a specific task's inbox; SDK routes to
+  `late_insights/` if the target already completed. Structured checkpoints
+  in instructions define when agents re-check their inbox. Full design in
+  `docs/discussions/CONTEXT_SHARING.md` (PR B section).
+- **Missed notes detection**: Orchestrator-side scan at task completion
+  comparing inbox note mtimes against `.done` write time. Writes
+  `missed_notes.log`, emits console event, includes warning in integration
+  PR body. Does not block auto-merge by default. Full design in
+  `docs/discussions/CONTEXT_SHARING.md` (PR C section).
+- **`agentrelay-read` convenience command**: CLI for querying any task's
+  artifacts (summary, concerns, done URL, inbox). Abstracts signal dir
+  path derivation and validates task IDs against graph YAML. Full design
+  in `docs/discussions/CONTEXT_SHARING.md` (PR D section).
+- **OCI mount tightening**: Replace the broad `.workflow/<graph>/` read-write
+  mount with granular read-only signals + specific write paths. Implement
+  only if e2e testing shows agents writing to inappropriate signal files.
+  Full design in `docs/discussions/CONTEXT_SHARING.md` (PR E section).
 - **Per-task signal dir visibility restrictions**: For very large graphs, it may
   be useful to restrict what sections of the graph's signal store each agent can
   see — via filesystem ACLs or, in OCI isolation mode, container bind mount
-  scoping. Agents that know their visibility is bounded won't waste time
-  searching outside it, and the constraint could serve as a lightweight form of
-  information hiding across graph sections. Implement after the basic pull-based
-  context-sharing infrastructure (graph YAML delivery, `agentrelay-read`,
-  `agentrelay-note`) is stable and validated in e2e.
-  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
-
-- **`strict_notes` policy for missed-note blocking**: By default, missed
-  `agentrelay-note` messages (notes that arrived in a task's inbox after its
-  final checkpoint) are surfaced as warnings but do not block auto-merge.
-  A `strict_notes` option would cause missed notes to block auto-merge and
-  require human review, treating the note channel as a stronger signal.
-  Should support granular scoping — graph-level default with per-workstream,
-  per-task, and per-agent overrides — following the same inheritance pattern
-  as `IsolationConfig`. Default should remain permissive (best-effort semantics
-  for `agentrelay-note`); `strict_notes` is opt-in for workflows where missed
-  notes are genuinely dangerous.
-  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
-
+  scoping. Implement after the basic pull-based context-sharing infrastructure
+  is stable and validated in e2e.
+- **`strict_notes` policy for missed-note blocking**: Opt-in flag (with
+  per-workstream/task/agent scoping) that causes missed notes to block
+  auto-merge. Default remains permissive. Depends on missed notes detection.
 - **Concurrent note delivery via orchestrator injection**: If e2e observation
   shows that the structured-checkpoint inbox model misses too many notes sent by
   concurrent tasks, a future option is having the orchestrator watch inbox
   directories and inject a brief notification into the target tmux pane via
-  `tmux send-keys`. Very unlikely to be needed: the design principle is that
-  hard dependencies belong in the graph structure, and `agentrelay-note` is
-  best-effort for opportunistic hints. The final pre-PR inbox re-check catches
-  virtually all practical cases.
-  See `docs/sprints/not_started/2026-TBD-context-sharing.md`.
+  `tmux send-keys`. Very unlikely to be needed.
+- **Vector DB for semantic context retrieval**: The filesystem approach (graph
+  YAML + signal dirs + plain text artifacts) is the right foundation — auditable,
+  debuggable, zero-dependency, and natural for Claude Code agents. But it scales
+  poorly for semantic queries ("which tasks dealt with caching?") and assumes
+  agents are good at reading files. A vector DB layer would index the same
+  artifacts that already exist on disk — the filesystem stays the source of truth
+  and audit trail; the vector DB is an optional query accelerator. Strongest
+  motivator: mixed-framework agent teams where some agents are local models with
+  smaller context windows and weaker tool use. When all agents are Claude Code,
+  "read this file" is solved; when some agents run via different harnesses, a
+  framework-agnostic semantic query API becomes much more valuable. Don't design
+  for it now, but ensure filesystem conventions established in graph YAML delivery
+  don't accidentally preclude it.
 
 ## Agent Worktree Awareness
 
-- **Agent navigates out of worktree**: During E2E testing (PR D, retry graph
-  with Haiku), the generic-role agent was launched in the workstream worktree
-  but used absolute paths to write files in the main repo and `cd`'d to the
-  main repo for git operations. It committed to `main` instead of the task
-  branch. The agent saw `/data/git/.../main` as the project root and ignored
-  its actual CWD. Possible fixes: add explicit worktree guidance to agent
-  instructions ("work in your current directory, do not navigate to other
-  paths"), or include the worktree path in the manifest so agents can
-  self-check. Observed with Haiku; may not affect stronger models.
+- ~~**Agent navigates out of worktree**~~: Addressed in PR #152 (worktree CWD
+  guidance in agent instructions). OCI isolation hard-prevents at Level 2.
 
 ## Agent SDK Retry Support
 
-- **`agentrelay-complete` fails on retry when PR already exists**: On retry
-  after gate failure, the PR from attempt 1 already exists. `agentrelay-complete`
-  calls `gh pr create` which rejects the duplicate (`a pull request for branch
-  ... already exists`). The agent must manually discover the existing PR URL
-  and call `mark_done` directly. Fix: `agentrelay-complete` (or `create_pr`
-  in `TaskHelper`) should detect the existing PR and reuse its URL instead of
-  failing. Observed during PR D E2E testing with Sonnet — the agent worked
-  around it by reading the SDK source, but this is fragile.
+- ~~**`agentrelay-complete` fails on retry when PR already exists**~~: Fixed in
+  PR #149 (`create_pr()` probes for existing open PR and reuses it on retry).
+
+## Retry Agent Context
+
+- **Retry agent awareness of previous attempt artifacts**: When a task retries
+  (via `max_task_attempts` or future manual retry), `reset_for_retry()` archives
+  agent.log, gate_last_output.txt, summary.md, and concerns.log to
+  `signal_dir/attempts/<N>/` (PR #153). However, the retry agent receives no
+  information about these archived attempts — it starts fresh with no knowledge
+  of what the previous attempt did or why it failed. Adding a section to
+  instructions (or a manifest field) that tells the agent where to find previous
+  attempt artifacts could meaningfully improve retry success rates. The agent
+  could review the prior scrollback, understand the failure, and avoid repeating
+  the same mistake. Design question: should this be instruction-level guidance
+  ("check `attempts/` directory if it exists") or a structured manifest field
+  with attempt count and paths?
 
 ## Signal Directory Structure
 

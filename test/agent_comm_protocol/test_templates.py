@@ -522,3 +522,132 @@ class TestIsolationSection:
         isolation_pos = text.index("## Isolation Boundary")
         submission_pos = text.index("## Submitting Your Work")
         assert adr_pos < isolation_pos < submission_pos
+
+    def test_isolation_section_mentions_workflow_directory(self) -> None:
+        """Isolation section lists workflow directory as accessible."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        isolation_text = text.split("## Isolation Boundary")[1]
+        assert "Workflow directory" in isolation_text
+        assert "read-only" in isolation_text.lower()
+
+    def test_isolation_section_does_not_block_signal_dirs(self) -> None:
+        """'Cannot Access' list no longer says signal directories are blocked."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER, _manifest(), sandbox_type=SandboxType.OCI
+        )
+        cannot_access = text.split("### What You Cannot Access")[1].split("###")[0]
+        assert "signal directories" not in cannot_access
+
+
+class TestGraphAwarenessSection:
+    """Tests for graph awareness section injection in instructions."""
+
+    _GRAPH_YAML = Path("/repo/.workflow/demo/graph.yaml")
+    _SIGNALS_BASE = Path("/repo/.workflow/demo/signals")
+
+    def test_absent_when_no_graph_yaml_path(self) -> None:
+        """No graph awareness section when graph_yaml_path is None (default)."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "## Graph Awareness" not in text
+
+    def test_absent_when_graph_name_is_none(self) -> None:
+        """No graph awareness section when manifest.graph_name is None."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(graph_name=None),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert "## Graph Awareness" not in text
+
+    def test_present_with_graph_yaml_path(self) -> None:
+        """Graph awareness section appears when graph_yaml_path is given."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert "## Graph Awareness" in text
+
+    def test_includes_graph_yaml_path(self) -> None:
+        """Graph awareness section includes the absolute graph.yaml path."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert str(self._GRAPH_YAML) in text
+
+    def test_includes_signals_base_path(self) -> None:
+        """Graph awareness section includes the signals base path."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert str(self._SIGNALS_BASE) in text
+
+    def test_mentions_summary_md(self) -> None:
+        """Graph awareness section mentions summary.md as an artifact."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        # Extract everything from "## Graph Awareness" to the next H2 section.
+        graph_text = re.split(r"\n## (?!#)", text.split("## Graph Awareness")[1])[0]
+        assert "summary.md" in graph_text
+
+    def test_mentions_downstream_guidance(self) -> None:
+        """Graph awareness section includes guidance on writing for downstream tasks."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        graph_text = text.split("## Graph Awareness")[1]
+        assert "downstream" in graph_text.lower()
+
+    def test_section_ordering_before_adr(self) -> None:
+        """Graph Awareness appears after What to Do and before ADR."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+            adr_verbosity=AdrVerbosity.STANDARD,
+        )
+        what_pos = text.index("## What to Do")
+        graph_pos = text.index("## Graph Awareness")
+        adr_pos = text.index("## Architecture Decision Record")
+        assert what_pos < graph_pos < adr_pos
+
+    def test_section_ordering_before_submission(self) -> None:
+        """Graph Awareness appears before Submitting Your Work (no ADR)."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        graph_pos = text.index("## Graph Awareness")
+        submission_pos = text.index("## Submitting Your Work")
+        assert graph_pos < submission_pos
+
+    def test_present_for_generic_role(self) -> None:
+        """Graph awareness section works with GENERIC role."""
+        m = _manifest(description="Do something custom")
+        text = resolve_instructions(
+            AgentRole.GENERIC,
+            m,
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert "## Graph Awareness" in text

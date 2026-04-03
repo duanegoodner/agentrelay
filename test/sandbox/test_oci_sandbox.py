@@ -144,6 +144,7 @@ class TestOciSandboxWrapCommand:
                     str(ctx.signal_dir),
                 ),
                 ("/repo/.git", "/repo/.git"),
+                ("/repo/.workflow/test-graph", "/repo/.workflow/test-graph", "ro"),
             ],
             env_vars={
                 "GH_TOKEN": "ghp_xxx",
@@ -222,6 +223,25 @@ class TestOciSandboxWrapCommand:
 
         assert mock_docker.build_run_command.call_args.kwargs["runtime"] == "podman"
 
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_mounts_workflow_dir_read_only(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """Workflow directory is mounted read-only for graph awareness."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        ctx = _make_context()
+        sandbox.wrap_command("claude", ctx)
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        expected_workflow_dir = str(ctx.repo_path / ".workflow" / ctx.graph_name)
+        assert (expected_workflow_dir, expected_workflow_dir, "ro") in call_kwargs[
+            "volumes"
+        ]
+
 
 class TestOciSandboxAnthropicCredential:
     """Tests for Anthropic credential injection."""
@@ -243,8 +263,8 @@ class TestOciSandboxAnthropicCredential:
 
         call_kwargs = mock_docker.build_run_command.call_args.kwargs
         assert call_kwargs["env_vars"]["_ANTHROPIC_API_KEY"] == "sk-test"
-        # No OAuth mount
-        assert len(call_kwargs["volumes"]) == 3
+        # No OAuth mount (4 = worktree + signal_dir + git + workflow_dir)
+        assert len(call_kwargs["volumes"]) == 4
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
@@ -282,7 +302,8 @@ class TestOciSandboxAnthropicCredential:
 
         call_kwargs = mock_docker.build_run_command.call_args.kwargs
         assert "_ANTHROPIC_API_KEY" not in call_kwargs["env_vars"]
-        assert len(call_kwargs["volumes"]) == 3
+        # 4 = worktree + signal_dir + git + workflow_dir (no OAuth mount)
+        assert len(call_kwargs["volumes"]) == 4
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")

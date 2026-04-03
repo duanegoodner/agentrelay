@@ -97,10 +97,14 @@ class OciSandbox:
             )
 
         git_dir = git_ops.worktree_git_dir(context.worktree_path)
+        workflow_dir = str(context.repo_path / ".workflow" / context.graph_name)
         volumes: list[tuple[str, str] | tuple[str, str, str]] = [
             (str(context.worktree_path), str(context.worktree_path)),
             (str(context.signal_dir), str(context.signal_dir)),
             (str(git_dir), str(git_dir)),
+            # Read-only: graph YAML + peer signal directories.
+            # Agent's own signal_dir (read-write, above) overlays for its subtree.
+            (workflow_dir, workflow_dir, "ro"),
         ]
 
         # Anthropic credential injection — type-specific handling.
