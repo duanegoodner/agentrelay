@@ -3,8 +3,8 @@
 > **Status: Reference document.** Contains the full design for agent context
 > sharing: graph YAML delivery, targeted messaging (`agentrelay-note`),
 > `agentrelay-read`, inbox/late-insights infrastructure, missed notes detection,
-> and OCI mount considerations. Graph YAML delivery (PR A) is being implemented
-> in sprint 2026-04-03 (agent-graph-awareness). The messaging infrastructure (PRs B–E) is deferred
+> and OCI mount considerations. Graph YAML delivery (PR A) shipped in sprint
+> 2026-04-03 (#155). The messaging infrastructure (PRs B–E) is deferred
 > pending e2e observation of how agents use graph-wide awareness.
 > See `docs/BACKLOG.md` (Agent Context Sharing section) for the deferred items.
 
@@ -447,38 +447,35 @@ problematic.** The tightened mount is available as a backlog item if needed.
 
 ## PR plan (draft — not yet finalized)
 
-### PR A: Graph YAML delivery + signal dir navigation rules + OCI mount — Active
+### PR A: Graph YAML delivery + signal dir navigation rules + OCI mount — Complete (#155)
 
-> **Note:** PR A is being implemented as the sole PR in sprint
-> 2026-04-03 (agent-graph-awareness). See
-> `docs/sprints/2026-04-03-agent-graph-awareness.md` for the active
-> sprint doc.
+> **Shipped in sprint 2026-04-03 (agent-graph-awareness).** See
+> `docs/sprints/2026-04-03-agent-graph-awareness.md` for the sprint doc.
 
 - Branch: `feat/graph-context-delivery`
 
-**Changes:**
-- `task_runner/implementations/task_preparer.py` — write `graph.yaml` (a copy
-  of the source YAML content) to the agent's signal directory at prepare time.
-- `agent_comm_protocol/templates.py` — add "Graph awareness" section to
-  instructions: task ID, graph name, signal dir formula (absolute path),
-  artifact names (`summary.md`, `concerns.log`, `ops_concerns.log`, `.done`,
-  `inbox/`), inbox check guidance, guidance on tailoring `summary.md` for
-  downstream tasks.
-- `sandbox/implementations/oci_sandbox.py` — add `.workflow/<graph>/` as an
-  additional read-write bind mount so containerized agents can access peer
-  signal directories, inboxes, and the late insights directory. The graph name
-  is available via `SandboxContext.graph_name`.
-- Unit tests: graph YAML written to signal dir, contents match source,
-  OCI mount list includes `.workflow/<graph>/`.
+**What shipped (differs from original design in several ways):**
+- `run_graph.py` — single graph YAML copy to `.workflow/<graph>/graph.yaml` at
+  startup (not per-task as originally planned; one copy, written once alongside
+  `run_info.json`).
+- `agent_comm_protocol/templates.py` — "Graph Awareness" section in agent
+  instructions: graph YAML path, signal dir formula, artifact names
+  (`summary.md`, `concerns.log`, `ops_concerns.log`, `.done`), upstream
+  reading guidance, downstream summary tailoring guidance. Inbox guidance
+  deferred (inbox not yet implemented).
+- `sandbox/implementations/oci_sandbox.py` — `.workflow/<graph>/` mounted
+  **read-only** (not read-write as originally planned; no inbox/late-insights
+  writes needed yet). Agent's own signal dir remains read-write via existing
+  mount.
+- `task_runner/implementations/task_preparer.py` — passes `graph_yaml_path`
+  and `signals_base_path` to `resolve_instructions()`.
+- Isolation section updated: workflow directory listed in "What You Can Access";
+  "signal directories" removed from "What You Cannot Access".
+- 16 new tests (1234 total).
 
-**Acceptance criteria:**
-- [ ] `graph.yaml` present in signal directory when task launches
-- [ ] Instructions include signal dir formula, artifact names, inbox guidance
-- [ ] OCI containers mount `.workflow/<graph>/` read-write
-- [ ] `pixi run check` passes
-- [ ] E2E: agent reads upstream task's `summary.md` via derived path
-- [ ] E2E (OCI): containerized agent successfully reads peer task's signal
-      directory via the `.workflow/<graph>/` mount
+**E2E validation:** 3-task generic pipeline (spec→test→impl) with no `paths`
+fields and no role templates — agents discovered file locations from upstream
+summaries alone. All tasks succeeded first attempt, gate passed first try.
 
 ---
 
