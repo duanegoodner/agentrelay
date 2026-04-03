@@ -2611,6 +2611,23 @@ reference for the Rust port.</p>
   (started, succeeded, failed) but nothing about the isolation layer.
   Could be added via the existing <code>on_event</code> callback in
   <code>StandardTaskRunner</code> or as new event types in the listener protocol.</li>
+<li><strong>agent.log not captured on task failure</strong>: <code>agent.log</code> (tmux pane
+  scrollback) is only written during teardown, which runs conditionally
+  based on <code>TearDownMode</code>. When a task fails and teardown is skipped
+  (e.g., <code>ON_SUCCESS</code> mode), no <code>agent.log</code> is produced — so archived
+  attempt directories from <code>reset_for_retry()</code> never contain the agent's
+  scrollback. Fix: ensure scrollback capture always runs regardless of
+  teardown mode, or make it a separate step from resource cleanup.</li>
+<li><strong>Per-attempt orchestrator event log</strong>: Each task attempt should have a
+  log file capturing the orchestrator-side events for that attempt — the
+  same timestamped lines shown in the launch terminal (prepared, launched,
+  waiting, gate running, gate failed, etc.) but scoped to that single
+  attempt. Currently these events go to the terminal via <code>ConsoleListener</code>
+  and are not persisted per-task. A per-attempt event log in
+  <code>signal_dir/attempts/&lt;N&gt;/events.log</code> (or similar) would make post-run
+  debugging much easier — you'd see both the agent's perspective
+  (agent.log) and the orchestrator's perspective (events.log) for each
+  attempt side by side.</li>
 </ul>
 
 
