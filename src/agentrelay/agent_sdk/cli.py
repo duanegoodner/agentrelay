@@ -9,6 +9,7 @@ so agents can call commands instead of writing inline Python:
     agentrelay-failed --reason "Tests cannot pass due to spec contradiction"
     agentrelay-concern --message "Spec says X but tests expect Y"
     agentrelay-ops-concern --message "pixi install took >30s"
+    agentrelay-summary --message "## Summary\n- reviewed all tests"
 
 All commands read ``$AGENTRELAY_SIGNAL_DIR`` from the environment.
 """
@@ -116,6 +117,26 @@ def ops_concern() -> None:
     try:
         helper = TaskHelper.from_env()
         helper.record_ops_concern(args.message)
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+
+def summary() -> None:
+    """CLI entry point: write a task summary."""
+    parser = argparse.ArgumentParser(
+        description="Write a task summary.",
+    )
+    parser.add_argument(
+        "--message",
+        required=True,
+        help="Summary text (markdown)",
+    )
+    args = parser.parse_args()
+
+    try:
+        helper = TaskHelper.from_env()
+        helper.write_summary(args.message)
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
