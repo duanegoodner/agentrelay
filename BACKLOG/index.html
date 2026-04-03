@@ -641,17 +641,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-written-summaries-for-pr-less-tasks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent-Written Summaries for PR-less Tasks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agent-instruction-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -712,6 +701,17 @@
     <span class="md-ellipsis">
       
         Skip integration PR when all tasks are PR-less
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refine-integration-pr-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refine integration PR body
       
     </span>
   </a>
@@ -1769,17 +1769,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agent-written-summaries-for-pr-less-tasks" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent-Written Summaries for PR-less Tasks
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#agent-instruction-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1840,6 +1829,17 @@
     <span class="md-ellipsis">
       
         Skip integration PR when all tasks are PR-less
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refine-integration-pr-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refine integration PR body
       
     </span>
   </a>
@@ -2232,14 +2232,6 @@ signal files).</p>
   (field + write logic) and every role template says "If context.md
   exists, read it first" — just needs to be wired in <code>run_graph.py</code>
   or the orchestrator builder.</p>
-<h2 id="agent-written-summaries-for-pr-less-tasks">Agent-Written Summaries for PR-less Tasks</h2>
-<p>Currently <code>summary.md</code> is only written for tasks that create a PR (the
-orchestrator fetches the PR body). PR-less tasks (e.g., test_reviewer)
-leave no summary of what they did. A CLI command like
-<code>agentrelay-summary --message "..."</code> would let any agent write a summary
-to its signal directory, independent of PR creation. This would make
-PR-less task results visible to downstream agents, auditing, and the
-integration PR body.</p>
 <h2 id="agent-instruction-architecture">Agent Instruction Architecture</h2>
 <blockquote>
 <p><strong>Priority</strong>: Highly recommended as the next focus after sprint 2026-03-19
@@ -2334,6 +2326,17 @@ attempts <code>gh pr create</code>, which fails because GitHub rejects empty PRs
 The workstream should detect that no task produced a PR and skip
 integration entirely — transition directly to MERGED (or a new terminal
 state) instead of attempting a no-op integration PR.</p>
+<h3 id="refine-integration-pr-body">Refine integration PR body</h3>
+<p>Once all task types write <code>summary.md</code> files (PR-backed tasks via
+orchestrator PR body fetch, PR-less tasks via <code>agentrelay-summary</code>),
+decide how to incorporate agent-written summaries into the integration
+PR body. Currently <code>_build_pr_body</code> in <code>GhWorkstreamIntegrator</code> uses
+<code>TaskSummary</code> objects populated from task metadata (description, PR URL,
+concerns) — it does not read <code>summary.md</code>. Options: add a <code>summary_text</code>
+field to <code>TaskSummary</code> and populate it from <code>summary.md</code>, or include
+summaries as collapsible sections. Consider whether PR-backed tasks
+should prefer the agent-written summary over the fetched PR body, and
+how to handle tasks that wrote both.</p>
 <h3 id="integration-pr-body-quality">Integration PR body quality</h3>
 <p>The integration PR body produced by <code>GhWorkstreamIntegrator</code> is
 functional but not reader-friendly:

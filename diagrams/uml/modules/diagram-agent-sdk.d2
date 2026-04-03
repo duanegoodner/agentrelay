@@ -55,6 +55,8 @@ agent_sdk_pkg: "agent_sdk/" {
     +mark_done(pr_url): void
     +mark_failed(reason): void
     +record_concern(concern): void
+    +record_ops_concern(concern): void
+    +write_summary(message): void
   }
 
   cli: "cli <<module>>" {
@@ -64,6 +66,8 @@ agent_sdk_pkg: "agent_sdk/" {
     "+complete_no_pr()": void
     "+failed()": void
     "+concern()": void
+    "+ops_concern()": void
+    "+summary()": void
   }
 }
 

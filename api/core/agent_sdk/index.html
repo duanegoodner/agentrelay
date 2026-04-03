@@ -1034,6 +1034,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.TaskHelper.write_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1584,6 +1595,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.TaskHelper.write_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        write_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1901,7 +1923,19 @@ agents don't need to know protocol details.</p>
 <span class="normal">260</span>
 <span class="normal">261</span>
 <span class="normal">262</span>
-<span class="normal">263</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskHelper</span><span class="p">:</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskHelper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Agent-side helper for task workflow interaction.</span>
 
 <span class="sd">    Encapsulates signal file I/O, PR creation, and concern recording so</span>
@@ -2113,6 +2147,18 @@ agents don't need to know protocol details.</p>
         <span class="n">ops_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;ops_concerns.log&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ops_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">concern</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write a task summary to summary.md.</span>
+
+<span class="sd">        Overwrites any existing summary. Use this to record what the task</span>
+<span class="sd">        accomplished, especially for PR-less tasks where the orchestrator</span>
+<span class="sd">        cannot derive a summary from a PR body.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            message: Summary text (markdown).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;summary.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
     <span class="c1"># -- Internal ----------------------------------------------------------</span>
 
@@ -2991,6 +3037,83 @@ friction, and similar environmental issues.</p>
     <span class="n">ops_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;ops_concerns.log&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ops_path</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">concern</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.agent_sdk.TaskHelper.write_summary" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">write_summary</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Write a task summary to summary.md.</p>
+<p>Overwrites any existing summary. Use this to record what the task
+accomplished, especially for PR-less tasks where the orchestrator
+cannot derive a summary from a PR body.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>message</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Summary text (markdown).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a task summary to summary.md.</span>
+
+<span class="sd">    Overwrites any existing summary. Use this to record what the task</span>
+<span class="sd">    accomplished, especially for PR-less tasks where the orchestrator</span>
+<span class="sd">    cannot derive a summary from a PR body.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        message: Summary text (markdown).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;summary.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
