@@ -4,6 +4,63 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-03
+
+### Agent graph awareness (sprint 2026-04-03 PR A)
+
+- **Graph YAML delivery** (`run_graph.py`): Single copy of the source graph
+  YAML written to `.workflow/<graph>/graph.yaml` at startup, alongside the
+  existing `run_info.json`. Byte-for-byte copy preserves comments and
+  formatting. Agents derive the path from their signal directory (navigate
+  up two levels).
+- **Graph Awareness instructions** (`templates.py`): New conditional
+  `## Graph Awareness` section in agent instructions. Includes: graph YAML
+  absolute path, signal directory formula
+  (`<signals_base>/<task-id>/`), per-task artifact names (`summary.md`,
+  `concerns.log`, `ops_concerns.log`, `.done`), guidance on reading upstream
+  summaries before starting work, and guidance on tailoring own summary for
+  downstream consumers visible in the graph YAML.
+- **OCI read-only mount** (`oci_sandbox.py`): `.workflow/<graph>/` mounted
+  read-only in containers so isolated agents can read peer signal directories
+  and the graph YAML. Agent's own signal directory remains read-write via
+  existing mount (overlays the read-only parent for that subtree).
+- **Isolation section update** (`templates.py`): "Workflow directory
+  (read-only)" added to "What You Can Access". "Signal directories" removed
+  from "What You Cannot Access".
+- **Task preparer** (`task_preparer.py`): Passes `graph_yaml_path` and
+  `signals_base_path` to `resolve_instructions()`.
+- **Design docs**: Context-sharing design moved to
+  `docs/discussions/CONTEXT_SHARING.md`. Output-driven composition design
+  added at `docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md`.
+- **E2E test graphs**: `graphs/graph_awareness/spec_test_impl_{sonnet,haiku,opus}.yaml`
+  — 3-task generic pipeline (spec→test→impl) with no `paths` fields and no
+  role templates. Agents discover file locations from upstream summaries.
+- 1234 tests (16 new). E2E validated: all tasks succeeded first attempt with
+  Sonnet; gate passed first try.
+
+---
+
+## 2026-04-02
+
+### Agent experience improvements (sprint 2026-04-01 PRs A–E)
+
+- **`agentrelay-complete` retry fix** (PR #149): `create_pr()` probes for
+  existing open PR before calling `gh pr create`; reuses it on retry. Updates
+  body via `gh api` REST (not `gh pr edit`) to avoid GraphQL deprecation.
+- **`COMPLETED` task status** (PR #150): New `TaskStatus.COMPLETED` for
+  PR-less tasks instead of misusing `PR_MERGED`. `SUCCESS_STATUSES` frozenset
+  centralizes the "task succeeded" check across 8 consumer sites.
+- **`agentrelay-summary` CLI** (PR #151): New `agentrelay-summary --message`
+  CLI and `TaskHelper.write_summary()` for PR-less task summaries.
+- **Worktree CWD guidance** (PR #152): `## Working Directory` section in
+  agent instructions with explicit worktree path to prevent Level 0 agents
+  from navigating out of the worktree.
+- **Retry artifact archive** (PR #153): `reset_for_retry()` copies
+  agent.log, gate_last_output.txt, summary.md, concerns.log to
+  `signal_dir/attempts/<N>/` before clearing signals.
+
+---
+
 ## 2026-03-31
 
 ### OAuth and consolidated Anthropic credentials for containers (sprint 2026-03-30 PR A)
