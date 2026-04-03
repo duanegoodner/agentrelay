@@ -1,7 +1,12 @@
-# Sprint Notes — Agent Context Sharing
+# Agent Context Sharing — Design Reference
 
-> **Status: Design complete. Draft PR plan at end — not yet scheduled.**
-> Originated as a design discussion; promoted to sprint plan.
+> **Status: Reference document.** Contains the full design for agent context
+> sharing: graph YAML delivery, targeted messaging (`agentrelay-note`),
+> `agentrelay-read`, inbox/late-insights infrastructure, missed notes detection,
+> and OCI mount considerations. Graph YAML delivery (PR A) is being implemented
+> in sprint 2026-04-03 (agent-graph-awareness). The messaging infrastructure (PRs B–E) is deferred
+> pending e2e observation of how agents use graph-wide awareness.
+> See `docs/BACKLOG.md` (Agent Context Sharing section) for the deferred items.
 
 ## Goal
 
@@ -442,7 +447,12 @@ problematic.** The tightened mount is available as a backlog item if needed.
 
 ## PR plan (draft — not yet finalized)
 
-### PR A: Graph YAML delivery + signal dir navigation rules + OCI mount
+### PR A: Graph YAML delivery + signal dir navigation rules + OCI mount — Active
+
+> **Note:** PR A is being implemented as the sole PR in sprint
+> 2026-04-03 (agent-graph-awareness). See
+> `docs/sprints/2026-04-03-agent-graph-awareness.md` for the active
+> sprint doc.
 
 - Branch: `feat/graph-context-delivery`
 

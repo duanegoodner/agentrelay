@@ -57,6 +57,8 @@ def resolve_instructions(
     adr_verbosity: AdrVerbosity = AdrVerbosity.NONE,
     sandbox_type: Optional[SandboxType] = None,
     worktree_path: Optional[Path] = None,
+    graph_yaml_path: Optional[Path] = None,
+    signals_base_path: Optional[Path] = None,
 ) -> str:
     """Resolve work instructions by loading and parameterizing a role template.
 
@@ -68,13 +70,17 @@ def resolve_instructions(
     3. **Tools** — environment tools available (if any).
     4. **What to Do** — role-specific steps from the template, or the
        task description for GENERIC roles.
-    5. **Architecture Decision Record** — ADR writing instructions (if
+    5. **Graph Awareness** — graph YAML location, signal directory formula,
+       and guidance on reading upstream artifacts and writing summaries
+       (if ``graph_yaml_path`` is provided and ``manifest.graph_name``
+       is set).
+    6. **Architecture Decision Record** — ADR writing instructions (if
        ``adr_verbosity`` is not ``NONE``).
-    6. **Isolation Boundary** — what the agent can/cannot access and
+    7. **Isolation Boundary** — what the agent can/cannot access and
        what exists beyond its boundary (if ``sandbox_type`` is ``OCI``).
-    7. **Submitting Your Work** — how to commit, create a PR, and signal
+    8. **Submitting Your Work** — how to commit, create a PR, and signal
        the orchestrator.
-    8. **Task Details** — the task author's description (non-generic only,
+    9. **Task Details** — the task author's description (non-generic only,
        when present).
 
     Template variables (``$var`` syntax via :class:`string.Template`):
@@ -96,6 +102,13 @@ def resolve_instructions(
         worktree_path: Absolute path to the git worktree for this task.
             When provided, a Working Directory section is included
             instructing the agent to stay within the worktree.
+        graph_yaml_path: Absolute path to the copied graph YAML at
+            ``.workflow/<graph>/graph.yaml``.  When provided (and
+            ``manifest.graph_name`` is set), a Graph Awareness section
+            is included.
+        signals_base_path: Absolute path to ``.workflow/<graph>/signals/``.
+            Used in the Graph Awareness section so agents know where
+            peer signal directories live.
 
     Returns:
         Resolved markdown instruction text.
@@ -149,6 +162,11 @@ def resolve_instructions(
         resolved = Template(template_text).substitute(substitutions)
         parts.append("## What to Do\n\n" + resolved.strip())
 
+    # Graph Awareness (conditional, cross-cutting).
+    graph_text = _graph_awareness_section(manifest, graph_yaml_path, signals_base_path)
+    if graph_text:
+        parts.append(graph_text)
+
     # Architecture Decision Record (conditional, cross-cutting).
     adr_text = _adr_section(adr_verbosity, manifest.task_id)
     if adr_text:
@@ -193,6 +211,78 @@ def _working_directory_section(worktree_path: Optional[Path]) -> str:
         "an ops concern:\n"
         '`agentrelay-ops-concern --message "describe what you need and why"`'
     )
+
+
+def _graph_awareness_section(
+    manifest: TaskManifest,
+    graph_yaml_path: Optional[Path],
+    signals_base_path: Optional[Path],
+) -> str:
+    """Build the Graph Awareness section for agent instructions.
+
+    Returns a complete ``## Graph Awareness`` section when both
+    *graph_yaml_path* is provided and ``manifest.graph_name`` is set,
+    or an empty string otherwise.
+
+    Args:
+        manifest: Task manifest (provides graph_name and task_id).
+        graph_yaml_path: Absolute path to the copied graph YAML.
+        signals_base_path: Absolute path to the signals base directory.
+
+    Returns:
+        Markdown section text, or ``""`` when graph context is unavailable.
+    """
+    if manifest.graph_name is None or graph_yaml_path is None:
+        return ""
+
+    lines = [
+        "## Graph Awareness",
+        "",
+        "You are one task in a larger task graph. This section tells you "
+        "how to understand the graph and find artifacts produced by other tasks.",
+        "",
+        "### Graph definition",
+        "",
+        f"Read the full graph YAML to understand all tasks, their "
+        f"dependencies, and their descriptions:",
+        f"  `{graph_yaml_path}`",
+        "",
+        "### Signal directory layout",
+        "",
+        "Each task's artifacts are stored in its signal directory:",
+        f"  `{signals_base_path}/<task-id>/`",
+        "",
+        "Available artifacts per task (when present):",
+        "",
+        "- `summary.md` — what the task produced, key decisions, and notes "
+        "for downstream consumers.",
+        "- `concerns.log` — design concerns raised by the agent.",
+        "- `ops_concerns.log` — operational/environmental concerns.",
+        "- `.done` — completion signal. Line 2 contains the PR URL "
+        "(or `NO_PR` for PR-less tasks).",
+        "",
+        "Signal directories are created when tasks are dispatched. If a "
+        "peer task's directory does not exist yet, that task has not started.",
+        "",
+        "### Reading upstream artifacts",
+        "",
+        "Before starting your work, check whether any of your dependencies "
+        "(listed in `manifest.json`) have produced a `summary.md`. Reading "
+        "upstream summaries helps you understand what was already done and "
+        "avoid duplicating or contradicting prior work.",
+        "",
+        "### Writing your summary for downstream tasks",
+        "",
+        "Your own summary (written via `agentrelay-complete --body` or "
+        "`agentrelay-summary --message`) becomes `summary.md` in your "
+        "signal directory. Downstream tasks will read it.",
+        "",
+        "Check the graph YAML to see what tasks depend on yours and what "
+        "they are assigned to do. Write your summary to help them: mention "
+        "key files you created or modified, important design decisions, "
+        "gotchas, and anything a downstream task should know before starting.",
+    ]
+    return "\n".join(lines)
 
 
 def _concerns_note() -> str:
@@ -328,12 +418,14 @@ def _isolation_section(sandbox_type: Optional[SandboxType]) -> str:
         "and commits in the repository via `git log`, `git show`, `git diff`, "
         "etc. This is useful for understanding upstream changes and "
         "dependencies. Only commit and push to your assigned task branch.",
+        "- **Workflow directory** (read-only): the graph YAML and all tasks' "
+        "signal directories. See the Graph Awareness section above for details.",
         "",
         "### What You Cannot Access",
         "",
         "- The host filesystem outside your mounted paths.",
         "- The Docker socket or any container management tools.",
-        "- Other tasks' worktrees or signal directories.",
+        "- Other tasks' worktrees.",
         "- Host user credentials, SSH keys, or home directory.",
         "- Network resources outside the graph-scoped Docker network.",
         "",

@@ -105,12 +105,15 @@ class WorktreeTaskPreparer:
         signals.write_json(signal_dir, "policies.json", policies_to_dict(policies))
 
         isolation = task.primary_agent.isolation
+        workflow_base = self.repo_path / f".workflow/{self.graph_name}"
         instructions = resolve_instructions(
             task.role,
             manifest,
             adr_verbosity=task.primary_agent.adr_verbosity,
             sandbox_type=isolation.sandbox_type if isolation is not None else None,
             worktree_path=workstream_worktree_path,
+            graph_yaml_path=workflow_base / "graph.yaml",
+            signals_base_path=workflow_base / "signals",
         )
         signals.write_text(signal_dir, "instructions.md", instructions)
 

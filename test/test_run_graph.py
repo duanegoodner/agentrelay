@@ -10,6 +10,7 @@ from agentrelay.orchestrator.builders import build_standard_workstream_runner
 from agentrelay.run_graph import (
     _any_task_uses_oci,
     _apply_overrides,
+    _copy_graph_yaml,
     _extract_operational_config,
     _load_and_prepare_graph,
     dry_run,
@@ -302,6 +303,39 @@ tasks:
     path.write_text(content)
     graph, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is False
+
+
+# --- _copy_graph_yaml ---
+
+
+def test_copy_graph_yaml_writes_file(tmp_path: Path) -> None:
+    """graph.yaml is written to .workflow/<graph>/ with identical bytes."""
+    source = tmp_path / "my-graph.yaml"
+    source.write_text("name: my-graph\ntasks:\n  - id: a\n    description: do stuff\n")
+
+    workflow_dir = tmp_path / ".workflow" / "my-graph"
+    workflow_dir.mkdir(parents=True)
+
+    _copy_graph_yaml(tmp_path, "my-graph", source)
+
+    dest = workflow_dir / "graph.yaml"
+    assert dest.is_file()
+    assert dest.read_bytes() == source.read_bytes()
+
+
+def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
+    """YAML comments and formatting are preserved byte-for-byte."""
+    content = "# This is a comment\nname: test  # inline comment\ntasks:\n  - id: a\n    description: task\n    dependencies: []\n"
+    source = tmp_path / "graph.yaml"
+    source.write_text(content)
+
+    workflow_dir = tmp_path / ".workflow" / "test"
+    workflow_dir.mkdir(parents=True)
+
+    _copy_graph_yaml(tmp_path, "test", source)
+
+    dest = workflow_dir / "graph.yaml"
+    assert dest.read_text() == content
 
 
 # --- docker_build.sh syntax ---

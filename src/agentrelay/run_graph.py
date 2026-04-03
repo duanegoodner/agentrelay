@@ -215,6 +215,24 @@ def _record_run_start(repo_path: Path, graph_name: str) -> None:
     )
 
 
+def _copy_graph_yaml(repo_path: Path, graph_name: str, graph_path: Path) -> None:
+    """Copy the source graph YAML into the workflow directory.
+
+    Writes a byte-for-byte copy so that comments and formatting are
+    preserved.  The copy is immutable during the run and serves as a
+    record of "what the graph was at orchestrator launch."  Agents read
+    this file to understand the full task DAG.
+
+    Args:
+        repo_path: Path to the repository root.
+        graph_name: Name of the task graph being executed.
+        graph_path: Resolved path to the source graph YAML file.
+    """
+    dest = repo_path / ".workflow" / graph_name / "graph.yaml"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_bytes(graph_path.read_bytes())
+
+
 def _any_task_uses_oci(graph: TaskGraph) -> bool:
     """Check whether any task in the graph uses OCI sandbox isolation.
 
@@ -281,6 +299,7 @@ async def run_graph(
     _validate_tmux_sessions(graph)
     validate_tools(tools)
     _record_run_start(repo_path, graph.name)
+    _copy_graph_yaml(repo_path, graph.name, graph_path)
 
     # Resolve Anthropic credential: CLI flag > graph YAML default > auto-select.
     effective_anthropic_name = anthropic_credential_name or yaml_anthropic_name
