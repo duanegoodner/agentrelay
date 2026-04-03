@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/not_started/2026-TBD-context-sharing/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/discussions/CONTEXT_SHARING/">
       
       
       
@@ -18,19 +18,19 @@
         
       
       
-      <link rel="icon" href="../../../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>Sprint Notes — Agent Context Sharing - agentrelay</title>
+        <title>Agent Context Sharing — Design Reference - agentrelay</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,11 +49,11 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#sprint-notes-agent-context-sharing" class="md-skip">
+        <a href="#agent-context-sharing-design-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Sprint Notes — Agent Context Sharing
+              Agent Context Sharing — Design Reference
             
           </span>
         </div>
@@ -190,7 +190,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
@@ -208,7 +208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -235,7 +235,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../ARCHITECTURE/" class="md-nav__link">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
         
   
   
@@ -262,7 +262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../DIAGRAM/" class="md-nav__link">
+      <a href="../../DIAGRAM/" class="md-nav__link">
         
   
   
@@ -289,7 +289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../WORKFLOW/" class="md-nav__link">
+      <a href="../../WORKFLOW/" class="md-nav__link">
         
   
   
@@ -316,7 +316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../SCHEMA/" class="md-nav__link">
+      <a href="../../SCHEMA/" class="md-nav__link">
         
   
   
@@ -343,7 +343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../MIGRATION/" class="md-nav__link">
+      <a href="../../MIGRATION/" class="md-nav__link">
         
   
   
@@ -370,7 +370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../examples/" class="md-nav__link">
+      <a href="../../examples/" class="md-nav__link">
         
   
   
@@ -397,7 +397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../GUIDE/" class="md-nav__link">
+      <a href="../../GUIDE/" class="md-nav__link">
         
   
   
@@ -424,7 +424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../TESTING/" class="md-nav__link">
+      <a href="../../TESTING/" class="md-nav__link">
         
   
   
@@ -451,7 +451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../HISTORY/" class="md-nav__link">
+      <a href="../../HISTORY/" class="md-nav__link">
         
   
   
@@ -478,7 +478,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../BACKLOG/" class="md-nav__link">
+      <a href="../../BACKLOG/" class="md-nav__link">
         
   
   
@@ -552,7 +552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../prototypes/v01/" class="md-nav__link">
+      <a href="../../prototypes/v01/" class="md-nav__link">
         
   
   
@@ -580,7 +580,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
         
   
   
@@ -608,7 +608,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
         
   
   
@@ -636,7 +636,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
         
   
   
@@ -664,7 +664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../prototypes/v01/HISTORY/" class="md-nav__link">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
         
   
   
@@ -692,7 +692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../prototypes/v01/BACKLOG/" class="md-nav__link">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
         
   
   
@@ -774,7 +774,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/" class="md-nav__link">
+      <a href="../../api/" class="md-nav__link">
         
   
   
@@ -802,7 +802,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/agent/" class="md-nav__link">
+      <a href="../../api/agent/" class="md-nav__link">
         
   
   
@@ -830,7 +830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/agent_comm_protocol/" class="md-nav__link">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
         
   
   
@@ -858,7 +858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/agent_sdk/" class="md-nav__link">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
         
   
   
@@ -886,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/environments/" class="md-nav__link">
+      <a href="../../api/core/environments/" class="md-nav__link">
         
   
   
@@ -914,7 +914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/errors/" class="md-nav__link">
+      <a href="../../api/core/errors/" class="md-nav__link">
         
   
   
@@ -942,7 +942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/ops/" class="md-nav__link">
+      <a href="../../api/core/ops/" class="md-nav__link">
         
   
   
@@ -970,7 +970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/orchestrator/" class="md-nav__link">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
         
   
   
@@ -998,7 +998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/output/" class="md-nav__link">
+      <a href="../../api/core/output/" class="md-nav__link">
         
   
   
@@ -1026,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/reset_graph/" class="md-nav__link">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
         
   
   
@@ -1054,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/run_graph/" class="md-nav__link">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
         
   
   
@@ -1082,7 +1082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/sandbox/" class="md-nav__link">
+      <a href="../../api/sandbox/" class="md-nav__link">
         
   
   
@@ -1110,7 +1110,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/task/" class="md-nav__link">
+      <a href="../../api/core/task/" class="md-nav__link">
         
   
   
@@ -1138,7 +1138,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task_graph/" class="md-nav__link">
+      <a href="../../api/task_graph/" class="md-nav__link">
         
   
   
@@ -1166,7 +1166,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/task_runner/" class="md-nav__link">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
         
   
   
@@ -1194,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/task_runtime/" class="md-nav__link">
+      <a href="../../api/task_runtime/" class="md-nav__link">
         
   
   
@@ -1222,7 +1222,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/core/tools/" class="md-nav__link">
+      <a href="../../api/core/tools/" class="md-nav__link">
         
   
   
@@ -1250,7 +1250,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../api/workstream/" class="md-nav__link">
+      <a href="../../api/workstream/" class="md-nav__link">
         
   
   
@@ -1588,10 +1588,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-graph-yaml-delivery-signal-dir-navigation-rules-oci-mount" class="md-nav__link">
+  <a href="#pr-a-graph-yaml-delivery-signal-dir-navigation-rules-oci-mount-complete-155" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: Graph YAML delivery + signal dir navigation rules + OCI mount
+        PR A: Graph YAML delivery + signal dir navigation rules + OCI mount — Complete (#155)
       
     </span>
   </a>
@@ -1664,10 +1664,15 @@
 
 
 
-<h1 id="sprint-notes-agent-context-sharing">Sprint Notes — Agent Context Sharing</h1>
+<h1 id="agent-context-sharing-design-reference">Agent Context Sharing — Design Reference</h1>
 <blockquote>
-<p><strong>Status: Design complete. Draft PR plan at end — not yet scheduled.</strong>
-Originated as a design discussion; promoted to sprint plan.</p>
+<p><strong>Status: Reference document.</strong> Contains the full design for agent context
+sharing: graph YAML delivery, targeted messaging (<code>agentrelay-note</code>),
+<code>agentrelay-read</code>, inbox/late-insights infrastructure, missed notes detection,
+and OCI mount considerations. Graph YAML delivery (PR A) shipped in sprint
+2026-04-03 (#155). The messaging infrastructure (PRs B–E) is deferred
+pending e2e observation of how agents use graph-wide awareness.
+See <code>docs/BACKLOG.md</code> (Agent Context Sharing section) for the deferred items.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Give agents rich, scalable access to graph-wide context: the full task graph
@@ -2125,32 +2130,35 @@ problematic.</strong> The tightened mount is available as a backlog item if need
 </ul>
 <hr />
 <h2 id="pr-plan-draft-not-yet-finalized">PR plan (draft — not yet finalized)</h2>
-<h3 id="pr-a-graph-yaml-delivery-signal-dir-navigation-rules-oci-mount">PR A: Graph YAML delivery + signal dir navigation rules + OCI mount</h3>
+<h3 id="pr-a-graph-yaml-delivery-signal-dir-navigation-rules-oci-mount-complete-155">PR A: Graph YAML delivery + signal dir navigation rules + OCI mount — Complete (#155)</h3>
+<blockquote>
+<p><strong>Shipped in sprint 2026-04-03 (agent-graph-awareness).</strong> See
+<code>docs/sprints/2026-04-03-agent-graph-awareness.md</code> for the sprint doc.</p>
+</blockquote>
 <ul>
 <li>Branch: <code>feat/graph-context-delivery</code></li>
 </ul>
-<p><strong>Changes:</strong>
-- <code>task_runner/implementations/task_preparer.py</code> — write <code>graph.yaml</code> (a copy
-  of the source YAML content) to the agent's signal directory at prepare time.
-- <code>agent_comm_protocol/templates.py</code> — add "Graph awareness" section to
-  instructions: task ID, graph name, signal dir formula (absolute path),
-  artifact names (<code>summary.md</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>, <code>.done</code>,
-  <code>inbox/</code>), inbox check guidance, guidance on tailoring <code>summary.md</code> for
-  downstream tasks.
-- <code>sandbox/implementations/oci_sandbox.py</code> — add <code>.workflow/&lt;graph&gt;/</code> as an
-  additional read-write bind mount so containerized agents can access peer
-  signal directories, inboxes, and the late insights directory. The graph name
-  is available via <code>SandboxContext.graph_name</code>.
-- Unit tests: graph YAML written to signal dir, contents match source,
-  OCI mount list includes <code>.workflow/&lt;graph&gt;/</code>.</p>
-<p><strong>Acceptance criteria:</strong>
-- [ ] <code>graph.yaml</code> present in signal directory when task launches
-- [ ] Instructions include signal dir formula, artifact names, inbox guidance
-- [ ] OCI containers mount <code>.workflow/&lt;graph&gt;/</code> read-write
-- [ ] <code>pixi run check</code> passes
-- [ ] E2E: agent reads upstream task's <code>summary.md</code> via derived path
-- [ ] E2E (OCI): containerized agent successfully reads peer task's signal
-      directory via the <code>.workflow/&lt;graph&gt;/</code> mount</p>
+<p><strong>What shipped (differs from original design in several ways):</strong>
+- <code>run_graph.py</code> — single graph YAML copy to <code>.workflow/&lt;graph&gt;/graph.yaml</code> at
+  startup (not per-task as originally planned; one copy, written once alongside
+  <code>run_info.json</code>).
+- <code>agent_comm_protocol/templates.py</code> — "Graph Awareness" section in agent
+  instructions: graph YAML path, signal dir formula, artifact names
+  (<code>summary.md</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>, <code>.done</code>), upstream
+  reading guidance, downstream summary tailoring guidance. Inbox guidance
+  deferred (inbox not yet implemented).
+- <code>sandbox/implementations/oci_sandbox.py</code> — <code>.workflow/&lt;graph&gt;/</code> mounted
+  <strong>read-only</strong> (not read-write as originally planned; no inbox/late-insights
+  writes needed yet). Agent's own signal dir remains read-write via existing
+  mount.
+- <code>task_runner/implementations/task_preparer.py</code> — passes <code>graph_yaml_path</code>
+  and <code>signals_base_path</code> to <code>resolve_instructions()</code>.
+- Isolation section updated: workflow directory listed in "What You Can Access";
+  "signal directories" removed from "What You Cannot Access".
+- 16 new tests (1234 total).</p>
+<p><strong>E2E validation:</strong> 3-task generic pipeline (spec→test→impl) with no <code>paths</code>
+fields and no role templates — agents discovered file locations from upstream
+summaries alone. All tasks succeeded first attempt, gate passed first try.</p>
 <hr />
 <h3 id="pr-b-agentrelay-note-cli-inbox-late-insights-infrastructure">PR B: <code>agentrelay-note</code> CLI + inbox + late insights infrastructure</h3>
 <ul>
@@ -2308,10 +2316,10 @@ agents writing to inappropriate signal files. Otherwise push to backlog.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

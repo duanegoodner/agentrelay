@@ -1,0 +1,2170 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/discussions/OUTPUT_DRIVEN_COMPOSITION/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Output-Driven Task Composition — Design Reference - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#output-driven-task-composition-design-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Output-Driven Task Composition — Design Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-idea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core idea
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design principles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#proposed-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Proposed architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Proposed architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output manifest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output categories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sdk-command-agentrelay-declare" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SDK command: agentrelay-declare
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graph-yaml-schema-extension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph YAML schema extension
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Graph YAML schema extension">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inputs_from-on-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        inputs_from on tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected_outputs-on-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        expected_outputs on tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-resolution-at-prepare-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input resolution at prepare time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gate-extensions-for-output-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gate extensions for output validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instruction-template-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instruction template changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-this-reduces-role-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How this reduces role complexity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How this reduces role complexity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#today-four-roles-for-a-spec-test-impl-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Today: four roles for a spec-test-impl pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#future-same-pipeline-with-output-driven-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Future: same pipeline with output-driven composition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preventing-structural-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preventing structural drift
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Preventing structural drift">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-expected-output-counts-in-the-graph-yaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Expected output counts in the graph YAML
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-completion-gates-with-structural-assertions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Completion gates with structural assertions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-agent-concerns-for-structural-deviations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Agent concerns for structural deviations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interaction-with-graph-yaml-delivery-sprint-2026-04-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interaction with graph YAML delivery (sprint 2026-04-03)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-sequence-tentative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation sequence (tentative)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backlog-items-generated-by-this-discussion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backlog items generated by this discussion
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="output-driven-task-composition-design-reference">Output-Driven Task Composition — Design Reference</h1>
+<blockquote>
+<p><strong>Status: Design discussion.</strong> Not yet scheduled. Depends on e2e observation
+from sprint 2026-04-03 (agent graph awareness) to validate that agents use
+graph YAML and upstream artifacts effectively. This design extends that
+foundation with structured output declarations and runtime input discovery.</p>
+</blockquote>
+<h2 id="problem">Problem</h2>
+<p>Today, the graph YAML is <strong>input-driven</strong>: the graph author specifies exact
+file paths (<code>paths.src</code>, <code>paths.test</code>) for each task. Every agent in the
+pipeline — spec writer, test writer, implementer — receives the same hardcoded
+paths. This has several problems:</p>
+<ol>
+<li><strong>Brittleness</strong>: The graph author must know the correct file paths at
+   authoring time. If task A creates a file at an unexpected path (e.g., splits
+   a module into two files), task B won't know about it.</li>
+<li><strong>Duplication</strong>: The same path list is repeated across spec, test, and impl
+   tasks. A rename requires updating every task that references it.</li>
+<li><strong>Implicit contracts</strong>: The graph YAML doesn't express <em>what kind</em> of output
+   a task produces (stubs? tests? implementations?). The role templates assume
+   this based on role name, but there's no formal declaration or validation.</li>
+<li><strong>Rigid roles</strong>: Role-specific templates contain a lot of mechanical
+   guidance that could be derived from structured output contracts. If a
+   task's inputs and expected outputs were formally declared, the instruction
+   template could be simpler and more generic.</li>
+</ol>
+<h2 id="core-idea">Core idea</h2>
+<p><strong>Tasks declare what they produce. Downstream tasks discover what to work on
+at runtime, rather than having paths hardcoded in the graph YAML.</strong></p>
+<p>The graph author writes:
+- <strong>Task A</strong>: "write stubs for a bounded queue" (no paths needed)
+- <strong>Task B</strong>: "write tests for stubs produced by task A" (references A's
+  outputs, not specific files)
+- <strong>Task C</strong>: "implement stubs produced by task A" (same reference)</p>
+<p>Task A runs and produces an <strong>output manifest</strong> declaring what files it
+created or modified and what category of output they represent. Tasks B and C
+read A's output manifest at launch to discover their input files.</p>
+<h2 id="design-principles">Design principles</h2>
+<ol>
+<li>
+<p><strong>Explicit paths and abstract references coexist.</strong> The current <code>paths</code>
+   field remains valid and useful for simple graphs or when the author wants
+   direct control. <code>inputs_from</code> is an alternative for cases where runtime
+   discovery is better. Both can be used in the same graph — even on the same
+   task (explicit paths supplemented by discovered inputs).</p>
+</li>
+<li>
+<p><strong>Structured output categories prevent drift.</strong> If the graph author says
+   "task A should produce stubs," and task A actually produces something else,
+   that's detectable. Output categories (not just file paths) let gates and
+   the orchestrator validate that agents produced the <em>type</em> of work expected,
+   not just <em>some</em> files.</p>
+</li>
+<li>
+<p><strong>Agents can push back via concerns.</strong> If an agent believes a different
+   file structure would be better than what the graph implies, it raises a
+   concern explaining why. The graph's structural expectations are guidance,
+   not a straitjacket — but deviations are surfaced, not silent.</p>
+</li>
+<li>
+<p><strong>Backward compatible.</strong> Graphs without <code>inputs_from</code> or output manifests
+   work exactly as they do today. No existing graph YAML breaks.</p>
+</li>
+</ol>
+<hr />
+<h2 id="proposed-architecture">Proposed architecture</h2>
+<h3 id="output-manifest">Output manifest</h3>
+<p>When a task completes, it writes an <strong>output manifest</strong> to its signal
+directory: <code>signal_dir/outputs.json</code>. This is a new signal file, written by
+the agent SDK before (or as part of) the <code>.done</code> signal.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;schema_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;src/agentrelaydemos/bounded_queue.py&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;created&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stubs&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;src/agentrelaydemos/queue_utils.py&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;created&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stubs&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;specs/bounded_queue.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;action&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;created&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;spec&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Fields per file entry:</strong>
+- <code>path</code> — relative to repo root. The actual file the agent created or
+  modified.
+- <code>action</code> — <code>created</code> or <code>modified</code>. Distinguishes new files from changes
+  to existing ones.
+- <code>category</code> — a tag describing the type of output. See "Output categories"
+  below.</p>
+<p><strong>Who writes it:</strong> The agent, via a new SDK command (see below). The agent
+knows what files it touched — it just needs a structured way to declare them.</p>
+<p><strong>When it's written:</strong> Before (or alongside) the <code>.done</code> signal. The output
+manifest must exist before the orchestrator processes the completion, so that
+downstream tasks can read it at prepare time.</p>
+<h3 id="output-categories">Output categories</h3>
+<p>Categories are short string tags that describe the <em>purpose</em> of a file in the
+context of the task pipeline. They are not file types (<code>.py</code>, <code>.md</code>) — they
+are semantic labels.</p>
+<p><strong>Initial set (extensible):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Meaning</th>
+<th>Typical producer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>stubs</code></td>
+<td>Function/class stubs with signatures and docstrings</td>
+<td>spec_writer</td>
+</tr>
+<tr>
+<td><code>spec</code></td>
+<td>Supplementary specification document</td>
+<td>spec_writer</td>
+</tr>
+<tr>
+<td><code>tests</code></td>
+<td>Test files</td>
+<td>test_writer</td>
+</tr>
+<tr>
+<td><code>implementation</code></td>
+<td>Implemented source code</td>
+<td>implementer</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>Configuration files</td>
+<td>any</td>
+</tr>
+<tr>
+<td><code>docs</code></td>
+<td>Documentation files</td>
+<td>any</td>
+</tr>
+<tr>
+<td><code>other</code></td>
+<td>Catch-all for uncategorized files</td>
+<td>any</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Categories are free-form strings, not an enum.</strong> The initial set above is
+guidance and convention. The graph YAML can reference any category string, and
+the agent can declare any category string in its output manifest. Validation
+(if desired) happens at the gate level, not at the schema level. This avoids
+the need to update the schema every time a new category is useful.</p>
+<p><strong>Categories are about the role a file plays in the pipeline, not its format.</strong>
+A <code>.py</code> file could be <code>stubs</code>, <code>tests</code>, or <code>implementation</code> depending on the
+task that produced it.</p>
+<h3 id="sdk-command-agentrelay-declare">SDK command: <code>agentrelay-declare</code></h3>
+<p>New CLI command for agents to declare their outputs:</p>
+<div class="highlight"><pre><span></span><code>agentrelay-declare --path src/bounded_queue.py --action created --category stubs
+agentrelay-declare --path src/queue_utils.py --action created --category stubs
+agentrelay-declare --path specs/bounded_queue.md --action created --category spec
+</code></pre></div>
+<p>Each invocation appends to <code>outputs.json</code> (creates it on first call).
+Analogous to how <code>agentrelay-concern</code> appends to <code>concerns.log</code>.</p>
+<p><strong>Alternative: single call with multiple files.</strong> Could accept a JSON blob
+or repeated flags. Start with the simple append-per-call model (matches
+existing SDK patterns) and add batch support if needed.</p>
+<p><strong>Alternative: auto-detection from git diff.</strong> The SDK could infer outputs
+from <code>git diff --name-status</code> against the base branch. This would capture
+paths and created/modified status automatically. The agent would only need
+to add categories. Trade-off: simpler for agents but less explicit, and the
+agent might commit files that aren't meaningful outputs (e.g., formatting
+changes to unrelated files). Consider as an enhancement after the explicit
+model is validated.</p>
+<p><strong>Integration with completion flow:</strong> <code>agentrelay-complete</code> could
+automatically run <code>git diff --name-status</code> and prompt the agent to categorize
+any files not yet declared. Or it could simply warn if no output manifest
+exists. Design detail to resolve at implementation time.</p>
+<h3 id="graph-yaml-schema-extension">Graph YAML schema extension</h3>
+<h4 id="inputs_from-on-tasks"><code>inputs_from</code> on tasks</h4>
+<p>A new optional field on tasks that specifies which upstream task's outputs
+to use as input files:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Write</span><span class="nv"> </span><span class="s">stubs</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">docstrings</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bounded</span><span class="nv"> </span><span class="s">queue</span><span class="nv"> </span><span class="s">module&quot;</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_queue</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Write</span><span class="nv"> </span><span class="s">tests</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">all</span><span class="nv"> </span><span class="s">stubs&quot;</span>
+<span class="w">    </span><span class="nt">inputs_from</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">      </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">spec_queue</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">impl_queue</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Implement</span><span class="nv"> </span><span class="s">all</span><span class="nv"> </span><span class="s">stubs&quot;</span>
+<span class="w">    </span><span class="nt">inputs_from</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">      </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">    </span><span class="nt">completion_gate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pixi</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">pytest</span><span class="nv"> </span><span class="s">tests/test_bounded_queue.py</span><span class="nv"> </span><span class="s">-q&quot;</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">spec_queue</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">test_queue</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p><strong>Semantics of <code>inputs_from</code>:</strong>
+- <code>task</code> — the upstream task whose output manifest to read. Must be in the
+  task's <code>dependencies</code> (transitively).
+- <code>category</code> — optional filter. If specified, only files matching this
+  category are included. If omitted, all files from the upstream task's
+  output manifest are included.</p>
+<p><strong>Multiple inputs:</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">inputs_from</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">    </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_queue</span>
+<span class="w">    </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tests</span>
+</code></pre></div></p>
+<p><strong>Coexistence with <code>paths</code>:</strong> If both <code>paths</code> and <code>inputs_from</code> are present,
+the resolved input set is the union. <code>paths</code> provides explicit files the graph
+author knows about; <code>inputs_from</code> adds files discovered at runtime.</p>
+<h4 id="expected_outputs-on-tasks"><code>expected_outputs</code> on tasks</h4>
+<p>An optional field declaring what the graph author expects this task to produce.
+This is not enforced by default — it's guidance for agents and optionally
+validated by gates.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Write</span><span class="nv"> </span><span class="s">stubs</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">a</span><span class="nv"> </span><span class="s">bounded</span><span class="nv"> </span><span class="s">queue&quot;</span>
+<span class="w">    </span><span class="nt">expected_outputs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">        </span><span class="nt">min_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec</span>
+<span class="w">        </span><span class="nt">min_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">dependencies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</code></pre></div>
+<p><strong>Fields:</strong>
+- <code>category</code> — the expected output category.
+- <code>min_count</code> — minimum number of files expected in this category. Optional;
+  defaults to 1 if omitted.
+- <code>max_count</code> — maximum number of files expected. Optional; no limit if
+  omitted.</p>
+<p><strong>Purpose:</strong> Provides structured expectations without rigidity. If the graph
+author expects "at least 1 stub file and exactly 1 spec file," and the agent
+produces 3 stub files and 1 spec, that's fine. If it produces 0 stub files,
+that's a gate-checkable failure.</p>
+<p><strong>Agent concern on deviation:</strong> If an agent believes a different file
+structure would be better (e.g., splitting a single module into three), it
+can still do so — but the output manifest will show a different structure
+than <code>expected_outputs</code> anticipated. Instructions should tell agents to raise
+a concern when their output structure deviates significantly from
+expectations, explaining why the deviation is better.</p>
+<h3 id="input-resolution-at-prepare-time">Input resolution at prepare time</h3>
+<p>When the orchestrator prepares a task that has <code>inputs_from</code>:</p>
+<ol>
+<li>Read the upstream task's <code>outputs.json</code> from its signal directory.</li>
+<li>Filter by <code>category</code> if specified.</li>
+<li>Merge with any explicit <code>paths</code> on the task.</li>
+<li>Write the resolved input file list to the task's <code>manifest.json</code> (extending
+   the existing <code>paths</code> section).</li>
+</ol>
+<p>The agent sees a single resolved set of input files — it doesn't need to know
+whether they came from <code>paths</code> or <code>inputs_from</code>. The manifest is the source of
+truth for what the agent should work on.</p>
+<p><strong>Failure mode:</strong> If the upstream task's <code>outputs.json</code> doesn't exist (e.g.,
+the upstream task completed but the agent didn't write an output manifest),
+the orchestrator should treat this as a preparation error. The task cannot
+proceed without knowing its inputs. This is analogous to a dependency failing.</p>
+<h3 id="gate-extensions-for-output-validation">Gate extensions for output validation</h3>
+<p>Completion gates currently run arbitrary shell commands. Output validation
+can integrate in two ways:</p>
+<p><strong>Option A: Built-in output validation step.</strong> The orchestrator validates
+<code>outputs.json</code> against <code>expected_outputs</code> <em>before</em> running the gate command.
+If counts are wrong, the task fails without running the gate. Simple and
+mechanical.</p>
+<p><strong>Option B: Gate-accessible output manifest.</strong> The gate command has access to
+<code>outputs.json</code> (it already runs in the worktree with access to the signal
+directory). A gate script can validate output structure as part of its checks.
+More flexible but requires gate authors to write validation logic.</p>
+<p><strong>Recommendation: Option A for structural validation (count checks), Option B
+for semantic validation (content quality).</strong> The orchestrator handles the
+mechanical "did the agent produce enough files?" check; the gate handles
+"are the files correct?"</p>
+<h3 id="instruction-template-changes">Instruction template changes</h3>
+<p>With output-driven composition, instruction templates can become more generic:</p>
+<p><strong>Current approach (role-specific):</strong>
+<div class="highlight"><pre><span></span><code>## What to Do
+You are a spec_writer. Write stubs and docstrings for: $src_paths
+</code></pre></div></p>
+<p><strong>Output-driven approach:</strong>
+<div class="highlight"><pre><span></span><code>## What to Do
+$description
+
+## Input Files
+The following files are your inputs (from upstream tasks):
+$resolved_input_files
+
+## Expected Outputs
+$expected_output_guidance
+</code></pre></div></p>
+<p>The <code>$description</code> carries the intent ("write tests for the stubs"), and the
+resolved input files tell the agent what to work on. The role template becomes
+less important — the combination of description + inputs + expected outputs
+conveys the same information more flexibly.</p>
+<p><strong>Role simplification timeline:</strong> Roles don't disappear immediately. The
+current role templates contain useful guidance beyond just file paths (concern
+qualification, review patterns, etc.). But as output contracts become richer,
+more of the role-specific guidance can be derived from the structured data.
+Observe which role template sections remain genuinely role-specific vs. which
+are just compensating for the lack of structured I/O contracts.</p>
+<hr />
+<h2 id="how-this-reduces-role-complexity">How this reduces role complexity</h2>
+<h3 id="today-four-roles-for-a-spec-test-impl-pipeline">Today: four roles for a spec-test-impl pipeline</h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">  </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_writer</span><span class="w">         </span><span class="c1"># template: &quot;write stubs at $src_paths&quot;</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">src/bounded_queue.py</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">specs/bounded_queue.md</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_queue</span>
+<span class="w">  </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_writer</span><span class="w">          </span><span class="c1"># template: &quot;write tests at $test_paths for $src_paths&quot;</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">src/bounded_queue.py</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">tests/test_bounded_queue.py</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">impl_queue</span>
+<span class="w">  </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">implementer</span><span class="w">          </span><span class="c1"># template: &quot;implement stubs at $src_paths, run $test_paths&quot;</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">src</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">src/bounded_queue.py</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">tests/test_bounded_queue.py</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>Paths are duplicated. Role templates do the heavy lifting of explaining what
+"spec_writer" vs. "test_writer" vs. "implementer" means.</p>
+<h3 id="future-same-pipeline-with-output-driven-composition">Future: same pipeline with output-driven composition</h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">    </span><span class="no">Write Python module stubs with full signatures and docstrings for a</span>
+<span class="w">    </span><span class="no">bounded queue data structure. Also write a supplementary spec document.</span>
+<span class="w">  </span><span class="nt">expected_outputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">      </span><span class="nt">min_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec</span>
+<span class="w">      </span><span class="nt">min_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_queue</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">    </span><span class="no">Write comprehensive tests for all stubs produced by spec_queue.</span>
+<span class="w">  </span><span class="nt">inputs_from</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">    </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">  </span><span class="nt">expected_outputs</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tests</span>
+<span class="w">      </span><span class="nt">min_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">impl_queue</span>
+<span class="w">  </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">    </span><span class="no">Implement all stubs produced by spec_queue. All tests from test_queue</span>
+<span class="w">    </span><span class="no">must pass.</span>
+<span class="w">  </span><span class="nt">inputs_from</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">spec_queue</span>
+<span class="w">      </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">task</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test_queue</span>
+<span class="w">      </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tests</span>
+<span class="w">  </span><span class="nt">completion_gate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pixi</span><span class="nv"> </span><span class="s">run</span><span class="nv"> </span><span class="s">pytest</span><span class="nv"> </span><span class="s">tests/</span><span class="nv"> </span><span class="s">-q&quot;</span>
+</code></pre></div>
+<p>No explicit <code>paths</code>. No <code>role</code> (defaults to <code>generic</code>). The description +
+inputs + expected outputs tell each agent exactly what to do. File paths are
+discovered at runtime from upstream output manifests.</p>
+<p><strong>The role field becomes optional sugar</strong>, not a structural requirement. A
+graph author who wants the spec_writer template's concern guidance can still
+set <code>role: spec_writer</code>. But a graph author who prefers to express everything
+via descriptions and I/O contracts can use <code>role: generic</code> (or omit <code>role</code>
+entirely) and get equivalent behavior.</p>
+<hr />
+<h2 id="preventing-structural-drift">Preventing structural drift</h2>
+<p>A key concern: if agents choose their own file paths, the resulting repo
+structure could diverge from what the team expects. Three mechanisms prevent
+this:</p>
+<h3 id="1-expected-output-counts-in-the-graph-yaml">1. Expected output counts in the graph YAML</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">expected_outputs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">category</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stubs</span>
+<span class="w">    </span><span class="nt">min_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">max_count</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</code></pre></div>
+<p>If the agent creates 5 stub files when the graph expected at most 2, the
+orchestrator-level validation (pre-gate) catches this. The task retries or
+fails with a clear reason.</p>
+<h3 id="2-completion-gates-with-structural-assertions">2. Completion gates with structural assertions</h3>
+<p>Gates can check not just test passage but file structure:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">completion_gate</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">test -f src/agentrelaydemos/bounded_queue.py &amp;&amp;</span>
+<span class="w">  </span><span class="no">pixi run pytest tests/test_bounded_queue.py -q</span>
+</code></pre></div>
+<p>Or with a dedicated validation script:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">completion_gate</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;python</span><span class="nv"> </span><span class="s">tools/validate_outputs.py</span><span class="nv"> </span><span class="s">--task</span><span class="nv"> </span><span class="s">$AGENTRELAY_TASK_ID&quot;</span>
+</code></pre></div>
+<p>Gates are the enforcement point for "did the agent produce what we wanted?"
+— both structurally and semantically.</p>
+<h3 id="3-agent-concerns-for-structural-deviations">3. Agent concerns for structural deviations</h3>
+<p>Instructions tell agents: "If you believe a different file structure than
+what is expected would be significantly better, raise a concern explaining
+your reasoning before proceeding with the alternative structure." This
+surfaces deviations for human review without blocking the agent from making
+a judgment call.</p>
+<hr />
+<h2 id="interaction-with-graph-yaml-delivery-sprint-2026-04-03">Interaction with graph YAML delivery (sprint 2026-04-03)</h2>
+<p>Graph YAML delivery gives agents the full graph structure — they can see
+what upstream and downstream tasks exist and what they're supposed to do.
+Output-driven composition builds on this by:</p>
+<ol>
+<li><strong>Adding structure to what agents produce</strong> (output manifests with
+   categories and actions).</li>
+<li><strong>Adding structure to what agents consume</strong> (<code>inputs_from</code> references
+   that resolve at runtime).</li>
+<li><strong>Connecting the two</strong> via the signal directory artifact store that
+   graph YAML delivery already makes navigable.</li>
+</ol>
+<p>The observation plan for sprint 2026-04-03 will reveal how agents use graph
+awareness. If agents naturally discover and use upstream artifacts via file
+reads, the output manifest adds formal structure to what they're already
+doing informally. If agents don't use upstream artifacts effectively, the
+output manifest may not help — the problem is elsewhere.</p>
+<hr />
+<h2 id="open-questions">Open questions</h2>
+<ol>
+<li>
+<p><strong>Should <code>agentrelay-declare</code> be required or optional?</strong> If optional,
+   graphs without output manifests work as before. If required (for tasks
+   with downstream <code>inputs_from</code> consumers), the orchestrator validates at
+   completion time. Recommendation: required only when a downstream task
+   references this task via <code>inputs_from</code>. Otherwise optional.</p>
+</li>
+<li>
+<p><strong>Auto-detection vs. explicit declaration.</strong> Should the SDK infer outputs
+   from <code>git diff</code> and ask the agent to categorize, or should the agent
+   explicitly declare each file? Start explicit; add auto-detection as an
+   enhancement. Explicit is more auditable and less error-prone.</p>
+</li>
+<li>
+<p><strong>Category vocabulary.</strong> Should categories be free-form strings or a
+   controlled vocabulary? Free-form is more flexible but risks inconsistency
+   ("stubs" vs. "stub" vs. "skeleton"). Start free-form; add validation or
+   normalization if inconsistency becomes a problem in practice.</p>
+</li>
+<li>
+<p><strong>Multiple upstream sources.</strong> When <code>inputs_from</code> references multiple
+   tasks, should the resolved files be presented as a flat list or grouped
+   by source? Flat is simpler for the agent; grouped preserves provenance.
+   Consider a <code>source_task</code> field in the resolved manifest to preserve
+   provenance without complicating the file list.</p>
+</li>
+<li>
+<p><strong>Interaction with OCI isolation.</strong> Containerized agents currently have
+   their worktree mounted read-write. Output manifests are written to the
+   signal directory (also read-write). No additional mounts needed — the
+   existing signal directory mount handles it. But the orchestrator-side
+   input resolution (reading upstream <code>outputs.json</code>) happens on the host
+   before the container launches, so no container mount changes are needed
+   for <code>inputs_from</code> resolution.</p>
+</li>
+<li>
+<p><strong>Gate command environment.</strong> Should <code>$AGENTRELAY_TASK_ID</code> and other
+   manifest values be available as environment variables in gate commands?
+   Currently gates run in the worktree with no special env vars. Adding
+   <code>$AGENTRELAY_TASK_ID</code> would let generic gate scripts (like
+   <code>validate_outputs.py</code>) work without hardcoded task IDs.</p>
+</li>
+</ol>
+<hr />
+<h2 id="implementation-sequence-tentative">Implementation sequence (tentative)</h2>
+<p>This is a multi-PR effort. Sequencing depends on e2e observations from sprint
+2026-04-03 and the messaging infrastructure decisions.</p>
+<ol>
+<li><strong>Output manifest + <code>agentrelay-declare</code> SDK command.</strong> New signal file
+   format, new CLI command, agent instruction guidance. No graph YAML changes
+   yet — agents can declare outputs voluntarily.</li>
+<li><strong><code>inputs_from</code> graph YAML extension.</strong> Schema change, parser update,
+   input resolution at prepare time, manifest extension. Requires output
+   manifests from upstream tasks.</li>
+<li><strong><code>expected_outputs</code> + orchestrator validation.</strong> Schema change, pre-gate
+   validation step, agent instruction guidance for deviation concerns.</li>
+<li><strong>Gate environment variables.</strong> <code>$AGENTRELAY_TASK_ID</code> and related vars
+   available in gate commands.</li>
+<li><strong>Role template simplification.</strong> Refactor role templates to derive more
+   guidance from structured I/O contracts. Preserve role-specific concern
+   guidance. Observe which roles become redundant.</li>
+</ol>
+<hr />
+<h2 id="backlog-items-generated-by-this-discussion">Backlog items generated by this discussion</h2>
+<ul>
+<li><strong>Output manifest and <code>agentrelay-declare</code></strong>: New signal file + SDK command
+  for agents to declare their outputs with paths, actions, and categories.
+  Foundation for <code>inputs_from</code> and <code>expected_outputs</code>.</li>
+<li><strong><code>inputs_from</code> graph YAML extension</strong>: Downstream tasks reference upstream
+  outputs by task ID and category instead of hardcoded paths.</li>
+<li><strong><code>expected_outputs</code> graph YAML extension</strong>: Structural expectations
+  (category + count bounds) validated pre-gate by the orchestrator.</li>
+<li><strong>Role template simplification</strong>: Reduce role-specific template content as
+  structured I/O contracts make it derivable from data.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
