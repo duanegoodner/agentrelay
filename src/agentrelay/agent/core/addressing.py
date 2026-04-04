@@ -35,6 +35,18 @@ class AgentAddress(ABC):
         """
         ...
 
+    def capture_log(self, signal_dir: Optional[Path] = None) -> None:
+        """Capture agent execution log to the signal directory.
+
+        Called unconditionally when a task reaches a terminal status, regardless
+        of teardown mode. The default implementation is a no-op; subclasses
+        override for environment-specific log capture (e.g. tmux scrollback).
+
+        Args:
+            signal_dir: Directory for writing the captured log. None if no
+                signal directory is available.
+        """
+
     def teardown(
         self,
         signal_dir: Optional[Path] = None,
@@ -42,9 +54,12 @@ class AgentAddress(ABC):
     ) -> None:
         """Release environment-specific resources for this agent address.
 
-        Called during task teardown to capture logs and clean up. The default
+        Called during task teardown to clean up execution resources. The default
         implementation is a no-op; subclasses override for environment-specific
-        cleanup (e.g. capturing tmux pane scrollback, killing windows).
+        cleanup (e.g. killing tmux windows, deleting branches).
+
+        If ``capture_log()`` has already written ``agent.log``, implementations
+        should skip redundant capture (idempotent).
 
         Args:
             signal_dir: Directory for writing teardown artifacts (e.g. agent logs).

@@ -16,6 +16,7 @@ from agentrelay.task_runner.core.io import (
     TaskGateChecker,
     TaskKickoff,
     TaskLauncher,
+    TaskLogCapture,
     TaskMerger,
     TaskPreparer,
     TaskTeardown,
@@ -33,6 +34,7 @@ from agentrelay.task_runner.implementations import (
     SignalCompletionChecker,
     TmuxTaskKickoff,
     TmuxTaskLauncher,
+    WorktreeTaskLogCapture,
     WorktreeTaskPreparer,
     WorktreeTaskTeardown,
 )
@@ -51,6 +53,7 @@ __all__ = [
     "TaskGateChecker",
     "TaskKickoff",
     "TaskLauncher",
+    "TaskLogCapture",
     "TaskMerger",
     "TaskPreparer",
     "TaskRunResult",
@@ -59,6 +62,7 @@ __all__ = [
     "TearDownMode",
     "TmuxTaskKickoff",
     "TmuxTaskLauncher",
+    "WorktreeTaskLogCapture",
     "WorktreeTaskPreparer",
     "WorktreeTaskTeardown",
 ]

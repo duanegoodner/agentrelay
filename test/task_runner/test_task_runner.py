@@ -25,6 +25,7 @@ from agentrelay.task_runner import (
     TaskGateChecker,
     TaskKickoff,
     TaskLauncher,
+    TaskLogCapture,
     TaskMerger,
     TaskPreparer,
     TaskTeardown,
@@ -108,6 +109,10 @@ class FakeIO:
         self.calls.append("merge_pr")
         self._maybe_fail("merge_pr")
 
+    def capture_log(self, runtime: TaskRuntime) -> None:
+        self.calls.append("capture_log")
+        self._maybe_fail("capture_log")
+
     def teardown(self, runtime: TaskRuntime) -> None:
         self.calls.append("teardown")
         self._maybe_fail("teardown")
@@ -125,6 +130,7 @@ def _make_runner(fake: FakeIO | None = None) -> StandardTaskRunner:
         _completion_checker=d,
         _gate_checker=fake,
         _merger=d,
+        _log_capture=d,
         _teardown=d,
     )
 
@@ -142,6 +148,7 @@ def test_run_success_path() -> None:
         "kickoff",
         "wait_for_completion",
         "merge_pr",
+        "capture_log",
         "teardown",
     ]
     assert runtime.status == TaskStatus.PR_MERGED
@@ -167,6 +174,7 @@ def test_run_failed_signal_marks_runtime_failed() -> None:
         "launch",
         "kickoff",
         "wait_for_completion",
+        "capture_log",
         "teardown",
     ]
     assert runtime.status == TaskStatus.FAILED
@@ -198,6 +206,7 @@ def test_run_done_signal_without_pr_url_succeeds_without_merge() -> None:
         "launch",
         "kickoff",
         "wait_for_completion",
+        "capture_log",
         "teardown",
     ]
     assert "merge_pr" not in fake.calls
@@ -217,6 +226,7 @@ def test_run_io_exception_marks_failed_and_still_tears_down(fail_stage: str) -> 
 
     result = asyncio.run(runner.run(runtime))
 
+    assert "capture_log" in fake.calls
     assert fake.calls[-1] == "teardown"
     assert runtime.status == TaskStatus.FAILED
     assert f"{fail_stage} boom" in (runtime.state.error or "")
@@ -263,7 +273,8 @@ def test_internal_logic_error_propagates() -> None:
     with pytest.raises(RuntimeError, match="internal transition bug"):
         asyncio.run(runner.run(runtime))
 
-    # Teardown still runs from finally even when internal logic errors propagate.
+    # Log capture and teardown still run from finally even when internal logic errors propagate.
+    assert "capture_log" in fake.calls
     assert fake.calls[-1] == "teardown"
 
 
@@ -275,6 +286,7 @@ def test_teardown_mode_never_skips_teardown_on_success() -> None:
     result = asyncio.run(runner.run(runtime, teardown_mode=TearDownMode.NEVER))
 
     assert result.status == TaskStatus.PR_MERGED
+    assert "capture_log" in fake.calls
     assert "teardown" not in fake.calls
 
 
@@ -298,6 +310,7 @@ def test_teardown_mode_on_success_skips_teardown_after_failure() -> None:
     )
 
     assert result.status == TaskStatus.FAILED
+    assert "capture_log" in fake.calls
     assert "teardown" not in fake.calls
 
 
@@ -335,6 +348,7 @@ def test_protocol_runtime_checkable_instances() -> None:
     assert isinstance(fake, TaskKickoff)
     assert isinstance(fake, TaskCompletionChecker)
     assert isinstance(fake, TaskGateChecker)
+    assert isinstance(fake, TaskLogCapture)
     assert isinstance(fake, TaskMerger)
     assert isinstance(fake, TaskTeardown)
 
@@ -372,6 +386,7 @@ def test_expected_task_failure_error_classified_as_expected() -> None:
         _completion_checker=d_fake,
         _gate_checker=fake,
         _merger=d_fake,
+        _log_capture=d_fake,
         _teardown=d_fake,
     )
     result = asyncio.run(runner.run(_make_runtime()))
@@ -661,3 +676,47 @@ def test_gate_default_max_attempts_used_when_task_omits() -> None:
 
     # Default is 5 attempts.
     assert fake.calls.count("check_gate") == 5
+
+
+# ---------------------------------------------------------------------------
+# Log capture tests
+# ---------------------------------------------------------------------------
+
+
+def test_log_capture_runs_before_teardown() -> None:
+    """capture_log always precedes teardown in call order."""
+    fake = FakeIO()
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    asyncio.run(runner.run(runtime))
+
+    capture_idx = fake.calls.index("capture_log")
+    teardown_idx = fake.calls.index("teardown")
+    assert capture_idx < teardown_idx
+
+
+def test_log_capture_runs_when_teardown_skipped() -> None:
+    """capture_log runs even when ON_SUCCESS teardown is skipped on failure."""
+    fake = FakeIO(signal=TaskCompletionSignal(outcome="failed", error="boom"))
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    result = asyncio.run(runner.run(runtime, teardown_mode=TearDownMode.ON_SUCCESS))
+
+    assert result.status == TaskStatus.FAILED
+    assert "capture_log" in fake.calls
+    assert "teardown" not in fake.calls
+
+
+def test_log_capture_failure_does_not_block_teardown() -> None:
+    """If capture_log raises, teardown still runs and concern is recorded."""
+    fake = FakeIO(fail_stage="capture_log")
+    runner = _make_runner(fake)
+    runtime = _make_runtime()
+
+    result = asyncio.run(runner.run(runtime))
+
+    assert result.status == TaskStatus.PR_MERGED
+    assert "teardown" in fake.calls
+    assert any("log_capture_failed" in c for c in runtime.artifacts.concerns)

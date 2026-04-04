@@ -35,6 +35,7 @@ from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
     TaskCompletionChecker,
+    TaskLogCapture,
     TaskMerger,
     TaskPreparer,
     TaskTeardown,
@@ -48,6 +49,9 @@ from agentrelay.task_runner.implementations.task_gate_checker import (
 )
 from agentrelay.task_runner.implementations.task_kickoff import TmuxTaskKickoff
 from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLauncher
+from agentrelay.task_runner.implementations.task_log_capture import (
+    WorktreeTaskLogCapture,
+)
 from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
 from agentrelay.task_runner.implementations.task_preparer import WorktreeTaskPreparer
 from agentrelay.task_runner.implementations.task_teardown import WorktreeTaskTeardown
@@ -155,6 +159,8 @@ def build_standard_runner(
     +-----------------------+----------------------------+-----------------------+
     | merger                | GhTaskMerger               | env/fw agnostic       |
     +-----------------------+----------------------------+-----------------------+
+    | log_capture           | WorktreeTaskLogCapture      | will need entries     |
+    +-----------------------+----------------------------+-----------------------+
     | teardown              | WorktreeTaskTeardown       | will need entries     |
     +-----------------------+----------------------------+-----------------------+
 
@@ -208,6 +214,9 @@ def build_standard_runner(
     def _make_completion_checker(runtime: TaskRuntime) -> TaskCompletionChecker:
         return SignalCompletionChecker(poll_interval=poll_interval)
 
+    def _make_log_capture(runtime: TaskRuntime) -> TaskLogCapture:
+        return WorktreeTaskLogCapture()
+
     def _make_teardown(runtime: TaskRuntime) -> TaskTeardown:
         return WorktreeTaskTeardown(repo_path=repo_path, keep_panes=keep_panes)
 
@@ -218,6 +227,7 @@ def build_standard_runner(
         _completion_checker=StepDispatch(default=_make_completion_checker),
         _gate_checker=ShellGateChecker(),
         _merger=StepDispatch(default=_make_merger),
+        _log_capture=StepDispatch(default=_make_log_capture),
         _teardown=StepDispatch(default=_make_teardown),
     )
 

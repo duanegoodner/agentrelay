@@ -27,6 +27,7 @@ from agentrelay.task_runner.core.io import (
     TaskGateChecker,
     TaskKickoff,
     TaskLauncher,
+    TaskLogCapture,
     TaskMerger,
     TaskPreparer,
     TaskTeardown,
@@ -174,6 +175,8 @@ class StandardTaskRunner:
     +-----------------------+----------------+----------------------+
     | merger                | No             | No                   |
     +-----------------------+----------------+----------------------+
+    | log_capture           | Partially      | No                   |
+    +-----------------------+----------------+----------------------+
     | teardown              | Partially      | No                   |
     +-----------------------+----------------+----------------------+
 
@@ -193,6 +196,7 @@ class StandardTaskRunner:
         _gate_checker: Completion gate checker (not dispatch-based — always
             a shell command, does not vary by framework/environment).
         _merger: Dispatch table for :class:`TaskMerger` selection.
+        _log_capture: Dispatch table for :class:`TaskLogCapture` selection.
         _teardown: Dispatch table for :class:`TaskTeardown` selection.
     """
 
@@ -202,6 +206,7 @@ class StandardTaskRunner:
     _completion_checker: StepDispatch[TaskCompletionChecker]
     _gate_checker: TaskGateChecker
     _merger: StepDispatch[TaskMerger]
+    _log_capture: StepDispatch[TaskLogCapture]
     _teardown: StepDispatch[TaskTeardown]
     on_event: Optional[Callable[..., None]] = field(default=None, repr=False)
 
@@ -305,6 +310,10 @@ class StandardTaskRunner:
                 # PR-less completion (e.g., review-only task with no changes).
                 self._transition(runtime, TaskStatus.COMPLETED)
         finally:
+            try:
+                self._log_capture(runtime).capture_log(runtime)
+            except Exception as exc:
+                runtime.artifacts.concerns.append(f"log_capture_failed: {exc}")
             if self._should_teardown(teardown_mode, runtime.status):
                 try:
                     self._teardown(runtime).teardown(runtime)

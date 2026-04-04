@@ -193,11 +193,11 @@ class TestTmuxAgentSendKickoff:
         assert mock_send_keys.call_args[0][0] == "%99"
 
 
-# ── Tests for TmuxAddress.teardown ──
+# ── Tests for TmuxAddress.capture_log ──
 
 
-class TestTmuxAddressTeardown:
-    """Tests for TmuxAddress.teardown method."""
+class TestTmuxAddressCaptureLog:
+    """Tests for TmuxAddress.capture_log method."""
 
     @patch("agentrelay.agent.implementations.tmux_address.signals")
     @patch("agentrelay.agent.implementations.tmux_address.tmux")
@@ -210,7 +210,7 @@ class TestTmuxAddressTeardown:
         mock_tmux.capture_pane.return_value = "pane output\n"
         address = TmuxAddress(session="s", pane_id="%42")
 
-        address.teardown(signal_dir=Path("/signals"), keep_panes=False)
+        address.capture_log(signal_dir=Path("/signals"))
 
         mock_tmux.capture_pane.assert_called_once_with("%42", full_history=True)
         mock_signals.write_text.assert_called_once_with(
@@ -219,37 +219,7 @@ class TestTmuxAddressTeardown:
 
     @patch("agentrelay.agent.implementations.tmux_address.signals")
     @patch("agentrelay.agent.implementations.tmux_address.tmux")
-    def test_kills_window_by_default(
-        self,
-        mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
-    ) -> None:
-        """Kills the tmux window when keep_panes=False."""
-        mock_tmux.capture_pane.return_value = ""
-        address = TmuxAddress(session="s", pane_id="%42")
-
-        address.teardown(signal_dir=None)
-
-        mock_tmux.kill_window.assert_called_once_with("%42")
-
-    @patch("agentrelay.agent.implementations.tmux_address.signals")
-    @patch("agentrelay.agent.implementations.tmux_address.tmux")
-    def test_keeps_panes_when_flag_set(
-        self,
-        mock_tmux: MagicMock,
-        _mock_signals: MagicMock,
-    ) -> None:
-        """Does not kill the tmux window when keep_panes=True."""
-        mock_tmux.capture_pane.return_value = ""
-        address = TmuxAddress(session="s", pane_id="%42")
-
-        address.teardown(signal_dir=None, keep_panes=True)
-
-        mock_tmux.kill_window.assert_not_called()
-
-    @patch("agentrelay.agent.implementations.tmux_address.signals")
-    @patch("agentrelay.agent.implementations.tmux_address.tmux")
-    def test_skips_signal_write_when_no_signal_dir(
+    def test_skips_write_when_no_signal_dir(
         self,
         mock_tmux: MagicMock,
         mock_signals: MagicMock,
@@ -258,7 +228,7 @@ class TestTmuxAddressTeardown:
         mock_tmux.capture_pane.return_value = "output"
         address = TmuxAddress(session="s", pane_id="%42")
 
-        address.teardown(signal_dir=None)
+        address.capture_log(signal_dir=None)
 
         mock_signals.write_text.assert_not_called()
 
@@ -273,6 +243,70 @@ class TestTmuxAddressTeardown:
         mock_tmux.capture_pane.side_effect = subprocess.CalledProcessError(1, "tmux")
         address = TmuxAddress(session="s", pane_id="%42")
 
-        address.teardown(signal_dir=Path("/signals"))  # Should not raise
+        address.capture_log(signal_dir=Path("/signals"))  # Should not raise
+
+
+# ── Tests for TmuxAddress.teardown ──
+
+
+class TestTmuxAddressTeardown:
+    """Tests for TmuxAddress.teardown method."""
+
+    def test_skips_capture_when_agent_log_exists(self, tmp_path: Path) -> None:
+        """Teardown does not re-capture when agent.log already exists."""
+        (tmp_path / "agent.log").write_text("prior capture")
+        address = TmuxAddress(session="s", pane_id="%42")
+
+        with patch("agentrelay.agent.implementations.tmux_address.tmux") as mock_tmux:
+            address.teardown(signal_dir=tmp_path, keep_panes=True)
+
+        # capture_pane should NOT be called — agent.log already exists.
+        mock_tmux.capture_pane.assert_not_called()
+
+    def test_captures_when_agent_log_missing(self, tmp_path: Path) -> None:
+        """Teardown captures scrollback when agent.log does not exist."""
+        address = TmuxAddress(session="s", pane_id="%42")
+
+        with (
+            patch("agentrelay.agent.implementations.tmux_address.tmux") as mock_tmux,
+            patch("agentrelay.agent.implementations.tmux_address.signals"),
+        ):
+            mock_tmux.capture_pane.return_value = "scrollback"
+            address.teardown(signal_dir=tmp_path, keep_panes=True)
+
+        mock_tmux.capture_pane.assert_called_once_with("%42", full_history=True)
+
+    @patch("agentrelay.agent.implementations.tmux_address.tmux")
+    def test_kills_window_by_default(
+        self,
+        mock_tmux: MagicMock,
+    ) -> None:
+        """Kills the tmux window when keep_panes=False."""
+        address = TmuxAddress(session="s", pane_id="%42")
+
+        address.teardown(signal_dir=None)
 
         mock_tmux.kill_window.assert_called_once_with("%42")
+
+    @patch("agentrelay.agent.implementations.tmux_address.tmux")
+    def test_keeps_panes_when_flag_set(
+        self,
+        mock_tmux: MagicMock,
+    ) -> None:
+        """Does not kill the tmux window when keep_panes=True."""
+        address = TmuxAddress(session="s", pane_id="%42")
+
+        address.teardown(signal_dir=None, keep_panes=True)
+
+        mock_tmux.kill_window.assert_not_called()
+
+    @patch("agentrelay.agent.implementations.tmux_address.tmux")
+    def test_handles_kill_window_error_gracefully(
+        self,
+        mock_tmux: MagicMock,
+    ) -> None:
+        """Catches CalledProcessError from kill_window without propagating."""
+        mock_tmux.kill_window.side_effect = subprocess.CalledProcessError(1, "tmux")
+        address = TmuxAddress(session="s", pane_id="%42")
+
+        address.teardown(signal_dir=None)  # Should not raise
