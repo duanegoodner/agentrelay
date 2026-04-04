@@ -198,14 +198,10 @@ Near-term items for the current architecture track.
 
 ## Graph Execution
 
-- **CLI flags for fail-fast config**: `OrchestratorConfig.fail_fast_on_internal_error`
-  and `fail_fast_on_workstream_error` have no CLI flags. Add `--fail-fast-on-internal-error`
-  and `--fail-fast-on-workstream-error` (boolean flags) to `run_graph.py` and wire
-  through `_build_config_from_args`. Currently the only way to change these defaults
-  is programmatically. Surfaced during PR C e2e testing: the `blocked_downstream`
-  graph requires `--max-concurrency 2` as a workaround because the default
-  `fail_fast_on_workstream_error=True` blocks new workstream preparation after a
-  failure.
+- **CLI flag for `fail_fast_on_internal_error`**:
+  `OrchestratorConfig.fail_fast_on_internal_error` has no CLI flag. Add
+  `--fail-fast-on-internal-error` / `--no-fail-fast-on-internal-error` to
+  `run_graph.py`. (`fail_fast_on_workstream_error` is done — see PR #C.)
 - Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover
