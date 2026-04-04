@@ -13,6 +13,9 @@ from agentrelay.workstream.implementations.workstream_integrator import (
     GhWorkstreamIntegrator,
 )
 
+_GIT = "agentrelay.workstream.implementations.workstream_integrator.git"
+_GH = "agentrelay.workstream.implementations.workstream_integrator.gh"
+
 
 def _make_runtime(
     workstream_id: str = "ws-1",
@@ -33,12 +36,15 @@ def _make_runtime(
 class TestGhWorkstreamIntegrator:
     """Tests for GhWorkstreamIntegrator.create_integration_pr."""
 
-    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    @patch(_GIT)
+    @patch(_GH)
     def test_creates_pr_with_correct_base_and_head(
         self,
         mock_gh: MagicMock,
+        mock_git: MagicMock,
     ) -> None:
         """Creates a PR from integration branch into merge_target_branch."""
+        mock_git.rev_list_count.return_value = 1
         mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
@@ -50,12 +56,15 @@ class TestGhWorkstreamIntegrator:
         assert call_kwargs[1]["base"] == "main"
         assert call_kwargs[1]["head"] == "agentrelay/demo/ws-1/integration"
 
-    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    @patch(_GIT)
+    @patch(_GH)
     def test_does_not_merge_pr(
         self,
         mock_gh: MagicMock,
+        mock_git: MagicMock,
     ) -> None:
         """Does not call gh.pr_merge — PR is left open for review."""
+        mock_git.rev_list_count.return_value = 1
         mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
@@ -64,12 +73,15 @@ class TestGhWorkstreamIntegrator:
 
         assert not hasattr(mock_gh, "pr_merge") or not mock_gh.pr_merge.called
 
-    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    @patch(_GIT)
+    @patch(_GH)
     def test_marks_pr_created_on_runtime(
         self,
         mock_gh: MagicMock,
+        mock_git: MagicMock,
     ) -> None:
         """Sets merge_pr_url on workstream artifacts via mark_pr_created."""
+        mock_git.rev_list_count.return_value = 1
         mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
@@ -79,14 +91,17 @@ class TestGhWorkstreamIntegrator:
         assert runtime.artifacts.merge_pr_url == "https://github.com/org/repo/pull/99"
         assert runtime.status == WorkstreamStatus.PR_CREATED
 
-    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    @patch(_GIT)
+    @patch(_GH)
     def test_pr_body_contains_task_summaries(
         self,
         mock_gh: MagicMock,
+        mock_git: MagicMock,
     ) -> None:
         """PR body includes task summaries when present."""
         from agentrelay.workstream.core.runtime import TaskSummary
 
+        mock_git.rev_list_count.return_value = 1
         mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
@@ -105,14 +120,17 @@ class TestGhWorkstreamIntegrator:
         assert "task_a" in body
         assert "Add feature" in body
 
-    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    @patch(_GIT)
+    @patch(_GH)
     def test_pr_body_contains_ops_concerns(
         self,
         mock_gh: MagicMock,
+        mock_git: MagicMock,
     ) -> None:
         """PR body includes ops concerns when present."""
         from agentrelay.workstream.core.runtime import TaskSummary
 
+        mock_git.rev_list_count.return_value = 1
         mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
@@ -132,14 +150,17 @@ class TestGhWorkstreamIntegrator:
         assert "slow build" in body
         assert "missing dep" in body
 
-    @patch("agentrelay.workstream.implementations.workstream_integrator.gh")
+    @patch(_GIT)
+    @patch(_GH)
     def test_pr_body_separates_design_and_ops_concerns(
         self,
         mock_gh: MagicMock,
+        mock_git: MagicMock,
     ) -> None:
         """PR body keeps design and ops concerns in separate sections."""
         from agentrelay.workstream.core.runtime import TaskSummary
 
+        mock_git.rev_list_count.return_value = 1
         mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
@@ -165,3 +186,43 @@ class TestGhWorkstreamIntegrator:
         """GhWorkstreamIntegrator satisfies the WorkstreamIntegrator protocol."""
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         assert isinstance(integrator, WorkstreamIntegrator)
+
+    @patch(_GIT)
+    @patch(_GH)
+    def test_skips_pr_when_no_commits_ahead(
+        self,
+        mock_gh: MagicMock,
+        mock_git: MagicMock,
+    ) -> None:
+        """Marks merged and skips gh.pr_create when branch has 0 commits ahead."""
+        mock_git.rev_list_count.return_value = 0
+        integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+
+        integrator.create_integration_pr(runtime)
+
+        mock_git.rev_list_count.assert_called_once_with(
+            Path("/repo"), "main", "agentrelay/demo/ws-1/integration"
+        )
+        mock_gh.pr_create.assert_not_called()
+        assert runtime.status == WorkstreamStatus.MERGED
+        assert runtime.artifacts.merge_pr_url is None
+
+    @patch(_GIT)
+    @patch(_GH)
+    def test_creates_pr_when_commits_ahead(
+        self,
+        mock_gh: MagicMock,
+        mock_git: MagicMock,
+    ) -> None:
+        """Creates PR normally when branch has commits ahead."""
+        mock_git.rev_list_count.return_value = 3
+        mock_gh.pr_create.return_value = "https://github.com/org/repo/pull/99"
+        integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+
+        integrator.create_integration_pr(runtime)
+
+        mock_gh.pr_create.assert_called_once()
+        assert runtime.status == WorkstreamStatus.PR_CREATED
+        assert runtime.artifacts.merge_pr_url == "https://github.com/org/repo/pull/99"

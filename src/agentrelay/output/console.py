@@ -129,6 +129,12 @@ class ConsoleListener:
             detail += f" \u2192 {event.message}"
         self._print(event.timestamp, event.workstream_id or "?", detail)
 
+    def _on_workstream_integration_skipped(self, event: OrchestratorEvent) -> None:
+        detail = "integration skipped (no changes)"
+        if event.message:
+            detail += f": {event.message}"
+        self._print(event.timestamp, event.workstream_id or "?", detail)
+
     def _on_workstream_auto_merge_skipped(self, event: OrchestratorEvent) -> None:
         detail = "auto-merge skipped"
         if event.message:
