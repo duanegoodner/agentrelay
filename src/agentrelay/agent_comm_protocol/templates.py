@@ -24,6 +24,14 @@ _TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
 
 _NONE_PLACEHOLDER = "(none specified)"
 
+_PREVIOUS_ATTEMPT_ARTIFACTS: tuple[str, ...] = (
+    "agent.log",
+    "gate_last_output.txt",
+    "summary.md",
+    "concerns.log",
+    "ops_concerns.log",
+)
+
 _ROLE_SENTENCES: dict[AgentRole, str] = {
     AgentRole.SPEC_WRITER: (
         "You are a SPEC_WRITER tasked with writing specifications "
@@ -74,14 +82,17 @@ def resolve_instructions(
        and guidance on reading upstream artifacts and writing summaries
        (if ``graph_yaml_path`` is provided and ``manifest.graph_name``
        is set).
-    6. **Architecture Decision Record** — ADR writing instructions (if
+    6. **Previous Attempts** — archived artifacts from prior retry
+       attempts (if ``manifest.attempt_num > 0`` and
+       ``signals_base_path`` is provided).
+    7. **Architecture Decision Record** — ADR writing instructions (if
        ``adr_verbosity`` is not ``NONE``).
-    7. **Isolation Boundary** — what the agent can/cannot access and
+    8. **Isolation Boundary** — what the agent can/cannot access and
        what exists beyond its boundary (if ``sandbox_type`` is ``OCI``).
-    8. **Submitting Your Work** — how to commit, create a PR, and signal
+    9. **Submitting Your Work** — how to commit, create a PR, and signal
        the orchestrator.
-    9. **Task Details** — the task author's description (non-generic only,
-       when present).
+    10. **Task Details** — the task author's description (non-generic only,
+        when present).
 
     Template variables (``$var`` syntax via :class:`string.Template`):
 
@@ -166,6 +177,11 @@ def resolve_instructions(
     graph_text = _graph_awareness_section(manifest, graph_yaml_path, signals_base_path)
     if graph_text:
         parts.append(graph_text)
+
+    # Previous Attempts (conditional, cross-cutting).
+    attempts_text = _previous_attempts_section(manifest, signals_base_path)
+    if attempts_text:
+        parts.append(attempts_text)
 
     # Architecture Decision Record (conditional, cross-cutting).
     adr_text = _adr_section(adr_verbosity, manifest.task_id)
@@ -282,6 +298,79 @@ def _graph_awareness_section(
         "key files you created or modified, important design decisions, "
         "gotchas, and anything a downstream task should know before starting.",
     ]
+    return "\n".join(lines)
+
+
+def _previous_attempts_section(
+    manifest: TaskManifest,
+    signals_base_path: Optional[Path],
+) -> str:
+    """Build the Previous Attempts section for retry agents.
+
+    Returns a complete ``## Previous Attempts`` section when
+    ``manifest.attempt_num`` is greater than 0 and *signals_base_path*
+    is provided, or an empty string otherwise.
+
+    Args:
+        manifest: Task manifest (provides attempt_num and task_id).
+        signals_base_path: Absolute path to the signals base directory.
+
+    Returns:
+        Markdown section text, or ``""`` when no prior attempts exist.
+    """
+    if manifest.attempt_num < 1 or signals_base_path is None:
+        return ""
+
+    n_prior = manifest.attempt_num
+    lines = [
+        "## Previous Attempts",
+        "",
+        f"This is attempt **{n_prior}** (0-indexed). There "
+        f"{'is' if n_prior == 1 else 'are'} "
+        f"**{n_prior}** prior "
+        f"attempt{'s' if n_prior > 1 else ''} "
+        "whose artifacts have been archived. Review them before starting "
+        "your work to understand what was already tried and why it failed.",
+        "",
+        "### Archived artifacts",
+        "",
+        "Each prior attempt may contain the following files:",
+        "",
+    ]
+    for artifact in _PREVIOUS_ATTEMPT_ARTIFACTS:
+        if artifact == "agent.log":
+            desc = "the agent's full session log."
+        elif artifact == "gate_last_output.txt":
+            desc = "the gate check output that triggered the retry."
+        elif artifact == "summary.md":
+            desc = "the agent's work summary (if it completed that step)."
+        elif artifact == "concerns.log":
+            desc = "design concerns raised by the agent."
+        else:
+            desc = "operational concerns raised by the agent."
+        lines.append(f"- `{artifact}` — {desc}")
+
+    lines += [
+        "",
+        "Not all files are present in every attempt. Check which exist.",
+        "",
+        "### Attempt directories",
+        "",
+    ]
+    for n in range(n_prior):
+        attempt_path = signals_base_path / manifest.task_id / "attempts" / str(n)
+        lines.append(f"- Attempt {n}: `{attempt_path}/`")
+
+    lines += [
+        "",
+        "### Guidance",
+        "",
+        "Start by reading the most recent attempt's `agent.log` and "
+        "`gate_last_output.txt` to understand what went wrong. "
+        "Identify the root cause before writing any code. "
+        "Do not repeat an approach that already failed.",
+    ]
+
     return "\n".join(lines)
 
 
