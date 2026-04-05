@@ -10,6 +10,7 @@ agentrelay-complete = "agentrelay.agent_sdk.cli:complete"
 agentrelay-complete-no-pr = "agentrelay.agent_sdk.cli:complete_no_pr"
 agentrelay-failed = "agentrelay.agent_sdk.cli:failed"
 agentrelay-concern = "agentrelay.agent_sdk.cli:concern"
+agentrelay-declare = "agentrelay.agent_sdk.cli:declare"
 agentrelay-ops-concern = "agentrelay.agent_sdk.cli:ops_concern"
 agentrelay-summary = "agentrelay.agent_sdk.cli:summary"
 

@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pytest
 
 from agentrelay.agent_sdk import cli
+from agentrelay.agent_sdk.output_manifest import OutputAction
 
 
 @pytest.fixture()
@@ -133,3 +134,68 @@ class TestSummaryCli:
         monkeypatch.setattr("sys.argv", ["agentrelay-summary"])
         with pytest.raises(SystemExit):
             cli.summary()
+
+
+class TestDeclareCli:
+    def test_calls_helper_declare_output(
+        self, signal_dir: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("AGENTRELAY_SIGNAL_DIR", str(signal_dir))
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "agentrelay-declare",
+                "--path",
+                "src/foo.py",
+                "--action",
+                "created",
+                "--category",
+                "stubs",
+            ],
+        )
+        with patch("agentrelay.agent_sdk.cli.TaskHelper") as mock_cls:
+            instance = mock_cls.from_env.return_value
+            cli.declare()
+            instance.declare_output.assert_called_once_with(
+                Path("src/foo.py"), OutputAction.CREATED, "stubs"
+            )
+
+    def test_path_required(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(
+            "sys.argv",
+            ["agentrelay-declare", "--action", "created", "--category", "stubs"],
+        )
+        with pytest.raises(SystemExit):
+            cli.declare()
+
+    def test_action_required(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(
+            "sys.argv",
+            ["agentrelay-declare", "--path", "foo.py", "--category", "stubs"],
+        )
+        with pytest.raises(SystemExit):
+            cli.declare()
+
+    def test_category_required(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(
+            "sys.argv",
+            ["agentrelay-declare", "--path", "foo.py", "--action", "created"],
+        )
+        with pytest.raises(SystemExit):
+            cli.declare()
+
+    def test_invalid_action_rejected(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.setattr(
+            "sys.argv",
+            [
+                "agentrelay-declare",
+                "--path",
+                "foo.py",
+                "--action",
+                "bogus",
+                "--category",
+                "stubs",
+            ],
+        )
+        with pytest.raises(SystemExit):
+            cli.declare()

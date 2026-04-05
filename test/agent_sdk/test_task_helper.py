@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 import pytest
 
+from agentrelay.agent_sdk.output_manifest import OutputAction
 from agentrelay.agent_sdk.task_helper import NO_PR_SENTINEL, TaskHelper
 
 
@@ -186,6 +187,86 @@ def test_write_summary_overwrites_existing(tmp_path: Path) -> None:
     helper.write_summary("first draft")
     helper.write_summary("final summary")
     assert (tmp_path / "summary.md").read_text() == "final summary"
+
+
+# -- Output declarations --
+
+
+def test_declare_output_creates_outputs_json(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.declare_output(Path("src/foo.py"), OutputAction.CREATED, "stubs")
+
+    data = json.loads((tmp_path / "outputs.json").read_text())
+    assert data["schema_version"] == "1"
+    assert len(data["files"]) == 1
+    assert data["files"][0] == {
+        "path": "src/foo.py",
+        "action": "created",
+        "category": "stubs",
+    }
+
+
+def test_declare_output_appends(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.declare_output(Path("src/foo.py"), OutputAction.CREATED, "stubs")
+    helper.declare_output(Path("src/bar.py"), OutputAction.MODIFIED, "implementation")
+
+    data = json.loads((tmp_path / "outputs.json").read_text())
+    assert len(data["files"]) == 2
+    assert data["files"][0]["path"] == "src/foo.py"
+    assert data["files"][1]["path"] == "src/bar.py"
+
+
+def test_declare_output_preserves_existing(tmp_path: Path) -> None:
+    # Pre-populate outputs.json with an existing entry.
+    (tmp_path / "outputs.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "1",
+                "files": [{"path": "old.py", "action": "created", "category": "other"}],
+            }
+        )
+    )
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.declare_output(Path("new.py"), OutputAction.CREATED, "stubs")
+
+    data = json.loads((tmp_path / "outputs.json").read_text())
+    assert len(data["files"]) == 2
+    assert data["files"][0]["path"] == "old.py"
+    assert data["files"][1]["path"] == "new.py"
+
+
+def test_declare_output_all_actions(tmp_path: Path) -> None:
+    helper = TaskHelper(
+        signal_dir=tmp_path,
+        task_id="t",
+        branch_name="b",
+        integration_branch="i",
+    )
+    helper.declare_output(Path("a.py"), OutputAction.CREATED, "stubs")
+    helper.declare_output(Path("b.py"), OutputAction.MODIFIED, "implementation")
+    helper.declare_output(Path("c.py"), OutputAction.DELETED, "other")
+
+    data = json.loads((tmp_path / "outputs.json").read_text())
+    assert len(data["files"]) == 3
+    assert data["files"][0]["action"] == "created"
+    assert data["files"][1]["action"] == "modified"
+    assert data["files"][2]["action"] == "deleted"
 
 
 # -- PR creation --

@@ -22,6 +22,15 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
+from agentrelay.agent_sdk.output_manifest import (
+    OUTPUT_MANIFEST_FILENAME,
+    OutputAction,
+    OutputEntry,
+    OutputManifest,
+    output_manifest_from_dict,
+    output_manifest_to_dict,
+)
+
 NO_PR_SENTINEL = "NO_PR"
 """Sentinel value written to ``.done`` when a task completes without a PR."""
 
@@ -250,6 +259,33 @@ class TaskHelper:
             message: Summary text (markdown).
         """
         (self.signal_dir / "summary.md").write_text(message)
+
+    # -- Output declarations -----------------------------------------------
+
+    def declare_output(self, path: Path, action: OutputAction, category: str) -> None:
+        """Declare a file in the output manifest.
+
+        Appends a single file entry to ``outputs.json`` in the signal
+        directory.  Creates the file on first call; subsequent calls
+        read-append-write to preserve earlier entries.
+
+        Args:
+            path: File path relative to the repository root.
+            action: What was done to the file (created, modified, deleted).
+            category: Semantic category (e.g. ``"stubs"``, ``"tests"``).
+        """
+        manifest_path = self.signal_dir / OUTPUT_MANIFEST_FILENAME
+        if manifest_path.exists():
+            manifest = output_manifest_from_dict(json.loads(manifest_path.read_text()))
+        else:
+            manifest = OutputManifest()
+
+        manifest.files.append(OutputEntry(path=path, action=action, category=category))
+
+        self.signal_dir.mkdir(parents=True, exist_ok=True)
+        manifest_path.write_text(
+            json.dumps(output_manifest_to_dict(manifest), indent=2) + "\n"
+        )
 
     # -- Internal ----------------------------------------------------------
 
