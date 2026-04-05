@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Block direct commits to main — all changes must go through PRs.
+branch="$(git symbolic-ref --short HEAD 2>/dev/null || true)"
+if [ "$branch" = "main" ]; then
+  echo "ERROR: Direct commits to main are not allowed."
+  echo "Create a feature branch: git checkout -b feat/<name>"
+  exit 1
+fi
+
 # Block commits where a .d2 source changed but its matching .svg is stale.
 # For each staged .d2 file, check that a corresponding .svg is either:
 #   1. Also staged (updated in this commit), OR
