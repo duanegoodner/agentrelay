@@ -46,6 +46,7 @@ agent_pkg: "agent/" {
     AgentAddress: "AgentAddress <<abstract>>" {
       shape: class
       +label(): str
+      +capture_log(signal_dir): void
       +teardown(signal_dir, keep_panes): void
     }
 
@@ -62,6 +63,7 @@ agent_pkg: "agent/" {
       session: str
       pane_id: str
       +label(): str
+      +capture_log(signal_dir): void
       +teardown(signal_dir, keep_panes): void
     }
 

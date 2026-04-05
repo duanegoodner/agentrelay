@@ -57,6 +57,7 @@ agent_sdk_pkg: "agent_sdk/" {
     +record_concern(concern): void
     +record_ops_concern(concern): void
     +write_summary(message): void
+    +declare_output(path, action, category): void
   }
 
   cli: "cli <<module>>" {
@@ -68,6 +69,27 @@ agent_sdk_pkg: "agent_sdk/" {
     "+concern()": void
     "+ops_concern()": void
     "+summary()": void
+    "+declare()": void
+  }
+
+  OutputAction: "OutputAction <<enumeration>>" {
+    shape: class
+    CREATED
+    MODIFIED
+    DELETED
+  }
+
+  OutputEntry: "OutputEntry <<frozen dataclass>>" {
+    shape: class
+    path: str
+    action: OutputAction
+    category: str
+  }
+
+  OutputManifest: "OutputManifest <<dataclass>>" {
+    shape: class
+    schema_version: str
+    files: "list[OutputEntry]"
   }
 }
 
@@ -90,3 +112,6 @@ ops_pkg: "ops/" {
 agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }
 agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }
 agent_sdk_pkg.cli -> agent_sdk_pkg.TaskHelper: delegates { class: dependency }
+agent_sdk_pkg.TaskHelper -> agent_sdk_pkg.OutputManifest: "reads/writes outputs.json" { class: dependency }
+agent_sdk_pkg.OutputManifest -> agent_sdk_pkg.OutputEntry: files { class: composition }
+agent_sdk_pkg.OutputEntry -> agent_sdk_pkg.OutputAction: action { class: dependency }
