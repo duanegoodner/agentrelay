@@ -6008,7 +6008,14 @@ for human review (or a future agent-merge step).</p>
 <span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
-<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GhWorkstreamIntegrator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the workstream integration PR via GitHub CLI.</span>
 
@@ -6029,6 +6036,13 @@ for human review (or a future agent-merge step).</p>
         <span class="n">spec</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">spec</span>
         <span class="n">branch_name</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
         <span class="k">assert</span> <span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;branch_name must be set before integration&quot;</span>
+
+        <span class="n">ahead</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">rev_list_count</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">,</span> <span class="n">branch_name</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ahead</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">mark_merged</span><span class="p">()</span>
+            <span class="k">return</span>
 
         <span class="n">body</span> <span class="o">=</span> <span class="n">_build_pr_body</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
 
@@ -6131,7 +6145,14 @@ should be submitted as a PR.</p>
 <span class="normal">89</span>
 <span class="normal">90</span>
 <span class="normal">91</span>
-<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_integration_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_integration_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a PR from the integration branch to the merge target.</span>
 
 <span class="sd">    Args:</span>
@@ -6141,6 +6162,13 @@ should be submitted as a PR.</p>
     <span class="n">spec</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">spec</span>
     <span class="n">branch_name</span> <span class="o">=</span> <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span>
     <span class="k">assert</span> <span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;branch_name must be set before integration&quot;</span>
+
+    <span class="n">ahead</span> <span class="o">=</span> <span class="n">git</span><span class="o">.</span><span class="n">rev_list_count</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">merge_target_branch</span><span class="p">,</span> <span class="n">branch_name</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">ahead</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">workstream_runtime</span><span class="o">.</span><span class="n">mark_merged</span><span class="p">()</span>
+        <span class="k">return</span>
 
     <span class="n">body</span> <span class="o">=</span> <span class="n">_build_pr_body</span><span class="p">(</span><span class="n">workstream_runtime</span><span class="p">)</span>
 
