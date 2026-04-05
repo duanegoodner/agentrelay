@@ -250,6 +250,10 @@ Ideas to explore:
 - **Role template simplification**: As structured I/O contracts make more of
   the role-specific guidance derivable from data, simplify or generalize role
   templates. Preserve role-specific concern guidance.
+- **Typed output categories**: `OutputEntry.category` is currently a free-form
+  `str`. After sufficient e2e usage, review which categories agents actually
+  use in practice and consider introducing an `OutputCategory` enum (with a
+  fallback for custom values). Only worth doing once real usage patterns emerge.
 
 Full design: `docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md`.
 

@@ -18,7 +18,9 @@ from __future__ import annotations
 
 import argparse
 import sys
+from pathlib import Path
 
+from agentrelay.agent_sdk.output_manifest import OutputAction
 from agentrelay.agent_sdk.task_helper import TaskHelper
 
 
@@ -137,6 +139,37 @@ def summary() -> None:
     try:
         helper = TaskHelper.from_env()
         helper.write_summary(args.message)
+    except Exception as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+
+def declare() -> None:
+    """CLI entry point: declare a file in the output manifest."""
+    parser = argparse.ArgumentParser(
+        description="Declare a file in the output manifest.",
+    )
+    parser.add_argument(
+        "--path",
+        required=True,
+        help="File path relative to the repository root",
+    )
+    parser.add_argument(
+        "--action",
+        required=True,
+        choices=[a.value for a in OutputAction],
+        help="Action performed on the file (created, modified, deleted)",
+    )
+    parser.add_argument(
+        "--category",
+        required=True,
+        help="Semantic category (e.g. stubs, tests, implementation)",
+    )
+    args = parser.parse_args()
+
+    try:
+        helper = TaskHelper.from_env()
+        helper.declare_output(Path(args.path), OutputAction(args.action), args.category)
     except Exception as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)

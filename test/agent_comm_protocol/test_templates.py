@@ -105,6 +105,11 @@ class TestResolveInstructions:
         text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
         assert "agentrelay-summary" in text
 
+    def test_submission_includes_declare_command(self) -> None:
+        """Submission section mentions agentrelay-declare."""
+        text = resolve_instructions(AgentRole.TEST_WRITER, _manifest())
+        assert "agentrelay-declare" in text
+
     def test_test_reviewer_mentions_no_pr_completion(self) -> None:
         """Test reviewer template mentions completing without a PR."""
         text = resolve_instructions(AgentRole.TEST_REVIEWER, _manifest())
@@ -652,6 +657,16 @@ class TestGraphAwarenessSection:
         )
         assert "## Graph Awareness" in text
 
+    def test_mentions_outputs_json(self) -> None:
+        """Graph awareness artifact listing includes outputs.json."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(),
+            graph_yaml_path=self._GRAPH_YAML,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        graph_text = re.split(r"\n## (?!#)", text.split("## Graph Awareness")[1])[0]
+        assert "outputs.json" in graph_text
 
 class TestPreviousAttemptsSection:
     """Tests for previous attempts section injection in instructions."""
@@ -807,3 +822,4 @@ class TestPreviousAttemptsSection:
             signals_base_path=self._SIGNALS_BASE,
         )
         assert "## Previous Attempts" in text
+

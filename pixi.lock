@@ -121,7 +121,7 @@ packages:
 - pypi: ./
   name: agentrelay
   version: 0.1.0
-  sha256: e6f2f747e171f7904e05e105992ae4157cc21ce20eca38b7474c85ede701c6b6
+  sha256: 0a4ea9e66461079d66943757dcc35944ecf03117608c5549b2712e8eb5657a65
   requires_dist:
   - pyyaml>=6.0.3,<7
   requires_python: '>=3.12,<3.13'

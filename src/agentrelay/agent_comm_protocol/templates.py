@@ -274,6 +274,8 @@ def _graph_awareness_section(
         "for downstream consumers.",
         "- `concerns.log` — design concerns raised by the agent.",
         "- `ops_concerns.log` — operational/environmental concerns.",
+        "- `outputs.json` — output manifest declaring files the agent "
+        "created, modified, or deleted, with semantic categories.",
         "- `.done` — completion signal. Line 2 contains the PR URL "
         "(or `NO_PR` for PR-less tasks).",
         "",
@@ -554,7 +556,13 @@ def _submission_section(manifest: TaskManifest) -> str:
 After completing the work above:
 
 1. **Commit and push** all changes to branch `{manifest.branch_name}`.
-2. **Complete the task** (creates PR and signals the orchestrator):
+2. **Declare your outputs** for each file you created, modified, or deleted:
+   ```bash
+   agentrelay-declare --path <relative-path> --action created --category <category>
+   ```
+   Categories describe the purpose of the file (e.g. `stubs`, `tests`,
+   `implementation`, `spec`, `config`, `docs`).
+3. **Complete the task** (creates PR and signals the orchestrator):
    ```bash
    agentrelay-complete --title "short summary of changes" --body "## Summary
 
@@ -576,7 +584,7 @@ If you cannot complete the work, signal failure instead:
    agentrelay-failed --reason "reason for failure"
    ```
 
-**Important**: The orchestrator is waiting for the signal. Do not skip step 2."""
+**Important**: The orchestrator is waiting for the signal. Do not skip step 3."""
 
 
 def _load_template(role_value: str, adapter_name: Optional[str]) -> str:
