@@ -3075,6 +3075,9 @@ JSON <code>null</code>.</p>
    and guidance on reading upstream artifacts and writing summaries
    (if <code>graph_yaml_path</code> is provided and <code>manifest.graph_name</code>
    is set).</li>
+<li><strong>Previous Attempts</strong> — archived artifacts from prior retry
+   attempts (if <code>manifest.attempt_num &gt; 0</code> and
+   <code>signals_base_path</code> is provided).</li>
 <li><strong>Architecture Decision Record</strong> — ADR writing instructions (if
    <code>adr_verbosity</code> is not <code>NONE</code>).</li>
 <li><strong>Isolation Boundary</strong> — what the agent can/cannot access and
@@ -3082,7 +3085,7 @@ JSON <code>null</code>.</p>
 <li><strong>Submitting Your Work</strong> — how to commit, create a PR, and signal
    the orchestrator.</li>
 <li><strong>Task Details</strong> — the task author's description (non-generic only,
-   when present).</li>
+    when present).</li>
 </ol>
 <p>Template variables (<code>$var</code> syntax via :class:<code>string.Template</code>):</p>
 <ul>
@@ -3309,15 +3312,7 @@ peer signal directories live.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_comm_protocol/templates.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 61</span>
 <span class="normal"> 62</span>
 <span class="normal"> 63</span>
 <span class="normal"> 64</span>
@@ -3442,7 +3437,23 @@ peer signal directories live.</p>
 <span class="normal">183</span>
 <span class="normal">184</span>
 <span class="normal">185</span>
-<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span><span class="p">,</span>
     <span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">,</span>
     <span class="n">adapter_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3466,14 +3477,17 @@ peer signal directories live.</p>
 <span class="sd">       and guidance on reading upstream artifacts and writing summaries</span>
 <span class="sd">       (if ``graph_yaml_path`` is provided and ``manifest.graph_name``</span>
 <span class="sd">       is set).</span>
-<span class="sd">    6. **Architecture Decision Record** — ADR writing instructions (if</span>
+<span class="sd">    6. **Previous Attempts** — archived artifacts from prior retry</span>
+<span class="sd">       attempts (if ``manifest.attempt_num &gt; 0`` and</span>
+<span class="sd">       ``signals_base_path`` is provided).</span>
+<span class="sd">    7. **Architecture Decision Record** — ADR writing instructions (if</span>
 <span class="sd">       ``adr_verbosity`` is not ``NONE``).</span>
-<span class="sd">    7. **Isolation Boundary** — what the agent can/cannot access and</span>
+<span class="sd">    8. **Isolation Boundary** — what the agent can/cannot access and</span>
 <span class="sd">       what exists beyond its boundary (if ``sandbox_type`` is ``OCI``).</span>
-<span class="sd">    8. **Submitting Your Work** — how to commit, create a PR, and signal</span>
+<span class="sd">    9. **Submitting Your Work** — how to commit, create a PR, and signal</span>
 <span class="sd">       the orchestrator.</span>
-<span class="sd">    9. **Task Details** — the task author&#39;s description (non-generic only,</span>
-<span class="sd">       when present).</span>
+<span class="sd">    10. **Task Details** — the task author&#39;s description (non-generic only,</span>
+<span class="sd">        when present).</span>
 
 <span class="sd">    Template variables (``$var`` syntax via :class:`string.Template`):</span>
 
@@ -3558,6 +3572,11 @@ peer signal directories live.</p>
     <span class="n">graph_text</span> <span class="o">=</span> <span class="n">_graph_awareness_section</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">graph_yaml_path</span><span class="p">,</span> <span class="n">signals_base_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">graph_text</span><span class="p">:</span>
         <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">graph_text</span><span class="p">)</span>
+
+    <span class="c1"># Previous Attempts (conditional, cross-cutting).</span>
+    <span class="n">attempts_text</span> <span class="o">=</span> <span class="n">_previous_attempts_section</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">signals_base_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">attempts_text</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attempts_text</span><span class="p">)</span>
 
     <span class="c1"># Architecture Decision Record (conditional, cross-cutting).</span>
     <span class="n">adr_text</span> <span class="o">=</span> <span class="n">_adr_section</span><span class="p">(</span><span class="n">adr_verbosity</span><span class="p">,</span> <span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
