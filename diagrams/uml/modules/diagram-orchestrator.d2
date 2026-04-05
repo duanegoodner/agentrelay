@@ -159,6 +159,7 @@ task_runner_pkg: "task_runner/" {
     SignalCompletionChecker: "SignalCompletionChecker" { shape: class }
     TmuxTaskKickoff: "TmuxTaskKickoff" { shape: class }
     TmuxTaskLauncher: "TmuxTaskLauncher" { shape: class }
+    WorktreeTaskLogCapture: "WorktreeTaskLogCapture" { shape: class }
     WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" { shape: class }
     WorktreeTaskTeardown: "WorktreeTaskTeardown" { shape: class }
   }
@@ -201,6 +202,7 @@ orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickof
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.ShellGateChecker: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskLogCapture: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer: registers { class: dependency }
