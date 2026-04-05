@@ -651,3 +651,159 @@ class TestGraphAwarenessSection:
             signals_base_path=self._SIGNALS_BASE,
         )
         assert "## Graph Awareness" in text
+
+
+class TestPreviousAttemptsSection:
+    """Tests for previous attempts section injection in instructions."""
+
+    _SIGNALS_BASE = Path("/repo/.workflow/demo/signals")
+
+    def test_absent_when_attempt_zero(self) -> None:
+        """No previous attempts section on first attempt (attempt_num=0)."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=0),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert "## Previous Attempts" not in text
+
+    def test_absent_when_signals_base_path_is_none(self) -> None:
+        """No previous attempts section when signals_base_path is None."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+        )
+        assert "## Previous Attempts" not in text
+
+    def test_present_when_attempt_num_positive(self) -> None:
+        """Previous attempts section appears when attempt_num > 0."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert "## Previous Attempts" in text
+
+    def test_mentions_attempt_number(self) -> None:
+        """Section body references the current attempt number."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=2),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        section = text.split("## Previous Attempts")[1].split("\n## ")[0]
+        assert "2" in section
+
+    def test_lists_single_prior_attempt_directory(self) -> None:
+        """When attempt_num=1, lists one prior attempt directory."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        section = text.split("## Previous Attempts")[1].split("\n## ")[0]
+        assert "attempts/0" in section
+
+    def test_lists_multiple_prior_attempt_directories(self) -> None:
+        """When attempt_num=3, lists three prior attempt directories."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=3),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        section = text.split("## Previous Attempts")[1].split("\n## ")[0]
+        assert "attempts/0" in section
+        assert "attempts/1" in section
+        assert "attempts/2" in section
+
+    def test_attempt_paths_use_signals_base_and_task_id(self) -> None:
+        """Attempt paths are constructed from signals_base_path and task_id."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1, task_id="custom_task"),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        expected = str(self._SIGNALS_BASE / "custom_task" / "attempts" / "0")
+        assert expected in text
+
+    def test_lists_artifact_filenames(self) -> None:
+        """Section mentions all five archived artifact filenames."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        section = text.split("## Previous Attempts")[1].split("\n## ")[0]
+        for artifact in (
+            "agent.log",
+            "gate_last_output.txt",
+            "summary.md",
+            "concerns.log",
+            "ops_concerns.log",
+        ):
+            assert artifact in section, f"Missing artifact: {artifact}"
+
+    def test_advises_checking_existence(self) -> None:
+        """Section advises that not all artifact files are guaranteed present."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        section = text.split("## Previous Attempts")[1].split("\n## ")[0]
+        assert "not all" in section.lower() or "check which" in section.lower()
+
+    def test_guidance_mentions_root_cause(self) -> None:
+        """Guidance tells agent to identify root cause and not repeat failures."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        section = text.split("## Previous Attempts")[1].split("\n## ")[0]
+        assert "root cause" in section.lower()
+
+    def test_ordering_after_graph_awareness(self) -> None:
+        """Previous Attempts appears after Graph Awareness when both present."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            graph_yaml_path=Path("/repo/.workflow/demo/graph.yaml"),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        graph_pos = text.index("## Graph Awareness")
+        attempts_pos = text.index("## Previous Attempts")
+        assert graph_pos < attempts_pos
+
+    def test_ordering_before_adr(self) -> None:
+        """Previous Attempts appears before ADR when both present."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+            adr_verbosity=AdrVerbosity.STANDARD,
+        )
+        attempts_pos = text.index("## Previous Attempts")
+        adr_pos = text.index("## Architecture Decision Record")
+        assert attempts_pos < adr_pos
+
+    def test_ordering_before_submission(self) -> None:
+        """Previous Attempts appears before Submitting Your Work."""
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            _manifest(attempt_num=1),
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        attempts_pos = text.index("## Previous Attempts")
+        submission_pos = text.index("## Submitting Your Work")
+        assert attempts_pos < submission_pos
+
+    def test_present_for_generic_role(self) -> None:
+        """Previous attempts section works with GENERIC role."""
+        m = _manifest(description="Do something custom", attempt_num=1)
+        text = resolve_instructions(
+            AgentRole.GENERIC,
+            m,
+            signals_base_path=self._SIGNALS_BASE,
+        )
+        assert "## Previous Attempts" in text

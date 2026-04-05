@@ -601,18 +601,13 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
 
 ## Retry Agent Context
 
-- **Retry agent awareness of previous attempt artifacts**: When a task retries
-  (via `max_task_attempts` or future manual retry), `reset_for_retry()` archives
-  agent.log, gate_last_output.txt, summary.md, and concerns.log to
-  `signal_dir/attempts/<N>/` (PR #153). However, the retry agent receives no
-  information about these archived attempts — it starts fresh with no knowledge
-  of what the previous attempt did or why it failed. Adding a section to
-  instructions (or a manifest field) that tells the agent where to find previous
-  attempt artifacts could meaningfully improve retry success rates. The agent
-  could review the prior scrollback, understand the failure, and avoid repeating
-  the same mistake. Design question: should this be instruction-level guidance
-  ("check `attempts/` directory if it exists") or a structured manifest field
-  with attempt count and paths?
+- ~~**Retry agent awareness of previous attempt artifacts**~~: Addressed in
+  sprint 2026-04-04 (PR B). Instructions now include a "Previous Attempts"
+  section when `attempt_num > 0`, listing archived artifact directories and
+  guidance to review prior failures before starting. Used instruction-level
+  approach (consistent with other conditional sections); the broader question
+  of instruction-level vs. structured manifest approach is tracked under
+  "Agent Instruction Architecture" above.
 
 ## Signal Directory Structure
 
