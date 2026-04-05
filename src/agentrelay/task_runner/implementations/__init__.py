@@ -14,6 +14,9 @@ from agentrelay.task_runner.implementations.task_gate_checker import (
 )
 from agentrelay.task_runner.implementations.task_kickoff import TmuxTaskKickoff
 from agentrelay.task_runner.implementations.task_launcher import TmuxTaskLauncher
+from agentrelay.task_runner.implementations.task_log_capture import (
+    WorktreeTaskLogCapture,
+)
 from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
 from agentrelay.task_runner.implementations.task_preparer import (
     WorktreeTaskPreparer,
@@ -28,6 +31,7 @@ __all__ = [
     "SignalCompletionChecker",
     "TmuxTaskKickoff",
     "TmuxTaskLauncher",
+    "WorktreeTaskLogCapture",
     "WorktreeTaskPreparer",
     "WorktreeTaskTeardown",
 ]

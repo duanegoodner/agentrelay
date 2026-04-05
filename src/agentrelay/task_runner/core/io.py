@@ -154,6 +154,22 @@ class TaskMerger(Protocol):
 
 
 @runtime_checkable
+class TaskLogCapture(Protocol):
+    """Capture agent execution log unconditionally at task termination."""
+
+    def capture_log(self, runtime: TaskRuntime) -> None:
+        """Capture the agent's execution log to the signal directory.
+
+        Called unconditionally when a task reaches a terminal status,
+        regardless of teardown mode.
+
+        Args:
+            runtime: Runtime envelope whose agent log should be captured.
+        """
+        ...
+
+
+@runtime_checkable
 class TaskTeardown(Protocol):
     """Release runtime resources after terminal completion."""
 
@@ -173,6 +189,7 @@ __all__ = [
     "TaskGateChecker",
     "TaskKickoff",
     "TaskLauncher",
+    "TaskLogCapture",
     "TaskMerger",
     "TaskPreparer",
     "TaskTeardown",
