@@ -6,13 +6,16 @@ from pathlib import Path
 
 import pytest
 
+from agentrelay.orchestrator import OrchestratorConfig
 from agentrelay.orchestrator.builders import build_standard_workstream_runner
 from agentrelay.run_graph import (
     _any_task_uses_oci,
     _apply_overrides,
+    _build_parser,
     _copy_graph_yaml,
     _extract_operational_config,
     _load_and_prepare_graph,
+    _resolve_fail_fast,
     dry_run,
 )
 from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
@@ -33,12 +36,13 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 
 def test_extract_operational_config_defaults() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    session, keep, model, tools, anthropic = _extract_operational_config(raw)
+    session, keep, model, tools, anthropic, fail_fast = _extract_operational_config(raw)
     assert session is None
     assert keep is False
     assert model is None
     assert tools == ()
     assert anthropic is None
+    assert fail_fast is None
 
 
 def test_extract_operational_config_reads_yaml_values() -> None:
@@ -49,7 +53,7 @@ def test_extract_operational_config_reads_yaml_values() -> None:
         "keep_panes": True,
         "model": "claude-opus-4-6",
     }
-    session, keep, model, tools, _ = _extract_operational_config(raw)
+    session, keep, model, tools, _, _ = _extract_operational_config(raw)
     assert session == "custom"
     assert keep is True
     assert model == "claude-opus-4-6"
@@ -65,6 +69,7 @@ def test_extract_operational_config_pops_keys() -> None:
         "model": "m",
         "tools": ["pixi"],
         "anthropic_credential": "max_plan",
+        "fail_fast_on_workstream_error": True,
     }
     _extract_operational_config(raw)
     assert "tmux_session" not in raw
@@ -72,19 +77,20 @@ def test_extract_operational_config_pops_keys() -> None:
     assert "model" not in raw
     assert "tools" not in raw
     assert "anthropic_credential" not in raw
+    assert "fail_fast_on_workstream_error" not in raw
     assert "name" in raw
 
 
 def test_extract_operational_config_parses_tools() -> None:
     raw: dict = {"name": "g", "tasks": [], "tools": ["pixi", "npm"]}
-    _, _, _, tools, _ = _extract_operational_config(raw)
+    _, _, _, tools, _, _ = _extract_operational_config(raw)
     assert tools == ("pixi", "npm")
     assert "tasks" in raw
 
 
 def test_extract_operational_config_reads_anthropic_credential() -> None:
     raw: dict = {"name": "g", "tasks": [], "anthropic_credential": "max_plan"}
-    _, _, _, _, anthropic = _extract_operational_config(raw)
+    _, _, _, _, anthropic, _ = _extract_operational_config(raw)
     assert anthropic == "max_plan"
 
 
@@ -286,7 +292,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _ = _load_and_prepare_graph(path)
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is True
 
 
@@ -301,7 +307,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _ = _load_and_prepare_graph(path)
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is False
 
 
@@ -336,6 +342,117 @@ def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
 
     dest = workflow_dir / "graph.yaml"
     assert dest.read_text() == content
+
+
+# --- docker_build.sh syntax ---
+
+
+# --- _extract_operational_config: fail_fast_on_workstream_error ---
+
+
+def test_extract_operational_config_fail_fast_true() -> None:
+    raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": True}
+    _, _, _, _, _, fail_fast = _extract_operational_config(raw)
+    assert fail_fast is True
+
+
+def test_extract_operational_config_fail_fast_false() -> None:
+    raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": False}
+    _, _, _, _, _, fail_fast = _extract_operational_config(raw)
+    assert fail_fast is False
+
+
+def test_extract_operational_config_fail_fast_default_is_none() -> None:
+    raw: dict = {"name": "g", "tasks": []}
+    _, _, _, _, _, fail_fast = _extract_operational_config(raw)
+    assert fail_fast is None
+
+
+def test_extract_operational_config_fail_fast_pops_key() -> None:
+    raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": True}
+    _extract_operational_config(raw)
+    assert "fail_fast_on_workstream_error" not in raw
+
+
+def test_extract_operational_config_fail_fast_rejects_string() -> None:
+    raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": "yes"}
+    with pytest.raises(ValueError, match="must be a boolean"):
+        _extract_operational_config(raw)
+
+
+def test_extract_operational_config_fail_fast_rejects_int() -> None:
+    raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": 1}
+    with pytest.raises(ValueError, match="must be a boolean"):
+        _extract_operational_config(raw)
+
+
+# --- dry_run: fail_fast_on_workstream_error stripped before builder ---
+
+
+def test_dry_run_with_fail_fast_operational_key(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """fail_fast_on_workstream_error in YAML is stripped before graph parsing."""
+    content = """\
+name: test-graph
+fail_fast_on_workstream_error: true
+tasks:
+  - id: task_a
+    dependencies: []
+"""
+    path = tmp_path / "test.yaml"
+    path.write_text(content)
+    dry_run(path)
+    output = capsys.readouterr().out
+    assert "test-graph" in output
+    assert "task_a" in output
+
+
+# --- OrchestratorConfig default ---
+
+
+def test_orchestrator_config_default_fail_fast_is_false() -> None:
+    """Default for fail_fast_on_workstream_error changed from True to False."""
+    config = OrchestratorConfig()
+    assert config.fail_fast_on_workstream_error is False
+
+
+# --- _build_parser ---
+
+
+def test_cli_parser_fail_fast_default_none() -> None:
+    parser = _build_parser()
+    args = parser.parse_args(["graph.yaml"])
+    assert args.fail_fast_on_workstream_error is None
+
+
+def test_cli_parser_fail_fast_true() -> None:
+    parser = _build_parser()
+    args = parser.parse_args(["graph.yaml", "--fail-fast-on-workstream-error"])
+    assert args.fail_fast_on_workstream_error is True
+
+
+def test_cli_parser_fail_fast_false() -> None:
+    parser = _build_parser()
+    args = parser.parse_args(["graph.yaml", "--no-fail-fast-on-workstream-error"])
+    assert args.fail_fast_on_workstream_error is False
+
+
+# --- _resolve_fail_fast ---
+
+
+def test_resolve_fail_fast_cli_overrides_yaml() -> None:
+    assert _resolve_fail_fast(cli_value=False, yaml_value=True) is False
+    assert _resolve_fail_fast(cli_value=True, yaml_value=False) is True
+
+
+def test_resolve_fail_fast_yaml_used_when_cli_none() -> None:
+    assert _resolve_fail_fast(cli_value=None, yaml_value=True) is True
+    assert _resolve_fail_fast(cli_value=None, yaml_value=False) is False
+
+
+def test_resolve_fail_fast_none_when_both_none() -> None:
+    assert _resolve_fail_fast(cli_value=None, yaml_value=None) is None
 
 
 # --- docker_build.sh syntax ---

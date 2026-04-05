@@ -74,7 +74,8 @@ class OrchestratorConfig:
             raises (internal/system failure).
         fail_fast_on_workstream_error: When ``True``, a workstream-level failure
             prevents preparing any new (PENDING) workstreams. In-flight work
-            in already-active workstreams is not cancelled.
+            in already-active workstreams is not cancelled.  Defaults to
+            ``False``.
         merge_poll_interval: Seconds between polls for integration PR merge
             status.  Only used when an :class:`IntegrationMergeChecker` is
             configured on the :class:`Orchestrator`.
@@ -84,7 +85,7 @@ class OrchestratorConfig:
     max_task_attempts: int = 1
     task_teardown_mode: TearDownMode = TearDownMode.ON_SUCCESS
     fail_fast_on_internal_error: bool = True
-    fail_fast_on_workstream_error: bool = True
+    fail_fast_on_workstream_error: bool = False
     merge_poll_interval: float = 30.0
 
 

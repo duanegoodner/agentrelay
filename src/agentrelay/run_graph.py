@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import dataclasses
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -51,24 +52,27 @@ from agentrelay.tools import ToolValidationError, validate_tools
 
 def _extract_operational_config(
     raw: dict[str, Any],
-) -> tuple[Optional[str], bool, Optional[str], tuple[str, ...], Optional[str]]:
+) -> tuple[
+    Optional[str], bool, Optional[str], tuple[str, ...], Optional[str], Optional[bool]
+]:
     """Pop operational keys from a raw YAML dict before graph parsing.
 
     The graph YAML may include operational keys (``tmux_session``,
-    ``keep_panes``, ``model``, ``tools``, ``anthropic_credential``)
-    that are not part of the structural graph schema.  These must be
-    removed before passing to :meth:`TaskGraphBuilder.from_dict`
-    (which rejects unknown keys).
+    ``keep_panes``, ``model``, ``tools``, ``anthropic_credential``,
+    ``fail_fast_on_workstream_error``) that are not part of the structural
+    graph schema.  These must be removed before passing to
+    :meth:`TaskGraphBuilder.from_dict` (which rejects unknown keys).
 
     Args:
         raw: Mutable raw YAML dict.  Modified in place.
 
     Returns:
         Tuple of ``(tmux_session, keep_panes, model_default, tools,
-        anthropic_credential)``.
+        anthropic_credential, fail_fast_on_workstream_error)``.
         ``tmux_session`` is ``None`` if not specified in the YAML.
         ``tools`` defaults to an empty tuple.
         ``anthropic_credential`` is ``None`` if not specified.
+        ``fail_fast_on_workstream_error`` is ``None`` if not specified.
     """
     tmux_session: Optional[str] = raw.pop("tmux_session", None)
     keep_panes: bool = raw.pop("keep_panes", False)
@@ -76,7 +80,12 @@ def _extract_operational_config(
     raw_tools = raw.pop("tools", None)
     tools: tuple[str, ...] = tuple(raw_tools) if raw_tools else ()
     anthropic_credential: Optional[str] = raw.pop("anthropic_credential", None)
-    return tmux_session, keep_panes, model, tools, anthropic_credential
+    raw_fail_fast: Optional[bool] = raw.pop("fail_fast_on_workstream_error", None)
+    if raw_fail_fast is not None and not isinstance(raw_fail_fast, bool):
+        raise ValueError(
+            "Invalid graph schema at 'fail_fast_on_workstream_error': must be a boolean"
+        )
+    return tmux_session, keep_panes, model, tools, anthropic_credential, raw_fail_fast
 
 
 def _apply_overrides(
@@ -112,7 +121,9 @@ def _load_and_prepare_graph(
     *,
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
-) -> tuple[TaskGraph, Optional[str], bool, tuple[str, ...], Optional[str]]:
+) -> tuple[
+    TaskGraph, Optional[str], bool, tuple[str, ...], Optional[str], Optional[bool]
+]:
     """Load YAML, extract operational config, apply overrides, build graph.
 
     Args:
@@ -122,10 +133,10 @@ def _load_and_prepare_graph(
 
     Returns:
         Tuple of ``(graph, effective_tmux_session, effective_keep_panes,
-        tools, anthropic_credential_name)``.
+        tools, anthropic_credential_name, fail_fast_on_workstream_error)``.
     """
     raw = yaml.safe_load(graph_path.read_text())
-    yaml_session, yaml_keep_panes, yaml_model, tools, yaml_anthropic = (
+    yaml_session, yaml_keep_panes, yaml_model, tools, yaml_anthropic, yaml_fail_fast = (
         _extract_operational_config(raw)
     )
 
@@ -135,7 +146,14 @@ def _load_and_prepare_graph(
     _apply_overrides(raw, tmux_session=effective_session, model=effective_model)
 
     graph = TaskGraphBuilder.from_dict(raw)
-    return graph, effective_session, yaml_keep_panes, tools, yaml_anthropic
+    return (
+        graph,
+        effective_session,
+        yaml_keep_panes,
+        tools,
+        yaml_anthropic,
+        yaml_fail_fast,
+    )
 
 
 class _ConflictError(RuntimeError):
@@ -249,6 +267,20 @@ def _any_task_uses_oci(graph: TaskGraph) -> bool:
     return False
 
 
+def _resolve_fail_fast(
+    cli_value: Optional[bool],
+    yaml_value: Optional[bool],
+) -> Optional[bool]:
+    """Resolve ``fail_fast_on_workstream_error``: CLI > YAML > ``None``.
+
+    Returns ``None`` when neither CLI nor YAML specifies a value,
+    leaving the :class:`OrchestratorConfig` default in effect.
+    """
+    if cli_value is not None:
+        return cli_value
+    return yaml_value
+
+
 async def run_graph(
     graph_path: Path,
     repo_path: Path,
@@ -257,6 +289,7 @@ async def run_graph(
     keep_panes: bool = False,
     model_override: Optional[str] = None,
     config: Optional[OrchestratorConfig] = None,
+    fail_fast_on_workstream_error: Optional[bool] = None,
     credential_provider: Optional[CredentialProvider] = None,
     anthropic_credential_name: Optional[str] = None,
     verbose: bool = False,
@@ -275,6 +308,9 @@ async def run_graph(
         model_override: Override model for all agents (overrides YAML value).
         config: Orchestrator configuration.  Defaults to
             :class:`OrchestratorConfig` defaults.
+        fail_fast_on_workstream_error: CLI override for
+            ``OrchestratorConfig.fail_fast_on_workstream_error``.
+            When ``None``, falls back to graph YAML, then config default.
         credential_provider: Credential provider for sandboxed agents.
             When ``None``, :class:`NullCredentialProvider` is used.
         anthropic_credential_name: Name of the Anthropic credential to
@@ -288,10 +324,21 @@ async def run_graph(
     if config is None:
         config = OrchestratorConfig()
 
-    graph, _, yaml_keep_panes, tools, yaml_anthropic_name = _load_and_prepare_graph(
-        graph_path, tmux_session=tmux_session, model_override=model_override
+    graph, _, yaml_keep_panes, tools, yaml_anthropic_name, yaml_fail_fast = (
+        _load_and_prepare_graph(
+            graph_path, tmux_session=tmux_session, model_override=model_override
+        )
     )
     effective_keep_panes = keep_panes or yaml_keep_panes
+
+    # Resolve fail_fast_on_workstream_error: CLI > YAML > config default.
+    effective_fail_fast = _resolve_fail_fast(
+        fail_fast_on_workstream_error, yaml_fail_fast
+    )
+    if effective_fail_fast is not None:
+        config = dataclasses.replace(
+            config, fail_fast_on_workstream_error=effective_fail_fast
+        )
 
     assert graph.name is not None, "Graph must have a name"
 
@@ -358,7 +405,7 @@ def dry_run(graph_path: Path) -> None:
     Args:
         graph_path: Path to the graph YAML file.
     """
-    graph, _, _, tools, _ = _load_and_prepare_graph(graph_path)
+    graph, _, _, tools, _, _ = _load_and_prepare_graph(graph_path)
 
     print(f"Graph: {graph.name}")
     print(f"Tasks: {len(graph.task_ids())}")
@@ -438,8 +485,12 @@ def _print_result(result: OrchestratorResult) -> None:
     print_summary(result)
 
 
-def main() -> None:
-    """CLI entry point for running an agentrelay task graph."""
+def _build_parser() -> argparse.ArgumentParser:
+    """Build the CLI argument parser for ``run_graph``.
+
+    Extracted from :func:`main` to allow direct testing of argument
+    parsing without invoking the full CLI entry point.
+    """
     parser = argparse.ArgumentParser(
         description="Run an agentrelay task graph.",
     )
@@ -486,6 +537,12 @@ def main() -> None:
         help="Name of Anthropic credential from credentials YAML file",
     )
     parser.add_argument(
+        "--fail-fast-on-workstream-error",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Stop preparing new workstreams after a workstream failure (default: false)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate graph and print execution plan without running",
@@ -496,6 +553,12 @@ def main() -> None:
         action="store_true",
         help="Show detailed step-level output during execution",
     )
+    return parser
+
+
+def main() -> None:
+    """CLI entry point for running an agentrelay task graph."""
+    parser = _build_parser()
     args = parser.parse_args()
 
     graph_path = Path(args.graph).resolve()
@@ -532,6 +595,7 @@ def main() -> None:
                 tmux_session=args.tmux_session,
                 model_override=args.model,
                 config=config,
+                fail_fast_on_workstream_error=args.fail_fast_on_workstream_error,
                 credential_provider=credential_provider,
                 anthropic_credential_name=args.anthropic_credential,
                 verbose=args.verbose,
