@@ -1405,6 +1405,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.TaskLogCapture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskLogCapture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskLogCapture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.TaskLogCapture.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.task_runner.TaskMerger" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1712,6 +1740,34 @@
     <span class="md-ellipsis">
       
         launch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.WorktreeTaskLogCapture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorktreeTaskLogCapture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorktreeTaskLogCapture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.WorktreeTaskLogCapture.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
       
     </span>
   </a>
@@ -2079,6 +2135,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.TaskLogCapture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskLogCapture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskLogCapture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.TaskLogCapture.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.task_runner.TaskMerger" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2386,6 +2470,34 @@
     <span class="md-ellipsis">
       
         launch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.WorktreeTaskLogCapture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WorktreeTaskLogCapture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorktreeTaskLogCapture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.task_runner.WorktreeTaskLogCapture.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
       
     </span>
   </a>
@@ -3907,6 +4019,164 @@ captured during execution.</p>
 
 
 
+<h2 id="agentrelay.task_runner.TaskLogCapture" class="doc doc-heading">
+            <code>TaskLogCapture</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Capture agent execution log unconditionally at task termination.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskLogCapture</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture agent execution log unconditionally at task termination.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Capture the agent&#39;s execution log to the signal directory.</span>
+
+<span class="sd">        Called unconditionally when a task reaches a terminal status,</span>
+<span class="sd">        regardless of teardown mode.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            runtime: Runtime envelope whose agent log should be captured.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.task_runner.TaskLogCapture.capture_log" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">capture_log</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Capture the agent's execution log to the signal directory.</p>
+<p>Called unconditionally when a task reaches a terminal status,
+regardless of teardown mode.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Runtime envelope whose agent log should be captured.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture the agent&#39;s execution log to the signal directory.</span>
+
+<span class="sd">    Called unconditionally when a task reaches a terminal status,</span>
+<span class="sd">    regardless of teardown mode.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        runtime: Runtime envelope whose agent log should be captured.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="agentrelay.task_runner.TaskMerger" class="doc doc-heading">
             <code>TaskMerger</code>
 
@@ -4239,17 +4509,17 @@ captured during execution.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskTeardown</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Release runtime resources after terminal completion.&quot;&quot;&quot;</span>
 
@@ -4328,13 +4598,13 @@ captured during execution.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/io.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Release runtime resources after terminal completion.</span>
 
 <span class="sd">    Args:</span>
@@ -4392,6 +4662,8 @@ based on the task's <code>AgentFramework</code> and <code>AgentEnvironment</code
 | gate_checker          | No             | No                   |
 +-----------------------+----------------+----------------------+
 | merger                | No             | No                   |
++-----------------------+----------------+----------------------+
+| log_capture           | Partially      | No                   |
 +-----------------------+----------------+----------------------+
 | teardown              | Partially      | No                   |
 +-----------------------+----------------+----------------------+</p>
@@ -4506,6 +4778,22 @@ a shell command, does not vary by framework/environment).</p>
             </td>
           </tr>
           <tr class="doc-section-item">
+            <td><code><span title="agentrelay.task_runner.StandardTaskRunner._log_capture">_log_capture</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="StepDispatch
+
+
+  
+      dataclass
+   (agentrelay.task_runner.core.dispatch.StepDispatch)" href="#agentrelay.task_runner.StepDispatch">StepDispatch</a>[<a class="autorefs autorefs-internal" title="TaskLogCapture (agentrelay.task_runner.core.io.TaskLogCapture)" href="#agentrelay.task_runner.TaskLogCapture">TaskLogCapture</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dispatch table for :class:<code>TaskLogCapture</code> selection.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
             <td><code><span title="agentrelay.task_runner.StandardTaskRunner._teardown">_teardown</span></code></td>
             <td>
                   <code><a class="autorefs autorefs-internal" title="StepDispatch
@@ -4533,8 +4821,7 @@ a shell command, does not vary by framework/environment).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">153</span>
-<span class="normal">154</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
 <span class="normal">157</span>
@@ -4793,7 +5080,16 @@ a shell command, does not vary by framework/environment).</p>
 <span class="normal">410</span>
 <span class="normal">411</span>
 <span class="normal">412</span>
-<span class="normal">413</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">StandardTaskRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard task lifecycle: prepare → launch → kickoff → wait → gate → merge → teardown.</span>
 
@@ -4817,6 +5113,8 @@ a shell command, does not vary by framework/environment).</p>
 <span class="sd">    +-----------------------+----------------+----------------------+</span>
 <span class="sd">    | merger                | No             | No                   |</span>
 <span class="sd">    +-----------------------+----------------+----------------------+</span>
+<span class="sd">    | log_capture           | Partially      | No                   |</span>
+<span class="sd">    +-----------------------+----------------+----------------------+</span>
 <span class="sd">    | teardown              | Partially      | No                   |</span>
 <span class="sd">    +-----------------------+----------------+----------------------+</span>
 
@@ -4836,6 +5134,7 @@ a shell command, does not vary by framework/environment).</p>
 <span class="sd">        _gate_checker: Completion gate checker (not dispatch-based — always</span>
 <span class="sd">            a shell command, does not vary by framework/environment).</span>
 <span class="sd">        _merger: Dispatch table for :class:`TaskMerger` selection.</span>
+<span class="sd">        _log_capture: Dispatch table for :class:`TaskLogCapture` selection.</span>
 <span class="sd">        _teardown: Dispatch table for :class:`TaskTeardown` selection.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -4845,6 +5144,7 @@ a shell command, does not vary by framework/environment).</p>
     <span class="n">_completion_checker</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskCompletionChecker</span><span class="p">]</span>
     <span class="n">_gate_checker</span><span class="p">:</span> <span class="n">TaskGateChecker</span>
     <span class="n">_merger</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskMerger</span><span class="p">]</span>
+    <span class="n">_log_capture</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskLogCapture</span><span class="p">]</span>
     <span class="n">_teardown</span><span class="p">:</span> <span class="n">StepDispatch</span><span class="p">[</span><span class="n">TaskTeardown</span><span class="p">]</span>
     <span class="n">on_event</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -4948,6 +5248,10 @@ a shell command, does not vary by framework/environment).</p>
                 <span class="c1"># PR-less completion (e.g., review-only task with no changes).</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_log_capture</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;log_capture_failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_teardown</span><span class="p">(</span><span class="n">teardown_mode</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">status</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
@@ -5194,12 +5498,7 @@ state.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
 <span class="normal">216</span>
@@ -5300,7 +5599,16 @@ state.</p>
 <span class="normal">311</span>
 <span class="normal">312</span>
 <span class="normal">313</span>
-<span class="normal">314</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -5400,6 +5708,10 @@ state.</p>
             <span class="c1"># PR-less completion (e.g., review-only task with no changes).</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_transition</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">TaskStatus</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_capture</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">concerns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;log_capture_failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_teardown</span><span class="p">(</span><span class="n">teardown_mode</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">status</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span>
@@ -5452,8 +5764,7 @@ not know or care about internal step structure.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
-<span class="normal">135</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
@@ -5468,7 +5779,8 @@ not know or care about internal step structure.</p>
 <span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
-<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="normal">150</span>
+<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunner</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for the task runner boundary used by Orchestrator.</span>
 
@@ -5521,14 +5833,14 @@ not know or care about internal step structure.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">143</span>
-<span class="normal">144</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
-<span class="normal">150</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
+<span class="normal">150</span>
+<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -5652,8 +5964,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
-<span class="normal"> 89</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
 <span class="normal"> 90</span>
 <span class="normal"> 91</span>
 <span class="normal"> 92</span>
@@ -5695,7 +6006,8 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskRunResult</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience return value mirroring terminal fields on :class:`TaskRuntime`.</span>
 
@@ -5855,8 +6167,7 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
-<span class="normal">111</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
@@ -5876,7 +6187,8 @@ failures.  <code>None</code> for agent-signaled failures and successes.</p>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">131</span>
+<span class="normal">132</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_runtime</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span>
@@ -5985,8 +6297,7 @@ status (<code>PR_MERGED</code> or <code>COMPLETED</code>).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_runner/core/runner.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">73</span>
-<span class="normal">74</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
@@ -5997,7 +6308,8 @@ status (<code>PR_MERGED</code> or <code>COMPLETED</code>).</p>
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TearDownMode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="normal">85</span>
+<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TearDownMode</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Policy controlling whether runtime resources are torn down after run.</span>
 
 <span class="sd">    Attributes:</span>
@@ -7718,6 +8030,177 @@ and sends it to a new tmux pane.</p>
         <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
         <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
     <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.task_runner.WorktreeTaskLogCapture" class="doc doc-heading">
+            <code>WorktreeTaskLogCapture</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Delegate agent log capture to the agent address.</p>
+<p>Calls <code>agent_address.capture_log()</code> to write the agent's execution
+log (e.g. tmux scrollback) to the signal directory. This step runs
+unconditionally at task termination, before the teardown decision.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_log_capture.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WorktreeTaskLogCapture</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delegate agent log capture to the agent address.</span>
+
+<span class="sd">    Calls ``agent_address.capture_log()`` to write the agent&#39;s execution</span>
+<span class="sd">    log (e.g. tmux scrollback) to the signal directory. This step runs</span>
+<span class="sd">    unconditionally at task termination, before the teardown decision.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Capture the agent&#39;s execution log to the signal directory.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            runtime: Runtime envelope whose agent log should be captured.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">agent_address</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span>
+
+        <span class="k">if</span> <span class="n">agent_address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">agent_address</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.task_runner.WorktreeTaskLogCapture.capture_log" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">capture_log</span><span class="p">(</span><span class="n">runtime</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Capture the agent's execution log to the signal directory.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>runtime</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="TaskRuntime
+
+
+  
+      dataclass
+   (agentrelay.task_runtime.TaskRuntime)" href="../../task_runtime/#agentrelay.task_runtime.TaskRuntime">TaskRuntime</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Runtime envelope whose agent log should be captured.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/task_runner/implementations/task_log_capture.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture the agent&#39;s execution log to the signal directory.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        runtime: Runtime envelope whose agent log should be captured.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">agent_address</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span>
+
+    <span class="k">if</span> <span class="n">agent_address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">agent_address</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

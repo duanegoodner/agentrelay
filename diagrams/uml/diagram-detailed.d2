@@ -84,6 +84,7 @@ agent_pkg: "agent/" {
     AgentAddress: "AgentAddress <<abstract>>" {
       shape: class
       +label(): str
+      +capture_log(signal_dir): void
       +teardown(signal_dir, keep_panes): void
     }
 
@@ -100,6 +101,7 @@ agent_pkg: "agent/" {
       session: str
       pane_id: str
       +label(): str
+      +capture_log(signal_dir): void
       +teardown(signal_dir, keep_panes): void
     }
 
@@ -419,6 +421,11 @@ task_runner_pkg: "task_runner/" {
       +merge_pr(runtime, pr_url): void
     }
 
+    TaskLogCapture: "TaskLogCapture <<protocol>>" {
+      shape: class
+      +capture_log(runtime): void
+    }
+
     TaskTeardown: "TaskTeardown <<protocol>>" {
       shape: class
       +teardown(runtime): void
@@ -453,6 +460,7 @@ task_runner_pkg: "task_runner/" {
       _completion_checker: "StepDispatch[TaskCompletionChecker]"
       _gate_checker: TaskGateChecker
       _merger: "StepDispatch[TaskMerger]"
+      _log_capture: "StepDispatch[TaskLogCapture]"
       _teardown: "StepDispatch[TaskTeardown]"
       on_event: "Callable[..., None] | None"
       +run(runtime, teardown_mode): TaskRunResult
@@ -495,6 +503,11 @@ task_runner_pkg: "task_runner/" {
       shape: class
       repo_path: Path
       +merge_pr(runtime, pr_url): void
+    }
+
+    WorktreeTaskLogCapture: "WorktreeTaskLogCapture <<dataclass>>" {
+      shape: class
+      +capture_log(runtime): void
     }
 
     WorktreeTaskTeardown: "WorktreeTaskTeardown <<dataclass>>" {
@@ -1107,12 +1120,13 @@ orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.
 
 # --- task_runner ---
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunner: satisfies { class: implementation }
-task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.StepDispatch: "6 fields" { class: composition }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.StepDispatch: "7 fields" { class: composition }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskPreparer: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskLauncher: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskKickoff: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskMerger: resolves { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskLogCapture: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StepDispatch -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: resolves { class: dependency }
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskGateChecker: _gate_checker { class: composition }
 task_runner_pkg.task_runner_core_pkg.TaskGateChecker -> task_runner_pkg.task_runner_core_pkg.GateCheckResult: returns { class: dependency }
@@ -1130,6 +1144,7 @@ orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickof
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.ShellGateChecker: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.GhTaskMerger: registers { class: dependency }
+orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskLogCapture: registers { class: dependency }
 orchestrator_pkg.builders -> task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown: registers { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer: registers { class: dependency }
@@ -1227,6 +1242,7 @@ task_runner_pkg.task_runner_impl_pkg.TmuxTaskKickoff -> task_runner_pkg.task_run
 task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> task_runner_pkg.task_runner_core_pkg.TaskCompletionChecker: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.ShellGateChecker -> task_runner_pkg.task_runner_core_pkg.TaskGateChecker: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> task_runner_pkg.task_runner_core_pkg.TaskMerger: satisfies { class: implementation }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskLogCapture -> task_runner_pkg.task_runner_core_pkg.TaskLogCapture: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> task_runner_pkg.task_runner_core_pkg.TaskTeardown: satisfies { class: implementation }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }

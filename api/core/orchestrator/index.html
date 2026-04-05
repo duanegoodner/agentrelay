@@ -1878,11 +1878,7 @@ continues to work after promotion from a single module to a package.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
 <span class="normal">79</span>
 <span class="normal">80</span>
 <span class="normal">81</span>
@@ -1897,7 +1893,11 @@ continues to work after promotion from a single module to a package.</p>
 <span class="normal">90</span>
 <span class="normal">91</span>
 <span class="normal">92</span>
-<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskRuntimeBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-task runtime envelopes from a task graph.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -2019,11 +2019,7 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
@@ -2035,7 +2031,11 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 <span class="normal">90</span>
 <span class="normal">91</span>
 <span class="normal">92</span>
-<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRuntime</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all tasks in a graph.</span>
 
@@ -2092,11 +2092,7 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
@@ -2113,7 +2109,11 @@ Each runtime starts with default mutable state/artifacts and no agent.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WorkstreamRuntimeBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for initializing per-workstream runtime envelopes from a graph.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -2237,11 +2237,7 @@ Each runtime starts with default mutable state/artifacts.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
@@ -2255,7 +2251,11 @@ Each runtime starts with default mutable state/artifacts.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_graph</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WorkstreamRuntime</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build initial runtimes for all workstreams in a graph.</span>
 
@@ -3559,13 +3559,13 @@ ended <code>FAILED</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_auto_merger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationAutoMerger</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_auto_merger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationAutoMerger</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard integration auto-merger for GitHub CLI.</span>
 
 <span class="sd">    Returns:</span>
@@ -3622,13 +3622,13 @@ ended <code>FAILED</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_merge_checker</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationMergeChecker</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_merge_checker</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationMergeChecker</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard integration merge checker for GitHub CLI.</span>
 
 <span class="sd">    Returns:</span>
@@ -3674,6 +3674,8 @@ implementations. Refer to the sensitivity table in
 | gate_checker          | ShellGateChecker           | env/fw agnostic       |
 +-----------------------+----------------------------+-----------------------+
 | merger                | GhTaskMerger               | env/fw agnostic       |
++-----------------------+----------------------------+-----------------------+
+| log_capture           | WorktreeTaskLogCapture      | will need entries     |
 +-----------------------+----------------------------+-----------------------+
 | teardown              | WorktreeTaskTeardown       | will need entries     |
 +-----------------------+----------------------------+-----------------------+</p>
@@ -3841,11 +3843,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
 <span class="normal">125</span>
 <span class="normal">126</span>
 <span class="normal">127</span>
@@ -3943,7 +3941,17 @@ implementations. Refer to the sensitivity table in
 <span class="normal">219</span>
 <span class="normal">220</span>
 <span class="normal">221</span>
-<span class="normal">222</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
@@ -3980,6 +3988,8 @@ implementations. Refer to the sensitivity table in
 <span class="sd">    | gate_checker          | ShellGateChecker           | env/fw agnostic       |</span>
 <span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
 <span class="sd">    | merger                | GhTaskMerger               | env/fw agnostic       |</span>
+<span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
+<span class="sd">    | log_capture           | WorktreeTaskLogCapture      | will need entries     |</span>
 <span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
 <span class="sd">    | teardown              | WorktreeTaskTeardown       | will need entries     |</span>
 <span class="sd">    +-----------------------+----------------------------+-----------------------+</span>
@@ -4034,6 +4044,9 @@ implementations. Refer to the sensitivity table in
     <span class="k">def</span><span class="w"> </span><span class="nf">_make_completion_checker</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskCompletionChecker</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">SignalCompletionChecker</span><span class="p">(</span><span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_make_log_capture</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskLogCapture</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WorktreeTaskLogCapture</span><span class="p">()</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_make_teardown</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskTeardown</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">WorktreeTaskTeardown</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="n">keep_panes</span><span class="p">)</span>
 
@@ -4044,6 +4057,7 @@ implementations. Refer to the sensitivity table in
         <span class="n">_completion_checker</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_completion_checker</span><span class="p">),</span>
         <span class="n">_gate_checker</span><span class="o">=</span><span class="n">ShellGateChecker</span><span class="p">(),</span>
         <span class="n">_merger</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_merger</span><span class="p">),</span>
+        <span class="n">_log_capture</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_log_capture</span><span class="p">),</span>
         <span class="n">_teardown</span><span class="o">=</span><span class="n">StepDispatch</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">_make_teardown</span><span class="p">),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -4153,17 +4167,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
 <span class="normal">236</span>
 <span class="normal">237</span>
 <span class="normal">238</span>
@@ -4182,7 +4186,17 @@ implementations. Refer to the sensitivity table in
 <span class="normal">251</span>
 <span class="normal">252</span>
 <span class="normal">253</span>
-<span class="normal">254</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardWorkstreamRunner</span><span class="p">:</span>

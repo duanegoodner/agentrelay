@@ -902,6 +902,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#agentrelay.agent.AgentAddress.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#agentrelay.agent.AgentAddress.teardown" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -973,6 +984,17 @@
     <span class="md-ellipsis">
       
         label
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent.TmuxAddress.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
       
     </span>
   </a>
@@ -1570,6 +1592,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#agentrelay.agent.AgentAddress.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#agentrelay.agent.AgentAddress.teardown" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1641,6 +1674,17 @@
     <span class="md-ellipsis">
       
         label
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent.TmuxAddress.capture_log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        capture_log
       
     </span>
   </a>
@@ -1869,7 +1913,22 @@ details needed to communicate with the agent (pane IDs, endpoints, etc.).</p>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
-<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgentAddress</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgentAddress</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base for addressing a running agent instance.</span>
 
 <span class="sd">    Defines the interface for locating a live agent regardless of execution</span>
@@ -1890,6 +1949,18 @@ details needed to communicate with the agent (pane IDs, endpoints, etc.).</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Capture agent execution log to the signal directory.</span>
+
+<span class="sd">        Called unconditionally when a task reaches a terminal status, regardless</span>
+<span class="sd">        of teardown mode. The default implementation is a no-op; subclasses</span>
+<span class="sd">        override for environment-specific log capture (e.g. tmux scrollback).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            signal_dir: Directory for writing the captured log. None if no</span>
+<span class="sd">                signal directory is available.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1897,9 +1968,12 @@ details needed to communicate with the agent (pane IDs, endpoints, etc.).</p>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Release environment-specific resources for this agent address.</span>
 
-<span class="sd">        Called during task teardown to capture logs and clean up. The default</span>
+<span class="sd">        Called during task teardown to clean up execution resources. The default</span>
 <span class="sd">        implementation is a no-op; subclasses override for environment-specific</span>
-<span class="sd">        cleanup (e.g. capturing tmux pane scrollback, killing windows).</span>
+<span class="sd">        cleanup (e.g. killing tmux windows, deleting branches).</span>
+
+<span class="sd">        If ``capture_log()`` has already written ``agent.log``, implementations</span>
+<span class="sd">        should skip redundant capture (idempotent).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            signal_dir: Directory for writing teardown artifacts (e.g. agent logs).</span>
@@ -1972,6 +2046,84 @@ details needed to communicate with the agent (pane IDs, endpoints, etc.).</p>
 <div class="doc doc-object doc-function">
 
 
+<h3 id="agentrelay.agent.AgentAddress.capture_log" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Capture agent execution log to the signal directory.</p>
+<p>Called unconditionally when a task reaches a terminal status, regardless
+of teardown mode. The default implementation is a no-op; subclasses
+override for environment-specific log capture (e.g. tmux scrollback).</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>signal_dir</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Directory for writing the captured log. None if no
+signal directory is available.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent/core/addressing.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture agent execution log to the signal directory.</span>
+
+<span class="sd">    Called unconditionally when a task reaches a terminal status, regardless</span>
+<span class="sd">    of teardown mode. The default implementation is a no-op; subclasses</span>
+<span class="sd">    override for environment-specific log capture (e.g. tmux scrollback).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        signal_dir: Directory for writing the captured log. None if no</span>
+<span class="sd">            signal directory is available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="agentrelay.agent.AgentAddress.teardown" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">teardown</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
 
@@ -1981,9 +2133,11 @@ details needed to communicate with the agent (pane IDs, endpoints, etc.).</p>
     <div class="doc doc-contents ">
 
         <p>Release environment-specific resources for this agent address.</p>
-<p>Called during task teardown to capture logs and clean up. The default
+<p>Called during task teardown to clean up execution resources. The default
 implementation is a no-op; subclasses override for environment-specific
-cleanup (e.g. capturing tmux pane scrollback, killing windows).</p>
+cleanup (e.g. killing tmux windows, deleting branches).</p>
+<p>If <code>capture_log()</code> has already written <code>agent.log</code>, implementations
+should skip redundant capture (idempotent).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -2037,32 +2191,38 @@ None if no signal directory is available.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent/core/addressing.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
-<span class="normal">54</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Release environment-specific resources for this agent address.</span>
 
-<span class="sd">    Called during task teardown to capture logs and clean up. The default</span>
+<span class="sd">    Called during task teardown to clean up execution resources. The default</span>
 <span class="sd">    implementation is a no-op; subclasses override for environment-specific</span>
-<span class="sd">    cleanup (e.g. capturing tmux pane scrollback, killing windows).</span>
+<span class="sd">    cleanup (e.g. killing tmux windows, deleting branches).</span>
+
+<span class="sd">    If ``capture_log()`` has already written ``agent.log``, implementations</span>
+<span class="sd">    should skip redundant capture (idempotent).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        signal_dir: Directory for writing teardown artifacts (e.g. agent logs).</span>
@@ -2458,7 +2618,22 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TmuxAddress</span><span class="p">(</span><span class="n">AgentAddress</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Address of an agent running in a tmux pane.</span>
 
@@ -2479,18 +2654,13 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pane_id</span><span class="si">}</span><span class="s2">&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Capture pane scrollback and optionally kill the tmux window.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Capture pane scrollback and write ``agent.log``.</span>
 
 <span class="sd">        Best-effort: errors are swallowed since the pane may already be gone.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            signal_dir: If provided, pane scrollback is written as ``agent.log``.</span>
-<span class="sd">            keep_panes: If True, keep the tmux window open for debugging.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">log</span> <span class="o">=</span> <span class="n">tmux</span><span class="o">.</span><span class="n">capture_pane</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pane_id</span><span class="p">,</span> <span class="n">full_history</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2498,6 +2668,26 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
                 <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;agent.log&quot;</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
             <span class="k">pass</span>  <span class="c1"># Best-effort: pane may already be gone</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optionally capture scrollback (if not already done) and kill the tmux window.</span>
+
+<span class="sd">        Scrollback capture is skipped if ``agent.log`` already exists in the</span>
+<span class="sd">        signal directory (idempotent with prior ``capture_log()`` call).</span>
+
+<span class="sd">        Best-effort: errors are swallowed since the pane may already be gone.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            signal_dir: If provided and ``agent.log`` is missing, pane</span>
+<span class="sd">                scrollback is captured before cleanup.</span>
+<span class="sd">            keep_panes: If True, keep the tmux window open for debugging.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;agent.log&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_panes</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -2568,15 +2758,15 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="agentrelay.agent.TmuxAddress.teardown" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">teardown</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h3 id="agentrelay.agent.TmuxAddress.capture_log" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
 
     <div class="doc doc-contents ">
 
-        <p>Capture pane scrollback and optionally kill the tmux window.</p>
+        <p>Capture pane scrollback and write <code>agent.log</code>.</p>
 <p>Best-effort: errors are swallowed since the pane may already be gone.</p>
 
 
@@ -2607,6 +2797,90 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
                   <code>None</code>
             </td>
           </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent/implementations/tmux_address.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">capture_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture pane scrollback and write ``agent.log``.</span>
+
+<span class="sd">    Best-effort: errors are swallowed since the pane may already be gone.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        signal_dir: If provided, pane scrollback is written as ``agent.log``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="n">tmux</span><span class="o">.</span><span class="n">capture_pane</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pane_id</span><span class="p">,</span> <span class="n">full_history</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;agent.log&quot;</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># Best-effort: pane may already be gone</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.agent.TmuxAddress.teardown" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">teardown</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Optionally capture scrollback (if not already done) and kill the tmux window.</p>
+<p>Scrollback capture is skipped if <code>agent.log</code> already exists in the
+signal directory (idempotent with prior <code>capture_log()</code> call).</p>
+<p>Best-effort: errors are swallowed since the pane may already be gone.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>signal_dir</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If provided and <code>agent.log</code> is missing, pane
+scrollback is captured before cleanup.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
           <tr class="doc-section-item">
             <td>
                 <code>keep_panes</code>
@@ -2629,22 +2903,7 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent/implementations/tmux_address.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">54</span>
 <span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
@@ -2653,25 +2912,40 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
-<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">signal_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture pane scrollback and optionally kill the tmux window.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optionally capture scrollback (if not already done) and kill the tmux window.</span>
+
+<span class="sd">    Scrollback capture is skipped if ``agent.log`` already exists in the</span>
+<span class="sd">    signal directory (idempotent with prior ``capture_log()`` call).</span>
 
 <span class="sd">    Best-effort: errors are swallowed since the pane may already be gone.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        signal_dir: If provided, pane scrollback is written as ``agent.log``.</span>
+<span class="sd">        signal_dir: If provided and ``agent.log`` is missing, pane</span>
+<span class="sd">            scrollback is captured before cleanup.</span>
 <span class="sd">        keep_panes: If True, keep the tmux window open for debugging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">log</span> <span class="o">=</span> <span class="n">tmux</span><span class="o">.</span><span class="n">capture_pane</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pane_id</span><span class="p">,</span> <span class="n">full_history</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;agent.log&quot;</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
-    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
-        <span class="k">pass</span>  <span class="c1"># Best-effort: pane may already be gone</span>
+    <span class="k">if</span> <span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;agent.log&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_panes</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
