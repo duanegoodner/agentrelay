@@ -1222,3 +1222,47 @@ def test_mixed_pr_merged_and_completed_workstream_succeeds() -> None:
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     assert result.task_runtimes["a"].status == TaskStatus.COMPLETED
     assert result.task_runtimes["b"].status == TaskStatus.PR_MERGED
+
+
+def test_all_prless_workstream_skips_integration_pr() -> None:
+    """When all tasks complete without PRs, integration is skipped."""
+
+    @dataclass
+    class SkipIntegrationRunner:
+        prepare_calls: list[str] = field(default_factory=list)
+        integrate_calls: list[str] = field(default_factory=list)
+        teardown_calls: list[str] = field(default_factory=list)
+
+        def prepare(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
+            self.prepare_calls.append(workstream_runtime.spec.id)
+            workstream_runtime.state.signal_dir = Path(tempfile.mkdtemp())
+            workstream_runtime.mark_pending()
+            workstream_runtime.mark_active()
+
+        def integrate(  # noqa: D102
+            self, workstream_runtime: WorkstreamRuntime
+        ) -> WorkstreamRunResult:
+            self.integrate_calls.append(workstream_runtime.spec.id)
+            workstream_runtime.mark_merged()
+            return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+        def teardown(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
+            self.teardown_calls.append(workstream_runtime.spec.id)
+
+    graph = TaskGraph.from_tasks((_task("a"),))
+    runner = ScriptedTaskRunner(script={("a", 0): "success_no_pr"})
+    ws_runner = SkipIntegrationRunner()
+
+    result = asyncio.run(
+        Orchestrator(
+            graph=graph,
+            task_runner=runner,
+            workstream_runner=ws_runner,
+        ).run()
+    )
+
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED
+    assert result.task_runtimes["a"].status == TaskStatus.COMPLETED
+    assert result.workstream_runtimes["default"].status == WorkstreamStatus.MERGED
+    assert any(e.kind == "workstream_integration_skipped" for e in result.events)
+    assert not any(e.kind == "workstream_pr_created" for e in result.events)

@@ -200,6 +200,19 @@ class TestConsoleListenerEvents:
         assert "auto-merged" in output
         assert "https://example.com/pr/5" in output
 
+    def test_workstream_integration_skipped(self) -> None:
+        listener, buf = _listener()
+        listener.on_event(
+            _event(
+                "workstream_integration_skipped",
+                workstream_id="ws_add",
+                message="no commits ahead of base",
+            )
+        )
+        output = buf.getvalue()
+        assert "integration skipped" in output
+        assert "ws_add" in output
+
     def test_workstream_auto_merge_skipped(self) -> None:
         listener, buf = _listener()
         listener.on_event(

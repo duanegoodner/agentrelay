@@ -143,6 +143,34 @@ def test_standard_runner_satisfies_protocol() -> None:
     assert isinstance(runner, WorkstreamRunner)
 
 
+def test_integrate_skip_transitions_to_merged() -> None:
+    """When integrator marks merged (skip), runner returns MERGED status."""
+
+    @dataclass
+    class SkipIntegrator:
+        calls: list[str] = field(default_factory=list)
+
+        def create_integration_pr(self, workstream_runtime: WorkstreamRuntime) -> None:
+            self.calls.append("integrate")
+            workstream_runtime.mark_merged()
+
+    skip_io = SkipIntegrator()
+    fake = FakeWorkstreamIO()
+    runner = StandardWorkstreamRunner(
+        _preparer=fake,
+        _integrator=skip_io,
+        _teardown=fake,
+    )
+    runtime = _make_runtime()
+
+    result = runner.integrate(runtime)
+
+    assert skip_io.calls == ["integrate"]
+    assert result.status == WorkstreamStatus.MERGED
+    assert result.error is None
+    assert runtime.status == WorkstreamStatus.MERGED
+
+
 def test_workstream_run_result_from_runtime() -> None:
     runtime = _make_runtime("ws-test")
     runtime.mark_pr_created("https://example.com/ws-test/integration-pr")

@@ -748,24 +748,32 @@ class _OrchestratorRun:
                     for tid in task_ids
                 ]
                 result = self._orchestrator.workstream_runner.integrate(ws_runtime)
-                self._emit(
-                    OrchestratorEvent(
-                        kind=(
-                            "workstream_pr_created"
-                            if result.status == WorkstreamStatus.PR_CREATED
-                            else "workstream_integration_failed"
-                        ),
-                        workstream_id=workstream_id,
-                        message=(
-                            ws_runtime.artifacts.merge_pr_url
-                            if result.status == WorkstreamStatus.PR_CREATED
-                            else result.error
-                        ),
-                    ),
-                )
 
-                if result.status == WorkstreamStatus.PR_CREATED:
+                if result.status == WorkstreamStatus.MERGED:
+                    self._emit(
+                        OrchestratorEvent(
+                            kind="workstream_integration_skipped",
+                            workstream_id=workstream_id,
+                            message="no commits ahead of base — skipped integration PR",
+                        ),
+                    )
+                elif result.status == WorkstreamStatus.PR_CREATED:
+                    self._emit(
+                        OrchestratorEvent(
+                            kind="workstream_pr_created",
+                            workstream_id=workstream_id,
+                            message=ws_runtime.artifacts.merge_pr_url,
+                        ),
+                    )
                     self._try_auto_merge(workstream_id, ws_runtime)
+                else:
+                    self._emit(
+                        OrchestratorEvent(
+                            kind="workstream_integration_failed",
+                            workstream_id=workstream_id,
+                            message=result.error,
+                        ),
+                    )
 
     def _try_auto_merge(
         self, workstream_id: str, ws_runtime: WorkstreamRuntime

@@ -371,3 +371,20 @@ def push_force_with_lease(repo: Path, branch: str) -> None:
         check=True,
         capture_output=True,
     )
+
+
+def rev_list_count(repo: Path, base: str, head: str) -> int:
+    """Count commits reachable from *head* but not from *base*.
+
+    Runs ``git -C <repo> rev-list --count <base>..<head>``.
+
+    Returns:
+        Number of commits ahead.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo), "rev-list", "--count", f"{base}..{head}"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return int(result.stdout.strip())

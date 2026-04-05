@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from agentrelay.ops import gh
+from agentrelay.ops import gh, git
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
 
 
@@ -78,6 +78,13 @@ class GhWorkstreamIntegrator:
         spec = workstream_runtime.spec
         branch_name = workstream_runtime.state.branch_name
         assert branch_name is not None, "branch_name must be set before integration"
+
+        ahead = git.rev_list_count(
+            self.repo_path, spec.merge_target_branch, branch_name
+        )
+        if ahead == 0:
+            workstream_runtime.mark_merged()
+            return
 
         body = _build_pr_body(workstream_runtime)
 
