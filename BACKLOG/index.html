@@ -2302,6 +2302,10 @@ signal files).</p>
 <li><strong>Role template simplification</strong>: As structured I/O contracts make more of
   the role-specific guidance derivable from data, simplify or generalize role
   templates. Preserve role-specific concern guidance.</li>
+<li><strong>Typed output categories</strong>: <code>OutputEntry.category</code> is currently a free-form
+  <code>str</code>. After sufficient e2e usage, review which categories agents actually
+  use in practice and consider introducing an <code>OutputCategory</code> enum (with a
+  fallback for custom values). Only worth doing once real usage patterns emerge.</li>
 </ul>
 <p>Full design: <code>docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md</code>.</p>
 <h2 id="agent-instruction-architecture">Agent Instruction Architecture</h2>

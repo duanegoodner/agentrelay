@@ -935,6 +935,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.OutputAction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputAction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.OutputEntry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputEntry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.OutputManifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputManifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.agent_sdk.TaskHelper" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1039,6 +1072,17 @@
     <span class="md-ellipsis">
       
         write_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.TaskHelper.declare_output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        declare_output
       
     </span>
   </a>
@@ -1496,6 +1540,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.OutputAction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputAction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.OutputEntry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputEntry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.OutputManifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OutputManifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.agent_sdk.TaskHelper" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1606,6 +1683,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#agentrelay.agent_sdk.TaskHelper.declare_output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        declare_output
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1664,6 +1752,375 @@
 
 
 
+<h2 id="agentrelay.agent_sdk.OutputAction" class="doc doc-heading">
+            <code>OutputAction</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="str">str</span></code>, <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Action performed on a file by the agent.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputAction.CREATED">CREATED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>File was newly created.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputAction.MODIFIED">MODIFIED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Existing file was modified.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputAction.DELETED">DELETED</span></code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Existing file was deleted.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent_sdk/output_manifest.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OutputAction</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Action performed on a file by the agent.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        CREATED: File was newly created.</span>
+<span class="sd">        MODIFIED: Existing file was modified.</span>
+<span class="sd">        DELETED: Existing file was deleted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">CREATED</span> <span class="o">=</span> <span class="s2">&quot;created&quot;</span>
+    <span class="n">MODIFIED</span> <span class="o">=</span> <span class="s2">&quot;modified&quot;</span>
+    <span class="n">DELETED</span> <span class="o">=</span> <span class="s2">&quot;deleted&quot;</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent_sdk.OutputEntry" class="doc doc-heading">
+            <code>OutputEntry</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>A single file entry in the output manifest.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputEntry.path">path</span></code></td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>File path relative to the repository root.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputEntry.action">action</span></code></td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OutputAction (agentrelay.agent_sdk.output_manifest.OutputAction)" href="#agentrelay.agent_sdk.OutputAction">OutputAction</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>What the agent did to this file.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputEntry.category">category</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Semantic category (e.g. <code>"stubs"</code>, <code>"tests"</code>).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent_sdk/output_manifest.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputEntry</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A single file entry in the output manifest.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        path: File path relative to the repository root.</span>
+<span class="sd">        action: What the agent did to this file.</span>
+<span class="sd">        category: Semantic category (e.g. ``&quot;stubs&quot;``, ``&quot;tests&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">OutputAction</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.agent_sdk.OutputManifest" class="doc doc-heading">
+            <code>OutputManifest</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Output manifest declaring what files an agent produced.</p>
+<p>Not frozen because entries are appended incrementally via
+:meth:<code>~agentrelay.agent_sdk.TaskHelper.declare_output</code>.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputManifest.schema_version">schema_version</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Schema version string.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="agentrelay.agent_sdk.OutputManifest.files">files</span></code></td>
+            <td>
+                  <code><span title="list">list</span>[<a class="autorefs autorefs-internal" title="OutputEntry
+
+
+  
+      dataclass
+   (agentrelay.agent_sdk.output_manifest.OutputEntry)" href="#agentrelay.agent_sdk.OutputEntry">OutputEntry</a>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of output file entries.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/agent_sdk/output_manifest.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputManifest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Output manifest declaring what files an agent produced.</span>
+
+<span class="sd">    Not frozen because entries are appended incrementally via</span>
+<span class="sd">    :meth:`~agentrelay.agent_sdk.TaskHelper.declare_output`.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        schema_version: Schema version string.</span>
+<span class="sd">        files: List of output file entries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">OUTPUT_MANIFEST_SCHEMA_VERSION</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">OutputEntry</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="agentrelay.agent_sdk.TaskHelper" class="doc doc-heading">
             <code>TaskHelper</code>
 
@@ -1689,16 +2146,7 @@ agents don't need to know protocol details.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 29</span>
-<span class="normal"> 30</span>
-<span class="normal"> 31</span>
-<span class="normal"> 32</span>
-<span class="normal"> 33</span>
-<span class="normal"> 34</span>
-<span class="normal"> 35</span>
-<span class="normal"> 36</span>
-<span class="normal"> 37</span>
-<span class="normal"> 38</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 38</span>
 <span class="normal"> 39</span>
 <span class="normal"> 40</span>
 <span class="normal"> 41</span>
@@ -1935,7 +2383,43 @@ agents don't need to know protocol details.</p>
 <span class="normal">272</span>
 <span class="normal">273</span>
 <span class="normal">274</span>
-<span class="normal">275</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskHelper</span><span class="p">:</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskHelper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Agent-side helper for task workflow interaction.</span>
 
 <span class="sd">    Encapsulates signal file I/O, PR creation, and concern recording so</span>
@@ -2160,6 +2644,33 @@ agents don't need to know protocol details.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;summary.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
+    <span class="c1"># -- Output declarations -----------------------------------------------</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">declare_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OutputAction</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Declare a file in the output manifest.</span>
+
+<span class="sd">        Appends a single file entry to ``outputs.json`` in the signal</span>
+<span class="sd">        directory.  Creates the file on first call; subsequent calls</span>
+<span class="sd">        read-append-write to preserve earlier entries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: File path relative to the repository root.</span>
+<span class="sd">            action: What was done to the file (created, modified, deleted).</span>
+<span class="sd">            category: Semantic category (e.g. ``&quot;stubs&quot;``, ``&quot;tests&quot;``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">manifest_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="n">OUTPUT_MANIFEST_FILENAME</span>
+        <span class="k">if</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">manifest</span> <span class="o">=</span> <span class="n">output_manifest_from_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">manifest_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">manifest</span> <span class="o">=</span> <span class="n">OutputManifest</span><span class="p">()</span>
+
+        <span class="n">manifest</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OutputEntry</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">manifest_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output_manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
     <span class="c1"># -- Internal ----------------------------------------------------------</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_read_concerns</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -2251,22 +2762,22 @@ agents don't need to know protocol details.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
 <span class="normal">64</span>
-<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_env</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskHelper</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct from ``$AGENTRELAY_SIGNAL_DIR`` and its ``manifest.json``.</span>
 
@@ -2307,14 +2818,14 @@ instead of a PR URL.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">complete_without_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">complete_without_pr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Signal task completion without creating a PR.</span>
 
 <span class="sd">    Use this when the task produced no code changes (e.g., review-only</span>
@@ -2394,24 +2905,24 @@ the <code>.done</code> signal file with the PR URL.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">complete</span><span class="p">(</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">complete</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2549,16 +3060,7 @@ in the PR body.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
@@ -2647,7 +3149,16 @@ in the PR body.</p>
 <span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span>
-<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_pr</span><span class="p">(</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_pr</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2799,13 +3310,13 @@ in the PR body.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the ``.done`` signal file.</span>
 
 <span class="sd">    Args:</span>
@@ -2865,13 +3376,13 @@ in the PR body.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">mark_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the ``.failed`` signal file.</span>
 
 <span class="sd">    Args:</span>
@@ -2933,18 +3444,18 @@ orchestrator reads this file after task completion.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">224</span>
 <span class="normal">225</span>
-<span class="normal">226</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">record_concern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">record_concern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Record a design concern.</span>
 
 <span class="sd">    Appends a line to ``concerns.log`` in the signal directory. The</span>
@@ -3012,19 +3523,19 @@ friction, and similar environmental issues.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">237</span>
 <span class="normal">238</span>
 <span class="normal">239</span>
-<span class="normal">240</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">record_ops_concern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">record_ops_concern</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">concern</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Record an operational concern.</span>
 
 <span class="sd">    Appends a line to ``ops_concerns.log`` in the signal directory.</span>
@@ -3093,17 +3604,17 @@ cannot derive a summary from a PR body.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a task summary to summary.md.</span>
 
 <span class="sd">    Overwrites any existing summary. Use this to record what the task</span>
@@ -3114,6 +3625,141 @@ cannot derive a summary from a PR body.</p>
 <span class="sd">        message: Summary text (markdown).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="s2">&quot;summary.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.agent_sdk.TaskHelper.declare_output" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">declare_output</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">category</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Declare a file in the output manifest.</p>
+<p>Appends a single file entry to <code>outputs.json</code> in the signal
+directory.  Creates the file on first call; subsequent calls
+read-append-write to preserve earlier entries.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>path</code>
+            </td>
+            <td>
+                  <code><span title="pathlib.Path">Path</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>File path relative to the repository root.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>action</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="OutputAction (agentrelay.agent_sdk.output_manifest.OutputAction)" href="#agentrelay.agent_sdk.OutputAction">OutputAction</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>What was done to the file (created, modified, deleted).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>category</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Semantic category (e.g. <code>"stubs"</code>, <code>"tests"</code>).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/agent_sdk/task_helper.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">declare_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OutputAction</span><span class="p">,</span> <span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Declare a file in the output manifest.</span>
+
+<span class="sd">    Appends a single file entry to ``outputs.json`` in the signal</span>
+<span class="sd">    directory.  Creates the file on first call; subsequent calls</span>
+<span class="sd">    read-append-write to preserve earlier entries.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path: File path relative to the repository root.</span>
+<span class="sd">        action: What was done to the file (created, modified, deleted).</span>
+<span class="sd">        category: Semantic category (e.g. ``&quot;stubs&quot;``, ``&quot;tests&quot;``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span> <span class="o">/</span> <span class="n">OUTPUT_MANIFEST_FILENAME</span>
+    <span class="k">if</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">output_manifest_from_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">manifest_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">OutputManifest</span><span class="p">()</span>
+
+    <span class="n">manifest</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OutputEntry</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="n">category</span><span class="p">))</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">signal_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">manifest_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output_manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
