@@ -80,6 +80,7 @@ workstream_pkg -> ops_pkg { class: dependency }
 agent_comm_protocol_pkg -> task_py { class: dependency }
 task_runner_pkg -> ops_pkg { class: dependency }
 task_runner_pkg -> agent_comm_protocol_pkg { class: dependency }
+task_runner_pkg -> agent_sdk_pkg { class: dependency }
 agent_pkg -> ops_pkg { class: dependency }
 run_graph_py -> task_graph_pkg { class: dependency }
 run_graph_py -> orchestrator_pkg { class: dependency }
