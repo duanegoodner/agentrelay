@@ -2252,10 +2252,13 @@
 </ul>
 <h2 id="graph-execution">Graph Execution</h2>
 <ul>
-<li><strong>CLI flag for <code>fail_fast_on_internal_error</code></strong>:
-  <code>OrchestratorConfig.fail_fast_on_internal_error</code> has no CLI flag. Add
-  <code>--fail-fast-on-internal-error</code> / <code>--no-fail-fast-on-internal-error</code> to
-  <code>run_graph.py</code>. (<code>fail_fast_on_workstream_error</code> is done — see PR #C.)</li>
+<li><strong>E2e graph for internal error fail-fast</strong>: The <code>fail_fast_on_internal_error</code>
+  CLI flag is implemented but has no e2e coverage. Internal errors require
+  infrastructure-level failures (Docker, git, GitHub API), which are hard to
+  trigger from a graph YAML alone. A graph referencing an invalid OCI image
+  (e.g., nonexistent Docker image) would reliably raise during task
+  preparation and could validate both <code>--fail-fast-on-internal-error</code> and
+  <code>--no-fail-fast-on-internal-error</code> behavior. Belongs in <code>graphs/failure/</code>.</li>
 <li>Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   <code>.workflow/&lt;graph&gt;</code> and <code>.worktrees/&lt;graph&gt;</code> directory names so multiple runs
   of the same graph can coexist. Requires updating <code>reset_graph</code> to discover
