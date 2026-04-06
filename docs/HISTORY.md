@@ -4,6 +4,35 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-05
+
+### Output composition and execution polish (sprint 2026-04-05 PRs A–C)
+
+- **`inputs_from` graph YAML extension** (PR #163): `InputsFrom` dataclass
+  and optional `inputs_from` field on `Task`. Downstream tasks reference
+  upstream outputs by task ID and optional category. Orchestrator resolves
+  `inputs_from` at prepare time by reading upstream `outputs.json`, filtering
+  by category, and merging with explicit `paths`. Validation rejects
+  references to non-dependency tasks. Resolved input files appear in
+  `manifest.json` and agent instructions ("Input Files" section). Added
+  `graphs/smoke/inputs_from_chain.yaml` e2e graph. Design philosophy:
+  `inputs_from` is guidance, not restriction — agents retain full graph
+  awareness and can explore beyond declared inputs.
+- **Integration PR body refinement** (PR #164): `TaskSummary.summary_text`
+  field populated from `summary.md` in each task's signal directory.
+  Integration PR body now includes agent-written summaries as collapsible
+  `<details>` sections. Long task descriptions truncated. Tasks without
+  descriptions fall back to task ID + role instead of "(no description)".
+- **`fail_fast_on_internal_error` CLI flag** (PR #165):
+  `--fail-fast-on-internal-error` / `--no-fail-fast-on-internal-error` CLI
+  flag and `fail_fast_on_internal_error` graph YAML field. Precedence: CLI
+  overrides YAML, YAML overrides default (`True`). Completes the fail-fast
+  configuration surface (workstream error flag shipped in PR #159).
+- All 3 PRs developed in parallel across git worktrees, merged sequentially.
+  1348 tests (75 new).
+
+---
+
 ## 2026-04-04
 
 ### Execution quality and output manifests (sprint 2026-04-04 PRs A–E)

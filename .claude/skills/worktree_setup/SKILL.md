@@ -31,11 +31,14 @@ $ARGUMENTS names which PRs to create worktrees for (e.g., "C D E").
 
 4. **Create worktrees.** For each PR, run:
    ```
-   git -C <bare-repo-path> worktree add <worktrees-dir>/<branch-name> -b <branch-name> main
+   git -C <bare-repo-path> worktree add <worktrees-dir>/<dir-name> -b <branch-name> main
    ```
-   Use the branch name from the sprint doc (e.g., `feat/agent-summary-command`).
-   The worktree directory name should match the branch name with `/` replaced
-   by `-` (e.g., `feat-agent-summary-command`).
+   Use the branch name from the sprint doc (e.g., `feat/inputs-from`).
+   The worktree directory name should start with the PR label followed by
+   a short subject derived from the branch name. For example, PR A with
+   branch `feat/inputs-from` gets directory name `pr-A-inputs-from`.
+   This makes it easy to identify which worktree corresponds to which
+   sprint PR.
 
 5. **Report results.** Print a summary table:
    - PR identifier (e.g., "PR C")
