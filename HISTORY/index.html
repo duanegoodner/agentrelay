@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-05
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-05">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-composition-and-execution-polish-sprint-2026-04-05-prs-ac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output composition and execution polish (sprint 2026-04-05 PRs A–C)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-04" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2275,6 +2303,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-05
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-05">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output-composition-and-execution-polish-sprint-2026-04-05-prs-ac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output composition and execution polish (sprint 2026-04-05 PRs A–C)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-04" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3212,6 +3268,33 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-04-05">2026-04-05</h2>
+<h3 id="output-composition-and-execution-polish-sprint-2026-04-05-prs-ac">Output composition and execution polish (sprint 2026-04-05 PRs A–C)</h3>
+<ul>
+<li><strong><code>inputs_from</code> graph YAML extension</strong> (PR #163): <code>InputsFrom</code> dataclass
+  and optional <code>inputs_from</code> field on <code>Task</code>. Downstream tasks reference
+  upstream outputs by task ID and optional category. Orchestrator resolves
+  <code>inputs_from</code> at prepare time by reading upstream <code>outputs.json</code>, filtering
+  by category, and merging with explicit <code>paths</code>. Validation rejects
+  references to non-dependency tasks. Resolved input files appear in
+  <code>manifest.json</code> and agent instructions ("Input Files" section). Added
+  <code>graphs/smoke/inputs_from_chain.yaml</code> e2e graph. Design philosophy:
+  <code>inputs_from</code> is guidance, not restriction — agents retain full graph
+  awareness and can explore beyond declared inputs.</li>
+<li><strong>Integration PR body refinement</strong> (PR #164): <code>TaskSummary.summary_text</code>
+  field populated from <code>summary.md</code> in each task's signal directory.
+  Integration PR body now includes agent-written summaries as collapsible
+  <code>&lt;details&gt;</code> sections. Long task descriptions truncated. Tasks without
+  descriptions fall back to task ID + role instead of "(no description)".</li>
+<li><strong><code>fail_fast_on_internal_error</code> CLI flag</strong> (PR #165):
+  <code>--fail-fast-on-internal-error</code> / <code>--no-fail-fast-on-internal-error</code> CLI
+  flag and <code>fail_fast_on_internal_error</code> graph YAML field. Precedence: CLI
+  overrides YAML, YAML overrides default (<code>True</code>). Completes the fail-fast
+  configuration surface (workstream error flag shipped in PR #159).</li>
+<li>All 3 PRs developed in parallel across git worktrees, merged sequentially.
+  1348 tests (75 new).</li>
+</ul>
 <hr />
 <h2 id="2026-04-04">2026-04-04</h2>
 <h3 id="execution-quality-and-output-manifests-sprint-2026-04-04-prs-ae">Execution quality and output manifests (sprint 2026-04-04 PRs A–E)</h3>

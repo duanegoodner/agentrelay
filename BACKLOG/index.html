@@ -630,17 +630,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-graph-awareness-for-agents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task Graph Awareness for Agents
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#output-driven-task-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -701,17 +690,6 @@
     <span class="md-ellipsis">
       
         Spec writer: source-of-truth for specs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#skip-integration-pr-when-all-tasks-are-pr-less" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Skip integration PR when all tasks are PR-less
       
     </span>
   </a>
@@ -805,39 +783,6 @@
     <span class="md-ellipsis">
       
         Agent Context Sharing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agent-worktree-awareness" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent Worktree Awareness
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agent-sdk-retry-support" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent SDK Retry Support
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retry-agent-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retry Agent Context
       
     </span>
   </a>
@@ -1780,17 +1725,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#task-graph-awareness-for-agents" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Task Graph Awareness for Agents
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#output-driven-task-composition" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1851,17 +1785,6 @@
     <span class="md-ellipsis">
       
         Spec writer: source-of-truth for specs
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#skip-integration-pr-when-all-tasks-are-pr-less" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Skip integration PR when all tasks are PR-less
       
     </span>
   </a>
@@ -1955,39 +1878,6 @@
     <span class="md-ellipsis">
       
         Agent Context Sharing
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agent-worktree-awareness" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent Worktree Awareness
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#agent-sdk-retry-support" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent SDK Retry Support
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#retry-agent-context" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Retry Agent Context
       
     </span>
   </a>
@@ -2270,30 +2160,8 @@
 <li><code>workspace.py</code> (<code>LocalWorkspaceRef</code>, <code>WorkspaceRef</code>) — removed in the same PR. Was intended to model workspace/repo references.</li>
 <li>View protocols (<code>TaskStateView</code>, <code>TaskArtifactsView</code>, <code>TaskRuntimeView</code>, <code>WorkstreamStateView</code>, <code>WorkstreamArtifactsView</code>, <code>WorkstreamRuntimeView</code>) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.</li>
 </ul>
-<h2 id="task-graph-awareness-for-agents">Task Graph Awareness for Agents</h2>
-<p>Agents currently have no formal knowledge of their position in the task
-graph. They see upstream task file changes via the shared worktree, and
-<code>manifest.json</code> lists dependency IDs with descriptions, but nothing tells
-the agent how to find upstream task artifacts (PR summaries, concerns,
-signal files).</p>
-<p>Ideas to explore:
-- Wire up <code>context.md</code> with basic graph position info (dependency IDs,
-  signal directory paths, PR URLs from completed upstream tasks).
-- Give agents a tool or CLI command to query upstream task artifacts
-  (e.g., <code>agentrelay-upstream &lt;task_id&gt;</code> returning summary, concerns,
-  PR URL).
-- The <code>context.md</code> infrastructure already exists in <code>WorktreeTaskPreparer</code>
-  (field + write logic) and every role template says "If context.md
-  exists, read it first" — just needs to be wired in <code>run_graph.py</code>
-  or the orchestrator builder.</p>
 <h2 id="output-driven-task-composition">Output-Driven Task Composition</h2>
 <ul>
-<li><strong>Output manifests and <code>agentrelay-declare</code></strong>: Agents declare what files they
-  created or modified, with semantic categories (stubs, tests, implementation,
-  spec, etc.) via a new SDK command. Writes <code>outputs.json</code> to the signal
-  directory. Foundation for <code>inputs_from</code> and <code>expected_outputs</code> below. Depends
-  on e2e observation from sprint 2026-04-03 (agent graph awareness) to validate
-  that agents use graph-wide context effectively.</li>
 <li><strong><code>inputs_from</code> graph YAML extension</strong>: Downstream tasks reference upstream
   outputs by task ID and optional category instead of hardcoded file paths.
   Orchestrator resolves inputs at prepare time by reading upstream
@@ -2410,14 +2278,6 @@ information and risks drift. The spec_writer template should default to
 source-only specs; the supplementary <code>.md</code> spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).</p>
-<h3 id="skip-integration-pr-when-all-tasks-are-pr-less">Skip integration PR when all tasks are PR-less</h3>
-<p>When every task in a workstream completes without a PR (e.g., a
-workstream containing only <code>test_reviewer</code> tasks), the integration branch
-has no commits different from <code>main</code>. <code>GhWorkstreamIntegrator</code> still
-attempts <code>gh pr create</code>, which fails because GitHub rejects empty PRs.
-The workstream should detect that no task produced a PR and skip
-integration entirely — transition directly to MERGED (or a new terminal
-state) instead of attempting a no-op integration PR.</p>
 <h3 id="refine-integration-pr-body">Refine integration PR body</h3>
 <p>Once all task types write <code>summary.md</code> files (PR-backed tasks via
 orchestrator PR body fetch, PR-less tasks via <code>agentrelay-summary</code>),
@@ -2629,26 +2489,6 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   for it now, but ensure filesystem conventions established in graph YAML delivery
   don't accidentally preclude it.</li>
 </ul>
-<h2 id="agent-worktree-awareness">Agent Worktree Awareness</h2>
-<ul>
-<li>~~<strong>Agent navigates out of worktree</strong>~~: Addressed in PR #152 (worktree CWD
-  guidance in agent instructions). OCI isolation hard-prevents at Level 2.</li>
-</ul>
-<h2 id="agent-sdk-retry-support">Agent SDK Retry Support</h2>
-<ul>
-<li>~~<strong><code>agentrelay-complete</code> fails on retry when PR already exists</strong>~~: Fixed in
-  PR #149 (<code>create_pr()</code> probes for existing open PR and reuses it on retry).</li>
-</ul>
-<h2 id="retry-agent-context">Retry Agent Context</h2>
-<ul>
-<li>~~<strong>Retry agent awareness of previous attempt artifacts</strong>~~: Addressed in
-  sprint 2026-04-04 (PR B). Instructions now include a "Previous Attempts"
-  section when <code>attempt_num &gt; 0</code>, listing archived artifact directories and
-  guidance to review prior failures before starting. Used instruction-level
-  approach (consistent with other conditional sections); the broader question
-  of instruction-level vs. structured manifest approach is tracked under
-  "Agent Instruction Architecture" above.</li>
-</ul>
 <h2 id="signal-directory-structure">Signal Directory Structure</h2>
 <ul>
 <li><strong>Signal directory restructure</strong>: Split <code>signal_dir/</code> into two named
@@ -2662,6 +2502,20 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
 </ul>
 <h2 id="documentation">Documentation</h2>
 <ul>
+<li>
+<p><strong>Design philosophy document</strong>: Consolidate the project's design
+  philosophy into a dedicated document (or a section in the top-level
+  README). Key themes are scattered across sprint docs, discussion files,
+  backlog entries, and sprint planning notes — including:
+  observation-before-enforcement, guidance-not-restriction for agent
+  autonomy, the OCI isolation spectrum (flexible by default in dev,
+  precise knobs for production), signal-file-backed state as source of
+  truth, diagrammability, and the SDK-over-roles principle. Comb through
+  existing <code>.md</code> files to extract and unify these into a single coherent
+  statement of the project's design values. Target audience: someone
+  encountering the project for the first time who wants to understand not
+  just <em>what</em> it does but <em>why</em> it's designed the way it is.</p>
+</li>
 <li>
 <p><strong>Target repo branch protection assumption</strong>: agentrelay assumes target repos
   are configured with branch protection requiring at least one human approval
@@ -2717,13 +2571,6 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   (started, succeeded, failed) but nothing about the isolation layer.
   Could be added via the existing <code>on_event</code> callback in
   <code>StandardTaskRunner</code> or as new event types in the listener protocol.</li>
-<li><strong>agent.log not captured on task failure</strong>: <code>agent.log</code> (tmux pane
-  scrollback) is only written during teardown, which runs conditionally
-  based on <code>TearDownMode</code>. When a task fails and teardown is skipped
-  (e.g., <code>ON_SUCCESS</code> mode), no <code>agent.log</code> is produced — so archived
-  attempt directories from <code>reset_for_retry()</code> never contain the agent's
-  scrollback. Fix: ensure scrollback capture always runs regardless of
-  teardown mode, or make it a separate step from resource cleanup.</li>
 <li><strong>Per-attempt orchestrator event log</strong>: Each task attempt should have a
   log file capturing the orchestrator-side events for that attempt — the
   same timestamped lines shown in the launch terminal (prepared, launched,
