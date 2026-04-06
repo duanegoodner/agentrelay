@@ -215,33 +215,8 @@ Near-term items for the current architecture track.
 - `workspace.py` (`LocalWorkspaceRef`, `WorkspaceRef`) — removed in the same PR. Was intended to model workspace/repo references.
 - View protocols (`TaskStateView`, `TaskArtifactsView`, `TaskRuntimeView`, `WorkstreamStateView`, `WorkstreamArtifactsView`, `WorkstreamRuntimeView`) — removed in the same PR. Read-only projections of mutable runtime types via structural typing (Protocol). Reintroduce when a consumer needs enforced read-only access to runtime state.
 
-## Task Graph Awareness for Agents
-
-Agents currently have no formal knowledge of their position in the task
-graph. They see upstream task file changes via the shared worktree, and
-`manifest.json` lists dependency IDs with descriptions, but nothing tells
-the agent how to find upstream task artifacts (PR summaries, concerns,
-signal files).
-
-Ideas to explore:
-- Wire up `context.md` with basic graph position info (dependency IDs,
-  signal directory paths, PR URLs from completed upstream tasks).
-- Give agents a tool or CLI command to query upstream task artifacts
-  (e.g., `agentrelay-upstream <task_id>` returning summary, concerns,
-  PR URL).
-- The `context.md` infrastructure already exists in `WorktreeTaskPreparer`
-  (field + write logic) and every role template says "If context.md
-  exists, read it first" — just needs to be wired in `run_graph.py`
-  or the orchestrator builder.
-
 ## Output-Driven Task Composition
 
-- **Output manifests and `agentrelay-declare`**: Agents declare what files they
-  created or modified, with semantic categories (stubs, tests, implementation,
-  spec, etc.) via a new SDK command. Writes `outputs.json` to the signal
-  directory. Foundation for `inputs_from` and `expected_outputs` below. Depends
-  on e2e observation from sprint 2026-04-03 (agent graph awareness) to validate
-  that agents use graph-wide context effectively.
 - **`inputs_from` graph YAML extension**: Downstream tasks reference upstream
   outputs by task ID and optional category instead of hardcoded file paths.
   Orchestrator resolves inputs at prepare time by reading upstream
@@ -363,16 +338,6 @@ information and risks drift. The spec_writer template should default to
 source-only specs; the supplementary `.md` spec should be reserved for
 complex specs that can't be captured in code comments alone (e.g., system
 architecture, multi-component interactions).
-
-### Skip integration PR when all tasks are PR-less
-
-When every task in a workstream completes without a PR (e.g., a
-workstream containing only `test_reviewer` tasks), the integration branch
-has no commits different from `main`. `GhWorkstreamIntegrator` still
-attempts `gh pr create`, which fails because GitHub rejects empty PRs.
-The workstream should detect that no task produced a PR and skip
-integration entirely — transition directly to MERGED (or a new terminal
-state) instead of attempting a no-op integration PR.
 
 ### Refine integration PR body
 
@@ -605,26 +570,6 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   for it now, but ensure filesystem conventions established in graph YAML delivery
   don't accidentally preclude it.
 
-## Agent Worktree Awareness
-
-- ~~**Agent navigates out of worktree**~~: Addressed in PR #152 (worktree CWD
-  guidance in agent instructions). OCI isolation hard-prevents at Level 2.
-
-## Agent SDK Retry Support
-
-- ~~**`agentrelay-complete` fails on retry when PR already exists**~~: Fixed in
-  PR #149 (`create_pr()` probes for existing open PR and reuses it on retry).
-
-## Retry Agent Context
-
-- ~~**Retry agent awareness of previous attempt artifacts**~~: Addressed in
-  sprint 2026-04-04 (PR B). Instructions now include a "Previous Attempts"
-  section when `attempt_num > 0`, listing archived artifact directories and
-  guidance to review prior failures before starting. Used instruction-level
-  approach (consistent with other conditional sections); the broader question
-  of instruction-level vs. structured manifest approach is tracked under
-  "Agent Instruction Architecture" above.
-
 ## Signal Directory Structure
 
 - **Signal directory restructure**: Split `signal_dir/` into two named
@@ -637,6 +582,19 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   checker, teardown, reset_graph).
 
 ## Documentation
+
+- **Design philosophy document**: Consolidate the project's design
+  philosophy into a dedicated document (or a section in the top-level
+  README). Key themes are scattered across sprint docs, discussion files,
+  backlog entries, and sprint planning notes — including:
+  observation-before-enforcement, guidance-not-restriction for agent
+  autonomy, the OCI isolation spectrum (flexible by default in dev,
+  precise knobs for production), signal-file-backed state as source of
+  truth, diagrammability, and the SDK-over-roles principle. Comb through
+  existing `.md` files to extract and unify these into a single coherent
+  statement of the project's design values. Target audience: someone
+  encountering the project for the first time who wants to understand not
+  just *what* it does but *why* it's designed the way it is.
 
 - **Target repo branch protection assumption**: agentrelay assumes target repos
   are configured with branch protection requiring at least one human approval
@@ -690,13 +648,6 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   (started, succeeded, failed) but nothing about the isolation layer.
   Could be added via the existing `on_event` callback in
   `StandardTaskRunner` or as new event types in the listener protocol.
-- **agent.log not captured on task failure**: `agent.log` (tmux pane
-  scrollback) is only written during teardown, which runs conditionally
-  based on `TearDownMode`. When a task fails and teardown is skipped
-  (e.g., `ON_SUCCESS` mode), no `agent.log` is produced — so archived
-  attempt directories from `reset_for_retry()` never contain the agent's
-  scrollback. Fix: ensure scrollback capture always runs regardless of
-  teardown mode, or make it a separate step from resource cleanup.
 - **Per-attempt orchestrator event log**: Each task attempt should have a
   log file capturing the orchestrator-side events for that attempt — the
   same timestamped lines shown in the launch terminal (prepared, launched,
