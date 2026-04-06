@@ -22,6 +22,7 @@ from agentrelay.task import (
     AgentConfig,
     AgentFramework,
     AgentRole,
+    InputFrom,
     ReviewConfig,
     Task,
     TaskPaths,
@@ -70,6 +71,7 @@ class _RawTaskSpec:
     description: Optional[str]
     paths: TaskPaths
     dependency_ids: tuple[str, ...]
+    inputs_from: tuple[InputFrom, ...]
     completion_gate: Optional[str]
     max_gate_attempts: Optional[int]
     primary_agent: AgentConfig
@@ -154,6 +156,7 @@ class TaskGraphBuilder:
 
         raw_by_id = {spec.id: spec for spec in raw_specs}
         _validate_dependencies_exist(raw_specs, raw_by_id)
+        _validate_inputs_from_are_dependencies(raw_specs, raw_by_id)
         task_ids = _topological_task_ids(raw_specs)
 
         # --- Resolve isolation: four-level inheritance ---
@@ -205,6 +208,7 @@ class TaskGraphBuilder:
                 description=spec.description,
                 paths=spec.paths,
                 dependencies=spec.dependency_ids,
+                inputs_from=spec.inputs_from,
                 completion_gate=spec.completion_gate,
                 max_gate_attempts=spec.max_gate_attempts,
                 primary_agent=primary_agent,
@@ -238,6 +242,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
             "review",
             "workstream_id",
             "isolation",
+            "inputs_from",
         },
     )
 
@@ -254,6 +259,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
     dependencies = _parse_dependencies(
         mapping.get("dependencies", []), path + ".dependencies"
     )
+    inputs_from = _parse_inputs_from(mapping.get("inputs_from"), path + ".inputs_from")
     paths = _parse_paths(mapping.get("paths"), path + ".paths")
     completion_gate = _parse_optional_string(
         mapping.get("completion_gate"), path + ".completion_gate"
@@ -281,6 +287,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
         description=description,
         paths=paths,
         dependency_ids=dependencies,
+        inputs_from=inputs_from,
         completion_gate=completion_gate,
         max_gate_attempts=max_gate_attempts,
         primary_agent=primary_agent,
@@ -394,6 +401,29 @@ def _parse_dependencies(value: Any, path: str) -> tuple[str, ...]:
         if dep_id in result:
             raise _schema_error(item_path, f"duplicate dependency id '{dep_id}'")
         result.append(dep_id)
+    return tuple(result)
+
+
+def _parse_inputs_from(value: Any, path: str) -> tuple[InputFrom, ...]:
+    """Parse ``inputs_from``: a single mapping or list of mappings."""
+    if value is None:
+        return ()
+    if isinstance(value, Mapping):
+        value = [value]
+    if not isinstance(value, list):
+        raise _schema_error(path, "must be a mapping or list of mappings")
+    result: list[InputFrom] = []
+    for idx, item in enumerate(value):
+        item_path = f"{path}[{idx}]"
+        mapping = _require_mapping(item, item_path)
+        _reject_unknown_keys(mapping, item_path, {"task", "category"})
+        task_id = _require_non_empty_string(
+            _read_required(mapping, "task", item_path), item_path + ".task"
+        )
+        category = _parse_optional_string(
+            mapping.get("category"), item_path + ".category"
+        )
+        result.append(InputFrom(task=task_id, category=category))
     return tuple(result)
 
 
@@ -669,6 +699,46 @@ def _validate_dependencies_exist(
                     f"tasks[{task_index}].dependencies[{dep_index}]",
                     f"unknown dependency id '{dep_id}'",
                 )
+
+
+def _validate_inputs_from_are_dependencies(
+    specs: Sequence[_RawTaskSpec],
+    specs_by_id: Mapping[str, _RawTaskSpec],
+) -> None:
+    """Validate each ``inputs_from`` target is a (transitive) dependency."""
+    for task_index, spec in enumerate(specs):
+        if not spec.inputs_from:
+            continue
+        reachable = _transitive_deps(spec.id, specs_by_id)
+        for input_index, inp in enumerate(spec.inputs_from):
+            if inp.task not in specs_by_id:
+                raise _schema_error(
+                    f"tasks[{task_index}].inputs_from[{input_index}].task",
+                    f"unknown task id '{inp.task}'",
+                )
+            if inp.task not in reachable:
+                raise _schema_error(
+                    f"tasks[{task_index}].inputs_from[{input_index}].task",
+                    f"task '{inp.task}' is not a dependency (direct or transitive) "
+                    f"of task '{spec.id}'",
+                )
+
+
+def _transitive_deps(
+    task_id: str,
+    specs_by_id: Mapping[str, _RawTaskSpec],
+) -> set[str]:
+    """Compute all transitive dependencies for a task via BFS."""
+    visited: set[str] = set()
+    stack = list(specs_by_id[task_id].dependency_ids)
+    while stack:
+        dep_id = stack.pop()
+        if dep_id in visited:
+            continue
+        visited.add(dep_id)
+        if dep_id in specs_by_id:
+            stack.extend(specs_by_id[dep_id].dependency_ids)
+    return visited
 
 
 def _topological_task_ids(specs: Sequence[_RawTaskSpec]) -> tuple[str, ...]:

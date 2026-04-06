@@ -9,6 +9,7 @@ from agentrelay.task import (
     AdrVerbosity,
     AgentFramework,
     AgentRole,
+    InputFrom,
 )
 from agentrelay.task_graph.builder import TaskGraphBuilder
 
@@ -731,3 +732,179 @@ def test_from_dict_no_isolation_with_workstreams() -> None:
     assert graph.workstream("ws").isolation is None
     assert graph.task("t1").isolation is None
     assert graph.task("t1").primary_agent.isolation is None
+
+
+# ── inputs_from tests ──
+
+
+def test_from_dict_inputs_from_single_mapping() -> None:
+    """Single inputs_from dict is parsed correctly."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "upstream"},
+            {
+                "id": "downstream",
+                "dependencies": ["upstream"],
+                "inputs_from": {"task": "upstream", "category": "stubs"},
+            },
+        ],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    task = graph.task("downstream")
+    assert task.inputs_from == (InputFrom(task="upstream", category="stubs"),)
+
+
+def test_from_dict_inputs_from_list_of_mappings() -> None:
+    """List of inputs_from dicts is parsed in order."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "spec"},
+            {"id": "test", "dependencies": ["spec"]},
+            {
+                "id": "impl",
+                "dependencies": ["spec", "test"],
+                "inputs_from": [
+                    {"task": "spec", "category": "stubs"},
+                    {"task": "test", "category": "tests"},
+                ],
+            },
+        ],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    task = graph.task("impl")
+    assert task.inputs_from == (
+        InputFrom(task="spec", category="stubs"),
+        InputFrom(task="test", category="tests"),
+    )
+
+
+def test_from_dict_inputs_from_without_category() -> None:
+    """Category is optional; omitting it produces None."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "upstream"},
+            {
+                "id": "downstream",
+                "dependencies": ["upstream"],
+                "inputs_from": {"task": "upstream"},
+            },
+        ],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.task("downstream").inputs_from == (
+        InputFrom(task="upstream", category=None),
+    )
+
+
+def test_from_dict_inputs_from_absent_defaults_to_empty() -> None:
+    """Tasks without inputs_from have an empty tuple."""
+    data = _minimal_graph_dict()
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.task("task_a").inputs_from == ()
+
+
+def test_from_dict_inputs_from_unknown_task_raises() -> None:
+    """Referencing a task ID that doesn't exist raises ValueError."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "a"},
+            {
+                "id": "b",
+                "dependencies": ["a"],
+                "inputs_from": {"task": "nonexistent"},
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="unknown task id 'nonexistent'"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_inputs_from_not_a_dependency_raises() -> None:
+    """Referencing a task that exists but is not a dependency raises ValueError."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "a"},
+            {"id": "b"},
+            {
+                "id": "c",
+                "dependencies": ["b"],
+                "inputs_from": {"task": "a"},
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="not a dependency.*of task 'c'"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_inputs_from_transitive_dependency_ok() -> None:
+    """inputs_from referencing a transitive dependency is allowed."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "a"},
+            {"id": "b", "dependencies": ["a"]},
+            {
+                "id": "c",
+                "dependencies": ["b"],
+                "inputs_from": {"task": "a", "category": "stubs"},
+            },
+        ],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.task("c").inputs_from == (InputFrom(task="a", category="stubs"),)
+
+
+def test_from_dict_inputs_from_rejects_unknown_keys() -> None:
+    """Extra keys in inputs_from mapping are rejected."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "a"},
+            {
+                "id": "b",
+                "dependencies": ["a"],
+                "inputs_from": {"task": "a", "category": "stubs", "extra": True},
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="unknown key.*extra"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_inputs_from_invalid_type_raises() -> None:
+    """String instead of mapping/list raises ValueError."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "a"},
+            {
+                "id": "b",
+                "dependencies": ["a"],
+                "inputs_from": "upstream",
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="must be a mapping or list"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_inputs_from_missing_task_key_raises() -> None:
+    """inputs_from mapping without 'task' key raises ValueError."""
+    data = {
+        "name": "g",
+        "tasks": [
+            {"id": "a"},
+            {
+                "id": "b",
+                "dependencies": ["a"],
+                "inputs_from": {"category": "stubs"},
+            },
+        ],
+    }
+    with pytest.raises(ValueError, match="task.*is required"):
+        TaskGraphBuilder.from_dict(data)

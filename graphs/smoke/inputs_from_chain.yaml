@@ -1,0 +1,52 @@
+name: inputs-from-chain
+tmux_session: agentrelay
+model: claude-sonnet-4-6
+tools:
+  - pixi
+
+# Three-task pipeline demonstrating inputs_from:
+#   spec_queue writes stubs → test_queue writes tests → impl_queue implements.
+# Each downstream task discovers its input files at prepare time via
+# inputs_from instead of hardcoded paths.
+
+tasks:
+  - id: spec_queue
+    description: >-
+      Create src/agentrelaydemos/bounded_queue.py containing a BoundedQueue class
+      with stubs (signatures and docstrings only, no implementation bodies):
+      __init__(self, capacity: int), enqueue(self, item: object) -> None,
+      dequeue(self) -> object, is_full(self) -> bool, is_empty(self) -> bool,
+      and a size property returning the current int count.
+      Enqueue on a full queue should raise OverflowError.
+      Dequeue on an empty queue should raise IndexError.
+      Declare your outputs with agentrelay-declare.
+    dependencies: []
+
+  - id: test_queue
+    description: >-
+      Write comprehensive pytest tests for the BoundedQueue class.
+      Read the stub files listed in your Input Files section to understand the
+      API. Create test/test_bounded_queue.py covering: construction, enqueue,
+      dequeue, is_full, is_empty, size, overflow error, and underflow error.
+      Declare your outputs with agentrelay-declare.
+    dependencies:
+      - spec_queue
+    inputs_from:
+      task: spec_queue
+      category: stubs
+
+  - id: impl_queue
+    description: >-
+      Implement the BoundedQueue class. Read the stub files and test files
+      listed in your Input Files section. Fill in all method bodies so that
+      all tests pass.
+      Declare your outputs with agentrelay-declare.
+    dependencies:
+      - spec_queue
+      - test_queue
+    inputs_from:
+      - task: spec_queue
+        category: stubs
+      - task: test_queue
+        category: tests
+    completion_gate: "pixi run pytest test/test_bounded_queue.py -q"

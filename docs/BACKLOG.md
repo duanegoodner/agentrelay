@@ -250,6 +250,19 @@ Ideas to explore:
 - **Role template simplification**: As structured I/O contracts make more of
   the role-specific guidance derivable from data, simplify or generalize role
   templates. Preserve role-specific concern guidance.
+- **Deprecate `TaskPaths` (`src`/`test`/`spec`) in favor of categories**:
+  `TaskPaths` and the output manifest's `category` field serve overlapping
+  purposes — both describe the semantic role of files a task works with.
+  `TaskPaths` uses a fixed three-slot taxonomy (`src`, `test`, `spec`);
+  categories are free-form strings (`stubs`, `tests`, `implementation`,
+  etc.) that proved more flexible. Migrating non-generic role templates to
+  use category-based input resolution instead of `$src_paths`/`$test_paths`
+  would unify the two systems and simplify the data model. `TaskPaths`
+  would be replaced by category-tagged file lists on the manifest, and
+  `paths` in the graph YAML would become sugar for inline category
+  declarations. Complete this before the Rust migration so the Rust port
+  builds on the unified model. Depends on `inputs_from` shipping first to
+  validate category-based resolution end-to-end.
 - **Typed output categories**: `OutputEntry.category` is currently a free-form
   `str`. After sufficient e2e usage, review which categories agents actually
   use in practice and consider introducing an `OutputCategory` enum (with a

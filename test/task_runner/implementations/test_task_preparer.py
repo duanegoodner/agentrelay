@@ -8,11 +8,13 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
+from agentrelay.agent_comm_protocol.manifest import InputFileInfo
 from agentrelay.errors import _WorkspaceIntegrationError
-from agentrelay.task import AdrVerbosity, AgentConfig, AgentRole, Task
+from agentrelay.task import AdrVerbosity, AgentConfig, AgentRole, InputFrom, Task
 from agentrelay.task_runner.core.io import TaskPreparer
 from agentrelay.task_runner.implementations.task_preparer import (
     WorktreeTaskPreparer,
+    _resolve_input_files,
 )
 from agentrelay.task_runtime import TaskRuntime
 
@@ -347,3 +349,123 @@ class TestWorktreeTaskPreparer:
         """WorktreeTaskPreparer satisfies the TaskPreparer protocol."""
         preparer = _make_preparer()
         assert isinstance(preparer, TaskPreparer)
+
+
+class TestResolveInputFiles:
+    """Tests for _resolve_input_files."""
+
+    def _write_outputs_json(
+        self, tmp_path: Path, graph_name: str, task_id: str, files: list[dict]
+    ) -> None:
+        """Write a mock outputs.json for an upstream task."""
+        import json
+
+        signal_dir = tmp_path / f".workflow/{graph_name}/signals/{task_id}"
+        signal_dir.mkdir(parents=True, exist_ok=True)
+        (signal_dir / "outputs.json").write_text(
+            json.dumps({"schema_version": "1", "files": files})
+        )
+
+    def test_resolves_from_upstream_outputs(self, tmp_path: Path) -> None:
+        """Reads upstream outputs.json and returns InputFileInfo entries."""
+        self._write_outputs_json(
+            tmp_path,
+            "g",
+            "spec",
+            [{"path": "src/q.py", "action": "created", "category": "stubs"}],
+        )
+        task = Task(
+            id="impl",
+            role=AgentRole.GENERIC,
+            inputs_from=(InputFrom(task="spec", category="stubs"),),
+        )
+        result = _resolve_input_files(task, tmp_path, "g")
+        assert result == (
+            InputFileInfo(path=Path("src/q.py"), category="stubs", source_task="spec"),
+        )
+
+    def test_filters_by_category(self, tmp_path: Path) -> None:
+        """Only entries matching the category are returned."""
+        self._write_outputs_json(
+            tmp_path,
+            "g",
+            "spec",
+            [
+                {"path": "src/q.py", "action": "created", "category": "stubs"},
+                {"path": "docs/spec.md", "action": "created", "category": "spec"},
+            ],
+        )
+        task = Task(
+            id="impl",
+            role=AgentRole.GENERIC,
+            inputs_from=(InputFrom(task="spec", category="stubs"),),
+        )
+        result = _resolve_input_files(task, tmp_path, "g")
+        assert len(result) == 1
+        assert result[0].path == Path("src/q.py")
+
+    def test_no_category_takes_all(self, tmp_path: Path) -> None:
+        """When category is None, all entries are included."""
+        self._write_outputs_json(
+            tmp_path,
+            "g",
+            "spec",
+            [
+                {"path": "src/q.py", "action": "created", "category": "stubs"},
+                {"path": "docs/spec.md", "action": "created", "category": "spec"},
+            ],
+        )
+        task = Task(
+            id="impl",
+            role=AgentRole.GENERIC,
+            inputs_from=(InputFrom(task="spec", category=None),),
+        )
+        result = _resolve_input_files(task, tmp_path, "g")
+        assert len(result) == 2
+
+    def test_missing_outputs_raises(self, tmp_path: Path) -> None:
+        """Missing outputs.json raises FileNotFoundError."""
+        # Signal dir exists but no outputs.json
+        signal_dir = tmp_path / ".workflow/g/signals/spec"
+        signal_dir.mkdir(parents=True, exist_ok=True)
+
+        task = Task(
+            id="impl",
+            role=AgentRole.GENERIC,
+            inputs_from=(InputFrom(task="spec"),),
+        )
+        with pytest.raises(FileNotFoundError, match="upstream task 'spec'"):
+            _resolve_input_files(task, tmp_path, "g")
+
+    def test_skipped_when_empty(self) -> None:
+        """Task without inputs_from returns empty tuple."""
+        task = Task(id="t1", role=AgentRole.GENERIC)
+        result = _resolve_input_files(task, Path("/unused"), "g")
+        assert result == ()
+
+    def test_multiple_sources(self, tmp_path: Path) -> None:
+        """Multiple inputs_from entries combine results from all sources."""
+        self._write_outputs_json(
+            tmp_path,
+            "g",
+            "spec",
+            [{"path": "src/q.py", "action": "created", "category": "stubs"}],
+        )
+        self._write_outputs_json(
+            tmp_path,
+            "g",
+            "test",
+            [{"path": "test/test_q.py", "action": "created", "category": "tests"}],
+        )
+        task = Task(
+            id="impl",
+            role=AgentRole.GENERIC,
+            inputs_from=(
+                InputFrom(task="spec", category="stubs"),
+                InputFrom(task="test", category="tests"),
+            ),
+        )
+        result = _resolve_input_files(task, tmp_path, "g")
+        assert len(result) == 2
+        assert result[0].source_task == "spec"
+        assert result[1].source_task == "test"

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from agentrelay.agent_comm_protocol.manifest import TaskManifest
+from agentrelay.agent_comm_protocol.manifest import InputFileInfo, TaskManifest
 from agentrelay.agent_comm_protocol.templates import resolve_instructions
 from agentrelay.sandbox import SandboxType
 from agentrelay.task import AdrVerbosity, AgentRole
@@ -668,6 +668,7 @@ class TestGraphAwarenessSection:
         graph_text = re.split(r"\n## (?!#)", text.split("## Graph Awareness")[1])[0]
         assert "outputs.json" in graph_text
 
+
 class TestPreviousAttemptsSection:
     """Tests for previous attempts section injection in instructions."""
 
@@ -823,3 +824,92 @@ class TestPreviousAttemptsSection:
         )
         assert "## Previous Attempts" in text
 
+
+class TestInputFilesSection:
+    """Tests for the Input Files conditional section."""
+
+    _INPUT_FILES = (
+        InputFileInfo(
+            path=Path("src/queue.py"), category="stubs", source_task="spec_queue"
+        ),
+        InputFileInfo(
+            path=Path("src/utils.py"), category="stubs", source_task="spec_queue"
+        ),
+    )
+
+    def test_absent_when_no_input_files(self) -> None:
+        """No Input Files section when input_files is empty."""
+        m = _manifest()
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        assert "## Input Files" not in text
+
+    def test_present_when_input_files_exist(self) -> None:
+        """Input Files section appears when manifest has input files."""
+        m = _manifest(input_files=self._INPUT_FILES)
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        assert "## Input Files" in text
+
+    def test_lists_file_paths(self) -> None:
+        """Input file paths are listed in the section."""
+        m = _manifest(input_files=self._INPUT_FILES)
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        assert "src/queue.py" in text
+        assert "src/utils.py" in text
+
+    def test_groups_by_source_task(self) -> None:
+        """Files are grouped under source task subheadings."""
+        files = self._INPUT_FILES + (
+            InputFileInfo(
+                path=Path("test/test_q.py"),
+                category="tests",
+                source_task="test_queue",
+            ),
+        )
+        m = _manifest(input_files=files)
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        assert "### From task `spec_queue`" in text
+        assert "### From task `test_queue`" in text
+
+    def test_shows_category(self) -> None:
+        """Each file line includes the category."""
+        m = _manifest(input_files=self._INPUT_FILES)
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        assert "(category: stubs)" in text
+
+    def test_ordering_after_what_to_do(self) -> None:
+        """Input Files section appears after What to Do."""
+        m = _manifest(input_files=self._INPUT_FILES)
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        what_pos = text.index("## What to Do")
+        input_pos = text.index("## Input Files")
+        assert what_pos < input_pos
+
+    def test_ordering_before_submission(self) -> None:
+        """Input Files section appears before Submitting Your Work."""
+        m = _manifest(input_files=self._INPUT_FILES)
+        text = resolve_instructions(AgentRole.TEST_WRITER, m)
+        input_pos = text.index("## Input Files")
+        submission_pos = text.index("## Submitting Your Work")
+        assert input_pos < submission_pos
+
+    def test_ordering_before_graph_awareness(self) -> None:
+        """Input Files section appears before Graph Awareness (when both present)."""
+        m = _manifest(input_files=self._INPUT_FILES)
+        text = resolve_instructions(
+            AgentRole.TEST_WRITER,
+            m,
+            graph_yaml_path=Path("/workflow/graph.yaml"),
+            signals_base_path=Path("/workflow/signals"),
+        )
+        input_pos = text.index("## Input Files")
+        graph_pos = text.index("## Graph Awareness")
+        assert input_pos < graph_pos
+
+    def test_present_for_generic_role(self) -> None:
+        """Input Files section works with GENERIC role."""
+        m = _manifest(
+            description="Do something custom",
+            input_files=self._INPUT_FILES,
+        )
+        text = resolve_instructions(AgentRole.GENERIC, m)
+        assert "## Input Files" in text
