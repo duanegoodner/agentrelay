@@ -1,0 +1,1665 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/planning/2026-04-06-cli-and-data-model-cleanup/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Sprint Plan — 2026-04-06: CLI & Data Model Cleanup - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sprint-plan-2026-04-06-cli-data-model-cleanup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sprint Plan — 2026-04-06: CLI &amp; Data Model Cleanup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-a-agentrelay-top-level-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A: agentrelay top-level CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b-replace-taskpaths-with-category-tagged-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B: Replace TaskPaths with category-tagged paths
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-comes-after-this-sprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What comes after this sprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sprint-plan-2026-04-06-cli-data-model-cleanup">Sprint Plan — 2026-04-06: CLI &amp; Data Model Cleanup</h1>
+<blockquote>
+<p><strong>Status: Planning.</strong></p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>Make the Python orchestrator feel like a real tool and unify the data
+model before freezing Python for the Rust migration.</p>
+<p>This is the second and final pre-Rust sprint. After this, the remaining
+work is e2e validation with OCI isolation, then Rust begins.</p>
+<h2 id="context">Context</h2>
+<p>Sprint 2026-04-05 shipped <code>inputs_from</code>, integration PR body refinement,
+and the final fail-fast CLI flag. The output-driven composition pipeline
+is functional end-to-end: agents declare outputs via <code>agentrelay-declare</code>,
+downstream tasks consume them via <code>inputs_from</code>, and the orchestrator
+resolves everything at prepare time.</p>
+<p>Two gaps remain before the Python version is ready to freeze:</p>
+<ol>
+<li>
+<p><strong>No user-facing CLI.</strong> The entry point is <code>python -m agentrelay.run_graph</code>
+   — functional but not discoverable. There's no <code>agentrelay</code> command.
+   The <code>pixi run e2e</code> wrapper exists but is developer-oriented.</p>
+</li>
+<li>
+<p><strong>Dual path taxonomy.</strong> <code>TaskPaths</code> (<code>src</code>/<code>test</code>/<code>spec</code>) and output
+   manifest categories (<code>stubs</code>, <code>tests</code>, <code>implementation</code>) coexist.
+   Both describe the semantic role of files a task works with, but
+   <code>TaskPaths</code> is a fixed three-slot taxonomy while categories are
+   free-form and proved more flexible. With <code>inputs_from</code> validating
+   category-based resolution end-to-end, <code>TaskPaths</code> is now redundant.
+   If it ships to Rust, the Rust port carries both systems.</p>
+</li>
+</ol>
+<p>See <code>docs/planning/pre-rust-roadmap.md</code> for the overall pre-Rust strategy.</p>
+<h2 id="architecture-notes">Architecture notes</h2>
+<p><strong>Top-level CLI (PR A):</strong> Register an <code>agentrelay</code> console script in
+<code>pyproject.toml</code> with subcommands: <code>run</code>, <code>reset</code>, <code>check</code>, <code>dry-run</code>.</p>
+<p>Current CLI surface:
+- <code>python -m agentrelay.run_graph &lt;graph&gt; [flags]</code> — run a graph (cd to
+  target repo first)
+- <code>python -m agentrelay.reset_graph &lt;graph&gt; [flags]</code> — reset a graph run
+- <code>pixi run e2e &lt;graph&gt; &lt;target-repo&gt; [flags]</code> — wrapper that cd's to
+  target repo</p>
+<p>Proposed:
+<div class="highlight"><pre><span></span><code>agentrelay run &lt;graph.yaml&gt; [--target-repo &lt;path&gt;] [flags]
+agentrelay reset &lt;graph.yaml&gt; [--target-repo &lt;path&gt;]
+agentrelay check [--target-repo &lt;path&gt;]
+agentrelay dry-run &lt;graph.yaml&gt;
+</code></pre></div></p>
+<p><code>--target-repo</code> defaults to the current directory (same as <code>run_graph.py</code>
+today). Someone working in a target repo types <code>agentrelay run graph.yaml</code>.</p>
+<p>Implementation: a single <code>src/agentrelay/cli.py</code> module with <code>argparse</code>
+subcommands. Each subcommand delegates to the existing <code>run_graph.main()</code>
+or <code>reset_graph.main()</code> functions (or their underlying async functions).
+The <code>pixi run e2e</code> wrapper remains as an internal convenience for
+agentrelay developers running cross-repo tests.</p>
+<p>Changes touch:
+- <code>src/agentrelay/cli.py</code> — new module, subcommand dispatch
+- <code>pyproject.toml</code> — add <code>agentrelay = "agentrelay.cli:main"</code> to
+  <code>[project.scripts]</code>
+- <code>CLAUDE.md</code> — update command table
+- <code>docs/GUIDE.md</code> — update CLI examples</p>
+<p><strong>Replace <code>TaskPaths</code> (PR B):</strong> Remove <code>TaskPaths</code> entirely and replace
+with category-tagged file lists on the manifest.</p>
+<p>Current state:
+- <code>TaskPaths</code> (task.py:88-100) has three fields: <code>src</code>, <code>test</code>, <code>spec</code>
+- <code>Task.paths: TaskPaths</code> (task.py:200)
+- <code>TaskManifest</code> has <code>src_paths</code>, <code>test_paths</code>, <code>spec_path</code> (manifest.py:86-88)
+- <code>build_manifest()</code> extracts <code>task.paths.src</code>, <code>.test</code>, <code>.spec</code> (manifest.py:128-130)
+- <code>manifest_to_dict()</code> serializes a <code>"paths"</code> section (manifest.py:164-168)
+- <code>templates.py</code> substitutes <code>$src_paths</code>, <code>$test_paths</code>, <code>$spec_path</code>
+  into role templates (templates.py:161-169)
+- All 4 role templates use <code>$src_paths</code> and/or <code>$test_paths</code>
+- <code>builder.py</code> parses <code>paths:</code> from YAML via <code>_parse_paths()</code> → <code>TaskPaths</code></p>
+<p>Target state:
+- <code>TaskPaths</code> class deleted
+- <code>Task</code> stores paths as category-tagged tuples (e.g.,
+  <code>tagged_paths: tuple[TaggedPath, ...]</code> where <code>TaggedPath</code> has <code>path</code>,
+  <code>category</code>)
+- Graph YAML <code>paths:</code> still parses — <code>paths.src</code> becomes entries with
+  <code>category="src"</code>, <code>paths.test</code> becomes <code>category="test"</code>, <code>paths.spec</code>
+  becomes a single entry with <code>category="spec"</code>. Backward compatible.
+- <code>TaskManifest</code> replaces <code>src_paths</code>/<code>test_paths</code>/<code>spec_path</code> with a
+  single <code>tagged_paths: tuple[TaggedPath, ...]</code> field
+- <code>manifest_to_dict()</code> serializes as a <code>"paths"</code> list of
+  <code>{"path": "...", "category": "..."}</code> objects — same shape as
+  <code>"input_files"</code> for consistency
+- Role templates use <code>$paths_by_category</code> or similar — the template
+  substitution builds a formatted string from the tagged paths, grouped
+  by category. E.g., spec_writer gets <code>"src: path/to/file.py"</code> instead
+  of <code>$src_paths</code>
+- <code>input_files</code> (from <code>inputs_from</code>) and <code>tagged_paths</code> (from <code>paths:</code>)
+  coexist on the manifest. They serve different purposes:
+  <code>tagged_paths</code> = explicitly declared by graph author;
+  <code>input_files</code> = resolved at runtime from upstream outputs</p>
+<p>Key design decision: <code>TaggedPath</code> vs raw tuples. A small frozen dataclass
+(<code>path: Path</code>, <code>category: str</code>) is clearest and consistent with
+<code>InputFileInfo</code>. The category strings are the same free-form strings used
+by <code>OutputEntry.category</code> — no enum yet (deferred to Rust per backlog).</p>
+<p>Changes touch:
+- <code>src/agentrelay/task.py</code> — delete <code>TaskPaths</code>, add <code>TaggedPath</code>, change
+  <code>Task.paths</code> to <code>Task.tagged_paths: tuple[TaggedPath, ...]</code>
+- <code>src/agentrelay/task_graph/builder.py</code> — <code>_parse_paths()</code> returns
+  <code>tuple[TaggedPath, ...]</code> instead of <code>TaskPaths</code>
+- <code>src/agentrelay/agent_comm_protocol/manifest.py</code> — replace
+  <code>src_paths</code>/<code>test_paths</code>/<code>spec_path</code> with <code>tagged_paths</code>
+- <code>src/agentrelay/agent_comm_protocol/templates.py</code> — change template
+  substitution to use category-grouped formatting
+- <code>src/agentrelay/templates/*.md</code> — update 4 role templates to use new
+  variables
+- <code>test/test_task.py</code> — remove <code>TestTaskPaths</code>, add <code>TestTaggedPath</code>
+- <code>test/agent_comm_protocol/test_manifest.py</code> — update manifest tests
+- <code>test/agent_comm_protocol/test_templates.py</code> — update template tests
+- <code>test/task_graph/test_task_graph_builder.py</code> — update YAML parsing tests
+- <code>docs/diagrams/uml/diagram-detailed.d2</code> — update task module diagram
+- <code>CLAUDE.md</code> — if schema docs reference <code>TaskPaths</code></p>
+<p>Graph YAML files do NOT need changes — the <code>paths:</code> syntax is preserved
+as sugar.</p>
+<hr />
+<h2 id="pr-plan">PR plan</h2>
+<h3 id="pr-a-agentrelay-top-level-cli">PR A: <code>agentrelay</code> top-level CLI</h3>
+<ul>
+<li>Branch: <code>feat/cli-entry-point</code></li>
+</ul>
+<p>Register an <code>agentrelay</code> console script with subcommands for run, reset,
+check, and dry-run.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/cli.py</code> — new module with <code>argparse</code> subcommands
+  delegating to <code>run_graph</code> and <code>reset_graph</code>.
+- <code>pyproject.toml</code> — add <code>agentrelay = "agentrelay.cli:main"</code> entry point.
+- <code>CLAUDE.md</code> — update command table with <code>agentrelay</code> commands.
+- <code>pixi.toml</code> — optionally add <code>pixi run agentrelay</code> task.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>agentrelay run &lt;graph&gt; [flags]</code> runs a graph (equivalent to
+      <code>python -m agentrelay.run_graph</code>)
+- [ ] <code>agentrelay reset &lt;graph&gt; [flags]</code> resets a graph run
+- [ ] <code>agentrelay dry-run &lt;graph&gt;</code> validates and prints execution plan
+- [ ] <code>--target-repo &lt;path&gt;</code> overrides the working directory (defaults to
+      cwd)
+- [ ] All existing <code>run_graph.py</code> flags pass through correctly
+- [ ] <code>agentrelay --help</code> shows available subcommands
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-b-replace-taskpaths-with-category-tagged-paths">PR B: Replace <code>TaskPaths</code> with category-tagged paths</h3>
+<ul>
+<li>Branch: <code>feat/replace-task-paths</code></li>
+</ul>
+<p>Remove <code>TaskPaths</code> and unify path handling through category-tagged
+entries, ensuring the Rust port builds on a single path taxonomy.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/task.py</code> — delete <code>TaskPaths</code>, add <code>TaggedPath</code>
+  dataclass, change <code>Task.paths</code> → <code>Task.tagged_paths</code>.
+- <code>src/agentrelay/task_graph/builder.py</code> — <code>_parse_paths()</code> returns
+  <code>tuple[TaggedPath, ...]</code>. Graph YAML <code>paths:</code> syntax preserved.
+- <code>src/agentrelay/agent_comm_protocol/manifest.py</code> — replace
+  <code>src_paths</code>/<code>test_paths</code>/<code>spec_path</code> with <code>tagged_paths</code>.
+- <code>src/agentrelay/agent_comm_protocol/templates.py</code> — category-grouped
+  path formatting for template substitution.
+- <code>src/agentrelay/templates/*.md</code> — update 4 role templates.
+- Tests: update <code>test_task.py</code>, <code>test_manifest.py</code>, <code>test_templates.py</code>,
+  <code>test_task_graph_builder.py</code>.
+- <code>docs/diagrams/uml/diagram-detailed.d2</code> — update task module.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>TaskPaths</code> class no longer exists in the codebase
+- [ ] Graph YAML <code>paths:</code> still parses (backward compatible)
+- [ ] <code>paths.src</code> entries appear with <code>category="src"</code> in manifest
+- [ ] <code>paths.test</code> entries appear with <code>category="test"</code> in manifest
+- [ ] <code>paths.spec</code> entries appear with <code>category="spec"</code> in manifest
+- [ ] Role templates render correctly with category-grouped paths
+- [ ] <code>inputs_from</code> resolution still works (no regression)
+- [ ] <code>manifest.json</code> serialization uses the new <code>"paths"</code> list format
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h2 id="dependency-ordering">Dependency ordering</h2>
+<p>PR A (CLI) and PR B (TaskPaths replacement) are independent. They touch
+entirely different areas of the codebase:</p>
+<ul>
+<li>PR A: <code>cli.py</code> (new), <code>pyproject.toml</code>, <code>CLAUDE.md</code></li>
+<li>PR B: <code>task.py</code>, <code>builder.py</code>, <code>manifest.py</code>, <code>templates.py</code>,
+  template markdown files, tests, diagram</li>
+</ul>
+<p>No shared files. Both can be developed in parallel across worktrees and
+merged in any order. Suggested merge order: A first (smaller, less likely
+to conflict with anything), then B.</p>
+<h2 id="what-comes-after-this-sprint">What comes after this sprint</h2>
+<p>Per <code>docs/planning/pre-rust-roadmap.md</code>:</p>
+<ol>
+<li><strong>E2E validation with OCI isolation</strong> — run representative graphs
+   across all categories with OCI enabled. Fix what breaks. This produces
+   the behavioral baseline for the Rust port.</li>
+<li><strong>Freeze Python, begin Rust.</strong></li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
