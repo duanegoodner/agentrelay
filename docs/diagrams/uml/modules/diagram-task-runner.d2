@@ -213,6 +213,11 @@ agent_pkg: "agent/" {
   }
 }
 
+agent_sdk_pkg: "agent_sdk/" {
+  style.opacity: 0.5
+  OutputManifest: "OutputManifest <<dataclass>>" { shape: class }
+}
+
 errors_pkg: "errors/" {
   style.opacity: 0.5
   IntegrationFailureClass: "IntegrationFailureClass <<enumeration>>" { shape: class }
@@ -283,6 +288,7 @@ task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: us
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.manifest_functions: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.policies_functions: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_comm_protocol_pkg.templates_functions: uses { class: dependency }
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_sdk_pkg.OutputManifest: "reads outputs.json" { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.TmuxTaskLauncher -> agent_pkg.agent_impl_pkg.TmuxAgent: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.ShellGateChecker -> ops_pkg.signals: uses { class: dependency }

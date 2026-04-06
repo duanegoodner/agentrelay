@@ -86,6 +86,12 @@ task_py: "task.py" {
     review_on_attempt: int
   }
 
+  InputFrom: "InputFrom <<frozen dataclass>>" {
+    shape: class
+    task: str
+    category: "str | None"
+  }
+
   Task: "Task <<frozen dataclass>>" {
     shape: class
     id: str
@@ -93,6 +99,7 @@ task_py: "task.py" {
     description: "str | None"
     paths: TaskPaths
     dependencies: "tuple[str, ...]"
+    inputs_from: "tuple[InputFrom, ...]"
     completion_gate: "str | None"
     max_gate_attempts: "int | None"
     primary_agent: AgentConfig
@@ -149,6 +156,7 @@ workstream_pkg: "workstream/" {
 
 task_py.Task -> task_py.AgentRole: role { class: composition }
 task_py.Task -> task_py.TaskPaths: paths { class: composition }
+task_py.Task -> task_py.InputFrom: inputs_from { class: composition }
 task_py.Task -> task_py.AgentConfig: primary_agent { class: composition }
 task_py.Task -> task_py.ReviewConfig: "review (optional)" { class: composition }
 task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_id (ref)" { class: dependency }
