@@ -68,6 +68,15 @@ tasks:
         - tests/test_my_module.py
       spec: specs/my_spec.md   # supplementary spec file path (used by spec_writer, generic)
     dependencies: []
+    inputs_from:               # optional; reference upstream task outputs
+      task: upstream_task_id   # required; must be a (transitive) dependency
+      category: stubs          # optional; filter by output category
+    # inputs_from also accepts a list for multiple sources:
+    # inputs_from:
+    #   - task: spec_task
+    #     category: stubs
+    #   - task: test_task
+    #     category: tests
 ```
 
 ## Development workflow

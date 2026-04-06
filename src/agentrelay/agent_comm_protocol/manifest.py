@@ -40,6 +40,26 @@ class DependencyInfo:
 
 
 @dataclass(frozen=True)
+class InputFileInfo:
+    """A resolved input file from an upstream task's output manifest.
+
+    Produced by the orchestrator at prepare time when a task has
+    ``inputs_from`` declarations.  Provides the agent with concrete
+    file paths, their semantic category, and the upstream task that
+    produced them.
+
+    Attributes:
+        path: File path relative to the repository root.
+        category: Semantic category of the file (e.g. ``"stubs"``).
+        source_task: The upstream task ID that produced this file.
+    """
+
+    path: Path
+    category: str
+    source_task: str
+
+
+@dataclass(frozen=True)
 class TaskManifest:
     """Frozen Layer-1 manifest: pure facts about a task.
 
@@ -71,6 +91,7 @@ class TaskManifest:
     attempt_num: int
     graph_name: Optional[str]
     dependencies: dict[str, DependencyInfo]
+    input_files: tuple[InputFileInfo, ...] = ()
     tools: tuple[str, ...] = ()
 
 
@@ -82,6 +103,7 @@ def build_manifest(
     attempt_num: int,
     dependency_descriptions: dict[str, Optional[str]],
     tools: tuple[str, ...] = (),
+    input_files: tuple[InputFileInfo, ...] = (),
 ) -> TaskManifest:
     """Build a :class:`TaskManifest` from task spec and contextual data.
 
@@ -114,6 +136,7 @@ def build_manifest(
             dep_id: DependencyInfo(description=desc)
             for dep_id, desc in dependency_descriptions.items()
         },
+        input_files=input_files,
         tools=tools,
     )
 
@@ -155,6 +178,14 @@ def manifest_to_dict(manifest: TaskManifest) -> dict[str, Any]:
             dep_id: {"description": info.description}
             for dep_id, info in manifest.dependencies.items()
         },
+        "input_files": [
+            {
+                "path": str(f.path),
+                "category": f.category,
+                "source_task": f.source_task,
+            }
+            for f in manifest.input_files
+        ],
         "tools": list(manifest.tools),
     }
 
@@ -162,6 +193,7 @@ def manifest_to_dict(manifest: TaskManifest) -> dict[str, Any]:
 __all__ = [
     "MANIFEST_SCHEMA_VERSION",
     "DependencyInfo",
+    "InputFileInfo",
     "TaskManifest",
     "build_manifest",
     "manifest_to_dict",

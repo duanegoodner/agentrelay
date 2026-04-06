@@ -10,6 +10,7 @@ import pytest
 from agentrelay.agent_comm_protocol.manifest import (
     MANIFEST_SCHEMA_VERSION,
     DependencyInfo,
+    InputFileInfo,
     TaskManifest,
     build_manifest,
     manifest_to_dict,
@@ -200,6 +201,7 @@ class TestManifestToDict:
             "workspace",
             "execution",
             "dependencies",
+            "input_files",
             "tools",
         }
 
@@ -236,6 +238,23 @@ class TestManifestToDict:
         d = self._build_and_serialize()
         assert d["dependencies"] == {}
 
+    def test_input_files_empty_by_default(self) -> None:
+        """Empty input_files serializes to empty list."""
+        d = self._build_and_serialize()
+        assert d["input_files"] == []
+
+    def test_input_files_serialized(self) -> None:
+        """input_files with entries serialize correctly."""
+        files = (
+            InputFileInfo(
+                path=Path("src/queue.py"), category="stubs", source_task="spec"
+            ),
+        )
+        d = self._build_and_serialize(input_files=files)
+        assert d["input_files"] == [
+            {"path": "src/queue.py", "category": "stubs", "source_task": "spec"}
+        ]
+
     def test_json_serializable(self) -> None:
         """Round-trip through JSON works without error."""
         d = self._build_and_serialize(
@@ -243,3 +262,56 @@ class TestManifestToDict:
         )
         text = json.dumps(d)
         assert json.loads(text) == d
+
+
+class TestInputFileInfo:
+    """Tests for InputFileInfo."""
+
+    def test_construction(self) -> None:
+        info = InputFileInfo(
+            path=Path("src/queue.py"), category="stubs", source_task="spec"
+        )
+        assert info.path == Path("src/queue.py")
+        assert info.category == "stubs"
+        assert info.source_task == "spec"
+
+    def test_frozen(self) -> None:
+        info = InputFileInfo(
+            path=Path("src/queue.py"), category="stubs", source_task="spec"
+        )
+        with pytest.raises(AttributeError):
+            info.category = "tests"  # type: ignore[misc]
+
+
+class TestBuildManifestInputFiles:
+    """Tests for input_files in build_manifest."""
+
+    def test_with_input_files(self) -> None:
+        """input_files parameter flows through to manifest."""
+        task = Task(id="t1", role=AgentRole.GENERIC)
+        files = (
+            InputFileInfo(path=Path("src/q.py"), category="stubs", source_task="spec"),
+        )
+        manifest = build_manifest(
+            task=task,
+            branch_name="b",
+            integration_branch="i",
+            graph_name="g",
+            attempt_num=0,
+            dependency_descriptions={},
+            input_files=files,
+        )
+        assert manifest.input_files == files
+
+    def test_without_input_files_defaults_empty(self) -> None:
+        """Omitting input_files defaults to empty tuple."""
+        task = Task(id="t1", role=AgentRole.GENERIC)
+        manifest = build_manifest(
+            task=task,
+            branch_name="b",
+            integration_branch="i",
+            graph_name="g",
+            attempt_num=0,
+            dependency_descriptions={},
+        )
+        assert manifest.input_files == ()

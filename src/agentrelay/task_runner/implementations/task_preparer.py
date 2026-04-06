@@ -7,16 +7,26 @@ Classes:
 
 from __future__ import annotations
 
+import json
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from agentrelay.agent_comm_protocol.manifest import build_manifest, manifest_to_dict
+from agentrelay.agent_comm_protocol.manifest import (
+    InputFileInfo,
+    build_manifest,
+    manifest_to_dict,
+)
 from agentrelay.agent_comm_protocol.policies import build_policies, policies_to_dict
 from agentrelay.agent_comm_protocol.templates import resolve_instructions
+from agentrelay.agent_sdk.output_manifest import (
+    OUTPUT_MANIFEST_FILENAME,
+    output_manifest_from_dict,
+)
 from agentrelay.errors import _WorkspaceIntegrationError
 from agentrelay.ops import git, signals
+from agentrelay.task import Task
 from agentrelay.task_runtime import TaskRuntime
 
 
@@ -90,6 +100,8 @@ class WorktreeTaskPreparer:
 
         signals.ensure_signal_dir(signal_dir)
 
+        input_files = _resolve_input_files(task, self.repo_path, self.graph_name)
+
         manifest = build_manifest(
             task=task,
             branch_name=branch_name,
@@ -98,6 +110,7 @@ class WorktreeTaskPreparer:
             attempt_num=runtime.state.attempt_num,
             dependency_descriptions=self.dependency_descriptions,
             tools=self.tools,
+            input_files=input_files,
         )
         signals.write_json(signal_dir, "manifest.json", manifest_to_dict(manifest))
 
@@ -123,3 +136,50 @@ class WorktreeTaskPreparer:
         runtime.state.worktree_path = workstream_worktree_path
         runtime.state.branch_name = branch_name
         runtime.state.signal_dir = signal_dir
+
+
+def _resolve_input_files(
+    task: Task,
+    repo_path: Path,
+    graph_name: str,
+) -> tuple[InputFileInfo, ...]:
+    """Resolve ``inputs_from`` references to concrete input file entries.
+
+    Reads each referenced upstream task's ``outputs.json`` from its signal
+    directory, optionally filters by category, and returns resolved entries.
+
+    Args:
+        task: The task being prepared (provides ``inputs_from``).
+        repo_path: Path to the repository root.
+        graph_name: Name of the task graph.
+
+    Returns:
+        Tuple of resolved input file entries.
+
+    Raises:
+        FileNotFoundError: If an upstream task's ``outputs.json`` is missing.
+    """
+    if not task.inputs_from:
+        return ()
+
+    result: list[InputFileInfo] = []
+    for inp in task.inputs_from:
+        upstream_signal_dir = repo_path / f".workflow/{graph_name}/signals/{inp.task}"
+        raw = signals.read_signal_file(upstream_signal_dir, OUTPUT_MANIFEST_FILENAME)
+        if raw is None:
+            raise FileNotFoundError(
+                f"Cannot resolve inputs_from for task '{task.id}': "
+                f"upstream task '{inp.task}' has no {OUTPUT_MANIFEST_FILENAME} "
+                f"at {upstream_signal_dir / OUTPUT_MANIFEST_FILENAME}"
+            )
+        output_manifest = output_manifest_from_dict(json.loads(raw))
+        for entry in output_manifest.files:
+            if inp.category is None or entry.category == inp.category:
+                result.append(
+                    InputFileInfo(
+                        path=entry.path,
+                        category=entry.category,
+                        source_task=inp.task,
+                    )
+                )
+    return tuple(result)

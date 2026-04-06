@@ -15,7 +15,7 @@ from pathlib import Path
 from string import Template
 from typing import Optional
 
-from agentrelay.agent_comm_protocol.manifest import TaskManifest
+from agentrelay.agent_comm_protocol.manifest import InputFileInfo, TaskManifest
 from agentrelay.sandbox import SandboxType
 from agentrelay.task import AdrVerbosity, AgentRole
 from agentrelay.tools import tool_guidance
@@ -172,6 +172,11 @@ def resolve_instructions(
         }
         resolved = Template(template_text).substitute(substitutions)
         parts.append("## What to Do\n\n" + resolved.strip())
+
+    # Input Files (conditional, only when inputs_from resolved files).
+    input_files_text = _input_files_section(manifest)
+    if input_files_text:
+        parts.append(input_files_text)
 
     # Graph Awareness (conditional, cross-cutting).
     graph_text = _graph_awareness_section(manifest, graph_yaml_path, signals_base_path)
@@ -386,6 +391,43 @@ def _concerns_note() -> str:
         "- **Ops concerns** (build errors, missing deps, tooling friction): "
         'report with `agentrelay-ops-concern --message "describe the concern"`'
     )
+
+
+def _input_files_section(manifest: TaskManifest) -> str:
+    """Build the Input Files section listing resolved upstream outputs.
+
+    Returns a complete ``## Input Files`` section when the manifest has
+    input files, or an empty string otherwise.
+
+    Args:
+        manifest: Task manifest (provides input_files).
+
+    Returns:
+        Markdown section text, or ``""`` when no input files exist.
+    """
+    if not manifest.input_files:
+        return ""
+
+    lines = [
+        "## Input Files",
+        "",
+        "The following files were produced by upstream tasks and are "
+        "available as inputs for your work. Read and use them as needed.",
+        "",
+    ]
+
+    by_source: dict[str, list[InputFileInfo]] = {}
+    for f in manifest.input_files:
+        by_source.setdefault(f.source_task, []).append(f)
+
+    for source_task, files in by_source.items():
+        lines.append(f"### From task `{source_task}`")
+        lines.append("")
+        for f in files:
+            lines.append(f"- `{f.path}` (category: {f.category})")
+        lines.append("")
+
+    return "\n".join(lines).rstrip()
 
 
 def _adr_section(verbosity: AdrVerbosity, task_id: str) -> str:

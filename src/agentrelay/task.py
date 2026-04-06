@@ -142,6 +142,24 @@ class ReviewConfig:
     review_on_attempt: int = 1
 
 
+@dataclass(frozen=True)
+class InputFrom:
+    """A reference to an upstream task's outputs for input resolution.
+
+    At prepare time, the orchestrator reads the referenced task's
+    ``outputs.json``, optionally filters by category, and places the
+    resolved file paths in the downstream task's manifest.
+
+    Attributes:
+        task: Upstream task ID whose output manifest to consume.
+        category: Optional category filter.  When ``None``, all outputs
+            from the upstream task are included.
+    """
+
+    task: str
+    category: Optional[str] = None
+
+
 # ── Core task type ──
 
 
@@ -181,6 +199,7 @@ class Task:
     description: Optional[str] = None
     paths: TaskPaths = field(default_factory=TaskPaths)
     dependencies: tuple[str, ...] = ()
+    inputs_from: tuple[InputFrom, ...] = ()
     completion_gate: Optional[str] = None
     max_gate_attempts: Optional[int] = None
     primary_agent: AgentConfig = field(default_factory=AgentConfig)
