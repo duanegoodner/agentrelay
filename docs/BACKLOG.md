@@ -198,10 +198,13 @@ Near-term items for the current architecture track.
 
 ## Graph Execution
 
-- **CLI flag for `fail_fast_on_internal_error`**:
-  `OrchestratorConfig.fail_fast_on_internal_error` has no CLI flag. Add
-  `--fail-fast-on-internal-error` / `--no-fail-fast-on-internal-error` to
-  `run_graph.py`. (`fail_fast_on_workstream_error` is done — see PR #C.)
+- **E2e graph for internal error fail-fast**: The `fail_fast_on_internal_error`
+  CLI flag is implemented but has no e2e coverage. Internal errors require
+  infrastructure-level failures (Docker, git, GitHub API), which are hard to
+  trigger from a graph YAML alone. A graph referencing an invalid OCI image
+  (e.g., nonexistent Docker image) would reliably raise during task
+  preparation and could validate both `--fail-fast-on-internal-error` and
+  `--no-fail-fast-on-internal-error` behavior. Belongs in `graphs/failure/`.
 - Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover

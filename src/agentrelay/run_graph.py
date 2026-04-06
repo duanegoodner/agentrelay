@@ -53,26 +53,35 @@ from agentrelay.tools import ToolValidationError, validate_tools
 def _extract_operational_config(
     raw: dict[str, Any],
 ) -> tuple[
-    Optional[str], bool, Optional[str], tuple[str, ...], Optional[str], Optional[bool]
+    Optional[str],
+    bool,
+    Optional[str],
+    tuple[str, ...],
+    Optional[str],
+    Optional[bool],
+    Optional[bool],
 ]:
     """Pop operational keys from a raw YAML dict before graph parsing.
 
     The graph YAML may include operational keys (``tmux_session``,
     ``keep_panes``, ``model``, ``tools``, ``anthropic_credential``,
-    ``fail_fast_on_workstream_error``) that are not part of the structural
-    graph schema.  These must be removed before passing to
-    :meth:`TaskGraphBuilder.from_dict` (which rejects unknown keys).
+    ``fail_fast_on_workstream_error``, ``fail_fast_on_internal_error``)
+    that are not part of the structural graph schema.  These must be
+    removed before passing to :meth:`TaskGraphBuilder.from_dict` (which
+    rejects unknown keys).
 
     Args:
         raw: Mutable raw YAML dict.  Modified in place.
 
     Returns:
         Tuple of ``(tmux_session, keep_panes, model_default, tools,
-        anthropic_credential, fail_fast_on_workstream_error)``.
+        anthropic_credential, fail_fast_on_workstream_error,
+        fail_fast_on_internal_error)``.
         ``tmux_session`` is ``None`` if not specified in the YAML.
         ``tools`` defaults to an empty tuple.
         ``anthropic_credential`` is ``None`` if not specified.
         ``fail_fast_on_workstream_error`` is ``None`` if not specified.
+        ``fail_fast_on_internal_error`` is ``None`` if not specified.
     """
     tmux_session: Optional[str] = raw.pop("tmux_session", None)
     keep_panes: bool = raw.pop("keep_panes", False)
@@ -85,7 +94,24 @@ def _extract_operational_config(
         raise ValueError(
             "Invalid graph schema at 'fail_fast_on_workstream_error': must be a boolean"
         )
-    return tmux_session, keep_panes, model, tools, anthropic_credential, raw_fail_fast
+    raw_fail_fast_internal: Optional[bool] = raw.pop(
+        "fail_fast_on_internal_error", None
+    )
+    if raw_fail_fast_internal is not None and not isinstance(
+        raw_fail_fast_internal, bool
+    ):
+        raise ValueError(
+            "Invalid graph schema at 'fail_fast_on_internal_error': must be a boolean"
+        )
+    return (
+        tmux_session,
+        keep_panes,
+        model,
+        tools,
+        anthropic_credential,
+        raw_fail_fast,
+        raw_fail_fast_internal,
+    )
 
 
 def _apply_overrides(
@@ -122,7 +148,13 @@ def _load_and_prepare_graph(
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
 ) -> tuple[
-    TaskGraph, Optional[str], bool, tuple[str, ...], Optional[str], Optional[bool]
+    TaskGraph,
+    Optional[str],
+    bool,
+    tuple[str, ...],
+    Optional[str],
+    Optional[bool],
+    Optional[bool],
 ]:
     """Load YAML, extract operational config, apply overrides, build graph.
 
@@ -133,12 +165,19 @@ def _load_and_prepare_graph(
 
     Returns:
         Tuple of ``(graph, effective_tmux_session, effective_keep_panes,
-        tools, anthropic_credential_name, fail_fast_on_workstream_error)``.
+        tools, anthropic_credential_name, fail_fast_on_workstream_error,
+        fail_fast_on_internal_error)``.
     """
     raw = yaml.safe_load(graph_path.read_text())
-    yaml_session, yaml_keep_panes, yaml_model, tools, yaml_anthropic, yaml_fail_fast = (
-        _extract_operational_config(raw)
-    )
+    (
+        yaml_session,
+        yaml_keep_panes,
+        yaml_model,
+        tools,
+        yaml_anthropic,
+        yaml_fail_fast,
+        yaml_fail_fast_internal,
+    ) = _extract_operational_config(raw)
 
     effective_session = tmux_session if tmux_session is not None else yaml_session
     effective_model = model_override if model_override is not None else yaml_model
@@ -153,6 +192,7 @@ def _load_and_prepare_graph(
         tools,
         yaml_anthropic,
         yaml_fail_fast,
+        yaml_fail_fast_internal,
     )
 
 
@@ -290,6 +330,7 @@ async def run_graph(
     model_override: Optional[str] = None,
     config: Optional[OrchestratorConfig] = None,
     fail_fast_on_workstream_error: Optional[bool] = None,
+    fail_fast_on_internal_error: Optional[bool] = None,
     credential_provider: Optional[CredentialProvider] = None,
     anthropic_credential_name: Optional[str] = None,
     verbose: bool = False,
@@ -311,6 +352,9 @@ async def run_graph(
         fail_fast_on_workstream_error: CLI override for
             ``OrchestratorConfig.fail_fast_on_workstream_error``.
             When ``None``, falls back to graph YAML, then config default.
+        fail_fast_on_internal_error: CLI override for
+            ``OrchestratorConfig.fail_fast_on_internal_error``.
+            When ``None``, falls back to graph YAML, then config default.
         credential_provider: Credential provider for sandboxed agents.
             When ``None``, :class:`NullCredentialProvider` is used.
         anthropic_credential_name: Name of the Anthropic credential to
@@ -324,10 +368,16 @@ async def run_graph(
     if config is None:
         config = OrchestratorConfig()
 
-    graph, _, yaml_keep_panes, tools, yaml_anthropic_name, yaml_fail_fast = (
-        _load_and_prepare_graph(
-            graph_path, tmux_session=tmux_session, model_override=model_override
-        )
+    (
+        graph,
+        _,
+        yaml_keep_panes,
+        tools,
+        yaml_anthropic_name,
+        yaml_fail_fast,
+        yaml_fail_fast_internal,
+    ) = _load_and_prepare_graph(
+        graph_path, tmux_session=tmux_session, model_override=model_override
     )
     effective_keep_panes = keep_panes or yaml_keep_panes
 
@@ -338,6 +388,15 @@ async def run_graph(
     if effective_fail_fast is not None:
         config = dataclasses.replace(
             config, fail_fast_on_workstream_error=effective_fail_fast
+        )
+
+    # Resolve fail_fast_on_internal_error: CLI > YAML > config default.
+    effective_fail_fast_internal = _resolve_fail_fast(
+        fail_fast_on_internal_error, yaml_fail_fast_internal
+    )
+    if effective_fail_fast_internal is not None:
+        config = dataclasses.replace(
+            config, fail_fast_on_internal_error=effective_fail_fast_internal
         )
 
     assert graph.name is not None, "Graph must have a name"
@@ -405,7 +464,7 @@ def dry_run(graph_path: Path) -> None:
     Args:
         graph_path: Path to the graph YAML file.
     """
-    graph, _, _, tools, _, _ = _load_and_prepare_graph(graph_path)
+    graph, _, _, tools, _, _, _ = _load_and_prepare_graph(graph_path)
 
     print(f"Graph: {graph.name}")
     print(f"Tasks: {len(graph.task_ids())}")
@@ -543,6 +602,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Stop preparing new workstreams after a workstream failure (default: false)",
     )
     parser.add_argument(
+        "--fail-fast-on-internal-error",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Stop scheduling immediately on internal orchestrator errors (default: true)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Validate graph and print execution plan without running",
@@ -596,6 +661,7 @@ def main() -> None:
                 model_override=args.model,
                 config=config,
                 fail_fast_on_workstream_error=args.fail_fast_on_workstream_error,
+                fail_fast_on_internal_error=args.fail_fast_on_internal_error,
                 credential_provider=credential_provider,
                 anthropic_credential_name=args.anthropic_credential,
                 verbose=args.verbose,
