@@ -13,6 +13,7 @@ import traceback
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from types import MappingProxyType
 from typing import Optional, Protocol, runtime_checkable
 
@@ -734,15 +735,29 @@ class _OrchestratorRun:
                 # Populate task summaries for the integration PR body.
                 from agentrelay.workstream.core.runtime import TaskSummary
 
+                def _read_summary(signal_dir: Path | None) -> str | None:
+                    if signal_dir is None:
+                        return None
+                    path = signal_dir / "summary.md"
+                    try:
+                        text = path.read_text()
+                    except OSError:
+                        return None
+                    return text.strip() or None
+
                 task_ids = graph.tasks_in_workstream(workstream_id)
                 ws_runtime.artifacts.task_summaries = [
                     TaskSummary(
                         task_id=tid,
                         description=self._task_runtimes[tid].task.description,
+                        role=self._task_runtimes[tid].task.role.value,
                         pr_url=self._task_runtimes[tid].artifacts.pr_url,
                         concerns=tuple(self._task_runtimes[tid].artifacts.concerns),
                         ops_concerns=tuple(
                             self._task_runtimes[tid].artifacts.ops_concerns
+                        ),
+                        summary_text=_read_summary(
+                            self._task_runtimes[tid].state.signal_dir
                         ),
                     )
                     for tid in task_ids

@@ -12,6 +12,22 @@ from pathlib import Path
 from agentrelay.ops import gh, git
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
 
+_MAX_DESCRIPTION_LENGTH = 200
+
+
+def _truncate(text: str, limit: int = _MAX_DESCRIPTION_LENGTH) -> str:
+    """Truncate *text* to *limit* characters, appending an ellipsis if needed."""
+    if len(text) <= limit:
+        return text
+    return text[:limit] + " …"
+
+
+def _task_label(task_id: str, role: str | None) -> str:
+    """Fallback label when a task has no description."""
+    if role:
+        return f"{task_id} ({role.replace('_', ' ')})"
+    return task_id
+
 
 def _build_pr_body(
     workstream_runtime: WorkstreamRuntime,
@@ -30,11 +46,25 @@ def _build_pr_body(
     if summaries:
         parts.append("\n### Tasks\n")
         for s in summaries:
-            desc = s.description or "(no description)"
+            desc = (
+                _truncate(s.description)
+                if s.description
+                else _task_label(s.task_id, s.role)
+            )
             line = f"- **{s.task_id}** — {desc}"
             if s.pr_url:
                 line += f"\n  PR: {s.pr_url}"
             parts.append(line + "\n")
+
+            if s.summary_text:
+                parts.append(
+                    "<details>\n"
+                    "<summary>Agent summary</summary>\n"
+                    "\n"
+                    f"{s.summary_text}\n"
+                    "\n"
+                    "</details>\n"
+                )
 
     # Aggregate concerns across all tasks.
     tasks_with_concerns = [s for s in summaries if s.concerns]
