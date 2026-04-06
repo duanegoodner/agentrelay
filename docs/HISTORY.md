@@ -4,6 +4,47 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-04
+
+### Execution quality and output manifests (sprint 2026-04-04 PRs A–E)
+
+- **Capture agent.log on task failure** (PR #157): Extracted scrollback
+  capture from `TmuxAddress.teardown()` into a new `capture_log()` method on
+  `AgentAddress` / `TmuxAddress`. Added `TaskLogCapture` protocol and
+  `WorktreeTaskLogCapture` implementation as a new task runner lifecycle step.
+  `StandardTaskRunner.run()` calls `capture_log()` unconditionally in the
+  `finally` block before the teardown decision. `TmuxAddress.teardown()` skips
+  redundant capture if `agent.log` already exists (idempotent).
+- **Retry agent awareness** (PR #158): New `## Previous Attempts` section in
+  agent instructions when `attempt_num > 0`. Lists archived attempt
+  directories with absolute paths, artifact filenames (`agent.log`,
+  `gate_last_output.txt`, `summary.md`, `concerns.log`, `ops_concerns.log`),
+  and guidance to review prior scrollback and identify root cause before
+  writing code.
+- **CLI and graph YAML control for fail-fast** (PR #159):
+  `--no-fail-fast-on-workstream-error` CLI flag and
+  `fail_fast_on_workstream_error` graph YAML field. Precedence: CLI overrides
+  YAML, YAML overrides default (`True`). `fail_fast_on_internal_error` stays
+  always-on (no flag). Updated `blocked_downstream.yaml` e2e graph to use
+  the new field.
+- **Skip empty integration PR** (PR #160): `GhWorkstreamIntegrator` checks
+  `git.rev_list_count()` before calling `gh pr create`. If the integration
+  branch has zero commits ahead of the base, transitions the workstream
+  directly to MERGED — no integration PR created. Added `rev_list_count()`
+  to `ops/git.py` and "skipped_integration" event to `ConsoleListener`.
+- **Output manifests and `agentrelay-declare`** (PR #161):
+  `OutputManifest` / `OutputEntry` data models in `agent_sdk/output_manifest.py`.
+  `agentrelay-declare` CLI (`--path`, `--action created|modified`,
+  `--category`) appends to `signal_dir/outputs.json`. `TaskHelper.declare_output()`
+  convenience method. `outputs.json` added to Graph Awareness artifact listing
+  in instructions. `agentrelay-declare` guidance added to "Submitting Your
+  Work" section. Foundation for output-driven task composition
+  (`docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md`).
+- All 5 PRs developed in parallel across git worktrees, merged sequentially.
+  1273 tests (39 new).
+
+---
+
 ## 2026-04-03
 
 ### Agent graph awareness (sprint 2026-04-03 PR A)
