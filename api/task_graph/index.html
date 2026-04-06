@@ -2232,9 +2232,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task_graph/builder.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 85</span>
 <span class="normal"> 86</span>
 <span class="normal"> 87</span>
 <span class="normal"> 88</span>
@@ -2370,7 +2368,11 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span>
-<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskGraphBuilder</span><span class="p">:</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TaskGraphBuilder</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Builder for constructing :class:`TaskGraph` from validated input specs.&quot;&quot;&quot;</span>
 
     <span class="nd">@classmethod</span>
@@ -2444,6 +2446,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 
         <span class="n">raw_by_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">spec</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">raw_specs</span><span class="p">}</span>
         <span class="n">_validate_dependencies_exist</span><span class="p">(</span><span class="n">raw_specs</span><span class="p">,</span> <span class="n">raw_by_id</span><span class="p">)</span>
+        <span class="n">_validate_inputs_from_are_dependencies</span><span class="p">(</span><span class="n">raw_specs</span><span class="p">,</span> <span class="n">raw_by_id</span><span class="p">)</span>
         <span class="n">task_ids</span> <span class="o">=</span> <span class="n">_topological_task_ids</span><span class="p">(</span><span class="n">raw_specs</span><span class="p">)</span>
 
         <span class="c1"># --- Resolve isolation: four-level inheritance ---</span>
@@ -2495,6 +2498,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
                 <span class="n">description</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
                 <span class="n">paths</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span>
                 <span class="n">dependencies</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">dependency_ids</span><span class="p">,</span>
+                <span class="n">inputs_from</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">inputs_from</span><span class="p">,</span>
                 <span class="n">completion_gate</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">completion_gate</span><span class="p">,</span>
                 <span class="n">max_gate_attempts</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">max_gate_attempts</span><span class="p">,</span>
                 <span class="n">primary_agent</span><span class="o">=</span><span class="n">primary_agent</span><span class="p">,</span>
@@ -2627,9 +2631,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_graph/builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
 <span class="normal"> 89</span>
 <span class="normal"> 90</span>
 <span class="normal"> 91</span>
@@ -2644,7 +2646,9 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
-<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_yaml</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse YAML and build a validated :class:`TaskGraph`.</span>
 
@@ -2770,9 +2774,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/task_graph/builder.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">107</span>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
@@ -2886,7 +2888,11 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span>
-<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskGraph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a validated :class:`TaskGraph` from mapping data.</span>
 
@@ -2938,6 +2944,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
 
     <span class="n">raw_by_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="p">:</span> <span class="n">spec</span> <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">raw_specs</span><span class="p">}</span>
     <span class="n">_validate_dependencies_exist</span><span class="p">(</span><span class="n">raw_specs</span><span class="p">,</span> <span class="n">raw_by_id</span><span class="p">)</span>
+    <span class="n">_validate_inputs_from_are_dependencies</span><span class="p">(</span><span class="n">raw_specs</span><span class="p">,</span> <span class="n">raw_by_id</span><span class="p">)</span>
     <span class="n">task_ids</span> <span class="o">=</span> <span class="n">_topological_task_ids</span><span class="p">(</span><span class="n">raw_specs</span><span class="p">)</span>
 
     <span class="c1"># --- Resolve isolation: four-level inheritance ---</span>
@@ -2989,6 +2996,7 @@ graph definitions. Internal indexing/validation helpers live in private submodul
             <span class="n">description</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
             <span class="n">paths</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">paths</span><span class="p">,</span>
             <span class="n">dependencies</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">dependency_ids</span><span class="p">,</span>
+            <span class="n">inputs_from</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">inputs_from</span><span class="p">,</span>
             <span class="n">completion_gate</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">completion_gate</span><span class="p">,</span>
             <span class="n">max_gate_attempts</span><span class="o">=</span><span class="n">spec</span><span class="o">.</span><span class="n">max_gate_attempts</span><span class="p">,</span>
             <span class="n">primary_agent</span><span class="o">=</span><span class="n">primary_agent</span><span class="p">,</span>
