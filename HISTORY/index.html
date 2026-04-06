@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-04
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-04">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-quality-and-output-manifests-sprint-2026-04-04-prs-ae" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution quality and output manifests (sprint 2026-04-04 PRs A–E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-03" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2247,6 +2275,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-04
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-04">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#execution-quality-and-output-manifests-sprint-2026-04-04-prs-ae" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution quality and output manifests (sprint 2026-04-04 PRs A–E)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-03" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3156,6 +3212,45 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-04-04">2026-04-04</h2>
+<h3 id="execution-quality-and-output-manifests-sprint-2026-04-04-prs-ae">Execution quality and output manifests (sprint 2026-04-04 PRs A–E)</h3>
+<ul>
+<li><strong>Capture agent.log on task failure</strong> (PR #157): Extracted scrollback
+  capture from <code>TmuxAddress.teardown()</code> into a new <code>capture_log()</code> method on
+  <code>AgentAddress</code> / <code>TmuxAddress</code>. Added <code>TaskLogCapture</code> protocol and
+  <code>WorktreeTaskLogCapture</code> implementation as a new task runner lifecycle step.
+  <code>StandardTaskRunner.run()</code> calls <code>capture_log()</code> unconditionally in the
+  <code>finally</code> block before the teardown decision. <code>TmuxAddress.teardown()</code> skips
+  redundant capture if <code>agent.log</code> already exists (idempotent).</li>
+<li><strong>Retry agent awareness</strong> (PR #158): New <code>## Previous Attempts</code> section in
+  agent instructions when <code>attempt_num &gt; 0</code>. Lists archived attempt
+  directories with absolute paths, artifact filenames (<code>agent.log</code>,
+  <code>gate_last_output.txt</code>, <code>summary.md</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>),
+  and guidance to review prior scrollback and identify root cause before
+  writing code.</li>
+<li><strong>CLI and graph YAML control for fail-fast</strong> (PR #159):
+  <code>--no-fail-fast-on-workstream-error</code> CLI flag and
+  <code>fail_fast_on_workstream_error</code> graph YAML field. Precedence: CLI overrides
+  YAML, YAML overrides default (<code>True</code>). <code>fail_fast_on_internal_error</code> stays
+  always-on (no flag). Updated <code>blocked_downstream.yaml</code> e2e graph to use
+  the new field.</li>
+<li><strong>Skip empty integration PR</strong> (PR #160): <code>GhWorkstreamIntegrator</code> checks
+  <code>git.rev_list_count()</code> before calling <code>gh pr create</code>. If the integration
+  branch has zero commits ahead of the base, transitions the workstream
+  directly to MERGED — no integration PR created. Added <code>rev_list_count()</code>
+  to <code>ops/git.py</code> and "skipped_integration" event to <code>ConsoleListener</code>.</li>
+<li><strong>Output manifests and <code>agentrelay-declare</code></strong> (PR #161):
+  <code>OutputManifest</code> / <code>OutputEntry</code> data models in <code>agent_sdk/output_manifest.py</code>.
+  <code>agentrelay-declare</code> CLI (<code>--path</code>, <code>--action created|modified</code>,
+  <code>--category</code>) appends to <code>signal_dir/outputs.json</code>. <code>TaskHelper.declare_output()</code>
+  convenience method. <code>outputs.json</code> added to Graph Awareness artifact listing
+  in instructions. <code>agentrelay-declare</code> guidance added to "Submitting Your
+  Work" section. Foundation for output-driven task composition
+  (<code>docs/discussions/OUTPUT_DRIVEN_COMPOSITION.md</code>).</li>
+<li>All 5 PRs developed in parallel across git worktrees, merged sequentially.
+  1273 tests (39 new).</li>
+</ul>
 <hr />
 <h2 id="2026-04-03">2026-04-03</h2>
 <h3 id="agent-graph-awareness-sprint-2026-04-03-pr-a">Agent graph awareness (sprint 2026-04-03 PR A)</h3>
