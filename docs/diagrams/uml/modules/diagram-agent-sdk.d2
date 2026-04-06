@@ -106,9 +106,17 @@ ops_pkg: "ops/" {
   gh: "gh <<module>>" { shape: class }
 }
 
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_impl_pkg: "implementations/" {
+    WorktreeTaskPreparer: "WorktreeTaskPreparer <<dataclass>>" { shape: class }
+  }
+}
+
 
 # ─── Relationships ───
 
+task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> agent_sdk_pkg.OutputManifest: "reads outputs.json" { class: dependency }
 agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }
 agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }
 agent_sdk_pkg.cli -> agent_sdk_pkg.TaskHelper: delegates { class: dependency }

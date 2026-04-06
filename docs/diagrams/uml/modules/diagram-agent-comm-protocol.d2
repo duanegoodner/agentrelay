@@ -56,12 +56,20 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
     attempt_num: int
     graph_name: "str | None"
     dependencies: "dict[str, DependencyInfo]"
+    input_files: "tuple[InputFileInfo, ...]"
     tools: "tuple[str, ...]"
   }
 
   DependencyInfo: "DependencyInfo <<frozen dataclass>>" {
     shape: class
     description: "str | None"
+  }
+
+  InputFileInfo: "InputFileInfo <<frozen dataclass>>" {
+    shape: class
+    path: Path
+    category: str
+    source_task: str
   }
 
   WorkflowPolicies: "WorkflowPolicies <<frozen dataclass>>" {
@@ -132,7 +140,7 @@ agent_comm_protocol_pkg: "agent_comm_protocol/" {
   manifest_functions: "manifest_functions <<module>>" {
     shape: class
     module_path: agent_comm_protocol.manifest
-    "+build_manifest(task, ..., tools)": TaskManifest
+    "+build_manifest(task, ..., tools, input_files)": TaskManifest
     "+manifest_to_dict(manifest)": dict
   }
 
@@ -181,6 +189,7 @@ tools_py: "tools.py" {
 # ─── Relationships ───
 
 agent_comm_protocol_pkg.TaskManifest -> agent_comm_protocol_pkg.DependencyInfo: dependencies { class: composition }
+agent_comm_protocol_pkg.TaskManifest -> agent_comm_protocol_pkg.InputFileInfo: input_files { class: composition }
 agent_comm_protocol_pkg.TaskManifest -> task_py.AgentRole: role { class: composition }
 agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._CommitPolicy: "commit_policy (optional)" { class: composition }
 agent_comm_protocol_pkg.WorkflowPolicies -> agent_comm_protocol_pkg._PrPolicy: "pr_policy (optional)" { class: composition }
