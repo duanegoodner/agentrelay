@@ -82,16 +82,20 @@ class TaskSummary:
     Attributes:
         task_id: Unique task identifier.
         description: Human-readable task description, or ``None``.
+        role: Agent role value string (e.g. ``"spec_writer"``), or ``None``.
         pr_url: URL of the task's pull request, or ``None``.
         concerns: Design concerns recorded by the agent.
         ops_concerns: Operational concerns recorded by the agent.
+        summary_text: Content of the agent's ``summary.md``, or ``None``.
     """
 
     task_id: str
     description: Optional[str] = None
+    role: Optional[str] = None
     pr_url: Optional[str] = None
     concerns: tuple[str, ...] = ()
     ops_concerns: tuple[str, ...] = ()
+    summary_text: Optional[str] = None
 
 
 @dataclass
