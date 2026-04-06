@@ -56,6 +56,7 @@ tmux_session: agentrelay  # optional; default "agentrelay"
 keep_panes: false              # optional; leave tmux windows open for debugging
 model: claude-sonnet-4-6       # optional; graph-level default model for all agents
 fail_fast_on_workstream_error: false  # optional; block new workstreams on failure (default: false)
+fail_fast_on_internal_error: true    # optional; halt on internal errors (default: true)
 tasks:
   - id: my_task
     description: "..."
