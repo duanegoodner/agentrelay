@@ -19,6 +19,18 @@ The orchestrator merges PRs in dependency order.
 | `agentrelay dry-run graphs/<category>/<name>.yaml` | Validate graph and print execution plan |
 | `agentrelay check` | Preflight checks on target repo |
 
+### Run flags
+
+| Long form | Short | Purpose |
+|---|---|---|
+| `--target-repo` | `-t` | Path to target repository |
+| `--model` | `-m` | Override model for all agents |
+| `--max-concurrency` | `-c` | Maximum concurrent task attempts |
+| `--tmux-session` | `-s` | Override tmux session name |
+| `--credentials` | `-C` | Path to credentials YAML file |
+| `--sandbox` | `-S` | Override sandbox type (`oci` or `none`) |
+| `--verbose` | `-v` | Show detailed step-level output |
+
 ## Module map
 
 | File | Responsibility |

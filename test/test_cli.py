@@ -36,6 +36,7 @@ def test_run_defaults() -> None:
     assert args.anthropic_credential is None
     assert args.fail_fast_on_workstream_error is None
     assert args.fail_fast_on_internal_error is None
+    assert args.sandbox is None
     assert args.dry_run is False
     assert args.verbose is False
 
@@ -62,6 +63,8 @@ def test_run_all_flags() -> None:
             "/tmp/creds.yaml",
             "--anthropic-credential",
             "max_plan",
+            "--sandbox",
+            "oci",
             "--fail-fast-on-workstream-error",
             "--fail-fast-on-internal-error",
             "--dry-run",
@@ -76,6 +79,7 @@ def test_run_all_flags() -> None:
     assert args.model == "claude-opus-4-6"
     assert args.credentials == "/tmp/creds.yaml"
     assert args.anthropic_credential == "max_plan"
+    assert args.sandbox == "oci"
     assert args.fail_fast_on_workstream_error is True
     assert args.fail_fast_on_internal_error is True
     assert args.dry_run is True
@@ -173,6 +177,68 @@ def test_no_subcommand() -> None:
     parser = build_parser()
     args = parser.parse_args([])
     assert args.command is None
+
+
+# --- short options ---
+
+
+def test_run_short_options() -> None:
+    """Short option aliases resolve to the same attributes."""
+    parser = build_parser()
+    args = parser.parse_args(
+        [
+            "run",
+            "graph.yaml",
+            "-t",
+            "/tmp/repo",
+            "-m",
+            "claude-opus-4-6",
+            "-c",
+            "4",
+            "-s",
+            "mysession",
+            "-C",
+            "/tmp/creds.yaml",
+            "-S",
+            "oci",
+        ]
+    )
+    assert args.target_repo == "/tmp/repo"
+    assert args.model == "claude-opus-4-6"
+    assert args.max_concurrency == 4
+    assert args.tmux_session == "mysession"
+    assert args.credentials == "/tmp/creds.yaml"
+    assert args.sandbox == "oci"
+
+
+def test_run_sandbox_none() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["run", "graph.yaml", "--sandbox", "none"])
+    assert args.sandbox == "none"
+
+
+def test_run_sandbox_default_is_none() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["run", "graph.yaml"])
+    assert args.sandbox is None
+
+
+def test_reset_short_target_repo() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["reset", "graph.yaml", "-t", "/tmp/repo"])
+    assert args.target_repo == "/tmp/repo"
+
+
+def test_dry_run_short_target_repo() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["dry-run", "graph.yaml", "-t", "/tmp/repo"])
+    assert args.target_repo == "/tmp/repo"
+
+
+def test_check_short_target_repo() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["check", "-t", "/tmp/repo"])
+    assert args.target_repo == "/tmp/repo"
 
 
 # --- _resolve_repo_path ---

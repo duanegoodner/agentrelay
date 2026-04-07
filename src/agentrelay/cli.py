@@ -42,6 +42,7 @@ from agentrelay.tools import ToolValidationError
 def _add_target_repo_arg(parser: argparse.ArgumentParser) -> None:
     """Add ``--target-repo`` argument to a subparser."""
     parser.add_argument(
+        "-t",
         "--target-repo",
         default=None,
         help="Path to the target repository (default: current directory)",
@@ -111,6 +112,7 @@ def _handle_run(args: argparse.Namespace) -> None:
                 fail_fast_on_internal_error=args.fail_fast_on_internal_error,
                 credential_provider=credential_provider,
                 anthropic_credential_name=args.anthropic_credential,
+                sandbox_override=args.sandbox,
                 verbose=args.verbose,
             )
         )
@@ -186,6 +188,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("graph", help="Path to graph YAML file")
     _add_target_repo_arg(run_parser)
     run_parser.add_argument(
+        "-c",
         "--max-concurrency",
         type=int,
         default=None,
@@ -204,16 +207,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="When to tear down task resources (default: on_success)",
     )
     run_parser.add_argument(
+        "-s",
         "--tmux-session",
         default=None,
         help="Override tmux session name for all agents",
     )
     run_parser.add_argument(
+        "-m",
         "--model",
         default=None,
         help="Override model for all agents",
     )
     run_parser.add_argument(
+        "-C",
         "--credentials",
         default=None,
         help="Path to credentials YAML file for sandboxed agents",
@@ -222,6 +228,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--anthropic-credential",
         default=None,
         help="Name of Anthropic credential from credentials YAML file",
+    )
+    run_parser.add_argument(
+        "-S",
+        "--sandbox",
+        choices=["oci", "none"],
+        default=None,
+        help="Override sandbox type for all tasks (oci or none)",
     )
     run_parser.add_argument(
         "--fail-fast-on-workstream-error",
