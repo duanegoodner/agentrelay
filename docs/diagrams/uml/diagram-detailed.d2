@@ -24,11 +24,10 @@ task_py: "task.py" {
     EDUCATIONAL
   }
 
-  TaskPaths: "TaskPaths <<frozen dataclass>>" {
+  TaggedPath: "TaggedPath <<frozen dataclass>>" {
     shape: class
-    src: "tuple[Path, ...]"
-    test: "tuple[Path, ...]"
-    spec: "Path | None"
+    path: Path
+    category: str
   }
 
   AgentConfig: "AgentConfig <<frozen dataclass>>" {
@@ -57,7 +56,7 @@ task_py: "task.py" {
     id: str
     role: AgentRole
     description: "str | None"
-    paths: TaskPaths
+    tagged_paths: "tuple[TaggedPath, ...]"
     dependencies: "tuple[str, ...]"
     inputs_from: "tuple[InputFrom, ...]"
     completion_gate: "str | None"
@@ -1103,7 +1102,7 @@ sandbox_pkg: "sandbox/" {
 
 # --- task.py internal ---
 task_py.Task -> task_py.AgentRole: role { class: composition }
-task_py.Task -> task_py.TaskPaths: paths { class: composition }
+task_py.Task -> task_py.TaggedPath: tagged_paths { class: composition }
 task_py.Task -> task_py.InputFrom: inputs_from { class: composition }
 task_py.Task -> task_py.AgentConfig: primary_agent { class: composition }
 task_py.Task -> task_py.ReviewConfig: "review (optional)" { class: composition }

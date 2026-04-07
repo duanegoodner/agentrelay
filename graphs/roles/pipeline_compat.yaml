@@ -6,8 +6,6 @@ tools:
 
 # Four-role pipeline: spec_writer → test_writer → test_reviewer → implementer.
 # Exercises role-specific templates, tagged paths, and the full handoff chain.
-# Uses the explicit tagged_paths list format (see pipeline_compat.yaml for the
-# backward-compatible paths: sugar).
 #
 # The spec_writer description contains a deliberate inconsistency: the "Core
 # operations" section says push() evicts the oldest item when full, while the
@@ -55,38 +53,37 @@ tasks:
       All mutating methods must validate preconditions and raise appropriate
       exceptions. push() raises OverflowError when the queue has reached
       capacity. pop() and peek() raise IndexError when the queue is empty.
-    tagged_paths:
-      - path: src/agentrelaydemos/bounded_queue.py
-        category: src
-      - path: specs/bounded_queue.md
-        category: spec
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      spec: specs/bounded_queue.md
     dependencies: []
 
   - id: test_bounded_queue
     role: test_writer
-    tagged_paths:
-      - path: src/agentrelaydemos/bounded_queue.py
-        category: src
-      - path: tests/test_bounded_queue.py
-        category: test
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
     dependencies: [spec_bounded_queue]
 
   - id: review_bounded_queue
     role: test_reviewer
-    tagged_paths:
-      - path: src/agentrelaydemos/bounded_queue.py
-        category: src
-      - path: tests/test_bounded_queue.py
-        category: test
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
     dependencies: [test_bounded_queue]
 
   - id: impl_bounded_queue
     role: implementer
-    tagged_paths:
-      - path: src/agentrelaydemos/bounded_queue.py
-        category: src
-      - path: tests/test_bounded_queue.py
-        category: test
+    paths:
+      src:
+        - src/agentrelaydemos/bounded_queue.py
+      test:
+        - tests/test_bounded_queue.py
     completion_gate: "pixi run pytest tests/test_bounded_queue.py -q"
     max_gate_attempts: 3
     dependencies: [review_bounded_queue]

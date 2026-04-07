@@ -30,7 +30,7 @@ The orchestrator merges PRs in dependency order.
 | `agent/` | `Agent` / `AgentAddress` abstractions, `TmuxAgent` implementation |
 | `agent_comm_protocol/` | Manifest, policies, role templates for agent instructions |
 | `ops/` | Stateless subprocess wrappers: git, tmux, gh, signals |
-| `task.py` | `Task`, `AgentRole`, `AgentConfig`, `TaskPaths` data models |
+| `task.py` | `Task`, `AgentRole`, `AgentConfig`, `TaggedPath` data models |
 | `reset_graph.py` | Full graph reset: closes PRs, resets main, deletes branches |
 
 ## Signal files
@@ -62,12 +62,18 @@ tasks:
     description: "..."
     role: generic              # optional; generic | test_writer | test_reviewer | implementer | spec_writer | merger
     model: claude-haiku-4-5-20251001  # optional; overrides graph-level model for this task
-    paths:                     # optional; all sub-keys optional
-      src:                     # list of source files (used by spec_writer, test_writer, implementer)
-        - src/my_module.py
-      test:                    # list of test files (used by test_writer, implementer)
-        - tests/test_my_module.py
-      spec: specs/my_spec.md   # supplementary spec file path (used by spec_writer, generic)
+    tagged_paths:              # optional; list of {path, category} entries
+      - path: src/my_module.py
+        category: src
+      - path: tests/test_my_module.py
+        category: test
+    # Alternative: 'paths' sugar (converted to tagged_paths internally)
+    # paths:                   # optional; mutually exclusive with tagged_paths
+    #   src:
+    #     - src/my_module.py
+    #   test:
+    #     - tests/test_my_module.py
+    #   spec: specs/my_spec.md
     dependencies: []
     inputs_from:               # optional; reference upstream task outputs
       task: upstream_task_id   # required; must be a (transitive) dependency

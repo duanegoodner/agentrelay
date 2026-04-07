@@ -24,8 +24,8 @@ from agentrelay.task import (
     AgentRole,
     InputFrom,
     ReviewConfig,
+    TaggedPath,
     Task,
-    TaskPaths,
 )
 from agentrelay.task_graph.graph import TaskGraph
 from agentrelay.workstream import WorkstreamSpec
@@ -69,7 +69,7 @@ class _RawTaskSpec:
     id: str
     role: AgentRole
     description: Optional[str]
-    paths: TaskPaths
+    tagged_paths: tuple[TaggedPath, ...]
     dependency_ids: tuple[str, ...]
     inputs_from: tuple[InputFrom, ...]
     completion_gate: Optional[str]
@@ -206,7 +206,7 @@ class TaskGraphBuilder:
                 id=spec.id,
                 role=spec.role,
                 description=spec.description,
-                paths=spec.paths,
+                tagged_paths=spec.tagged_paths,
                 dependencies=spec.dependency_ids,
                 inputs_from=spec.inputs_from,
                 completion_gate=spec.completion_gate,
@@ -236,6 +236,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
             "description",
             "dependencies",
             "paths",
+            "tagged_paths",
             "completion_gate",
             "max_gate_attempts",
             "primary_agent",
@@ -260,7 +261,16 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
         mapping.get("dependencies", []), path + ".dependencies"
     )
     inputs_from = _parse_inputs_from(mapping.get("inputs_from"), path + ".inputs_from")
-    paths = _parse_paths(mapping.get("paths"), path + ".paths")
+    has_paths = "paths" in mapping
+    has_tagged_paths = "tagged_paths" in mapping
+    if has_paths and has_tagged_paths:
+        raise _schema_error(path, "'paths' and 'tagged_paths' are mutually exclusive")
+    if has_tagged_paths:
+        tagged_paths = _parse_tagged_paths(
+            mapping["tagged_paths"], path + ".tagged_paths"
+        )
+    else:
+        tagged_paths = _parse_paths(mapping.get("paths"), path + ".paths")
     completion_gate = _parse_optional_string(
         mapping.get("completion_gate"), path + ".completion_gate"
     )
@@ -285,7 +295,7 @@ def _parse_task(task_data: Any, path: str) -> _RawTaskSpec:
         id=task_id,
         role=role,
         description=description,
-        paths=paths,
+        tagged_paths=tagged_paths,
         dependency_ids=dependencies,
         inputs_from=inputs_from,
         completion_gate=completion_gate,
@@ -427,17 +437,42 @@ def _parse_inputs_from(value: Any, path: str) -> tuple[InputFrom, ...]:
     return tuple(result)
 
 
-def _parse_paths(value: Any, path: str) -> TaskPaths:
+def _parse_paths(value: Any, path: str) -> tuple[TaggedPath, ...]:
     if value is None:
-        return TaskPaths()
+        return ()
     mapping = _require_mapping(value, path)
     _reject_unknown_keys(mapping, path, {"src", "test", "spec"})
 
-    src = _parse_path_list(mapping.get("src", []), path + ".src")
-    test = _parse_path_list(mapping.get("test", []), path + ".test")
+    result: list[TaggedPath] = []
+    for p in _parse_path_list(mapping.get("src", []), path + ".src"):
+        result.append(TaggedPath(path=p, category="src"))
+    for p in _parse_path_list(mapping.get("test", []), path + ".test"):
+        result.append(TaggedPath(path=p, category="test"))
     spec_str = _parse_optional_string(mapping.get("spec"), path + ".spec")
-    spec = Path(spec_str) if spec_str is not None else None
-    return TaskPaths(src=src, test=test, spec=spec)
+    if spec_str is not None:
+        result.append(TaggedPath(path=Path(spec_str), category="spec"))
+    return tuple(result)
+
+
+def _parse_tagged_paths(value: Any, path: str) -> tuple[TaggedPath, ...]:
+    """Parse a ``tagged_paths`` list of ``{path, category}`` mappings."""
+    if not isinstance(value, list):
+        raise _schema_error(path, "must be a list of {path, category} mappings")
+    if not value:
+        return ()
+    result: list[TaggedPath] = []
+    for idx, item in enumerate(value):
+        item_path = f"{path}[{idx}]"
+        mapping = _require_mapping(item, item_path)
+        _reject_unknown_keys(mapping, item_path, {"path", "category"})
+        p = _require_non_empty_string(
+            _read_required(mapping, "path", item_path), item_path + ".path"
+        )
+        category = _require_non_empty_string(
+            _read_required(mapping, "category", item_path), item_path + ".category"
+        )
+        result.append(TaggedPath(path=Path(p), category=category))
+    return tuple(result)
 
 
 def _parse_path_list(value: Any, path: str) -> tuple[Path, ...]:

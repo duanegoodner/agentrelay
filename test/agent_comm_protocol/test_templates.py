@@ -10,7 +10,7 @@ import pytest
 from agentrelay.agent_comm_protocol.manifest import InputFileInfo, TaskManifest
 from agentrelay.agent_comm_protocol.templates import resolve_instructions
 from agentrelay.sandbox import SandboxType
-from agentrelay.task import AdrVerbosity, AgentRole
+from agentrelay.task import AdrVerbosity, AgentRole, TaggedPath
 
 
 def _manifest(**overrides: object) -> TaskManifest:
@@ -20,9 +20,10 @@ def _manifest(**overrides: object) -> TaskManifest:
         "task_id": "my_task",
         "role": AgentRole.TEST_WRITER,
         "description": "Write tests for greet module",
-        "src_paths": (Path("src/greet.py"),),
-        "test_paths": (Path("test/test_greet.py"),),
-        "spec_path": None,
+        "tagged_paths": (
+            TaggedPath(path=Path("src/greet.py"), category="src"),
+            TaggedPath(path=Path("test/test_greet.py"), category="test"),
+        ),
         "branch_name": "graph/demo/my_task",
         "integration_branch": "graph/demo",
         "attempt_num": 0,
@@ -117,7 +118,7 @@ class TestResolveInstructions:
 
     def test_empty_paths_show_placeholder(self) -> None:
         """Empty paths are shown as '(none specified)'."""
-        m = _manifest(src_paths=(), test_paths=())
+        m = _manifest(tagged_paths=())
         text = resolve_instructions(AgentRole.TEST_WRITER, m)
         assert "(none specified)" in text
 

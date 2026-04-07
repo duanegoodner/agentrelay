@@ -17,7 +17,7 @@ from typing import Optional
 
 from agentrelay.agent_comm_protocol.manifest import InputFileInfo, TaskManifest
 from agentrelay.sandbox import SandboxType
-from agentrelay.task import AdrVerbosity, AgentRole
+from agentrelay.task import AdrVerbosity, AgentRole, TaggedPath
 from agentrelay.tools import tool_guidance
 
 _TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
@@ -53,9 +53,23 @@ _ROLE_SENTENCES: dict[AgentRole, str] = {
 }
 
 
-def _format_paths(paths: tuple[Path, ...]) -> str:
-    """Join paths with spaces, or return a placeholder if empty."""
-    return " ".join(str(p) for p in paths) if paths else _NONE_PLACEHOLDER
+def _format_paths_by_category(tagged_paths: tuple[TaggedPath, ...]) -> str:
+    """Group tagged paths by category and render a bullet list.
+
+    Returns ``"(none specified)"`` when *tagged_paths* is empty.
+    """
+    if not tagged_paths:
+        return _NONE_PLACEHOLDER
+
+    groups: dict[str, list[str]] = {}
+    for tp in tagged_paths:
+        groups.setdefault(tp.category, []).append(str(tp.path))
+
+    lines: list[str] = []
+    for category in sorted(groups):
+        paths_str = ", ".join(groups[category])
+        lines.append(f"- {category}: {paths_str}")
+    return "\n".join(lines)
 
 
 def resolve_instructions(
@@ -97,9 +111,8 @@ def resolve_instructions(
     Template variables (``$var`` syntax via :class:`string.Template`):
 
     - ``$description`` — task description
-    - ``$src_paths`` — space-joined source paths, or ``"(none specified)"``
-    - ``$test_paths`` — space-joined test paths, or ``"(none specified)"``
-    - ``$spec_path`` — spec path, or ``"(none specified)"``
+    - ``$paths_by_category`` — paths grouped by category as a bullet list,
+      or ``"(none specified)"`` when empty
     - ``$task_id`` — task identifier
 
     Args:
@@ -160,13 +173,7 @@ def resolve_instructions(
         template_text = _load_template(role.value, adapter_name)
         substitutions = {
             "description": manifest.description or "",
-            "src_paths": _format_paths(manifest.src_paths),
-            "test_paths": _format_paths(manifest.test_paths),
-            "spec_path": (
-                str(manifest.spec_path)
-                if manifest.spec_path is not None
-                else _NONE_PLACEHOLDER
-            ),
+            "paths_by_category": _format_paths_by_category(manifest.tagged_paths),
             "task_id": manifest.task_id,
             "concerns_note": _concerns_note(),
         }
