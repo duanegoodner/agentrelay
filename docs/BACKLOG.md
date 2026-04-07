@@ -574,6 +574,32 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).
 
+## Diagram Tooling
+
+- **Evaluate and finalize diagram tooling**: The current setup (D2 with TALA
+  layout engine) works for module-level diagrams but hits TALA's dimension
+  limits on the detailed diagram (~80+ classes). A `--tala-seeds` workaround
+  keeps it rendering for now, but TALA is closed-source and Terrastruct
+  appears dormant (no commits since October 2025, no maintainer responses
+  to issues). Options to evaluate:
+  - **D2 + TALA (current)**: Best layout quality. Should license ($5/mo OSS
+    rate) if continuing. Risk: vendor abandonment with no open-source
+    fallback. Seeds workaround is fragile — may break as diagram grows.
+  - **D2 + ELK or dagre**: Free, bundled with D2. Handles any size. Layout
+    quality is noticeably less compact than TALA. Note: D2 docs claim dagre
+    development stopped in 2018, but the `dagrejs/dagre` GitHub repo appears
+    actively maintained — only the DagreJs org NPM package receives updates
+    (not the other `dagre` on NPM). Unclear which version D2 bundles.
+  - **PlantUML**: Battle-tested, huge community, active development. Uses
+    Graphviz for layout. Good for module-level class diagrams (5-15 classes).
+    Detailed monolith would be messy but renders. Familiar to LLMs. Would
+    require rewriting `generate_module_diagrams.py` to emit PlantUML.
+  - **Graphviz (raw DOT)**: Zero dependencies, handles any scale. Verbose
+    syntax, no built-in UML semantics, weak package/container support.
+  - Decision point: the Rust migration will rewrite tooling anyway —
+    choosing before that avoids carrying two diagram systems across the
+    boundary.
+
 ## Documentation
 
 - **Design philosophy document**: Consolidate the project's design

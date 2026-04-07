@@ -16,6 +16,12 @@ RENDER_LAYOUT="tala"
 RENDER_SCALE=0.3
 RENDER_PAD=50
 
+# Seeds that produce layouts within TALA's dimension limits for the
+# detailed diagram (~80+ classes). TALA runs all seeds in parallel and
+# picks the best result.  Re-scan if the diagram grows significantly:
+#   for s in $(seq 0 20); do ... --tala-seeds "$s" ... ; done
+DETAILED_TALA_SEEDS="4,6,11,13,14"
+
 # ── Build the D2 preamble (globals + style classes) ──────────────────
 build_preamble() {
   cat <<PREAMBLE
@@ -76,6 +82,7 @@ python -m tools.generate_module_diagrams "${preamble_args[@]}"
   echo ""
   cat "docs/diagrams/uml/diagram-detailed.d2"
 } | d2 --layout "$RENDER_LAYOUT" --scale "$RENDER_SCALE" --pad "$RENDER_PAD" \
+    --tala-seeds "$DETAILED_TALA_SEEDS" \
     - "docs/diagrams/uml/diagram-detailed.svg"
 
 # ── Render per-module SVGs ───────────────────────────────────────────
