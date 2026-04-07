@@ -1220,10 +1220,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task.TaskPaths" class="md-nav__link">
+  <a href="#agentrelay.task.TaggedPath" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskPaths
+        TaggedPath
       
     </span>
   </a>
@@ -1501,10 +1501,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#agentrelay.task.TaskPaths" class="md-nav__link">
+  <a href="#agentrelay.task.TaggedPath" class="md-nav__link">
     <span class="md-ellipsis">
       
-        TaskPaths
+        TaggedPath
       
     </span>
   </a>
@@ -1611,15 +1611,15 @@ configuration types for agents and reviews, and enums for roles.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><a class="autorefs autorefs-internal" title="TaskPaths
+            <td><code><a class="autorefs autorefs-internal" title="TaggedPath
 
 
   
       dataclass
-   (agentrelay.task.TaskPaths)" href="#agentrelay.task.TaskPaths">TaskPaths</a></code></td>
+   (agentrelay.task.TaggedPath)" href="#agentrelay.task.TaggedPath">TaggedPath</a></code></td>
             <td>
               <div class="doc-md-description">
-                <p>File paths a task operates on (source, test, supplementary spec).</p>
+                <p>A file path annotated with a semantic category.</p>
               </div>
             </td>
           </tr>
@@ -2076,8 +2076,8 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
 
 
 
-<h2 id="agentrelay.task.TaskPaths" class="doc doc-heading">
-            <code>TaskPaths</code>
+<h2 id="agentrelay.task.TaggedPath" class="doc doc-heading">
+            <code>TaggedPath</code>
 
 
   <span class="doc doc-labels">
@@ -2091,7 +2091,7 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
 
 
 
-        <p>File paths a task operates on.</p>
+        <p>A file path annotated with a semantic category.</p>
 
 
 <p><span class="doc-section-title">Attributes:</span></p>
@@ -2105,35 +2105,25 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.TaskPaths.src">src</span></code></td>
+            <td><code><span title="agentrelay.task.TaggedPath.path">path</span></code></td>
             <td>
-                  <code><span title="tuple">tuple</span>[<span title="pathlib.Path">Path</span>, ...]</code>
+                  <code><span title="pathlib.Path">Path</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Tuple of source file paths to create or modify. Defaults to empty.</p>
+                <p>File path (relative to the repository root).</p>
               </div>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.TaskPaths.test">test</span></code></td>
+            <td><code><span title="agentrelay.task.TaggedPath.category">category</span></code></td>
             <td>
-                  <code><span title="tuple">tuple</span>[<span title="pathlib.Path">Path</span>, ...]</code>
+                  <code><span title="str">str</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Tuple of test file paths to create or modify. Defaults to empty.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.TaskPaths.spec">spec</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Path to supplementary specification file, or None if not applicable.</p>
+                <p>Semantic role of the file (e.g., <code>"src"</code>, <code>"test"</code>,
+<code>"spec"</code>).  Free-form string; not restricted to a fixed set.</p>
               </div>
             </td>
           </tr>
@@ -2149,31 +2139,29 @@ workstream: WorkstreamSpec for grouping related task execution.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">TaskPaths</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;File paths a task operates on.</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaggedPath</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A file path annotated with a semantic category.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        src: Tuple of source file paths to create or modify. Defaults to empty.</span>
-<span class="sd">        test: Tuple of test file paths to create or modify. Defaults to empty.</span>
-<span class="sd">        spec: Path to supplementary specification file, or None if not applicable.</span>
+<span class="sd">        path: File path (relative to the repository root).</span>
+<span class="sd">        category: Semantic role of the file (e.g., ``&quot;src&quot;``, ``&quot;test&quot;``,</span>
+<span class="sd">            ``&quot;spec&quot;``).  Free-form string; not restricted to a fixed set.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">src</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">test</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">spec</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -2292,7 +2280,8 @@ Defaults to TmuxEnvironment.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
+<span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
@@ -2313,8 +2302,7 @@ Defaults to TmuxEnvironment.</p>
 <span class="normal">121</span>
 <span class="normal">122</span>
 <span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">AgentConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Framework and model configuration for executing an agent.</span>
 
@@ -2435,7 +2423,8 @@ Defaults to 1 (review on first attempt).</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
+<span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
@@ -2448,8 +2437,7 @@ Defaults to 1 (review on first attempt).</p>
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ReviewConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for agent self-review before task completion.</span>
 
@@ -2558,7 +2546,8 @@ from the upstream task are included.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
+<span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
@@ -2572,8 +2561,7 @@ from the upstream task are included.</p>
 <span class="normal">156</span>
 <span class="normal">157</span>
 <span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">InputFrom</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A reference to an upstream task&#39;s outputs for input resolution.</span>
 
@@ -2684,19 +2672,19 @@ dependency tuples and as dictionary keys.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.task.Task.paths">paths</span></code></td>
+            <td><code><span title="agentrelay.task.Task.tagged_paths">tagged_paths</span></code></td>
             <td>
-                  <code><a class="autorefs autorefs-internal" title="TaskPaths
+                  <code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="TaggedPath
 
 
   
       dataclass
-   (agentrelay.task.TaskPaths)" href="#agentrelay.task.TaskPaths">TaskPaths</a></code>
+   (agentrelay.task.TaggedPath)" href="#agentrelay.task.TaggedPath">TaggedPath</a>, ...]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>File paths the task operates on (source, test, spec).
-Defaults to empty paths.</p>
+                <p>Category-tagged file paths the task operates on.
+Defaults to empty tuple.</p>
               </div>
             </td>
           </tr>
@@ -2794,7 +2782,8 @@ Defaults to <code>"default"</code> for backward compatibility.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/task.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
+<span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
 <span class="normal">169</span>
@@ -2835,8 +2824,7 @@ Defaults to <code>"default"</code> for backward compatibility.</p>
 <span class="normal">204</span>
 <span class="normal">205</span>
 <span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Task</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Frozen specification of a unit of work in the task graph.</span>
 
@@ -2851,8 +2839,8 @@ Defaults to <code>"default"</code> for backward compatibility.</p>
 <span class="sd">        id: Unique identifier for this task within the graph.</span>
 <span class="sd">        role: The type of work this task performs (AgentRole enum).</span>
 <span class="sd">        description: Optional human-readable description of the task.</span>
-<span class="sd">        paths: File paths the task operates on (source, test, spec).</span>
-<span class="sd">            Defaults to empty paths.</span>
+<span class="sd">        tagged_paths: Category-tagged file paths the task operates on.</span>
+<span class="sd">            Defaults to empty tuple.</span>
 <span class="sd">        dependencies: Tuple of dependency task IDs that must complete before</span>
 <span class="sd">            this task can run. Defaults to empty tuple.</span>
 <span class="sd">        completion_gate: Optional shell command (exit code 0 = success)</span>
@@ -2870,7 +2858,7 @@ Defaults to <code>"default"</code> for backward compatibility.</p>
     <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">paths</span><span class="p">:</span> <span class="n">TaskPaths</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">TaskPaths</span><span class="p">)</span>
+    <span class="n">tagged_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TaggedPath</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">dependencies</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">inputs_from</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InputFrom</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
     <span class="n">completion_gate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>

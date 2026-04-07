@@ -2173,19 +2173,12 @@
 <li><strong>Role template simplification</strong>: As structured I/O contracts make more of
   the role-specific guidance derivable from data, simplify or generalize role
   templates. Preserve role-specific concern guidance.</li>
-<li><strong>Deprecate <code>TaskPaths</code> (<code>src</code>/<code>test</code>/<code>spec</code>) in favor of categories</strong>:
-  <code>TaskPaths</code> and the output manifest's <code>category</code> field serve overlapping
-  purposes — both describe the semantic role of files a task works with.
-  <code>TaskPaths</code> uses a fixed three-slot taxonomy (<code>src</code>, <code>test</code>, <code>spec</code>);
-  categories are free-form strings (<code>stubs</code>, <code>tests</code>, <code>implementation</code>,
-  etc.) that proved more flexible. Migrating non-generic role templates to
-  use category-based input resolution instead of <code>$src_paths</code>/<code>$test_paths</code>
-  would unify the two systems and simplify the data model. <code>TaskPaths</code>
-  would be replaced by category-tagged file lists on the manifest, and
-  <code>paths</code> in the graph YAML would become sugar for inline category
-  declarations. Complete this before the Rust migration so the Rust port
-  builds on the unified model. Depends on <code>inputs_from</code> shipping first to
-  validate category-based resolution end-to-end.</li>
+<li><strong>Remove <code>paths:</code> backward-compatibility sugar from <code>_parse_paths()</code></strong>: The
+  <code>paths:</code> key in graph YAML (<code>src</code>/<code>test</code>/<code>spec</code> sub-keys) is preserved as
+  sugar that converts to <code>TaggedPath</code> entries. Once all graph YAML files are
+  migrated to the <code>tagged_paths:</code> list format, remove the sugar and simplify
+  the parser. Requires updating all graphs in <code>graphs/</code> and any external
+  repos (e.g., agentrelaydemos).</li>
 <li><strong>Typed output categories</strong>: <code>OutputEntry.category</code> is currently a free-form
   <code>str</code>. After sufficient e2e usage, review which categories agents actually
   use in practice and consider introducing an <code>OutputCategory</code> enum (with a

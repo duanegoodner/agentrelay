@@ -1788,35 +1788,18 @@ or <code>None</code> if no description is available.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.src_paths">src_paths</span></code></td>
+            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.tagged_paths">tagged_paths</span></code></td>
             <td>
-                  <code><span title="tuple">tuple</span>[<span title="pathlib.Path">Path</span>, ...]</code>
+                  <code><span title="tuple">tuple</span>[<a class="autorefs autorefs-internal" title="TaggedPath
+
+
+  
+      dataclass
+   (agentrelay.task.TaggedPath)" href="../task/#agentrelay.task.TaggedPath">TaggedPath</a>, ...]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Source file paths.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.test_paths">test_paths</span></code></td>
-            <td>
-                  <code><span title="tuple">tuple</span>[<span title="pathlib.Path">Path</span>, ...]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Test file paths.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="agentrelay.agent_comm_protocol.TaskManifest.spec_path">spec_path</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Supplementary spec file path, or <code>None</code>.</p>
+                <p>Category-tagged file paths for this task.</p>
               </div>
             </td>
           </tr>
@@ -1932,11 +1915,7 @@ or <code>None</code> if no description is available.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TaskManifest</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Frozen Layer-1 manifest: pure facts about a task.</span>
 
@@ -1945,9 +1924,7 @@ or <code>None</code> if no description is available.</p>
 <span class="sd">        task_id: Unique task identifier.</span>
 <span class="sd">        role: Agent role for this task.</span>
 <span class="sd">        description: Human-readable task description, or ``None``.</span>
-<span class="sd">        src_paths: Source file paths.</span>
-<span class="sd">        test_paths: Test file paths.</span>
-<span class="sd">        spec_path: Supplementary spec file path, or ``None``.</span>
+<span class="sd">        tagged_paths: Category-tagged file paths for this task.</span>
 <span class="sd">        branch_name: Feature branch for this task&#39;s work.</span>
 <span class="sd">        integration_branch: Branch this task&#39;s PR targets.</span>
 <span class="sd">        attempt_num: Current attempt number (0-indexed).</span>
@@ -1960,9 +1937,7 @@ or <code>None</code> if no description is available.</p>
     <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">src_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-    <span class="n">test_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-    <span class="n">spec_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">tagged_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TaggedPath</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">attempt_num</span><span class="p">:</span> <span class="nb">int</span>
@@ -2369,7 +2344,11 @@ translate them into framework-specific actions.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_comm_protocol/manifest.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 98</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
@@ -2406,13 +2385,7 @@ translate them into framework-specific actions.</p>
 <span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_manifest</span><span class="p">(</span>
+<span class="normal">135</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_manifest</span><span class="p">(</span>
     <span class="n">task</span><span class="p">:</span> <span class="n">Task</span><span class="p">,</span>
     <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2442,9 +2415,7 @@ translate them into framework-specific actions.</p>
         <span class="n">task_id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
         <span class="n">role</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-        <span class="n">src_paths</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">src</span><span class="p">,</span>
-        <span class="n">test_paths</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">test</span><span class="p">,</span>
-        <span class="n">spec_path</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">paths</span><span class="o">.</span><span class="n">spec</span><span class="p">,</span>
+        <span class="n">tagged_paths</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">tagged_paths</span><span class="p">,</span>
         <span class="n">branch_name</span><span class="o">=</span><span class="n">branch_name</span><span class="p">,</span>
         <span class="n">integration_branch</span><span class="o">=</span><span class="n">integration_branch</span><span class="p">,</span>
         <span class="n">attempt_num</span><span class="o">=</span><span class="n">attempt_num</span><span class="p">,</span>
@@ -2549,7 +2520,13 @@ translate them into framework-specific actions.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_comm_protocol/manifest.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">144</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
@@ -2588,14 +2565,7 @@ translate them into framework-specific actions.</p>
 <span class="normal">180</span>
 <span class="normal">181</span>
 <span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="normal">183</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">manifest_to_dict</span><span class="p">(</span><span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a :class:`TaskManifest` to a JSON-compatible dict.</span>
 
 <span class="sd">    The dict structure matches the Layer-1 schema defined in</span>
@@ -2615,11 +2585,10 @@ translate them into framework-specific actions.</p>
             <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
         <span class="p">},</span>
-        <span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;src&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">src_paths</span><span class="p">],</span>
-            <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">test_paths</span><span class="p">],</span>
-            <span class="s2">&quot;spec&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="p">},</span>
+        <span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">tp</span><span class="o">.</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">tp</span><span class="o">.</span><span class="n">category</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">tp</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">tagged_paths</span>
+        <span class="p">],</span>
         <span class="s2">&quot;workspace&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="s2">&quot;branch_name&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">branch_name</span><span class="p">,</span>
             <span class="s2">&quot;integration_branch&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">integration_branch</span><span class="p">,</span>
@@ -3112,9 +3081,8 @@ JSON <code>null</code>.</p>
 <p>Template variables (<code>$var</code> syntax via :class:<code>string.Template</code>):</p>
 <ul>
 <li><code>$description</code> — task description</li>
-<li><code>$src_paths</code> — space-joined source paths, or <code>"(none specified)"</code></li>
-<li><code>$test_paths</code> — space-joined test paths, or <code>"(none specified)"</code></li>
-<li><code>$spec_path</code> — spec path, or <code>"(none specified)"</code></li>
+<li><code>$paths_by_category</code> — paths grouped by category as a bullet list,
+  or <code>"(none specified)"</code> when empty</li>
 <li><code>$task_id</code> — task identifier</li>
 </ul>
 
@@ -3334,21 +3302,7 @@ peer signal directories live.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent_comm_protocol/templates.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
 <span class="normal"> 76</span>
 <span class="normal"> 77</span>
 <span class="normal"> 78</span>
@@ -3480,7 +3434,14 @@ peer signal directories live.</p>
 <span class="normal">204</span>
 <span class="normal">205</span>
 <span class="normal">206</span>
-<span class="normal">207</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_instructions</span><span class="p">(</span>
     <span class="n">role</span><span class="p">:</span> <span class="n">AgentRole</span><span class="p">,</span>
     <span class="n">manifest</span><span class="p">:</span> <span class="n">TaskManifest</span><span class="p">,</span>
     <span class="n">adapter_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3519,9 +3480,8 @@ peer signal directories live.</p>
 <span class="sd">    Template variables (``$var`` syntax via :class:`string.Template`):</span>
 
 <span class="sd">    - ``$description`` — task description</span>
-<span class="sd">    - ``$src_paths`` — space-joined source paths, or ``&quot;(none specified)&quot;``</span>
-<span class="sd">    - ``$test_paths`` — space-joined test paths, or ``&quot;(none specified)&quot;``</span>
-<span class="sd">    - ``$spec_path`` — spec path, or ``&quot;(none specified)&quot;``</span>
+<span class="sd">    - ``$paths_by_category`` — paths grouped by category as a bullet list,</span>
+<span class="sd">      or ``&quot;(none specified)&quot;`` when empty</span>
 <span class="sd">    - ``$task_id`` — task identifier</span>
 
 <span class="sd">    Args:</span>
@@ -3582,13 +3542,7 @@ peer signal directories live.</p>
         <span class="n">template_text</span> <span class="o">=</span> <span class="n">_load_template</span><span class="p">(</span><span class="n">role</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">adapter_name</span><span class="p">)</span>
         <span class="n">substitutions</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">description</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;src_paths&quot;</span><span class="p">:</span> <span class="n">_format_paths</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">src_paths</span><span class="p">),</span>
-            <span class="s2">&quot;test_paths&quot;</span><span class="p">:</span> <span class="n">_format_paths</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">test_paths</span><span class="p">),</span>
-            <span class="s2">&quot;spec_path&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="nb">str</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">manifest</span><span class="o">.</span><span class="n">spec_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="n">_NONE_PLACEHOLDER</span>
-            <span class="p">),</span>
+            <span class="s2">&quot;paths_by_category&quot;</span><span class="p">:</span> <span class="n">_format_paths_by_category</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">tagged_paths</span><span class="p">),</span>
             <span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="n">manifest</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span>
             <span class="s2">&quot;concerns_note&quot;</span><span class="p">:</span> <span class="n">_concerns_note</span><span class="p">(),</span>
         <span class="p">}</span>
