@@ -431,6 +431,25 @@ avoids touching the same files twice.
 selection from B, auto-detected tmux sessions from C, and the
 consolidated graph set from D.
 
+## Known issue: TALA diagram rendering
+
+The detailed diagram (`diagram-detailed.d2`) now exceeds TALA's internal
+dimension limit (~32k x 28k) on all seeds 0–20. Per-module diagrams and
+the module overview still render fine. This was marginal before PR B
+(graph_index added 4 nodes) and is a pre-existing limitation of the
+TALA layout engine.
+
+**Proposed fix (this sprint):** Strip private/internal blocks
+(`<<module>>` stereotype, `_`-prefixed) from the detailed diagram source
+and keep them only in the per-module diagrams. Requires a small change
+to `generate_module_diagrams.py` to support a two-tier source (public
+surface in detailed, full internals in per-module). This would
+significantly reduce node count in the detailed layout and restore
+rendering headroom.
+
+This can be a standalone PR slotted anywhere in the dependency chain
+(no functional code changes).
+
 ## What comes after this sprint
 
 Per `docs/planning/pre-rust-roadmap.md`:

@@ -11,9 +11,11 @@ from agentrelay.cli import (
     _do_dry_run,
     _handle_check,
     _handle_dry_run,
+    _handle_list,
     _handle_reset,
     _handle_run,
     _resolve_graph_path,
+    _resolve_graph_with_index,
     _resolve_repo_path,
     build_parser,
 )
@@ -484,3 +486,156 @@ def test_conflict_error_message_uses_new_cli(tmp_path: Path) -> None:
     (tmp_path / ".workflow" / "test-graph").mkdir(parents=True)
     with pytest.raises(_ConflictError, match="agentrelay reset"):
         _check_for_conflicts(tmp_path, "test-graph")
+
+
+# --- build_parser: --graph-dir on run ---
+
+
+def test_run_graph_dir_default() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["run", "graph.yaml"])
+    assert args.graph_dir is None
+
+
+def test_run_graph_dir_long() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["run", "graph.yaml", "--graph-dir", "graphs/"])
+    assert args.graph_dir == "graphs/"
+
+
+def test_run_graph_dir_short() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["run", "graph.yaml", "-g", "graphs/"])
+    assert args.graph_dir == "graphs/"
+
+
+# --- build_parser: --graph-dir on reset ---
+
+
+def test_reset_graph_dir() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["reset", "graph.yaml", "-g", "graphs/"])
+    assert args.graph_dir == "graphs/"
+
+
+# --- build_parser: --graph-dir on dry-run ---
+
+
+def test_dry_run_graph_dir() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["dry-run", "graph.yaml", "-g", "graphs/"])
+    assert args.graph_dir == "graphs/"
+
+
+# --- build_parser: list subcommand ---
+
+
+def test_list_subcommand() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["list", "-g", "graphs/"])
+    assert args.command == "list"
+    assert args.graph_dir == "graphs/"
+
+
+def test_list_requires_graph_dir() -> None:
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["list"])
+
+
+# --- _resolve_graph_with_index ---
+
+
+def _make_args(graph: str, graph_dir: str | None = None) -> MagicMock:
+    """Build a minimal namespace for _resolve_graph_with_index."""
+    args = MagicMock()
+    args.graph = graph
+    args.graph_dir = graph_dir
+    return args
+
+
+def test_resolve_graph_with_index_by_name(tmp_path: Path) -> None:
+    g = tmp_path / "smoke" / "quick.yaml"
+    g.parent.mkdir()
+    g.write_text("name: quick-chained\ntasks: []\n")
+
+    args = _make_args("quick-chained", graph_dir=str(tmp_path))
+    result = _resolve_graph_with_index(args)
+    assert result == g.resolve()
+
+
+def test_resolve_graph_with_index_no_graph_dir(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    g = tmp_path / "g.yaml"
+    g.write_text("name: test\ntasks: []\n")
+
+    args = _make_args(str(g), graph_dir=None)
+    result = _resolve_graph_with_index(args)
+    assert result == g.resolve()
+
+    captured = capsys.readouterr()
+    assert "name uniqueness not validated" in captured.err
+
+
+def test_resolve_graph_with_index_duplicate_names_exits(tmp_path: Path) -> None:
+    (tmp_path / "a").mkdir()
+    (tmp_path / "a" / "one.yaml").write_text("name: dup\ntasks: []\n")
+    (tmp_path / "b").mkdir()
+    (tmp_path / "b" / "two.yaml").write_text("name: dup\ntasks: []\n")
+
+    args = _make_args("dup", graph_dir=str(tmp_path))
+    with pytest.raises(SystemExit, match="1"):
+        _resolve_graph_with_index(args)
+
+
+def test_resolve_graph_with_index_name_not_found_exits(tmp_path: Path) -> None:
+    g = tmp_path / "g.yaml"
+    g.write_text("name: existing\ntasks: []\n")
+
+    args = _make_args("nonexistent", graph_dir=str(tmp_path))
+    with pytest.raises(SystemExit, match="1"):
+        _resolve_graph_with_index(args)
+
+
+# --- _handle_list ---
+
+
+def test_handle_list_prints_table(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    g = tmp_path / "smoke" / "quick.yaml"
+    g.parent.mkdir()
+    g.write_text("name: quick-chained\ntasks: []\n")
+
+    parser = build_parser()
+    args = parser.parse_args(["list", "-g", str(tmp_path)])
+    _handle_list(args)
+
+    captured = capsys.readouterr()
+    assert "quick-chained" in captured.out
+    assert "smoke" in captured.out
+    assert "NAME" in captured.out
+
+
+def test_handle_list_empty_dir(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    parser = build_parser()
+    args = parser.parse_args(["list", "-g", str(tmp_path)])
+    _handle_list(args)
+
+    captured = capsys.readouterr()
+    assert "No graphs found." in captured.err
+
+
+def test_handle_list_duplicate_names_exits(tmp_path: Path) -> None:
+    (tmp_path / "a").mkdir()
+    (tmp_path / "a" / "one.yaml").write_text("name: dup\ntasks: []\n")
+    (tmp_path / "b").mkdir()
+    (tmp_path / "b" / "two.yaml").write_text("name: dup\ntasks: []\n")
+
+    parser = build_parser()
+    args = parser.parse_args(["list", "-g", str(tmp_path)])
+    with pytest.raises(SystemExit, match="1"):
+        _handle_list(args)
