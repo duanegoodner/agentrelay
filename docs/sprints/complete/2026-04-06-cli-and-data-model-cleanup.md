@@ -1,6 +1,8 @@
-# Sprint Plan — 2026-04-06: CLI & Data Model Cleanup
+# Sprint Notes — 2026-04-06: CLI & Data Model Cleanup
 
-> **Status: Planning.**
+> **Status: Complete.** Both PRs (A–B) merged, plus a follow-up fix (#171).
+> PRs developed in parallel across git worktrees; merged B→A with no
+> conflicts. 1348 tests after all PRs landed.
 
 ## Goal
 
@@ -206,9 +208,21 @@ entirely different areas of the codebase:
 - PR B: `task.py`, `builder.py`, `manifest.py`, `templates.py`,
   template markdown files, tests, diagram
 
-No shared files. Both can be developed in parallel across worktrees and
-merged in any order. Suggested merge order: A first (smaller, less likely
-to conflict with anything), then B.
+No shared files. Both developed in parallel across worktrees and merged
+in any order. Actual merge order: B first (#169), then A (#170).
+
+## Merge log
+
+| Order | PR | Title | Merge commit |
+|---|---|---|---|
+| 1 | #169 (B) | feat: replace TaskPaths with category-tagged TaggedPath | `9f49f6e` |
+| 2 | #170 (A) | feat: agentrelay top-level CLI | `992724f` |
+| 3 | #171 | fix: work around TALA dimension limit with seed selection | `4a26379` |
+
+PR #171 was a follow-up fix: the detailed diagram (~80+ classes) exceeded
+TALA's internal dimension limit after the TaggedPath rename in PR B.
+Resolved by passing `--tala-seeds` with seeds that produce layouts within
+the limit. Also added a diagram tooling evaluation item to the backlog.
 
 ## What comes after this sprint
 
