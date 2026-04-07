@@ -14,13 +14,16 @@ The orchestrator merges PRs in dependency order.
 | `pixi run format` | black + isort |
 | `pixi run check` | format + typecheck + test (pre-PR verification) |
 | `pixi run setup-hooks` | Enable git pre-commit hooks (one-time setup) |
-| `python -m agentrelay.run_graph graphs/<category>/<name>.yaml` | Run a task graph |
-| `python -m agentrelay.reset_graph graphs/<category>/<name>.yaml` | Reset repo to pre-run state |
+| `agentrelay run graphs/<category>/<name>.yaml` | Run a task graph |
+| `agentrelay reset graphs/<category>/<name>.yaml` | Reset repo to pre-run state |
+| `agentrelay dry-run graphs/<category>/<name>.yaml` | Validate graph and print execution plan |
+| `agentrelay check` | Preflight checks on target repo |
 
 ## Module map
 
 | File | Responsibility |
 |---|---|
+| `cli.py` | Top-level `agentrelay` CLI: subcommand dispatch to run/reset/check/dry-run |
 | `run_graph.py` | Top-level composition + CLI: wires graph, runners, orchestrator |
 | `orchestrator/` | Async scheduler, config, runtime builders, runner builders |
 | `task_graph/` | Immutable `TaskGraph` DAG model and `TaskGraphBuilder` YAML parser |
