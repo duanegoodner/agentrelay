@@ -801,6 +801,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diagram-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagram Tooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1896,6 +1907,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diagram-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagram Tooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2492,6 +2514,32 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   cleared on retry (fixed in PR D). Deferred because it touches every
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).</li>
+</ul>
+<h2 id="diagram-tooling">Diagram Tooling</h2>
+<ul>
+<li><strong>Evaluate and finalize diagram tooling</strong>: The current setup (D2 with TALA
+  layout engine) works for module-level diagrams but hits TALA's dimension
+  limits on the detailed diagram (~80+ classes). A <code>--tala-seeds</code> workaround
+  keeps it rendering for now, but TALA is closed-source and Terrastruct
+  appears dormant (no commits since October 2025, no maintainer responses
+  to issues). Options to evaluate:</li>
+<li><strong>D2 + TALA (current)</strong>: Best layout quality. Should license ($5/mo OSS
+    rate) if continuing. Risk: vendor abandonment with no open-source
+    fallback. Seeds workaround is fragile — may break as diagram grows.</li>
+<li><strong>D2 + ELK or dagre</strong>: Free, bundled with D2. Handles any size. Layout
+    quality is noticeably less compact than TALA. Note: D2 docs claim dagre
+    development stopped in 2018, but the <code>dagrejs/dagre</code> GitHub repo appears
+    actively maintained — only the DagreJs org NPM package receives updates
+    (not the other <code>dagre</code> on NPM). Unclear which version D2 bundles.</li>
+<li><strong>PlantUML</strong>: Battle-tested, huge community, active development. Uses
+    Graphviz for layout. Good for module-level class diagrams (5-15 classes).
+    Detailed monolith would be messy but renders. Familiar to LLMs. Would
+    require rewriting <code>generate_module_diagrams.py</code> to emit PlantUML.</li>
+<li><strong>Graphviz (raw DOT)</strong>: Zero dependencies, handles any scale. Verbose
+    syntax, no built-in UML semantics, weak package/container support.</li>
+<li>Decision point: the Rust migration will rewrite tooling anyway —
+    choosing before that avoids carrying two diagram systems across the
+    boundary.</li>
 </ul>
 <h2 id="documentation">Documentation</h2>
 <ul>
