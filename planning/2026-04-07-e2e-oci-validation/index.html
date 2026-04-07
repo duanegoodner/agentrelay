@@ -1,0 +1,2304 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/planning/2026-04-07-e2e-oci-validation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sprint-plan-2026-04-07-e2e-validation-with-oci-isolation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-work-graph-audit-and-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-work: graph audit and cleanup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-work: graph audit and cleanup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-inventory-29-graphs-9-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current inventory (29 graphs, 9 categories)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-consolidation-inventory-21-graphs-8-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Post-consolidation inventory (21 graphs, 8 categories)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#syntax-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#e2e-validation-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        E2E validation scenarios
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="E2E validation scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agent-lifecycle-under-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent lifecycle under OCI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-and-permission-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential and permission isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-task-data-flow-under-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-task data flow under OCI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workstream-topology-under-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workstream topology under OCI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failure-handling-under-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure handling under OCI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concern-capture-under-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concern capture under OCI
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parallel-e2e-run-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel e2e run notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-a-cli-short-options-and-sandbox-override" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A: CLI short options and --sandbox override
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b-graph-index-and-name-based-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B: Graph index and name-based selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-tmux-session-auto-detect-and-window-naming" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: Tmux session auto-detect and window naming
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-d-graph-consolidation-and-syntax-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR D: Graph consolidation and syntax migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-e-e2e-validation-runs-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E: E2E validation runs and fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependency-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-comes-after-this-sprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What comes after this sprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sprint-plan-2026-04-07-e2e-validation-with-oci-isolation">Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation</h1>
+<blockquote>
+<p><strong>Status: Planning.</strong></p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>Validate the complete system end-to-end with OCI containers before
+freezing Python. This is Phase 2 of the pre-Rust roadmap.</p>
+<p>Success criteria: representative graphs from every category pass with
+OCI isolation enabled. The result is the behavioral baseline the Rust
+port reimplements against.</p>
+<h2 id="context">Context</h2>
+<p>Sprint 2026-04-06 shipped the <code>agentrelay</code> CLI and the <code>TaggedPath</code>
+data model unification. The Python orchestrator's feature surface is
+complete. What remains is proving it works under OCI isolation across
+the full graph taxonomy, fixing what breaks, and cleaning up the graph
+collection.</p>
+<p>Currently only 3 graphs (all in <code>isolation/</code>) have OCI sandbox config.
+The other 26 graphs run without isolation.</p>
+<h2 id="decisions">Decisions</h2>
+<ol>
+<li>
+<p><strong>CLI <code>--sandbox</code> override</strong> — yes. Add <code>--sandbox oci</code> /
+   <code>--sandbox none</code> flag so any graph can run in either mode without
+   YAML changes.</p>
+</li>
+<li>
+<p><strong>Graph consolidation:</strong></p>
+</li>
+<li><code>graph_awareness/</code> 3→1: keep one graph, use <code>--model</code> for variants.</li>
+<li>Remove <code>workstreams/diamond_4_workstreams_auto_merge_false.yaml</code>
+     (<code>auto_merge: false</code> is the default — redundant with
+     <code>diamond_4_workstreams.yaml</code>).</li>
+<li>Remove <code>roles/experiments/</code> (all 4 single-role graphs). The full
+     pipeline graph subsumes them.</li>
+<li>Remove <code>roles/pipeline_compat.yaml</code> after confirming <code>paths:</code> sugar
+     still works. Unit tests in <code>_parse_paths()</code> cover the sugar.</li>
+<li>
+<p>Move <code>gates/pixi_run_test.yaml</code> → <code>smoke/</code>. Gates are established
+     functionality, not a separate test category.</p>
+</li>
+<li>
+<p><strong>Credential testing:</strong> Both API key and OAuth entries in the
+   credentials YAML. OAuth is the primary credential for most runs.
+   Some runs explicitly use <code>--anthropic-credential &lt;api_key_name&gt;</code> to
+   exercise the env-var injection path.</p>
+</li>
+<li>
+<p><strong>Target repo:</strong> Continue using <code>agentrelaydemos</code>. Parallel graph
+   runs safe by construction once graph index and tmux naming changes
+   land.</p>
+</li>
+<li>
+<p><strong>Role experiments:</strong> Remove. Full pipeline is sufficient.</p>
+</li>
+<li>
+<p><strong><code>gates/</code> category:</strong> Merge into <code>smoke/</code>.</p>
+</li>
+<li>
+<p><strong>Graph index:</strong> Require all graphs to be registered in an index
+   that enforces name uniqueness. Graphs are selected by name from the
+   index, not by raw file path. Scan-on-every-run (no stale index).</p>
+</li>
+<li>
+<p><strong>Tmux session auto-detect:</strong> Remove <code>tmux_session</code> from graph YAML
+   schema. Auto-detect current tmux session when launched from within
+   tmux. CLI <code>--tmux-session</code> / <code>-s</code> remains as an explicit override.</p>
+</li>
+<li>
+<p><strong>Tmux window naming:</strong> Change from bare <code>task_id</code> to
+   <code>{graph_name}-{task_id}</code> so parallel graph runs in the same session
+   cannot collide.</p>
+</li>
+</ol>
+<h2 id="pre-work-graph-audit-and-cleanup">Pre-work: graph audit and cleanup</h2>
+<h3 id="current-inventory-29-graphs-9-categories">Current inventory (29 graphs, 9 categories)</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>What they test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smoke/</code></td>
+<td>3</td>
+<td>Serial chain, parallel tasks, <code>inputs_from</code> chain</td>
+</tr>
+<tr>
+<td><code>workstreams/</code></td>
+<td>6</td>
+<td>Diamond topologies (1ws, 4ws), auto-merge variants, serial ordering</td>
+</tr>
+<tr>
+<td><code>roles/</code></td>
+<td>6</td>
+<td>4-role pipeline (tagged_paths + compat), 4 single-role experiments</td>
+</tr>
+<tr>
+<td><code>concerns/</code></td>
+<td>3</td>
+<td>Design concerns, ops concerns, concerns + auto-merge</td>
+</tr>
+<tr>
+<td><code>failure/</code></td>
+<td>3</td>
+<td>Agent failure, blocked downstream, gate retry exhaustion</td>
+</tr>
+<tr>
+<td><code>isolation/</code></td>
+<td>3</td>
+<td>Basic OCI, token tiers, permission boundary</td>
+</tr>
+<tr>
+<td><code>gates/</code></td>
+<td>1</td>
+<td>Pixi pytest gate with implementer role</td>
+</tr>
+<tr>
+<td><code>graph_awareness/</code></td>
+<td>3</td>
+<td>Spec-test-impl chain (haiku, sonnet, opus variants)</td>
+</tr>
+<tr>
+<td><code>adr/</code></td>
+<td>1</td>
+<td>ADR generation with <code>adr_verbosity: standard</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="post-consolidation-inventory-21-graphs-8-categories">Post-consolidation inventory (21 graphs, 8 categories)</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smoke/</code></td>
+<td>4</td>
+<td>+1 (gate graph moved in from <code>gates/</code>)</td>
+</tr>
+<tr>
+<td><code>workstreams/</code></td>
+<td>5</td>
+<td>-1 (<code>auto_merge_false</code> removed)</td>
+</tr>
+<tr>
+<td><code>roles/</code></td>
+<td>1</td>
+<td>-5 (4 experiments + compat removed)</td>
+</tr>
+<tr>
+<td><code>concerns/</code></td>
+<td>3</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>failure/</code></td>
+<td>3</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>isolation/</code></td>
+<td>3</td>
+<td>unchanged</td>
+</tr>
+<tr>
+<td><code>graph_awareness/</code></td>
+<td>1</td>
+<td>-2 (model variants removed; use <code>--model</code>)</td>
+</tr>
+<tr>
+<td><code>adr/</code></td>
+<td>1</td>
+<td>unchanged</td>
+</tr>
+</tbody>
+</table>
+<p><code>gates/</code> category removed (merged into <code>smoke/</code>).</p>
+<h3 id="syntax-migration">Syntax migration</h3>
+<p>Graphs being removed don't need migration. Only one remaining graph
+uses old <code>paths:</code> syntax:
+- <code>smoke/pixi_run_test.yaml</code> (moved from <code>gates/</code>) — migrate to
+  <code>tagged_paths:</code></p>
+<h2 id="e2e-validation-scenarios">E2E validation scenarios</h2>
+<p>Scenarios to validate, organized by what could break under OCI.</p>
+<h3 id="agent-lifecycle-under-oci">Agent lifecycle under OCI</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>What could break</th>
+<th>Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Single task in container, creates PR, merges</td>
+<td>Container startup, worktree mount, <code>gh</code> access</td>
+<td><code>isolation/basic_oci.yaml</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Serial task chain in containers</td>
+<td>Signal file visibility, worktree freshness</td>
+<td><code>smoke/quick_chained.yaml</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Parallel tasks in separate containers</td>
+<td>Concurrent container lifecycle</td>
+<td><code>smoke/quick_parallel.yaml</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Multi-task pipeline with roles and gates</td>
+<td>Role templates + gate execution in containers</td>
+<td><code>roles/pipeline.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="credential-and-permission-isolation">Credential and permission isolation</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>What could break</th>
+<th>Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>Token tier differentiation (standard vs read_only)</td>
+<td>Env var injection, PAT scoping</td>
+<td><code>isolation/token_tiers.yaml</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Permission boundary (can't push to main)</td>
+<td>Pre-push hook in container</td>
+<td><code>isolation/permission_boundary.yaml</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Anthropic API key injection</td>
+<td><code>_ANTHROPIC_API_KEY</code> env var in container</td>
+<td>Any OCI graph + <code>--anthropic-credential &lt;api_key&gt;</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Anthropic OAuth injection</td>
+<td>Volume mount of credentials file</td>
+<td>Any OCI graph + <code>--anthropic-credential &lt;oauth&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="cross-task-data-flow-under-oci">Cross-task data flow under OCI</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>What could break</th>
+<th>Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td><code>inputs_from</code> resolution</td>
+<td>Upstream <code>outputs.json</code> readable from downstream container</td>
+<td><code>smoke/inputs_from_chain.yaml</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Graph awareness (graph YAML mount)</td>
+<td>Read-only <code>.workflow/&lt;graph&gt;/graph.yaml</code> mount</td>
+<td><code>graph_awareness/spec_test_impl.yaml</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td>ADR instructions in container</td>
+<td>ADR policy file accessible</td>
+<td><code>adr/adr_standard.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="workstream-topology-under-oci">Workstream topology under OCI</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>What could break</th>
+<th>Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td>Diamond across workstreams</td>
+<td>Cross-workstream gate checking</td>
+<td><code>workstreams/diamond_4_workstreams.yaml</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td>Auto-merge with OCI</td>
+<td>Integration PR creation + auto-merge</td>
+<td><code>workstreams/diamond_4_workstreams_auto_merge.yaml</code></td>
+</tr>
+<tr>
+<td>14</td>
+<td>Serial workstream ordering</td>
+<td>Task serialization within one workstream</td>
+<td><code>workstreams/serial_workstream.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="failure-handling-under-oci">Failure handling under OCI</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>What could break</th>
+<th>Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>Agent signals failure from container</td>
+<td><code>.failed</code> sentinel from container</td>
+<td><code>failure/agent_fails.yaml</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td>Blocked downstream after failure</td>
+<td>Upstream fails, downstream never launches</td>
+<td><code>failure/blocked_downstream.yaml</code></td>
+</tr>
+<tr>
+<td>17</td>
+<td>Gate retry exhaustion</td>
+<td>Container teardown/relaunch on retry</td>
+<td><code>failure/retry_on_gate_failure.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="concern-capture-under-oci">Concern capture under OCI</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>What could break</th>
+<th>Graph</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18</td>
+<td>Design concern from container</td>
+<td><code>agentrelay-concern</code> writes to signal dir</td>
+<td><code>concerns/log_concerns.yaml</code></td>
+</tr>
+<tr>
+<td>19</td>
+<td>Ops concern from container</td>
+<td><code>agentrelay-ops-concern</code> writes from container</td>
+<td><code>concerns/log_ops_concerns.yaml</code></td>
+</tr>
+<tr>
+<td>20</td>
+<td>Concerns block auto-merge</td>
+<td>Concern-gated auto-merge with containerized agent</td>
+<td><code>concerns/log_concerns_automerge_enabled.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="parallel-e2e-run-notes">Parallel e2e run notes</h2>
+<p>After PRs A–D land, parallel graph runs are safe by construction:</p>
+<ul>
+<li><strong>Graph index</strong> enforces unique names within a graph directory.</li>
+<li><strong>Tmux windows</strong> use <code>{graph_name}-{task_id}</code>, so different graphs
+  cannot collide even in the same tmux session.</li>
+<li>All other resources (worktrees, signals, branches, PRs, Docker
+  containers/networks) are already graph-namespaced.</li>
+<li>The existing <code>_check_for_conflicts()</code> guard prevents concurrent runs
+  of the same graph.</li>
+</ul>
+<p>No special preconditions needed — just run from the same tmux session:
+<div class="highlight"><pre><span></span><code>agentrelay run quick-chained -t /data/git/agentrelaydemos/main ...
+agentrelay run diamond-4-workstreams -t /data/git/agentrelaydemos/main ...
+</code></pre></div></p>
+<hr />
+<h2 id="pr-plan">PR plan</h2>
+<h3 id="pr-a-cli-short-options-and-sandbox-override">PR A: CLI short options and <code>--sandbox</code> override</h3>
+<ul>
+<li>Branch: <code>feat/cli-short-options</code></li>
+</ul>
+<p>Add short forms for frequently-used flags and a <code>--sandbox</code> CLI
+override that lets any graph run in OCI or non-OCI mode without
+modifying graph YAML.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/cli.py</code> — add short option aliases; add <code>--sandbox</code>
+  / <code>-S</code> argument (<code>oci</code> | <code>none</code>) to <code>run</code> subcommand.
+- <code>src/agentrelay/run_graph.py</code> — accept <code>sandbox_override</code> parameter;
+  apply it to all tasks when set. Add short options to <code>_build_parser()</code>
+  for parity.
+- <code>src/agentrelay/orchestrator/</code> — wire <code>sandbox_override</code> through
+  config/builder chain.
+- Tests: unit tests for CLI parsing and sandbox override propagation.
+- <code>CLAUDE.md</code> — update command table with short options.</p>
+<p><strong>Short options:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Long form</th>
+<th>Short</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--target-repo</code></td>
+<td><code>-t</code></td>
+</tr>
+<tr>
+<td><code>--model</code></td>
+<td><code>-m</code></td>
+</tr>
+<tr>
+<td><code>--max-concurrency</code></td>
+<td><code>-c</code></td>
+</tr>
+<tr>
+<td><code>--tmux-session</code></td>
+<td><code>-s</code></td>
+</tr>
+<tr>
+<td><code>--credentials</code></td>
+<td><code>-C</code></td>
+</tr>
+<tr>
+<td><code>--sandbox</code></td>
+<td><code>-S</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>agentrelay run -t &lt;repo&gt; -m &lt;model&gt; -c 2 -s mysession graphs/smoke/quick_chained.yaml</code> works
+- [ ] <code>agentrelay run -S oci graphs/smoke/quick_chained.yaml</code> applies
+      OCI to all tasks
+- [ ] <code>agentrelay run -S none graphs/isolation/basic_oci.yaml</code> disables
+      OCI even if graph YAML specifies it
+- [ ] Short options also work on <code>run_graph.py</code> direct invocation
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-b-graph-index-and-name-based-selection">PR B: Graph index and name-based selection</h3>
+<ul>
+<li>Branch: <code>feat/graph-index</code></li>
+</ul>
+<p>Introduce a graph index that scans a directory for graph YAML files,
+validates name uniqueness, and lets graphs be selected by name instead
+of file path.</p>
+<p><strong>Design:</strong>
+- <code>agentrelay run &lt;name&gt; -g &lt;graph-dir&gt;</code> resolves <code>&lt;name&gt;</code> via the
+  index built from <code>&lt;graph-dir&gt;</code>.
+- The index is built by scanning the graph directory recursively for
+  <code>.yaml</code> files, reading the <code>name:</code> field from each, and building a
+  <code>{name: path}</code> mapping. Duplicate names → error at scan time.
+- <code>--graph-dir</code> / <code>-g</code> is required when using name-based selection.
+  No hardcoded default — in agentrelay dev we pass <code>-g graphs/</code>, in
+  a target repo the user passes <code>-g</code> pointing to their graph directory.
+- Scan happens on every run (21 YAML files is negligible).
+- If the <code>graph</code> argument contains <code>/</code> or ends in <code>.yaml</code>, treat it as
+  a path but validate that it is present in the index. No un-indexed
+  graphs allowed when <code>-g</code> is specified.
+- If <code>-g</code> is not specified, the <code>graph</code> argument is treated as a file
+  path (backward compatible — no index involved).
+- <code>agentrelay list -g &lt;dir&gt;</code> — new subcommand that prints a table of
+  available graphs (name, category/subdirectory, path).</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/cli.py</code> — add <code>--graph-dir</code> / <code>-g</code> arg to <code>run</code>,
+  <code>reset</code>, <code>dry-run</code> subcommands; add <code>list</code> subcommand; resolve graph
+  name → path before delegating.
+- New module (e.g., <code>src/agentrelay/graph_index.py</code>) for index
+  scanning, validation, and resolution.
+- Tests: unit tests for index scanning, uniqueness enforcement,
+  name resolution, path-based validation.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] <code>agentrelay run quick-chained -g graphs/</code> resolves and runs the
+      graph
+- [ ] <code>agentrelay run graphs/smoke/quick_chained.yaml -g graphs/</code>
+      validates path is in the index
+- [ ] <code>agentrelay run graphs/smoke/quick_chained.yaml</code> (no <code>-g</code>)
+      works as before (backward compatible)
+- [ ] Duplicate graph names in the same directory → clear error
+- [ ] <code>agentrelay list -g graphs/</code> prints name/category/path table
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-c-tmux-session-auto-detect-and-window-naming">PR C: Tmux session auto-detect and window naming</h3>
+<ul>
+<li>Branch: <code>feat/tmux-auto-session</code></li>
+</ul>
+<p>Remove <code>tmux_session</code> from the graph YAML schema. Auto-detect the
+current tmux session. Prefix tmux window names with the graph name
+to prevent collisions during parallel runs.</p>
+<p><strong>Design:</strong>
+- <strong>Session resolution order:</strong>
+  1. CLI <code>--tmux-session</code> / <code>-s</code> (explicit override)
+  2. Current tmux session (detect via <code>tmux display-message -p '#S'</code>
+     when <code>$TMUX</code> env var is set)
+  3. Error: "not in a tmux session and --tmux-session not specified"
+- <strong>Window naming:</strong> change from <code>task_id</code> to <code>{graph_name}-{task_id}</code>.
+- <strong>Graph YAML cleanup:</strong> Remove <code>tmux_session:</code> from all 26 graph
+  YAML files, from <code>_extract_operational_config()</code>, and from
+  <code>_apply_overrides()</code>. Remove from CLAUDE.md graph YAML schema.</p>
+<p><strong>Changes:</strong>
+- <code>src/agentrelay/ops/tmux.py</code> — add <code>current_session()</code> function.
+- <code>src/agentrelay/agent/implementations/tmux_agent.py</code> — change
+  window name from <code>task_id</code> to <code>{graph_name}-{task_id}</code>.
+- <code>src/agentrelay/run_graph.py</code> — change session resolution to use
+  auto-detect; remove <code>tmux_session</code> from <code>_extract_operational_config</code>
+  and <code>_apply_overrides</code>.
+- <code>src/agentrelay/cli.py</code> — session comes from CLI or auto-detect,
+  not from graph YAML.
+- All 26 graph YAML files — remove <code>tmux_session: agentrelay</code> line.
+- <code>CLAUDE.md</code> — remove <code>tmux_session</code> from graph YAML schema.
+- Tests: unit tests for <code>current_session()</code>, session resolution
+  priority, window name format.</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] Launched from within tmux: auto-detects session, no
+      <code>--tmux-session</code> needed
+- [ ] Launched outside tmux without <code>--tmux-session</code>: clear error
+- [ ] <code>--tmux-session</code> overrides auto-detection
+- [ ] Tmux windows named <code>{graph_name}-{task_id}</code>
+- [ ] No graph YAML contains <code>tmux_session:</code>
+- [ ] Parallel runs of different graphs in same tmux session produce
+      distinct window names
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-d-graph-consolidation-and-syntax-migration">PR D: Graph consolidation and syntax migration</h3>
+<ul>
+<li>Branch: <code>feat/graph-consolidation</code></li>
+</ul>
+<p>Remove redundant graphs, consolidate categories, and migrate remaining
+old <code>paths:</code> syntax to <code>tagged_paths:</code>.</p>
+<p><strong>Removals (8 graphs):</strong>
+- <code>graph_awareness/spec_test_impl_haiku.yaml</code> — use <code>--model</code> instead
+- <code>graph_awareness/spec_test_impl_opus.yaml</code> — use <code>--model</code> instead
+- <code>workstreams/diamond_4_workstreams_auto_merge_false.yaml</code> — default
+  behavior, redundant
+- <code>roles/pipeline_compat.yaml</code> — backward-compat shim, unit tests
+  cover the sugar
+- <code>roles/experiments/concern_spec_writer.yaml</code> — subsumed by pipeline
+- <code>roles/experiments/concern_test_writer.yaml</code> — subsumed by pipeline
+- <code>roles/experiments/concern_test_reviewer.yaml</code> — subsumed by pipeline
+- <code>roles/experiments/concern_implementer.yaml</code> — subsumed by pipeline</p>
+<p><strong>Moves:</strong>
+- <code>gates/pixi_run_test.yaml</code> → <code>smoke/pixi_run_test.yaml</code>
+- Remove empty <code>gates/</code> directory
+- Remove empty <code>roles/experiments/</code> directory</p>
+<p><strong>Renames:</strong>
+- <code>graph_awareness/spec_test_impl_sonnet.yaml</code> →
+  <code>graph_awareness/spec_test_impl.yaml</code> (drop model from filename;
+  model comes from <code>--model</code> or graph-level default)</p>
+<p><strong>Syntax migration:</strong>
+- <code>smoke/pixi_run_test.yaml</code> (moved from gates): <code>paths:</code> →
+  <code>tagged_paths:</code></p>
+<p><strong>Other cleanup:</strong>
+- Update any README files in <code>graphs/</code> subdirectories if they
+  reference removed files.
+- Remove <code>roles/fixtures/</code> if only used by the removed experiments
+  (check first — the pipeline graph may also use BoundedQueue fixtures).</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] 21 graphs remain (down from 29)
+- [ ] <code>gates/</code> directory removed
+- [ ] <code>roles/experiments/</code> directory removed
+- [ ] No graph uses old <code>paths:</code> syntax
+- [ ] All graph names unique (passes index validation via
+      <code>agentrelay list -g graphs/</code>)
+- [ ] <code>pixi run check</code> passes</p>
+<hr />
+<h3 id="pr-e-e2e-validation-runs-and-fixes">PR E: E2E validation runs and fixes</h3>
+<ul>
+<li>Branch: <code>feat/e2e-oci-validation</code></li>
+</ul>
+<p>Run all 21 graphs with <code>-S oci</code> against <code>agentrelaydemos</code>. Fix
+whatever breaks. This is the validation PR — it may be one PR or
+split into several if different categories surface independent issues.</p>
+<p><strong>Approach:</strong>
+1. Baseline run: run a representative subset <em>without</em> OCI to confirm
+   graphs pass on current main. Catches pre-existing issues before
+   adding the OCI variable.
+2. OCI run: run all graphs with <code>-S oci</code>. Log results per scenario
+   (referencing the 20 scenarios above).
+3. Fix: for each failure, diagnose root cause (container infra,
+   credential, signal file visibility, etc.). Fix and re-run.
+4. Document: record which scenarios passed, which required fixes, and
+   any remaining known issues.</p>
+<p><strong>Credential testing:</strong>
+- Most runs use <code>--anthropic-credential &lt;oauth_name&gt;</code> (Max plan OAuth).
+- At least one run per category uses
+  <code>--anthropic-credential &lt;api_key_name&gt;</code> to exercise the env-var
+  injection path.</p>
+<p><strong>Parallel execution:</strong>
+- Run graphs from different categories in parallel in the same tmux
+  session. Safe by construction after PRs A–D.</p>
+<p><strong>Changes (expected, TBD based on what breaks):</strong>
+- Fixes to <code>sandbox/</code>, <code>ops/</code>, or <code>orchestrator/</code> code
+- Possible adjustments to Docker image or setup scripts
+- Any necessary signal dir or mount path fixes</p>
+<p><strong>Acceptance criteria:</strong>
+- [ ] All 20 scenarios pass with OCI isolation
+- [ ] Both API key and OAuth credential injection validated
+- [ ] Results documented (which graphs ran, which scenarios covered)
+- [ ] <code>pixi run check</code> passes
+- [ ] No regressions in non-OCI mode</p>
+<hr />
+<h2 id="dependency-ordering">Dependency ordering</h2>
+<div class="highlight"><pre><span></span><code>PR A (short options + sandbox) ─┐
+                                ├──→ PR C (tmux) → PR D (graph consolidation) → PR E (e2e)
+PR B (graph index) ─────────────┘
+</code></pre></div>
+<p><strong>PR A</strong> and <strong>PR B</strong> are independent — A adds CLI flags and sandbox
+override, B adds the graph index. No shared files. Can be developed
+in parallel.</p>
+<p><strong>PR C</strong> depends on A and B merging first. It modifies <code>cli.py</code> (which
+A and B both touch) and removes <code>tmux_session:</code> from all graph YAML
+files. Having A and B stable first avoids three-way conflicts.</p>
+<p><strong>PR D</strong> depends on C. It removes/moves graph YAML files that C just
+cleaned up (removed <code>tmux_session:</code> lines). Merging D on top of C
+avoids touching the same files twice.</p>
+<p><strong>PR E</strong> depends on all of A–D. It uses <code>-S oci</code> from A, name-based
+selection from B, auto-detected tmux sessions from C, and the
+consolidated graph set from D.</p>
+<h2 id="what-comes-after-this-sprint">What comes after this sprint</h2>
+<p>Per <code>docs/planning/pre-rust-roadmap.md</code>:</p>
+<ul>
+<li><strong>Freeze Python, begin Rust.</strong> Gate: all 20 scenarios pass with OCI.
+  The Python codebase becomes the behavioral spec; the e2e graphs become
+  the Rust port's acceptance criteria.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

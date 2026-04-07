@@ -145,7 +145,7 @@
          <lastmod>2026-04-07</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/planning/2026-04-06-cli-and-data-model-cleanup/</loc>
+         <loc>https://duanegoodner.github.io/agentrelay/planning/2026-04-07-e2e-oci-validation/</loc>
          <lastmod>2026-04-07</lastmod>
     </url>
     <url>
@@ -234,6 +234,10 @@
     </url>
     <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-05-output-composition-and-polish/</loc>
+         <lastmod>2026-04-07</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-06-cli-and-data-model-cleanup/</loc>
          <lastmod>2026-04-07</lastmod>
     </url>
 </urlset>
