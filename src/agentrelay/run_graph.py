@@ -218,7 +218,7 @@ def _check_for_conflicts(repo_path: Path, graph_name: str) -> None:
         dirs = ", ".join(conflicts)
         raise _ConflictError(
             f"Leftover state from a previous run of graph '{graph_name}': {dirs}\n"
-            f"Run `python -m agentrelay.reset_graph <graph.yaml>` to clean up first."
+            f"Run `agentrelay reset <graph.yaml>` to clean up first."
         )
 
 

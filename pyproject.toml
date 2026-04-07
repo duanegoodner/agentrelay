@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.13"
 version = "0.1.0"
 
 [project.scripts]
+agentrelay = "agentrelay.cli:main"
 agentrelay-complete = "agentrelay.agent_sdk.cli:complete"
 agentrelay-complete-no-pr = "agentrelay.agent_sdk.cli:complete_no_pr"
 agentrelay-failed = "agentrelay.agent_sdk.cli:failed"

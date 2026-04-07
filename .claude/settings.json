@@ -67,7 +67,10 @@
       "Bash(mkdir -p /home/duane/.claude/plans)",
       "Read(//dev/**)",
       "Edit(/.claude/skills/worktree_ship/**)",
-      "Edit(/.claude/skills/worktree_land/**)"
+      "Edit(/.claude/skills/worktree_land/**)",
+      "Bash(pixi run:*)",
+      "Read(//data/git/agentrelay/worktrees/**)",
+      "Bash(git add:*)"
     ],
     "additionalDirectories": [
       "/data/git/agentrelay/main/.claude/skills",

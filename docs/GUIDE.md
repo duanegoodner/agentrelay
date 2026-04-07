@@ -39,33 +39,51 @@ pixi run docs          # serve mkdocs locally
 Validate a graph without running it:
 
 ```bash
-pixi run python -m agentrelay.run_graph graphs/smoke/quick_chained.yaml --dry-run
+agentrelay dry-run graphs/smoke/quick_chained.yaml
+agentrelay run graphs/smoke/quick_chained.yaml --dry-run  # equivalent
 ```
 
 Run a graph (from the target repo directory):
 
 ```bash
-python -m agentrelay.run_graph /path/to/graphs/smoke/quick_chained.yaml
+agentrelay run graphs/smoke/quick_chained.yaml
+agentrelay run graphs/smoke/quick_chained.yaml --target-repo /path/to/repo
 ```
 
 CLI flags:
 
 | Flag | Description | Default |
 |------|-------------|---------|
+| `--target-repo PATH` | Path to the target repository | current directory |
 | `--dry-run` | Validate and print plan without running | |
 | `--max-concurrency N` | Max concurrent task attempts | 1 |
 | `--max-task-attempts N` | Max attempts per task | 1 |
 | `--teardown-mode MODE` | `always`, `never`, or `on_success` | `on_success` |
 | `--tmux-session NAME` | Override tmux session name | `agentrelay` |
 | `--model MODEL` | Override model for all agents | per-task default |
+| `--credentials PATH` | Path to credentials YAML for sandboxed agents | |
+| `--anthropic-credential NAME` | Name of Anthropic credential from credentials YAML | |
+| `--fail-fast-on-workstream-error` | Stop preparing new workstreams after failure | `false` |
+| `--fail-fast-on-internal-error` | Stop on internal orchestrator errors | `true` |
+| `-v, --verbose` | Show detailed step-level output | |
+
+## Preflight Checks
+
+Run preflight checks on a target repository:
+
+```bash
+agentrelay check
+agentrelay check --target-repo /path/to/repo
+agentrelay check --env docker
+```
 
 ## Resetting a Graph Run
 
 After a run, reset the target repo to its pre-run state:
 
 ```bash
-python -m agentrelay.reset_graph /path/to/graphs/smoke/quick_chained.yaml
-python -m agentrelay.reset_graph /path/to/graphs/smoke/quick_chained.yaml --yes  # skip prompt
+agentrelay reset graphs/smoke/quick_chained.yaml
+agentrelay reset graphs/smoke/quick_chained.yaml --target-repo /path/to/repo --yes
 ```
 
 This closes open PRs, resets main to the starting HEAD, deletes graph branches,
