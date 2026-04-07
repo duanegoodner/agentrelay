@@ -15,7 +15,7 @@ from agentrelay.agent_comm_protocol.manifest import (
     build_manifest,
     manifest_to_dict,
 )
-from agentrelay.task import AgentRole, Task, TaskPaths
+from agentrelay.task import AgentRole, TaggedPath, Task
 
 
 def _minimal_task(**overrides: object) -> Task:
@@ -51,9 +51,10 @@ class TestTaskManifest:
             task_id="t1",
             role=AgentRole.TEST_WRITER,
             description="Write tests",
-            src_paths=(Path("src/a.py"),),
-            test_paths=(Path("test/test_a.py"),),
-            spec_path=None,
+            tagged_paths=(
+                TaggedPath(path=Path("src/a.py"), category="src"),
+                TaggedPath(path=Path("test/test_a.py"), category="test"),
+            ),
             branch_name="graph/demo/t1",
             integration_branch="graph/demo",
             attempt_num=0,
@@ -69,9 +70,7 @@ class TestTaskManifest:
             task_id="t1",
             role=AgentRole.GENERIC,
             description=None,
-            src_paths=(),
-            test_paths=(),
-            spec_path=None,
+            tagged_paths=(),
             branch_name="b",
             integration_branch="main",
             attempt_num=0,
@@ -99,20 +98,19 @@ class TestBuildManifest:
         assert manifest.schema_version == MANIFEST_SCHEMA_VERSION
         assert manifest.task_id == "my_task"
         assert manifest.role == AgentRole.GENERIC
-        assert manifest.src_paths == ()
-        assert manifest.test_paths == ()
-        assert manifest.spec_path is None
+        assert manifest.tagged_paths == ()
         assert manifest.dependencies == {}
 
     def test_task_with_paths(self) -> None:
-        """Paths are extracted from TaskPaths."""
+        """Paths are extracted from tagged_paths."""
+        tagged = (
+            TaggedPath(path=Path("src/greet.py"), category="src"),
+            TaggedPath(path=Path("test/test_greet.py"), category="test"),
+            TaggedPath(path=Path("specs/greet.md"), category="spec"),
+        )
         task = _minimal_task(
             role=AgentRole.TEST_WRITER,
-            paths=TaskPaths(
-                src=(Path("src/greet.py"),),
-                test=(Path("test/test_greet.py"),),
-                spec=Path("specs/greet.md"),
-            ),
+            tagged_paths=tagged,
         )
         manifest = build_manifest(
             task=task,
@@ -122,9 +120,7 @@ class TestBuildManifest:
             attempt_num=1,
             dependency_descriptions={},
         )
-        assert manifest.src_paths == (Path("src/greet.py"),)
-        assert manifest.test_paths == (Path("test/test_greet.py"),)
-        assert manifest.spec_path == Path("specs/greet.md")
+        assert manifest.tagged_paths == tagged
         assert manifest.attempt_num == 1
 
     def test_task_with_dependencies(self) -> None:
@@ -177,7 +173,10 @@ class TestManifestToDict:
     def _build_and_serialize(self, **kwargs: object) -> dict:
         task = _minimal_task(
             role=AgentRole.TEST_WRITER,
-            paths=TaskPaths(src=(Path("src/a.py"),), test=(Path("test/test_a.py"),)),
+            tagged_paths=(
+                TaggedPath(path=Path("src/a.py"), category="src"),
+                TaggedPath(path=Path("test/test_a.py"), category="test"),
+            ),
         )
         defaults: dict[str, object] = {
             "task": task,
@@ -216,9 +215,10 @@ class TestManifestToDict:
 
     def test_paths_section(self) -> None:
         d = self._build_and_serialize()
-        assert d["paths"]["src"] == ["src/a.py"]
-        assert d["paths"]["test"] == ["test/test_a.py"]
-        assert d["paths"]["spec"] is None
+        assert d["paths"] == [
+            {"path": "src/a.py", "category": "src"},
+            {"path": "test/test_a.py", "category": "test"},
+        ]
 
     def test_workspace_section(self) -> None:
         d = self._build_and_serialize()

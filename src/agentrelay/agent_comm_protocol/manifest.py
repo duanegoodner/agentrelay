@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-from agentrelay.task import AgentRole, Task
+from agentrelay.task import AgentRole, TaggedPath, Task
 
 MANIFEST_SCHEMA_VERSION = "1"
 
@@ -68,9 +68,7 @@ class TaskManifest:
         task_id: Unique task identifier.
         role: Agent role for this task.
         description: Human-readable task description, or ``None``.
-        src_paths: Source file paths.
-        test_paths: Test file paths.
-        spec_path: Supplementary spec file path, or ``None``.
+        tagged_paths: Category-tagged file paths for this task.
         branch_name: Feature branch for this task's work.
         integration_branch: Branch this task's PR targets.
         attempt_num: Current attempt number (0-indexed).
@@ -83,9 +81,7 @@ class TaskManifest:
     task_id: str
     role: AgentRole
     description: Optional[str]
-    src_paths: tuple[Path, ...]
-    test_paths: tuple[Path, ...]
-    spec_path: Optional[Path]
+    tagged_paths: tuple[TaggedPath, ...]
     branch_name: str
     integration_branch: str
     attempt_num: int
@@ -125,9 +121,7 @@ def build_manifest(
         task_id=task.id,
         role=task.role,
         description=task.description,
-        src_paths=task.paths.src,
-        test_paths=task.paths.test,
-        spec_path=task.paths.spec,
+        tagged_paths=task.tagged_paths,
         branch_name=branch_name,
         integration_branch=integration_branch,
         attempt_num=attempt_num,
@@ -161,11 +155,10 @@ def manifest_to_dict(manifest: TaskManifest) -> dict[str, Any]:
             "role": manifest.role.value,
             "description": manifest.description,
         },
-        "paths": {
-            "src": [str(p) for p in manifest.src_paths],
-            "test": [str(p) for p in manifest.test_paths],
-            "spec": str(manifest.spec_path) if manifest.spec_path is not None else None,
-        },
+        "paths": [
+            {"path": str(tp.path), "category": tp.category}
+            for tp in manifest.tagged_paths
+        ],
         "workspace": {
             "branch_name": manifest.branch_name,
             "integration_branch": manifest.integration_branch,

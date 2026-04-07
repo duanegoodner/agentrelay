@@ -10,6 +10,7 @@ from agentrelay.task import (
     AgentFramework,
     AgentRole,
     InputFrom,
+    TaggedPath,
 )
 from agentrelay.task_graph.builder import TaskGraphBuilder
 
@@ -103,9 +104,11 @@ def test_from_dict_parses_paths_agent_and_review_configs() -> None:
     graph = TaskGraphBuilder.from_dict(data)
     task = graph.task("t1")
 
-    assert task.paths.src == (Path("src/app.py"),)
-    assert task.paths.test == (Path("test/test_app.py"),)
-    assert task.paths.spec == Path("docs/spec.md")
+    assert task.tagged_paths == (
+        TaggedPath(path=Path("src/app.py"), category="src"),
+        TaggedPath(path=Path("test/test_app.py"), category="test"),
+        TaggedPath(path=Path("docs/spec.md"), category="spec"),
+    )
 
     assert task.primary_agent.framework == AgentFramework.CLAUDE_CODE
     assert task.primary_agent.model == "claude-opus-4-6"
@@ -118,6 +121,105 @@ def test_from_dict_parses_paths_agent_and_review_configs() -> None:
     assert task.review.agent.adr_verbosity == AdrVerbosity.STANDARD
     assert task.review.agent.environment.session == "reviewers"
     assert task.review.review_on_attempt == 2
+
+
+def test_from_dict_parses_tagged_paths_list() -> None:
+    """tagged_paths list-of-dicts format is parsed to TaggedPath tuples."""
+    data = {
+        "name": "tagged",
+        "tasks": [
+            {
+                "id": "t1",
+                "tagged_paths": [
+                    {"path": "src/app.py", "category": "src"},
+                    {"path": "test/test_app.py", "category": "test"},
+                    {"path": "docs/spec.md", "category": "spec"},
+                ],
+            }
+        ],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    task = graph.task("t1")
+    assert task.tagged_paths == (
+        TaggedPath(path=Path("src/app.py"), category="src"),
+        TaggedPath(path=Path("test/test_app.py"), category="test"),
+        TaggedPath(path=Path("docs/spec.md"), category="spec"),
+    )
+
+
+def test_from_dict_tagged_paths_empty_list() -> None:
+    """tagged_paths as an empty list produces an empty tuple."""
+    data = {
+        "name": "tagged-empty",
+        "tasks": [{"id": "t1", "tagged_paths": []}],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.task("t1").tagged_paths == ()
+
+
+def test_from_dict_tagged_paths_custom_category() -> None:
+    """tagged_paths supports arbitrary category strings."""
+    data = {
+        "name": "tagged-custom",
+        "tasks": [
+            {
+                "id": "t1",
+                "tagged_paths": [
+                    {"path": "stubs/queue.py", "category": "stubs"},
+                ],
+            }
+        ],
+    }
+    graph = TaskGraphBuilder.from_dict(data)
+    assert graph.task("t1").tagged_paths == (
+        TaggedPath(path=Path("stubs/queue.py"), category="stubs"),
+    )
+
+
+def test_from_dict_paths_and_tagged_paths_mutually_exclusive() -> None:
+    """Specifying both 'paths' and 'tagged_paths' raises ValueError."""
+    data = {
+        "name": "conflict",
+        "tasks": [
+            {
+                "id": "t1",
+                "paths": {"src": ["a.py"]},
+                "tagged_paths": [{"path": "a.py", "category": "src"}],
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_tagged_paths_rejects_missing_fields() -> None:
+    """tagged_paths entries must have both 'path' and 'category'."""
+    data = {
+        "name": "missing",
+        "tasks": [
+            {
+                "id": "t1",
+                "tagged_paths": [{"path": "a.py"}],
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="category.*required"):
+        TaskGraphBuilder.from_dict(data)
+
+
+def test_from_dict_tagged_paths_rejects_unknown_keys() -> None:
+    """tagged_paths entries reject unknown keys."""
+    data = {
+        "name": "unknown",
+        "tasks": [
+            {
+                "id": "t1",
+                "tagged_paths": [{"path": "a.py", "category": "src", "extra": True}],
+            }
+        ],
+    }
+    with pytest.raises(ValueError, match="unknown key"):
+        TaskGraphBuilder.from_dict(data)
 
 
 def test_from_yaml_reads_file(tmp_path: Path) -> None:

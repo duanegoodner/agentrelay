@@ -5,7 +5,7 @@ configuration types for agents and reviews, and enums for roles.
 
 Classes:
     Task: A frozen specification of work to be done in the task graph.
-    TaskPaths: File paths a task operates on (source, test, supplementary spec).
+    TaggedPath: A file path annotated with a semantic category.
     AgentConfig: Framework and model configuration for executing an agent.
     ReviewConfig: Configuration for self-review before task completion.
 
@@ -86,18 +86,17 @@ class AgentRole(str, Enum):
 
 
 @dataclass(frozen=True)
-class TaskPaths:
-    """File paths a task operates on.
+class TaggedPath:
+    """A file path annotated with a semantic category.
 
     Attributes:
-        src: Tuple of source file paths to create or modify. Defaults to empty.
-        test: Tuple of test file paths to create or modify. Defaults to empty.
-        spec: Path to supplementary specification file, or None if not applicable.
+        path: File path (relative to the repository root).
+        category: Semantic role of the file (e.g., ``"src"``, ``"test"``,
+            ``"spec"``).  Free-form string; not restricted to a fixed set.
     """
 
-    src: tuple[Path, ...] = ()
-    test: tuple[Path, ...] = ()
-    spec: Optional[Path] = None
+    path: Path
+    category: str
 
 
 @dataclass(frozen=True)
@@ -178,8 +177,8 @@ class Task:
         id: Unique identifier for this task within the graph.
         role: The type of work this task performs (AgentRole enum).
         description: Optional human-readable description of the task.
-        paths: File paths the task operates on (source, test, spec).
-            Defaults to empty paths.
+        tagged_paths: Category-tagged file paths the task operates on.
+            Defaults to empty tuple.
         dependencies: Tuple of dependency task IDs that must complete before
             this task can run. Defaults to empty tuple.
         completion_gate: Optional shell command (exit code 0 = success)
@@ -197,7 +196,7 @@ class Task:
     id: str
     role: AgentRole
     description: Optional[str] = None
-    paths: TaskPaths = field(default_factory=TaskPaths)
+    tagged_paths: tuple[TaggedPath, ...] = ()
     dependencies: tuple[str, ...] = ()
     inputs_from: tuple[InputFrom, ...] = ()
     completion_gate: Optional[str] = None

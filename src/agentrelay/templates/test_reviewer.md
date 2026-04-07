@@ -3,7 +3,11 @@ If the tests pass review, complete without a PR — you are not expected to have
 
 $concerns_note
 
-1. Read the source stubs at $src_paths and the test files at $test_paths
+**Task paths:**
+
+$paths_by_category
+
+1. Read the source stubs (category: src) and the test files (category: test)
    to understand what is being tested.
 2. Assess the tests for correctness, coverage, and clarity.
    Check that the tests are consistent with the docstrings in the source stubs.

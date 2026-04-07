@@ -10,8 +10,8 @@ from agentrelay.task import (
     AgentFramework,
     AgentRole,
     ReviewConfig,
+    TaggedPath,
     Task,
-    TaskPaths,
 )
 from agentrelay.task_runtime import TaskStatus
 
@@ -143,68 +143,51 @@ class TestTmuxEnvironment:
             env.session = "new_session"  # type: ignore
 
 
-# ── Tests for TaskPaths ──
+# ── Tests for TaggedPath ──
 
 
-class TestTaskPaths:
-    """Tests for TaskPaths configuration."""
+class TestTaggedPath:
+    """Tests for TaggedPath configuration."""
 
-    def test_empty_paths_by_default(self) -> None:
-        """TaskPaths with no arguments has empty tuples and None spec."""
-        paths = TaskPaths()
-        assert paths.src == ()
-        assert paths.test == ()
-        assert paths.spec is None
+    def test_construction(self) -> None:
+        """TaggedPath stores path and category."""
+        from pathlib import Path
 
-    def test_src_paths(self) -> None:
-        """TaskPaths can specify source file paths."""
-        paths = TaskPaths(src=("main.py", "utils.py"))
-        assert paths.src == ("main.py", "utils.py")
-        assert paths.test == ()
-        assert paths.spec is None
-
-    def test_test_paths(self) -> None:
-        """TaskPaths can specify test file paths."""
-        paths = TaskPaths(test=("test_main.py", "test_utils.py"))
-        assert paths.src == ()
-        assert paths.test == ("test_main.py", "test_utils.py")
-        assert paths.spec is None
-
-    def test_spec_path(self) -> None:
-        """TaskPaths can specify a spec file."""
-        paths = TaskPaths(spec="README.md")
-        assert paths.src == ()
-        assert paths.test == ()
-        assert paths.spec == "README.md"
-
-    def test_all_paths(self) -> None:
-        """TaskPaths can specify all path types together."""
-        paths = TaskPaths(
-            src=("main.py",),
-            test=("test_main.py",),
-            spec="spec.md",
-        )
-        assert paths.src == ("main.py",)
-        assert paths.test == ("test_main.py",)
-        assert paths.spec == "spec.md"
+        tp = TaggedPath(path=Path("src/main.py"), category="src")
+        assert tp.path == Path("src/main.py")
+        assert tp.category == "src"
 
     def test_is_frozen(self) -> None:
-        """TaskPaths is immutable."""
-        paths = TaskPaths(src=("main.py",))
+        """TaggedPath is immutable."""
+        from pathlib import Path
+
+        tp = TaggedPath(path=Path("src/main.py"), category="src")
         with pytest.raises(AttributeError):
-            paths.src = ("new.py",)  # type: ignore
+            tp.path = Path("other.py")  # type: ignore
 
     def test_is_hashable(self) -> None:
-        """TaskPaths can be hashed (used as dict keys)."""
-        paths1 = TaskPaths(src=("main.py",))
-        paths2 = TaskPaths(src=("main.py",))
-        assert hash(paths1) == hash(paths2)
+        """TaggedPath can be hashed (used as dict keys)."""
+        from pathlib import Path
+
+        tp1 = TaggedPath(path=Path("src/main.py"), category="src")
+        tp2 = TaggedPath(path=Path("src/main.py"), category="src")
+        assert hash(tp1) == hash(tp2)
 
     def test_equality(self) -> None:
-        """TaskPaths with same content are equal."""
-        paths1 = TaskPaths(src=("main.py",), test=("test.py",))
-        paths2 = TaskPaths(src=("main.py",), test=("test.py",))
-        assert paths1 == paths2
+        """TaggedPaths with same content are equal."""
+        from pathlib import Path
+
+        tp1 = TaggedPath(path=Path("src/main.py"), category="src")
+        tp2 = TaggedPath(path=Path("src/main.py"), category="src")
+        assert tp1 == tp2
+
+    def test_different_category_not_equal(self) -> None:
+        """TaggedPaths with different categories are not equal."""
+        from pathlib import Path
+
+        tp1 = TaggedPath(path=Path("src/main.py"), category="src")
+        tp2 = TaggedPath(path=Path("src/main.py"), category="test")
+        assert tp1 != tp2
 
 
 # ── Tests for AgentConfig ──
@@ -370,7 +353,7 @@ class TestTask:
         assert task.id == "my_task"
         assert task.role == AgentRole.GENERIC
         assert task.description is None
-        assert task.paths == TaskPaths()
+        assert task.tagged_paths == ()
         assert task.dependencies == ()
         assert task.completion_gate is None
         assert task.max_gate_attempts is None
@@ -388,13 +371,18 @@ class TestTask:
 
     def test_task_with_paths(self) -> None:
         """Task can specify file paths."""
-        paths = TaskPaths(src=("parser.py",), test=("test_parser.py",))
+        from pathlib import Path
+
+        tagged = (
+            TaggedPath(path=Path("parser.py"), category="src"),
+            TaggedPath(path=Path("test_parser.py"), category="test"),
+        )
         task = Task(
             id="implement",
             role=AgentRole.IMPLEMENTER,
-            paths=paths,
+            tagged_paths=tagged,
         )
-        assert task.paths == paths
+        assert task.tagged_paths == tagged
 
     def test_task_with_dependencies(self) -> None:
         """Task can specify dependency IDs."""
@@ -458,15 +446,20 @@ class TestTask:
 
     def test_task_with_all_fields(self) -> None:
         """Task can be created with all fields specified."""
+        from pathlib import Path
+
         review_agent = AgentConfig(model="claude-opus-4-6")
         review_config = ReviewConfig(agent=review_agent, review_on_attempt=1)
-        paths = TaskPaths(src=("main.py",), test=("test_main.py",))
+        tagged = (
+            TaggedPath(path=Path("main.py"), category="src"),
+            TaggedPath(path=Path("test_main.py"), category="test"),
+        )
 
         task = Task(
             id="impl",
             role=AgentRole.IMPLEMENTER,
             description="Implement the feature",
-            paths=paths,
+            tagged_paths=tagged,
             dependencies=("spec",),
             completion_gate="pytest",
             max_gate_attempts=5,
@@ -478,7 +471,7 @@ class TestTask:
         assert task.id == "impl"
         assert task.role == AgentRole.IMPLEMENTER
         assert task.description == "Implement the feature"
-        assert task.paths == paths
+        assert task.tagged_paths == tagged
         assert task.dependencies == ("spec",)
         assert task.completion_gate == "pytest"
         assert task.max_gate_attempts == 5
