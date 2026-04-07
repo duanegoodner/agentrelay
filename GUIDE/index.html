@@ -516,6 +516,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#preflight-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preflight Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#resetting-a-graph-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1521,6 +1532,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#preflight-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preflight Checks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#resetting-a-graph-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1620,10 +1642,12 @@ pixi<span class="w"> </span>run<span class="w"> </span>docs<span class="w">     
 </code></pre></div>
 <h2 id="running-a-graph">Running a Graph</h2>
 <p>Validate a graph without running it:</p>
-<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>--dry-run
+<div class="highlight"><pre><span></span><code>agentrelay<span class="w"> </span>dry-run<span class="w"> </span>graphs/smoke/quick_chained.yaml
+agentrelay<span class="w"> </span>run<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>--dry-run<span class="w">  </span><span class="c1"># equivalent</span>
 </code></pre></div>
 <p>Run a graph (from the target repo directory):</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.run_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml
+<div class="highlight"><pre><span></span><code>agentrelay<span class="w"> </span>run<span class="w"> </span>graphs/smoke/quick_chained.yaml
+agentrelay<span class="w"> </span>run<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>--target-repo<span class="w"> </span>/path/to/repo
 </code></pre></div>
 <p>CLI flags:</p>
 <table>
@@ -1635,6 +1659,11 @@ pixi<span class="w"> </span>run<span class="w"> </span>docs<span class="w">     
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>--target-repo PATH</code></td>
+<td>Path to the target repository</td>
+<td>current directory</td>
+</tr>
 <tr>
 <td><code>--dry-run</code></td>
 <td>Validate and print plan without running</td>
@@ -1665,12 +1694,43 @@ pixi<span class="w"> </span>run<span class="w"> </span>docs<span class="w">     
 <td>Override model for all agents</td>
 <td>per-task default</td>
 </tr>
+<tr>
+<td><code>--credentials PATH</code></td>
+<td>Path to credentials YAML for sandboxed agents</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--anthropic-credential NAME</code></td>
+<td>Name of Anthropic credential from credentials YAML</td>
+<td></td>
+</tr>
+<tr>
+<td><code>--fail-fast-on-workstream-error</code></td>
+<td>Stop preparing new workstreams after failure</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--fail-fast-on-internal-error</code></td>
+<td>Stop on internal orchestrator errors</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>-v, --verbose</code></td>
+<td>Show detailed step-level output</td>
+<td></td>
+</tr>
 </tbody>
 </table>
+<h2 id="preflight-checks">Preflight Checks</h2>
+<p>Run preflight checks on a target repository:</p>
+<div class="highlight"><pre><span></span><code>agentrelay<span class="w"> </span>check
+agentrelay<span class="w"> </span>check<span class="w"> </span>--target-repo<span class="w"> </span>/path/to/repo
+agentrelay<span class="w"> </span>check<span class="w"> </span>--env<span class="w"> </span>docker
+</code></pre></div>
 <h2 id="resetting-a-graph-run">Resetting a Graph Run</h2>
 <p>After a run, reset the target repo to its pre-run state:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml
-python<span class="w"> </span>-m<span class="w"> </span>agentrelay.reset_graph<span class="w"> </span>/path/to/graphs/smoke/quick_chained.yaml<span class="w"> </span>--yes<span class="w">  </span><span class="c1"># skip prompt</span>
+<div class="highlight"><pre><span></span><code>agentrelay<span class="w"> </span>reset<span class="w"> </span>graphs/smoke/quick_chained.yaml
+agentrelay<span class="w"> </span>reset<span class="w"> </span>graphs/smoke/quick_chained.yaml<span class="w"> </span>--target-repo<span class="w"> </span>/path/to/repo<span class="w"> </span>--yes
 </code></pre></div>
 <p>This closes open PRs, resets main to the starting HEAD, deletes graph branches,
 and removes <code>.workflow/</code> and <code>.worktrees/</code> directories for the graph.</p>
