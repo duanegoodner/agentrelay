@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation
 
-> **Status: Planning.**
+> **Status: In progress.** PRs A and B merged (#174, #175). PR C next.
 
 ## Goal
 
@@ -179,7 +179,7 @@ agentrelay run diamond-4-workstreams -t /data/git/agentrelaydemos/main ...
 
 ## PR plan
 
-### PR A: CLI short options and `--sandbox` override
+### PR A: CLI short options and `--sandbox` override — merged (#174)
 
 - Branch: `feat/cli-short-options`
 
@@ -220,7 +220,7 @@ modifying graph YAML.
 
 ---
 
-### PR B: Graph index and name-based selection
+### PR B: Graph index and name-based selection — merged (#175)
 
 - Branch: `feat/graph-index`
 

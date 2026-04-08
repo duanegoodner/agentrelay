@@ -7,9 +7,11 @@ on failure unless documented otherwise.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import time
 from pathlib import Path
+from typing import Optional
 
 
 def has_session(session: str) -> bool:
@@ -25,6 +27,25 @@ def has_session(session: str) -> bool:
         capture_output=True,
     )
     return result.returncode == 0
+
+
+def current_session() -> Optional[str]:
+    """Return the name of the current tmux session, or ``None`` if not in tmux.
+
+    Checks the ``$TMUX`` environment variable first.  If set, runs
+    ``tmux display-message -p '#S'`` to retrieve the session name.
+    Returns ``None`` when the process is not running inside a tmux session.
+    """
+    if not os.environ.get("TMUX"):
+        return None
+    result = subprocess.run(
+        ["tmux", "display-message", "-p", "#S"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    return result.stdout.strip() or None
 
 
 def new_window(session: str, window_name: str, cwd: Path) -> str:

@@ -53,7 +53,7 @@ class TmuxAgent(Agent):
         Args:
             config: AgentConfig specifying environment.
                 config.environment must be TmuxEnvironment.
-            task_id: Identifier for this task (used as tmux window name).
+            task_id: Window name for the tmux window (typically ``{graph_name}-{task_id}``).
             worktree_path: Path to the git worktree where the agent will work.
             cmd: Pre-built command string to send to the tmux pane. Typically
                 constructed by an :class:`AgentFrameworkAdapter` and wrapped

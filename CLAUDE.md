@@ -67,7 +67,6 @@ Graph-level: `.workflow/<graph>/run_info.json` — start HEAD + timestamp (for r
 
 ```yaml
 name: my-graph
-tmux_session: agentrelay  # optional; default "agentrelay"
 keep_panes: false              # optional; leave tmux windows open for debugging
 model: claude-sonnet-4-6       # optional; graph-level default model for all agents
 fail_fast_on_workstream_error: false  # optional; block new workstreams on failure (default: false)

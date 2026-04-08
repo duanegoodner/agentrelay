@@ -1,5 +1,4 @@
 name: adr-standard
-tmux_session: agentrelay
 model: claude-sonnet-4-6
 
 # Single task that produces an Architecture Decision Record with standard verbosity.

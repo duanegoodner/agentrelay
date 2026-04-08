@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -10,6 +11,7 @@ import pytest
 
 from agentrelay.ops.tmux import (
     capture_pane,
+    current_session,
     kill_window,
     new_window,
     send_keys,
@@ -202,3 +204,46 @@ class TestWaitForTuiReady:
         mock_monotonic.side_effect = [0.0, 0.0, 0.0]
         result = wait_for_tui_ready("%42", timeout=10.0, poll_interval=0.01)
         assert result is True
+
+
+class TestCurrentSession:
+    """Tests for current_session."""
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_tmux_env_not_set(self, mock_run: MagicMock) -> None:
+        """Returns None and skips subprocess when $TMUX is not set."""
+        assert current_session() is None
+        mock_run.assert_not_called()
+
+    @patch.dict(os.environ, {"TMUX": "/tmp/tmux-1000/default,12345,0"})
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_session_name_when_in_tmux(self, mock_run: MagicMock) -> None:
+        """Returns session name from tmux display-message."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="agentrelay\n", stderr=""
+        )
+        assert current_session() == "agentrelay"
+        mock_run.assert_called_once_with(
+            ["tmux", "display-message", "-p", "#S"],
+            capture_output=True,
+            text=True,
+        )
+
+    @patch.dict(os.environ, {"TMUX": "/tmp/tmux-1000/default,12345,0"})
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_display_message_fails(self, mock_run: MagicMock) -> None:
+        """Returns None when tmux display-message fails."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=1, stdout="", stderr="error"
+        )
+        assert current_session() is None
+
+    @patch.dict(os.environ, {"TMUX": "/tmp/tmux-1000/default,12345,0"})
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_stdout_empty(self, mock_run: MagicMock) -> None:
+        """Returns None when stdout is empty."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="", stderr=""
+        )
+        assert current_session() is None

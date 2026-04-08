@@ -277,7 +277,7 @@ def build_parser() -> argparse.ArgumentParser:
         "-s",
         "--tmux-session",
         default=None,
-        help="Override tmux session name for all agents",
+        help="Override tmux session name (auto-detected from current tmux session)",
     )
     run_parser.add_argument(
         "-m",

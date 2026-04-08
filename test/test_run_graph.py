@@ -36,10 +36,9 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 
 def test_extract_operational_config_defaults() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    session, keep, model, tools, anthropic, fail_fast, fail_fast_internal = (
+    keep, model, tools, anthropic, fail_fast, fail_fast_internal = (
         _extract_operational_config(raw)
     )
-    assert session is None
     assert keep is False
     assert model is None
     assert tools == ()
@@ -52,12 +51,10 @@ def test_extract_operational_config_reads_yaml_values() -> None:
     raw: dict = {
         "name": "g",
         "tasks": [],
-        "tmux_session": "custom",
         "keep_panes": True,
         "model": "claude-opus-4-6",
     }
-    session, keep, model, tools, _, _, _ = _extract_operational_config(raw)
-    assert session == "custom"
+    keep, model, tools, _, _, _ = _extract_operational_config(raw)
     assert keep is True
     assert model == "claude-opus-4-6"
     assert tools == ()
@@ -67,7 +64,6 @@ def test_extract_operational_config_pops_keys() -> None:
     raw: dict = {
         "name": "g",
         "tasks": [],
-        "tmux_session": "x",
         "keep_panes": True,
         "model": "m",
         "tools": ["pixi"],
@@ -76,7 +72,6 @@ def test_extract_operational_config_pops_keys() -> None:
         "fail_fast_on_internal_error": False,
     }
     _extract_operational_config(raw)
-    assert "tmux_session" not in raw
     assert "keep_panes" not in raw
     assert "model" not in raw
     assert "tools" not in raw
@@ -86,16 +81,23 @@ def test_extract_operational_config_pops_keys() -> None:
     assert "name" in raw
 
 
+def test_extract_operational_config_does_not_pop_tmux_session() -> None:
+    """tmux_session is no longer an operational key — it stays in the dict."""
+    raw: dict = {"name": "g", "tasks": [], "tmux_session": "x"}
+    _extract_operational_config(raw)
+    assert "tmux_session" in raw
+
+
 def test_extract_operational_config_parses_tools() -> None:
     raw: dict = {"name": "g", "tasks": [], "tools": ["pixi", "npm"]}
-    _, _, _, tools, _, _, _ = _extract_operational_config(raw)
+    _, _, tools, _, _, _ = _extract_operational_config(raw)
     assert tools == ("pixi", "npm")
     assert "tasks" in raw
 
 
 def test_extract_operational_config_reads_anthropic_credential() -> None:
     raw: dict = {"name": "g", "tasks": [], "anthropic_credential": "max_plan"}
-    _, _, _, _, anthropic, _, _ = _extract_operational_config(raw)
+    _, _, _, anthropic, _, _ = _extract_operational_config(raw)
     assert anthropic == "max_plan"
 
 
@@ -285,7 +287,6 @@ def test_dry_run_with_operational_keys(
     """Operational keys in YAML are stripped before graph parsing."""
     content = """\
 name: test-graph
-tmux_session: my-session
 keep_panes: true
 model: claude-opus-4-6
 tasks:
@@ -403,7 +404,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path)
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is True
 
 
@@ -418,7 +419,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path)
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is False
 
 
@@ -463,19 +464,19 @@ def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
 
 def test_extract_operational_config_fail_fast_true() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": True}
-    _, _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
+    _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
     assert fail_fast is True
 
 
 def test_extract_operational_config_fail_fast_false() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": False}
-    _, _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
+    _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
     assert fail_fast is False
 
 
 def test_extract_operational_config_fail_fast_default_is_none() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    _, _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
+    _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
     assert fail_fast is None
 
 
@@ -502,19 +503,19 @@ def test_extract_operational_config_fail_fast_rejects_int() -> None:
 
 def test_extract_operational_config_fail_fast_internal_true() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_internal_error": True}
-    _, _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
+    _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
     assert fail_fast_internal is True
 
 
 def test_extract_operational_config_fail_fast_internal_false() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_internal_error": False}
-    _, _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
+    _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
     assert fail_fast_internal is False
 
 
 def test_extract_operational_config_fail_fast_internal_default_is_none() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    _, _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
+    _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
     assert fail_fast_internal is None
 
 
@@ -675,7 +676,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="oci")
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="oci")
     assert _any_task_uses_oci(graph) is True
 
 
@@ -693,7 +694,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
     assert _any_task_uses_oci(graph) is False
 
 
@@ -713,11 +714,28 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
+    graph, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
     task = graph.task("task_a")
     assert task.primary_agent.isolation is not None
     assert task.primary_agent.isolation.sandbox_type == SandboxType.NONE
     assert task.primary_agent.isolation.token_tier == TokenTier.ELEVATED
+
+
+def test_load_and_prepare_graph_rejects_tmux_session_in_yaml(
+    tmp_path: Path,
+) -> None:
+    """tmux_session in graph YAML is rejected as an unknown key."""
+    content = """\
+name: test-graph
+tmux_session: agentrelay
+tasks:
+  - id: task_a
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    with pytest.raises(ValueError, match="unknown key.*tmux_session"):
+        _load_and_prepare_graph(path)
 
 
 # --- _resolve_fail_fast ---

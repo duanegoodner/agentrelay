@@ -108,7 +108,6 @@ tasks:
 def _write_graph_yaml_with_ops(tmp_path: Path) -> Path:
     content = """\
 name: integration-test
-tmux_session: custom-session
 keep_panes: true
 model: claude-opus-4-6
 tasks:
@@ -143,6 +142,7 @@ def test_run_graph_wires_orchestrator(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
             )
         )
 
@@ -189,6 +189,7 @@ def test_run_graph_passes_orchestrator_config(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
                 config=config,
             )
         )
@@ -220,6 +221,7 @@ def test_run_graph_with_operational_yaml_keys(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
             )
         )
 
@@ -289,6 +291,7 @@ def test_run_graph_with_task_failure(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
             )
         )
 
@@ -319,6 +322,7 @@ def test_run_graph_passes_credential_provider(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
                 credential_provider=mock_cp,
             )
         )
@@ -368,6 +372,7 @@ def test_run_graph_resolves_anthropic_credential(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
                 credential_provider=provider,
                 anthropic_credential_name="test_key",
             )
@@ -420,6 +425,7 @@ def test_run_graph_creates_and_removes_network_for_oci(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
             )
         )
 
@@ -450,6 +456,7 @@ def test_run_graph_skips_network_when_no_oci(tmp_path: Path) -> None:
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
+                tmux_session="test-session",
             )
         )
 
