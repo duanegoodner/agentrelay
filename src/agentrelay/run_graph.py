@@ -119,6 +119,7 @@ def _apply_overrides(
     *,
     tmux_session: Optional[str] = None,
     model: Optional[str] = None,
+    sandbox: Optional[str] = None,
 ) -> None:
     """Apply CLI overrides to task dicts in a raw YAML dict.
 
@@ -129,8 +130,11 @@ def _apply_overrides(
         raw: Mutable raw YAML dict containing a ``"tasks"`` list.
         tmux_session: If set, override every task's tmux session name.
         model: If set, override every task's agent model.
+        sandbox: If set, override sandbox type (``"oci"`` or ``"none"``)
+            for all tasks.  Applied at task level and agent level so that
+            agent-level YAML cannot override the CLI flag.
     """
-    if tmux_session is None and model is None:
+    if tmux_session is None and model is None and sandbox is None:
         return
     for task in raw.get("tasks", []):
         if tmux_session is not None:
@@ -140,6 +144,19 @@ def _apply_overrides(
         if model is not None:
             agent = task.setdefault("primary_agent", {})
             agent["model"] = model
+        if sandbox is not None:
+            # Task level — overrides graph and workstream inheritance.
+            iso = task.setdefault("isolation", {})
+            iso["sandbox"] = sandbox
+            # Primary agent level — overrides any agent-level YAML.
+            if "primary_agent" in task:
+                agent_iso = task["primary_agent"].setdefault("isolation", {})
+                agent_iso["sandbox"] = sandbox
+            # Review agent level — YAML structure is review.agent.isolation.
+            if "review" in task and isinstance(task["review"], dict):
+                review_agent = task["review"].setdefault("agent", {})
+                review_iso = review_agent.setdefault("isolation", {})
+                review_iso["sandbox"] = sandbox
 
 
 def _load_and_prepare_graph(
@@ -147,6 +164,7 @@ def _load_and_prepare_graph(
     *,
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
+    sandbox_override: Optional[str] = None,
 ) -> tuple[
     TaskGraph,
     Optional[str],
@@ -162,6 +180,8 @@ def _load_and_prepare_graph(
         graph_path: Path to the graph YAML file.
         tmux_session: CLI override for tmux session name.
         model_override: CLI override for agent model.
+        sandbox_override: CLI override for sandbox type (``"oci"`` or
+            ``"none"``).  Applied to every task when set.
 
     Returns:
         Tuple of ``(graph, effective_tmux_session, effective_keep_panes,
@@ -182,7 +202,12 @@ def _load_and_prepare_graph(
     effective_session = tmux_session if tmux_session is not None else yaml_session
     effective_model = model_override if model_override is not None else yaml_model
 
-    _apply_overrides(raw, tmux_session=effective_session, model=effective_model)
+    _apply_overrides(
+        raw,
+        tmux_session=effective_session,
+        model=effective_model,
+        sandbox=sandbox_override,
+    )
 
     graph = TaskGraphBuilder.from_dict(raw)
     return (
@@ -333,6 +358,7 @@ async def run_graph(
     fail_fast_on_internal_error: Optional[bool] = None,
     credential_provider: Optional[CredentialProvider] = None,
     anthropic_credential_name: Optional[str] = None,
+    sandbox_override: Optional[str] = None,
     verbose: bool = False,
 ) -> OrchestratorResult:
     """Build all components from a graph YAML and run the orchestrator.
@@ -360,6 +386,8 @@ async def run_graph(
         anthropic_credential_name: Name of the Anthropic credential to
             use from the credentials YAML ``anthropic`` section.  CLI
             override; falls back to graph YAML ``anthropic_credential``.
+        sandbox_override: CLI override for sandbox type (``"oci"`` or
+            ``"none"``).  When set, overrides sandbox config for all tasks.
         verbose: Show detailed step-level output during execution.
 
     Returns:
@@ -377,7 +405,10 @@ async def run_graph(
         yaml_fail_fast,
         yaml_fail_fast_internal,
     ) = _load_and_prepare_graph(
-        graph_path, tmux_session=tmux_session, model_override=model_override
+        graph_path,
+        tmux_session=tmux_session,
+        model_override=model_override,
+        sandbox_override=sandbox_override,
     )
     effective_keep_panes = keep_panes or yaml_keep_panes
 
@@ -558,6 +589,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to graph YAML file",
     )
     parser.add_argument(
+        "-c",
         "--max-concurrency",
         type=int,
         default=None,
@@ -576,16 +608,19 @@ def _build_parser() -> argparse.ArgumentParser:
         help="When to tear down task resources (default: on_success)",
     )
     parser.add_argument(
+        "-s",
         "--tmux-session",
         default=None,
         help="Override tmux session name for all agents",
     )
     parser.add_argument(
+        "-m",
         "--model",
         default=None,
         help="Override model for all agents",
     )
     parser.add_argument(
+        "-C",
         "--credentials",
         default=None,
         help="Path to credentials YAML file for sandboxed agents",
@@ -594,6 +629,13 @@ def _build_parser() -> argparse.ArgumentParser:
         "--anthropic-credential",
         default=None,
         help="Name of Anthropic credential from credentials YAML file",
+    )
+    parser.add_argument(
+        "-S",
+        "--sandbox",
+        choices=["oci", "none"],
+        default=None,
+        help="Override sandbox type for all tasks (oci or none)",
     )
     parser.add_argument(
         "--fail-fast-on-workstream-error",
@@ -664,6 +706,7 @@ def main() -> None:
                 fail_fast_on_internal_error=args.fail_fast_on_internal_error,
                 credential_provider=credential_provider,
                 anthropic_credential_name=args.anthropic_credential,
+                sandbox_override=args.sandbox,
                 verbose=args.verbose,
             )
         )

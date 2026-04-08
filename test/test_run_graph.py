@@ -137,6 +137,112 @@ def test_apply_overrides_handles_empty_tasks() -> None:
     assert raw == {"tasks": []}
 
 
+def test_apply_overrides_sandbox_oci() -> None:
+    raw: dict = {"tasks": [{"id": "a"}, {"id": "b"}]}
+    _apply_overrides(raw, sandbox="oci")
+    for task in raw["tasks"]:
+        assert task["isolation"]["sandbox"] == "oci"
+
+
+def test_apply_overrides_sandbox_none() -> None:
+    raw: dict = {"tasks": [{"id": "a"}, {"id": "b"}]}
+    _apply_overrides(raw, sandbox="none")
+    for task in raw["tasks"]:
+        assert task["isolation"]["sandbox"] == "none"
+
+
+def test_apply_overrides_sandbox_preserves_token_tier() -> None:
+    raw: dict = {
+        "tasks": [
+            {"id": "a", "isolation": {"sandbox": "oci", "token_tier": "elevated"}}
+        ]
+    }
+    _apply_overrides(raw, sandbox="none")
+    task = raw["tasks"][0]
+    assert task["isolation"]["sandbox"] == "none"
+    assert task["isolation"]["token_tier"] == "elevated"
+
+
+def test_apply_overrides_sandbox_preserves_image_and_runtime() -> None:
+    raw: dict = {
+        "tasks": [
+            {
+                "id": "a",
+                "isolation": {
+                    "sandbox": "none",
+                    "image": "custom:latest",
+                    "runtime": "podman",
+                },
+            }
+        ]
+    }
+    _apply_overrides(raw, sandbox="oci")
+    task = raw["tasks"][0]
+    assert task["isolation"]["sandbox"] == "oci"
+    assert task["isolation"]["image"] == "custom:latest"
+    assert task["isolation"]["runtime"] == "podman"
+
+
+def test_apply_overrides_sandbox_creates_isolation_dict() -> None:
+    raw: dict = {"tasks": [{"id": "a"}]}
+    _apply_overrides(raw, sandbox="oci")
+    assert raw["tasks"][0]["isolation"] == {"sandbox": "oci"}
+
+
+def test_apply_overrides_sandbox_with_model_and_session() -> None:
+    raw: dict = {"tasks": [{"id": "a"}]}
+    _apply_overrides(raw, tmux_session="s", model="m", sandbox="oci")
+    task = raw["tasks"][0]
+    assert task["primary_agent"]["model"] == "m"
+    assert task["primary_agent"]["environment"]["session"] == "s"
+    assert task["isolation"]["sandbox"] == "oci"
+
+
+def test_apply_overrides_sandbox_overrides_primary_agent() -> None:
+    raw: dict = {
+        "tasks": [
+            {
+                "id": "a",
+                "primary_agent": {
+                    "isolation": {"sandbox": "none", "token_tier": "elevated"}
+                },
+            }
+        ]
+    }
+    _apply_overrides(raw, sandbox="oci")
+    task = raw["tasks"][0]
+    assert task["isolation"]["sandbox"] == "oci"
+    assert task["primary_agent"]["isolation"]["sandbox"] == "oci"
+    assert task["primary_agent"]["isolation"]["token_tier"] == "elevated"
+
+
+def test_apply_overrides_sandbox_overrides_review_agent() -> None:
+    raw: dict = {
+        "tasks": [
+            {
+                "id": "a",
+                "review": {
+                    "agent": {"isolation": {"sandbox": "none"}},
+                    "review_on_attempt": 1,
+                },
+            }
+        ]
+    }
+    _apply_overrides(raw, sandbox="oci")
+    task = raw["tasks"][0]
+    assert task["isolation"]["sandbox"] == "oci"
+    assert task["review"]["agent"]["isolation"]["sandbox"] == "oci"
+
+
+def test_apply_overrides_sandbox_skips_absent_agents() -> None:
+    """Sandbox override doesn't create primary_agent or review when absent."""
+    raw: dict = {"tasks": [{"id": "a"}]}
+    _apply_overrides(raw, sandbox="oci")
+    assert "primary_agent" not in raw["tasks"][0]
+    assert "review" not in raw["tasks"][0]
+    assert raw["tasks"][0]["isolation"]["sandbox"] == "oci"
+
+
 # --- dry_run ---
 
 
@@ -523,6 +629,95 @@ def test_cli_parser_fail_fast_internal_false() -> None:
     parser = _build_parser()
     args = parser.parse_args(["graph.yaml", "--no-fail-fast-on-internal-error"])
     assert args.fail_fast_on_internal_error is False
+
+
+def test_build_parser_short_options() -> None:
+    parser = _build_parser()
+    args = parser.parse_args(
+        [
+            "graph.yaml",
+            "-c",
+            "4",
+            "-s",
+            "mysession",
+            "-m",
+            "claude-opus-4-6",
+            "-C",
+            "/tmp/creds.yaml",
+            "-S",
+            "oci",
+        ]
+    )
+    assert args.max_concurrency == 4
+    assert args.tmux_session == "mysession"
+    assert args.model == "claude-opus-4-6"
+    assert args.credentials == "/tmp/creds.yaml"
+    assert args.sandbox == "oci"
+
+
+def test_build_parser_sandbox_default_none() -> None:
+    parser = _build_parser()
+    args = parser.parse_args(["graph.yaml"])
+    assert args.sandbox is None
+
+
+# --- _load_and_prepare_graph: sandbox_override ---
+
+
+def test_load_and_prepare_graph_sandbox_override_oci(tmp_path: Path) -> None:
+    """--sandbox oci makes all tasks use OCI isolation."""
+    content = """\
+name: test-graph
+tasks:
+  - id: task_a
+    description: Plain task
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="oci")
+    assert _any_task_uses_oci(graph) is True
+
+
+def test_load_and_prepare_graph_sandbox_override_none(tmp_path: Path) -> None:
+    """--sandbox none disables OCI even when graph YAML specifies it."""
+    content = """\
+name: test-graph
+isolation:
+  sandbox: oci
+  token_tier: standard
+tasks:
+  - id: task_a
+    description: OCI task
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
+    assert _any_task_uses_oci(graph) is False
+
+
+def test_load_and_prepare_graph_sandbox_override_preserves_token_tier(
+    tmp_path: Path,
+) -> None:
+    """Sandbox override preserves token_tier from graph YAML."""
+    content = """\
+name: test-graph
+isolation:
+  sandbox: oci
+  token_tier: elevated
+tasks:
+  - id: task_a
+    description: Task with elevated tokens
+    dependencies: []
+"""
+    path = tmp_path / "graph.yaml"
+    path.write_text(content)
+    graph, _, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
+    task = graph.task("task_a")
+    assert task.primary_agent.isolation is not None
+    assert task.primary_agent.isolation.sandbox_type == SandboxType.NONE
+    assert task.primary_agent.isolation.token_tier == TokenTier.ELEVATED
 
 
 # --- _resolve_fail_fast ---
