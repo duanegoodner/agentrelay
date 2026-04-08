@@ -32,12 +32,34 @@ def has_session(session: str) -> bool:
 def current_session() -> Optional[str]:
     """Return the name of the current tmux session, or ``None`` if not in tmux.
 
-    Checks the ``$TMUX`` environment variable first.  If set, runs
-    ``tmux display-message -p '#S'`` to retrieve the session name.
-    Returns ``None`` when the process is not running inside a tmux session.
+    Checks ``$TMUX`` and ``$TMUX_PANE`` environment variables, then
+    verifies the process is genuinely inside that tmux pane by comparing
+    the current TTY against the pane's TTY.  This prevents false
+    positives when a standalone terminal inherits tmux env vars from a
+    parent process launched inside tmux (e.g. ``alacritty & disown``).
+
+    Returns ``None`` when the process is not running inside a tmux pane.
     """
-    if not os.environ.get("TMUX"):
+    pane = os.environ.get("TMUX_PANE")
+    if not os.environ.get("TMUX") or not pane:
         return None
+
+    # Verify our TTY matches the tmux pane's TTY.
+    try:
+        our_tty = os.ttyname(0)
+    except OSError:
+        return None
+    result = subprocess.run(
+        ["tmux", "display-message", "-t", pane, "-p", "#{pane_tty}"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+    if result.stdout.strip() != our_tty:
+        return None
+
+    # Genuinely inside tmux — get the session name.
     result = subprocess.run(
         ["tmux", "display-message", "-p", "#S"],
         capture_output=True,
