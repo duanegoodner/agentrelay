@@ -24,6 +24,7 @@ from typing import Optional
 
 import yaml
 
+from agentrelay.graph_index import DuplicateGraphNameError, GraphIndex
 from agentrelay.orchestrator import OrchestratorOutcome
 from agentrelay.reset_graph import _resolve_graph_name, reset_graph
 from agentrelay.run_graph import (
@@ -46,6 +47,16 @@ def _add_target_repo_arg(parser: argparse.ArgumentParser) -> None:
         "--target-repo",
         default=None,
         help="Path to the target repository (default: current directory)",
+    )
+
+
+def _add_graph_dir_arg(parser: argparse.ArgumentParser) -> None:
+    """Add ``--graph-dir`` / ``-g`` argument to a subparser."""
+    parser.add_argument(
+        "--graph-dir",
+        "-g",
+        default=None,
+        help="Directory to scan for graph YAML files (enables name-based selection)",
     )
 
 
@@ -72,6 +83,40 @@ def _resolve_graph_path(raw: str) -> Path:
     return graph_path
 
 
+def _resolve_graph_with_index(args: argparse.Namespace) -> Path:
+    """Resolve graph reference using index (if ``-g`` given) or path.
+
+    When ``--graph-dir`` is provided, builds a :class:`GraphIndex` and
+    resolves the graph argument through it.  When absent, falls back to
+    direct path resolution with a note about name uniqueness.
+
+    Args:
+        args: Parsed CLI arguments with ``graph`` and ``graph_dir``.
+
+    Returns:
+        Resolved absolute path to the graph YAML file.
+    """
+    if args.graph_dir is not None:
+        graph_dir = Path(args.graph_dir).resolve()
+        try:
+            index = GraphIndex(graph_dir)
+        except (FileNotFoundError, DuplicateGraphNameError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            sys.exit(1)
+        try:
+            return index.resolve(args.graph)
+        except (KeyError, ValueError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            sys.exit(1)
+
+    # No -g: backward-compatible path mode with note.
+    print(
+        "Note: running without --graph-dir; name uniqueness not validated.",
+        file=sys.stderr,
+    )
+    return _resolve_graph_path(args.graph)
+
+
 def _do_dry_run(graph_path: Path, repo_path: Path) -> None:
     """Run dry-run logic: validate graph and check for conflicts."""
     dry_run(graph_path)
@@ -83,7 +128,7 @@ def _do_dry_run(graph_path: Path, repo_path: Path) -> None:
 
 def _handle_run(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay run``."""
-    graph_path = _resolve_graph_path(args.graph)
+    graph_path = _resolve_graph_with_index(args)
     repo_path = _resolve_repo_path(args)
 
     if args.dry_run:
@@ -134,7 +179,7 @@ def _handle_run(args: argparse.Namespace) -> None:
 
 def _handle_reset(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay reset``."""
-    graph_path = _resolve_graph_path(args.graph)
+    graph_path = _resolve_graph_with_index(args)
     repo_path = _resolve_repo_path(args)
     graph_name = _resolve_graph_name(graph_path)
 
@@ -166,9 +211,30 @@ def _handle_check(args: argparse.Namespace) -> None:
 
 def _handle_dry_run(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay dry-run``."""
-    graph_path = _resolve_graph_path(args.graph)
+    graph_path = _resolve_graph_with_index(args)
     repo_path = _resolve_repo_path(args)
     _do_dry_run(graph_path, repo_path)
+
+
+def _handle_list(args: argparse.Namespace) -> None:
+    """Handler for ``agentrelay list``."""
+    graph_dir = Path(args.graph_dir).resolve()
+    try:
+        index = GraphIndex(graph_dir)
+    except (FileNotFoundError, DuplicateGraphNameError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    entries = index.entries
+    if not entries:
+        print("No graphs found.", file=sys.stderr)
+        return
+
+    name_w = max(len(e.name) for e in entries)
+    cat_w = max(len(e.category) for e in entries)
+    print(f"{'NAME':<{name_w}}  {'CATEGORY':<{cat_w}}  PATH")
+    for e in entries:
+        print(f"{e.name:<{name_w}}  {e.category:<{cat_w}}  {e.path}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -185,7 +251,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Run a task graph",
         description="Run an agentrelay task graph.",
     )
-    run_parser.add_argument("graph", help="Path to graph YAML file")
+    run_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(run_parser)
     _add_target_repo_arg(run_parser)
     run_parser.add_argument(
         "-c",
@@ -267,7 +334,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Reset a graph run",
         description="Reset a repository to its pre-graph-run state.",
     )
-    reset_parser.add_argument("graph", help="Path to graph YAML file")
+    reset_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(reset_parser)
     _add_target_repo_arg(reset_parser)
     reset_parser.add_argument(
         "--yes",
@@ -297,9 +365,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Validate graph and print execution plan",
         description="Validate a graph YAML and print the execution plan.",
     )
-    dry_run_parser.add_argument("graph", help="Path to graph YAML file")
+    dry_run_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(dry_run_parser)
     _add_target_repo_arg(dry_run_parser)
     dry_run_parser.set_defaults(func=_handle_dry_run)
+
+    # --- list ---
+    list_parser = subparsers.add_parser(
+        "list",
+        help="List available graphs",
+        description="List available graphs from a graph directory.",
+    )
+    list_parser.add_argument(
+        "--graph-dir",
+        "-g",
+        required=True,
+        help="Directory to scan for graph YAML files",
+    )
+    list_parser.set_defaults(func=_handle_list)
 
     return parser
 

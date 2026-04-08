@@ -1,0 +1,77 @@
+direction: right
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  graph_index.py — graph index and name-based selection
+# ─────────────────────────────────────────────
+graph_index_py: "graph_index.py" {
+  GraphEntry: "GraphEntry <<frozen dataclass>>" {
+    shape: class
+    name: str
+    category: str
+    path: Path
+  }
+
+  DuplicateGraphNameError: "DuplicateGraphNameError <<exception>>" {
+    shape: class
+  }
+
+  GraphIndex: "GraphIndex" {
+    shape: class
+    entries: "tuple[GraphEntry, ...]"
+    resolve(graph_ref): Path
+  }
+
+  _helpers: "<<module>> _helpers" {
+    shape: class
+    style.font-color: "#666666"
+    _is_path_reference()
+    _read_graph_name()
+    _extract_category()
+    _scan_directory()
+  }
+}
+
+
+# ─── Relationships ───
+
+graph_index_py.GraphIndex -> graph_index_py.GraphEntry: indexes { class: composition }
+graph_index_py.GraphIndex -> graph_index_py.DuplicateGraphNameError: raises { class: dependency }
+graph_index_py.GraphIndex -> graph_index_py._helpers: uses { class: dependency }

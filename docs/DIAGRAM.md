@@ -31,6 +31,7 @@ module.
 | agent_sdk/ | [diagram-agent-sdk.svg](diagrams/uml/modules/diagram-agent-sdk.svg){: target="_blank" } |
 | environments.py | [diagram-environments.svg](diagrams/uml/modules/diagram-environments.svg){: target="_blank" } |
 | errors/ | [diagram-errors.svg](diagrams/uml/modules/diagram-errors.svg){: target="_blank" } |
+| graph_index.py | [diagram-graph-index.svg](diagrams/uml/modules/diagram-graph-index.svg){: target="_blank" } |
 | ops/ | [diagram-ops.svg](diagrams/uml/modules/diagram-ops.svg){: target="_blank" } |
 | orchestrator/ | [diagram-orchestrator.svg](diagrams/uml/modules/diagram-orchestrator.svg){: target="_blank" } |
 | output/ | [diagram-output.svg](diagrams/uml/modules/diagram-output.svg){: target="_blank" } |
