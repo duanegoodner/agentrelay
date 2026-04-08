@@ -989,6 +989,37 @@ reset_graph_py: "reset_graph.py" {
 }
 
 # ─────────────────────────────────────────────
+#  graph_index.py — graph index and name-based selection
+# ─────────────────────────────────────────────
+graph_index_py: "graph_index.py" {
+  GraphEntry: "GraphEntry <<frozen dataclass>>" {
+    shape: class
+    name: str
+    category: str
+    path: Path
+  }
+
+  DuplicateGraphNameError: "DuplicateGraphNameError <<exception>>" {
+    shape: class
+  }
+
+  GraphIndex: "GraphIndex" {
+    shape: class
+    entries: "tuple[GraphEntry, ...]"
+    resolve(graph_ref): Path
+  }
+
+  _helpers: "<<module>> _helpers" {
+    shape: class
+    style.font-color: "#666666"
+    _is_path_reference()
+    _read_graph_name()
+    _extract_category()
+    _scan_directory()
+  }
+}
+
+# ─────────────────────────────────────────────
 #  sandbox/ — sandbox configuration and protocols
 # ─────────────────────────────────────────────
 sandbox_pkg: "sandbox/" {
@@ -1332,6 +1363,11 @@ agent_sdk_pkg.OutputEntry -> agent_sdk_pkg.OutputAction: action { class: depende
 tools_py.tools_functions -> tools_py.ToolSpec: reads { class: dependency }
 agent_comm_protocol_pkg.templates_functions -> tools_py.tools_functions: "tool_guidance()" { class: dependency }
 run_graph_py.run_graph_functions -> tools_py.tools_functions: "validate_tools()" { class: dependency }
+
+# --- graph_index ---
+graph_index_py.GraphIndex -> graph_index_py.GraphEntry: indexes { class: composition }
+graph_index_py.GraphIndex -> graph_index_py.DuplicateGraphNameError: raises { class: dependency }
+graph_index_py.GraphIndex -> graph_index_py._helpers: uses { class: dependency }
 
 # --- workstream runtime -> TaskSummary ---
 workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.TaskSummary: task_summaries { class: composition }
