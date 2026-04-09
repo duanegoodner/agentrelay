@@ -62,6 +62,14 @@ Near-term items for the current architecture track.
   prototype was clumsy but had useful capabilities that shouldn't be
   accidentally dropped.
 
+## CLI
+
+- **Short options for all named args**: Add single-character short versions
+  for any `agentrelay` CLI arguments that don't have one yet.
+- **Fix `--max-concurrency` help text**: Currently reads "Maximum concurrent
+  task attempts (default: 1)" — should be "Maximum concurrent tasks
+  (default: 1)".
+
 ## Credential Management
 
 - **Project-specific credentials files**: Currently `--credentials` takes a
