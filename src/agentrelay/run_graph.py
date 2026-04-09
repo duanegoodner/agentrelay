@@ -53,7 +53,6 @@ from agentrelay.tools import ToolValidationError, validate_tools
 def _extract_operational_config(
     raw: dict[str, Any],
 ) -> tuple[
-    Optional[str],
     bool,
     Optional[str],
     tuple[str, ...],
@@ -63,27 +62,24 @@ def _extract_operational_config(
 ]:
     """Pop operational keys from a raw YAML dict before graph parsing.
 
-    The graph YAML may include operational keys (``tmux_session``,
-    ``keep_panes``, ``model``, ``tools``, ``anthropic_credential``,
-    ``fail_fast_on_workstream_error``, ``fail_fast_on_internal_error``)
-    that are not part of the structural graph schema.  These must be
-    removed before passing to :meth:`TaskGraphBuilder.from_dict` (which
-    rejects unknown keys).
+    The graph YAML may include operational keys (``keep_panes``, ``model``,
+    ``tools``, ``anthropic_credential``, ``fail_fast_on_workstream_error``,
+    ``fail_fast_on_internal_error``) that are not part of the structural
+    graph schema.  These must be removed before passing to
+    :meth:`TaskGraphBuilder.from_dict` (which rejects unknown keys).
 
     Args:
         raw: Mutable raw YAML dict.  Modified in place.
 
     Returns:
-        Tuple of ``(tmux_session, keep_panes, model_default, tools,
+        Tuple of ``(keep_panes, model_default, tools,
         anthropic_credential, fail_fast_on_workstream_error,
         fail_fast_on_internal_error)``.
-        ``tmux_session`` is ``None`` if not specified in the YAML.
         ``tools`` defaults to an empty tuple.
         ``anthropic_credential`` is ``None`` if not specified.
         ``fail_fast_on_workstream_error`` is ``None`` if not specified.
         ``fail_fast_on_internal_error`` is ``None`` if not specified.
     """
-    tmux_session: Optional[str] = raw.pop("tmux_session", None)
     keep_panes: bool = raw.pop("keep_panes", False)
     model: Optional[str] = raw.pop("model", None)
     raw_tools = raw.pop("tools", None)
@@ -104,7 +100,6 @@ def _extract_operational_config(
             "Invalid graph schema at 'fail_fast_on_internal_error': must be a boolean"
         )
     return (
-        tmux_session,
         keep_panes,
         model,
         tools,
@@ -167,7 +162,6 @@ def _load_and_prepare_graph(
     sandbox_override: Optional[str] = None,
 ) -> tuple[
     TaskGraph,
-    Optional[str],
     bool,
     tuple[str, ...],
     Optional[str],
@@ -178,19 +172,17 @@ def _load_and_prepare_graph(
 
     Args:
         graph_path: Path to the graph YAML file.
-        tmux_session: CLI override for tmux session name.
+        tmux_session: Resolved tmux session name to apply to all tasks.
         model_override: CLI override for agent model.
         sandbox_override: CLI override for sandbox type (``"oci"`` or
             ``"none"``).  Applied to every task when set.
 
     Returns:
-        Tuple of ``(graph, effective_tmux_session, effective_keep_panes,
-        tools, anthropic_credential_name, fail_fast_on_workstream_error,
-        fail_fast_on_internal_error)``.
+        Tuple of ``(graph, keep_panes, tools, anthropic_credential_name,
+        fail_fast_on_workstream_error, fail_fast_on_internal_error)``.
     """
     raw = yaml.safe_load(graph_path.read_text())
     (
-        yaml_session,
         yaml_keep_panes,
         yaml_model,
         tools,
@@ -199,12 +191,11 @@ def _load_and_prepare_graph(
         yaml_fail_fast_internal,
     ) = _extract_operational_config(raw)
 
-    effective_session = tmux_session if tmux_session is not None else yaml_session
     effective_model = model_override if model_override is not None else yaml_model
 
     _apply_overrides(
         raw,
-        tmux_session=effective_session,
+        tmux_session=tmux_session,
         model=effective_model,
         sandbox=sandbox_override,
     )
@@ -212,7 +203,6 @@ def _load_and_prepare_graph(
     graph = TaskGraphBuilder.from_dict(raw)
     return (
         graph,
-        effective_session,
         yaml_keep_panes,
         tools,
         yaml_anthropic,
@@ -265,7 +255,7 @@ def _validate_tmux_sessions(graph: TaskGraph) -> None:
         if not session:
             raise _SessionError(
                 f"Task '{task_id}' has no tmux session specified.\n"
-                "Set 'tmux_session' in the graph YAML or use --tmux-session on the CLI."
+                "Use --tmux-session on the CLI or run from inside a tmux session."
             )
         sessions_seen.add(session)
 
@@ -396,9 +386,17 @@ async def run_graph(
     if config is None:
         config = OrchestratorConfig()
 
+    # Resolve tmux session: CLI flag > auto-detect > error.
+    if tmux_session is None:
+        tmux_session = tmux.current_session()
+    if tmux_session is None:
+        raise _SessionError(
+            "No tmux session specified and not running inside tmux.\n"
+            "Either run from inside a tmux session or use --tmux-session."
+        )
+
     (
         graph,
-        _,
         yaml_keep_panes,
         tools,
         yaml_anthropic_name,
@@ -495,7 +493,7 @@ def dry_run(graph_path: Path) -> None:
     Args:
         graph_path: Path to the graph YAML file.
     """
-    graph, _, _, tools, _, _, _ = _load_and_prepare_graph(graph_path)
+    graph, _, tools, _, _, _ = _load_and_prepare_graph(graph_path)
 
     print(f"Graph: {graph.name}")
     print(f"Tasks: {len(graph.task_ids())}")
@@ -611,7 +609,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "-s",
         "--tmux-session",
         default=None,
-        help="Override tmux session name for all agents",
+        help="Override tmux session name (auto-detected from current tmux session)",
     )
     parser.add_argument(
         "-m",

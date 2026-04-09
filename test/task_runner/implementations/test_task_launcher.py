@@ -70,7 +70,7 @@ class TestTmuxTaskLauncher:
         assert agent is expected_agent
         mock_from_config.assert_called_once_with(
             config=runtime.task.primary_agent,
-            task_id="task_1",
+            task_id="demo-task_1",
             worktree_path=Path("/repo/.workflow/demo/worktrees/task_1"),
             cmd=(
                 'AGENTRELAY_SIGNAL_DIR="/repo/.workflow/demo/signals/task_1"'

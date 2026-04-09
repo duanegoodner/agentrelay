@@ -26,7 +26,7 @@ class TmuxEnvironment:
 
     Attributes:
         session: The tmux session name where the pane will be created.
-            Must be explicitly provided via graph YAML or CLI flag.
+            Auto-detected from current tmux session or set via ``--tmux-session`` CLI flag.
     """
 
     session: str = ""

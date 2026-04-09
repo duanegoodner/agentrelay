@@ -85,7 +85,7 @@ class TmuxTaskLauncher:
 
         return TmuxAgent.from_config(
             config=config,
-            task_id=runtime.task.id,
+            task_id=f"{self.graph_name}-{runtime.task.id}",
             worktree_path=runtime.state.worktree_path,
             cmd=cmd,
         )

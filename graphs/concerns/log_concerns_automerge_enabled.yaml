@@ -1,5 +1,4 @@
 name: concerns-test
-tmux_session: agentrelay
 model: claude-sonnet-4-6
 tools:
   - pixi

@@ -1,5 +1,4 @@
 name: concern-test-writer
-tmux_session: agentrelay
 model: claude-sonnet-4-6
 tools:
   - pixi

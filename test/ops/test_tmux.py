@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -10,6 +11,7 @@ import pytest
 
 from agentrelay.ops.tmux import (
     capture_pane,
+    current_session,
     kill_window,
     new_window,
     send_keys,
@@ -202,3 +204,98 @@ class TestWaitForTuiReady:
         mock_monotonic.side_effect = [0.0, 0.0, 0.0]
         result = wait_for_tui_ready("%42", timeout=10.0, poll_interval=0.01)
         assert result is True
+
+
+class TestCurrentSession:
+    """Tests for current_session."""
+
+    _TMUX_ENV = {"TMUX": "/tmp/tmux-1000/default,12345,0", "TMUX_PANE": "%21"}
+
+    @patch.dict(os.environ, {}, clear=True)
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_tmux_env_not_set(self, mock_run: MagicMock) -> None:
+        """Returns None and skips subprocess when $TMUX is not set."""
+        assert current_session() is None
+        mock_run.assert_not_called()
+
+    @patch.dict(os.environ, {"TMUX": "/tmp/tmux-1000/default,12345,0"}, clear=True)
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_tmux_pane_not_set(self, mock_run: MagicMock) -> None:
+        """Returns None when $TMUX is set but $TMUX_PANE is not."""
+        assert current_session() is None
+        mock_run.assert_not_called()
+
+    @patch.dict(os.environ, _TMUX_ENV)
+    @patch("agentrelay.ops.tmux.os.ttyname", return_value="/dev/pts/5")
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_session_name_when_in_tmux(
+        self, mock_run: MagicMock, _mock_tty: MagicMock
+    ) -> None:
+        """Returns session name when TTY matches pane TTY."""
+        mock_run.side_effect = [
+            # First call: pane_tty check
+            subprocess.CompletedProcess(
+                args=[], returncode=0, stdout="/dev/pts/5\n", stderr=""
+            ),
+            # Second call: session name
+            subprocess.CompletedProcess(
+                args=[], returncode=0, stdout="agentrelay\n", stderr=""
+            ),
+        ]
+        assert current_session() == "agentrelay"
+        assert mock_run.call_count == 2
+        mock_run.assert_any_call(
+            ["tmux", "display-message", "-t", "%21", "-p", "#{pane_tty}"],
+            capture_output=True,
+            text=True,
+        )
+        mock_run.assert_any_call(
+            ["tmux", "display-message", "-p", "#S"],
+            capture_output=True,
+            text=True,
+        )
+
+    @patch.dict(os.environ, _TMUX_ENV)
+    @patch("agentrelay.ops.tmux.os.ttyname", return_value="/dev/pts/12")
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_tty_mismatch(
+        self, mock_run: MagicMock, _mock_tty: MagicMock
+    ) -> None:
+        """Returns None when our TTY differs from the pane TTY (inherited env)."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="/dev/pts/5\n", stderr=""
+        )
+        assert current_session() is None
+
+    @patch.dict(os.environ, _TMUX_ENV)
+    @patch("agentrelay.ops.tmux.os.ttyname", side_effect=OSError("not a tty"))
+    def test_returns_none_when_no_tty(self, _mock_tty: MagicMock) -> None:
+        """Returns None when stdin is not a TTY."""
+        assert current_session() is None
+
+    @patch.dict(os.environ, _TMUX_ENV)
+    @patch("agentrelay.ops.tmux.os.ttyname", return_value="/dev/pts/5")
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_pane_tty_check_fails(
+        self, mock_run: MagicMock, _mock_tty: MagicMock
+    ) -> None:
+        """Returns None when the pane TTY check subprocess fails."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=1, stdout="", stderr="error"
+        )
+        assert current_session() is None
+
+    @patch.dict(os.environ, _TMUX_ENV)
+    @patch("agentrelay.ops.tmux.os.ttyname", return_value="/dev/pts/5")
+    @patch("agentrelay.ops.tmux.subprocess.run")
+    def test_returns_none_when_session_name_empty(
+        self, mock_run: MagicMock, _mock_tty: MagicMock
+    ) -> None:
+        """Returns None when session name stdout is empty."""
+        mock_run.side_effect = [
+            subprocess.CompletedProcess(
+                args=[], returncode=0, stdout="/dev/pts/5\n", stderr=""
+            ),
+            subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr=""),
+        ]
+        assert current_session() is None
