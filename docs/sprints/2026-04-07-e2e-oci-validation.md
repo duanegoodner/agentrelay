@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation
 
-> **Status: In progress.** PRs A, B, and C merged (#174, #175, #176). PR D next.
+> **Status: In progress.** PRs A–D merged (#174–#177). PR E (e2e validation) ready for review.
 
 ## Goal
 
@@ -314,7 +314,7 @@ to prevent collisions during parallel runs.
 
 ---
 
-### PR D: Graph consolidation and syntax migration
+### PR D: Graph consolidation and syntax migration — merged (#177)
 
 - Branch: `feat/graph-consolidation`
 
@@ -405,6 +405,100 @@ split into several if different categories surface independent issues.
 - [ ] `pixi run check` passes
 - [ ] No regressions in non-OCI mode
 
+#### Fixes applied
+
+| Fix | File | Description |
+|---|---|---|
+| Parallel run cleanliness check | `tools/e2e_run.sh` | `git status --porcelain` filter now ignores `.workflow/`, `.worktrees/` (graph-namespaced, safe during parallel runs) and `pixi.lock` (`pixi run --manifest-path` triggers lock resolution as side effect) |
+| Graph resumption backlog | `docs/BACKLOG.md` | Added backlog entry for cross-run graph resumption (detect existing state, skip completed tasks, resume from interruption point) |
+
+#### Phase 2: Baseline validation (no OCI)
+
+Confirms graphs pass on current main before adding the OCI variable.
+All three graphs ran concurrently against the same target repo.
+
+| Graph | Sandbox | Outcome | Duration | Tasks | Notes |
+|---|---|---|---|---|---|
+| `quick-chained` | none | succeeded | 1m32s | 2 (serial) | Serial dependency chain |
+| `quick-parallel` | none | succeeded | 51s | 2 (parallel) | Two workstreams, concurrent execution |
+| `isolation-basic-oci` | oci (native) | succeeded | 52s | 1 | Single task in Docker container |
+
+**Parallel execution validated:** all three graphs launched simultaneously,
+no resource collisions, all succeeded on first attempt (after cleanliness
+check fix).
+
+#### Phase 3: OCI validation — Smoke & Isolation
+
+All 7 graphs ran with `-S oci`. Docker images rebuilt mid-phase to
+include `agentrelay-declare` CLI wrapper (missing from stale image).
+
+| Graph | Outcome | Duration | Scenarios |
+|---|---|---|---|
+| `quick-chained` | succeeded | 2m05s | #2 |
+| `quick-parallel` | succeeded | 1m01s | #3 |
+| `inputs-from-chain` | succeeded | 5m06s | #9 |
+| `gate-pixi-run-test` | succeeded | 57s | #1 |
+| `isolation-basic-oci` | succeeded | 56s | #1, #8 |
+| `isolation-token-tiers` | expected failure | 1m46s | #5 (read-only token correctly blocked PR creation) |
+| `isolation-permission-boundary` | succeeded | 57s | #6 (pre-push hook blocked main push) |
+
+#### Phase 4: OCI validation — Concerns, Failure, ADR
+
+| Graph | Outcome | Duration | Scenarios |
+|---|---|---|---|
+| `concerns-test` | succeeded | 49s | #18 |
+| `ops-concerns-test` | succeeded | 43s | #19 |
+| `concerns-test-automerge` | succeeded | 53s | #20 (auto-merge correctly blocked by concerns) |
+| `agent-fails` | expected failure | 23s | #15 (agent declared failure from container) |
+| `blocked-downstream` | expected failure | 43s | #16 (upstream failed, downstream blocked) |
+| `retry-on-gate-failure` | expected failure | 28s | #17 (gate failed, retry exhausted) |
+| `adr-standard` | succeeded | 1m22s | #11 |
+
+#### Phase 5: OCI validation — Workstreams, Roles & Graph Awareness
+
+| Graph | Outcome | Duration | Scenarios |
+|---|---|---|---|
+| `diamond-4-workstreams` | succeeded | 10m41s | #12 (required human merge of integration PR) |
+| `diamond-4-ws-auto-merge` | succeeded | 2m46s | #13 (all 4 integration PRs auto-merged) |
+| `serial-workstream` | succeeded | 2m13s | #14 |
+| `diamond` (1 workstream) | succeeded | 3m01s | — |
+| `auto-merge-2-workstreams` | succeeded | 1m37s | — |
+| `role-pipeline` | succeeded | 4m24s | #4 (spec contradiction correctly flagged as concern) |
+| `graph-awareness-spec-test-impl` | succeeded | 3m17s | #10 |
+
+#### Phase 7: API key credential injection
+
+| Graph | Credential | Outcome | Duration | Scenarios |
+|---|---|---|---|---|
+| `quick-chained` | `dev_api_key` | succeeded | 2m11s | #7 |
+| `isolation-basic-oci` | `dev_api_key` | succeeded | 48s | #7 |
+| `concerns-test` | `dev_api_key` | succeeded | 46s | #7 |
+
+#### Final scenario tracking
+
+| # | Scenario | Status | Notes |
+|---|---|---|---|
+| 1 | Single task in container | pass | Phase 2 baseline + Phase 3 OCI |
+| 2 | Serial task chain in containers | pass | Phase 3 |
+| 3 | Parallel tasks in separate containers | pass | Phase 3 |
+| 4 | Multi-task pipeline with roles and gates | pass | Phase 5, 4-role chain + completion gate |
+| 5 | Token tier differentiation | pass | Phase 3, read-only token correctly blocked |
+| 6 | Permission boundary | pass | Phase 3, pre-push hook enforced |
+| 7 | Anthropic API key injection | pass | Phase 7, env var injection path |
+| 8 | Anthropic OAuth injection | pass | Phase 2 baseline + all OAuth phases |
+| 9 | `inputs_from` resolution | pass | Phase 3 |
+| 10 | Graph awareness (graph YAML mount) | pass | Phase 5 |
+| 11 | ADR instructions in container | pass | Phase 4 |
+| 12 | Diamond across workstreams | pass | Phase 5, human merge required |
+| 13 | Auto-merge with OCI | pass | Phase 5, full diamond auto-merged |
+| 14 | Serial workstream ordering | pass | Phase 5 |
+| 15 | Agent signals failure from container | pass | Phase 4, expected failure |
+| 16 | Blocked downstream after failure | pass | Phase 4, expected failure |
+| 17 | Gate retry exhaustion | pass | Phase 4, expected failure |
+| 18 | Design concern from container | pass | Phase 4 |
+| 19 | Ops concern from container | pass | Phase 4 |
+| 20 | Concerns block auto-merge | pass | Phase 4 |
+
 ---
 
 ## Dependency ordering
@@ -439,16 +533,14 @@ the module overview still render fine. This was marginal before PR B
 (graph_index added 4 nodes) and is a pre-existing limitation of the
 TALA layout engine.
 
-**Proposed fix (this sprint):** Strip private/internal blocks
-(`<<module>>` stereotype, `_`-prefixed) from the detailed diagram source
-and keep them only in the per-module diagrams. Requires a small change
-to `generate_module_diagrams.py` to support a two-tier source (public
-surface in detailed, full internals in per-module). This would
-significantly reduce node count in the detailed layout and restore
-rendering headroom.
+**Proposed fix:** Strip private/internal blocks (`<<module>>` stereotype,
+`_`-prefixed) from the detailed diagram source and keep them only in the
+per-module diagrams. Requires a change to `generate_module_diagrams.py`
+to support a two-tier source (public surface in detailed, full internals
+in per-module).
 
-This can be a standalone PR slotted anywhere in the dependency chain
-(no functional code changes).
+**Status:** Backlogged under "Diagram Tooling" in `docs/BACKLOG.md`.
+Not addressed in this sprint.
 
 ## What comes after this sprint
 
