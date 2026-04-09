@@ -1779,7 +1779,17 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/run_graph.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">349</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
 <span class="normal">350</span>
 <span class="normal">351</span>
 <span class="normal">352</span>
@@ -1917,9 +1927,7 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
 <span class="normal">484</span>
 <span class="normal">485</span>
 <span class="normal">486</span>
-<span class="normal">487</span>
-<span class="normal">488</span>
-<span class="normal">489</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_graph</span><span class="p">(</span>
+<span class="normal">487</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_graph</span><span class="p">(</span>
     <span class="n">graph_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -1969,9 +1977,17 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
     <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">OrchestratorConfig</span><span class="p">()</span>
 
+    <span class="c1"># Resolve tmux session: CLI flag &gt; auto-detect &gt; error.</span>
+    <span class="k">if</span> <span class="n">tmux_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">tmux_session</span> <span class="o">=</span> <span class="n">tmux</span><span class="o">.</span><span class="n">current_session</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">tmux_session</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">_SessionError</span><span class="p">(</span>
+            <span class="s2">&quot;No tmux session specified and not running inside tmux.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Either run from inside a tmux session or use --tmux-session.&quot;</span>
+        <span class="p">)</span>
+
     <span class="p">(</span>
         <span class="n">graph</span><span class="p">,</span>
-        <span class="n">_</span><span class="p">,</span>
         <span class="n">yaml_keep_panes</span><span class="p">,</span>
         <span class="n">tools</span><span class="p">,</span>
         <span class="n">yaml_anthropic_name</span><span class="p">,</span>
@@ -2113,7 +2129,9 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/run_graph.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">492</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
 <span class="normal">493</span>
 <span class="normal">494</span>
 <span class="normal">495</span>
@@ -2151,15 +2169,13 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
 <span class="normal">527</span>
 <span class="normal">528</span>
 <span class="normal">529</span>
-<span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dry_run</span><span class="p">(</span><span class="n">graph_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">530</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dry_run</span><span class="p">(</span><span class="n">graph_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate a graph YAML and print the execution plan.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        graph_path: Path to the graph YAML file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">graph</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">tools</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_load_and_prepare_graph</span><span class="p">(</span><span class="n">graph_path</span><span class="p">)</span>
+    <span class="n">graph</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">tools</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_load_and_prepare_graph</span><span class="p">(</span><span class="n">graph_path</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Graph: </span><span class="si">{</span><span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tasks: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">task_ids</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2216,7 +2232,9 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/run_graph.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">666</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
 <span class="normal">667</span>
 <span class="normal">668</span>
 <span class="normal">669</span>
@@ -2274,9 +2292,7 @@ override; falls back to graph YAML <code>anthropic_credential</code>.</p>
 <span class="normal">721</span>
 <span class="normal">722</span>
 <span class="normal">723</span>
-<span class="normal">724</span>
-<span class="normal">725</span>
-<span class="normal">726</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">724</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI entry point for running an agentrelay task graph.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">_build_parser</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>

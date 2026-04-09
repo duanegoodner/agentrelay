@@ -7817,7 +7817,7 @@ to environment variables.</p>
 
         <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
             <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
         <span class="p">)</span>
@@ -8026,7 +8026,7 @@ and sends it to a new tmux pane.</p>
 
     <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
         <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
     <span class="p">)</span>

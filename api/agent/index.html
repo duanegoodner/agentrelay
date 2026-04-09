@@ -3132,7 +3132,7 @@ the TmuxAddress (session + pane_id) of its running process.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            config: AgentConfig specifying environment.</span>
 <span class="sd">                config.environment must be TmuxEnvironment.</span>
-<span class="sd">            task_id: Identifier for this task (used as tmux window name).</span>
+<span class="sd">            task_id: Window name for the tmux window (typically ``{graph_name}-{task_id}``).</span>
 <span class="sd">            worktree_path: Path to the git worktree where the agent will work.</span>
 <span class="sd">            cmd: Pre-built command string to send to the tmux pane. Typically</span>
 <span class="sd">                constructed by an :class:`AgentFrameworkAdapter` and wrapped</span>
@@ -3266,7 +3266,7 @@ config.environment must be TmuxEnvironment.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Identifier for this task (used as tmux window name).</p>
+                <p>Window name for the tmux window (typically <code>{graph_name}-{task_id}</code>).</p>
               </div>
             </td>
             <td>
@@ -3388,7 +3388,7 @@ by an :class:<code>AgentSandbox</code>.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        config: AgentConfig specifying environment.</span>
 <span class="sd">            config.environment must be TmuxEnvironment.</span>
-<span class="sd">        task_id: Identifier for this task (used as tmux window name).</span>
+<span class="sd">        task_id: Window name for the tmux window (typically ``{graph_name}-{task_id}``).</span>
 <span class="sd">        worktree_path: Path to the git worktree where the agent will work.</span>
 <span class="sd">        cmd: Pre-built command string to send to the tmux pane. Typically</span>
 <span class="sd">            constructed by an :class:`AgentFrameworkAdapter` and wrapped</span>
