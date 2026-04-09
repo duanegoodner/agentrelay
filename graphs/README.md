@@ -7,12 +7,14 @@ definitions and a README with run instructions and verification notes.
 
 | Directory | Purpose |
 |---|---|
-| `smoke/` | Quick validation of core execution paths (chained, parallel) |
+| `smoke/` | Quick validation of core execution paths (chained, parallel, gates, inputs_from) |
 | `concerns/` | Agent concern capture mechanism (concerns.log → orchestrator result) |
 | `failure/` | Task failure signaling, dependency blocking, workstream isolation |
 | `roles/` | Role-specific templates and multi-role pipeline handoff |
-| `workstreams/` | Diamond fan-in topology, cross-workstream dependencies, same-workstream serialization |
+| `workstreams/` | Diamond fan-in topology, cross-workstream dependencies, same-workstream serialization, auto-merge |
 | `isolation/` | Agent sandboxing, credential scoping, and permission boundaries |
+| `graph_awareness/` | Graph YAML delivery and upstream artifact discovery |
+| `adr/` | ADR generation with `adr_verbosity` configuration |
 
 ## Adding a new category
 

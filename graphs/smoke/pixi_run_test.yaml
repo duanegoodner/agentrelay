@@ -16,11 +16,11 @@ tasks:
       value constrained to [lo, hi]. If value < lo, return lo. If
       value > hi, return hi. Otherwise return value. Also handle the
       edge case where lo > hi by swapping them.
-    paths:
-      src:
-        - src/agentrelaydemos/clamp.py
-      test:
-        - test/test_clamp.py
+    tagged_paths:
+      - path: src/agentrelaydemos/clamp.py
+        category: src
+      - path: test/test_clamp.py
+        category: test
     completion_gate: "pixi run pytest test/test_clamp.py -q"
     max_gate_attempts: 3
     dependencies: []

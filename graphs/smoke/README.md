@@ -8,6 +8,8 @@ Quick validation that the core execution paths work end-to-end.
 |---|---|---|
 | `quick_chained.yaml` | A -> B (serial) | Dependency ordering, change propagation via shared workstream |
 | `quick_parallel.yaml` | A \|\| B (parallel) | Separate workstreams, concurrent execution, independent merges |
+| `inputs_from_chain.yaml` | A -> B (inputs_from) | Output-driven composition via `inputs_from` graph YAML extension |
+| `pixi_run_test.yaml` | Single task + gate | Completion gate runs tests before PR merge; implementer role |
 
 ## Running
 

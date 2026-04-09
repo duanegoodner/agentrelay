@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation
 
-> **Status: In progress.** PRs A and B merged (#174, #175). PR C next.
+> **Status: In progress.** PRs A, B, and C merged (#174, #175, #176). PR D next.
 
 ## Goal
 
@@ -268,7 +268,7 @@ of file path.
 
 ---
 
-### PR C: Tmux session auto-detect and window naming
+### PR C: Tmux session auto-detect and window naming — merged (#176)
 
 - Branch: `feat/tmux-auto-session`
 
