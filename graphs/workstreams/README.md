@@ -9,6 +9,8 @@ and same-workstream serialization without explicit dependency edges.
 |---|---|---|
 | `diamond_1_workstream.yaml` | A → B, A → C, B → D, C → D (1 workstream) | Fan-in scheduling: D waits for both B and C. All tasks share a worktree. |
 | `diamond_4_workstreams.yaml` | A → B, A → C, B → D, C → D (4 workstreams) | Cross-workstream dependencies and code visibility. B and C run in parallel. |
+| `diamond_4_workstreams_auto_merge.yaml` | Same diamond (4 workstreams, auto_merge) | Auto-merge of integration PRs after all tasks complete. |
+| `auto_merge_2_workstreams.yaml` | A → B (2 workstreams, auto_merge) | Simple cross-workstream auto-merge with upstream gate. |
 | `serial_workstream.yaml` | A, B, C (no deps, same workstream) | Workstream serialization: tasks execute one at a time in topological order |
 
 ## Running
