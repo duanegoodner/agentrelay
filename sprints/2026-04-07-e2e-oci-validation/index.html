@@ -1527,10 +1527,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-d-graph-consolidation-and-syntax-migration" class="md-nav__link">
+  <a href="#pr-d-graph-consolidation-and-syntax-migration-merged-177" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR D: Graph consolidation and syntax migration
+        PR D: Graph consolidation and syntax migration — merged (#177)
       
     </span>
   </a>
@@ -1545,6 +1545,89 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="PR E: E2E validation runs and fixes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fixes-applied" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixes applied
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-baseline-validation-no-oci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Baseline validation (no OCI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-oci-validation-smoke-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3: OCI validation — Smoke &amp; Isolation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-oci-validation-concerns-failure-adr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4: OCI validation — Concerns, Failure, ADR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-5-oci-validation-workstreams-roles-graph-awareness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 5: OCI validation — Workstreams, Roles &amp; Graph Awareness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-7-api-key-credential-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 7: API key credential injection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#final-scenario-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Final scenario tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1605,7 +1688,7 @@
 
 <h1 id="sprint-plan-2026-04-07-e2e-validation-with-oci-isolation">Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PRs A, B, and C merged (#174, #175, #176). PR D next.</p>
+<p><strong>Status: In progress.</strong> PRs A–D merged (#174–#177). PR E (e2e validation) ready for review.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Validate the complete system end-to-end with OCI containers before
@@ -2154,7 +2237,7 @@ to prevent collisions during parallel runs.</p>
       distinct window names
 - [ ] <code>pixi run check</code> passes</p>
 <hr />
-<h3 id="pr-d-graph-consolidation-and-syntax-migration">PR D: Graph consolidation and syntax migration</h3>
+<h3 id="pr-d-graph-consolidation-and-syntax-migration-merged-177">PR D: Graph consolidation and syntax migration — merged (#177)</h3>
 <ul>
 <li>Branch: <code>feat/graph-consolidation</code></li>
 </ul>
@@ -2231,6 +2314,407 @@ split into several if different categories surface independent issues.</p>
 - [ ] Results documented (which graphs ran, which scenarios covered)
 - [ ] <code>pixi run check</code> passes
 - [ ] No regressions in non-OCI mode</p>
+<h4 id="fixes-applied">Fixes applied</h4>
+<table>
+<thead>
+<tr>
+<th>Fix</th>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parallel run cleanliness check</td>
+<td><code>tools/e2e_run.sh</code></td>
+<td><code>git status --porcelain</code> filter now ignores <code>.workflow/</code>, <code>.worktrees/</code> (graph-namespaced, safe during parallel runs) and <code>pixi.lock</code> (<code>pixi run --manifest-path</code> triggers lock resolution as side effect)</td>
+</tr>
+<tr>
+<td>Graph resumption backlog</td>
+<td><code>docs/BACKLOG.md</code></td>
+<td>Added backlog entry for cross-run graph resumption (detect existing state, skip completed tasks, resume from interruption point)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="phase-2-baseline-validation-no-oci">Phase 2: Baseline validation (no OCI)</h4>
+<p>Confirms graphs pass on current main before adding the OCI variable.
+All three graphs ran concurrently against the same target repo.</p>
+<table>
+<thead>
+<tr>
+<th>Graph</th>
+<th>Sandbox</th>
+<th>Outcome</th>
+<th>Duration</th>
+<th>Tasks</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quick-chained</code></td>
+<td>none</td>
+<td>succeeded</td>
+<td>1m32s</td>
+<td>2 (serial)</td>
+<td>Serial dependency chain</td>
+</tr>
+<tr>
+<td><code>quick-parallel</code></td>
+<td>none</td>
+<td>succeeded</td>
+<td>51s</td>
+<td>2 (parallel)</td>
+<td>Two workstreams, concurrent execution</td>
+</tr>
+<tr>
+<td><code>isolation-basic-oci</code></td>
+<td>oci (native)</td>
+<td>succeeded</td>
+<td>52s</td>
+<td>1</td>
+<td>Single task in Docker container</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Parallel execution validated:</strong> all three graphs launched simultaneously,
+no resource collisions, all succeeded on first attempt (after cleanliness
+check fix).</p>
+<h4 id="phase-3-oci-validation-smoke-isolation">Phase 3: OCI validation — Smoke &amp; Isolation</h4>
+<p>All 7 graphs ran with <code>-S oci</code>. Docker images rebuilt mid-phase to
+include <code>agentrelay-declare</code> CLI wrapper (missing from stale image).</p>
+<table>
+<thead>
+<tr>
+<th>Graph</th>
+<th>Outcome</th>
+<th>Duration</th>
+<th>Scenarios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quick-chained</code></td>
+<td>succeeded</td>
+<td>2m05s</td>
+<td>#2</td>
+</tr>
+<tr>
+<td><code>quick-parallel</code></td>
+<td>succeeded</td>
+<td>1m01s</td>
+<td>#3</td>
+</tr>
+<tr>
+<td><code>inputs-from-chain</code></td>
+<td>succeeded</td>
+<td>5m06s</td>
+<td>#9</td>
+</tr>
+<tr>
+<td><code>gate-pixi-run-test</code></td>
+<td>succeeded</td>
+<td>57s</td>
+<td>#1</td>
+</tr>
+<tr>
+<td><code>isolation-basic-oci</code></td>
+<td>succeeded</td>
+<td>56s</td>
+<td>#1, #8</td>
+</tr>
+<tr>
+<td><code>isolation-token-tiers</code></td>
+<td>expected failure</td>
+<td>1m46s</td>
+<td>#5 (read-only token correctly blocked PR creation)</td>
+</tr>
+<tr>
+<td><code>isolation-permission-boundary</code></td>
+<td>succeeded</td>
+<td>57s</td>
+<td>#6 (pre-push hook blocked main push)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="phase-4-oci-validation-concerns-failure-adr">Phase 4: OCI validation — Concerns, Failure, ADR</h4>
+<table>
+<thead>
+<tr>
+<th>Graph</th>
+<th>Outcome</th>
+<th>Duration</th>
+<th>Scenarios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>concerns-test</code></td>
+<td>succeeded</td>
+<td>49s</td>
+<td>#18</td>
+</tr>
+<tr>
+<td><code>ops-concerns-test</code></td>
+<td>succeeded</td>
+<td>43s</td>
+<td>#19</td>
+</tr>
+<tr>
+<td><code>concerns-test-automerge</code></td>
+<td>succeeded</td>
+<td>53s</td>
+<td>#20 (auto-merge correctly blocked by concerns)</td>
+</tr>
+<tr>
+<td><code>agent-fails</code></td>
+<td>expected failure</td>
+<td>23s</td>
+<td>#15 (agent declared failure from container)</td>
+</tr>
+<tr>
+<td><code>blocked-downstream</code></td>
+<td>expected failure</td>
+<td>43s</td>
+<td>#16 (upstream failed, downstream blocked)</td>
+</tr>
+<tr>
+<td><code>retry-on-gate-failure</code></td>
+<td>expected failure</td>
+<td>28s</td>
+<td>#17 (gate failed, retry exhausted)</td>
+</tr>
+<tr>
+<td><code>adr-standard</code></td>
+<td>succeeded</td>
+<td>1m22s</td>
+<td>#11</td>
+</tr>
+</tbody>
+</table>
+<h4 id="phase-5-oci-validation-workstreams-roles-graph-awareness">Phase 5: OCI validation — Workstreams, Roles &amp; Graph Awareness</h4>
+<table>
+<thead>
+<tr>
+<th>Graph</th>
+<th>Outcome</th>
+<th>Duration</th>
+<th>Scenarios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>diamond-4-workstreams</code></td>
+<td>succeeded</td>
+<td>10m41s</td>
+<td>#12 (required human merge of integration PR)</td>
+</tr>
+<tr>
+<td><code>diamond-4-ws-auto-merge</code></td>
+<td>succeeded</td>
+<td>2m46s</td>
+<td>#13 (all 4 integration PRs auto-merged)</td>
+</tr>
+<tr>
+<td><code>serial-workstream</code></td>
+<td>succeeded</td>
+<td>2m13s</td>
+<td>#14</td>
+</tr>
+<tr>
+<td><code>diamond</code> (1 workstream)</td>
+<td>succeeded</td>
+<td>3m01s</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>auto-merge-2-workstreams</code></td>
+<td>succeeded</td>
+<td>1m37s</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>role-pipeline</code></td>
+<td>succeeded</td>
+<td>4m24s</td>
+<td>#4 (spec contradiction correctly flagged as concern)</td>
+</tr>
+<tr>
+<td><code>graph-awareness-spec-test-impl</code></td>
+<td>succeeded</td>
+<td>3m17s</td>
+<td>#10</td>
+</tr>
+</tbody>
+</table>
+<h4 id="phase-7-api-key-credential-injection">Phase 7: API key credential injection</h4>
+<table>
+<thead>
+<tr>
+<th>Graph</th>
+<th>Credential</th>
+<th>Outcome</th>
+<th>Duration</th>
+<th>Scenarios</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quick-chained</code></td>
+<td><code>dev_api_key</code></td>
+<td>succeeded</td>
+<td>2m11s</td>
+<td>#7</td>
+</tr>
+<tr>
+<td><code>isolation-basic-oci</code></td>
+<td><code>dev_api_key</code></td>
+<td>succeeded</td>
+<td>48s</td>
+<td>#7</td>
+</tr>
+<tr>
+<td><code>concerns-test</code></td>
+<td><code>dev_api_key</code></td>
+<td>succeeded</td>
+<td>46s</td>
+<td>#7</td>
+</tr>
+</tbody>
+</table>
+<h4 id="final-scenario-tracking">Final scenario tracking</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Scenario</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Single task in container</td>
+<td>pass</td>
+<td>Phase 2 baseline + Phase 3 OCI</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Serial task chain in containers</td>
+<td>pass</td>
+<td>Phase 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Parallel tasks in separate containers</td>
+<td>pass</td>
+<td>Phase 3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Multi-task pipeline with roles and gates</td>
+<td>pass</td>
+<td>Phase 5, 4-role chain + completion gate</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Token tier differentiation</td>
+<td>pass</td>
+<td>Phase 3, read-only token correctly blocked</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Permission boundary</td>
+<td>pass</td>
+<td>Phase 3, pre-push hook enforced</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Anthropic API key injection</td>
+<td>pass</td>
+<td>Phase 7, env var injection path</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Anthropic OAuth injection</td>
+<td>pass</td>
+<td>Phase 2 baseline + all OAuth phases</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>inputs_from</code> resolution</td>
+<td>pass</td>
+<td>Phase 3</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Graph awareness (graph YAML mount)</td>
+<td>pass</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td>11</td>
+<td>ADR instructions in container</td>
+<td>pass</td>
+<td>Phase 4</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Diamond across workstreams</td>
+<td>pass</td>
+<td>Phase 5, human merge required</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Auto-merge with OCI</td>
+<td>pass</td>
+<td>Phase 5, full diamond auto-merged</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Serial workstream ordering</td>
+<td>pass</td>
+<td>Phase 5</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Agent signals failure from container</td>
+<td>pass</td>
+<td>Phase 4, expected failure</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Blocked downstream after failure</td>
+<td>pass</td>
+<td>Phase 4, expected failure</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Gate retry exhaustion</td>
+<td>pass</td>
+<td>Phase 4, expected failure</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Design concern from container</td>
+<td>pass</td>
+<td>Phase 4</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Ops concern from container</td>
+<td>pass</td>
+<td>Phase 4</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Concerns block auto-merge</td>
+<td>pass</td>
+<td>Phase 4</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="dependency-ordering">Dependency ordering</h2>
 <div class="highlight"><pre><span></span><code>PR A (short options + sandbox) ─┐
@@ -2255,15 +2739,13 @@ dimension limit (~32k x 28k) on all seeds 0–20. Per-module diagrams and
 the module overview still render fine. This was marginal before PR B
 (graph_index added 4 nodes) and is a pre-existing limitation of the
 TALA layout engine.</p>
-<p><strong>Proposed fix (this sprint):</strong> Strip private/internal blocks
-(<code>&lt;&lt;module&gt;&gt;</code> stereotype, <code>_</code>-prefixed) from the detailed diagram source
-and keep them only in the per-module diagrams. Requires a small change
-to <code>generate_module_diagrams.py</code> to support a two-tier source (public
-surface in detailed, full internals in per-module). This would
-significantly reduce node count in the detailed layout and restore
-rendering headroom.</p>
-<p>This can be a standalone PR slotted anywhere in the dependency chain
-(no functional code changes).</p>
+<p><strong>Proposed fix:</strong> Strip private/internal blocks (<code>&lt;&lt;module&gt;&gt;</code> stereotype,
+<code>_</code>-prefixed) from the detailed diagram source and keep them only in the
+per-module diagrams. Requires a change to <code>generate_module_diagrams.py</code>
+to support a two-tier source (public surface in detailed, full internals
+in per-module).</p>
+<p><strong>Status:</strong> Backlogged under "Diagram Tooling" in <code>docs/BACKLOG.md</code>.
+Not addressed in this sprint.</p>
 <h2 id="what-comes-after-this-sprint">What comes after this sprint</h2>
 <p>Per <code>docs/planning/pre-rust-roadmap.md</code>:</p>
 <ul>

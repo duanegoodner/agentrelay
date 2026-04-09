@@ -1962,6 +1962,20 @@
 <h2 id="core-execution">Core Execution</h2>
 <ul>
 <li>Expand orchestrator support for richer resume hooks and durable state checkpoints.</li>
+<li><strong>Graph resumption across orchestrator runs</strong>: When a graph is re-launched
+  and <code>.workflow/&lt;graph&gt;/</code> already exists from a previous run, the orchestrator
+  should probe the actual state — branches, PRs (open/merged/closed), signal
+  files — and reconcile with the DAG to determine what remains. Completed
+  tasks (merged PR or <code>.done</code> + open PR) are skipped; failed tasks are retried;
+  unstarted tasks proceed normally. This replaces the current "refuse and tell
+  the user to reset" behavior with intelligent resumption. Distinct from
+  intra-run retry (<code>max_task_attempts</code>) which archives attempt artifacts within
+  a single orchestrator session. Touches orchestrator dispatch, signal
+  detection, and branch/PR probing. Consider implementing before the Rust
+  migration: the Python version will be the public-facing testing ground for
+  early users during the conversion, and "reset and re-run the entire graph
+  because task 8 failed" is a poor first experience. Weigh against the risk
+  of scope creep delaying the Rust timeline.</li>
 <li><strong>Human-triggered partial graph re-run</strong>: Allow a human monitoring a graph
   execution to intervene and re-run a subset of tasks — for example, after
   reviewing a missed note that indicates a completed task's output is
@@ -2540,6 +2554,17 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
 <li>Decision point: the Rust migration will rewrite tooling anyway —
     choosing before that avoids carrying two diagram systems across the
     boundary.</li>
+<li><strong>TALA dimension limit: strip internals from detailed diagram</strong>: The
+  detailed diagram (<code>diagram-detailed.d2</code>) now exceeds TALA's internal
+  dimension limit (~32k x 28k) on all seeds 0–20. Per-module diagrams
+  and the module overview still render fine. Proposed fix: strip
+  private/internal blocks (<code>&lt;&lt;module&gt;&gt;</code> stereotype, <code>_</code>-prefixed) from
+  the detailed diagram source and keep them only in the per-module
+  diagrams. Requires a change to <code>generate_module_diagrams.py</code> to
+  support a two-tier source (public surface in detailed, full internals
+  in per-module). This would significantly reduce node count in the
+  detailed layout and restore rendering headroom. No functional code
+  changes — standalone work item.</li>
 </ul>
 <h2 id="documentation">Documentation</h2>
 <ul>
