@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-07: E2E Validation with OCI Isolation
 
-> **Status: In progress.** PRs A–D merged (#174–#177). PR E (e2e validation) ready for review.
+> **Status: Complete.** PRs A–E merged (#174–#178). All 20 e2e OCI scenarios pass.
 
 ## Goal
 
@@ -364,7 +364,7 @@ old `paths:` syntax to `tagged_paths:`.
 
 ---
 
-### PR E: E2E validation runs and fixes
+### PR E: E2E validation runs and fixes — merged (#178)
 
 - Branch: `feat/e2e-oci-validation`
 
@@ -399,11 +399,11 @@ split into several if different categories surface independent issues.
 - Any necessary signal dir or mount path fixes
 
 **Acceptance criteria:**
-- [ ] All 20 scenarios pass with OCI isolation
-- [ ] Both API key and OAuth credential injection validated
-- [ ] Results documented (which graphs ran, which scenarios covered)
-- [ ] `pixi run check` passes
-- [ ] No regressions in non-OCI mode
+- [x] All 20 scenarios pass with OCI isolation
+- [x] Both API key and OAuth credential injection validated
+- [x] Results documented (which graphs ran, which scenarios covered)
+- [x] `pixi run check` passes (1448 tests)
+- [x] No regressions in non-OCI mode
 
 #### Fixes applied
 
