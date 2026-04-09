@@ -57,9 +57,11 @@ if [ ! -d "$TARGET_REPO" ]; then
   exit 1
 fi
 
-# Validate target repo is clean.
+# Validate target repo is clean.  Ignore:
+#   .workflow/, .worktrees/ — created by graph runs, safe during parallel execution
+#   pixi.lock — pixi run --manifest-path may trigger lock resolution as a side effect
 cd "$TARGET_REPO"
-if [ -n "$(git status --porcelain)" ]; then
+if [ -n "$(git status --porcelain | grep -v '^?? \.wor' | grep -v 'pixi\.lock')" ]; then
   echo "Error: target repo has uncommitted changes" >&2
   echo "  $(pwd)" >&2
   exit 1

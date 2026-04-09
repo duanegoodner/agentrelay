@@ -7,6 +7,20 @@ Near-term items for the current architecture track.
 ## Core Execution
 
 - Expand orchestrator support for richer resume hooks and durable state checkpoints.
+- **Graph resumption across orchestrator runs**: When a graph is re-launched
+  and `.workflow/<graph>/` already exists from a previous run, the orchestrator
+  should probe the actual state — branches, PRs (open/merged/closed), signal
+  files — and reconcile with the DAG to determine what remains. Completed
+  tasks (merged PR or `.done` + open PR) are skipped; failed tasks are retried;
+  unstarted tasks proceed normally. This replaces the current "refuse and tell
+  the user to reset" behavior with intelligent resumption. Distinct from
+  intra-run retry (`max_task_attempts`) which archives attempt artifacts within
+  a single orchestrator session. Touches orchestrator dispatch, signal
+  detection, and branch/PR probing. Consider implementing before the Rust
+  migration: the Python version will be the public-facing testing ground for
+  early users during the conversion, and "reset and re-run the entire graph
+  because task 8 failed" is a poor first experience. Weigh against the risk
+  of scope creep delaying the Rust timeline.
 - **Human-triggered partial graph re-run**: Allow a human monitoring a graph
   execution to intervene and re-run a subset of tasks — for example, after
   reviewing a missed note that indicates a completed task's output is
@@ -599,6 +613,17 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   - Decision point: the Rust migration will rewrite tooling anyway —
     choosing before that avoids carrying two diagram systems across the
     boundary.
+- **TALA dimension limit: strip internals from detailed diagram**: The
+  detailed diagram (`diagram-detailed.d2`) now exceeds TALA's internal
+  dimension limit (~32k x 28k) on all seeds 0–20. Per-module diagrams
+  and the module overview still render fine. Proposed fix: strip
+  private/internal blocks (`<<module>>` stereotype, `_`-prefixed) from
+  the detailed diagram source and keep them only in the per-module
+  diagrams. Requires a change to `generate_module_diagrams.py` to
+  support a two-tier source (public surface in detailed, full internals
+  in per-module). This would significantly reduce node count in the
+  detailed layout and restore rendering headroom. No functional code
+  changes — standalone work item.
 
 ## Documentation
 
