@@ -564,13 +564,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
+  <a href="#cli-graph-yaml-configuration-gaps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CLI
+        CLI / Graph YAML Configuration Gaps
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="CLI / Graph YAML Configuration Gaps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#graph-yaml-fields-with-no-cli-equivalent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph YAML fields with no CLI equivalent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-flags-with-no-graph-yaml-equivalent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI flags with no graph YAML equivalent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1681,13 +1709,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli" class="md-nav__link">
+  <a href="#cli-graph-yaml-configuration-gaps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CLI
+        CLI / Graph YAML Configuration Gaps
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="CLI / Graph YAML Configuration Gaps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#graph-yaml-fields-with-no-cli-equivalent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graph YAML fields with no CLI equivalent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cli-flags-with-no-graph-yaml-equivalent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI flags with no graph YAML equivalent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2039,14 +2095,36 @@
   prototype was clumsy but had useful capabilities that shouldn't be
   accidentally dropped.</li>
 </ul>
-<h2 id="cli">CLI</h2>
+<h2 id="cli-graph-yaml-configuration-gaps">CLI / Graph YAML Configuration Gaps</h2>
+<p>Audit of CLI flags vs graph YAML fields (2026-04-10) identified four
+configuration items that exist on only one surface when they should
+exist on both.</p>
+<h3 id="graph-yaml-fields-with-no-cli-equivalent">Graph YAML fields with no CLI equivalent</h3>
 <ul>
-<li><strong>Short options for all named args</strong>: Add single-character short versions
-  for any <code>agentrelay</code> CLI arguments that don't have one yet.</li>
-<li><strong>Fix <code>--max-concurrency</code> help text</strong>: Currently reads "Maximum concurrent
-  task attempts (default: 1)" — should be "Maximum concurrent tasks
-  (default: 1)".</li>
+<li><strong><code>keep_panes</code></strong> (graph-level): Controls whether tmux panes stay open
+  after task completion. No CLI flag. Minor — add <code>--keep-panes</code> /
+  <code>-k</code> boolean flag for debugging convenience.</li>
 </ul>
+<h3 id="cli-flags-with-no-graph-yaml-equivalent">CLI flags with no graph YAML equivalent</h3>
+<p>These three <code>OrchestratorConfig</code> fields are CLI-only. Graph authors
+often know the right values, and forcing CLI specification is friction
+for users running someone else's graph.</p>
+<ul>
+<li><strong><code>max_concurrency</code></strong> (<code>-c</code>): A graph with 4 independent workstreams
+  is designed for <code>-c 4</code>. Add <code>max_concurrency</code> as a graph-level YAML
+  field. Precedence: CLI &gt; YAML &gt; default (1).</li>
+<li><strong><code>max_task_attempts</code></strong> (<code>-a</code>): A graph with flaky tasks might want
+  <code>-a 3</code> by default. Add <code>max_task_attempts</code> as a graph-level YAML
+  field. Precedence: CLI &gt; YAML &gt; default (1).</li>
+<li><strong><code>teardown_mode</code></strong> (<code>-T</code>): Debugging graphs benefit from <code>never</code>.
+  The YAML has <code>keep_panes</code> but not the more general teardown control.
+  Add <code>teardown_mode</code> as a graph-level YAML field. Precedence: CLI &gt;
+  YAML &gt; default (<code>on_success</code>).</li>
+</ul>
+<p>All four follow the established precedence pattern: <strong>CLI &gt; YAML &gt;
+default</strong>. Implementation touches <code>_pop_operational_keys()</code> in
+<code>run_graph.py</code>, <code>_build_config_from_args()</code>, and the graph YAML schema
+docs. No structural changes to the orchestrator or task graph model.</p>
 <h2 id="credential-management">Credential Management</h2>
 <ul>
 <li><strong>Project-specific credentials files</strong>: Currently <code>--credentials</code> takes a
@@ -2213,8 +2291,8 @@
   infrastructure-level failures (Docker, git, GitHub API), which are hard to
   trigger from a graph YAML alone. A graph referencing an invalid OCI image
   (e.g., nonexistent Docker image) would reliably raise during task
-  preparation and could validate both <code>--fail-fast-on-internal-error</code> and
-  <code>--no-fail-fast-on-internal-error</code> behavior. Belongs in <code>graphs/failure/</code>.</li>
+  preparation and could validate both <code>--fail-fast-internal</code> and
+  <code>--no-fail-fast-internal</code> behavior. Belongs in <code>graphs/failure/</code>.</li>
 <li>Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   <code>.workflow/&lt;graph&gt;</code> and <code>.worktrees/&lt;graph&gt;</code> directory names so multiple runs
   of the same graph can coexist. Requires updating <code>reset_graph</code> to discover

@@ -10,7 +10,7 @@
       
       
       
-        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/planning/pre-rust-roadmap/">
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-04-09-cli-cleanup-and-diagram-tooling/">
       
       
       
@@ -23,7 +23,7 @@
     
     
       
-        <title>Pre-Rust Roadmap - agentrelay</title>
+        <title>Sprint Plan — 2026-04-09: CLI Cleanup + Diagram Tooling - agentrelay</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pre-rust-roadmap" class="md-skip">
+        <a href="#sprint-plan-2026-04-09-cli-cleanup-diagram-tooling" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Pre-Rust Roadmap
+              Sprint Plan — 2026-04-09: CLI Cleanup + Diagram Tooling
             
           </span>
         </div>
@@ -1305,44 +1305,44 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#strategic-decisions" class="md-nav__link">
+  <a href="#goal" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Strategic decisions
+        Goal
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Strategic decisions">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decisions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#rust-migration-approach-clean-rewrite-approach-b" class="md-nav__link">
+  <a href="#diagram-tooling-d2-dagre" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Rust migration approach: clean rewrite (Approach B)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#oci-as-the-default-execution-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        OCI as the default execution mode
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#agent-autonomy-guidance-not-restriction" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Agent autonomy: guidance, not restriction
+        Diagram tooling: D2 + dagre
       
     </span>
   </a>
@@ -1355,22 +1355,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#completed-work" class="md-nav__link">
+  <a href="#plan" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Completed work
+        Plan
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Completed work">
+    <nav class="md-nav" aria-label="Plan">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#phase-1-cli-data-model-cleanup" class="md-nav__link">
+  <a href="#pr-a-cli-cleanup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 1: CLI &amp; data model cleanup ✓
+        PR A: CLI cleanup
       
     </span>
   </a>
@@ -1378,10 +1378,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#phase-2-e2e-validation-with-oci-isolation" class="md-nav__link">
+  <a href="#pr-b-switch-diagram-layout-engine-to-dagre" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 2: E2E validation with OCI isolation ✓
+        PR B: Switch diagram layout engine to dagre
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-graph-yaml-fields-for-orchestrator-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: Graph YAML fields for orchestrator config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordering
       
     </span>
   </a>
@@ -1394,160 +1416,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#remaining-work" class="md-nav__link">
+  <a href="#out-of-scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Remaining work
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Remaining work">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#phase-3-cli-cleanup-diagram-tooling" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 3: CLI cleanup + diagram tooling
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Phase 3: CLI cleanup + diagram tooling">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cli-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI cleanup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#diagram-layout-engine-tala-dagre" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Diagram layout engine: TALA → dagre
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-4-graph-resumption-mvp" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 4: Graph resumption (MVP)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-5-documentation-sprint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 5: Documentation sprint
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Phase 5: Documentation sprint">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#readme-overhaul" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        README overhaul
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#design-philosophy-document" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design philosophy document
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#getting-started-guide-refresh" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Getting started guide refresh
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#docs-site-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docs site cleanup
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-6-freeze-python-begin-rust" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 6: Freeze Python, begin Rust
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-not-pre-rust-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What is NOT pre-Rust work
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#success-criteria-for-starting-rust" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Success criteria for starting Rust
+        Out of scope
       
     </span>
   </a>
@@ -1571,314 +1443,184 @@
 
 
 
-<h1 id="pre-rust-roadmap">Pre-Rust Roadmap</h1>
+<h1 id="sprint-plan-2026-04-09-cli-cleanup-diagram-tooling">Sprint Plan — 2026-04-09: CLI Cleanup + Diagram Tooling</h1>
 <blockquote>
-<p><strong>Created</strong>: 2026-04-06
-<strong>Purpose</strong>: Capture the remaining work before freezing Python feature
-development and beginning the Rust migration.</p>
+<p><strong>Status: Planning.</strong></p>
 </blockquote>
-<hr />
-<h2 id="strategic-decisions">Strategic decisions</h2>
-<h3 id="rust-migration-approach-clean-rewrite-approach-b">Rust migration approach: clean rewrite (Approach B)</h3>
-<p>The Rust migration will be a clean rewrite, not an incremental replacement.
-The Python orchestrator will be frozen for new features once this roadmap
-is complete. It remains the working reference implementation and the
-behavioral spec the Rust port reimplements against.</p>
-<p><strong>Why clean rewrite over incremental:</strong>
-- Idiomatic Rust from day one — design for ownership, <code>enum</code> state
-  machines, <code>tokio</code> async, <code>petgraph</code> DAGs. No PyO3 compromises.
-- Clean architecture opportunity — apply lessons learned from Python.
-  Items like signal directory restructure and structured instructions are
-  easier to get right in a greenfield design than to retrofit.
-- Sharp finish line — when the Rust version passes the same e2e tests,
-  it's done.
-- The Python version is the spec — every behavior is implemented and
-  tested. Rust doesn't guess; it reimplements known-correct behavior.</p>
-<p><strong>What this means for Python feature work:</strong> Only items that improve the
-e2e testing experience (since e2e tests become the Rust rewrite's
-acceptance criteria) or that unify the data model (so the Rust port builds
-on a clean foundation) are worth doing. Speculative features, heavy
-infrastructure, and design-heavy items are Rust-era work.</p>
-<p>See <code>docs/BACKLOG.md</code> (Rust Migration section) and
-<code>docs/discussions/OPENROUTER_BIFROST_RUST.md</code> for full rationale.</p>
-<h3 id="oci-as-the-default-execution-mode">OCI as the default execution mode</h3>
-<p>OCI container isolation should be the recommended default for running
-agentrelay. There is no capability lost by running in a container — the
-isolation levels provide a spectrum from relaxed to strict, and "relaxed"
-is a property you configure on a container, not a reason to skip
-containers.</p>
-<p><strong><code>SandboxType.NONE</code> remains supported</strong> as an explicit opt-out for:
-- Development/debugging of agentrelay itself (fastest feedback loop)
-- First-time setup / onboarding (Docker/Podman is a barrier)
-- CI environments that already provide isolation</p>
-<p><strong>What this means concretely:</strong>
-- Graph YAML examples and docs default to <code>sandbox: oci</code>
-- <code>SandboxType.NONE</code> documented as "development/debugging mode"
-- E2e test graphs primarily run in OCI mode
-- New features designed OCI-first (work in containers, degrade gracefully
-  without)</p>
-<p>This is a docs/convention/priority shift, not a code change.</p>
-<h3 id="agent-autonomy-guidance-not-restriction">Agent autonomy: guidance, not restriction</h3>
-<p><code>inputs_from</code> and other orchestrator-provided context are <strong>convenience
-and contract mechanisms</strong>, not access control. Agents retain full graph
-awareness and can explore beyond declared inputs.</p>
-<p><strong>Current posture:</strong> Flexible by default in dev mode. Observe what agents
-do with broad context before designing restrictions. Premature isolation
-blocks learning.</p>
-<p><strong>Path to restrictions:</strong> OCI isolation provides the substrate for precise
-access control via container bind mount scoping. Per-task filesystem
-restrictions and signal dir visibility controls are in the backlog,
-deferred not because they're hard, but because observation data is needed
-to know which restrictions matter.</p>
-<p>See the "Design philosophy" section of
-<code>docs/sprints/complete/2026-04-05-output-composition-and-polish.md</code> for
-the full rationale.</p>
-<hr />
-<h2 id="completed-work">Completed work</h2>
-<h3 id="phase-1-cli-data-model-cleanup">Phase 1: CLI &amp; data model cleanup ✓</h3>
-<blockquote>
-<p>Sprint 2026-04-06 (PRs #169–#171). 1348 tests.</p>
-</blockquote>
-<ul>
-<li><strong><code>agentrelay</code> top-level CLI</strong> (PR #169): <code>cli.py</code> with subcommands
-  <code>run</code>, <code>reset</code>, <code>check</code>, <code>dry-run</code>, <code>list</code>. <code>--target-repo</code> defaults
-  to current directory.</li>
-<li><strong><code>TaggedPath</code> replaces <code>TaskPaths</code></strong> (PR #170): <code>TaskPaths</code> removed,
-  category-based input resolution is the unified model. <code>paths:</code> sugar
-  preserved for backward compatibility.</li>
-<li><strong>TALA diagram fix</strong> (PR #171): <code>--tala-seeds</code> workaround for TALA
-  dimension limit.</li>
-</ul>
-<h3 id="phase-2-e2e-validation-with-oci-isolation">Phase 2: E2E validation with OCI isolation ✓</h3>
-<blockquote>
-<p>Sprint 2026-04-07 (PRs #174–#178). 1448 tests.</p>
-</blockquote>
-<ul>
-<li><strong>CLI short options + <code>--sandbox</code> override</strong> (PR #174)</li>
-<li><strong>Graph index + name-based selection</strong> (PR #175): <code>agentrelay list -g</code></li>
-<li><strong>Tmux session auto-detect</strong> (PR #176): TTY verification + window naming</li>
-<li><strong>Graph consolidation</strong> (PR #177): 29 → 21 graphs across 8 categories</li>
-<li><strong>E2E OCI validation</strong> (PR #178): all 20 scenarios pass with OCI
-  isolation, both API key and OAuth credential paths validated</li>
-</ul>
-<hr />
-<h2 id="remaining-work">Remaining work</h2>
-<h3 id="phase-3-cli-cleanup-diagram-tooling">Phase 3: CLI cleanup + diagram tooling</h3>
-<p><strong>Goal:</strong> Clear small debts and settle the diagram tooling stack so
-later sprints build on a clean foundation.</p>
-<h4 id="cli-cleanup">CLI cleanup</h4>
-<p>Minor fixes surfaced during Phase 2:</p>
-<ul>
-<li><strong>Fix <code>--max-concurrency</code> help text</strong>: Currently reads "Maximum
-  concurrent task attempts" — should be "Maximum concurrent tasks".
-  Two locations: <code>cli.py</code> and <code>run_graph.py</code>.</li>
-<li><strong>Short options for remaining args</strong>: <code>--max-task-attempts</code>,
-  <code>--teardown-mode</code>, <code>--anthropic-credential</code>, <code>--dry-run</code> lack short
-  forms. The <code>--fail-fast-*</code> flags are awkward to shorten due to
-  <code>BooleanOptionalAction</code> — may leave as-is.</li>
-</ul>
-<p>Small effort — half-day PR.</p>
-<h4 id="diagram-layout-engine-tala-dagre">Diagram layout engine: TALA → dagre</h4>
-<p>The current setup (D2 + TALA) hits TALA's internal dimension limits on
-the detailed diagram. TALA is closed-source and Terrastruct appears
-dormant since October 2025. The <code>--tala-seeds</code> workaround is fragile.</p>
-<p><strong>Decision:</strong> Switch to dagre (bundled with D2, no external dependency).
-Keep all <code>.d2</code> source files unchanged — this is a layout engine swap,
-not a format migration. ELK, PlantUML, and Mermaid were evaluated
-earlier; dagre has not been tried. If dagre layout quality is
-unacceptable, PlantUML is the fallback.</p>
-<p><strong>Scope:</strong> Small — change <code>render_diagrams.sh</code>, re-render SVGs, update
-docs. No <code>.d2</code> source or <code>generate_module_diagrams.py</code> changes needed.</p>
-<h3 id="phase-4-graph-resumption-mvp">Phase 4: Graph resumption (MVP)</h3>
-<p><strong>Goal:</strong> Make it easy to pick up where you left off — the
-highest-value improvement for anyone tinkering with the project.</p>
-<p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
-probe the actual state on disk and resume instead of refusing.</p>
-<p><strong>Why now:</strong> The backlog notes that <em>"the Python version will be the
-public-facing testing ground for early users during the conversion,
-and 'reset and re-run the entire graph because task 8 failed' is a
-poor first experience."</em> This is the highest-value user-facing
-improvement for tinkerers.</p>
-<p><strong>Architecture advantage:</strong> Task status is already derived from signal
-files on disk (<code>_read_task_status_from_signals()</code>), not stored in
-memory. The building blocks for resumption exist.</p>
-<p><strong>MVP scope:</strong>
-1. Replace conflict check in <code>run_graph.py</code> with state probing
-   (auto-detect resume)
-2. <code>TaskRuntimeBuilder.from_disk()</code> / <code>WorkstreamRuntimeBuilder.from_disk()</code>
-   — reconstruct runtimes from signal files and filesystem state
-3. Resume-aware worktree/branch preparation (skip re-creation if exists)
-4. Tests</p>
-<p><strong>What the MVP skips</strong> (deferred to Rust):
-- Cross-session retry of failed tasks
-- Corruption detection / worktree validation
-- Partial re-run of specific task subsets
-- Human-triggered re-run of completed tasks</p>
-<p><strong>What it delivers:</strong> "Graph interrupted or task 8 failed? Re-run
-<code>agentrelay run &lt;graph&gt;</code>. Completed tasks skip, failed tasks retry,
-unstarted tasks proceed."</p>
-<p>Estimated effort: 2–3 days.</p>
-<h3 id="phase-5-documentation-sprint">Phase 5: Documentation sprint</h3>
-<p><strong>Goal:</strong> Make the project legible to outsiders. The Python codebase is
-feature-complete (1448 tests, 21 e2e graphs, full OCI support) — the
-gap is not capability but discoverability.</p>
-<h4 id="readme-overhaul">README overhaul</h4>
-<p>The current README still says <em>"End-to-end execution currently lives in
-<code>prototypes/v01</code>"</em> — actively misleading. Rewrite to reflect reality:
-- What agentrelay does (one paragraph)
-- A graph YAML example
-- An <code>agentrelay run</code> invocation and what happens (tmux panes, PRs,
-  signal files)
-- Getting started steps (pixi, Claude Code, credentials, target repo)</p>
-<h4 id="design-philosophy-document">Design philosophy document</h4>
-<p>Consolidate distinctive ideas scattered across sprint docs, discussions,
-and backlog into a single coherent document:
-- Observation-before-enforcement
-- Guidance-not-restriction for agent autonomy
-- Signal-file-backed state as source of truth
-- SDK-over-roles
-- OCI isolation spectrum (flexible default, precise knobs for production)
-- Diagrammability as a design constraint
-- YAML-as-contract (graph YAML is the unit of work definition)</p>
-<p>This is what gets the project into the community conversation — people
-engage with ideas, not just code.</p>
-<h4 id="getting-started-guide-refresh">Getting started guide refresh</h4>
-<p>Update <code>docs/GUIDE.md</code> with a walkthrough: install → configure
-credentials → write a simple graph → run it → inspect results. OCI
-as the documented default.</p>
-<h4 id="docs-site-cleanup">Docs site cleanup</h4>
-<ul>
-<li>Fix API reference rendering issues (Sphinx-isms in docstrings)</li>
-<li>Remove stale prototype references</li>
-<li>Ensure the mkdocs site at duanegoodner.github.io/agentrelay works well</li>
-</ul>
-<h3 id="phase-6-freeze-python-begin-rust">Phase 6: Freeze Python, begin Rust</h3>
-<p><strong>Gate:</strong> Phases 3–5 complete. Diagram tooling is settled, graph
-resumption works, documentation reflects the current system.</p>
-<p><strong>Actions:</strong>
-- Mark the Python codebase as frozen for new features
-- Critical bugfixes can still land if discovered
-- Begin Rust rewrite as a separate project/repo (or a <code>rust/</code> subdirectory)
-- The Python test suite and e2e graphs become the Rust port's acceptance
-  criteria</p>
-<hr />
-<h2 id="what-is-not-pre-rust-work">What is NOT pre-Rust work</h2>
-<p>These backlog items are explicitly deferred to the Rust migration:</p>
+<h2 id="goal">Goal</h2>
+<p>Clear small CLI debts and settle the diagram tooling stack so later
+sprints (graph resumption, documentation) build on a clean foundation.</p>
+<p>This is Phase 3 of the pre-Rust roadmap.</p>
+<h2 id="context">Context</h2>
+<p>Sprint 2026-04-07 completed Phase 2 — all 20 e2e OCI scenarios pass,
+1448 tests, graph inventory consolidated from 29 to 21 graphs. The
+Python orchestrator's feature surface is proven. What remains before the
+Rust freeze is usability polish (this sprint + graph resumption) and
+documentation.</p>
+<p>Two issues surfaced during Phase 2:</p>
+<ol>
+<li>
+<p><strong>CLI rough edges.</strong> The <code>--max-concurrency</code> help text is wrong
+   ("task attempts" instead of "tasks"), and several arguments still lack
+   short options.</p>
+</li>
+<li>
+<p><strong>Diagram tooling fragility.</strong> The detailed diagram exceeds TALA's
+   internal dimension limits. A <code>--tala-seeds</code> workaround keeps it
+   rendering, but TALA is closed-source and Terrastruct appears dormant
+   since October 2025. Per-module diagrams render fine. The Rust
+   migration will rewrite diagram tooling — choosing now avoids carrying
+   two systems across the boundary.</p>
+</li>
+</ol>
+<h2 id="decisions">Decisions</h2>
+<h3 id="diagram-tooling-d2-dagre">Diagram tooling: D2 + dagre</h3>
+<p><strong>Decision:</strong> Switch from TALA to dagre as the D2 layout engine.</p>
+<p>ELK, PlantUML, and Mermaid were evaluated earlier in the project. Dagre
+has not been tried yet. It is bundled with D2 (no external dependency),
+has no dimension limits, and — critically — requires zero changes to
+<code>.d2</code> source files. The migration is a layout engine swap, not a format
+rewrite.</p>
+<p><strong>Trade-offs accepted:</strong>
+- Layout quality will be less compact than TALA. Acceptable — the
+  per-module diagrams (5–15 classes each) are where readability matters
+  most, and dagre handles those well.
+- D2 itself depends on Terrastruct (dormancy risk). Accepted for now —
+  the <code>.d2</code> syntax is human-readable and could be mechanically converted
+  to another format later if needed. The Rust port will regenerate
+  diagrams from scratch regardless.</p>
+<p><strong>If dagre layout quality is unacceptable:</strong> Re-evaluate PlantUML as
+the fallback. The <code>.d2</code> source files would need conversion, but
+<code>generate_module_diagrams.py</code> already parses the D2 structure and could
+emit PlantUML instead.</p>
+<h2 id="plan">Plan</h2>
+<h3 id="pr-a-cli-cleanup">PR A: CLI cleanup</h3>
+<p><strong>Scope:</strong> Half-day effort.</p>
+<p><strong>Changes:</strong>
+1. Fix <code>--max-concurrency</code> help text in <code>cli.py</code> and <code>run_graph.py</code>:
+   "Maximum concurrent task attempts" → "Maximum concurrent tasks"
+2. Add short options for arguments that lack them:
+   - <code>-a</code> → <code>--max-task-attempts</code> (or <code>-A</code>; avoid collision with <code>-a</code>
+     if used elsewhere)
+   - <code>-d</code> → <code>--dry-run</code>
+   - <code>-T</code> → <code>--teardown-mode</code>
+   - <code>--anthropic-credential</code> — evaluate whether a short form is
+     warranted (long flag, infrequent use)
+   - <code>--fail-fast-*</code> — leave as-is (<code>BooleanOptionalAction</code> makes
+     short forms awkward)
+   - <code>-e</code> → <code>--env</code> on the <code>check</code> subcommand
+3. Keep <code>cli.py</code> and <code>run_graph.py</code> help text in sync.</p>
+<p><strong>Files touched:</strong> <code>src/agentrelay/cli.py</code>, <code>src/agentrelay/run_graph.py</code>,
+tests for CLI argument parsing.</p>
+<h3 id="pr-b-switch-diagram-layout-engine-to-dagre">PR B: Switch diagram layout engine to dagre</h3>
+<p><strong>Scope:</strong> Small — no <code>.d2</code> source file changes needed. The migration is
+a config change + re-render + doc updates.</p>
+<p><strong>Changes:</strong>
+1. In <code>tools/render_diagrams.sh</code>:
+   - Change <code>RENDER_LAYOUT="tala"</code> → <code>RENDER_LAYOUT="dagre"</code>
+   - Remove <code>DETAILED_TALA_SEEDS</code> variable and <code>--tala-seeds</code> flag
+   - May need to adjust <code>RENDER_SCALE</code> / <code>RENDER_PAD</code> for dagre output
+2. Re-render all SVGs with dagre:
+   - <code>docs/diagrams/uml/diagram-detailed.svg</code>
+   - <code>docs/diagrams/uml/diagram-modules.svg</code>
+   - 18 per-module SVGs in <code>docs/diagrams/uml/modules/</code>
+3. Visually review rendered output — especially the detailed diagram and
+   a few representative per-module diagrams. If dagre layout quality is
+   unacceptable, document what's wrong and evaluate PlantUML as fallback.
+4. Update docs:
+   - <code>docs/DIAGRAM.md</code> — remove TALA references, note dagre
+   - <code>CLAUDE.md</code> — remove TALA/<code>d2plugin-tala</code> requirement if mentioned
+   - <code>docs/BACKLOG.md</code> — update diagram tooling section to reflect
+     decision
+5. Remove TALA-specific backlog items (seeds workaround, dimension limit
+   stripping proposal) if dagre resolves them.</p>
+<p><strong>Files touched:</strong>
+- <code>tools/render_diagrams.sh</code> (layout engine + remove seeds)
+- <code>docs/diagrams/uml/</code> — re-rendered SVGs (no <code>.d2</code> source changes)
+- <code>docs/DIAGRAM.md</code>, <code>CLAUDE.md</code>, <code>docs/BACKLOG.md</code> (doc updates)</p>
+<h3 id="pr-c-graph-yaml-fields-for-orchestrator-config">PR C: Graph YAML fields for orchestrator config</h3>
+<p><strong>Scope:</strong> Small — same pattern as existing <code>fail_fast_*</code> YAML fields.</p>
+<p>An audit of CLI flags vs graph YAML fields (2026-04-10) identified
+three <code>OrchestratorConfig</code> fields that are CLI-only with no YAML
+equivalent, plus one YAML field (<code>keep_panes</code>) with no CLI flag.
+Graph authors often know the right values for these settings, and
+forcing CLI specification is friction for users running someone
+else's graph.</p>
+<p><strong>New graph-level YAML fields</strong> (all optional, CLI overrides YAML):</p>
 <table>
 <thead>
 <tr>
-<th>Item</th>
-<th>Why defer</th>
+<th>YAML field</th>
+<th>CLI flag</th>
+<th>Default</th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>expected_outputs</code> graph YAML extension</td>
-<td>Better with compile-time validation</td>
+<td><code>max_concurrency</code></td>
+<td><code>-c</code></td>
+<td>1</td>
+<td>Graph with 4 workstreams should say <code>max_concurrency: 4</code></td>
 </tr>
 <tr>
-<td>Role template simplification</td>
-<td>Observe <code>inputs_from</code> dynamics first</td>
+<td><code>max_task_attempts</code></td>
+<td><code>-a</code></td>
+<td>1</td>
+<td>Graph with flaky tasks can set retry budget</td>
 </tr>
 <tr>
-<td>Typed output categories</td>
-<td>Needs real e2e usage data</td>
-</tr>
-<tr>
-<td>Human-triggered partial re-run</td>
-<td>Significant design, Rust state machine</td>
-</tr>
-<tr>
-<td>Orchestrator-driven partial re-run</td>
-<td>Depends on above</td>
-</tr>
-<tr>
-<td>Human intervention on task failure</td>
-<td>Same family as partial re-run</td>
-</tr>
-<tr>
-<td>Cross-session retry of failed tasks</td>
-<td>Layer on top of resumption MVP in Rust</td>
-</tr>
-<tr>
-<td>Resumption corruption detection</td>
-<td>Needs Rust ownership model</td>
-</tr>
-<tr>
-<td>Auto-suffix for concurrent same-graph runs</td>
-<td>Convenience, low priority</td>
-</tr>
-<tr>
-<td>Durable state checkpoints</td>
-<td>Architectural plumbing</td>
-</tr>
-<tr>
-<td>Multi-graph orchestration</td>
-<td>Explicitly Rust-era</td>
-</tr>
-<tr>
-<td>Signal directory restructure</td>
-<td>High touch-count, better in greenfield</td>
-</tr>
-<tr>
-<td>Structured concern definitions</td>
-<td>Rust-era instruction architecture</td>
-</tr>
-<tr>
-<td><code>agentrelay-note</code> / <code>agentrelay-read</code></td>
-<td>Context sharing messaging</td>
-</tr>
-<tr>
-<td>Agent-assisted integration merging</td>
-<td>Complex, benefits from Rust</td>
-</tr>
-<tr>
-<td>Orchestrator log files</td>
-<td>Architectural plumbing</td>
-</tr>
-<tr>
-<td>Rust migration phases</td>
-<td>Engine proxy → graph runner → full harness</td>
+<td><code>teardown_mode</code></td>
+<td><code>-T</code></td>
+<td><code>on_success</code></td>
+<td>Debugging graphs benefit from <code>never</code></td>
 </tr>
 </tbody>
 </table>
-<p>See <code>docs/BACKLOG.md</code> for full descriptions of each item.</p>
-<hr />
-<h2 id="success-criteria-for-starting-rust">Success criteria for starting Rust</h2>
-<p>The Python version is ready to freeze when:</p>
-<ol>
-<li>
-<p>✅ <strong>The <code>agentrelay</code> CLI exists</strong> as a user-facing entry point (PR #169).</p>
-</li>
-<li>
-<p>✅ <strong>The data model is unified.</strong> <code>TaskPaths</code> removed, <code>TaggedPath</code> +
-   category-based input resolution is the single mechanism (PR #170).</p>
-</li>
-<li>
-<p>✅ <strong>E2E tests pass with OCI isolation</strong> across representative graph
-   categories — all 20 scenarios (PR #178).</p>
-</li>
-<li>
-<p><strong>Diagram tooling is settled.</strong> A sustainable rendering stack is chosen
-   and migrated to, so the Rust project inherits a working pipeline.
-   (Phase 3)</p>
-</li>
-<li>
-<p><strong>A partial graph run can be resumed</strong> without resetting and re-running
-   everything. Completed tasks are skipped, failed tasks retry, unstarted
-   tasks proceed. (Phase 4 — MVP)</p>
-</li>
-<li>
-<p><strong>A new user can understand what agentrelay does and try it</strong> from the
-   README and docs alone — without reading source code or sprint docs.
-   (Phase 5)</p>
-</li>
-<li>
-<p><strong>Documentation reflects the current state</strong> — OCI as default, current
-   CLI surface, design philosophy articulated, no stale references to
-   removed features or prototype layer. (Phase 5)</p>
-</li>
-</ol>
+<p><strong>New CLI flag</strong> (YAML field already exists):</p>
+<table>
+<thead>
+<tr>
+<th>CLI flag</th>
+<th>YAML field</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-k, --keep-panes</code></td>
+<td><code>keep_panes</code></td>
+<td>false</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Precedence:</strong> CLI &gt; YAML &gt; default (same pattern as <code>fail_fast_*</code>).</p>
+<p><strong>Changes:</strong>
+1. <code>run_graph.py</code> — <code>_pop_operational_keys()</code>: extract three new fields
+   from raw YAML dict
+2. <code>run_graph.py</code> — <code>run_graph()</code>: accept YAML values, merge with CLI
+   using CLI-wins precedence, pass to <code>_build_config_from_args()</code> or
+   <code>OrchestratorConfig</code> construction
+3. <code>cli.py</code> — add <code>-k, --keep-panes</code> boolean flag; wire through to
+   <code>run_graph()</code>
+4. <code>run_graph.py</code> <code>_build_parser()</code> — add <code>-k, --keep-panes</code>
+5. Tests: extend <code>test_cli.py</code> and <code>test_run_graph.py</code> with YAML
+   override + CLI precedence tests
+6. Docs: update <code>CLAUDE.md</code> graph YAML schema, <code>docs/GUIDE.md</code> flags
+   table, <code>docs/BACKLOG.md</code> (mark resolved)</p>
+<p><strong>Files touched:</strong> <code>cli.py</code>, <code>run_graph.py</code>, <code>test_cli.py</code>,
+<code>test_run_graph.py</code>, <code>CLAUDE.md</code>, <code>docs/GUIDE.md</code>, <code>docs/BACKLOG.md</code></p>
+<h3 id="ordering">Ordering</h3>
+<p>PRs A, B, and C are independent and can be developed in parallel. None
+touches runtime code (PR C changes CLI plumbing and YAML extraction,
+not the orchestrator itself).</p>
+<h2 id="out-of-scope">Out of scope</h2>
+<ul>
+<li>Graph resumption (Phase 4 — next sprint)</li>
+<li>Documentation overhaul (Phase 5)</li>
+<li>New features or runtime code changes</li>
+<li>Backlog items deferred to Rust (see <code>docs/planning/pre-rust-roadmap.md</code>)</li>
+</ul>
 
 
 

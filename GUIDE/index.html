@@ -1665,52 +1665,52 @@ agentrelay<span class="w"> </span>run<span class="w"> </span>graphs/smoke/quick_
 <td>current directory</td>
 </tr>
 <tr>
-<td><code>--dry-run</code></td>
+<td><code>-d, --dry-run</code></td>
 <td>Validate and print plan without running</td>
 <td></td>
 </tr>
 <tr>
-<td><code>--max-concurrency N</code></td>
-<td>Max concurrent task attempts</td>
+<td><code>-c, --max-concurrency N</code></td>
+<td>Max concurrent tasks</td>
 <td>1</td>
 </tr>
 <tr>
-<td><code>--max-task-attempts N</code></td>
+<td><code>-a, --max-task-attempts N</code></td>
 <td>Max attempts per task</td>
 <td>1</td>
 </tr>
 <tr>
-<td><code>--teardown-mode MODE</code></td>
+<td><code>-T, --teardown-mode MODE</code></td>
 <td><code>always</code>, <code>never</code>, or <code>on_success</code></td>
 <td><code>on_success</code></td>
 </tr>
 <tr>
-<td><code>--tmux-session NAME</code></td>
+<td><code>-s, --tmux-session NAME</code></td>
 <td>Override tmux session name</td>
-<td><code>agentrelay</code></td>
+<td>auto-detected</td>
 </tr>
 <tr>
-<td><code>--model MODEL</code></td>
+<td><code>-m, --model MODEL</code></td>
 <td>Override model for all agents</td>
 <td>per-task default</td>
 </tr>
 <tr>
-<td><code>--credentials PATH</code></td>
+<td><code>-C, --credentials PATH</code></td>
 <td>Path to credentials YAML for sandboxed agents</td>
 <td></td>
 </tr>
 <tr>
-<td><code>--anthropic-credential NAME</code></td>
+<td><code>-A, --anthropic-credential NAME</code></td>
 <td>Name of Anthropic credential from credentials YAML</td>
 <td></td>
 </tr>
 <tr>
-<td><code>--fail-fast-on-workstream-error</code></td>
+<td><code>-W, --fail-fast-workstream</code></td>
 <td>Stop preparing new workstreams after failure</td>
 <td><code>false</code></td>
 </tr>
 <tr>
-<td><code>--fail-fast-on-internal-error</code></td>
+<td><code>-I, --fail-fast-internal</code></td>
 <td>Stop on internal orchestrator errors</td>
 <td><code>true</code></td>
 </tr>
