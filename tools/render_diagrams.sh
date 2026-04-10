@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ── D2 style defaults (all diagrams) ────────────────────────────────
-D2_DIRECTION="right"
+D2_DIRECTION="down"
 D2_FONT_SIZE=50           # **.style.font-size (nested elements)
 D2_LABEL_FONT_SIZE=100    # *.style.font-size (top-level container labels)
 
@@ -12,15 +12,9 @@ D2_CONNECTOR_FONT_SIZE=55
 D2_SOLID_STROKE_COLOR="#333333"
 
 # ── Render defaults (all diagrams) ──────────────────────────────────
-RENDER_LAYOUT="tala"
+RENDER_LAYOUT="elk"
 RENDER_SCALE=0.3
 RENDER_PAD=50
-
-# Seeds that produce layouts within TALA's dimension limits for the
-# detailed diagram (~80+ classes). TALA runs all seeds in parallel and
-# picks the best result.  Re-scan if the diagram grows significantly:
-#   for s in $(seq 0 20); do ... --tala-seeds "$s" ... ; done
-DETAILED_TALA_SEEDS="4,6,11,13,14"
 
 # ── Build the D2 preamble (globals + style classes) ──────────────────
 build_preamble() {
@@ -75,15 +69,6 @@ while IFS= read -r line; do
 done < <(build_preamble)
 
 python -m tools.generate_module_diagrams "${preamble_args[@]}"
-
-# ── Render diagram-detailed SVG ──────────────────────────────────────
-{
-  build_preamble
-  echo ""
-  cat "docs/diagrams/uml/diagram-detailed.d2"
-} | d2 --layout "$RENDER_LAYOUT" --scale "$RENDER_SCALE" --pad "$RENDER_PAD" \
-    --tala-seeds "$DETAILED_TALA_SEEDS" \
-    - "docs/diagrams/uml/diagram-detailed.svg"
 
 # ── Render per-module SVGs ───────────────────────────────────────────
 MODULE_DIR="docs/diagrams/uml/modules"
