@@ -1339,10 +1339,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#diagram-tooling-d2-dagre" class="md-nav__link">
+  <a href="#diagram-tooling-d2-elk-drop-monolith-diagram" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Diagram tooling: D2 + dagre
+        Diagram tooling: D2 + ELK, drop monolith diagram
       
     </span>
   </a>
@@ -1378,10 +1378,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b-switch-diagram-layout-engine-to-dagre" class="md-nav__link">
+  <a href="#pr-b-switch-to-elk-layout-engine-drop-monolith-diagram" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B: Switch diagram layout engine to dagre
+        PR B: Switch to ELK layout engine, drop monolith diagram
       
     </span>
   </a>
@@ -1393,6 +1393,17 @@
     <span class="md-ellipsis">
       
         PR C: Graph YAML fields for orchestrator config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-d-fix-oci-container-cleanup-on-task-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR D: Fix OCI container cleanup on task retry
       
     </span>
   </a>
@@ -1474,25 +1485,22 @@ documentation.</p>
 </li>
 </ol>
 <h2 id="decisions">Decisions</h2>
-<h3 id="diagram-tooling-d2-dagre">Diagram tooling: D2 + dagre</h3>
-<p><strong>Decision:</strong> Switch from TALA to dagre as the D2 layout engine.</p>
-<p>ELK, PlantUML, and Mermaid were evaluated earlier in the project. Dagre
-has not been tried yet. It is bundled with D2 (no external dependency),
-has no dimension limits, and — critically — requires zero changes to
-<code>.d2</code> source files. The migration is a layout engine swap, not a format
-rewrite.</p>
-<p><strong>Trade-offs accepted:</strong>
-- Layout quality will be less compact than TALA. Acceptable — the
-  per-module diagrams (5–15 classes each) are where readability matters
-  most, and dagre handles those well.
-- D2 itself depends on Terrastruct (dormancy risk). Accepted for now —
-  the <code>.d2</code> syntax is human-readable and could be mechanically converted
-  to another format later if needed. The Rust port will regenerate
-  diagrams from scratch regardless.</p>
-<p><strong>If dagre layout quality is unacceptable:</strong> Re-evaluate PlantUML as
-the fallback. The <code>.d2</code> source files would need conversion, but
-<code>generate_module_diagrams.py</code> already parses the D2 structure and could
-emit PlantUML instead.</p>
+<h3 id="diagram-tooling-d2-elk-drop-monolith-diagram">Diagram tooling: D2 + ELK, drop monolith diagram</h3>
+<p><strong>Decision:</strong> Switch from TALA to ELK as the D2 layout engine, and
+stop rendering the 80+ class detailed monolith diagram as a single SVG.</p>
+<p><strong>Layout engine:</strong> ELK is bundled with D2 (no external dependency,
+no license required), actively maintained by Eclipse, and handles any
+diagram size. Dagre was tried first but crashes on the detailed diagram
+(<code>TypeError</code> in the Go port for large inputs). TALA had dimension
+limits and depends on closed-source, dormant Terrastruct.</p>
+<p><strong>Drop the monolith:</strong> The detailed diagram (<code>diagram-detailed.d2</code>)
+remains as the authoritative D2 source — <code>generate_module_diagrams.py</code>
+parses it to produce per-module diagrams and the module overview. But
+it is no longer rendered as a single SVG. The 80+ class monolith was
+too large to be useful to human viewers. The module overview + 18
+per-module diagrams provide better navigation.</p>
+<p><strong>Future:</strong> An interactive module overview (click/hover to see per-module
+detail) is planned for the documentation sprint (Phase 5).</p>
 <h2 id="plan">Plan</h2>
 <h3 id="pr-a-cli-cleanup">PR A: CLI cleanup</h3>
 <p><strong>Scope:</strong> Half-day effort.</p>
@@ -1512,32 +1520,35 @@ emit PlantUML instead.</p>
 3. Keep <code>cli.py</code> and <code>run_graph.py</code> help text in sync.</p>
 <p><strong>Files touched:</strong> <code>src/agentrelay/cli.py</code>, <code>src/agentrelay/run_graph.py</code>,
 tests for CLI argument parsing.</p>
-<h3 id="pr-b-switch-diagram-layout-engine-to-dagre">PR B: Switch diagram layout engine to dagre</h3>
-<p><strong>Scope:</strong> Small — no <code>.d2</code> source file changes needed. The migration is
-a config change + re-render + doc updates.</p>
+<h3 id="pr-b-switch-to-elk-layout-engine-drop-monolith-diagram">PR B: Switch to ELK layout engine, drop monolith diagram</h3>
+<p><strong>Scope:</strong> Small — layout engine swap + remove monolith SVG render.</p>
 <p><strong>Changes:</strong>
 1. In <code>tools/render_diagrams.sh</code>:
-   - Change <code>RENDER_LAYOUT="tala"</code> → <code>RENDER_LAYOUT="dagre"</code>
+   - Change <code>RENDER_LAYOUT="tala"</code> → <code>RENDER_LAYOUT="elk"</code>
    - Remove <code>DETAILED_TALA_SEEDS</code> variable and <code>--tala-seeds</code> flag
-   - May need to adjust <code>RENDER_SCALE</code> / <code>RENDER_PAD</code> for dagre output
-2. Re-render all SVGs with dagre:
-   - <code>docs/diagrams/uml/diagram-detailed.svg</code>
+   - Remove the detailed diagram render step (keep <code>.d2</code> source as
+     input to <code>generate_module_diagrams.py</code>)
+2. Delete <code>docs/diagrams/uml/diagram-detailed.svg</code> (no longer rendered)
+3. Re-render all SVGs with ELK:
    - <code>docs/diagrams/uml/diagram-modules.svg</code>
    - 18 per-module SVGs in <code>docs/diagrams/uml/modules/</code>
-3. Visually review rendered output — especially the detailed diagram and
-   a few representative per-module diagrams. If dagre layout quality is
-   unacceptable, document what's wrong and evaluate PlantUML as fallback.
-4. Update docs:
-   - <code>docs/DIAGRAM.md</code> — remove TALA references, note dagre
-   - <code>CLAUDE.md</code> — remove TALA/<code>d2plugin-tala</code> requirement if mentioned
-   - <code>docs/BACKLOG.md</code> — update diagram tooling section to reflect
-     decision
-5. Remove TALA-specific backlog items (seeds workaround, dimension limit
-   stripping proposal) if dagre resolves them.</p>
+4. Update <code>.githooks/pre-commit</code> — skip <code>diagram-detailed.d2</code> in the
+   <code>.d2</code>→<code>.svg</code> co-staging check (source-only, no rendered SVG)
+5. Update docs:
+   - <code>docs/DIAGRAM.md</code> — remove detailed diagram section, note ELK
+   - <code>CLAUDE.md</code> — remove TALA/<code>d2plugin-tala</code> requirement, update
+     diagram workflow description
+   - <code>docs/BACKLOG.md</code> — replace TALA-specific items with interactive
+     module overview idea
+   - <code>docs/planning/pre-rust-roadmap.md</code> — add interactive overview
+     to Phase 5</p>
 <p><strong>Files touched:</strong>
-- <code>tools/render_diagrams.sh</code> (layout engine + remove seeds)
-- <code>docs/diagrams/uml/</code> — re-rendered SVGs (no <code>.d2</code> source changes)
-- <code>docs/DIAGRAM.md</code>, <code>CLAUDE.md</code>, <code>docs/BACKLOG.md</code> (doc updates)</p>
+- <code>tools/render_diagrams.sh</code> (layout engine + remove detailed render)
+- <code>.githooks/pre-commit</code> (skip source-only <code>.d2</code>)
+- <code>docs/diagrams/uml/diagram-detailed.svg</code> (deleted)
+- <code>docs/diagrams/uml/</code> — re-rendered SVGs
+- <code>docs/DIAGRAM.md</code>, <code>CLAUDE.md</code>, <code>docs/BACKLOG.md</code>,
+  <code>docs/planning/pre-rust-roadmap.md</code> (doc updates)</p>
 <h3 id="pr-c-graph-yaml-fields-for-orchestrator-config">PR C: Graph YAML fields for orchestrator config</h3>
 <p><strong>Scope:</strong> Small — same pattern as existing <code>fail_fast_*</code> YAML fields.</p>
 <p>An audit of CLI flags vs graph YAML fields (2026-04-10) identified
@@ -1610,15 +1621,63 @@ else's graph.</p>
    table, <code>docs/BACKLOG.md</code> (mark resolved)</p>
 <p><strong>Files touched:</strong> <code>cli.py</code>, <code>run_graph.py</code>, <code>test_cli.py</code>,
 <code>test_run_graph.py</code>, <code>CLAUDE.md</code>, <code>docs/GUIDE.md</code>, <code>docs/BACKLOG.md</code></p>
+<h3 id="pr-d-fix-oci-container-cleanup-on-task-retry">PR D: Fix OCI container cleanup on task retry</h3>
+<p><strong>Scope:</strong> Small-medium — touches task runner lifecycle and sandbox
+teardown wiring.</p>
+<p><strong>Bug:</strong> When a task fails under OCI sandbox mode and the orchestrator
+retries it (<code>-a &gt; 1</code>), the old Docker container still exists with name
+<code>agentrelay-&lt;graph&gt;-&lt;task_id&gt;</code>. The retry's <code>docker run</code> fails with
+"Conflict. The container name is already in use." Discovered during
+e2e testing of <code>blocked-downstream</code> graph with <code>-a 2 -S oci</code>.</p>
+<p><strong>Root cause (two gaps):</strong>
+1. <code>WorktreeTaskTeardown</code> never calls <code>sandbox.teardown()</code> — the
+   <code>OciSandbox</code> instance is created in the launcher but not passed
+   to the teardown handler.
+2. Default <code>TearDownMode.ON_SUCCESS</code> means teardown doesn't run on
+   failure at all — so even if sandbox teardown were wired in, it
+   wouldn't fire when it's needed most (before a retry).</p>
+<p><strong>Fix approach:</strong></p>
+<p>Container cleanup should be <strong>unconditional</strong> — a stale container
+always blocks retries regardless of the user's teardown preference.
+The <code>TearDownMode</code> setting controls tmux pane and worktree cleanup
+(useful for debugging), but container removal has no debugging value
+and must happen before a retry can succeed.</p>
+<ol>
+<li>Store the <code>AgentSandbox</code> instance in <code>TaskArtifacts</code> (or pass it
+   to the teardown handler via the builder). The sandbox is created
+   in <code>TmuxTaskLauncher</code> — after launch, attach it to the runtime so
+   teardown can access it.</li>
+<li>In <code>WorktreeTaskTeardown.teardown()</code>, call <code>sandbox.teardown()</code>
+   <strong>unconditionally</strong> (before the <code>_should_teardown()</code> gate that
+   controls pane/branch cleanup). This ensures the container is
+   removed on failure, success, and even when <code>TearDownMode.NEVER</code>
+   is set.</li>
+<li>In <code>TaskRuntime.reset_for_retry()</code> or the orchestrator retry path,
+   ensure sandbox teardown runs before re-preparation. This is the
+   belt-and-suspenders path — if teardown already ran, <code>OciSandbox</code>
+   handles the idempotent case (stop/rm swallow errors for missing
+   containers).</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/task_runner/implementations/task_teardown.py</code> —
+  call <code>sandbox.teardown()</code> unconditionally
+- <code>src/agentrelay/task_runner/implementations/task_launcher.py</code> —
+  store sandbox in runtime artifacts after launch
+- <code>src/agentrelay/task_runtime/runtime.py</code> — add sandbox field to
+  <code>TaskArtifacts</code> (or accept it as optional)
+- <code>src/agentrelay/orchestrator/builders.py</code> — wire sandbox through
+  builder
+- Tests: mock sandbox teardown in task runner tests, add retry
+  scenario test</p>
 <h3 id="ordering">Ordering</h3>
-<p>PRs A, B, and C are independent and can be developed in parallel. None
-touches runtime code (PR C changes CLI plumbing and YAML extraction,
-not the orchestrator itself).</p>
+<p>PRs A, B, C, and D are independent and can be developed in parallel.
+A and B are pure CLI/docs. C is CLI plumbing and YAML extraction.
+D touches runtime code (task runner lifecycle + sandbox teardown) but
+is isolated to the teardown path.</p>
 <h2 id="out-of-scope">Out of scope</h2>
 <ul>
 <li>Graph resumption (Phase 4 — next sprint)</li>
 <li>Documentation overhaul (Phase 5)</li>
-<li>New features or runtime code changes</li>
 <li>Backlog items deferred to Rust (see <code>docs/planning/pre-rust-roadmap.md</code>)</li>
 </ul>
 

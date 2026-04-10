@@ -2177,6 +2177,22 @@ docs. No structural changes to the orchestrator or task graph model.</p>
 </ul>
 <h2 id="container-infrastructure">Container Infrastructure</h2>
 <ul>
+<li><strong>OCI container not removed on task failure (retry name conflict)</strong>:
+  When a task fails under OCI sandbox mode and the orchestrator retries
+  it (<code>--max-task-attempts &gt; 1</code>), the old container is still running or
+  stopped with name <code>agentrelay-&lt;graph&gt;-&lt;task_id&gt;</code>. The retry launches
+  a new <code>docker run</code> with the same name and gets "Conflict. The
+  container name is already in use." Two gaps:</li>
+<li><code>WorktreeTaskTeardown</code> never calls <code>sandbox.teardown()</code> — the
+     <code>OciSandbox</code> instance is created in the launcher but not passed
+     to the teardown handler.</li>
+<li>The default <code>TearDownMode.ON_SUCCESS</code> means teardown doesn't run
+     on failure at all, so even if the sandbox were wired in, it
+     wouldn't be called.
+  Fix: wire <code>OciSandbox.teardown()</code> into the task teardown lifecycle,
+  and ensure container cleanup runs unconditionally (regardless of
+  teardown mode) since a stale container blocks retries. See sprint
+  doc <code>2026-04-09-cli-cleanup-and-diagram-tooling.md</code> PR D.</li>
 <li><strong>Agent framework pre-seed versioning</strong>: The Docker image pre-seeds
   config files (<code>.claude.json</code>, <code>statsig.json</code>) and startup scripts
   (<code>claude-setup-credentials</code>, <code>claude-trust-workdir</code>) to suppress
@@ -2639,40 +2655,12 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
 </ul>
 <h2 id="diagram-tooling">Diagram Tooling</h2>
 <ul>
-<li><strong>Evaluate and finalize diagram tooling</strong>: The current setup (D2 with TALA
-  layout engine) works for module-level diagrams but hits TALA's dimension
-  limits on the detailed diagram (~80+ classes). A <code>--tala-seeds</code> workaround
-  keeps it rendering for now, but TALA is closed-source and Terrastruct
-  appears dormant (no commits since October 2025, no maintainer responses
-  to issues). Options to evaluate:</li>
-<li><strong>D2 + TALA (current)</strong>: Best layout quality. Should license ($5/mo OSS
-    rate) if continuing. Risk: vendor abandonment with no open-source
-    fallback. Seeds workaround is fragile — may break as diagram grows.</li>
-<li><strong>D2 + ELK or dagre</strong>: Free, bundled with D2. Handles any size. Layout
-    quality is noticeably less compact than TALA. Note: D2 docs claim dagre
-    development stopped in 2018, but the <code>dagrejs/dagre</code> GitHub repo appears
-    actively maintained — only the DagreJs org NPM package receives updates
-    (not the other <code>dagre</code> on NPM). Unclear which version D2 bundles.</li>
-<li><strong>PlantUML</strong>: Battle-tested, huge community, active development. Uses
-    Graphviz for layout. Good for module-level class diagrams (5-15 classes).
-    Detailed monolith would be messy but renders. Familiar to LLMs. Would
-    require rewriting <code>generate_module_diagrams.py</code> to emit PlantUML.</li>
-<li><strong>Graphviz (raw DOT)</strong>: Zero dependencies, handles any scale. Verbose
-    syntax, no built-in UML semantics, weak package/container support.</li>
-<li>Decision point: the Rust migration will rewrite tooling anyway —
-    choosing before that avoids carrying two diagram systems across the
-    boundary.</li>
-<li><strong>TALA dimension limit: strip internals from detailed diagram</strong>: The
-  detailed diagram (<code>diagram-detailed.d2</code>) now exceeds TALA's internal
-  dimension limit (~32k x 28k) on all seeds 0–20. Per-module diagrams
-  and the module overview still render fine. Proposed fix: strip
-  private/internal blocks (<code>&lt;&lt;module&gt;&gt;</code> stereotype, <code>_</code>-prefixed) from
-  the detailed diagram source and keep them only in the per-module
-  diagrams. Requires a change to <code>generate_module_diagrams.py</code> to
-  support a two-tier source (public surface in detailed, full internals
-  in per-module). This would significantly reduce node count in the
-  detailed layout and restore rendering headroom. No functional code
-  changes — standalone work item.</li>
+<li><strong>Interactive module overview on docs site</strong>: Enhance the module
+  overview diagram (<code>diagram-modules.svg</code>) on the mkdocs site so that
+  clicking (or hovering over) a module box navigates to or displays
+  the corresponding per-module detailed diagram. Could be implemented
+  as an SVG image map, clickable SVG links, or a JavaScript overlay.
+  Natural fit for the documentation sprint (Phase 5).</li>
 </ul>
 <h2 id="documentation">Documentation</h2>
 <ul>

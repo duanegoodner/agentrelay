@@ -1419,12 +1419,15 @@
 <h1 id="design-diagram">Design Diagram</h1>
 <p>This diagram is a first-class project artifact. It shows all currently implemented
 types and their relationships, organized by source module.</p>
-<p>The authoritative source is <code>docs/diagrams/uml/diagram-detailed.d2</code> (D2 with TALA layout
-engine). Every PR that touches <code>src/agentrelay/</code> must update the diagram to reflect any
-new or changed types and relationships, then re-render via <code>pixi run diagram</code>.</p>
+<p>The authoritative source is <code>docs/diagrams/uml/diagram-detailed.d2</code> (D2 format).
+Per-module diagrams and the module overview are auto-generated from this source
+and rendered with the ELK layout engine (bundled with D2). Every PR that touches
+<code>src/agentrelay/</code> must update the diagram to reflect any new or changed types
+and relationships, then re-render via <code>pixi run diagram</code>.</p>
 <h2 id="views">Views</h2>
 <p><strong>Module overview</strong> — inter-module dependency graph. One box per module, arrows
-showing which modules depend on which.</p>
+showing which modules depend on which. This is the best starting point for
+understanding the architecture.</p>
 <p><a href="../diagrams/uml/diagram-modules.svg" target="_blank">View module overview (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
 <p><strong>Per-module diagrams</strong> — each module gets a focused diagram showing its full
 types plus simplified stubs for external dependencies. Located in
@@ -1516,10 +1519,6 @@ module.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Detailed</strong> — everything in one diagram: all types, all relationships, all
-modules. Use this for cross-cutting analysis or when you need to see the full
-picture.</p>
-<p><a href="../diagrams/uml/diagram-detailed.svg" target="_blank">View detailed diagram (SVG)</a> — opens in a new tab with native browser pan/zoom (Ctrl+scroll).</p>
 <h2 id="conventions">Conventions</h2>
 <p><strong>Connector lines</strong> represent relationships that are not already obvious from the
 class body or visual proximity. Guidelines:</p>
