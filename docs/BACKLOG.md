@@ -147,6 +147,22 @@ docs. No structural changes to the orchestrator or task graph model.
   real use cases justify per-task credential selection.
 ## Container Infrastructure
 
+- **OCI container not removed on task failure (retry name conflict)**:
+  When a task fails under OCI sandbox mode and the orchestrator retries
+  it (`--max-task-attempts > 1`), the old container is still running or
+  stopped with name `agentrelay-<graph>-<task_id>`. The retry launches
+  a new `docker run` with the same name and gets "Conflict. The
+  container name is already in use." Two gaps:
+  1. `WorktreeTaskTeardown` never calls `sandbox.teardown()` — the
+     `OciSandbox` instance is created in the launcher but not passed
+     to the teardown handler.
+  2. The default `TearDownMode.ON_SUCCESS` means teardown doesn't run
+     on failure at all, so even if the sandbox were wired in, it
+     wouldn't be called.
+  Fix: wire `OciSandbox.teardown()` into the task teardown lifecycle,
+  and ensure container cleanup runs unconditionally (regardless of
+  teardown mode) since a stale container blocks retries. See sprint
+  doc `2026-04-09-cli-cleanup-and-diagram-tooling.md` PR D.
 - **Agent framework pre-seed versioning**: The Docker image pre-seeds
   config files (`.claude.json`, `statsig.json`) and startup scripts
   (`claude-setup-credentials`, `claude-trust-workdir`) to suppress
@@ -624,40 +640,12 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
 
 ## Diagram Tooling
 
-- **Evaluate and finalize diagram tooling**: The current setup (D2 with TALA
-  layout engine) works for module-level diagrams but hits TALA's dimension
-  limits on the detailed diagram (~80+ classes). A `--tala-seeds` workaround
-  keeps it rendering for now, but TALA is closed-source and Terrastruct
-  appears dormant (no commits since October 2025, no maintainer responses
-  to issues). Options to evaluate:
-  - **D2 + TALA (current)**: Best layout quality. Should license ($5/mo OSS
-    rate) if continuing. Risk: vendor abandonment with no open-source
-    fallback. Seeds workaround is fragile — may break as diagram grows.
-  - **D2 + ELK or dagre**: Free, bundled with D2. Handles any size. Layout
-    quality is noticeably less compact than TALA. Note: D2 docs claim dagre
-    development stopped in 2018, but the `dagrejs/dagre` GitHub repo appears
-    actively maintained — only the DagreJs org NPM package receives updates
-    (not the other `dagre` on NPM). Unclear which version D2 bundles.
-  - **PlantUML**: Battle-tested, huge community, active development. Uses
-    Graphviz for layout. Good for module-level class diagrams (5-15 classes).
-    Detailed monolith would be messy but renders. Familiar to LLMs. Would
-    require rewriting `generate_module_diagrams.py` to emit PlantUML.
-  - **Graphviz (raw DOT)**: Zero dependencies, handles any scale. Verbose
-    syntax, no built-in UML semantics, weak package/container support.
-  - Decision point: the Rust migration will rewrite tooling anyway —
-    choosing before that avoids carrying two diagram systems across the
-    boundary.
-- **TALA dimension limit: strip internals from detailed diagram**: The
-  detailed diagram (`diagram-detailed.d2`) now exceeds TALA's internal
-  dimension limit (~32k x 28k) on all seeds 0–20. Per-module diagrams
-  and the module overview still render fine. Proposed fix: strip
-  private/internal blocks (`<<module>>` stereotype, `_`-prefixed) from
-  the detailed diagram source and keep them only in the per-module
-  diagrams. Requires a change to `generate_module_diagrams.py` to
-  support a two-tier source (public surface in detailed, full internals
-  in per-module). This would significantly reduce node count in the
-  detailed layout and restore rendering headroom. No functional code
-  changes — standalone work item.
+- **Interactive module overview on docs site**: Enhance the module
+  overview diagram (`diagram-modules.svg`) on the mkdocs site so that
+  clicking (or hovering over) a module box navigates to or displays
+  the corresponding per-module detailed diagram. Could be implemented
+  as an SVG image map, clickable SVG links, or a JavaScript overlay.
+  Natural fit for the documentation sprint (Phase 5).
 
 ## Documentation
 

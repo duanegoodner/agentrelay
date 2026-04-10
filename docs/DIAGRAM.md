@@ -3,14 +3,17 @@
 This diagram is a first-class project artifact. It shows all currently implemented
 types and their relationships, organized by source module.
 
-The authoritative source is `docs/diagrams/uml/diagram-detailed.d2` (D2 with TALA layout
-engine). Every PR that touches `src/agentrelay/` must update the diagram to reflect any
-new or changed types and relationships, then re-render via `pixi run diagram`.
+The authoritative source is `docs/diagrams/uml/diagram-detailed.d2` (D2 format).
+Per-module diagrams and the module overview are auto-generated from this source
+and rendered with the ELK layout engine (bundled with D2). Every PR that touches
+`src/agentrelay/` must update the diagram to reflect any new or changed types
+and relationships, then re-render via `pixi run diagram`.
 
 ## Views
 
 **Module overview** — inter-module dependency graph. One box per module, arrows
-showing which modules depend on which.
+showing which modules depend on which. This is the best starting point for
+understanding the architecture.
 
 [View module overview (SVG)](diagrams/uml/diagram-modules.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
 
@@ -44,12 +47,6 @@ module.
 | task_runtime/ | [diagram-task-runtime.svg](diagrams/uml/modules/diagram-task-runtime.svg){: target="_blank" } |
 | tools.py | [diagram-tools.svg](diagrams/uml/modules/diagram-tools.svg){: target="_blank" } |
 | workstream/ | [diagram-workstream.svg](diagrams/uml/modules/diagram-workstream.svg){: target="_blank" } |
-
-**Detailed** — everything in one diagram: all types, all relationships, all
-modules. Use this for cross-cutting analysis or when you need to see the full
-picture.
-
-[View detailed diagram (SVG)](diagrams/uml/diagram-detailed.svg){: target="_blank" } — opens in a new tab with native browser pan/zoom (Ctrl+scroll).
 
 ## Conventions
 

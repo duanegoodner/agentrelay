@@ -223,6 +223,9 @@ as the documented default.
 - Fix API reference rendering issues (Sphinx-isms in docstrings)
 - Remove stale prototype references
 - Ensure the mkdocs site at duanegoodner.github.io/agentrelay works well
+- **Interactive module overview**: Make the module overview diagram
+  clickable — each module box links to its per-module detailed diagram.
+  Low effort, high discoverability value.
 
 ### Phase 6: Freeze Python, begin Rust
 

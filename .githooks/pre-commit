@@ -22,6 +22,12 @@ fi
 svg_changed=$(git diff --cached --name-only -- '*.svg' || true)
 
 for d2_file in $d2_changed; do
+  # diagram-detailed.d2 is source-only (parsed by generate_module_diagrams.py
+  # to produce per-module diagrams); it has no rendered SVG of its own.
+  if [ "$d2_file" = "docs/diagrams/uml/diagram-detailed.d2" ]; then
+    continue
+  fi
+
   svg_file="${d2_file%.d2}.svg"
 
   # Check if matching SVG is staged
