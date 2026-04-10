@@ -25,10 +25,16 @@ The orchestrator merges PRs in dependency order.
 |---|---|---|
 | `--target-repo` | `-t` | Path to target repository |
 | `--model` | `-m` | Override model for all agents |
-| `--max-concurrency` | `-c` | Maximum concurrent task attempts |
+| `--max-concurrency` | `-c` | Maximum concurrent tasks |
+| `--max-task-attempts` | `-a` | Maximum attempts per task |
+| `--teardown-mode` | `-T` | When to tear down task resources |
 | `--tmux-session` | `-s` | Override tmux session name |
 | `--credentials` | `-C` | Path to credentials YAML file |
+| `--anthropic-credential` | `-A` | Name of Anthropic credential |
 | `--sandbox` | `-S` | Override sandbox type (`oci` or `none`) |
+| `--fail-fast-workstream` | `-W` | Stop new workstreams after failure |
+| `--fail-fast-internal` | `-I` | Stop on internal orchestrator errors |
+| `--dry-run` | `-d` | Validate graph without running |
 | `--verbose` | `-v` | Show detailed step-level output |
 
 ## Module map

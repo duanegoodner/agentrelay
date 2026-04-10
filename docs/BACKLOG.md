@@ -62,13 +62,39 @@ Near-term items for the current architecture track.
   prototype was clumsy but had useful capabilities that shouldn't be
   accidentally dropped.
 
-## CLI
+## CLI / Graph YAML Configuration Gaps
 
-- **Short options for all named args**: Add single-character short versions
-  for any `agentrelay` CLI arguments that don't have one yet.
-- **Fix `--max-concurrency` help text**: Currently reads "Maximum concurrent
-  task attempts (default: 1)" — should be "Maximum concurrent tasks
-  (default: 1)".
+Audit of CLI flags vs graph YAML fields (2026-04-10) identified four
+configuration items that exist on only one surface when they should
+exist on both.
+
+### Graph YAML fields with no CLI equivalent
+
+- **`keep_panes`** (graph-level): Controls whether tmux panes stay open
+  after task completion. No CLI flag. Minor — add `--keep-panes` /
+  `-k` boolean flag for debugging convenience.
+
+### CLI flags with no graph YAML equivalent
+
+These three `OrchestratorConfig` fields are CLI-only. Graph authors
+often know the right values, and forcing CLI specification is friction
+for users running someone else's graph.
+
+- **`max_concurrency`** (`-c`): A graph with 4 independent workstreams
+  is designed for `-c 4`. Add `max_concurrency` as a graph-level YAML
+  field. Precedence: CLI > YAML > default (1).
+- **`max_task_attempts`** (`-a`): A graph with flaky tasks might want
+  `-a 3` by default. Add `max_task_attempts` as a graph-level YAML
+  field. Precedence: CLI > YAML > default (1).
+- **`teardown_mode`** (`-T`): Debugging graphs benefit from `never`.
+  The YAML has `keep_panes` but not the more general teardown control.
+  Add `teardown_mode` as a graph-level YAML field. Precedence: CLI >
+  YAML > default (`on_success`).
+
+All four follow the established precedence pattern: **CLI > YAML >
+default**. Implementation touches `_pop_operational_keys()` in
+`run_graph.py`, `_build_config_from_args()`, and the graph YAML schema
+docs. No structural changes to the orchestrator or task graph model.
 
 ## Credential Management
 
@@ -225,8 +251,8 @@ Near-term items for the current architecture track.
   infrastructure-level failures (Docker, git, GitHub API), which are hard to
   trigger from a graph YAML alone. A graph referencing an invalid OCI image
   (e.g., nonexistent Docker image) would reliably raise during task
-  preparation and could validate both `--fail-fast-on-internal-error` and
-  `--no-fail-fast-on-internal-error` behavior. Belongs in `graphs/failure/`.
+  preparation and could validate both `--fail-fast-internal` and
+  `--no-fail-fast-internal` behavior. Belongs in `graphs/failure/`.
 - Auto-suffix for concurrent same-graph runs: append a timestamp or counter to
   `.workflow/<graph>` and `.worktrees/<graph>` directory names so multiple runs
   of the same graph can coexist. Requires updating `reset_graph` to discover

@@ -599,37 +599,37 @@ def test_orchestrator_config_default_fail_fast_internal_is_true() -> None:
 def test_cli_parser_fail_fast_default_none() -> None:
     parser = _build_parser()
     args = parser.parse_args(["graph.yaml"])
-    assert args.fail_fast_on_workstream_error is None
+    assert args.fail_fast_workstream is None
 
 
 def test_cli_parser_fail_fast_true() -> None:
     parser = _build_parser()
-    args = parser.parse_args(["graph.yaml", "--fail-fast-on-workstream-error"])
-    assert args.fail_fast_on_workstream_error is True
+    args = parser.parse_args(["graph.yaml", "--fail-fast-workstream"])
+    assert args.fail_fast_workstream is True
 
 
 def test_cli_parser_fail_fast_false() -> None:
     parser = _build_parser()
-    args = parser.parse_args(["graph.yaml", "--no-fail-fast-on-workstream-error"])
-    assert args.fail_fast_on_workstream_error is False
+    args = parser.parse_args(["graph.yaml", "--no-fail-fast-workstream"])
+    assert args.fail_fast_workstream is False
 
 
 def test_cli_parser_fail_fast_internal_default_none() -> None:
     parser = _build_parser()
     args = parser.parse_args(["graph.yaml"])
-    assert args.fail_fast_on_internal_error is None
+    assert args.fail_fast_internal is None
 
 
 def test_cli_parser_fail_fast_internal_true() -> None:
     parser = _build_parser()
-    args = parser.parse_args(["graph.yaml", "--fail-fast-on-internal-error"])
-    assert args.fail_fast_on_internal_error is True
+    args = parser.parse_args(["graph.yaml", "--fail-fast-internal"])
+    assert args.fail_fast_internal is True
 
 
 def test_cli_parser_fail_fast_internal_false() -> None:
     parser = _build_parser()
-    args = parser.parse_args(["graph.yaml", "--no-fail-fast-on-internal-error"])
-    assert args.fail_fast_on_internal_error is False
+    args = parser.parse_args(["graph.yaml", "--no-fail-fast-internal"])
+    assert args.fail_fast_internal is False
 
 
 def test_build_parser_short_options() -> None:
