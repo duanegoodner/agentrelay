@@ -55,16 +55,16 @@ CLI flags:
 | Flag | Description | Default |
 |------|-------------|---------|
 | `--target-repo PATH` | Path to the target repository | current directory |
-| `--dry-run` | Validate and print plan without running | |
-| `--max-concurrency N` | Max concurrent task attempts | 1 |
-| `--max-task-attempts N` | Max attempts per task | 1 |
-| `--teardown-mode MODE` | `always`, `never`, or `on_success` | `on_success` |
-| `--tmux-session NAME` | Override tmux session name | `agentrelay` |
-| `--model MODEL` | Override model for all agents | per-task default |
-| `--credentials PATH` | Path to credentials YAML for sandboxed agents | |
-| `--anthropic-credential NAME` | Name of Anthropic credential from credentials YAML | |
-| `--fail-fast-on-workstream-error` | Stop preparing new workstreams after failure | `false` |
-| `--fail-fast-on-internal-error` | Stop on internal orchestrator errors | `true` |
+| `-d, --dry-run` | Validate and print plan without running | |
+| `-c, --max-concurrency N` | Max concurrent tasks | 1 |
+| `-a, --max-task-attempts N` | Max attempts per task | 1 |
+| `-T, --teardown-mode MODE` | `always`, `never`, or `on_success` | `on_success` |
+| `-s, --tmux-session NAME` | Override tmux session name | auto-detected |
+| `-m, --model MODEL` | Override model for all agents | per-task default |
+| `-C, --credentials PATH` | Path to credentials YAML for sandboxed agents | |
+| `-A, --anthropic-credential NAME` | Name of Anthropic credential from credentials YAML | |
+| `-W, --fail-fast-workstream` | Stop preparing new workstreams after failure | `false` |
+| `-I, --fail-fast-internal` | Stop on internal orchestrator errors | `true` |
 | `-v, --verbose` | Show detailed step-level output | |
 
 ## Preflight Checks

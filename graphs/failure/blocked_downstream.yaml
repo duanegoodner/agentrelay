@@ -8,7 +8,7 @@ tools:
 #
 # With fail_fast_on_workstream_error defaulting to false, the independent
 # workstream proceeds at any concurrency level. Use
-# --fail-fast-on-workstream-error to test blocking behavior.
+# --fail-fast-workstream / -W to test blocking behavior.
 #
 # Verifies: failure propagation, dependency blocking, and continued execution
 # of unaffected workstreams.

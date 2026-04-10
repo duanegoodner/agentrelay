@@ -36,8 +36,8 @@ def test_run_defaults() -> None:
     assert args.model is None
     assert args.credentials is None
     assert args.anthropic_credential is None
-    assert args.fail_fast_on_workstream_error is None
-    assert args.fail_fast_on_internal_error is None
+    assert args.fail_fast_workstream is None
+    assert args.fail_fast_internal is None
     assert args.sandbox is None
     assert args.dry_run is False
     assert args.verbose is False
@@ -67,8 +67,8 @@ def test_run_all_flags() -> None:
             "max_plan",
             "--sandbox",
             "oci",
-            "--fail-fast-on-workstream-error",
-            "--fail-fast-on-internal-error",
+            "--fail-fast-workstream",
+            "--fail-fast-internal",
             "--dry-run",
             "-v",
         ]
@@ -82,8 +82,8 @@ def test_run_all_flags() -> None:
     assert args.credentials == "/tmp/creds.yaml"
     assert args.anthropic_credential == "max_plan"
     assert args.sandbox == "oci"
-    assert args.fail_fast_on_workstream_error is True
-    assert args.fail_fast_on_internal_error is True
+    assert args.fail_fast_workstream is True
+    assert args.fail_fast_internal is True
     assert args.dry_run is True
     assert args.verbose is True
 
@@ -94,12 +94,12 @@ def test_run_no_fail_fast_flags() -> None:
         [
             "run",
             "graph.yaml",
-            "--no-fail-fast-on-workstream-error",
-            "--no-fail-fast-on-internal-error",
+            "--no-fail-fast-workstream",
+            "--no-fail-fast-internal",
         ]
     )
-    assert args.fail_fast_on_workstream_error is False
-    assert args.fail_fast_on_internal_error is False
+    assert args.fail_fast_workstream is False
+    assert args.fail_fast_internal is False
 
 
 # --- build_parser: reset subcommand ---
@@ -146,6 +146,12 @@ def test_check_defaults() -> None:
 def test_check_env() -> None:
     parser = build_parser()
     args = parser.parse_args(["check", "--env", "docker"])
+    assert args.env == "docker"
+
+
+def test_check_env_short() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["check", "-e", "docker"])
     assert args.env == "docker"
 
 
@@ -197,20 +203,35 @@ def test_run_short_options() -> None:
             "claude-opus-4-6",
             "-c",
             "4",
+            "-a",
+            "3",
+            "-T",
+            "always",
             "-s",
             "mysession",
             "-C",
             "/tmp/creds.yaml",
+            "-A",
+            "max_plan",
             "-S",
             "oci",
+            "-W",
+            "-I",
+            "-d",
         ]
     )
     assert args.target_repo == "/tmp/repo"
     assert args.model == "claude-opus-4-6"
     assert args.max_concurrency == 4
+    assert args.max_task_attempts == 3
+    assert args.teardown_mode == "always"
     assert args.tmux_session == "mysession"
     assert args.credentials == "/tmp/creds.yaml"
+    assert args.anthropic_credential == "max_plan"
     assert args.sandbox == "oci"
+    assert args.fail_fast_workstream is True
+    assert args.fail_fast_internal is True
+    assert args.dry_run is True
 
 
 def test_run_sandbox_none() -> None:

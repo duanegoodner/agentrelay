@@ -79,91 +79,155 @@ the full rationale.
 
 ---
 
+## Completed work
+
+### Phase 1: CLI & data model cleanup ✓
+
+> Sprint 2026-04-06 (PRs #169–#171). 1348 tests.
+
+- **`agentrelay` top-level CLI** (PR #169): `cli.py` with subcommands
+  `run`, `reset`, `check`, `dry-run`, `list`. `--target-repo` defaults
+  to current directory.
+- **`TaggedPath` replaces `TaskPaths`** (PR #170): `TaskPaths` removed,
+  category-based input resolution is the unified model. `paths:` sugar
+  preserved for backward compatibility.
+- **TALA diagram fix** (PR #171): `--tala-seeds` workaround for TALA
+  dimension limit.
+
+### Phase 2: E2E validation with OCI isolation ✓
+
+> Sprint 2026-04-07 (PRs #174–#178). 1448 tests.
+
+- **CLI short options + `--sandbox` override** (PR #174)
+- **Graph index + name-based selection** (PR #175): `agentrelay list -g`
+- **Tmux session auto-detect** (PR #176): TTY verification + window naming
+- **Graph consolidation** (PR #177): 29 → 21 graphs across 8 categories
+- **E2E OCI validation** (PR #178): all 20 scenarios pass with OCI
+  isolation, both API key and OAuth credential paths validated
+
+---
+
 ## Remaining work
 
-### Phase 1: CLI & data model cleanup (next sprint)
+### Phase 3: CLI cleanup + diagram tooling
 
-**Goal:** Make the Python version feel like a real tool and unify the data
-model so the Rust port starts clean.
+**Goal:** Clear small debts and settle the diagram tooling stack so
+later sprints build on a clean foundation.
 
-#### `agentrelay` top-level CLI
+#### CLI cleanup
 
-Register an `agentrelay` console script in `pyproject.toml` with
-subcommands:
+Minor fixes surfaced during Phase 2:
 
-```
-agentrelay run <graph.yaml> [--target-repo <path>] [flags]
-agentrelay reset <graph.yaml> [--target-repo <path>]
-agentrelay check [--target-repo <path>]
-agentrelay dry-run <graph.yaml>
-```
+- **Fix `--max-concurrency` help text**: Currently reads "Maximum
+  concurrent task attempts" — should be "Maximum concurrent tasks".
+  Two locations: `cli.py` and `run_graph.py`.
+- **Short options for remaining args**: `--max-task-attempts`,
+  `--teardown-mode`, `--anthropic-credential`, `--dry-run` lack short
+  forms. The `--fail-fast-*` flags are awkward to shorten due to
+  `BooleanOptionalAction` — may leave as-is.
 
-`--target-repo` defaults to the current directory. Someone working in a
-target repo can type `agentrelay run graph.yaml`. The `pixi run e2e`
-wrapper becomes an internal convenience for agentrelay developers.
+Small effort — half-day PR.
 
-Small effort — a single `cli.py` module with `argparse` subcommands
-delegating to `run_graph.main()` and `reset_graph.main()`.
+#### Diagram layout engine: TALA → dagre
 
-#### Replace `TaskPaths` with category-based inputs
+The current setup (D2 + TALA) hits TALA's internal dimension limits on
+the detailed diagram. TALA is closed-source and Terrastruct appears
+dormant since October 2025. The `--tala-seeds` workaround is fragile.
 
-`TaskPaths` (`src`/`test`/`spec`) and the output manifest's `category`
-field serve overlapping purposes. Categories proved more flexible. With
-`inputs_from` validated end-to-end (PR #163), category-based input
-resolution is the unified model.
+**Decision:** Switch to dagre (bundled with D2, no external dependency).
+Keep all `.d2` source files unchanged — this is a layout engine swap,
+not a format migration. ELK, PlantUML, and Mermaid were evaluated
+earlier; dagre has not been tried. If dagre layout quality is
+unacceptable, PlantUML is the fallback.
 
-This is a single PR that removes `TaskPaths` entirely — not a two-step
-deprecate-then-remove. There are no external consumers of the class; all
-consumers are internal and changed in the same PR. Leaving dead code in
-the reference implementation would create confusion during the Rust port
-about whether it needs to be ported.
+**Scope:** Small — change `render_diagrams.sh`, re-render SVGs, update
+docs. No `.d2` source or `generate_module_diagrams.py` changes needed.
 
-**Changes:**
-- `paths` in graph YAML remains valid as sugar — internally converts
-  `paths.src` → `category: src`, `paths.test` → `category: test`, etc.
-- `TaskPaths` class deleted from `task.py`
-- `TaskManifest` uses category-tagged file lists instead of
-  `src_paths`/`test_paths`/`spec_path`
-- Role templates use category-based variables instead of
-  `$src_paths`/`$test_paths`
-- Ensures the Rust port builds on the unified model with no dead taxonomy
+### Phase 4: Graph resumption (MVP)
 
-**Scope:** Moderate — touches `task.py`, `builder.py`, `manifest.py`,
-`templates.py`, 4 template markdown files, 3 test files, ~39 graph YAML
-files (backward compatible — `paths:` still parses). See backlog
-"Output-Driven Task Composition" section for details.
+**Goal:** Make it easy to pick up where you left off — the
+highest-value improvement for anyone tinkering with the project.
 
-#### OCI as documented default
+When a graph is re-launched and `.workflow/<graph>/` already exists,
+probe the actual state on disk and resume instead of refusing.
 
-Update docs, graph YAML examples, and `GUIDE.md` to recommend OCI
-isolation as the default. `SandboxType.NONE` documented as opt-out for
-development.
+**Why now:** The backlog notes that *"the Python version will be the
+public-facing testing ground for early users during the conversion,
+and 'reset and re-run the entire graph because task 8 failed' is a
+poor first experience."* This is the highest-value user-facing
+improvement for tinkerers.
 
-#### Quick doc fixes
+**Architecture advantage:** Task status is already derived from signal
+files on disk (`_read_task_status_from_signals()`), not stored in
+memory. The building blocks for resumption exist.
 
-Any low-effort documentation improvements surfaced during the sprint.
+**MVP scope:**
+1. Replace conflict check in `run_graph.py` with state probing
+   (auto-detect resume)
+2. `TaskRuntimeBuilder.from_disk()` / `WorkstreamRuntimeBuilder.from_disk()`
+   — reconstruct runtimes from signal files and filesystem state
+3. Resume-aware worktree/branch preparation (skip re-creation if exists)
+4. Tests
 
-### Phase 2: E2E validation with OCI isolation
+**What the MVP skips** (deferred to Rust):
+- Cross-session retry of failed tasks
+- Corruption detection / worktree validation
+- Partial re-run of specific task subsets
+- Human-triggered re-run of completed tasks
 
-**Goal:** Validate the complete system end-to-end with OCI containers
-before freezing Python.
+**What it delivers:** "Graph interrupted or task 8 failed? Re-run
+`agentrelay run <graph>`. Completed tasks skip, failed tasks retry,
+unstarted tasks proceed."
 
-Run representative graphs across all graph categories (`smoke/`,
-`concerns/`, `roles/`, `failure/`, `workstreams/`, `gates/`, `adr/`,
-`isolation/`, `graph_awareness/`) with OCI isolation enabled. This:
+Estimated effort: 2–3 days.
 
-- Validates container infrastructure under real workloads
-- Surfaces any remaining friction or bugs
-- Produces the behavioral baseline the Rust port reimplements against
-- Exercises `inputs_from` and the new integration PR body format
+### Phase 5: Documentation sprint
 
-Fix whatever breaks. This round replaces the "full e2e test pass"
-pre-migration gate described in the backlog.
+**Goal:** Make the project legible to outsiders. The Python codebase is
+feature-complete (1448 tests, 21 e2e graphs, full OCI support) — the
+gap is not capability but discoverability.
 
-### Phase 3: Freeze Python, begin Rust
+#### README overhaul
 
-**Gate:** E2E validation passes with OCI isolation across representative
-graphs.
+The current README still says *"End-to-end execution currently lives in
+`prototypes/v01`"* — actively misleading. Rewrite to reflect reality:
+- What agentrelay does (one paragraph)
+- A graph YAML example
+- An `agentrelay run` invocation and what happens (tmux panes, PRs,
+  signal files)
+- Getting started steps (pixi, Claude Code, credentials, target repo)
+
+#### Design philosophy document
+
+Consolidate distinctive ideas scattered across sprint docs, discussions,
+and backlog into a single coherent document:
+- Observation-before-enforcement
+- Guidance-not-restriction for agent autonomy
+- Signal-file-backed state as source of truth
+- SDK-over-roles
+- OCI isolation spectrum (flexible default, precise knobs for production)
+- Diagrammability as a design constraint
+- YAML-as-contract (graph YAML is the unit of work definition)
+
+This is what gets the project into the community conversation — people
+engage with ideas, not just code.
+
+#### Getting started guide refresh
+
+Update `docs/GUIDE.md` with a walkthrough: install → configure
+credentials → write a simple graph → run it → inspect results. OCI
+as the documented default.
+
+#### Docs site cleanup
+
+- Fix API reference rendering issues (Sphinx-isms in docstrings)
+- Remove stale prototype references
+- Ensure the mkdocs site at duanegoodner.github.io/agentrelay works well
+
+### Phase 6: Freeze Python, begin Rust
+
+**Gate:** Phases 3–5 complete. Diagram tooling is settled, graph
+resumption works, documentation reflects the current system.
 
 **Actions:**
 - Mark the Python codebase as frozen for new features
@@ -186,8 +250,10 @@ These backlog items are explicitly deferred to the Rust migration:
 | Human-triggered partial re-run | Significant design, Rust state machine |
 | Orchestrator-driven partial re-run | Depends on above |
 | Human intervention on task failure | Same family as partial re-run |
+| Cross-session retry of failed tasks | Layer on top of resumption MVP in Rust |
+| Resumption corruption detection | Needs Rust ownership model |
 | Auto-suffix for concurrent same-graph runs | Convenience, low priority |
-| Resume hooks / durable state checkpoints | Architectural plumbing |
+| Durable state checkpoints | Architectural plumbing |
 | Multi-graph orchestration | Explicitly Rust-era |
 | Signal directory restructure | High touch-count, better in greenfield |
 | Structured concern definitions | Rust-era instruction architecture |
@@ -204,18 +270,26 @@ See `docs/BACKLOG.md` for full descriptions of each item.
 
 The Python version is ready to freeze when:
 
-1. **A new user can run agentrelay from the CLI** on a non-trivial graph
-   for a real (non-toy) project, get a good idea of how things work, and
-   potentially accomplish useful work. Rough edges are acceptable.
+1. ✅ **The `agentrelay` CLI exists** as a user-facing entry point (PR #169).
 
-2. **The data model is unified.** `TaskPaths` is removed, category-based
-   input resolution is the single mechanism, and `inputs_from` is validated.
+2. ✅ **The data model is unified.** `TaskPaths` removed, `TaggedPath` +
+   category-based input resolution is the single mechanism (PR #170).
 
-3. **E2E tests pass with OCI isolation** across representative graph
-   categories.
+3. ✅ **E2E tests pass with OCI isolation** across representative graph
+   categories — all 20 scenarios (PR #178).
 
-4. **The `agentrelay` CLI exists** as a user-facing entry point (not just
-   `python -m agentrelay.run_graph` or `pixi run e2e`).
+4. **Diagram tooling is settled.** A sustainable rendering stack is chosen
+   and migrated to, so the Rust project inherits a working pipeline.
+   (Phase 3)
 
-5. **Documentation reflects the current state** — OCI as default, current
-   CLI surface, no stale references to removed features.
+5. **A partial graph run can be resumed** without resetting and re-running
+   everything. Completed tasks are skipped, failed tasks retry, unstarted
+   tasks proceed. (Phase 4 — MVP)
+
+6. **A new user can understand what agentrelay does and try it** from the
+   README and docs alone — without reading source code or sprint docs.
+   (Phase 5)
+
+7. **Documentation reflects the current state** — OCI as default, current
+   CLI surface, design philosophy articulated, no stale references to
+   removed features or prototype layer. (Phase 5)

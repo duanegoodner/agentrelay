@@ -591,15 +591,17 @@ def _build_parser() -> argparse.ArgumentParser:
         "--max-concurrency",
         type=int,
         default=None,
-        help="Maximum concurrent task attempts (default: 1)",
+        help="Maximum concurrent tasks (default: 1)",
     )
     parser.add_argument(
+        "-a",
         "--max-task-attempts",
         type=int,
         default=None,
         help="Maximum attempts per task (default: 1)",
     )
     parser.add_argument(
+        "-T",
         "--teardown-mode",
         choices=["always", "never", "on_success"],
         default=None,
@@ -624,6 +626,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Path to credentials YAML file for sandboxed agents",
     )
     parser.add_argument(
+        "-A",
         "--anthropic-credential",
         default=None,
         help="Name of Anthropic credential from credentials YAML file",
@@ -636,18 +639,21 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Override sandbox type for all tasks (oci or none)",
     )
     parser.add_argument(
-        "--fail-fast-on-workstream-error",
+        "-W",
+        "--fail-fast-workstream",
         action=argparse.BooleanOptionalAction,
         default=None,
         help="Stop preparing new workstreams after a workstream failure (default: false)",
     )
     parser.add_argument(
-        "--fail-fast-on-internal-error",
+        "-I",
+        "--fail-fast-internal",
         action=argparse.BooleanOptionalAction,
         default=None,
         help="Stop scheduling immediately on internal orchestrator errors (default: true)",
     )
     parser.add_argument(
+        "-d",
         "--dry-run",
         action="store_true",
         help="Validate graph and print execution plan without running",
@@ -700,8 +706,8 @@ def main() -> None:
                 tmux_session=args.tmux_session,
                 model_override=args.model,
                 config=config,
-                fail_fast_on_workstream_error=args.fail_fast_on_workstream_error,
-                fail_fast_on_internal_error=args.fail_fast_on_internal_error,
+                fail_fast_on_workstream_error=args.fail_fast_workstream,
+                fail_fast_on_internal_error=args.fail_fast_internal,
                 credential_provider=credential_provider,
                 anthropic_credential_name=args.anthropic_credential,
                 sandbox_override=args.sandbox,
