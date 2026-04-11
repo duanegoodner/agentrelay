@@ -6,7 +6,7 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-04-09
 
-### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–E)
+### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–F)
 
 - **CLI cleanup** (PR #180): Fix `--max-concurrency` help text, add short
   options (`-a`, `-d`, `-T`, `-A`, `-C`, `-S`, `-W`, `-I`), shorten flag
@@ -30,6 +30,11 @@ Chronological log of significant changes to the main codebase. For full details 
   both success and failure. Persistent artifacts (`agent.log`,
   `summary.md`, per-attempt archives) provide the same debugging data.
   `ON_SUCCESS` and `NEVER` remain available via `-T` or graph YAML.
+- **Record effective run config** (PR F): After CLI > YAML > default
+  resolution, write `.workflow/<graph>/run_config.json` with the effective
+  `OrchestratorConfig` fields plus model, sandbox, credential, keep_panes,
+  and verbose settings. Provides a complete post-mortem record of what
+  values were actually used for a run.
 
 ---
 

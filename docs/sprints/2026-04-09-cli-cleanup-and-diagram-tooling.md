@@ -268,15 +268,62 @@ post-mortem debugging and future graph resumption harder.
    `run_info.json`
 3. Tests: verify file is written with expected content
 
+### PR G: Uniform per-attempt signal directories
+
+**Scope:** Medium — touches signal directory layout, readers, and agent
+SDK file paths.
+
+Currently, past attempts are archived under `signal_dir/attempts/<N>/`
+but the current (latest) attempt's artifacts live directly under
+`signal_dir/`. This means post-mortem inspection requires looking in
+two different places depending on whether an attempt is current or
+archived. Moving all attempt artifacts into `attempts/<N>/` gives
+every attempt a uniform layout.
+
+**Changes:**
+1. Agent-facing artifacts (`.done`, `.failed`, `agent.log`,
+   `summary.md`, `concerns.log`, `ops_concerns.log`) live under
+   `signal_dir/attempts/<N>/` for every attempt, including the current
+   one
+2. `_archive_attempt_artifacts()` becomes unnecessary (artifacts are
+   already in their attempt directory)
+3. `reset_for_retry()` clears status signals but no longer needs to
+   copy artifacts — they're already scoped
+4. Signal readers (completion checker, gate checker) read from the
+   current attempt's directory
+5. Agent SDK (`TaskHelper`) writes to the attempt directory
+6. Orchestrator-managed files that span attempts (`instructions.md`,
+   `manifest.json`, `status/`) stay at `signal_dir/` level
+
+**Scope boundary:** Does NOT restructure `signal_dir/` into named
+subdirectories for orchestrator vs agent scope (separate backlog item).
+
+**Files touched:**
+- `src/agentrelay/task_runtime/runtime.py` — attempt dir path helper,
+  remove `_archive_attempt_artifacts`
+- `src/agentrelay/task_runner/implementations/task_preparer.py` —
+  set up attempt directory
+- `src/agentrelay/task_runner/implementations/task_completion_checker.py`
+  — read from attempt dir
+- `src/agentrelay/task_runner/implementations/task_log_capture.py` —
+  write to attempt dir
+- `src/agentrelay/agent_sdk/task_helper.py` — write signals to attempt dir
+- `src/agentrelay/ops/signals.py` — if helper changes needed
+- Tests: update signal path expectations across affected modules
+
 ### Ordering
 
 PRs A–D are independent. PR E depends on PR D. PR F is independent.
-A, B, and C are merged (#180, #181, #182). D wires sandbox teardown
-into the task runner lifecycle. E flips the default teardown mode,
-building on D's plumbing. F is a standalone config recording feature.
+PR G is independent (but benefits from landing after D's attempt_num
+plumbing).
+A–C merged (#180–#182). D merged (#183). E merged (#184).
+F is a standalone config recording feature.
+G restructures per-attempt signal directories.
 
 ## Out of scope
 
 - Graph resumption (Phase 4 — next sprint)
 - Documentation overhaul (Phase 5)
+- Signal directory restructure into named orchestrator/agent subdirectories
+  (separate backlog item)
 - Backlog items deferred to Rust (see `docs/planning/pre-rust-roadmap.md`)

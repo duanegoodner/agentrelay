@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -16,6 +17,7 @@ from agentrelay.run_graph import (
     _copy_graph_yaml,
     _extract_operational_config,
     _load_and_prepare_graph,
+    _record_run_config,
     _resolve_override,
     dry_run,
 )
@@ -462,6 +464,69 @@ def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
 
     dest = workflow_dir / "graph.yaml"
     assert dest.read_text() == content
+
+
+# --- _record_run_config ---
+
+
+def test_record_run_config_writes_file(tmp_path: Path) -> None:
+    """run_config.json is written with all effective config fields."""
+    workflow_dir = tmp_path / ".workflow" / "my-graph"
+    workflow_dir.mkdir(parents=True)
+
+    config = OrchestratorConfig(
+        max_concurrency=4,
+        max_task_attempts=2,
+        fail_fast_on_internal_error=False,
+        fail_fast_on_workstream_error=True,
+    )
+    _record_run_config(
+        tmp_path,
+        "my-graph",
+        config,
+        keep_panes=True,
+        model="claude-sonnet-4-6",
+        sandbox="oci",
+        anthropic_credential="my-key",
+        verbose=True,
+    )
+
+    dest = workflow_dir / "run_config.json"
+    assert dest.is_file()
+
+    data = json.loads(dest.read_text())
+    assert data["max_concurrency"] == 4
+    assert data["max_task_attempts"] == 2
+    assert data["task_teardown_mode"] == "always"
+    assert data["fail_fast_on_internal_error"] is False
+    assert data["fail_fast_on_workstream_error"] is True
+    assert data["keep_panes"] is True
+    assert data["model"] == "claude-sonnet-4-6"
+    assert data["sandbox"] == "oci"
+    assert data["anthropic_credential"] == "my-key"
+    assert data["verbose"] is True
+
+
+def test_record_run_config_handles_none_optionals(tmp_path: Path) -> None:
+    """Optional fields are written as null when not set."""
+    workflow_dir = tmp_path / ".workflow" / "test-graph"
+    workflow_dir.mkdir(parents=True)
+
+    _record_run_config(
+        tmp_path,
+        "test-graph",
+        OrchestratorConfig(),
+        keep_panes=False,
+        model=None,
+        sandbox=None,
+        anthropic_credential=None,
+        verbose=False,
+    )
+
+    data = json.loads((workflow_dir / "run_config.json").read_text())
+    assert data["model"] is None
+    assert data["sandbox"] is None
+    assert data["anthropic_credential"] is None
 
 
 # --- docker_build.sh syntax ---
