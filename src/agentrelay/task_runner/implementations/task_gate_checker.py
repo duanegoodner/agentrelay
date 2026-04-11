@@ -69,7 +69,7 @@ class ShellGateChecker:
             output = f"Gate command error: {type(exc).__name__}: {exc}\n"
             passed = False
 
-        if runtime.state.signal_dir is not None:
-            signals.write_text(runtime.state.signal_dir, GATE_OUTPUT_FILE, output)
+        if runtime.attempt_dir is not None:
+            signals.write_text(runtime.attempt_dir, GATE_OUTPUT_FILE, output)
 
         return GateCheckResult(passed=passed, output=output)

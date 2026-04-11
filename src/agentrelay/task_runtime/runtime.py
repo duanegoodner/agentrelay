@@ -68,15 +68,6 @@ SUCCESS_STATUSES: frozenset[TaskStatus] = frozenset(
     }
 )
 
-#: Artifact filenames preserved in ``signal_dir/attempts/<N>/`` before retry cleanup.
-_ARCHIVABLE_ARTIFACTS: tuple[str, ...] = (
-    "agent.log",
-    "gate_last_output.txt",
-    "summary.md",
-    "concerns.log",
-    "ops_concerns.log",
-)
-
 
 def _read_task_status_from_signals(signal_dir: Path) -> TaskStatus:
     """Determine task status from signal files on disk.
@@ -192,6 +183,19 @@ class TaskRuntime:
     artifacts: TaskArtifacts = field(default_factory=TaskArtifacts)
 
     @property
+    def attempt_dir(self) -> Optional[Path]:
+        """Path to the current attempt's artifact directory.
+
+        Returns ``signal_dir / "attempts" / "<attempt_num>"``, or ``None``
+        if no signal directory has been set.  Agent-written artifacts
+        (``.done``, ``.failed``, ``concerns.log``, etc.) live here so
+        every attempt has a uniform layout under ``attempts/<N>/``.
+        """
+        if self.state.signal_dir is None:
+            return None
+        return self.state.signal_dir / "attempts" / str(self.state.attempt_num)
+
+    @property
     def status(self) -> TaskStatus:
         """Current task status, derived from signal files on disk.
 
@@ -220,26 +224,6 @@ class TaskRuntime:
         if status_dir.is_dir():
             for f in status_dir.iterdir():
                 f.unlink()
-
-    def _clear_agent_signals(self) -> None:
-        """Remove agent-written signal files (``.done``, ``.failed``) before retry."""
-        if self.state.signal_dir is None:
-            return
-        for name in (".done", ".failed"):
-            path = self.state.signal_dir / name
-            if path.is_file():
-                path.unlink()
-
-    def _archive_attempt_artifacts(self) -> None:
-        """Copy diagnostic artifacts to ``attempts/<attempt_num>/`` for post-run inspection."""
-        if self.state.signal_dir is None:
-            return
-        attempt_dir = self.state.signal_dir / "attempts" / str(self.state.attempt_num)
-        for name in _ARCHIVABLE_ARTIFACTS:
-            src = self.state.signal_dir / name
-            if src.is_file():
-                attempt_dir.mkdir(parents=True, exist_ok=True)
-                (attempt_dir / name).write_bytes(src.read_bytes())
 
     def mark_pending(self) -> None:
         """Write the ``pending`` status signal file."""
@@ -277,14 +261,17 @@ class TaskRuntime:
         self.state.error = None
 
     def reset_for_retry(self) -> None:
-        """Archive current error to concerns and reset to PENDING for retry."""
+        """Record current error as a concern and reset to PENDING for retry.
+
+        Agent artifacts (``.done``, ``.failed``, ``concerns.log``, etc.)
+        are already scoped to ``attempts/<N>/`` and do not need archiving
+        or cleanup.  Only orchestrator-managed status signals are cleared.
+        """
         if self.state.error:
             self.artifacts.concerns.append(
                 f"attempt_{self.state.attempt_num}_error: {self.state.error}"
             )
-        self._archive_attempt_artifacts()
         self._clear_status_signals()
-        self._clear_agent_signals()
         if self.state.signal_dir is not None:
             self.mark_pending()
         self.state.error = None

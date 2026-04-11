@@ -68,8 +68,8 @@ class TestShellGateChecker:
 
         checker.check_gate(runtime)
 
-        assert runtime.state.signal_dir is not None
-        output_file = runtime.state.signal_dir / GATE_OUTPUT_FILE
+        assert runtime.attempt_dir is not None
+        output_file = runtime.attempt_dir / GATE_OUTPUT_FILE
         assert output_file.is_file()
         assert "gate output" in output_file.read_text()
 
@@ -79,8 +79,8 @@ class TestShellGateChecker:
 
         # First run.
         checker.check_gate(runtime)
-        assert runtime.state.signal_dir is not None
-        output_file = runtime.state.signal_dir / GATE_OUTPUT_FILE
+        assert runtime.attempt_dir is not None
+        output_file = runtime.attempt_dir / GATE_OUTPUT_FILE
 
         # Overwrite task command and run again.
         runtime2 = _make_runtime('echo "second output"', tmp_path)

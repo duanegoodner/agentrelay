@@ -59,16 +59,29 @@ The orchestrator merges PRs in dependency order.
 
 Per-task directory: `.workflow/<graph>/signals/<task-id>/`
 
+Orchestrator-managed (at signal_dir level):
+
+| File | Written by | Meaning |
+|---|---|---|
+| `manifest.json` | Orchestrator | Task metadata for the agent |
+| `instructions.md` | Orchestrator | Agent instructions |
+| `outputs.json` | Agent | Output manifest for downstream tasks |
+| `status/` | Orchestrator | Task status signals (pending, running, etc.) |
+
+Per-attempt (under `attempts/<N>/`):
+
 | File | Written by | Meaning |
 |---|---|---|
 | `.done` | Agent | Task complete; line 2 is the PR URL |
 | `.failed` | Agent | Task failed; line 2 is the reason |
-| `.merged` | Orchestrator | PR merged successfully |
 | `agent.log` | Orchestrator | tmux pane scrollback captured after task |
+| `concerns.log` | Agent | Design concerns noted during execution |
 | `ops_concerns.log` | Agent | Operational concerns (build errors, tooling friction) |
 | `summary.md` | Orchestrator | PR body fetched before merge |
+| `gate_last_output.txt` | Orchestrator | Last completion gate command output |
 
 Graph-level: `.workflow/<graph>/run_info.json` — start HEAD + timestamp (for reset).
+`.workflow/<graph>/run_config.json` — effective resolved configuration.
 
 ## Graph YAML
 

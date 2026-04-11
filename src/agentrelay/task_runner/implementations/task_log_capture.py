@@ -29,4 +29,4 @@ class WorktreeTaskLogCapture:
         agent_address = runtime.artifacts.agent_address
 
         if agent_address is not None:
-            agent_address.capture_log(signal_dir=runtime.state.signal_dir)
+            agent_address.capture_log(signal_dir=runtime.attempt_dir)

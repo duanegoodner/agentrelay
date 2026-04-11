@@ -592,16 +592,9 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).
 
-- **Uniform per-attempt directories**: Currently, past attempts are archived
-  under `signal_dir/attempts/<N>/` but the current (latest) attempt's
-  artifacts live directly under `signal_dir/`. Consider giving the current
-  attempt its own `attempts/<N>/` directory too, so all attempts have a
-  uniform layout. Simplifies post-mortem inspection (every attempt at the
-  same depth) and avoids the "latest artifacts are in a different place"
-  inconsistency. Use the attempt index as directory name rather than
-  `latest` (which would require renaming on failure). Touches
-  `_archive_attempt_artifacts`, `reset_for_retry`, signal readers,
-  completion checker, and agent SDK file paths.
+- ~~**Uniform per-attempt directories**~~: **Resolved** in PR G (sprint
+  2026-04-09). All attempt artifacts now live under
+  `signal_dir/attempts/<N>/` including the current attempt.
 
 ## Diagram Tooling
 

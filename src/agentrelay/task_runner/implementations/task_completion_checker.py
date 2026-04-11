@@ -48,24 +48,24 @@ class SignalCompletionChecker:
         Raises:
             ValueError: If ``signal_dir`` is not set on the runtime state.
         """
-        if runtime.state.signal_dir is None:
-            raise ValueError("runtime.state.signal_dir must be set before polling")
+        if runtime.attempt_dir is None:
+            raise ValueError("runtime.attempt_dir must be set before polling")
 
-        signal_dir = runtime.state.signal_dir
+        attempt_dir = runtime.attempt_dir
         found = await signals.poll_signal_files(
-            signal_dir, (".done", ".failed"), self.poll_interval
+            attempt_dir, (".done", ".failed"), self.poll_interval
         )
 
-        content = signals.read_signal_file(signal_dir, found) or ""
+        content = signals.read_signal_file(attempt_dir, found) or ""
         lines = content.splitlines()
 
         # Line 1 = ISO timestamp (informational), Line 2 = payload
         payload = lines[1].strip() if len(lines) > 1 else None
 
-        concerns_text = signals.read_signal_file(signal_dir, "concerns.log")
+        concerns_text = signals.read_signal_file(attempt_dir, "concerns.log")
         concerns = _parse_concerns(concerns_text)
 
-        ops_concerns_text = signals.read_signal_file(signal_dir, "ops_concerns.log")
+        ops_concerns_text = signals.read_signal_file(attempt_dir, "ops_concerns.log")
         ops_concerns = _parse_concerns(ops_concerns_text)
 
         if found == ".done":

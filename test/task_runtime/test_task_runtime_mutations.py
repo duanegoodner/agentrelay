@@ -84,74 +84,18 @@ class TestResetForRetry:
         assert not (status_dir / "running").exists()
         assert not (status_dir / "failed").exists()
 
-    def test_clears_agent_done_signal_on_retry(self) -> None:
-        rt = _runtime(with_signal_dir=True)
-        rt.mark_failed("gate failed")
-        assert rt.state.signal_dir is not None
-        (rt.state.signal_dir / ".done").write_text("done\nhttps://example.com/pr/1\n")
-        rt.reset_for_retry()
-        assert not (rt.state.signal_dir / ".done").exists()
-
-    def test_clears_agent_failed_signal_on_retry(self) -> None:
-        rt = _runtime(with_signal_dir=True)
-        rt.mark_failed("agent failed")
-        assert rt.state.signal_dir is not None
-        (rt.state.signal_dir / ".failed").write_text("failed\nsome reason\n")
-        rt.reset_for_retry()
-        assert not (rt.state.signal_dir / ".failed").exists()
-
-    def test_archives_artifacts_before_cleanup(self) -> None:
-        rt = _runtime(with_signal_dir=True)
-        rt.state.attempt_num = 1
-        assert rt.state.signal_dir is not None
-        artifacts = {
-            "agent.log": b"log content",
-            "gate_last_output.txt": b"gate output",
-            "summary.md": b"summary text",
-            "concerns.log": b"design concern",
-            "ops_concerns.log": b"ops concern",
-        }
-        for name, content in artifacts.items():
-            (rt.state.signal_dir / name).write_bytes(content)
-        rt.mark_failed("gate failed")
-        rt.reset_for_retry()
-        attempt_dir = rt.state.signal_dir / "attempts" / "1"
-        for name, content in artifacts.items():
-            assert (attempt_dir / name).read_bytes() == content
-
-    def test_skips_missing_artifacts_silently(self) -> None:
+    def test_does_not_clear_agent_signals_in_attempt_dir(self) -> None:
+        """Agent signals live in attempts/<N>/ and are not touched by retry."""
         rt = _runtime(with_signal_dir=True)
         rt.state.attempt_num = 0
         assert rt.state.signal_dir is not None
-        (rt.state.signal_dir / "agent.log").write_bytes(b"only this")
-        rt.mark_failed("oops")
-        rt.reset_for_retry()
         attempt_dir = rt.state.signal_dir / "attempts" / "0"
-        assert (attempt_dir / "agent.log").read_bytes() == b"only this"
-        assert not (attempt_dir / "gate_last_output.txt").exists()
-        assert not (attempt_dir / "summary.md").exists()
-
-    def test_does_not_archive_done_or_failed(self) -> None:
-        rt = _runtime(with_signal_dir=True)
-        rt.state.attempt_num = 0
-        assert rt.state.signal_dir is not None
-        (rt.state.signal_dir / ".done").write_text("done\nhttp://pr/1\n")
-        (rt.state.signal_dir / ".failed").write_text("failed\nreason\n")
-        (rt.state.signal_dir / "agent.log").write_bytes(b"log")
+        attempt_dir.mkdir(parents=True)
+        (attempt_dir / ".failed").write_text("failed\nreason\n")
         rt.mark_failed("oops")
         rt.reset_for_retry()
-        attempt_dir = rt.state.signal_dir / "attempts" / "0"
-        assert not (attempt_dir / ".done").exists()
-        assert not (attempt_dir / ".failed").exists()
-        assert (attempt_dir / "agent.log").exists()
-
-    def test_no_attempts_dir_when_no_artifacts(self) -> None:
-        rt = _runtime(with_signal_dir=True)
-        rt.state.attempt_num = 0
-        assert rt.state.signal_dir is not None
-        rt.mark_failed("oops")
-        rt.reset_for_retry()
-        assert not (rt.state.signal_dir / "attempts").exists()
+        # Agent's .failed stays in the old attempt dir (not cleared)
+        assert (attempt_dir / ".failed").exists()
 
 
 class TestMarkPending:

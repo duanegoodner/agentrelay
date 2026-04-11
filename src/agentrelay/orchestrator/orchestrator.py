@@ -757,7 +757,7 @@ class _OrchestratorRun:
                             self._task_runtimes[tid].artifacts.ops_concerns
                         ),
                         summary_text=_read_summary(
-                            self._task_runtimes[tid].state.signal_dir
+                            self._task_runtimes[tid].attempt_dir
                         ),
                     )
                     for tid in task_ids
