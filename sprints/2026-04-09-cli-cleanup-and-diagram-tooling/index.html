@@ -1433,6 +1433,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pr-g-uniform-per-attempt-signal-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR G: Uniform per-attempt signal directories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ordering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1739,15 +1750,56 @@ post-mortem debugging and future graph resumption harder.</p>
 2. Write to <code>.workflow/&lt;graph&gt;/run_config.json</code> alongside the existing
    <code>run_info.json</code>
 3. Tests: verify file is written with expected content</p>
+<h3 id="pr-g-uniform-per-attempt-signal-directories">PR G: Uniform per-attempt signal directories</h3>
+<p><strong>Scope:</strong> Medium — touches signal directory layout, readers, and agent
+SDK file paths.</p>
+<p>Currently, past attempts are archived under <code>signal_dir/attempts/&lt;N&gt;/</code>
+but the current (latest) attempt's artifacts live directly under
+<code>signal_dir/</code>. This means post-mortem inspection requires looking in
+two different places depending on whether an attempt is current or
+archived. Moving all attempt artifacts into <code>attempts/&lt;N&gt;/</code> gives
+every attempt a uniform layout.</p>
+<p><strong>Changes:</strong>
+1. Agent-facing artifacts (<code>.done</code>, <code>.failed</code>, <code>agent.log</code>,
+   <code>summary.md</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>) live under
+   <code>signal_dir/attempts/&lt;N&gt;/</code> for every attempt, including the current
+   one
+2. <code>_archive_attempt_artifacts()</code> becomes unnecessary (artifacts are
+   already in their attempt directory)
+3. <code>reset_for_retry()</code> clears status signals but no longer needs to
+   copy artifacts — they're already scoped
+4. Signal readers (completion checker, gate checker) read from the
+   current attempt's directory
+5. Agent SDK (<code>TaskHelper</code>) writes to the attempt directory
+6. Orchestrator-managed files that span attempts (<code>instructions.md</code>,
+   <code>manifest.json</code>, <code>status/</code>) stay at <code>signal_dir/</code> level</p>
+<p><strong>Scope boundary:</strong> Does NOT restructure <code>signal_dir/</code> into named
+subdirectories for orchestrator vs agent scope (separate backlog item).</p>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/task_runtime/runtime.py</code> — attempt dir path helper,
+  remove <code>_archive_attempt_artifacts</code>
+- <code>src/agentrelay/task_runner/implementations/task_preparer.py</code> —
+  set up attempt directory
+- <code>src/agentrelay/task_runner/implementations/task_completion_checker.py</code>
+  — read from attempt dir
+- <code>src/agentrelay/task_runner/implementations/task_log_capture.py</code> —
+  write to attempt dir
+- <code>src/agentrelay/agent_sdk/task_helper.py</code> — write signals to attempt dir
+- <code>src/agentrelay/ops/signals.py</code> — if helper changes needed
+- Tests: update signal path expectations across affected modules</p>
 <h3 id="ordering">Ordering</h3>
 <p>PRs A–D are independent. PR E depends on PR D. PR F is independent.
-A, B, and C are merged (#180, #181, #182). D wires sandbox teardown
-into the task runner lifecycle. E flips the default teardown mode,
-building on D's plumbing. F is a standalone config recording feature.</p>
+PR G is independent (but benefits from landing after D's attempt_num
+plumbing).
+A–C merged (#180–#182). D merged (#183). E merged (#184).
+F is a standalone config recording feature.
+G restructures per-attempt signal directories.</p>
 <h2 id="out-of-scope">Out of scope</h2>
 <ul>
 <li>Graph resumption (Phase 4 — next sprint)</li>
 <li>Documentation overhaul (Phase 5)</li>
+<li>Signal directory restructure into named orchestrator/agent subdirectories
+  (separate backlog item)</li>
 <li>Backlog items deferred to Rust (see <code>docs/planning/pre-rust-roadmap.md</code>)</li>
 </ul>
 
