@@ -105,43 +105,39 @@ the full rationale.
 - **E2E OCI validation** (PR #178): all 20 scenarios pass with OCI
   isolation, both API key and OAuth credential paths validated
 
+### Phase 3: CLI cleanup, diagram tooling, and execution quality ✓
+
+> Sprint 2026-04-09 (PRs #180–#186). 1467 tests.
+
+- **CLI cleanup** (PR #180): Fix `--max-concurrency` help text, add
+  short options (`-a`, `-d`, `-T`, `-A`, `-C`, `-S`, `-W`, `-I`),
+  shorten flag names.
+- **ELK layout engine** (PR #181): Switch from TALA to ELK (bundled
+  with D2, no external dependency). Dagre tried first but crashes on
+  large diagrams. Drop monolith SVG render; per-module diagrams provide
+  better navigation.
+- **Graph YAML config fields** (PR #182): `max_concurrency`,
+  `max_task_attempts`, `teardown_mode` as graph-level YAML fields with
+  CLI-wins precedence. `--keep-panes` CLI flag. `OperationalConfig`
+  dataclass.
+- **OCI container retry fix** (PR #183): Attempt-indexed container and
+  tmux window names prevent name collisions on retry. Sandbox teardown
+  wired into `WorktreeTaskTeardown` behind `_should_teardown()` gate.
+- **Default teardown mode → ALWAYS** (PR #184): Persistent artifacts
+  (`agent.log`, `summary.md`, per-attempt archives) replace live tmux
+  panes as the debugging interface. `ON_SUCCESS` and `NEVER` remain
+  opt-in.
+- **Record effective run config** (PR #185):
+  `.workflow/<graph>/run_config.json` captures the fully resolved
+  configuration after CLI > YAML > default precedence.
+- **Uniform per-attempt signal directories** (PR #186): Agent artifacts
+  live under `signal_dir/attempts/<N>/` for every attempt including the
+  current one. Eliminates archive-vs-live layout split. Simplifies
+  `reset_for_retry()`.
+
 ---
 
 ## Remaining work
-
-### Phase 3: CLI cleanup + diagram tooling
-
-**Goal:** Clear small debts and settle the diagram tooling stack so
-later sprints build on a clean foundation.
-
-#### CLI cleanup
-
-Minor fixes surfaced during Phase 2:
-
-- **Fix `--max-concurrency` help text**: Currently reads "Maximum
-  concurrent task attempts" — should be "Maximum concurrent tasks".
-  Two locations: `cli.py` and `run_graph.py`.
-- **Short options for remaining args**: `--max-task-attempts`,
-  `--teardown-mode`, `--anthropic-credential`, `--dry-run` lack short
-  forms. The `--fail-fast-*` flags are awkward to shorten due to
-  `BooleanOptionalAction` — may leave as-is.
-
-Small effort — half-day PR.
-
-#### Diagram layout engine: TALA → dagre
-
-The current setup (D2 + TALA) hits TALA's internal dimension limits on
-the detailed diagram. TALA is closed-source and Terrastruct appears
-dormant since October 2025. The `--tala-seeds` workaround is fragile.
-
-**Decision:** Switch to dagre (bundled with D2, no external dependency).
-Keep all `.d2` source files unchanged — this is a layout engine swap,
-not a format migration. ELK, PlantUML, and Mermaid were evaluated
-earlier; dagre has not been tried. If dagre layout quality is
-unacceptable, PlantUML is the fallback.
-
-**Scope:** Small — change `render_diagrams.sh`, re-render SVGs, update
-docs. No `.d2` source or `generate_module_diagrams.py` changes needed.
 
 ### Phase 4: Graph resumption (MVP)
 
@@ -184,7 +180,7 @@ Estimated effort: 2–3 days.
 ### Phase 5: Documentation sprint
 
 **Goal:** Make the project legible to outsiders. The Python codebase is
-feature-complete (1448 tests, 21 e2e graphs, full OCI support) — the
+feature-complete (1467 tests, 21 e2e graphs, full OCI support) — the
 gap is not capability but discoverability.
 
 #### README overhaul
@@ -218,6 +214,13 @@ Update `docs/GUIDE.md` with a walkthrough: install → configure
 credentials → write a simple graph → run it → inspect results. OCI
 as the documented default.
 
+#### Graph visualization for mental model
+
+Create a sample graph diagram showing tasks as nodes inside container
+boundaries, grouped into workstreams, with dependency edges. Include in
+README and design docs so readers can quickly grasp the runtime model
+(tasks, containers, workstreams, dependencies) without reading code.
+
 #### Docs site cleanup
 
 - Fix API reference rendering issues (Sphinx-isms in docstrings)
@@ -229,8 +232,8 @@ as the documented default.
 
 ### Phase 6: Freeze Python, begin Rust
 
-**Gate:** Phases 3–5 complete. Diagram tooling is settled, graph
-resumption works, documentation reflects the current system.
+**Gate:** Phases 4–5 complete. Graph resumption works, documentation
+reflects the current system. (Phase 3 is done.)
 
 **Actions:**
 - Mark the Python codebase as frozen for new features
@@ -281,9 +284,8 @@ The Python version is ready to freeze when:
 3. ✅ **E2E tests pass with OCI isolation** across representative graph
    categories — all 20 scenarios (PR #178).
 
-4. **Diagram tooling is settled.** A sustainable rendering stack is chosen
-   and migrated to, so the Rust project inherits a working pipeline.
-   (Phase 3)
+4. ✅ **Diagram tooling is settled.** D2 + ELK layout engine, monolith
+   SVG dropped, per-module diagrams as primary navigation (PR #181).
 
 5. **A partial graph run can be resumed** without resetting and re-running
    everything. Completed tasks are skipped, failed tasks retry, unstarted

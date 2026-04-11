@@ -650,6 +650,29 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   blocks, `:param:` fields, `:type:` annotations) and convert to Google
   style.
 
+## Visualization
+
+- **Graph diagram for documentation**: Create a sample graph visualization
+  showing tasks as nodes inside container boundaries, grouped into
+  workstreams, with dependency edges between them. Purpose: give readers
+  and new users a clear mental model of what a graph looks like at runtime
+  (tasks, containers, workstreams, dependencies). Include in README and
+  design docs. Could be hand-drawn in D2 or generated from a representative
+  graph YAML.
+
+- **Graph visualization tool**: Build a tool/script that takes a graph YAML
+  file as input and generates a graphical representation of the DAG.
+  **Static version (MVP)**: Render tasks as nodes with dependency edges,
+  grouped by workstream, output as SVG or HTML. Could use D2, Graphviz,
+  or a JavaScript library.
+  **Live version (stretch)**: Display the graph in a browser while it's
+  running, with color changes and indicators showing task status progression
+  (pending → running → PR created → merged / failed). Could read signal
+  files or subscribe to orchestrator events. Natural fit for a web dashboard
+  using something like D3.js, Cytoscape.js, or ELK.js. Consider whether
+  the live version is Python-era (useful for demos and debugging) or
+  Rust-era (benefits from structured event stream).
+
 ## Observability
 
 - **Record effective run config**: After CLI > YAML > default resolution,
