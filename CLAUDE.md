@@ -78,7 +78,7 @@ keep_panes: false              # optional; leave tmux windows open for debugging
 model: claude-sonnet-4-6       # optional; graph-level default model for all agents
 max_concurrency: 1             # optional; max concurrent tasks (default: 1)
 max_task_attempts: 1           # optional; max attempts per task (default: 1)
-teardown_mode: on_success      # optional; always | never | on_success (default: on_success)
+teardown_mode: on_success      # optional; always | never | on_success (default: always)
 fail_fast_on_workstream_error: false  # optional; block new workstreams on failure (default: false)
 fail_fast_on_internal_error: true    # optional; halt on internal errors (default: true)
 tasks:
