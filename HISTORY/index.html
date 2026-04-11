@@ -527,10 +527,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-af" class="md-nav__link">
+  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–F)
+        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–G)
       
     </span>
   </a>
@@ -2343,10 +2343,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-af" class="md-nav__link">
+  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ag" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–F)
+        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–G)
       
     </span>
   </a>
@@ -3326,7 +3326,7 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-04-09">2026-04-09</h2>
-<h3 id="cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-af">CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–F)</h3>
+<h3 id="cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ag">CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–G)</h3>
 <ul>
 <li><strong>CLI cleanup</strong> (PR #180): Fix <code>--max-concurrency</code> help text, add short
   options (<code>-a</code>, <code>-d</code>, <code>-T</code>, <code>-A</code>, <code>-C</code>, <code>-S</code>, <code>-W</code>, <code>-I</code>), shorten flag
@@ -3355,6 +3355,14 @@
   <code>OrchestratorConfig</code> fields plus model, sandbox, credential, keep_panes,
   and verbose settings. Provides a complete post-mortem record of what
   values were actually used for a run.</li>
+<li><strong>Uniform per-attempt signal directories</strong> (PR G): Agent-written
+  artifacts (<code>.done</code>, <code>.failed</code>, <code>concerns.log</code>, <code>ops_concerns.log</code>,
+  <code>summary.md</code>, <code>agent.log</code>, <code>gate_last_output.txt</code>) now live under
+  <code>signal_dir/attempts/&lt;N&gt;/</code> for every attempt, including the current
+  one. Eliminates the split between archived and current-attempt layouts.
+  Removes <code>_archive_attempt_artifacts()</code> and <code>_clear_agent_signals()</code>
+  from <code>reset_for_retry()</code>. Orchestrator-managed files (<code>manifest.json</code>,
+  <code>instructions.md</code>, <code>status/</code>, <code>outputs.json</code>) stay at signal_dir level.</li>
 </ul>
 <hr />
 <h2 id="2026-04-05">2026-04-05</h2>

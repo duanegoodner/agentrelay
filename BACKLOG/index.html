@@ -2557,16 +2557,9 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   checker, teardown, reset_graph).</p>
 </li>
 <li>
-<p><strong>Uniform per-attempt directories</strong>: Currently, past attempts are archived
-  under <code>signal_dir/attempts/&lt;N&gt;/</code> but the current (latest) attempt's
-  artifacts live directly under <code>signal_dir/</code>. Consider giving the current
-  attempt its own <code>attempts/&lt;N&gt;/</code> directory too, so all attempts have a
-  uniform layout. Simplifies post-mortem inspection (every attempt at the
-  same depth) and avoids the "latest artifacts are in a different place"
-  inconsistency. Use the attempt index as directory name rather than
-  <code>latest</code> (which would require renaming on failure). Touches
-  <code>_archive_attempt_artifacts</code>, <code>reset_for_retry</code>, signal readers,
-  completion checker, and agent SDK file paths.</p>
+<p>~~<strong>Uniform per-attempt directories</strong>~~: <strong>Resolved</strong> in PR G (sprint
+  2026-04-09). All attempt artifacts now live under
+  <code>signal_dir/attempts/&lt;N&gt;/</code> including the current attempt.</p>
 </li>
 </ul>
 <h2 id="diagram-tooling">Diagram Tooling</h2>

@@ -5327,19 +5327,19 @@ a shell command, does not vary by framework/environment).</p>
         <span class="nb">getattr</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">method_name</span><span class="p">)()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_pr_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch PR body and write summary.md to the signal directory.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetch PR body and write summary.md to the attempt directory.</span>
 
 <span class="sd">        Silently skips if the fetch fails or the body is empty — saving</span>
 <span class="sd">        the summary must not block the merge.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">body</span> <span class="o">=</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_body</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="n">body</span><span class="p">:</span>
-            <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;summary.md&quot;</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+            <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="s2">&quot;summary.md&quot;</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_record_io_failure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span>
@@ -6777,8 +6777,8 @@ is returned as <code>GateCheckResult(passed=False, ...)</code>.</p>
             <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Gate command error: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="n">passed</span> <span class="o">=</span> <span class="kc">False</span>
 
-        <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span> <span class="n">GATE_OUTPUT_FILE</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="n">GATE_OUTPUT_FILE</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">GateCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="n">passed</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -6958,8 +6958,8 @@ is returned as <code>GateCheckResult(passed=False, ...)</code>.</p>
         <span class="n">output</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Gate command error: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="n">passed</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span> <span class="n">GATE_OUTPUT_FILE</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="n">GATE_OUTPUT_FILE</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">GateCheckResult</span><span class="p">(</span><span class="n">passed</span><span class="o">=</span><span class="n">passed</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -7089,24 +7089,24 @@ then parses the signal file content and any <code>concerns.log</code> /
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If ``signal_dir`` is not set on the runtime state.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runtime.state.signal_dir must be set before polling&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runtime.attempt_dir must be set before polling&quot;</span><span class="p">)</span>
 
-        <span class="n">signal_dir</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span>
+        <span class="n">attempt_dir</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span>
         <span class="n">found</span> <span class="o">=</span> <span class="k">await</span> <span class="n">signals</span><span class="o">.</span><span class="n">poll_signal_files</span><span class="p">(</span>
-            <span class="n">signal_dir</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;.done&quot;</span><span class="p">,</span> <span class="s2">&quot;.failed&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">poll_interval</span>
+            <span class="n">attempt_dir</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;.done&quot;</span><span class="p">,</span> <span class="s2">&quot;.failed&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">poll_interval</span>
         <span class="p">)</span>
 
-        <span class="n">content</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
 
         <span class="c1"># Line 1 = ISO timestamp (informational), Line 2 = payload</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="n">concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;concerns.log&quot;</span><span class="p">)</span>
+        <span class="n">concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="s2">&quot;concerns.log&quot;</span><span class="p">)</span>
         <span class="n">concerns</span> <span class="o">=</span> <span class="n">_parse_concerns</span><span class="p">(</span><span class="n">concerns_text</span><span class="p">)</span>
 
-        <span class="n">ops_concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;ops_concerns.log&quot;</span><span class="p">)</span>
+        <span class="n">ops_concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="s2">&quot;ops_concerns.log&quot;</span><span class="p">)</span>
         <span class="n">ops_concerns</span> <span class="o">=</span> <span class="n">_parse_concerns</span><span class="p">(</span><span class="n">ops_concerns_text</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">found</span> <span class="o">==</span> <span class="s2">&quot;.done&quot;</span><span class="p">:</span>
@@ -7305,24 +7305,24 @@ then parses the signal file content and any <code>concerns.log</code> /
 <span class="sd">    Raises:</span>
 <span class="sd">        ValueError: If ``signal_dir`` is not set on the runtime state.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runtime.state.signal_dir must be set before polling&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;runtime.attempt_dir must be set before polling&quot;</span><span class="p">)</span>
 
-    <span class="n">signal_dir</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span>
+    <span class="n">attempt_dir</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span>
     <span class="n">found</span> <span class="o">=</span> <span class="k">await</span> <span class="n">signals</span><span class="o">.</span><span class="n">poll_signal_files</span><span class="p">(</span>
-        <span class="n">signal_dir</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;.done&quot;</span><span class="p">,</span> <span class="s2">&quot;.failed&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">poll_interval</span>
+        <span class="n">attempt_dir</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;.done&quot;</span><span class="p">,</span> <span class="s2">&quot;.failed&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">poll_interval</span>
     <span class="p">)</span>
 
-    <span class="n">content</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
 
     <span class="c1"># Line 1 = ISO timestamp (informational), Line 2 = payload</span>
     <span class="n">payload</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">None</span>
 
-    <span class="n">concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;concerns.log&quot;</span><span class="p">)</span>
+    <span class="n">concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="s2">&quot;concerns.log&quot;</span><span class="p">)</span>
     <span class="n">concerns</span> <span class="o">=</span> <span class="n">_parse_concerns</span><span class="p">(</span><span class="n">concerns_text</span><span class="p">)</span>
 
-    <span class="n">ops_concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;ops_concerns.log&quot;</span><span class="p">)</span>
+    <span class="n">ops_concerns_text</span> <span class="o">=</span> <span class="n">signals</span><span class="o">.</span><span class="n">read_signal_file</span><span class="p">(</span><span class="n">attempt_dir</span><span class="p">,</span> <span class="s2">&quot;ops_concerns.log&quot;</span><span class="p">)</span>
     <span class="n">ops_concerns</span> <span class="o">=</span> <span class="n">_parse_concerns</span><span class="p">(</span><span class="n">ops_concerns_text</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">found</span> <span class="o">==</span> <span class="s2">&quot;.done&quot;</span><span class="p">:</span>
@@ -8133,7 +8133,7 @@ unconditionally at task termination, before the teardown decision.</p>
         <span class="n">agent_address</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span>
 
         <span class="k">if</span> <span class="n">agent_address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">agent_address</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
+            <span class="n">agent_address</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -8220,7 +8220,7 @@ unconditionally at task termination, before the teardown decision.</p>
     <span class="n">agent_address</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">agent_address</span>
 
     <span class="k">if</span> <span class="n">agent_address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">agent_address</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">)</span>
+        <span class="n">agent_address</span><span class="o">.</span><span class="n">capture_log</span><span class="p">(</span><span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -8863,7 +8863,7 @@ propagated.</p>
 
         <span class="k">if</span> <span class="n">agent_address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">agent_address</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span>
-                <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
+                <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">,</span>
                 <span class="n">keep_panes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_panes</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -8982,7 +8982,7 @@ propagated.</p>
 
     <span class="k">if</span> <span class="n">agent_address</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">agent_address</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span>
-            <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
+            <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">attempt_dir</span><span class="p">,</span>
             <span class="n">keep_panes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_panes</span><span class="p">,</span>
         <span class="p">)</span>
 
