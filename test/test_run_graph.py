@@ -9,13 +9,14 @@ import pytest
 from agentrelay.orchestrator import OrchestratorConfig
 from agentrelay.orchestrator.builders import build_standard_workstream_runner
 from agentrelay.run_graph import (
+    OperationalConfig,
     _any_task_uses_oci,
     _apply_overrides,
     _build_parser,
     _copy_graph_yaml,
     _extract_operational_config,
     _load_and_prepare_graph,
-    _resolve_fail_fast,
+    _resolve_override,
     dry_run,
 )
 from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
@@ -36,15 +37,16 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 
 def test_extract_operational_config_defaults() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    keep, model, tools, anthropic, fail_fast, fail_fast_internal = (
-        _extract_operational_config(raw)
-    )
-    assert keep is False
-    assert model is None
-    assert tools == ()
-    assert anthropic is None
-    assert fail_fast is None
-    assert fail_fast_internal is None
+    ops = _extract_operational_config(raw)
+    assert ops.keep_panes is False
+    assert ops.model is None
+    assert ops.tools == ()
+    assert ops.anthropic_credential is None
+    assert ops.fail_fast_on_workstream_error is None
+    assert ops.fail_fast_on_internal_error is None
+    assert ops.max_concurrency is None
+    assert ops.max_task_attempts is None
+    assert ops.teardown_mode is None
 
 
 def test_extract_operational_config_reads_yaml_values() -> None:
@@ -54,10 +56,10 @@ def test_extract_operational_config_reads_yaml_values() -> None:
         "keep_panes": True,
         "model": "claude-opus-4-6",
     }
-    keep, model, tools, _, _, _ = _extract_operational_config(raw)
-    assert keep is True
-    assert model == "claude-opus-4-6"
-    assert tools == ()
+    ops = _extract_operational_config(raw)
+    assert ops.keep_panes is True
+    assert ops.model == "claude-opus-4-6"
+    assert ops.tools == ()
 
 
 def test_extract_operational_config_pops_keys() -> None:
@@ -70,6 +72,9 @@ def test_extract_operational_config_pops_keys() -> None:
         "anthropic_credential": "max_plan",
         "fail_fast_on_workstream_error": True,
         "fail_fast_on_internal_error": False,
+        "max_concurrency": 4,
+        "max_task_attempts": 2,
+        "teardown_mode": "never",
     }
     _extract_operational_config(raw)
     assert "keep_panes" not in raw
@@ -78,6 +83,9 @@ def test_extract_operational_config_pops_keys() -> None:
     assert "anthropic_credential" not in raw
     assert "fail_fast_on_workstream_error" not in raw
     assert "fail_fast_on_internal_error" not in raw
+    assert "max_concurrency" not in raw
+    assert "max_task_attempts" not in raw
+    assert "teardown_mode" not in raw
     assert "name" in raw
 
 
@@ -90,15 +98,15 @@ def test_extract_operational_config_does_not_pop_tmux_session() -> None:
 
 def test_extract_operational_config_parses_tools() -> None:
     raw: dict = {"name": "g", "tasks": [], "tools": ["pixi", "npm"]}
-    _, _, tools, _, _, _ = _extract_operational_config(raw)
-    assert tools == ("pixi", "npm")
+    ops = _extract_operational_config(raw)
+    assert ops.tools == ("pixi", "npm")
     assert "tasks" in raw
 
 
 def test_extract_operational_config_reads_anthropic_credential() -> None:
     raw: dict = {"name": "g", "tasks": [], "anthropic_credential": "max_plan"}
-    _, _, _, anthropic, _, _ = _extract_operational_config(raw)
-    assert anthropic == "max_plan"
+    ops = _extract_operational_config(raw)
+    assert ops.anthropic_credential == "max_plan"
 
 
 # --- _apply_overrides ---
@@ -404,7 +412,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _ = _load_and_prepare_graph(path)
+    graph, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is True
 
 
@@ -419,7 +427,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _ = _load_and_prepare_graph(path)
+    graph, _ = _load_and_prepare_graph(path)
     assert _any_task_uses_oci(graph) is False
 
 
@@ -464,20 +472,20 @@ def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
 
 def test_extract_operational_config_fail_fast_true() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": True}
-    _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
-    assert fail_fast is True
+    ops = _extract_operational_config(raw)
+    assert ops.fail_fast_on_workstream_error is True
 
 
 def test_extract_operational_config_fail_fast_false() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_workstream_error": False}
-    _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
-    assert fail_fast is False
+    ops = _extract_operational_config(raw)
+    assert ops.fail_fast_on_workstream_error is False
 
 
 def test_extract_operational_config_fail_fast_default_is_none() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    _, _, _, _, fail_fast, _ = _extract_operational_config(raw)
-    assert fail_fast is None
+    ops = _extract_operational_config(raw)
+    assert ops.fail_fast_on_workstream_error is None
 
 
 def test_extract_operational_config_fail_fast_pops_key() -> None:
@@ -503,20 +511,20 @@ def test_extract_operational_config_fail_fast_rejects_int() -> None:
 
 def test_extract_operational_config_fail_fast_internal_true() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_internal_error": True}
-    _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
-    assert fail_fast_internal is True
+    ops = _extract_operational_config(raw)
+    assert ops.fail_fast_on_internal_error is True
 
 
 def test_extract_operational_config_fail_fast_internal_false() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_internal_error": False}
-    _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
-    assert fail_fast_internal is False
+    ops = _extract_operational_config(raw)
+    assert ops.fail_fast_on_internal_error is False
 
 
 def test_extract_operational_config_fail_fast_internal_default_is_none() -> None:
     raw: dict = {"name": "g", "tasks": []}
-    _, _, _, _, _, fail_fast_internal = _extract_operational_config(raw)
-    assert fail_fast_internal is None
+    ops = _extract_operational_config(raw)
+    assert ops.fail_fast_on_internal_error is None
 
 
 def test_extract_operational_config_fail_fast_internal_pops_key() -> None:
@@ -534,6 +542,75 @@ def test_extract_operational_config_fail_fast_internal_rejects_string() -> None:
 def test_extract_operational_config_fail_fast_internal_rejects_int() -> None:
     raw: dict = {"name": "g", "tasks": [], "fail_fast_on_internal_error": 1}
     with pytest.raises(ValueError, match="must be a boolean"):
+        _extract_operational_config(raw)
+
+
+# --- _extract_operational_config: max_concurrency ---
+
+
+def test_extract_operational_config_max_concurrency() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_concurrency": 4}
+    ops = _extract_operational_config(raw)
+    assert ops.max_concurrency == 4
+
+
+def test_extract_operational_config_max_concurrency_pops_key() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_concurrency": 2}
+    _extract_operational_config(raw)
+    assert "max_concurrency" not in raw
+
+
+def test_extract_operational_config_max_concurrency_rejects_string() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_concurrency": "four"}
+    with pytest.raises(ValueError, match="must be an integer >= 1"):
+        _extract_operational_config(raw)
+
+
+def test_extract_operational_config_max_concurrency_rejects_zero() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_concurrency": 0}
+    with pytest.raises(ValueError, match="must be an integer >= 1"):
+        _extract_operational_config(raw)
+
+
+# --- _extract_operational_config: max_task_attempts ---
+
+
+def test_extract_operational_config_max_task_attempts() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_task_attempts": 3}
+    ops = _extract_operational_config(raw)
+    assert ops.max_task_attempts == 3
+
+
+def test_extract_operational_config_max_task_attempts_pops_key() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_task_attempts": 2}
+    _extract_operational_config(raw)
+    assert "max_task_attempts" not in raw
+
+
+def test_extract_operational_config_max_task_attempts_rejects_zero() -> None:
+    raw: dict = {"name": "g", "tasks": [], "max_task_attempts": 0}
+    with pytest.raises(ValueError, match="must be an integer >= 1"):
+        _extract_operational_config(raw)
+
+
+# --- _extract_operational_config: teardown_mode ---
+
+
+def test_extract_operational_config_teardown_mode() -> None:
+    raw: dict = {"name": "g", "tasks": [], "teardown_mode": "never"}
+    ops = _extract_operational_config(raw)
+    assert ops.teardown_mode == "never"
+
+
+def test_extract_operational_config_teardown_mode_pops_key() -> None:
+    raw: dict = {"name": "g", "tasks": [], "teardown_mode": "always"}
+    _extract_operational_config(raw)
+    assert "teardown_mode" not in raw
+
+
+def test_extract_operational_config_teardown_mode_rejects_invalid() -> None:
+    raw: dict = {"name": "g", "tasks": [], "teardown_mode": "sometimes"}
+    with pytest.raises(ValueError, match="must be one of"):
         _extract_operational_config(raw)
 
 
@@ -676,7 +753,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="oci")
+    graph, _ = _load_and_prepare_graph(path, sandbox_override="oci")
     assert _any_task_uses_oci(graph) is True
 
 
@@ -694,7 +771,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
+    graph, _ = _load_and_prepare_graph(path, sandbox_override="none")
     assert _any_task_uses_oci(graph) is False
 
 
@@ -714,7 +791,7 @@ tasks:
 """
     path = tmp_path / "graph.yaml"
     path.write_text(content)
-    graph, _, _, _, _, _ = _load_and_prepare_graph(path, sandbox_override="none")
+    graph, _ = _load_and_prepare_graph(path, sandbox_override="none")
     task = graph.task("task_a")
     assert task.primary_agent.isolation is not None
     assert task.primary_agent.isolation.sandbox_type == SandboxType.NONE
@@ -738,21 +815,21 @@ tasks:
         _load_and_prepare_graph(path)
 
 
-# --- _resolve_fail_fast ---
+# --- _resolve_override ---
 
 
-def test_resolve_fail_fast_cli_overrides_yaml() -> None:
-    assert _resolve_fail_fast(cli_value=False, yaml_value=True) is False
-    assert _resolve_fail_fast(cli_value=True, yaml_value=False) is True
+def test_resolve_override_cli_overrides_yaml() -> None:
+    assert _resolve_override(cli_value=False, yaml_value=True) is False
+    assert _resolve_override(cli_value=True, yaml_value=False) is True
 
 
-def test_resolve_fail_fast_yaml_used_when_cli_none() -> None:
-    assert _resolve_fail_fast(cli_value=None, yaml_value=True) is True
-    assert _resolve_fail_fast(cli_value=None, yaml_value=False) is False
+def test_resolve_override_yaml_used_when_cli_none() -> None:
+    assert _resolve_override(cli_value=None, yaml_value=True) is True
+    assert _resolve_override(cli_value=None, yaml_value=False) is False
 
 
-def test_resolve_fail_fast_none_when_both_none() -> None:
-    assert _resolve_fail_fast(cli_value=None, yaml_value=None) is None
+def test_resolve_override_none_when_both_none() -> None:
+    assert _resolve_override(cli_value=None, yaml_value=None) is None
 
 
 # --- docker_build.sh syntax ---

@@ -1,0 +1,38 @@
+name: config-surface
+model: claude-haiku-4-5-20251001
+tools:
+  - pixi
+max_concurrency: 2
+max_task_attempts: 1
+teardown_mode: on_success
+keep_panes: false
+fail_fast_on_workstream_error: false
+fail_fast_on_internal_error: true
+
+# Exercises all graph-level operational config fields.
+# Run 1 (YAML defaults): agentrelay run config-surface -g graphs -t <repo> -C <creds> -S oci
+# Run 2 (CLI overrides):  agentrelay run config-surface -g graphs -t <repo> -C <creds> -S oci \
+#   -m claude-sonnet-4-6 -c 1 -a 2 -T never -k -W -I
+
+workstreams:
+  - id: ws_a
+  - id: ws_b
+
+tasks:
+  - id: greet_fn
+    workstream_id: ws_a
+    description: >-
+      Create src/agentrelaydemos/greet.py containing exactly one function:
+      greet(name: str) -> str that returns f"Hello, {name}!".
+      Also create test/test_greet.py with a pytest test checking
+      greet("World") == "Hello, World!".
+    dependencies: []
+
+  - id: farewell_fn
+    workstream_id: ws_b
+    description: >-
+      Create src/agentrelaydemos/farewell.py containing exactly one function:
+      farewell(name: str) -> str that returns f"Goodbye, {name}!".
+      Also create test/test_farewell.py with a pytest test checking
+      farewell("World") == "Goodbye, World!".
+    dependencies: []

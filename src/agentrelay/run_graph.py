@@ -50,41 +50,44 @@ from agentrelay.task_runner.core.runner import TearDownMode
 from agentrelay.tools import ToolValidationError, validate_tools
 
 
-def _extract_operational_config(
-    raw: dict[str, Any],
-) -> tuple[
-    bool,
-    Optional[str],
-    tuple[str, ...],
-    Optional[str],
-    Optional[bool],
-    Optional[bool],
-]:
-    """Pop operational keys from a raw YAML dict before graph parsing.
+@dataclasses.dataclass(frozen=True)
+class OperationalConfig:
+    """Graph-level operational settings extracted from YAML.
 
-    The graph YAML may include operational keys (``keep_panes``, ``model``,
-    ``tools``, ``anthropic_credential``, ``fail_fast_on_workstream_error``,
-    ``fail_fast_on_internal_error``) that are not part of the structural
-    graph schema.  These must be removed before passing to
-    :meth:`TaskGraphBuilder.from_dict` (which rejects unknown keys).
+    These keys are popped from the raw YAML dict before graph parsing
+    (which rejects unknown keys).  ``None`` means "not specified in YAML;
+    fall back to CLI or default."
+    """
+
+    keep_panes: bool = False
+    model: Optional[str] = None
+    tools: tuple[str, ...] = ()
+    anthropic_credential: Optional[str] = None
+    fail_fast_on_workstream_error: Optional[bool] = None
+    fail_fast_on_internal_error: Optional[bool] = None
+    max_concurrency: Optional[int] = None
+    max_task_attempts: Optional[int] = None
+    teardown_mode: Optional[str] = None
+
+
+_VALID_TEARDOWN_MODES = {"always", "never", "on_success"}
+
+
+def _extract_operational_config(raw: dict[str, Any]) -> OperationalConfig:
+    """Pop operational keys from a raw YAML dict before graph parsing.
 
     Args:
         raw: Mutable raw YAML dict.  Modified in place.
 
     Returns:
-        Tuple of ``(keep_panes, model_default, tools,
-        anthropic_credential, fail_fast_on_workstream_error,
-        fail_fast_on_internal_error)``.
-        ``tools`` defaults to an empty tuple.
-        ``anthropic_credential`` is ``None`` if not specified.
-        ``fail_fast_on_workstream_error`` is ``None`` if not specified.
-        ``fail_fast_on_internal_error`` is ``None`` if not specified.
+        OperationalConfig with values from the YAML (or defaults).
     """
     keep_panes: bool = raw.pop("keep_panes", False)
     model: Optional[str] = raw.pop("model", None)
     raw_tools = raw.pop("tools", None)
     tools: tuple[str, ...] = tuple(raw_tools) if raw_tools else ()
     anthropic_credential: Optional[str] = raw.pop("anthropic_credential", None)
+
     raw_fail_fast: Optional[bool] = raw.pop("fail_fast_on_workstream_error", None)
     if raw_fail_fast is not None and not isinstance(raw_fail_fast, bool):
         raise ValueError(
@@ -99,13 +102,39 @@ def _extract_operational_config(
         raise ValueError(
             "Invalid graph schema at 'fail_fast_on_internal_error': must be a boolean"
         )
-    return (
-        keep_panes,
-        model,
-        tools,
-        anthropic_credential,
-        raw_fail_fast,
-        raw_fail_fast_internal,
+
+    raw_concurrency: Optional[int] = raw.pop("max_concurrency", None)
+    if raw_concurrency is not None:
+        if not isinstance(raw_concurrency, int) or raw_concurrency < 1:
+            raise ValueError(
+                "Invalid graph schema at 'max_concurrency': must be an integer >= 1"
+            )
+
+    raw_attempts: Optional[int] = raw.pop("max_task_attempts", None)
+    if raw_attempts is not None:
+        if not isinstance(raw_attempts, int) or raw_attempts < 1:
+            raise ValueError(
+                "Invalid graph schema at 'max_task_attempts': must be an integer >= 1"
+            )
+
+    raw_teardown: Optional[str] = raw.pop("teardown_mode", None)
+    if raw_teardown is not None:
+        if raw_teardown not in _VALID_TEARDOWN_MODES:
+            raise ValueError(
+                f"Invalid graph schema at 'teardown_mode': must be one of "
+                f"{sorted(_VALID_TEARDOWN_MODES)}, got {raw_teardown!r}"
+            )
+
+    return OperationalConfig(
+        keep_panes=keep_panes,
+        model=model,
+        tools=tools,
+        anthropic_credential=anthropic_credential,
+        fail_fast_on_workstream_error=raw_fail_fast,
+        fail_fast_on_internal_error=raw_fail_fast_internal,
+        max_concurrency=raw_concurrency,
+        max_task_attempts=raw_attempts,
+        teardown_mode=raw_teardown,
     )
 
 
@@ -160,14 +189,7 @@ def _load_and_prepare_graph(
     tmux_session: Optional[str] = None,
     model_override: Optional[str] = None,
     sandbox_override: Optional[str] = None,
-) -> tuple[
-    TaskGraph,
-    bool,
-    tuple[str, ...],
-    Optional[str],
-    Optional[bool],
-    Optional[bool],
-]:
+) -> tuple[TaskGraph, OperationalConfig]:
     """Load YAML, extract operational config, apply overrides, build graph.
 
     Args:
@@ -178,20 +200,12 @@ def _load_and_prepare_graph(
             ``"none"``).  Applied to every task when set.
 
     Returns:
-        Tuple of ``(graph, keep_panes, tools, anthropic_credential_name,
-        fail_fast_on_workstream_error, fail_fast_on_internal_error)``.
+        Tuple of ``(graph, ops_config)``.
     """
     raw = yaml.safe_load(graph_path.read_text())
-    (
-        yaml_keep_panes,
-        yaml_model,
-        tools,
-        yaml_anthropic,
-        yaml_fail_fast,
-        yaml_fail_fast_internal,
-    ) = _extract_operational_config(raw)
+    ops = _extract_operational_config(raw)
 
-    effective_model = model_override if model_override is not None else yaml_model
+    effective_model = model_override if model_override is not None else ops.model
 
     _apply_overrides(
         raw,
@@ -201,14 +215,7 @@ def _load_and_prepare_graph(
     )
 
     graph = TaskGraphBuilder.from_dict(raw)
-    return (
-        graph,
-        yaml_keep_panes,
-        tools,
-        yaml_anthropic,
-        yaml_fail_fast,
-        yaml_fail_fast_internal,
-    )
+    return (graph, ops)
 
 
 class _ConflictError(RuntimeError):
@@ -322,11 +329,11 @@ def _any_task_uses_oci(graph: TaskGraph) -> bool:
     return False
 
 
-def _resolve_fail_fast(
-    cli_value: Optional[bool],
-    yaml_value: Optional[bool],
-) -> Optional[bool]:
-    """Resolve ``fail_fast_on_workstream_error``: CLI > YAML > ``None``.
+def _resolve_override(
+    cli_value: Optional[Any],
+    yaml_value: Optional[Any],
+) -> Optional[Any]:
+    """Resolve a config value: CLI > YAML > ``None``.
 
     Returns ``None`` when neither CLI nor YAML specifies a value,
     leaving the :class:`OrchestratorConfig` default in effect.
@@ -343,7 +350,9 @@ async def run_graph(
     tmux_session: Optional[str] = None,
     keep_panes: bool = False,
     model_override: Optional[str] = None,
-    config: Optional[OrchestratorConfig] = None,
+    max_concurrency: Optional[int] = None,
+    max_task_attempts: Optional[int] = None,
+    teardown_mode: Optional[str] = None,
     fail_fast_on_workstream_error: Optional[bool] = None,
     fail_fast_on_internal_error: Optional[bool] = None,
     credential_provider: Optional[CredentialProvider] = None,
@@ -357,25 +366,28 @@ async def run_graph(
     :func:`build_standard_runner`, :func:`build_standard_workstream_runner`,
     and :class:`Orchestrator` together.
 
+    All ``Optional`` config parameters follow CLI > YAML > default
+    precedence.  ``None`` means "not specified by CLI; fall back to
+    graph YAML, then :class:`OrchestratorConfig` default."
+
     Args:
         graph_path: Path to the graph YAML file.
         repo_path: Path to the repository root.
         tmux_session: Override tmux session name (overrides YAML value).
         keep_panes: Keep tmux panes open after task completion.
         model_override: Override model for all agents (overrides YAML value).
-        config: Orchestrator configuration.  Defaults to
-            :class:`OrchestratorConfig` defaults.
-        fail_fast_on_workstream_error: CLI override for
-            ``OrchestratorConfig.fail_fast_on_workstream_error``.
-            When ``None``, falls back to graph YAML, then config default.
-        fail_fast_on_internal_error: CLI override for
-            ``OrchestratorConfig.fail_fast_on_internal_error``.
-            When ``None``, falls back to graph YAML, then config default.
+        max_concurrency: CLI override for max concurrent tasks.
+        max_task_attempts: CLI override for max attempts per task.
+        teardown_mode: CLI override for teardown mode
+            (``"always"``, ``"never"``, or ``"on_success"``).
+        fail_fast_on_workstream_error: CLI override for workstream
+            fail-fast behavior.
+        fail_fast_on_internal_error: CLI override for internal error
+            fail-fast behavior.
         credential_provider: Credential provider for sandboxed agents.
             When ``None``, :class:`NullCredentialProvider` is used.
         anthropic_credential_name: Name of the Anthropic credential to
-            use from the credentials YAML ``anthropic`` section.  CLI
-            override; falls back to graph YAML ``anthropic_credential``.
+            use from the credentials YAML ``anthropic`` section.
         sandbox_override: CLI override for sandbox type (``"oci"`` or
             ``"none"``).  When set, overrides sandbox config for all tasks.
         verbose: Show detailed step-level output during execution.
@@ -383,8 +395,7 @@ async def run_graph(
     Returns:
         OrchestratorResult: Terminal orchestration result.
     """
-    if config is None:
-        config = OrchestratorConfig()
+    config = OrchestratorConfig()
 
     # Resolve tmux session: CLI flag > auto-detect > error.
     if tmux_session is None:
@@ -395,49 +406,55 @@ async def run_graph(
             "Either run from inside a tmux session or use --tmux-session."
         )
 
-    (
-        graph,
-        yaml_keep_panes,
-        tools,
-        yaml_anthropic_name,
-        yaml_fail_fast,
-        yaml_fail_fast_internal,
-    ) = _load_and_prepare_graph(
+    graph, ops = _load_and_prepare_graph(
         graph_path,
         tmux_session=tmux_session,
         model_override=model_override,
         sandbox_override=sandbox_override,
     )
-    effective_keep_panes = keep_panes or yaml_keep_panes
+    effective_keep_panes = keep_panes or ops.keep_panes
 
-    # Resolve fail_fast_on_workstream_error: CLI > YAML > config default.
-    effective_fail_fast = _resolve_fail_fast(
-        fail_fast_on_workstream_error, yaml_fail_fast
-    )
-    if effective_fail_fast is not None:
+    # Resolve config fields: CLI > YAML > OrchestratorConfig default.
+    eff_concurrency = _resolve_override(max_concurrency, ops.max_concurrency)
+    if eff_concurrency is not None:
+        config = dataclasses.replace(config, max_concurrency=eff_concurrency)
+
+    eff_attempts = _resolve_override(max_task_attempts, ops.max_task_attempts)
+    if eff_attempts is not None:
+        config = dataclasses.replace(config, max_task_attempts=eff_attempts)
+
+    eff_teardown = _resolve_override(teardown_mode, ops.teardown_mode)
+    if eff_teardown is not None:
         config = dataclasses.replace(
-            config, fail_fast_on_workstream_error=effective_fail_fast
+            config, task_teardown_mode=TearDownMode(eff_teardown)
         )
 
-    # Resolve fail_fast_on_internal_error: CLI > YAML > config default.
-    effective_fail_fast_internal = _resolve_fail_fast(
-        fail_fast_on_internal_error, yaml_fail_fast_internal
+    eff_fail_fast = _resolve_override(
+        fail_fast_on_workstream_error, ops.fail_fast_on_workstream_error
     )
-    if effective_fail_fast_internal is not None:
+    if eff_fail_fast is not None:
         config = dataclasses.replace(
-            config, fail_fast_on_internal_error=effective_fail_fast_internal
+            config, fail_fast_on_workstream_error=eff_fail_fast
+        )
+
+    eff_fail_fast_internal = _resolve_override(
+        fail_fast_on_internal_error, ops.fail_fast_on_internal_error
+    )
+    if eff_fail_fast_internal is not None:
+        config = dataclasses.replace(
+            config, fail_fast_on_internal_error=eff_fail_fast_internal
         )
 
     assert graph.name is not None, "Graph must have a name"
 
     _check_for_conflicts(repo_path, graph.name)
     _validate_tmux_sessions(graph)
-    validate_tools(tools)
+    validate_tools(ops.tools)
     _record_run_start(repo_path, graph.name)
     _copy_graph_yaml(repo_path, graph.name, graph_path)
 
     # Resolve Anthropic credential: CLI flag > graph YAML default > auto-select.
-    effective_anthropic_name = anthropic_credential_name or yaml_anthropic_name
+    effective_anthropic_name = anthropic_credential_name or ops.anthropic_credential
     anthropic_credential: Optional[AnthropicCredential] = None
     if isinstance(credential_provider, FileCredentialProvider):
         anthropic_credential = credential_provider.resolve_anthropic(
@@ -461,7 +478,7 @@ async def run_graph(
             graph_name=graph.name,
             graph=graph,
             keep_panes=effective_keep_panes,
-            tools=tools,
+            tools=ops.tools,
             credential_provider=credential_provider,
             anthropic_credential=anthropic_credential,
         )
@@ -493,13 +510,13 @@ def dry_run(graph_path: Path) -> None:
     Args:
         graph_path: Path to the graph YAML file.
     """
-    graph, _, tools, _, _, _ = _load_and_prepare_graph(graph_path)
+    graph, ops = _load_and_prepare_graph(graph_path)
 
     print(f"Graph: {graph.name}")
     print(f"Tasks: {len(graph.task_ids())}")
     print(f"Workstreams: {len(graph.workstream_ids())}")
-    if tools:
-        print(f"Tools: {', '.join(tools)}")
+    if ops.tools:
+        print(f"Tools: {', '.join(ops.tools)}")
 
     print("\nWorkstreams:")
     for ws_id in graph.workstream_ids():
@@ -541,27 +558,6 @@ def _dry_run_conflict_check(repo_path: Path, graph_name: str) -> None:
         if worktree_dir.is_dir():
             print(f"  {worktree_dir}")
         print("  Run reset_graph to clean up before a real run.")
-
-
-def _build_config_from_args(args: argparse.Namespace) -> OrchestratorConfig:
-    """Build an OrchestratorConfig from parsed CLI arguments.
-
-    Only overrides fields that were explicitly provided on the command line.
-
-    Args:
-        args: Parsed CLI arguments.
-
-    Returns:
-        OrchestratorConfig with CLI overrides applied.
-    """
-    kwargs: dict[str, Any] = {}
-    if args.max_concurrency is not None:
-        kwargs["max_concurrency"] = args.max_concurrency
-    if args.max_task_attempts is not None:
-        kwargs["max_task_attempts"] = args.max_task_attempts
-    if args.teardown_mode is not None:
-        kwargs["task_teardown_mode"] = TearDownMode(args.teardown_mode)
-    return OrchestratorConfig(**kwargs)
 
 
 def _print_result(result: OrchestratorResult) -> None:
@@ -653,6 +649,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Stop scheduling immediately on internal orchestrator errors (default: true)",
     )
     parser.add_argument(
+        "-k",
+        "--keep-panes",
+        action="store_true",
+        help="Keep tmux panes open after task completion",
+    )
+    parser.add_argument(
         "-d",
         "--dry-run",
         action="store_true",
@@ -696,16 +698,17 @@ def main() -> None:
             sys.exit(1)
         credential_provider = FileCredentialProvider(creds_path)
 
-    config = _build_config_from_args(args)
-
     try:
         result = asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=repo_path,
                 tmux_session=args.tmux_session,
+                keep_panes=args.keep_panes,
                 model_override=args.model,
-                config=config,
+                max_concurrency=args.max_concurrency,
+                max_task_attempts=args.max_task_attempts,
+                teardown_mode=args.teardown_mode,
                 fail_fast_on_workstream_error=args.fail_fast_workstream,
                 fail_fast_on_internal_error=args.fail_fast_internal,
                 credential_provider=credential_provider,

@@ -62,40 +62,6 @@ Near-term items for the current architecture track.
   prototype was clumsy but had useful capabilities that shouldn't be
   accidentally dropped.
 
-## CLI / Graph YAML Configuration Gaps
-
-Audit of CLI flags vs graph YAML fields (2026-04-10) identified four
-configuration items that exist on only one surface when they should
-exist on both.
-
-### Graph YAML fields with no CLI equivalent
-
-- **`keep_panes`** (graph-level): Controls whether tmux panes stay open
-  after task completion. No CLI flag. Minor — add `--keep-panes` /
-  `-k` boolean flag for debugging convenience.
-
-### CLI flags with no graph YAML equivalent
-
-These three `OrchestratorConfig` fields are CLI-only. Graph authors
-often know the right values, and forcing CLI specification is friction
-for users running someone else's graph.
-
-- **`max_concurrency`** (`-c`): A graph with 4 independent workstreams
-  is designed for `-c 4`. Add `max_concurrency` as a graph-level YAML
-  field. Precedence: CLI > YAML > default (1).
-- **`max_task_attempts`** (`-a`): A graph with flaky tasks might want
-  `-a 3` by default. Add `max_task_attempts` as a graph-level YAML
-  field. Precedence: CLI > YAML > default (1).
-- **`teardown_mode`** (`-T`): Debugging graphs benefit from `never`.
-  The YAML has `keep_panes` but not the more general teardown control.
-  Add `teardown_mode` as a graph-level YAML field. Precedence: CLI >
-  YAML > default (`on_success`).
-
-All four follow the established precedence pattern: **CLI > YAML >
-default**. Implementation touches `_pop_operational_keys()` in
-`run_graph.py`, `_build_config_from_args()`, and the graph YAML schema
-docs. No structural changes to the orchestrator or task graph model.
-
 ## Credential Management
 
 - **Project-specific credentials files**: Currently `--credentials` takes a
@@ -647,6 +613,16 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   as an SVG image map, clickable SVG links, or a JavaScript overlay.
   Natural fit for the documentation sprint (Phase 5).
 
+## Code Quality
+
+- **Replace raw tuple returns with named types**: Audit the codebase for
+  functions that return raw tuples (especially heterogeneous ones) and
+  replace them with `dataclass` or `NamedTuple` return types. Named
+  fields are more readable than positional unpacking and prevent
+  ordering bugs as return values grow. `_extract_operational_config()`
+  in `run_graph.py` is the first example (converted in PR C of sprint
+  2026-04-09); scan for others.
+
 ## Documentation
 
 - **Design philosophy document**: Consolidate the project's design
@@ -684,6 +660,14 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
 
 ## Observability
 
+- **Record effective run config**: After CLI > YAML > default resolution,
+  write the effective `OrchestratorConfig` (and other resolved settings
+  like model, sandbox type, credential name) to
+  `.workflow/<graph>/run_config.json` at startup. Currently there's no
+  record of what values were actually used — if a CLI flag overrides a
+  YAML value, only the YAML is preserved (copied to `.workflow/`).
+  Simple JSON dump of all resolved config. Useful for post-mortem
+  debugging and future graph resumption.
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
 - **Orchestrator log files**: The orchestrator currently writes all output to
