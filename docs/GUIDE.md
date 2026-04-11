@@ -65,6 +65,7 @@ CLI flags:
 | `-A, --anthropic-credential NAME` | Name of Anthropic credential from credentials YAML | |
 | `-W, --fail-fast-workstream` | Stop preparing new workstreams after failure | `false` |
 | `-I, --fail-fast-internal` | Stop on internal orchestrator errors | `true` |
+| `-k, --keep-panes` | Keep tmux panes open after task completion | `false` |
 | `-v, --verbose` | Show detailed step-level output | |
 
 ## Preflight Checks

@@ -208,12 +208,30 @@ and must happen before a retry can succeed.
 - Tests: mock sandbox teardown in task runner tests, add retry
   scenario test
 
+### PR E: Record effective run config
+
+**Scope:** Small — single file write at orchestrator startup.
+
+After all CLI > YAML > default resolution, write the effective
+configuration to `.workflow/<graph>/run_config.json`. Currently
+there's no record of what values were actually used — if a CLI flag
+overrides a YAML value, only the YAML copy is preserved. This makes
+post-mortem debugging and future graph resumption harder.
+
+**Rough outline:**
+1. After config resolution in `run_graph()`, serialize the effective
+   `OrchestratorConfig` + other resolved settings (model, sandbox,
+   credential name, keep_panes, verbose) to JSON
+2. Write to `.workflow/<graph>/run_config.json` alongside the existing
+   `run_info.json`
+3. Tests: verify file is written with expected content
+
 ### Ordering
 
-PRs A, B, C, and D are independent and can be developed in parallel.
-A and B are pure CLI/docs. C is CLI plumbing and YAML extraction.
-D touches runtime code (task runner lifecycle + sandbox teardown) but
-is isolated to the teardown path.
+PRs A–E are independent and can be developed in parallel.
+A and B are pure CLI/docs (both merged). C is CLI plumbing and YAML
+extraction. D touches runtime code (task runner lifecycle + sandbox
+teardown). E is a single file write at startup.
 
 ## Out of scope
 

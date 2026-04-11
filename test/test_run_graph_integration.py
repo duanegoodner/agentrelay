@@ -10,7 +10,6 @@ from unittest.mock import MagicMock, patch
 
 from agentrelay.errors import IntegrationFailureClass
 from agentrelay.orchestrator import (
-    OrchestratorConfig,
     OrchestratorOutcome,
 )
 from agentrelay.run_graph import run_graph
@@ -167,12 +166,6 @@ def test_run_graph_passes_orchestrator_config(tmp_path: Path) -> None:
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
-    config = OrchestratorConfig(
-        max_concurrency=3,
-        max_task_attempts=2,
-        task_teardown_mode=TearDownMode.NEVER,
-    )
-
     with (
         patch(
             "agentrelay.run_graph.build_standard_runner",
@@ -190,7 +183,9 @@ def test_run_graph_passes_orchestrator_config(tmp_path: Path) -> None:
                 graph_path=graph_path,
                 repo_path=tmp_path,
                 tmux_session="test-session",
-                config=config,
+                max_concurrency=3,
+                max_task_attempts=2,
+                teardown_mode="never",
             )
         )
 

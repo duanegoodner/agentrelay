@@ -39,6 +39,7 @@ def test_run_defaults() -> None:
     assert args.fail_fast_workstream is None
     assert args.fail_fast_internal is None
     assert args.sandbox is None
+    assert args.keep_panes is False
     assert args.dry_run is False
     assert args.verbose is False
 
@@ -217,6 +218,7 @@ def test_run_short_options() -> None:
             "oci",
             "-W",
             "-I",
+            "-k",
             "-d",
         ]
     )
@@ -231,6 +233,7 @@ def test_run_short_options() -> None:
     assert args.sandbox == "oci"
     assert args.fail_fast_workstream is True
     assert args.fail_fast_internal is True
+    assert args.keep_panes is True
     assert args.dry_run is True
 
 

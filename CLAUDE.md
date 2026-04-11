@@ -34,6 +34,7 @@ The orchestrator merges PRs in dependency order.
 | `--sandbox` | `-S` | Override sandbox type (`oci` or `none`) |
 | `--fail-fast-workstream` | `-W` | Stop new workstreams after failure |
 | `--fail-fast-internal` | `-I` | Stop on internal orchestrator errors |
+| `--keep-panes` | `-k` | Keep tmux panes open after completion |
 | `--dry-run` | `-d` | Validate graph without running |
 | `--verbose` | `-v` | Show detailed step-level output |
 
@@ -75,6 +76,9 @@ Graph-level: `.workflow/<graph>/run_info.json` — start HEAD + timestamp (for r
 name: my-graph
 keep_panes: false              # optional; leave tmux windows open for debugging
 model: claude-sonnet-4-6       # optional; graph-level default model for all agents
+max_concurrency: 1             # optional; max concurrent tasks (default: 1)
+max_task_attempts: 1           # optional; max attempts per task (default: 1)
+teardown_mode: on_success      # optional; always | never | on_success (default: on_success)
 fail_fast_on_workstream_error: false  # optional; block new workstreams on failure (default: false)
 fail_fast_on_internal_error: true    # optional; halt on internal errors (default: true)
 tasks:
