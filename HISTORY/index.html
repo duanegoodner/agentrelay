@@ -527,10 +527,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ad" class="md-nav__link">
+  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ae" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)
+        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–E)
       
     </span>
   </a>
@@ -2343,10 +2343,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ad" class="md-nav__link">
+  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ae" class="md-nav__link">
     <span class="md-ellipsis">
       
-        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)
+        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–E)
       
     </span>
   </a>
@@ -3326,7 +3326,7 @@
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
 <h2 id="2026-04-09">2026-04-09</h2>
-<h3 id="cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ad">CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)</h3>
+<h3 id="cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ae">CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–E)</h3>
 <ul>
 <li><strong>CLI cleanup</strong> (PR #180): Fix <code>--max-concurrency</code> help text, add short
   options (<code>-a</code>, <code>-d</code>, <code>-T</code>, <code>-A</code>, <code>-C</code>, <code>-S</code>, <code>-W</code>, <code>-I</code>), shorten flag
@@ -3344,6 +3344,12 @@
   carries attempt number to sandbox operations. Sandbox instance stored on
   <code>TaskArtifacts</code>; <code>WorktreeTaskTeardown</code> calls <code>sandbox.teardown()</code> behind
   the existing <code>_should_teardown()</code> gate.</li>
+<li><strong>Default teardown mode → ALWAYS</strong> (PR E): Change
+  <code>OrchestratorConfig.task_teardown_mode</code> default from <code>ON_SUCCESS</code> to
+  <code>ALWAYS</code>. Tmux panes, branches, and containers are now cleaned up on
+  both success and failure. Persistent artifacts (<code>agent.log</code>,
+  <code>summary.md</code>, per-attempt archives) provide the same debugging data.
+  <code>ON_SUCCESS</code> and <code>NEVER</code> remain available via <code>-T</code> or graph YAML.</li>
 </ul>
 <hr />
 <h2 id="2026-04-05">2026-04-05</h2>
