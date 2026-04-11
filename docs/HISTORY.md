@@ -4,6 +4,29 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-09
+
+### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)
+
+- **CLI cleanup** (PR #180): Fix `--max-concurrency` help text, add short
+  options (`-a`, `-d`, `-T`, `-A`, `-C`, `-S`, `-W`, `-I`), shorten flag
+  names (`--fail-fast-workstream`, `--fail-fast-internal`).
+- **ELK layout engine** (PR #181): Switch from TALA to ELK for D2 diagram
+  rendering. Drop monolith `diagram-detailed.svg` (source `.d2` remains
+  as input to per-module generation). All 19 SVGs re-rendered.
+- **Graph YAML config fields** (PR #182): `max_concurrency`,
+  `max_task_attempts`, `teardown_mode` as graph-level YAML fields with
+  CLI-wins precedence. `--keep-panes` CLI flag for existing YAML field.
+  `OperationalConfig` dataclass replaces raw tuple.
+- **OCI container retry fix** (PR D): Attempt-indexed container names
+  (`agentrelay-{graph}-{task_id}-{attempt}`) and tmux window names prevent
+  `docker run` name collisions on retry. `SandboxContext.attempt_num` field
+  carries attempt number to sandbox operations. Sandbox instance stored on
+  `TaskArtifacts`; `WorktreeTaskTeardown` calls `sandbox.teardown()` behind
+  the existing `_should_teardown()` gate.
+
+---
+
 ## 2026-04-05
 
 ### Output composition and execution polish (sprint 2026-04-05 PRs A–C)

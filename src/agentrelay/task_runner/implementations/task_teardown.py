@@ -42,6 +42,13 @@ class WorktreeTaskTeardown:
                 keep_panes=self.keep_panes,
             )
 
+        sandbox = runtime.artifacts.sandbox
+        if sandbox is not None and runtime.artifacts.sandbox_context is not None:
+            try:
+                sandbox.teardown(runtime.artifacts.sandbox_context)
+            except Exception:
+                pass  # Best-effort: container may already be gone
+
         if runtime.state.branch_name is not None:
             try:
                 git.branch_delete(self.repo_path, runtime.state.branch_name)

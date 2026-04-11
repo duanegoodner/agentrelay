@@ -132,7 +132,7 @@ class OciSandbox:
         # Both scripts are baked into the framework image.
         full_cmd = f"claude-setup-credentials && claude-trust-workdir && {cmd}"
         return docker_ops.build_run_command(
-            container_name=f"agentrelay-{context.graph_name}-{context.task_id}",
+            container_name=f"agentrelay-{context.graph_name}-{context.task_id}-{context.attempt_num}",
             image=self._image,
             cmd=full_cmd,
             volumes=volumes,
@@ -152,7 +152,9 @@ class OciSandbox:
         Args:
             context: Execution context with task ID for container naming.
         """
-        name = f"agentrelay-{context.graph_name}-{context.task_id}"
+        name = (
+            f"agentrelay-{context.graph_name}-{context.task_id}-{context.attempt_num}"
+        )
         try:
             docker_ops.stop(name, self._runtime)
         except subprocess.CalledProcessError:

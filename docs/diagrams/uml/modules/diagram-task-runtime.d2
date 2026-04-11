@@ -69,6 +69,8 @@ task_runtime_pkg: "task_runtime/" {
     concerns: "list[str]"
     ops_concerns: "list[str]"
     agent_address: "AgentAddress | None"
+    sandbox: "AgentSandbox | None"
+    sandbox_context: "SandboxContext | None"
   }
 
   TaskRuntime: "TaskRuntime <<mutable dataclass>>" {
@@ -105,6 +107,14 @@ orchestrator_pkg: "orchestrator/" {
   TaskRuntimeBuilder: "TaskRuntimeBuilder" { shape: class }
 }
 
+sandbox_pkg: "sandbox/" {
+  style.opacity: 0.5
+  sandbox_core_pkg: "core/" {
+    AgentSandbox: "AgentSandbox" { shape: class }
+    SandboxContext: "SandboxContext" { shape: class }
+  }
+}
+
 task_py: "task.py" {
   style.opacity: 0.5
   Task: "Task <<frozen dataclass>>" { shape: class }
@@ -129,4 +139,6 @@ task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
 task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
+task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: "sandbox (optional)" { class: composition }
+task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.SandboxContext: "sandbox_context (optional)" { class: composition }
 orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }

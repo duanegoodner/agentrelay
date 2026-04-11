@@ -78,14 +78,19 @@ class TmuxTaskLauncher:
             repo_path=self.repo_path,
             task_id=runtime.task.id,
             graph_name=self.graph_name,
+            attempt_num=runtime.state.attempt_num,
             env_vars=env_vars,
         )
         self.sandbox.setup(context)
         cmd = self.sandbox.wrap_command(cmd, context)
 
+        runtime.artifacts.sandbox = self.sandbox
+        runtime.artifacts.sandbox_context = context
+
+        attempt = runtime.state.attempt_num
         return TmuxAgent.from_config(
             config=config,
-            task_id=f"{self.graph_name}-{runtime.task.id}",
+            task_id=f"{self.graph_name}-{runtime.task.id}-{attempt}",
             worktree_path=runtime.state.worktree_path,
             cmd=cmd,
         )

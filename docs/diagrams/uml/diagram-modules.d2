@@ -77,6 +77,7 @@ task_runner_pkg -> errors_pkg { class: dependency }
 orchestrator_pkg -> task_runner_pkg { class: dependency }
 task_runtime_pkg -> task_py { class: dependency }
 task_runtime_pkg -> agent_pkg { class: dependency }
+task_runtime_pkg -> sandbox_pkg { class: dependency }
 workstream_pkg -> ops_pkg { class: dependency }
 agent_comm_protocol_pkg -> task_py { class: dependency }
 task_runner_pkg -> ops_pkg { class: dependency }

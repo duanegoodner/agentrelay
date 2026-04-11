@@ -70,7 +70,7 @@ class TestTmuxTaskLauncher:
         assert agent is expected_agent
         mock_from_config.assert_called_once_with(
             config=runtime.task.primary_agent,
-            task_id="demo-task_1",
+            task_id="demo-task_1-0",
             worktree_path=Path("/repo/.workflow/demo/worktrees/task_1"),
             cmd=(
                 'AGENTRELAY_SIGNAL_DIR="/repo/.workflow/demo/signals/task_1"'
@@ -241,3 +241,71 @@ class TestTmuxTaskLauncher:
         mock_credential_provider.resolve.assert_called_once_with(TokenTier.ELEVATED)
         ctx_arg = mock_sandbox.setup.call_args[0][0]
         assert ctx_arg.env_vars == {"GH_TOKEN": "ghp_xxx"}
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_tmux_window_name_includes_attempt_num(
+        self, mock_from_config: MagicMock
+    ) -> None:
+        """Tmux window name includes attempt number for retry visibility."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        runtime = _make_runtime()
+        runtime.state.attempt_num = 2
+        launcher = _make_launcher()
+
+        launcher.launch(runtime)
+
+        assert mock_from_config.call_args.kwargs["task_id"] == "demo-task_1-2"
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_stores_sandbox_and_context_on_artifacts(
+        self, mock_from_config: MagicMock
+    ) -> None:
+        """Launcher stores sandbox and context on runtime artifacts after launch."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_sandbox = MagicMock()
+        mock_sandbox.wrap_command.return_value = "wrapped-cmd"
+        launcher = TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=mock_sandbox,
+            credential_provider=NullCredentialProvider(),
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        runtime = _make_runtime()
+
+        launcher.launch(runtime)
+
+        assert runtime.artifacts.sandbox is mock_sandbox
+        assert runtime.artifacts.sandbox_context is not None
+        assert runtime.artifacts.sandbox_context.task_id == "task_1"
+        assert runtime.artifacts.sandbox_context.graph_name == "demo"
+        assert runtime.artifacts.sandbox_context.attempt_num == 0
+
+    @patch("agentrelay.task_runner.implementations.task_launcher.TmuxAgent.from_config")
+    def test_sandbox_context_includes_attempt_num(
+        self, mock_from_config: MagicMock
+    ) -> None:
+        """SandboxContext includes attempt_num from runtime state."""
+        mock_from_config.return_value = TmuxAgent(
+            _address=TmuxAddress(session="s", pane_id="%1")
+        )
+        mock_sandbox = MagicMock()
+        mock_sandbox.wrap_command.return_value = "wrapped-cmd"
+        launcher = TmuxTaskLauncher(
+            adapter=ClaudeCodeAdapter(),
+            sandbox=mock_sandbox,
+            credential_provider=NullCredentialProvider(),
+            repo_path=Path("/repo"),
+            graph_name="demo",
+        )
+        runtime = _make_runtime()
+        runtime.state.attempt_num = 3
+
+        launcher.launch(runtime)
+
+        assert runtime.artifacts.sandbox_context is not None
+        assert runtime.artifacts.sandbox_context.attempt_num == 3

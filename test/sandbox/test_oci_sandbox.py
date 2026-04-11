@@ -131,7 +131,7 @@ class TestOciSandboxWrapCommand:
         assert result == "docker run ..."
         mock_git.worktree_git_dir.assert_called_once_with(ctx.worktree_path)
         mock_docker.build_run_command.assert_called_once_with(
-            container_name="agentrelay-test-graph-task_a",
+            container_name="agentrelay-test-graph-task_a-0",
             image="myimage:v1",
             cmd="claude-setup-credentials && claude-trust-workdir && claude --model opus",
             volumes=[
@@ -242,6 +242,21 @@ class TestOciSandboxWrapCommand:
             "volumes"
         ]
 
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.git_ops")
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_container_name_includes_attempt_num(
+        self, mock_docker: MagicMock, mock_git: MagicMock
+    ) -> None:
+        """Container name includes attempt number for retry uniqueness."""
+        mock_git.worktree_git_dir.return_value = Path("/repo/.git")
+        mock_docker.build_run_command.return_value = "docker run ..."
+
+        sandbox = OciSandbox()
+        sandbox.wrap_command("claude", _make_context(attempt_num=2))
+
+        call_kwargs = mock_docker.build_run_command.call_args.kwargs
+        assert call_kwargs["container_name"] == "agentrelay-test-graph-task_a-2"
+
 
 class TestOciSandboxAnthropicCredential:
     """Tests for Anthropic credential injection."""
@@ -332,9 +347,11 @@ class TestOciSandboxTeardown:
         sandbox.teardown(_make_context())
 
         mock_docker.stop.assert_called_once_with(
-            "agentrelay-test-graph-task_a", "docker"
+            "agentrelay-test-graph-task_a-0", "docker"
         )
-        mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "docker")
+        mock_docker.rm.assert_called_once_with(
+            "agentrelay-test-graph-task_a-0", "docker"
+        )
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_swallows_stop_error(self, mock_docker: MagicMock) -> None:
@@ -344,7 +361,9 @@ class TestOciSandboxTeardown:
         sandbox = OciSandbox()
         sandbox.teardown(_make_context())
 
-        mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "docker")
+        mock_docker.rm.assert_called_once_with(
+            "agentrelay-test-graph-task_a-0", "docker"
+        )
 
     @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
     def test_swallows_rm_error(self, mock_docker: MagicMock) -> None:
@@ -361,6 +380,21 @@ class TestOciSandboxTeardown:
         sandbox.teardown(_make_context())
 
         mock_docker.stop.assert_called_once_with(
-            "agentrelay-test-graph-task_a", "podman"
+            "agentrelay-test-graph-task_a-0", "podman"
         )
-        mock_docker.rm.assert_called_once_with("agentrelay-test-graph-task_a", "podman")
+        mock_docker.rm.assert_called_once_with(
+            "agentrelay-test-graph-task_a-0", "podman"
+        )
+
+    @patch("agentrelay.sandbox.implementations.oci_sandbox.docker_ops")
+    def test_container_name_includes_attempt_num(self, mock_docker: MagicMock) -> None:
+        """Container name includes attempt number for retry uniqueness."""
+        sandbox = OciSandbox()
+        sandbox.teardown(_make_context(attempt_num=3))
+
+        mock_docker.stop.assert_called_once_with(
+            "agentrelay-test-graph-task_a-3", "docker"
+        )
+        mock_docker.rm.assert_called_once_with(
+            "agentrelay-test-graph-task_a-3", "docker"
+        )

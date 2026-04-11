@@ -111,6 +111,57 @@ class TestWorktreeTaskTeardown:
 
         teardown.teardown(runtime)  # Should not raise
 
+    @patch("agentrelay.task_runner.implementations.task_teardown.git")
+    def test_calls_sandbox_teardown_when_present(
+        self,
+        _mock_git: MagicMock,
+    ) -> None:
+        """Calls sandbox.teardown with context when both are set."""
+        mock_sandbox = MagicMock()
+        mock_context = MagicMock()
+        teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+        runtime.artifacts.agent_address = MagicMock()
+        runtime.artifacts.sandbox = mock_sandbox
+        runtime.artifacts.sandbox_context = mock_context
+
+        teardown.teardown(runtime)
+
+        mock_sandbox.teardown.assert_called_once_with(mock_context)
+
+    @patch("agentrelay.task_runner.implementations.task_teardown.git")
+    def test_handles_missing_sandbox_gracefully(
+        self,
+        mock_git: MagicMock,
+    ) -> None:
+        """Does not error when sandbox is None."""
+        teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+        runtime.artifacts.agent_address = MagicMock()
+
+        teardown.teardown(runtime)  # Should not raise
+
+        mock_git.branch_delete.assert_called_once()
+
+    @patch("agentrelay.task_runner.implementations.task_teardown.git")
+    def test_sandbox_teardown_error_swallowed(
+        self,
+        mock_git: MagicMock,
+    ) -> None:
+        """Sandbox teardown errors are swallowed (best-effort)."""
+        mock_sandbox = MagicMock()
+        mock_sandbox.teardown.side_effect = RuntimeError("container gone")
+        teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+        runtime.artifacts.agent_address = MagicMock()
+        runtime.artifacts.sandbox = mock_sandbox
+        runtime.artifacts.sandbox_context = MagicMock()
+
+        teardown.teardown(runtime)  # Should not raise
+
+        # Branch delete still runs after sandbox teardown error
+        mock_git.branch_delete.assert_called_once()
+
     def test_satisfies_task_teardown_protocol(self) -> None:
         """WorktreeTaskTeardown satisfies the TaskTeardown protocol."""
         teardown = WorktreeTaskTeardown(repo_path=Path("/repo"))
