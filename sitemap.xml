@@ -189,10 +189,6 @@
          <lastmod>2026-04-11</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/sprints/2026-04-09-cli-cleanup-and-diagram-tooling/</loc>
-         <lastmod>2026-04-11</lastmod>
-    </url>
-    <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-03-10-arch-improvements/</loc>
          <lastmod>2026-04-11</lastmod>
     </url>
@@ -242,6 +238,10 @@
     </url>
     <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-07-e2e-oci-validation/</loc>
+         <lastmod>2026-04-11</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-09-cli-cleanup-and-diagram-tooling/</loc>
          <lastmod>2026-04-11</lastmod>
     </url>
 </urlset>

@@ -834,6 +834,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1951,6 +1962,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#visualization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#observability" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2618,6 +2640,32 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   <code>__init__.py</code> and module-level docstrings for Sphinx-isms (<code>::</code> literal
   blocks, <code>:param:</code> fields, <code>:type:</code> annotations) and convert to Google
   style.</p>
+</li>
+</ul>
+<h2 id="visualization">Visualization</h2>
+<ul>
+<li>
+<p><strong>Graph diagram for documentation</strong>: Create a sample graph visualization
+  showing tasks as nodes inside container boundaries, grouped into
+  workstreams, with dependency edges between them. Purpose: give readers
+  and new users a clear mental model of what a graph looks like at runtime
+  (tasks, containers, workstreams, dependencies). Include in README and
+  design docs. Could be hand-drawn in D2 or generated from a representative
+  graph YAML.</p>
+</li>
+<li>
+<p><strong>Graph visualization tool</strong>: Build a tool/script that takes a graph YAML
+  file as input and generates a graphical representation of the DAG.
+  <strong>Static version (MVP)</strong>: Render tasks as nodes with dependency edges,
+  grouped by workstream, output as SVG or HTML. Could use D2, Graphviz,
+  or a JavaScript library.
+  <strong>Live version (stretch)</strong>: Display the graph in a browser while it's
+  running, with color changes and indicators showing task status progression
+  (pending → running → PR created → merged / failed). Could read signal
+  files or subscribe to orchestrator events. Natural fit for a web dashboard
+  using something like D3.js, Cytoscape.js, or ELK.js. Consider whether
+  the live version is Python-era (useful for demos and debugging) or
+  Rust-era (benefits from structured event stream).</p>
 </li>
 </ul>
 <h2 id="observability">Observability</h2>
