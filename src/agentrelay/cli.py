@@ -273,7 +273,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--teardown-mode",
         choices=["always", "never", "on_success"],
         default=None,
-        help="When to tear down task resources (default: on_success)",
+        help="When to tear down task resources (default: always)",
     )
     run_parser.add_argument(
         "-s",

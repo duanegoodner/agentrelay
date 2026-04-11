@@ -6,7 +6,7 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-04-09
 
-### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)
+### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–E)
 
 - **CLI cleanup** (PR #180): Fix `--max-concurrency` help text, add short
   options (`-a`, `-d`, `-T`, `-A`, `-C`, `-S`, `-W`, `-I`), shorten flag
@@ -24,6 +24,12 @@ Chronological log of significant changes to the main codebase. For full details 
   carries attempt number to sandbox operations. Sandbox instance stored on
   `TaskArtifacts`; `WorktreeTaskTeardown` calls `sandbox.teardown()` behind
   the existing `_should_teardown()` gate.
+- **Default teardown mode → ALWAYS** (PR E): Change
+  `OrchestratorConfig.task_teardown_mode` default from `ON_SUCCESS` to
+  `ALWAYS`. Tmux panes, branches, and containers are now cleaned up on
+  both success and failure. Persistent artifacts (`agent.log`,
+  `summary.md`, per-attempt archives) provide the same debugging data.
+  `ON_SUCCESS` and `NEVER` remain available via `-T` or graph YAML.
 
 ---
 

@@ -84,7 +84,7 @@ class OrchestratorConfig:
 
     max_concurrency: int = 1
     max_task_attempts: int = 1
-    task_teardown_mode: TearDownMode = TearDownMode.ON_SUCCESS
+    task_teardown_mode: TearDownMode = TearDownMode.ALWAYS
     fail_fast_on_internal_error: bool = True
     fail_fast_on_workstream_error: bool = False
     merge_poll_interval: float = 30.0
