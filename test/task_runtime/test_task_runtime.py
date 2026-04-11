@@ -77,10 +77,12 @@ class TestTaskArtifacts:
     """Tests for TaskArtifacts (outputs and observations)."""
 
     def test_default_artifacts(self) -> None:
-        """TaskArtifacts defaults to no PR and no concerns."""
+        """TaskArtifacts defaults to no PR, no concerns, and no sandbox."""
         artifacts = TaskArtifacts()
         assert artifacts.pr_url is None
         assert artifacts.concerns == []
+        assert artifacts.sandbox is None
+        assert artifacts.sandbox_context is None
 
     def test_set_pr_url(self) -> None:
         """TaskArtifacts can track PR URL."""

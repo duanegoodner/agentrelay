@@ -18,10 +18,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from agentrelay.agent import AgentAddress
 from agentrelay.task import Task
+
+if TYPE_CHECKING:
+    from agentrelay.sandbox import AgentSandbox, SandboxContext
 
 # ── Enums ──
 
@@ -152,12 +155,20 @@ class TaskArtifacts:
         agent_address: Address of the agent that executed this task (e.g. tmux
             session + pane), or None if no agent has been launched yet. Stored
             as an immutable audit trail after agent teardown.
+        sandbox: Sandbox instance used to launch the agent, or None if no
+            sandbox was configured. Stored so teardown can clean up the
+            container (or other sandbox resources) after task completion.
+        sandbox_context: Execution context passed to the sandbox, or None.
+            Paired with ``sandbox`` so teardown can call
+            ``sandbox.teardown(sandbox_context)``.
     """
 
     pr_url: Optional[str] = None
     concerns: list[str] = field(default_factory=list)
     ops_concerns: list[str] = field(default_factory=list)
     agent_address: Optional[AgentAddress] = None
+    sandbox: Optional[AgentSandbox] = None
+    sandbox_context: Optional[SandboxContext] = None
 
 
 @dataclass

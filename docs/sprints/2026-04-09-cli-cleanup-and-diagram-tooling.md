@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-09: CLI Cleanup + Diagram Tooling
 
-> **Status: Planning.**
+> **Status: In progress.** PRs A–C merged (#180–#182). PRs D–F remain.
 
 ## Goal
 
@@ -55,7 +55,7 @@ detail) is planned for the documentation sprint (Phase 5).
 
 ## Plan
 
-### PR A: CLI cleanup
+### PR A: CLI cleanup — Merged (#180)
 
 **Scope:** Half-day effort.
 
@@ -77,7 +77,7 @@ detail) is planned for the documentation sprint (Phase 5).
 **Files touched:** `src/agentrelay/cli.py`, `src/agentrelay/run_graph.py`,
 tests for CLI argument parsing.
 
-### PR B: Switch to ELK layout engine, drop monolith diagram
+### PR B: Switch to ELK layout engine, drop monolith diagram — Merged (#181)
 
 **Scope:** Small — layout engine swap + remove monolith SVG render.
 
@@ -110,7 +110,7 @@ tests for CLI argument parsing.
 - `docs/DIAGRAM.md`, `CLAUDE.md`, `docs/BACKLOG.md`,
   `docs/planning/pre-rust-roadmap.md` (doc updates)
 
-### PR C: Graph YAML fields for orchestrator config
+### PR C: Graph YAML fields for orchestrator config — Merged (#182)
 
 **Scope:** Small — same pattern as existing `fail_fast_*` YAML fields.
 
@@ -156,8 +156,8 @@ else's graph.
 
 ### PR D: Fix OCI container cleanup on task retry
 
-**Scope:** Small-medium — touches task runner lifecycle and sandbox
-teardown wiring.
+**Scope:** Small-medium — touches task runner lifecycle, sandbox
+teardown wiring, and naming conventions.
 
 **Bug:** When a task fails under OCI sandbox mode and the orchestrator
 retries it (`-a > 1`), the old Docker container still exists with name
@@ -173,13 +173,23 @@ e2e testing of `blocked-downstream` graph with `-a 2 -S oci`.
    failure at all — so even if sandbox teardown were wired in, it
    wouldn't fire when it's needed most (before a retry).
 
-**Fix approach:**
+**Fix approach (three parts):**
 
-Container cleanup should be **unconditional** — a stale container
-always blocks retries regardless of the user's teardown preference.
-The `TearDownMode` setting controls tmux pane and worktree cleanup
-(useful for debugging), but container removal has no debugging value
-and must happen before a retry can succeed.
+**Part 1: Attempt-indexed naming.** Include the attempt number in
+container names and tmux window names:
+- Container: `agentrelay-{graph}-{task_id}` →
+  `agentrelay-{graph}-{task_id}-{attempt}`
+- Tmux window: `{graph}-{task_id}` → `{graph}-{task_id}-{attempt}`
+
+This sidesteps the name conflict entirely — each retry gets a unique
+name. For tmux, it also makes debugging retries easier (both windows
+visible side by side). One-line change in each location.
+
+**Part 2: Wire sandbox teardown.** Container cleanup should be
+**unconditional** — a stale container always blocks retries regardless
+of the user's teardown preference. The `TearDownMode` setting controls
+tmux pane and worktree cleanup, but container removal has no debugging
+value and must happen before a retry can succeed.
 
 1. Store the `AgentSandbox` instance in `TaskArtifacts` (or pass it
    to the teardown handler via the builder). The sandbox is created
@@ -197,6 +207,10 @@ and must happen before a retry can succeed.
    containers).
 
 **Files touched:**
+- `src/agentrelay/sandbox/implementations/oci_sandbox.py` — attempt
+  in container name
+- `src/agentrelay/agent/implementations/tmux_agent.py` — attempt in
+  window name
 - `src/agentrelay/task_runner/implementations/task_teardown.py` —
   call `sandbox.teardown()` unconditionally
 - `src/agentrelay/task_runner/implementations/task_launcher.py` —
@@ -208,7 +222,35 @@ and must happen before a retry can succeed.
 - Tests: mock sandbox teardown in task runner tests, add retry
   scenario test
 
-### PR E: Record effective run config
+### PR E: Change default TearDownMode to ALWAYS
+
+**Scope:** Small — one default change + test updates.
+
+The "keep panes for debugging" approach (`ON_SUCCESS` default) made
+sense early on, but now we have persistent artifacts (`agent.log`,
+`summary.md`, `concerns.log`, per-attempt archives) that contain
+everything you'd get from a tmux pane — and survive session restarts.
+In practice, `ON_SUCCESS` leaves orphaned tmux windows after test runs
+that require manual cleanup.
+
+**Changes:**
+- Change `OrchestratorConfig.task_teardown_mode` default from
+  `TearDownMode.ON_SUCCESS` to `TearDownMode.ALWAYS`
+- `ON_SUCCESS` becomes opt-in debugging mode (`-T on_success` or
+  `teardown_mode: on_success` in graph YAML) for live pane inspection
+- `NEVER` stays for deep debugging of agentrelay itself
+- Future debugging investment goes to logging, not persistent panes
+
+**Files touched:**
+- `src/agentrelay/orchestrator/orchestrator.py` — change default
+- Tests: update any that assert `ON_SUCCESS` as default
+- Docs: update `CLAUDE.md` and `docs/GUIDE.md` to note new default
+
+**Depends on:** PR D (sandbox teardown is wired into the
+`_should_teardown()` gate — that plumbing must land first so the
+default change applies to containers too).
+
+### PR F: Record effective run config
 
 **Scope:** Small — single file write at orchestrator startup.
 
@@ -228,10 +270,10 @@ post-mortem debugging and future graph resumption harder.
 
 ### Ordering
 
-PRs A–E are independent and can be developed in parallel.
-A and B are pure CLI/docs (both merged). C is CLI plumbing and YAML
-extraction. D touches runtime code (task runner lifecycle + sandbox
-teardown). E is a single file write at startup.
+PRs A–D are independent. PR E depends on PR D. PR F is independent.
+A, B, and C are merged (#180, #181, #182). D wires sandbox teardown
+into the task runner lifecycle. E flips the default teardown mode,
+building on D's plumbing. F is a standalone config recording feature.
 
 ## Out of scope
 

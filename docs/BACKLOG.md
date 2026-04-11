@@ -113,22 +113,10 @@ Near-term items for the current architecture track.
   real use cases justify per-task credential selection.
 ## Container Infrastructure
 
-- **OCI container not removed on task failure (retry name conflict)**:
-  When a task fails under OCI sandbox mode and the orchestrator retries
-  it (`--max-task-attempts > 1`), the old container is still running or
-  stopped with name `agentrelay-<graph>-<task_id>`. The retry launches
-  a new `docker run` with the same name and gets "Conflict. The
-  container name is already in use." Two gaps:
-  1. `WorktreeTaskTeardown` never calls `sandbox.teardown()` — the
-     `OciSandbox` instance is created in the launcher but not passed
-     to the teardown handler.
-  2. The default `TearDownMode.ON_SUCCESS` means teardown doesn't run
-     on failure at all, so even if the sandbox were wired in, it
-     wouldn't be called.
-  Fix: wire `OciSandbox.teardown()` into the task teardown lifecycle,
-  and ensure container cleanup runs unconditionally (regardless of
-  teardown mode) since a stale container blocks retries. See sprint
-  doc `2026-04-09-cli-cleanup-and-diagram-tooling.md` PR D.
+- ~~**OCI container not removed on task failure (retry name conflict)**~~:
+  **Resolved** in PR D (sprint 2026-04-09). Attempt-indexed container and
+  tmux window naming prevents collisions. Sandbox teardown wired into
+  `WorktreeTaskTeardown` behind the `_should_teardown()` gate.
 - **Agent framework pre-seed versioning**: The Docker image pre-seeds
   config files (`.claude.json`, `statsig.json`) and startup scripts
   (`claude-setup-credentials`, `claude-trust-workdir`) to suppress
@@ -604,6 +592,17 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   signal_dir consumer (agent SDK CLI tools, completion checker, preparer, gate
   checker, teardown, reset_graph).
 
+- **Uniform per-attempt directories**: Currently, past attempts are archived
+  under `signal_dir/attempts/<N>/` but the current (latest) attempt's
+  artifacts live directly under `signal_dir/`. Consider giving the current
+  attempt its own `attempts/<N>/` directory too, so all attempts have a
+  uniform layout. Simplifies post-mortem inspection (every attempt at the
+  same depth) and avoids the "latest artifacts are in a different place"
+  inconsistency. Use the attempt index as directory name rather than
+  `latest` (which would require renaming on failure). Touches
+  `_archive_attempt_artifacts`, `reset_for_retry`, signal readers,
+  completion checker, and agent SDK file paths.
+
 ## Diagram Tooling
 
 - **Interactive module overview on docs site**: Enhance the module
@@ -708,3 +707,11 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   debugging much easier — you'd see both the agent's perspective
   (agent.log) and the orchestrator's perspective (events.log) for each
   attempt side by side.
+- **Logging over persistent panes as the debugging strategy**: With
+  `agent.log`, `summary.md`, `concerns.log`, `ops_concerns.log`, and
+  per-attempt artifact archiving, persistent tmux panes are no longer
+  the primary debugging tool. Future investment should go to structured
+  logging (per-attempt event logs, `run_config.json`, orchestrator log
+  files) rather than keeping panes alive after failure. The default
+  `TearDownMode` has been changed to `ALWAYS` (PR D, sprint 2026-04-09);
+  `ON_SUCCESS` is now an opt-in debugging mode for live pane inspection.

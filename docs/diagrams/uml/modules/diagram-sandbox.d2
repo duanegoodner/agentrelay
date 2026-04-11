@@ -91,6 +91,7 @@ sandbox_pkg: "sandbox/" {
       repo_path: Path
       task_id: str
       graph_name: str
+      attempt_num: int
       env_vars: "dict[str, str]"
     }
 
@@ -161,6 +162,11 @@ task_py: "task.py" {
   Task: "Task <<frozen dataclass>>" { shape: class }
 }
 
+task_runtime_pkg: "task_runtime/" {
+  style.opacity: 0.5
+  TaskArtifacts: "TaskArtifacts <<mutable dataclass>>" { shape: class }
+}
+
 workstream_pkg: "workstream/" {
   style.opacity: 0.5
   workstream_core_pkg: "core/" {
@@ -189,3 +195,5 @@ sandbox_pkg.sandbox_impl_pkg.FileCredentialProvider -> sandbox_pkg.sandbox_core_
 task_py.AgentConfig -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_py.Task -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
+task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: "sandbox (optional)" { class: composition }
+task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.SandboxContext: "sandbox_context (optional)" { class: composition }

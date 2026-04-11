@@ -129,6 +129,8 @@ class SandboxContext:
         repo_path: Absolute path to the main repository.
         task_id: Unique identifier of the task being sandboxed.
         graph_name: Name of the task graph being executed.
+        attempt_num: Current attempt number (0-indexed). Used to generate
+            unique container and tmux window names across retries.
         env_vars: Environment variables to inject into the sandbox.
     """
 
@@ -137,4 +139,5 @@ class SandboxContext:
     repo_path: Path
     task_id: str
     graph_name: str
+    attempt_num: int = 0
     env_vars: dict[str, str] = field(default_factory=dict)
