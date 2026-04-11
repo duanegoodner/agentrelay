@@ -389,19 +389,19 @@ class StandardTaskRunner:
         getattr(runtime, method_name)()
 
     def _save_pr_summary(self, runtime: TaskRuntime, pr_url: str) -> None:
-        """Fetch PR body and write summary.md to the signal directory.
+        """Fetch PR body and write summary.md to the attempt directory.
 
         Silently skips if the fetch fails or the body is empty — saving
         the summary must not block the merge.
         """
-        if runtime.state.signal_dir is None:
+        if runtime.attempt_dir is None:
             return
         try:
             body = gh.pr_body(pr_url)
         except Exception:
             return
         if body:
-            signals.write_text(runtime.state.signal_dir, "summary.md", body)
+            signals.write_text(runtime.attempt_dir, "summary.md", body)
 
     def _record_io_failure(
         self, runtime: TaskRuntime, exc: Exception

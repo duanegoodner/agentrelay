@@ -6,7 +6,7 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ## 2026-04-09
 
-### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–F)
+### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–G)
 
 - **CLI cleanup** (PR #180): Fix `--max-concurrency` help text, add short
   options (`-a`, `-d`, `-T`, `-A`, `-C`, `-S`, `-W`, `-I`), shorten flag
@@ -35,6 +35,14 @@ Chronological log of significant changes to the main codebase. For full details 
   `OrchestratorConfig` fields plus model, sandbox, credential, keep_panes,
   and verbose settings. Provides a complete post-mortem record of what
   values were actually used for a run.
+- **Uniform per-attempt signal directories** (PR G): Agent-written
+  artifacts (`.done`, `.failed`, `concerns.log`, `ops_concerns.log`,
+  `summary.md`, `agent.log`, `gate_last_output.txt`) now live under
+  `signal_dir/attempts/<N>/` for every attempt, including the current
+  one. Eliminates the split between archived and current-attempt layouts.
+  Removes `_archive_attempt_artifacts()` and `_clear_agent_signals()`
+  from `reset_for_retry()`. Orchestrator-managed files (`manifest.json`,
+  `instructions.md`, `status/`, `outputs.json`) stay at signal_dir level.
 
 ---
 

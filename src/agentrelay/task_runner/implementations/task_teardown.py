@@ -38,7 +38,7 @@ class WorktreeTaskTeardown:
 
         if agent_address is not None:
             agent_address.teardown(
-                signal_dir=runtime.state.signal_dir,
+                signal_dir=runtime.attempt_dir,
                 keep_panes=self.keep_panes,
             )
 

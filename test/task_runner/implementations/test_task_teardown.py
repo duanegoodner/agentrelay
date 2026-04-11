@@ -46,7 +46,7 @@ class TestWorktreeTaskTeardown:
         teardown.teardown(runtime)
 
         mock_address.teardown.assert_called_once_with(
-            signal_dir=Path("/repo/.workflow/demo/signals/task_1"),
+            signal_dir=Path("/repo/.workflow/demo/signals/task_1/attempts/0"),
             keep_panes=False,
         )
 
@@ -64,7 +64,7 @@ class TestWorktreeTaskTeardown:
         teardown.teardown(runtime)
 
         mock_address.teardown.assert_called_once_with(
-            signal_dir=Path("/repo/.workflow/demo/signals/task_1"),
+            signal_dir=Path("/repo/.workflow/demo/signals/task_1/attempts/0"),
             keep_panes=True,
         )
 

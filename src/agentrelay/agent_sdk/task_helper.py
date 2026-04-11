@@ -50,11 +50,13 @@ class TaskHelper:
         task_id: str,
         branch_name: str,
         integration_branch: str,
+        attempt_num: int = 0,
     ) -> None:
         self.signal_dir = signal_dir
         self.task_id = task_id
         self.branch_name = branch_name
         self.integration_branch = integration_branch
+        self.attempt_dir = signal_dir / "attempts" / str(attempt_num)
 
     @classmethod
     def from_env(cls) -> TaskHelper:
@@ -71,6 +73,7 @@ class TaskHelper:
             task_id=manifest["task"]["id"],
             branch_name=manifest["workspace"]["branch_name"],
             integration_branch=manifest["workspace"]["integration_branch"],
+            attempt_num=manifest["execution"]["attempt_num"],
         )
 
     # -- Completion workflow ------------------------------------------------
@@ -230,21 +233,23 @@ class TaskHelper:
         Args:
             concern: Description of the concern.
         """
-        concerns_path = self.signal_dir / "concerns.log"
+        concerns_path = self.attempt_dir / "concerns.log"
+        concerns_path.parent.mkdir(parents=True, exist_ok=True)
         with open(concerns_path, "a") as f:
             f.write(concern.strip() + "\n")
 
     def record_ops_concern(self, concern: str) -> None:
         """Record an operational concern.
 
-        Appends a line to ``ops_concerns.log`` in the signal directory.
+        Appends a line to ``ops_concerns.log`` in the attempt directory.
         Ops concerns capture build errors, missing dependencies, tooling
         friction, and similar environmental issues.
 
         Args:
             concern: Description of the operational concern.
         """
-        ops_path = self.signal_dir / "ops_concerns.log"
+        ops_path = self.attempt_dir / "ops_concerns.log"
+        ops_path.parent.mkdir(parents=True, exist_ok=True)
         with open(ops_path, "a") as f:
             f.write(concern.strip() + "\n")
 
@@ -258,7 +263,8 @@ class TaskHelper:
         Args:
             message: Summary text (markdown).
         """
-        (self.signal_dir / "summary.md").write_text(message)
+        self.attempt_dir.mkdir(parents=True, exist_ok=True)
+        (self.attempt_dir / "summary.md").write_text(message)
 
     # -- Output declarations -----------------------------------------------
 
@@ -291,21 +297,21 @@ class TaskHelper:
 
     def _read_concerns(self) -> list[str]:
         """Read recorded concerns from concerns.log, if it exists."""
-        concerns_path = self.signal_dir / "concerns.log"
+        concerns_path = self.attempt_dir / "concerns.log"
         if not concerns_path.exists():
             return []
         return [line for line in concerns_path.read_text().splitlines() if line.strip()]
 
     def _read_ops_concerns(self) -> list[str]:
         """Read recorded ops concerns from ops_concerns.log, if it exists."""
-        ops_path = self.signal_dir / "ops_concerns.log"
+        ops_path = self.attempt_dir / "ops_concerns.log"
         if not ops_path.exists():
             return []
         return [line for line in ops_path.read_text().splitlines() if line.strip()]
 
     def _write_signal(self, name: str, content: str) -> None:
-        self.signal_dir.mkdir(parents=True, exist_ok=True)
-        (self.signal_dir / name).write_text(content)
+        self.attempt_dir.mkdir(parents=True, exist_ok=True)
+        (self.attempt_dir / name).write_text(content)
 
     def _timestamp(self) -> str:
         return datetime.now(timezone.utc).isoformat()

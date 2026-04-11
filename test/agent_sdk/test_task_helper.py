@@ -109,7 +109,7 @@ def test_mark_done_writes_signal(tmp_path: Path) -> None:
     )
     helper.mark_done("https://github.com/org/repo/pull/1")
 
-    content = (tmp_path / ".done").read_text()
+    content = (tmp_path / "attempts" / "0" / ".done").read_text()
     lines = content.strip().splitlines()
     assert len(lines) == 2
     assert lines[1] == "https://github.com/org/repo/pull/1"
@@ -124,7 +124,7 @@ def test_mark_failed_writes_signal(tmp_path: Path) -> None:
     )
     helper.mark_failed("could not compile")
 
-    content = (tmp_path / ".failed").read_text()
+    content = (tmp_path / "attempts" / "0" / ".failed").read_text()
     lines = content.strip().splitlines()
     assert len(lines) == 2
     assert lines[1] == "could not compile"
@@ -143,7 +143,7 @@ def test_record_concern_appends_to_file(tmp_path: Path) -> None:
     helper.record_concern("naming could be clearer")
     helper.record_concern("missing edge case")
 
-    content = (tmp_path / "concerns.log").read_text()
+    content = (tmp_path / "attempts" / "0" / "concerns.log").read_text()
     lines = content.strip().splitlines()
     assert lines == ["naming could be clearer", "missing edge case"]
 
@@ -158,7 +158,7 @@ def test_record_ops_concern_appends_to_file(tmp_path: Path) -> None:
     helper.record_ops_concern("pixi install took >30s")
     helper.record_ops_concern("pyright flagged unrelated warnings")
 
-    content = (tmp_path / "ops_concerns.log").read_text()
+    content = (tmp_path / "attempts" / "0" / "ops_concerns.log").read_text()
     lines = content.strip().splitlines()
     assert lines == ["pixi install took >30s", "pyright flagged unrelated warnings"]
 
@@ -174,7 +174,9 @@ def test_write_summary_creates_file(tmp_path: Path) -> None:
         integration_branch="i",
     )
     helper.write_summary("## Summary\n\n- reviewed all tests")
-    assert (tmp_path / "summary.md").read_text() == "## Summary\n\n- reviewed all tests"
+    assert (
+        tmp_path / "attempts" / "0" / "summary.md"
+    ).read_text() == "## Summary\n\n- reviewed all tests"
 
 
 def test_write_summary_overwrites_existing(tmp_path: Path) -> None:
@@ -186,7 +188,7 @@ def test_write_summary_overwrites_existing(tmp_path: Path) -> None:
     )
     helper.write_summary("first draft")
     helper.write_summary("final summary")
-    assert (tmp_path / "summary.md").read_text() == "final summary"
+    assert (tmp_path / "attempts" / "0" / "summary.md").read_text() == "final summary"
 
 
 # -- Output declarations --
@@ -351,7 +353,7 @@ def test_complete_without_pr_writes_no_pr_sentinel(tmp_path: Path) -> None:
     )
     helper.complete_without_pr()
 
-    content = (tmp_path / ".done").read_text()
+    content = (tmp_path / "attempts" / "0" / ".done").read_text()
     lines = content.strip().splitlines()
     assert len(lines) == 2
     assert lines[1] == NO_PR_SENTINEL
@@ -368,7 +370,7 @@ def test_complete_creates_pr_and_signals_done(tmp_path: Path) -> None:
     with patch.object(helper, "create_pr", return_value="https://example.com/pr/1"):
         helper.complete()
 
-    content = (tmp_path / ".done").read_text()
+    content = (tmp_path / "attempts" / "0" / ".done").read_text()
     assert "https://example.com/pr/1" in content
 
 

@@ -477,8 +477,8 @@ def test_run_saves_pr_summary_before_merge(mock_gh: Any) -> None:
 
     assert result.status == TaskStatus.PR_MERGED
     mock_gh.pr_body.assert_called_once_with("https://github.com/org/repo/pull/1")
-    assert runtime.state.signal_dir is not None
-    summary_path = runtime.state.signal_dir / "summary.md"
+    assert runtime.attempt_dir is not None
+    summary_path = runtime.attempt_dir / "summary.md"
     assert summary_path.is_file()
     assert summary_path.read_text() == "## Summary\n\n- implemented feature"
     # Verify summary saved before merge (merge_pr comes after summary in calls).
@@ -497,8 +497,8 @@ def test_run_pr_summary_fetch_failure_does_not_block_merge(mock_gh: Any) -> None
 
     assert result.status == TaskStatus.PR_MERGED
     assert "merge_pr" in fake.calls
-    assert runtime.state.signal_dir is not None
-    summary_path = runtime.state.signal_dir / "summary.md"
+    assert runtime.attempt_dir is not None
+    summary_path = runtime.attempt_dir / "summary.md"
     assert not summary_path.exists()
 
 

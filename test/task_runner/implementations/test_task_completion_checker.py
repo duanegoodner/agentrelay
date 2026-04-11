@@ -155,11 +155,11 @@ class TestSignalCompletionChecker:
         assert signal.error is None
 
     def test_raises_when_signal_dir_is_none(self) -> None:
-        """Raises ValueError if signal_dir is not set."""
+        """Raises ValueError if signal_dir (and thus attempt_dir) is not set."""
         runtime = _make_runtime(signal_dir=None)
         checker = SignalCompletionChecker()
 
-        with pytest.raises(ValueError, match="signal_dir"):
+        with pytest.raises(ValueError, match="attempt_dir"):
             asyncio.run(checker.wait_for_completion(runtime))
 
     def test_satisfies_completion_checker_protocol(self) -> None:

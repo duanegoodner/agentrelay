@@ -241,6 +241,29 @@ class TestTaskRuntime:
         assert runtime.artifacts.pr_url is None
         assert runtime.artifacts.concerns == []
 
+    def test_attempt_dir_property(self) -> None:
+        """attempt_dir returns signal_dir / attempts / attempt_num."""
+        task = Task(id="task", role=AgentRole.GENERIC)
+        sd = _signal_dir()
+        runtime = TaskRuntime(task=task, state=TaskState(signal_dir=sd, attempt_num=2))
+
+        assert runtime.attempt_dir == sd / "attempts" / "2"
+
+    def test_attempt_dir_default_attempt(self) -> None:
+        """attempt_dir uses attempt_num=0 by default."""
+        task = Task(id="task", role=AgentRole.GENERIC)
+        sd = _signal_dir()
+        runtime = TaskRuntime(task=task, state=TaskState(signal_dir=sd))
+
+        assert runtime.attempt_dir == sd / "attempts" / "0"
+
+    def test_attempt_dir_none_when_no_signal_dir(self) -> None:
+        """attempt_dir returns None when signal_dir is not set."""
+        task = Task(id="task", role=AgentRole.GENERIC)
+        runtime = TaskRuntime(task=task)
+
+        assert runtime.attempt_dir is None
+
     def test_custom_state(self) -> None:
         """TaskRuntime can use a provided TaskState."""
         task = Task(id="task", role=AgentRole.GENERIC)
