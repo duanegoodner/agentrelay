@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-09
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-09">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-05" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2303,6 +2331,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-09" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-09
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-09">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-05" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3268,6 +3324,27 @@
 
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
+<hr />
+<h2 id="2026-04-09">2026-04-09</h2>
+<h3 id="cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ad">CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–D)</h3>
+<ul>
+<li><strong>CLI cleanup</strong> (PR #180): Fix <code>--max-concurrency</code> help text, add short
+  options (<code>-a</code>, <code>-d</code>, <code>-T</code>, <code>-A</code>, <code>-C</code>, <code>-S</code>, <code>-W</code>, <code>-I</code>), shorten flag
+  names (<code>--fail-fast-workstream</code>, <code>--fail-fast-internal</code>).</li>
+<li><strong>ELK layout engine</strong> (PR #181): Switch from TALA to ELK for D2 diagram
+  rendering. Drop monolith <code>diagram-detailed.svg</code> (source <code>.d2</code> remains
+  as input to per-module generation). All 19 SVGs re-rendered.</li>
+<li><strong>Graph YAML config fields</strong> (PR #182): <code>max_concurrency</code>,
+  <code>max_task_attempts</code>, <code>teardown_mode</code> as graph-level YAML fields with
+  CLI-wins precedence. <code>--keep-panes</code> CLI flag for existing YAML field.
+  <code>OperationalConfig</code> dataclass replaces raw tuple.</li>
+<li><strong>OCI container retry fix</strong> (PR D): Attempt-indexed container names
+  (<code>agentrelay-{graph}-{task_id}-{attempt}</code>) and tmux window names prevent
+  <code>docker run</code> name collisions on retry. <code>SandboxContext.attempt_num</code> field
+  carries attempt number to sandbox operations. Sandbox instance stored on
+  <code>TaskArtifacts</code>; <code>WorktreeTaskTeardown</code> calls <code>sandbox.teardown()</code> behind
+  the existing <code>_should_teardown()</code> gate.</li>
+</ul>
 <hr />
 <h2 id="2026-04-05">2026-04-05</h2>
 <h3 id="output-composition-and-execution-polish-sprint-2026-04-05-prs-ac">Output composition and execution polish (sprint 2026-04-05 PRs A–C)</h3>

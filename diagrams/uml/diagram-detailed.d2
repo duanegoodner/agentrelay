@@ -350,6 +350,8 @@ task_runtime_pkg: "task_runtime/" {
     concerns: "list[str]"
     ops_concerns: "list[str]"
     agent_address: "AgentAddress | None"
+    sandbox: "AgentSandbox | None"
+    sandbox_context: "SandboxContext | None"
   }
 
   TaskRuntime: "TaskRuntime <<mutable dataclass>>" {
@@ -1072,6 +1074,7 @@ sandbox_pkg: "sandbox/" {
       repo_path: Path
       task_id: str
       graph_name: str
+      attempt_num: int
       env_vars: "dict[str, str]"
     }
 
@@ -1227,6 +1230,8 @@ task_runtime_pkg.TaskRuntime -> task_py.Task: task { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskState: state { class: composition }
 task_runtime_pkg.TaskRuntime -> task_runtime_pkg.TaskArtifacts: artifacts { class: composition }
 task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_address (optional)" { class: composition }
+task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: "sandbox (optional)" { class: composition }
+task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.SandboxContext: "sandbox_context (optional)" { class: composition }
 
 # --- workstream internal ---
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: spec { class: composition }

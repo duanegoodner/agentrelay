@@ -3088,6 +3088,18 @@ environment variables it needs to set up and wrap agent commands.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
+            <td><code><span title="agentrelay.sandbox.SandboxContext.attempt_num">attempt_num</span></code></td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Current attempt number (0-indexed). Used to generate
+unique container and tmux window names across retries.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
             <td><code><span title="agentrelay.sandbox.SandboxContext.env_vars">env_vars</span></code></td>
             <td>
                   <code><span title="dict">dict</span>[<span title="str">str</span>, <span title="str">str</span>]</code>
@@ -3131,7 +3143,10 @@ environment variables it needs to set up and wrap agent commands.</p>
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
-<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SandboxContext</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execution context passed to sandbox operations.</span>
 
@@ -3144,6 +3159,8 @@ environment variables it needs to set up and wrap agent commands.</p>
 <span class="sd">        repo_path: Absolute path to the main repository.</span>
 <span class="sd">        task_id: Unique identifier of the task being sandboxed.</span>
 <span class="sd">        graph_name: Name of the task graph being executed.</span>
+<span class="sd">        attempt_num: Current attempt number (0-indexed). Used to generate</span>
+<span class="sd">            unique container and tmux window names across retries.</span>
 <span class="sd">        env_vars: Environment variables to inject into the sandbox.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -3152,6 +3169,7 @@ environment variables it needs to set up and wrap agent commands.</p>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">attempt_num</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">env_vars</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
@@ -6089,7 +6107,9 @@ agent authentication, or <code>None</code> for no Anthropic auth.</p>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
-<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">OciSandbox</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;OCI container sandbox — wraps agent commands in ``docker run``.</span>
 
 <span class="sd">    Mounts the git worktree, signal directory, and main ``.git/``</span>
@@ -6195,7 +6215,7 @@ agent authentication, or <code>None</code> for no Anthropic auth.</p>
         <span class="c1"># Both scripts are baked into the framework image.</span>
         <span class="n">full_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;claude-setup-credentials &amp;&amp; claude-trust-workdir &amp;&amp; </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
-            <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">attempt_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
             <span class="n">cmd</span><span class="o">=</span><span class="n">full_cmd</span><span class="p">,</span>
             <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
@@ -6215,7 +6235,9 @@ agent authentication, or <code>None</code> for no Anthropic auth.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            context: Execution context with task ID for container naming.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">attempt_num</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">docker_ops</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
@@ -6618,7 +6640,7 @@ the Docker network does not exist.</p>
     <span class="c1"># Both scripts are baked into the framework image.</span>
     <span class="n">full_cmd</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;claude-setup-credentials &amp;&amp; claude-trust-workdir &amp;&amp; </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">return</span> <span class="n">docker_ops</span><span class="o">.</span><span class="n">build_run_command</span><span class="p">(</span>
-        <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">container_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">attempt_num</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">image</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_image</span><span class="p">,</span>
         <span class="n">cmd</span><span class="o">=</span><span class="n">full_cmd</span><span class="p">,</span>
         <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span>
@@ -6703,13 +6725,17 @@ the Docker network does not exist.</p>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
-<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SandboxContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop and remove the container, swallowing errors if already gone.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        context: Execution context with task ID for container naming.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;agentrelay-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">task_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">context</span><span class="o">.</span><span class="n">attempt_num</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">docker_ops</span><span class="o">.</span><span class="n">stop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runtime</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>

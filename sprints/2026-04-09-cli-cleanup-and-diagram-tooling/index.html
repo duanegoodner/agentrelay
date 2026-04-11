@@ -1367,10 +1367,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-cli-cleanup" class="md-nav__link">
+  <a href="#pr-a-cli-cleanup-merged-180" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: CLI cleanup
+        PR A: CLI cleanup — Merged (#180)
       
     </span>
   </a>
@@ -1378,10 +1378,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b-switch-to-elk-layout-engine-drop-monolith-diagram" class="md-nav__link">
+  <a href="#pr-b-switch-to-elk-layout-engine-drop-monolith-diagram-merged-181" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B: Switch to ELK layout engine, drop monolith diagram
+        PR B: Switch to ELK layout engine, drop monolith diagram — Merged (#181)
       
     </span>
   </a>
@@ -1389,10 +1389,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-c-graph-yaml-fields-for-orchestrator-config" class="md-nav__link">
+  <a href="#pr-c-graph-yaml-fields-for-orchestrator-config-merged-182" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR C: Graph YAML fields for orchestrator config
+        PR C: Graph YAML fields for orchestrator config — Merged (#182)
       
     </span>
   </a>
@@ -1411,10 +1411,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-e-record-effective-run-config" class="md-nav__link">
+  <a href="#pr-e-change-default-teardownmode-to-always" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR E: Record effective run config
+        PR E: Change default TearDownMode to ALWAYS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-f-record-effective-run-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F: Record effective run config
       
     </span>
   </a>
@@ -1467,7 +1478,7 @@
 
 <h1 id="sprint-plan-2026-04-09-cli-cleanup-diagram-tooling">Sprint Plan — 2026-04-09: CLI Cleanup + Diagram Tooling</h1>
 <blockquote>
-<p><strong>Status: Planning.</strong></p>
+<p><strong>Status: In progress.</strong> PRs A–C merged (#180–#182). PRs D–F remain.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>Clear small CLI debts and settle the diagram tooling stack so later
@@ -1513,7 +1524,7 @@ per-module diagrams provide better navigation.</p>
 <p><strong>Future:</strong> An interactive module overview (click/hover to see per-module
 detail) is planned for the documentation sprint (Phase 5).</p>
 <h2 id="plan">Plan</h2>
-<h3 id="pr-a-cli-cleanup">PR A: CLI cleanup</h3>
+<h3 id="pr-a-cli-cleanup-merged-180">PR A: CLI cleanup — Merged (#180)</h3>
 <p><strong>Scope:</strong> Half-day effort.</p>
 <p><strong>Changes:</strong>
 1. Fix <code>--max-concurrency</code> help text in <code>cli.py</code> and <code>run_graph.py</code>:
@@ -1531,7 +1542,7 @@ detail) is planned for the documentation sprint (Phase 5).</p>
 3. Keep <code>cli.py</code> and <code>run_graph.py</code> help text in sync.</p>
 <p><strong>Files touched:</strong> <code>src/agentrelay/cli.py</code>, <code>src/agentrelay/run_graph.py</code>,
 tests for CLI argument parsing.</p>
-<h3 id="pr-b-switch-to-elk-layout-engine-drop-monolith-diagram">PR B: Switch to ELK layout engine, drop monolith diagram</h3>
+<h3 id="pr-b-switch-to-elk-layout-engine-drop-monolith-diagram-merged-181">PR B: Switch to ELK layout engine, drop monolith diagram — Merged (#181)</h3>
 <p><strong>Scope:</strong> Small — layout engine swap + remove monolith SVG render.</p>
 <p><strong>Changes:</strong>
 1. In <code>tools/render_diagrams.sh</code>:
@@ -1560,7 +1571,7 @@ tests for CLI argument parsing.</p>
 - <code>docs/diagrams/uml/</code> — re-rendered SVGs
 - <code>docs/DIAGRAM.md</code>, <code>CLAUDE.md</code>, <code>docs/BACKLOG.md</code>,
   <code>docs/planning/pre-rust-roadmap.md</code> (doc updates)</p>
-<h3 id="pr-c-graph-yaml-fields-for-orchestrator-config">PR C: Graph YAML fields for orchestrator config</h3>
+<h3 id="pr-c-graph-yaml-fields-for-orchestrator-config-merged-182">PR C: Graph YAML fields for orchestrator config — Merged (#182)</h3>
 <p><strong>Scope:</strong> Small — same pattern as existing <code>fail_fast_*</code> YAML fields.</p>
 <p>An audit of CLI flags vs graph YAML fields (2026-04-10) identified
 three <code>OrchestratorConfig</code> fields that are CLI-only with no YAML
@@ -1633,8 +1644,8 @@ else's graph.</p>
 <p><strong>Files touched:</strong> <code>cli.py</code>, <code>run_graph.py</code>, <code>test_cli.py</code>,
 <code>test_run_graph.py</code>, <code>CLAUDE.md</code>, <code>docs/GUIDE.md</code>, <code>docs/BACKLOG.md</code></p>
 <h3 id="pr-d-fix-oci-container-cleanup-on-task-retry">PR D: Fix OCI container cleanup on task retry</h3>
-<p><strong>Scope:</strong> Small-medium — touches task runner lifecycle and sandbox
-teardown wiring.</p>
+<p><strong>Scope:</strong> Small-medium — touches task runner lifecycle, sandbox
+teardown wiring, and naming conventions.</p>
 <p><strong>Bug:</strong> When a task fails under OCI sandbox mode and the orchestrator
 retries it (<code>-a &gt; 1</code>), the old Docker container still exists with name
 <code>agentrelay-&lt;graph&gt;-&lt;task_id&gt;</code>. The retry's <code>docker run</code> fails with
@@ -1647,12 +1658,20 @@ e2e testing of <code>blocked-downstream</code> graph with <code>-a 2 -S oci</cod
 2. Default <code>TearDownMode.ON_SUCCESS</code> means teardown doesn't run on
    failure at all — so even if sandbox teardown were wired in, it
    wouldn't fire when it's needed most (before a retry).</p>
-<p><strong>Fix approach:</strong></p>
-<p>Container cleanup should be <strong>unconditional</strong> — a stale container
-always blocks retries regardless of the user's teardown preference.
-The <code>TearDownMode</code> setting controls tmux pane and worktree cleanup
-(useful for debugging), but container removal has no debugging value
-and must happen before a retry can succeed.</p>
+<p><strong>Fix approach (three parts):</strong></p>
+<p><strong>Part 1: Attempt-indexed naming.</strong> Include the attempt number in
+container names and tmux window names:
+- Container: <code>agentrelay-{graph}-{task_id}</code> →
+  <code>agentrelay-{graph}-{task_id}-{attempt}</code>
+- Tmux window: <code>{graph}-{task_id}</code> → <code>{graph}-{task_id}-{attempt}</code></p>
+<p>This sidesteps the name conflict entirely — each retry gets a unique
+name. For tmux, it also makes debugging retries easier (both windows
+visible side by side). One-line change in each location.</p>
+<p><strong>Part 2: Wire sandbox teardown.</strong> Container cleanup should be
+<strong>unconditional</strong> — a stale container always blocks retries regardless
+of the user's teardown preference. The <code>TearDownMode</code> setting controls
+tmux pane and worktree cleanup, but container removal has no debugging
+value and must happen before a retry can succeed.</p>
 <ol>
 <li>Store the <code>AgentSandbox</code> instance in <code>TaskArtifacts</code> (or pass it
    to the teardown handler via the builder). The sandbox is created
@@ -1670,6 +1689,10 @@ and must happen before a retry can succeed.</p>
    containers).</li>
 </ol>
 <p><strong>Files touched:</strong>
+- <code>src/agentrelay/sandbox/implementations/oci_sandbox.py</code> — attempt
+  in container name
+- <code>src/agentrelay/agent/implementations/tmux_agent.py</code> — attempt in
+  window name
 - <code>src/agentrelay/task_runner/implementations/task_teardown.py</code> —
   call <code>sandbox.teardown()</code> unconditionally
 - <code>src/agentrelay/task_runner/implementations/task_launcher.py</code> —
@@ -1680,7 +1703,29 @@ and must happen before a retry can succeed.</p>
   builder
 - Tests: mock sandbox teardown in task runner tests, add retry
   scenario test</p>
-<h3 id="pr-e-record-effective-run-config">PR E: Record effective run config</h3>
+<h3 id="pr-e-change-default-teardownmode-to-always">PR E: Change default TearDownMode to ALWAYS</h3>
+<p><strong>Scope:</strong> Small — one default change + test updates.</p>
+<p>The "keep panes for debugging" approach (<code>ON_SUCCESS</code> default) made
+sense early on, but now we have persistent artifacts (<code>agent.log</code>,
+<code>summary.md</code>, <code>concerns.log</code>, per-attempt archives) that contain
+everything you'd get from a tmux pane — and survive session restarts.
+In practice, <code>ON_SUCCESS</code> leaves orphaned tmux windows after test runs
+that require manual cleanup.</p>
+<p><strong>Changes:</strong>
+- Change <code>OrchestratorConfig.task_teardown_mode</code> default from
+  <code>TearDownMode.ON_SUCCESS</code> to <code>TearDownMode.ALWAYS</code>
+- <code>ON_SUCCESS</code> becomes opt-in debugging mode (<code>-T on_success</code> or
+  <code>teardown_mode: on_success</code> in graph YAML) for live pane inspection
+- <code>NEVER</code> stays for deep debugging of agentrelay itself
+- Future debugging investment goes to logging, not persistent panes</p>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/orchestrator/orchestrator.py</code> — change default
+- Tests: update any that assert <code>ON_SUCCESS</code> as default
+- Docs: update <code>CLAUDE.md</code> and <code>docs/GUIDE.md</code> to note new default</p>
+<p><strong>Depends on:</strong> PR D (sandbox teardown is wired into the
+<code>_should_teardown()</code> gate — that plumbing must land first so the
+default change applies to containers too).</p>
+<h3 id="pr-f-record-effective-run-config">PR F: Record effective run config</h3>
 <p><strong>Scope:</strong> Small — single file write at orchestrator startup.</p>
 <p>After all CLI &gt; YAML &gt; default resolution, write the effective
 configuration to <code>.workflow/&lt;graph&gt;/run_config.json</code>. Currently
@@ -1695,10 +1740,10 @@ post-mortem debugging and future graph resumption harder.</p>
    <code>run_info.json</code>
 3. Tests: verify file is written with expected content</p>
 <h3 id="ordering">Ordering</h3>
-<p>PRs A–E are independent and can be developed in parallel.
-A and B are pure CLI/docs (both merged). C is CLI plumbing and YAML
-extraction. D touches runtime code (task runner lifecycle + sandbox
-teardown). E is a single file write at startup.</p>
+<p>PRs A–D are independent. PR E depends on PR D. PR F is independent.
+A, B, and C are merged (#180, #181, #182). D wires sandbox teardown
+into the task runner lifecycle. E flips the default teardown mode,
+building on D's plumbing. F is a standalone config recording feature.</p>
 <h2 id="out-of-scope">Out of scope</h2>
 <ul>
 <li>Graph resumption (Phase 4 — next sprint)</li>

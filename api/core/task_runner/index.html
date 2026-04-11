@@ -7752,7 +7752,12 @@ to environment variables.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TmuxTaskLauncher</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch an agent in a tmux pane using a framework adapter and sandbox.</span>
 
@@ -7810,14 +7815,19 @@ to environment variables.</p>
             <span class="n">repo_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
             <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
             <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+            <span class="n">attempt_num</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
             <span class="n">env_vars</span><span class="o">=</span><span class="n">env_vars</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
+        <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span>
+        <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox_context</span> <span class="o">=</span> <span class="n">context</span>
+
+        <span class="n">attempt</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span>
         <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
             <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
         <span class="p">)</span>
@@ -7984,7 +7994,12 @@ and sends it to a new tmux pane.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Launch and return the primary agent for this task runtime.</span>
 
 <span class="sd">    Builds the agent command via the adapter, wraps it with the sandbox,</span>
@@ -8019,14 +8034,19 @@ and sends it to a new tmux pane.</p>
         <span class="n">repo_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
         <span class="n">task_id</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
         <span class="n">graph_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">,</span>
+        <span class="n">attempt_num</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span><span class="p">,</span>
         <span class="n">env_vars</span><span class="o">=</span><span class="n">env_vars</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
     <span class="n">cmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span><span class="o">.</span><span class="n">wrap_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
 
+    <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sandbox</span>
+    <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox_context</span> <span class="o">=</span> <span class="n">context</span>
+
+    <span class="n">attempt</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">attempt_num</span>
     <span class="k">return</span> <span class="n">TmuxAgent</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-        <span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">task_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">attempt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="n">worktree_path</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">worktree_path</span><span class="p">,</span>
         <span class="n">cmd</span><span class="o">=</span><span class="n">cmd</span><span class="p">,</span>
     <span class="p">)</span>
@@ -8812,7 +8832,14 @@ propagated.</p>
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorktreeTaskTeardown</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delegate agent-address cleanup and delete the task branch.</span>
 
@@ -8839,6 +8866,13 @@ propagated.</p>
                 <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
                 <span class="n">keep_panes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_panes</span><span class="p">,</span>
             <span class="p">)</span>
+
+        <span class="n">sandbox</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox</span>
+        <span class="k">if</span> <span class="n">sandbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox_context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sandbox</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox_context</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>  <span class="c1"># Best-effort: container may already be gone</span>
 
         <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -8931,7 +8965,14 @@ propagated.</p>
 <span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
-<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">teardown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Release runtime resources after terminal completion.</span>
 
 <span class="sd">    Args:</span>
@@ -8944,6 +8985,13 @@ propagated.</p>
             <span class="n">signal_dir</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">signal_dir</span><span class="p">,</span>
             <span class="n">keep_panes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">keep_panes</span><span class="p">,</span>
         <span class="p">)</span>
+
+    <span class="n">sandbox</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox</span>
+    <span class="k">if</span> <span class="n">sandbox</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox_context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sandbox</span><span class="o">.</span><span class="n">teardown</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">artifacts</span><span class="o">.</span><span class="n">sandbox_context</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># Best-effort: container may already be gone</span>
 
     <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">branch_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
