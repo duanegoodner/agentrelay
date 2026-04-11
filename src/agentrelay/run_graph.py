@@ -295,6 +295,52 @@ def _record_run_start(repo_path: Path, graph_name: str) -> None:
     )
 
 
+def _record_run_config(
+    repo_path: Path,
+    graph_name: str,
+    config: OrchestratorConfig,
+    *,
+    keep_panes: bool,
+    model: Optional[str],
+    sandbox: Optional[str],
+    anthropic_credential: Optional[str],
+    verbose: bool,
+) -> None:
+    """Write run_config.json with the effective resolved configuration.
+
+    Records the fully resolved configuration after CLI > YAML > default
+    precedence has been applied.  This is the authoritative record of
+    what settings were actually used for a run.
+
+    Args:
+        repo_path: Path to the repository root.
+        graph_name: Name of the task graph being executed.
+        config: Fully resolved orchestrator configuration.
+        keep_panes: Effective keep_panes setting.
+        model: Model override (from CLI or graph YAML), or None for default.
+        sandbox: Sandbox override (from CLI), or None for default.
+        anthropic_credential: Resolved Anthropic credential name, or None.
+        verbose: Whether verbose output is enabled.
+    """
+    workflow_dir = repo_path / ".workflow" / graph_name
+    signals.write_json(
+        workflow_dir,
+        "run_config.json",
+        {
+            "max_concurrency": config.max_concurrency,
+            "max_task_attempts": config.max_task_attempts,
+            "task_teardown_mode": config.task_teardown_mode.value,
+            "fail_fast_on_internal_error": config.fail_fast_on_internal_error,
+            "fail_fast_on_workstream_error": config.fail_fast_on_workstream_error,
+            "keep_panes": keep_panes,
+            "model": model,
+            "sandbox": sandbox,
+            "anthropic_credential": anthropic_credential,
+            "verbose": verbose,
+        },
+    )
+
+
 def _copy_graph_yaml(repo_path: Path, graph_name: str, graph_path: Path) -> None:
     """Copy the source graph YAML into the workflow directory.
 
@@ -460,6 +506,17 @@ async def run_graph(
         anthropic_credential = credential_provider.resolve_anthropic(
             effective_anthropic_name
         )
+
+    _record_run_config(
+        repo_path,
+        graph.name,
+        config,
+        keep_panes=effective_keep_panes,
+        model=model_override,
+        sandbox=sandbox_override,
+        anthropic_credential=effective_anthropic_name,
+        verbose=verbose,
+    )
 
     # Create Docker network if any task uses OCI sandbox.
     uses_oci = _any_task_uses_oci(graph)
