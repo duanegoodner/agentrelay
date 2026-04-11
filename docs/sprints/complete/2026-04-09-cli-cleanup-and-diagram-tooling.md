@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-09: CLI Cleanup + Diagram Tooling
 
-> **Status: In progress.** PRs A–C merged (#180–#182). PRs D–F remain.
+> **Status: Complete.** All PRs merged (#180–#186). 1467 tests.
 
 ## Goal
 
@@ -314,11 +314,9 @@ subdirectories for orchestrator vs agent scope (separate backlog item).
 ### Ordering
 
 PRs A–D are independent. PR E depends on PR D. PR F is independent.
-PR G is independent (but benefits from landing after D's attempt_num
-plumbing).
-A–C merged (#180–#182). D merged (#183). E merged (#184).
-F is a standalone config recording feature.
-G restructures per-attempt signal directories.
+PR G is independent (benefits from D's attempt_num plumbing).
+All merged: A (#180), B (#181), C (#182), D (#183), E (#184),
+F (#185), G (#186).
 
 ## Out of scope
 
