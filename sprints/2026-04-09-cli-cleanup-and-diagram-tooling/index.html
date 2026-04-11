@@ -1411,6 +1411,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pr-e-record-effective-run-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E: Record effective run config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#ordering" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1669,11 +1680,25 @@ and must happen before a retry can succeed.</p>
   builder
 - Tests: mock sandbox teardown in task runner tests, add retry
   scenario test</p>
+<h3 id="pr-e-record-effective-run-config">PR E: Record effective run config</h3>
+<p><strong>Scope:</strong> Small — single file write at orchestrator startup.</p>
+<p>After all CLI &gt; YAML &gt; default resolution, write the effective
+configuration to <code>.workflow/&lt;graph&gt;/run_config.json</code>. Currently
+there's no record of what values were actually used — if a CLI flag
+overrides a YAML value, only the YAML copy is preserved. This makes
+post-mortem debugging and future graph resumption harder.</p>
+<p><strong>Rough outline:</strong>
+1. After config resolution in <code>run_graph()</code>, serialize the effective
+   <code>OrchestratorConfig</code> + other resolved settings (model, sandbox,
+   credential name, keep_panes, verbose) to JSON
+2. Write to <code>.workflow/&lt;graph&gt;/run_config.json</code> alongside the existing
+   <code>run_info.json</code>
+3. Tests: verify file is written with expected content</p>
 <h3 id="ordering">Ordering</h3>
-<p>PRs A, B, C, and D are independent and can be developed in parallel.
-A and B are pure CLI/docs. C is CLI plumbing and YAML extraction.
-D touches runtime code (task runner lifecycle + sandbox teardown) but
-is isolated to the teardown path.</p>
+<p>PRs A–E are independent and can be developed in parallel.
+A and B are pure CLI/docs (both merged). C is CLI plumbing and YAML
+extraction. D touches runtime code (task runner lifecycle + sandbox
+teardown). E is a single file write at startup.</p>
 <h2 id="out-of-scope">Out of scope</h2>
 <ul>
 <li>Graph resumption (Phase 4 — next sprint)</li>

@@ -564,45 +564,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli-graph-yaml-configuration-gaps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI / Graph YAML Configuration Gaps
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="CLI / Graph YAML Configuration Gaps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#graph-yaml-fields-with-no-cli-equivalent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Graph YAML fields with no CLI equivalent
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cli-flags-with-no-graph-yaml-equivalent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI flags with no graph YAML equivalent
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#credential-management" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -844,6 +805,17 @@
     <span class="md-ellipsis">
       
         Diagram Tooling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Quality
       
     </span>
   </a>
@@ -1709,45 +1681,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cli-graph-yaml-configuration-gaps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI / Graph YAML Configuration Gaps
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="CLI / Graph YAML Configuration Gaps">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#graph-yaml-fields-with-no-cli-equivalent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Graph YAML fields with no CLI equivalent
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cli-flags-with-no-graph-yaml-equivalent" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CLI flags with no graph YAML equivalent
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#credential-management" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1996,6 +1929,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#code-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Quality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2095,36 +2039,6 @@
   prototype was clumsy but had useful capabilities that shouldn't be
   accidentally dropped.</li>
 </ul>
-<h2 id="cli-graph-yaml-configuration-gaps">CLI / Graph YAML Configuration Gaps</h2>
-<p>Audit of CLI flags vs graph YAML fields (2026-04-10) identified four
-configuration items that exist on only one surface when they should
-exist on both.</p>
-<h3 id="graph-yaml-fields-with-no-cli-equivalent">Graph YAML fields with no CLI equivalent</h3>
-<ul>
-<li><strong><code>keep_panes</code></strong> (graph-level): Controls whether tmux panes stay open
-  after task completion. No CLI flag. Minor — add <code>--keep-panes</code> /
-  <code>-k</code> boolean flag for debugging convenience.</li>
-</ul>
-<h3 id="cli-flags-with-no-graph-yaml-equivalent">CLI flags with no graph YAML equivalent</h3>
-<p>These three <code>OrchestratorConfig</code> fields are CLI-only. Graph authors
-often know the right values, and forcing CLI specification is friction
-for users running someone else's graph.</p>
-<ul>
-<li><strong><code>max_concurrency</code></strong> (<code>-c</code>): A graph with 4 independent workstreams
-  is designed for <code>-c 4</code>. Add <code>max_concurrency</code> as a graph-level YAML
-  field. Precedence: CLI &gt; YAML &gt; default (1).</li>
-<li><strong><code>max_task_attempts</code></strong> (<code>-a</code>): A graph with flaky tasks might want
-  <code>-a 3</code> by default. Add <code>max_task_attempts</code> as a graph-level YAML
-  field. Precedence: CLI &gt; YAML &gt; default (1).</li>
-<li><strong><code>teardown_mode</code></strong> (<code>-T</code>): Debugging graphs benefit from <code>never</code>.
-  The YAML has <code>keep_panes</code> but not the more general teardown control.
-  Add <code>teardown_mode</code> as a graph-level YAML field. Precedence: CLI &gt;
-  YAML &gt; default (<code>on_success</code>).</li>
-</ul>
-<p>All four follow the established precedence pattern: <strong>CLI &gt; YAML &gt;
-default</strong>. Implementation touches <code>_pop_operational_keys()</code> in
-<code>run_graph.py</code>, <code>_build_config_from_args()</code>, and the graph YAML schema
-docs. No structural changes to the orchestrator or task graph model.</p>
 <h2 id="credential-management">Credential Management</h2>
 <ul>
 <li><strong>Project-specific credentials files</strong>: Currently <code>--credentials</code> takes a
@@ -2662,6 +2576,16 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   as an SVG image map, clickable SVG links, or a JavaScript overlay.
   Natural fit for the documentation sprint (Phase 5).</li>
 </ul>
+<h2 id="code-quality">Code Quality</h2>
+<ul>
+<li><strong>Replace raw tuple returns with named types</strong>: Audit the codebase for
+  functions that return raw tuples (especially heterogeneous ones) and
+  replace them with <code>dataclass</code> or <code>NamedTuple</code> return types. Named
+  fields are more readable than positional unpacking and prevent
+  ordering bugs as return values grow. <code>_extract_operational_config()</code>
+  in <code>run_graph.py</code> is the first example (converted in PR C of sprint
+  2026-04-09); scan for others.</li>
+</ul>
 <h2 id="documentation">Documentation</h2>
 <ul>
 <li>
@@ -2703,6 +2627,14 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
 </ul>
 <h2 id="observability">Observability</h2>
 <ul>
+<li><strong>Record effective run config</strong>: After CLI &gt; YAML &gt; default resolution,
+  write the effective <code>OrchestratorConfig</code> (and other resolved settings
+  like model, sandbox type, credential name) to
+  <code>.workflow/&lt;graph&gt;/run_config.json</code> at startup. Currently there's no
+  record of what values were actually used — if a CLI flag overrides a
+  YAML value, only the YAML is preserved (copied to <code>.workflow/</code>).
+  Simple JSON dump of all resolved config. Useful for post-mortem
+  debugging and future graph resumption.</li>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
 <li>Define the minimal durable signals needed for reliable resume behavior.</li>
 <li><strong>Orchestrator log files</strong>: The orchestrator currently writes all output to
