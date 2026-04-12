@@ -1,0 +1,1725 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/discussions/COMPILER_ANALOGY/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Task Graph Lowering as Compilation — Design Discussion - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#task-graph-lowering-as-compilation-design-discussion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Task Graph Lowering as Compilation — Design Discussion
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core-idea" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Idea
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-lowering-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Lowering Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimization-passes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optimization Passes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#semantic-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Semantic Preservation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#front-end-back-end-separation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Front-End / Back-End Separation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#np-hardness-and-heuristic-divergence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NP-Hardness and Heuristic Divergence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#variable-lowering-depth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variable Lowering Depth
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transparency-and-the-black-box-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transparency and the Black Box Problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mixed-resolution-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mixed-Resolution Graphs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#who-does-the-lowering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Who Does the Lowering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implications-for-agentrelay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implications for agentrelay
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="task-graph-lowering-as-compilation-design-discussion">Task Graph Lowering as Compilation — Design Discussion</h1>
+<blockquote>
+<p><strong>Status: Conceptual discussion.</strong> Captures the analogy between compiler
+pipelines and progressive task graph refinement. Not tied to a specific
+sprint or implementation plan. Intended as a framing document for future
+work on automated graph generation and multi-resolution execution.</p>
+</blockquote>
+<h2 id="core-idea">Core Idea</h2>
+<p>There is a structural analogy between what compilers do and what agentrelay
+does. A compiler lowers from a high-level language through intermediate
+representations down to machine code. agentrelay lowers from a high-level
+work intent through task graphs down to actual code commits across merged PRs.</p>
+<p>Today, agentrelay has a single graph representation — the execution-ready
+TaskGraph that the orchestrator runs directly. The lowering from intent to
+that graph is done entirely by the human author, in one step, outside the
+system. There is no automated lowering and no sequence of progressively
+refined intermediate representations.</p>
+<p>The analogy suggests a direction: that single representation could become a
+family of representations at different abstraction levels, and the manual
+one-shot lowering could become a multi-pass pipeline — partially or fully
+automated. The rest of this document explores what that would look like,
+drawing on how compilers solve the analogous problem.</p>
+<p>In that framing, the representation would be uniform at every level: it's
+TaskGraphs all the way down. A single-node graph expressing pure intent
+("build me a web scraper that does X") and a fully specified graph with
+file paths, roles, and dependency edges would both be valid TaskGraphs —
+differing only in abstraction level.</p>
+<h2 id="the-lowering-pipeline">The Lowering Pipeline</h2>
+<table>
+<thead>
+<tr>
+<th>Compiler stage</th>
+<th>Task graph analog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source code</td>
+<td>"Build me a tool that does X"</td>
+</tr>
+<tr>
+<td>AST / HIR</td>
+<td>Single-node TaskGraph (pure intent)</td>
+</tr>
+<tr>
+<td>MIR</td>
+<td>Architectural TaskGraph (modules, responsibilities, dep edges)</td>
+</tr>
+<tr>
+<td>LIR</td>
+<td>Implementation TaskGraph (specific files, roles, tagged_paths)</td>
+</tr>
+<tr>
+<td>Machine code</td>
+<td>Committed code across merged PRs</td>
+</tr>
+</tbody>
+</table>
+<p>Each "pass" takes a TaskGraph at one level and produces a more detailed
+TaskGraph at the next. This mirrors how compiler IRs work: each stage has the
+same fundamental structure (basic blocks, instructions, control flow) but with
+progressively lower-level operations.</p>
+<h2 id="optimization-passes">Optimization Passes</h2>
+<p>Compilers don't just lower — they optimize between lowering steps. The task
+graph analog: after an architectural decomposition, a pass could analyze the
+dependency structure and extract parallelism, merge tasks that are too small,
+split tasks that are too large, or reorder workstreams for better throughput.</p>
+<p>Today this is done by hand when authoring graph YAML. An automated
+optimization pass could do things like: "these three tasks all touch the same
+module and have no other dependents — fuse them."</p>
+<h2 id="semantic-preservation">Semantic Preservation</h2>
+<p>A compiler must preserve program semantics through each lowering. The task
+graph analog: each refinement must preserve the original intent. This gives a
+verification criterion at each level — does this more detailed graph still
+accomplish what the less detailed one described?</p>
+<p>This is hard to check mechanically, but it's the right question to ask, and
+a verification agent whose job is exactly that is a plausible component of the
+pipeline.</p>
+<h2 id="front-end-back-end-separation">Front-End / Back-End Separation</h2>
+<p>Compilers separate language-specific parsing (front-end) from target-specific
+code generation (back-end). agentrelay could separate intent-understanding
+(what to build) from execution mechanics (how to orchestrate agents).</p>
+<p>The current system is almost entirely back-end — it takes a concrete TaskGraph
+and executes it. The front-end (going from intent to executable graph) is
+currently the human. The compiler analogy suggests this is a natural place to
+add automation.</p>
+<h2 id="np-hardness-and-heuristic-divergence">NP-Hardness and Heuristic Divergence</h2>
+<p>Several core compiler optimization problems are NP-hard or NP-complete:
+register allocation (graph coloring), instruction scheduling, optimal loop
+tiling, and the phase ordering problem (the order you apply optimizations
+affects the outcome, and finding the optimal ordering is itself intractable).</p>
+<p>So compilers use heuristics, and different heuristics produce different but
+correct output. GCC, Clang, and MSVC generate meaningfully different machine
+code from the same C source. Even within a single compiler, <code>-O1</code> vs <code>-O2</code>
+vs <code>-O3</code> produce different code — all correct, different tradeoff profiles.</p>
+<p>The invariant across all of them is <strong>semantic preservation</strong>, not output
+identity. The correctness contract is: "this machine code does the same thing
+as the source program." How it does it is a heuristic judgment call.</p>
+<p>This narrows the gap with agent-driven lowering. The difference isn't really
+"deterministic vs non-deterministic." It's more precise to say: compilers use
+heuristics that happen to be deterministic (same heuristic, same input, same
+output), while agents use heuristics that are stochastic. But in both cases,
+the meaningful invariant is the same — does the output preserve the intent of
+the input? The specific decomposition is a judgment call, not a uniquely
+correct answer.</p>
+<p>This suggests the right way to evaluate task graph lowering quality isn't "did
+it produce the right graph" but "did it produce a correct graph with good
+tradeoff characteristics" — exactly how we evaluate compiler output.</p>
+<h2 id="variable-lowering-depth">Variable Lowering Depth</h2>
+<p>This is where the analogy reveals a genuinely novel property of the system.</p>
+<p>A compiler <em>must</em> lower all the way to machine code before anything executes.
+There is no option to hand the MIR to the CPU and say "figure it out." But an
+agent can take a vague task description and produce working code. The agent
+itself is a general-purpose lowering engine that can bridge an arbitrary
+abstraction gap in a single step.</p>
+<p>So the question isn't "how do we lower all the way down" — it's <strong>how far
+down should we lower before handing off to execution?</strong> The answer is probably
+not fixed. It likely depends on:</p>
+<ul>
+<li><strong>Task complexity.</strong> A simple bug fix might be fine as a single-node graph.
+  A multi-module feature probably benefits from architectural decomposition
+  before execution.</li>
+<li><strong>Confidence in the decomposition.</strong> If the architecture is well understood,
+  lowering further before execution reduces agent judgment variance. If the
+  right decomposition is unclear, letting an agent explore from a higher level
+  might produce a better result than a premature human decomposition would.</li>
+<li><strong>Cost of getting it wrong.</strong> More lowering = more human oversight before
+  resources are spent. Less lowering = faster but higher risk of wasted work.</li>
+</ul>
+<p>Compilers can't reason about this tradeoff at all, because their execution
+cost is trivial — compiling the wrong way is cheap, just recompile. Agent
+execution is expensive (time, tokens, API cost), so the optimal lowering depth
+is an economic question, not just a correctness question.</p>
+<h2 id="transparency-and-the-black-box-problem">Transparency and the Black Box Problem</h2>
+<p>There is a subtler argument for deeper lowering that goes beyond correctness
+and cost: <strong>legibility of the build process itself.</strong> This connects to a
+broader concern: as organizations rely more heavily on AI-generated code,
+there is a real risk that no human fully understands the codebase — or at
+least significant parts of it. Some projects have likely already hit this
+problem. The speed at which agents produce code is genuinely valuable, but
+that speed can outrun human comprehension if there is no structured process
+making the build legible.</p>
+<p>When an agent executes a high-level, loosely specified graph, the lowering
+still happens — the agent still makes decomposition decisions, architectural
+choices, and implementation tradeoffs. But those decisions are made inside the
+agent's context window and are invisible to the humans responsible for the
+project. A larger portion of the software creation process becomes black-boxed.</p>
+<p>When the TaskGraph is lowered to a more granular level before execution —
+regardless of whether a human or an agent did the lowering — the intermediate
+representations serve as legible artifacts. They record <em>what decisions were
+made and why</em> in a form that humans can inspect, question, and learn from.
+This has consequences beyond the immediate build:</p>
+<ul>
+<li><strong>Maintainability.</strong> A codebase produced by a transparent, well-documented
+  decomposition is easier to reason about after the fact. The graph artifacts
+  explain the module boundaries, responsibility assignments, and dependency
+  structure that shaped the code.</li>
+<li><strong>Extendability.</strong> When new features need to be added, the existing graph
+  history shows how prior work was decomposed, making it easier to decide
+  where new work fits.</li>
+<li><strong>Reliability.</strong> Explicit decomposition forces architectural decisions to be
+  made deliberately rather than emerging as side effects of an agent's local
+  choices. Deliberate decisions tend to be more consistent.</li>
+</ul>
+<p>Two products built from the same high-level intent — one via a shallow graph
+and one via a deeply lowered graph — might be nearly identical in initial
+functionality. But the latter has a more transparent build history, and that
+transparency compounds over the life of the project.</p>
+<p>This benefit holds regardless of who performs the lowering. An especially
+interesting scenario: a human provides only the highest-level graph, but
+instructs the system to lower through a specified number of intermediate
+levels (or down to a particular abstraction level) before beginning execution.
+The human retains none of the decomposition burden but gains full visibility
+into the decomposition the agent produced — and can review or redirect it
+before any execution cost is incurred.</p>
+<p>A tool like agentrelay — with explicit task graphs, dependency structure,
+and intermediate artifacts — provides a framework for keeping humans in the
+loop on <em>what is being built and why</em>, without sacrificing the speed at which
+agents can do the actual building. The graph artifacts become the shared
+understanding layer: agents generate code at machine speed, but the
+decomposition that governs that generation remains human-legible.</p>
+<h2 id="mixed-resolution-graphs">Mixed-Resolution Graphs</h2>
+<p>The variable lowering depth insight extends further: the "right" depth might
+vary <em>within a single graph</em>. Some subtrees you understand well and can
+specify precisely. Others are exploratory and benefit from giving the agent
+more latitude. A mixed-resolution graph — some nodes fully specified, others
+intentionally vague — might be the most practical operating point.</p>
+<h2 id="who-does-the-lowering">Who Does the Lowering</h2>
+<p>Each pass in the lowering pipeline is parameterized by who performs it:</p>
+<ul>
+<li><strong>Fully manual</strong>: human writes all levels of TaskGraph (the current workflow)</li>
+<li><strong>Fully automated</strong>: agent performs all lowering from intent to executable graph</li>
+<li><strong>Hybrid</strong>: human provides architectural decomposition, agent refines to
+  implementation-level detail</li>
+<li><strong>Collaborative</strong>: agent proposes each lowering, human approves or edits
+  before the next pass</li>
+</ul>
+<p>This mirrors how compilers evolved. Early compilers were simple one-pass
+translators. Then multi-pass architectures emerged. Then optimization passes.
+Then JITs that adapt at runtime. agentrelay could follow a similar trajectory
+— start with well-defined manual passes, then automate the ones where agent
+judgment is reliable enough.</p>
+<h2 id="implications-for-agentrelay">Implications for agentrelay</h2>
+<p>If this analogy is taken seriously, it suggests a few things:</p>
+<ol>
+<li>
+<p><strong>Abstraction level as a first-class concept.</strong> The TaskGraph schema might
+   benefit from a notion of abstraction level — a graph knows whether it's a
+   high-level intent graph, an architectural graph, or an execution-ready
+   graph. Each level would have different validation rules (an intent graph
+   doesn't need <code>tagged_paths</code>; an execution graph does).</p>
+</li>
+<li>
+<p><strong>Typed lowering passes.</strong> The passes could be typed transformations:
+   <code>TaskGraph[Intent] -&gt; TaskGraph[Architecture] -&gt; TaskGraph[Implementation]</code>.
+   Each pass has a defined input/output contract.</p>
+</li>
+<li>
+<p><strong>The optimal lowering depth is TBD.</strong> Finding the right tradeoff between
+   human specification effort, agent autonomy, and execution cost is an open
+   empirical question. The system should be designed to support varying depths
+   rather than hardcoding a single pipeline.</p>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
