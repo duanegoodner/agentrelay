@@ -29,8 +29,11 @@ def _make_runtime(
 def _make_preparer(
     repo_path: Path = Path("/repo"),
     graph_name: str = "demo",
+    run_dir: Path = Path("/repo/.workflow/demo/runs/0"),
 ) -> GitWorkstreamPreparer:
-    return GitWorkstreamPreparer(repo_path=repo_path, graph_name=graph_name)
+    return GitWorkstreamPreparer(
+        repo_path=repo_path, graph_name=graph_name, run_dir=run_dir
+    )
 
 
 class TestGitWorkstreamPreparer:
@@ -43,7 +46,8 @@ class TestGitWorkstreamPreparer:
         tmp_path: Path,
     ) -> None:
         """Calls git.worktree_add with expected branch, path, and base."""
-        preparer = _make_preparer(repo_path=tmp_path)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
@@ -62,7 +66,8 @@ class TestGitWorkstreamPreparer:
         tmp_path: Path,
     ) -> None:
         """Pushes integration branch with set_upstream=True."""
-        preparer = _make_preparer(repo_path=tmp_path)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
@@ -80,7 +85,8 @@ class TestGitWorkstreamPreparer:
         tmp_path: Path,
     ) -> None:
         """Sets push.autoSetupRemote=true in the worktree git config."""
-        preparer = _make_preparer(repo_path=tmp_path)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
@@ -98,13 +104,15 @@ class TestGitWorkstreamPreparer:
         tmp_path: Path,
     ) -> None:
         """Sets worktree_path and branch_name on workstream runtime state."""
-        preparer = _make_preparer(repo_path=tmp_path)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)
 
         assert runtime.state.worktree_path == tmp_path / ".worktrees/demo/ws-1"
         assert runtime.state.branch_name == "agentrelay/demo/ws-1/integration"
+        assert runtime.state.signal_dir == run_dir / "workstreams" / "ws-1"
 
     @patch("agentrelay.workstream.implementations.workstream_preparer.git")
     def test_wraps_git_error_in_workspace_integration_error(
@@ -128,7 +136,8 @@ class TestGitWorkstreamPreparer:
         tmp_path: Path,
     ) -> None:
         """Uses the workstream spec's base_branch as the start point."""
-        preparer = _make_preparer(repo_path=tmp_path)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime(base_branch="develop")
 
         preparer.prepare_workstream(runtime)
@@ -147,7 +156,8 @@ class TestGitWorkstreamPreparer:
         tmp_path: Path,
     ) -> None:
         """Fetches the base branch and updates local ref before creating worktree."""
-        preparer = _make_preparer(repo_path=tmp_path)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
 
         preparer.prepare_workstream(runtime)

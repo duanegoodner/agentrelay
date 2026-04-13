@@ -14,11 +14,13 @@ from agentrelay.run_graph import (
     _any_task_uses_oci,
     _apply_overrides,
     _build_parser,
+    _ConflictError,
     _copy_graph_yaml,
     _extract_operational_config,
     _load_and_prepare_graph,
     _record_run_config,
     _resolve_override,
+    _resolve_run_dir,
     dry_run,
 )
 from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
@@ -315,9 +317,11 @@ tasks:
 
 
 def test_build_standard_workstream_runner_types(tmp_path: Path) -> None:
+    run_dir = tmp_path / ".workflow" / "test-graph" / "runs" / "0"
     runner = build_standard_workstream_runner(
         repo_path=tmp_path,
         graph_name="test-graph",
+        run_dir=run_dir,
     )
     assert isinstance(runner._preparer, GitWorkstreamPreparer)
     assert isinstance(runner._integrator, GhWorkstreamIntegrator)
@@ -325,20 +329,25 @@ def test_build_standard_workstream_runner_types(tmp_path: Path) -> None:
 
 
 def test_build_standard_workstream_runner_preparer_config(tmp_path: Path) -> None:
+    run_dir = tmp_path / ".workflow" / "my-graph" / "runs" / "0"
     runner = build_standard_workstream_runner(
         repo_path=tmp_path,
         graph_name="my-graph",
+        run_dir=run_dir,
     )
     preparer = runner._preparer
     assert isinstance(preparer, GitWorkstreamPreparer)
     assert preparer.repo_path == tmp_path
     assert preparer.graph_name == "my-graph"
+    assert preparer.run_dir == run_dir
 
 
 def test_build_standard_workstream_runner_integrator_config(tmp_path: Path) -> None:
+    run_dir = tmp_path / ".workflow" / "my-graph" / "runs" / "0"
     runner = build_standard_workstream_runner(
         repo_path=tmp_path,
         graph_name="my-graph",
+        run_dir=run_dir,
     )
     integrator = runner._integrator
     assert isinstance(integrator, GhWorkstreamIntegrator)
@@ -346,9 +355,11 @@ def test_build_standard_workstream_runner_integrator_config(tmp_path: Path) -> N
 
 
 def test_build_standard_workstream_runner_teardown_config(tmp_path: Path) -> None:
+    run_dir = tmp_path / ".workflow" / "my-graph" / "runs" / "0"
     runner = build_standard_workstream_runner(
         repo_path=tmp_path,
         graph_name="my-graph",
+        run_dir=run_dir,
     )
     teardown = runner._teardown
     assert isinstance(teardown, GitWorkstreamTeardown)
@@ -437,16 +448,16 @@ tasks:
 
 
 def test_copy_graph_yaml_writes_file(tmp_path: Path) -> None:
-    """graph.yaml is written to .workflow/<graph>/ with identical bytes."""
+    """graph.yaml is written to run directory with identical bytes."""
     source = tmp_path / "my-graph.yaml"
     source.write_text("name: my-graph\ntasks:\n  - id: a\n    description: do stuff\n")
 
-    workflow_dir = tmp_path / ".workflow" / "my-graph"
-    workflow_dir.mkdir(parents=True)
+    run_dir = tmp_path / ".workflow" / "my-graph" / "runs" / "0"
+    run_dir.mkdir(parents=True)
 
-    _copy_graph_yaml(tmp_path, "my-graph", source)
+    _copy_graph_yaml(run_dir, source)
 
-    dest = workflow_dir / "graph.yaml"
+    dest = run_dir / "graph.yaml"
     assert dest.is_file()
     assert dest.read_bytes() == source.read_bytes()
 
@@ -457,12 +468,12 @@ def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
     source = tmp_path / "graph.yaml"
     source.write_text(content)
 
-    workflow_dir = tmp_path / ".workflow" / "test"
-    workflow_dir.mkdir(parents=True)
+    run_dir = tmp_path / ".workflow" / "test" / "runs" / "0"
+    run_dir.mkdir(parents=True)
 
-    _copy_graph_yaml(tmp_path, "test", source)
+    _copy_graph_yaml(run_dir, source)
 
-    dest = workflow_dir / "graph.yaml"
+    dest = run_dir / "graph.yaml"
     assert dest.read_text() == content
 
 
@@ -471,8 +482,8 @@ def test_copy_graph_yaml_preserves_comments(tmp_path: Path) -> None:
 
 def test_record_run_config_writes_file(tmp_path: Path) -> None:
     """run_config.json is written with all effective config fields."""
-    workflow_dir = tmp_path / ".workflow" / "my-graph"
-    workflow_dir.mkdir(parents=True)
+    run_dir = tmp_path / ".workflow" / "my-graph" / "runs" / "0"
+    run_dir.mkdir(parents=True)
 
     config = OrchestratorConfig(
         max_concurrency=4,
@@ -481,8 +492,7 @@ def test_record_run_config_writes_file(tmp_path: Path) -> None:
         fail_fast_on_workstream_error=True,
     )
     _record_run_config(
-        tmp_path,
-        "my-graph",
+        run_dir,
         config,
         keep_panes=True,
         model="claude-sonnet-4-6",
@@ -491,7 +501,7 @@ def test_record_run_config_writes_file(tmp_path: Path) -> None:
         verbose=True,
     )
 
-    dest = workflow_dir / "run_config.json"
+    dest = run_dir / "run_config.json"
     assert dest.is_file()
 
     data = json.loads(dest.read_text())
@@ -509,12 +519,11 @@ def test_record_run_config_writes_file(tmp_path: Path) -> None:
 
 def test_record_run_config_handles_none_optionals(tmp_path: Path) -> None:
     """Optional fields are written as null when not set."""
-    workflow_dir = tmp_path / ".workflow" / "test-graph"
-    workflow_dir.mkdir(parents=True)
+    run_dir = tmp_path / ".workflow" / "test-graph" / "runs" / "0"
+    run_dir.mkdir(parents=True)
 
     _record_run_config(
-        tmp_path,
-        "test-graph",
+        run_dir,
         OrchestratorConfig(),
         keep_panes=False,
         model=None,
@@ -523,10 +532,36 @@ def test_record_run_config_handles_none_optionals(tmp_path: Path) -> None:
         verbose=False,
     )
 
-    data = json.loads((workflow_dir / "run_config.json").read_text())
+    data = json.loads((run_dir / "run_config.json").read_text())
     assert data["model"] is None
     assert data["sandbox"] is None
     assert data["anthropic_credential"] is None
+
+
+# --- _resolve_run_dir ---
+
+
+def test_resolve_run_dir_fresh_returns_runs_0(tmp_path: Path) -> None:
+    """Fresh run (nothing exists) returns runs/0/ and creates it."""
+    run_dir = _resolve_run_dir(tmp_path, "my-graph")
+    assert run_dir == tmp_path / ".workflow" / "my-graph" / "runs" / "0"
+    assert run_dir.is_dir()
+
+
+def test_resolve_run_dir_raises_on_existing_workflow(tmp_path: Path) -> None:
+    """Raises _ConflictError if .workflow/<graph>/ already exists."""
+    workflow_dir = tmp_path / ".workflow" / "my-graph"
+    workflow_dir.mkdir(parents=True)
+    with pytest.raises(_ConflictError, match="Leftover state"):
+        _resolve_run_dir(tmp_path, "my-graph")
+
+
+def test_resolve_run_dir_raises_on_existing_worktrees(tmp_path: Path) -> None:
+    """Raises _ConflictError if .worktrees/<graph>/ already exists."""
+    worktree_dir = tmp_path / ".worktrees" / "my-graph"
+    worktree_dir.mkdir(parents=True)
+    with pytest.raises(_ConflictError, match="Leftover state"):
+        _resolve_run_dir(tmp_path, "my-graph")
 
 
 # --- docker_build.sh syntax ---

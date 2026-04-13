@@ -43,7 +43,7 @@ class WorktreeTaskPreparer:
     creates and checks out branches within it.
     """
 
-    repo_path: Path
+    run_dir: Path
     graph_name: str
     dependency_descriptions: dict[str, Optional[str]] = field(default_factory=dict)
     context_content: Optional[str] = None
@@ -78,7 +78,7 @@ class WorktreeTaskPreparer:
 
         task = runtime.task
         branch_name = f"agentrelay/{self.graph_name}/{task.id}"
-        signal_dir = self.repo_path / f".workflow/{self.graph_name}/signals/{task.id}"
+        signal_dir = self.run_dir / "signals" / task.id
 
         try:
             if git.current_branch(workstream_worktree_path) == branch_name:
@@ -100,7 +100,7 @@ class WorktreeTaskPreparer:
 
         signals.ensure_signal_dir(signal_dir)
 
-        input_files = _resolve_input_files(task, self.repo_path, self.graph_name)
+        input_files = _resolve_input_files(task, self.run_dir)
 
         manifest = build_manifest(
             task=task,
@@ -118,15 +118,14 @@ class WorktreeTaskPreparer:
         signals.write_json(signal_dir, "policies.json", policies_to_dict(policies))
 
         isolation = task.primary_agent.isolation
-        workflow_base = self.repo_path / f".workflow/{self.graph_name}"
         instructions = resolve_instructions(
             task.role,
             manifest,
             adr_verbosity=task.primary_agent.adr_verbosity,
             sandbox_type=isolation.sandbox_type if isolation is not None else None,
             worktree_path=workstream_worktree_path,
-            graph_yaml_path=workflow_base / "graph.yaml",
-            signals_base_path=workflow_base / "signals",
+            graph_yaml_path=self.run_dir / "graph.yaml",
+            signals_base_path=self.run_dir / "signals",
         )
         signals.write_text(signal_dir, "instructions.md", instructions)
 
@@ -140,8 +139,7 @@ class WorktreeTaskPreparer:
 
 def _resolve_input_files(
     task: Task,
-    repo_path: Path,
-    graph_name: str,
+    run_dir: Path,
 ) -> tuple[InputFileInfo, ...]:
     """Resolve ``inputs_from`` references to concrete input file entries.
 
@@ -150,8 +148,7 @@ def _resolve_input_files(
 
     Args:
         task: The task being prepared (provides ``inputs_from``).
-        repo_path: Path to the repository root.
-        graph_name: Name of the task graph.
+        run_dir: Path to the per-run directory.
 
     Returns:
         Tuple of resolved input file entries.
@@ -164,7 +161,7 @@ def _resolve_input_files(
 
     result: list[InputFileInfo] = []
     for inp in task.inputs_from:
-        upstream_signal_dir = repo_path / f".workflow/{graph_name}/signals/{inp.task}"
+        upstream_signal_dir = run_dir / "signals" / inp.task
         raw = signals.read_signal_file(upstream_signal_dir, OUTPUT_MANIFEST_FILENAME)
         if raw is None:
             raise FileNotFoundError(

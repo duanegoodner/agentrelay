@@ -222,8 +222,19 @@ class _ConflictError(RuntimeError):
     """Raised when leftover state from a previous run would conflict."""
 
 
-def _check_for_conflicts(repo_path: Path, graph_name: str) -> None:
-    """Check for leftover state that would conflict with a new run.
+def _resolve_run_dir(repo_path: Path, graph_name: str) -> Path:
+    """Determine the run directory for a fresh graph execution.
+
+    Creates and returns ``runs/0/`` under the workflow directory.
+    Raises :class:`_ConflictError` if leftover state from a previous run
+    exists.
+
+    Args:
+        repo_path: Path to the repository root.
+        graph_name: Name of the task graph being executed.
+
+    Returns:
+        Path to the run directory (e.g. ``.workflow/<graph>/runs/0``).
 
     Raises:
         _ConflictError: If ``.workflow/<graph>`` or ``.worktrees/<graph>``
@@ -242,6 +253,9 @@ def _check_for_conflicts(repo_path: Path, graph_name: str) -> None:
             f"Leftover state from a previous run of graph '{graph_name}': {dirs}\n"
             f"Run `agentrelay reset <graph.yaml>` to clean up first."
         )
+    run_dir = workflow_dir / "runs" / "0"
+    run_dir.mkdir(parents=True, exist_ok=True)
+    return run_dir
 
 
 class _SessionError(RuntimeError):
@@ -274,19 +288,18 @@ def _validate_tmux_sessions(graph: TaskGraph) -> None:
             )
 
 
-def _record_run_start(repo_path: Path, graph_name: str) -> None:
+def _record_run_start(run_dir: Path, repo_path: Path) -> None:
     """Write run_info.json with start HEAD and timestamp.
 
     This file is read by ``reset_graph`` to know what SHA to reset to.
 
     Args:
-        repo_path: Path to the repository root.
-        graph_name: Name of the task graph being executed.
+        run_dir: Path to the per-run directory.
+        repo_path: Path to the repository root (for ``git rev-parse``).
     """
-    workflow_dir = repo_path / ".workflow" / graph_name
     start_head = git.rev_parse_head(repo_path)
     signals.write_json(
-        workflow_dir,
+        run_dir,
         "run_info.json",
         {
             "start_head": start_head,
@@ -296,8 +309,7 @@ def _record_run_start(repo_path: Path, graph_name: str) -> None:
 
 
 def _record_run_config(
-    repo_path: Path,
-    graph_name: str,
+    run_dir: Path,
     config: OrchestratorConfig,
     *,
     keep_panes: bool,
@@ -313,8 +325,7 @@ def _record_run_config(
     what settings were actually used for a run.
 
     Args:
-        repo_path: Path to the repository root.
-        graph_name: Name of the task graph being executed.
+        run_dir: Path to the per-run directory.
         config: Fully resolved orchestrator configuration.
         keep_panes: Effective keep_panes setting.
         model: Model override (from CLI or graph YAML), or None for default.
@@ -322,9 +333,8 @@ def _record_run_config(
         anthropic_credential: Resolved Anthropic credential name, or None.
         verbose: Whether verbose output is enabled.
     """
-    workflow_dir = repo_path / ".workflow" / graph_name
     signals.write_json(
-        workflow_dir,
+        run_dir,
         "run_config.json",
         {
             "max_concurrency": config.max_concurrency,
@@ -341,8 +351,8 @@ def _record_run_config(
     )
 
 
-def _copy_graph_yaml(repo_path: Path, graph_name: str, graph_path: Path) -> None:
-    """Copy the source graph YAML into the workflow directory.
+def _copy_graph_yaml(run_dir: Path, graph_path: Path) -> None:
+    """Copy the source graph YAML into the run directory.
 
     Writes a byte-for-byte copy so that comments and formatting are
     preserved.  The copy is immutable during the run and serves as a
@@ -350,11 +360,10 @@ def _copy_graph_yaml(repo_path: Path, graph_name: str, graph_path: Path) -> None
     this file to understand the full task DAG.
 
     Args:
-        repo_path: Path to the repository root.
-        graph_name: Name of the task graph being executed.
+        run_dir: Path to the per-run directory.
         graph_path: Resolved path to the source graph YAML file.
     """
-    dest = repo_path / ".workflow" / graph_name / "graph.yaml"
+    dest = run_dir / "graph.yaml"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(graph_path.read_bytes())
 
@@ -493,11 +502,11 @@ async def run_graph(
 
     assert graph.name is not None, "Graph must have a name"
 
-    _check_for_conflicts(repo_path, graph.name)
+    run_dir = _resolve_run_dir(repo_path, graph.name)
     _validate_tmux_sessions(graph)
     validate_tools(ops.tools)
-    _record_run_start(repo_path, graph.name)
-    _copy_graph_yaml(repo_path, graph.name, graph_path)
+    _record_run_start(run_dir, repo_path)
+    _copy_graph_yaml(run_dir, graph_path)
 
     # Resolve Anthropic credential: CLI flag > graph YAML default > auto-select.
     effective_anthropic_name = anthropic_credential_name or ops.anthropic_credential
@@ -508,8 +517,7 @@ async def run_graph(
         )
 
     _record_run_config(
-        repo_path,
-        graph.name,
+        run_dir,
         config,
         keep_panes=effective_keep_panes,
         model=model_override,
@@ -533,6 +541,7 @@ async def run_graph(
         task_runner = build_standard_runner(
             repo_path=repo_path,
             graph_name=graph.name,
+            run_dir=run_dir,
             graph=graph,
             keep_panes=effective_keep_panes,
             tools=ops.tools,
@@ -542,6 +551,7 @@ async def run_graph(
         workstream_runner = build_standard_workstream_runner(
             repo_path=repo_path,
             graph_name=graph.name,
+            run_dir=run_dir,
         )
         orchestrator = Orchestrator(
             graph=graph,
