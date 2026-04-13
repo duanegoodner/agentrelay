@@ -136,6 +136,11 @@ output_pkg: "output/" {
   console_functions: "console <<module>>" { shape: class }
 }
 
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  resolved_functions: "resolved_functions <<module>>" { shape: class }
+}
+
 run_graph_py: "run_graph.py" {
   style.opacity: 0.5
   run_graph_functions: "run_graph <<module>>" { shape: class }
@@ -233,3 +238,4 @@ run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
 output_pkg.console_functions -> orchestrator_pkg.OrchestratorResult: reads { class: dependency }
+orchestrator_pkg._OrchestratorRun -> resolved_py.resolved_functions: "writes resolved.json" { class: dependency }

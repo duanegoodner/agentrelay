@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from agentrelay.workstream import (
+    IntegrationResult,
     StandardWorkstreamRunner,
     WorkstreamIntegrator,
     WorkstreamPreparer,
@@ -40,12 +41,15 @@ class FakeWorkstreamIO:
         self.calls.append("prepare")
         self._maybe_fail("prepare")
 
-    def create_integration_pr(self, workstream_runtime: WorkstreamRuntime) -> None:
+    def create_integration_pr(
+        self, workstream_runtime: WorkstreamRuntime
+    ) -> IntegrationResult:
         self.calls.append("integrate")
         self._maybe_fail("integrate")
         workstream_runtime.mark_pr_created(
             f"https://example.com/{workstream_runtime.spec.id}/integration-pr"
         )
+        return IntegrationResult(skipped=False)
 
     def teardown_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
         self.calls.append("teardown")
@@ -150,9 +154,14 @@ def test_integrate_skip_transitions_to_merged() -> None:
     class SkipIntegrator:
         calls: list[str] = field(default_factory=list)
 
-        def create_integration_pr(self, workstream_runtime: WorkstreamRuntime) -> None:
+        def create_integration_pr(
+            self, workstream_runtime: WorkstreamRuntime
+        ) -> IntegrationResult:
             self.calls.append("integrate")
             workstream_runtime.mark_merged()
+            return IntegrationResult(
+                skipped=True, target_branch_authoritative_sha="skip_sha_abc"
+            )
 
     skip_io = SkipIntegrator()
     fake = FakeWorkstreamIO()
@@ -169,6 +178,7 @@ def test_integrate_skip_transitions_to_merged() -> None:
     assert result.status == WorkstreamStatus.MERGED
     assert result.error is None
     assert runtime.status == WorkstreamStatus.MERGED
+    assert runtime.artifacts.target_branch_before_any_merge == "skip_sha_abc"
 
 
 def test_workstream_run_result_from_runtime() -> None:

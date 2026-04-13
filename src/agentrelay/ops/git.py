@@ -284,6 +284,27 @@ def rev_parse_head(repo: Path) -> str:
     return result.stdout.strip()
 
 
+def rev_parse(repo: Path, ref: str) -> str:
+    """Return the full SHA of an arbitrary ref.
+
+    Runs ``git -C <repo> rev-parse <ref>``.
+
+    Args:
+        repo: Path to the repository.
+        ref: Any valid git ref (branch name, tag, SHA, ``"abc123^1"``, etc.).
+
+    Returns:
+        The resolved full SHA as a string.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", ref],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
+
+
 def merge_base_is_ancestor(repo: Path, ancestor: str, descendant: str) -> bool:
     """Check whether *ancestor* is an ancestor of *descendant*.
 

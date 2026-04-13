@@ -27,6 +27,7 @@ from agentrelay.task_runner import (
     TaskLauncher,
     TaskLogCapture,
     TaskMerger,
+    TaskMergeResult,
     TaskPreparer,
     TaskTeardown,
     TearDownMode,
@@ -105,9 +106,10 @@ class FakeIO:
             return self.gate_results[idx]
         return GateCheckResult(passed=True, output="")
 
-    def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> None:
+    def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> TaskMergeResult:
         self.calls.append("merge_pr")
         self._maybe_fail("merge_pr")
+        return TaskMergeResult(integration_branch_before_merge="fake_sha")
 
     def capture_log(self, runtime: TaskRuntime) -> None:
         self.calls.append("capture_log")

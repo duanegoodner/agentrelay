@@ -125,11 +125,16 @@ class WorkstreamArtifacts:
         merge_pr_url: URL of the workstream integration PR, or ``None`` if absent.
         concerns: List of notable observations or concerns for this lane.
         task_summaries: Per-task summaries for integration PR body.
+        target_branch_before_any_merge: SHA of the target branch before any
+            merge related to this workstream.  Populated from whichever
+            authority path detected the merge (integrator for skipped
+            workstreams, auto-merger, or polled merge checker).
     """
 
     merge_pr_url: Optional[str] = None
     concerns: list[str] = field(default_factory=list)
     task_summaries: list[TaskSummary] = field(default_factory=list)
+    target_branch_before_any_merge: Optional[str] = None
 
 
 @dataclass

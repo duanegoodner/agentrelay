@@ -1,0 +1,26 @@
+name: no-commit-chained
+model: claude-sonnet-4-6
+
+# Two chained tasks that both complete without PRs.
+# Because neither task produces commits, the integration branch has
+# zero commits ahead of main, triggering the workstream "skipped" path.
+# Validates: workstream resolved.json with merge_occurred=false and
+# target_branch_authoritative_sha from the integrator.
+
+tasks:
+  - id: review_structure
+    description: >-
+      Review the project directory structure. List the top-level
+      directories and briefly describe what each one contains.
+      Do NOT make any code changes, commits, or create a PR.
+      Complete using agentrelay-complete-no-pr.
+    dependencies: []
+
+  - id: review_readme
+    description: >-
+      Review the README.md file. Summarize the project purpose and
+      setup instructions in two or three sentences.
+      Do NOT make any code changes, commits, or create a PR.
+      Complete using agentrelay-complete-no-pr.
+    dependencies:
+      - review_structure

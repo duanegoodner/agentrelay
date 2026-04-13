@@ -139,16 +139,31 @@ class TaskGateChecker(Protocol):
         ...
 
 
+@dataclass(frozen=True)
+class TaskMergeResult:
+    """Result from merging a task PR.
+
+    Attributes:
+        integration_branch_before_merge: SHA of the integration branch
+            immediately before the task PR was merged into it.
+    """
+
+    integration_branch_before_merge: str
+
+
 @runtime_checkable
 class TaskMerger(Protocol):
     """Merge the completed task PR into the integration target."""
 
-    def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> None:
+    def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> TaskMergeResult:
         """Merge the completed task PR.
 
         Args:
             runtime: Runtime envelope being merged.
             pr_url: Pull request URL to merge.
+
+        Returns:
+            TaskMergeResult: Pre-merge SHA for rollback support.
         """
         ...
 
@@ -190,6 +205,7 @@ __all__ = [
     "TaskKickoff",
     "TaskLauncher",
     "TaskLogCapture",
+    "TaskMergeResult",
     "TaskMerger",
     "TaskPreparer",
     "TaskTeardown",

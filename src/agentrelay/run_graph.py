@@ -559,8 +559,8 @@ async def run_graph(
             workstream_runner=workstream_runner,
             config=config,
             listener=ConsoleListener(verbose=verbose),
-            integration_merge_checker=build_integration_merge_checker(),
-            integration_auto_merger=build_integration_auto_merger(),
+            integration_merge_checker=build_integration_merge_checker(repo_path),
+            integration_auto_merger=build_integration_auto_merger(repo_path),
         )
         return await orchestrator.run()
     finally:

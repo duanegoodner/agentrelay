@@ -18,6 +18,7 @@ from agentrelay.task_runner.core.io import (
     TaskLauncher,
     TaskLogCapture,
     TaskMerger,
+    TaskMergeResult,
     TaskPreparer,
     TaskTeardown,
 )
@@ -54,6 +55,7 @@ __all__ = [
     "TaskKickoff",
     "TaskLauncher",
     "TaskLogCapture",
+    "TaskMergeResult",
     "TaskMerger",
     "TaskPreparer",
     "TaskRunResult",

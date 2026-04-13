@@ -108,7 +108,7 @@ workstream_pkg: "workstream/" {
 
     WorkstreamIntegrator: "WorkstreamIntegrator <<protocol>>" {
       shape: class
-      +create_integration_pr(workstream_runtime): void
+      +create_integration_pr(workstream_runtime): IntegrationResult
     }
 
     WorkstreamTeardown: "WorkstreamTeardown <<protocol>>" {
@@ -116,14 +116,31 @@ workstream_pkg: "workstream/" {
       +teardown_workstream(workstream_runtime): void
     }
 
+    IntegrationResult: "IntegrationResult <<frozen dataclass>>" {
+      shape: class
+      skipped: bool
+      target_branch_authoritative_sha: "str | None"
+    }
+
+    IntegrationMergeCheckResult: "IntegrationMergeCheckResult <<frozen dataclass>>" {
+      shape: class
+      merged: bool
+      target_branch_before_merge: "str | None"
+    }
+
+    IntegrationMergeResult: "IntegrationMergeResult <<frozen dataclass>>" {
+      shape: class
+      target_branch_before_merge: str
+    }
+
     IntegrationMergeChecker: "IntegrationMergeChecker <<protocol>>" {
       shape: class
-      +is_merged(workstream_runtime): bool
+      +is_merged(workstream_runtime): IntegrationMergeCheckResult
     }
 
     IntegrationAutoMerger: "IntegrationAutoMerger <<protocol>>" {
       shape: class
-      +merge(workstream_runtime): void
+      +merge(workstream_runtime): IntegrationMergeResult
     }
 
     WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
@@ -162,7 +179,7 @@ workstream_pkg: "workstream/" {
     GhWorkstreamIntegrator: "GhWorkstreamIntegrator <<dataclass>>" {
       shape: class
       repo_path: Path
-      +create_integration_pr(workstream_runtime): void
+      +create_integration_pr(workstream_runtime): IntegrationResult
     }
 
     GitWorkstreamTeardown: "GitWorkstreamTeardown <<dataclass>>" {
@@ -173,12 +190,14 @@ workstream_pkg: "workstream/" {
 
     GhIntegrationMergeChecker: "GhIntegrationMergeChecker <<dataclass>>" {
       shape: class
-      +is_merged(workstream_runtime): bool
+      repo_path: Path
+      +is_merged(workstream_runtime): IntegrationMergeCheckResult
     }
 
     GhIntegrationAutoMerger: "GhIntegrationAutoMerger <<dataclass>>" {
       shape: class
-      +merge(workstream_runtime): void
+      repo_path: Path
+      +merge(workstream_runtime): IntegrationMergeResult
     }
   }
 }
@@ -197,6 +216,11 @@ orchestrator_pkg: "orchestrator/" {
   Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
   WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" { shape: class }
   builders: "builders <<module>>" { shape: class }
+}
+
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  resolved_functions: "resolved_functions <<module>>" { shape: class }
 }
 
 sandbox_pkg: "sandbox/" {
@@ -246,12 +270,16 @@ workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { 
 workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.git: uses { class: dependency }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: "delegates workstream lifecycle" { class: composition }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: "polls merge status" { class: composition }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: "auto-merges integration PRs" { class: composition }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: mutates { class: dependency }
+resolved_py.resolved_functions -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: reads { class: dependency }
 workstream_pkg.workstream_core_pkg.WorkstreamArtifacts -> workstream_pkg.workstream_core_pkg.TaskSummary: task_summaries { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamRuntime -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: "status (computed)" { class: dependency }

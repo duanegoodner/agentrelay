@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from agentrelay.task import AgentRole, Task
-from agentrelay.task_runner.core.io import TaskMerger
+from agentrelay.task_runner.core.io import TaskMerger, TaskMergeResult
 from agentrelay.task_runner.implementations.task_merger import GhTaskMerger
 from agentrelay.task_runtime import TaskRuntime
 
@@ -35,6 +35,7 @@ class TestGhTaskMerger:
         _mock_signals: MagicMock,
     ) -> None:
         """Calls gh.pr_merge, then fetches and updates local ref."""
+        mock_git.rev_parse.return_value = "abc123"
         merger = GhTaskMerger(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
@@ -56,6 +57,7 @@ class TestGhTaskMerger:
         mock_signals: MagicMock,
     ) -> None:
         """Writes .merged signal file with ISO timestamp."""
+        _mock_git.rev_parse.return_value = "abc123"
         merger = GhTaskMerger(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
@@ -67,6 +69,27 @@ class TestGhTaskMerger:
         assert call_args[0][0] == signal_dir
         assert call_args[0][1] == ".merged"
         assert call_args[0][2].endswith("\n")
+
+    @patch("agentrelay.task_runner.implementations.task_merger.signals")
+    @patch("agentrelay.task_runner.implementations.task_merger.git")
+    @patch("agentrelay.task_runner.implementations.task_merger.gh")
+    def test_returns_task_merge_result_with_pre_merge_sha(
+        self,
+        _mock_gh: MagicMock,
+        mock_git: MagicMock,
+        _mock_signals: MagicMock,
+    ) -> None:
+        """Returns TaskMergeResult with the pre-merge integration branch SHA."""
+        mock_git.rev_parse.return_value = "pre_merge_sha_abc"
+        merger = GhTaskMerger(repo_path=Path("/repo"))
+        runtime = _make_runtime()
+
+        result = merger.merge_pr(runtime, "https://github.com/org/repo/pull/42")
+
+        assert result == TaskMergeResult(
+            integration_branch_before_merge="pre_merge_sha_abc"
+        )
+        mock_git.rev_parse.assert_called_once_with(Path("/repo"), "agentrelay/demo")
 
     def test_satisfies_task_merger_protocol(self) -> None:
         """GhTaskMerger satisfies the TaskMerger protocol."""

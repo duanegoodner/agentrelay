@@ -192,7 +192,7 @@ workstream_pkg: "workstream/" {
 
     WorkstreamIntegrator: "WorkstreamIntegrator <<protocol>>" {
       shape: class
-      +create_integration_pr(workstream_runtime): void
+      +create_integration_pr(workstream_runtime): IntegrationResult
     }
 
     WorkstreamTeardown: "WorkstreamTeardown <<protocol>>" {
@@ -200,14 +200,31 @@ workstream_pkg: "workstream/" {
       +teardown_workstream(workstream_runtime): void
     }
 
+    IntegrationResult: "IntegrationResult <<frozen dataclass>>" {
+      shape: class
+      skipped: bool
+      target_branch_authoritative_sha: "str | None"
+    }
+
+    IntegrationMergeCheckResult: "IntegrationMergeCheckResult <<frozen dataclass>>" {
+      shape: class
+      merged: bool
+      target_branch_before_merge: "str | None"
+    }
+
+    IntegrationMergeResult: "IntegrationMergeResult <<frozen dataclass>>" {
+      shape: class
+      target_branch_before_merge: str
+    }
+
     IntegrationMergeChecker: "IntegrationMergeChecker <<protocol>>" {
       shape: class
-      +is_merged(workstream_runtime): bool
+      +is_merged(workstream_runtime): IntegrationMergeCheckResult
     }
 
     IntegrationAutoMerger: "IntegrationAutoMerger <<protocol>>" {
       shape: class
-      +merge(workstream_runtime): void
+      +merge(workstream_runtime): IntegrationMergeResult
     }
 
     WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
@@ -246,7 +263,7 @@ workstream_pkg: "workstream/" {
     GhWorkstreamIntegrator: "GhWorkstreamIntegrator <<dataclass>>" {
       shape: class
       repo_path: Path
-      +create_integration_pr(workstream_runtime): void
+      +create_integration_pr(workstream_runtime): IntegrationResult
     }
 
     GitWorkstreamTeardown: "GitWorkstreamTeardown <<dataclass>>" {
@@ -257,12 +274,14 @@ workstream_pkg: "workstream/" {
 
     GhIntegrationMergeChecker: "GhIntegrationMergeChecker <<dataclass>>" {
       shape: class
-      +is_merged(workstream_runtime): bool
+      repo_path: Path
+      +is_merged(workstream_runtime): IntegrationMergeCheckResult
     }
 
     GhIntegrationAutoMerger: "GhIntegrationAutoMerger <<dataclass>>" {
       shape: class
-      +merge(workstream_runtime): void
+      repo_path: Path
+      +merge(workstream_runtime): IntegrationMergeResult
     }
   }
 }
@@ -424,9 +443,14 @@ task_runner_pkg: "task_runner/" {
       +check_gate(runtime): GateCheckResult
     }
 
+    TaskMergeResult: "TaskMergeResult <<frozen dataclass>>" {
+      shape: class
+      integration_branch_before_merge: str
+    }
+
     TaskMerger: "TaskMerger <<protocol>>" {
       shape: class
-      +merge_pr(runtime, pr_url): void
+      +merge_pr(runtime, pr_url): TaskMergeResult
     }
 
     TaskLogCapture: "TaskLogCapture <<protocol>>" {
@@ -510,7 +534,7 @@ task_runner_pkg: "task_runner/" {
     GhTaskMerger: "GhTaskMerger <<dataclass>>" {
       shape: class
       repo_path: Path
-      +merge_pr(runtime, pr_url): void
+      +merge_pr(runtime, pr_url): TaskMergeResult
     }
 
     WorktreeTaskLogCapture: "WorktreeTaskLogCapture <<dataclass>>" {
@@ -635,6 +659,7 @@ ops_pkg: "ops/" {
     +push_branch(repo, branch, set_upstream): void
     +push_delete_branch(repo, branch): void
     +ls_remote_branch_exists(repo, branch): bool
+    +rev_parse(repo, ref): str
     +set_config(repo, key, value): void
     +worktree_git_dir(worktree_path): Path
   }
@@ -656,6 +681,7 @@ ops_pkg: "ops/" {
     +pr_merge(pr_url): void
     +pr_body(pr_url): str
     +pr_is_merged(pr_url): bool
+    +pr_merge_commit_sha(pr_url): "str | None"
   }
 
   signals: "signals <<module>>" {
@@ -910,6 +936,60 @@ agent_sdk_pkg: "agent_sdk/" {
     shape: class
     schema_version: str
     files: "list[OutputEntry]"
+  }
+}
+
+# ─────────────────────────────────────────────
+#  resolved — frozen execution records
+# ─────────────────────────────────────────────
+resolved_py: "resolved.py" {
+  InputFromSpec: "InputFromSpec <<frozen dataclass>>" {
+    shape: class
+    task: str
+    category: "str | None"
+  }
+
+  TaggedPathSpec: "TaggedPathSpec <<frozen dataclass>>" {
+    shape: class
+    path: str
+    category: str
+  }
+
+  ResolvedTask: "ResolvedTask <<frozen dataclass>>" {
+    shape: class
+    task_id: str
+    workstream_id: str
+    dependencies: "tuple[str, ...]"
+    inputs_from: "tuple[InputFromSpec, ...]"
+    role: str
+    model: "str | None"
+    tagged_paths: "tuple[TaggedPathSpec, ...]"
+    branch_name: str
+    integration_branch: str
+    integration_branch_before_merge: "str | None"
+    completed_at_attempt: int
+    pr_url: "str | None"
+    +to_dict(): dict
+    +from_dict(d): ResolvedTask
+  }
+
+  ResolvedWorkstream: "ResolvedWorkstream <<frozen dataclass>>" {
+    shape: class
+    workstream_id: str
+    integration_pr_url: "str | None"
+    target_branch: str
+    target_branch_before_any_merge: str
+    merge_occurred: bool
+    merged_at: "str | None"
+    +to_dict(): dict
+    +from_dict(d): ResolvedWorkstream
+  }
+
+  resolved_functions: "resolved_functions <<module>>" {
+    shape: class
+    module_path: resolved
+    "+build_resolved_task(runtime, sha)": ResolvedTask
+    "+build_resolved_workstream(ws_runtime)": ResolvedWorkstream
   }
 }
 
@@ -1255,9 +1335,12 @@ workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { 
 workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.git: uses { class: dependency }
 
 # --- orchestrator ---
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
@@ -1355,6 +1438,16 @@ reset_graph_py.reset_graph_functions -> ops_pkg.docker: "container/network clean
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorListener: satisfies { class: implementation }
 output_pkg.ConsoleListener -> orchestrator_pkg.OrchestratorEvent: receives { class: dependency }
 output_pkg.console_functions -> orchestrator_pkg.OrchestratorResult: reads { class: dependency }
+
+# --- resolved ---
+resolved_py.ResolvedTask -> resolved_py.InputFromSpec: inputs_from { class: composition }
+resolved_py.ResolvedTask -> resolved_py.TaggedPathSpec: tagged_paths { class: composition }
+resolved_py.resolved_functions -> resolved_py.ResolvedTask: builds { class: dependency }
+resolved_py.resolved_functions -> resolved_py.ResolvedWorkstream: builds { class: dependency }
+resolved_py.resolved_functions -> task_runtime_pkg.TaskRuntime: reads { class: dependency }
+resolved_py.resolved_functions -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: reads { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> resolved_py.resolved_functions: "writes resolved.json" { class: dependency }
+orchestrator_pkg._OrchestratorRun -> resolved_py.resolved_functions: "writes resolved.json" { class: dependency }
 
 # --- agent_sdk ---
 agent_sdk_pkg.TaskHelper -> agent_comm_protocol_pkg.TaskManifest: "reads manifest.json" { class: dependency }

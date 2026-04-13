@@ -161,3 +161,37 @@ def pr_body(pr_url: str) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+def pr_merge_commit_sha(pr_url: str) -> str | None:
+    """Return the merge commit SHA for a merged pull request.
+
+    Runs ``gh pr view <url> --json mergeCommit --jq '.mergeCommit.oid'``.
+
+    Like :func:`pr_is_merged`, this returns ``None`` on failure instead of
+    raising, making it safe for use in polling loops.
+
+    Returns:
+        The merge commit SHA as a string, or ``None`` if the PR is not
+        merged or on transient failure.
+    """
+    try:
+        result = subprocess.run(
+            [
+                "gh",
+                "pr",
+                "view",
+                pr_url,
+                "--json",
+                "mergeCommit",
+                "--jq",
+                ".mergeCommit.oid",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        sha = result.stdout.strip()
+        return sha if sha else None
+    except subprocess.CalledProcessError:
+        return None
