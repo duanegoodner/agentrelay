@@ -1,0 +1,3061 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/sprints/2026-04-12-graph-resumption/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Sprint Plan — 2026-04-12: Graph Resumption (MVP) - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sprint-plan-2026-04-12-graph-resumption-mvp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sprint Plan — 2026-04-12: Graph Resumption (MVP)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#goal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#design-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design decisions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Design decisions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#per-run-directories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-run directories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#definition-graph-vs-execution-graph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Definition graph vs. execution graph
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frozen-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frozen records
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frozen records">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-level-resolvedjson-in-signal-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task-level: resolved.json in signal directory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workstream-level-resolvedjson-in-workstream-signal-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workstream-level: resolved.json in workstream signal directory
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frozen-task-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frozen task validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#worktree-preservation-for-mid-workstream-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worktree preservation for mid-workstream resume
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stale-state-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale state normalization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workstream-state-follows-from-task-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workstream state follows from task state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-summary-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume summary table
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stack-based-undo-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stack-based undo model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stack-based undo model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reset-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset-task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teardown-workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        teardown-workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset-workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset-workstream
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reset-to-direct-jump-batch-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reset-to — direct-jump batch rollback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#idempotent-preparation-as-a-safety-net" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotent preparation as a safety net
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mvp-scope-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MVP scope boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plan">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-a-per-run-directory-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR A: Per-run directory layout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-b-frozen-records-and-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR B: Frozen records and validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-state-probing-and-runtime-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: State probing and runtime reconstruction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-d-idempotent-workstream-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR D: Idempotent workstream preparation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-e-wire-resumption-into-run_graphpy-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E: Wire resumption into run_graph.py + CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-f-shared-reset-utilities-primitive-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F: Shared reset utilities + primitive commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-g-reset-to-batch-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR G: reset-to batch rollback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#merge-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risk-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk assessment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estimated-effort" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimated effort
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisions-resolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisions resolved
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
+<blockquote>
+<p><strong>Status: Planning.</strong></p>
+</blockquote>
+<h2 id="goal">Goal</h2>
+<p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
+probe the actual state on disk and resume instead of refusing. Completed
+tasks skip, failed tasks retry, unstarted tasks proceed. Users can also
+force a fresh restart that preserves previous run history, and
+selectively undo tasks, workstream infrastructure, or workstream merges
+using a uniform stack-based undo model.</p>
+<p>This is Phase 4 of the pre-Rust roadmap — the highest-value user-facing
+improvement before the Python feature freeze.</p>
+<h2 id="context">Context</h2>
+<p>Sprint 2026-04-09 completed Phase 3 — 1467 tests, all 21 e2e graphs
+pass, uniform per-attempt signal directories, run_config.json. The
+signal file architecture (status derived from disk, per-attempt artifact
+directories) was designed with resumption in mind.</p>
+<p><strong>Key existing building blocks:</strong>
+- <code>_read_task_status_from_signals()</code> and <code>_read_status_from_signals()</code>
+  already derive task/workstream status from signal files on disk.
+- <code>Orchestrator.run()</code> accepts optional pre-built <code>task_runtimes</code> and
+  <code>workstream_runtimes</code> — the init path already handles pre-existing
+  completed tasks, failed-task-retry normalization, and workstream state
+  refresh.
+- <code>_initialize_attempts_used()</code> computes attempt counts from runtime
+  state. <code>_normalize_failed_for_retry()</code> converts FAILED→PENDING when
+  retries remain.
+- The orchestrator only calls <code>workstream_runner.prepare()</code> when a
+  workstream is PENDING, and only dispatches PENDING tasks — so
+  reconstructing runtimes with the right status causes completed work to
+  be skipped automatically.</p>
+<p><strong>What currently blocks re-runs:</strong> <code>_check_for_conflicts()</code> in
+<code>run_graph.py:225-244</code> checks for <code>.workflow/&lt;graph&gt;/</code> or
+<code>.worktrees/&lt;graph&gt;/</code> and raises <code>_ConflictError</code>, directing the user to
+run <code>agentrelay reset</code>.</p>
+<p><strong>The gap:</strong> No code exists to reconstruct <code>TaskRuntime</code> /
+<code>WorkstreamRuntime</code> objects from on-disk state, and no logic handles
+"stale" in-progress states (RUNNING / PR_CREATED) from a prior
+orchestrator session that was interrupted.</p>
+<h2 id="design-decisions">Design decisions</h2>
+<h3 id="per-run-directories">Per-run directories</h3>
+<p>Each invocation of <code>agentrelay run</code> creates a numbered run directory
+under <code>.workflow/&lt;graph&gt;/runs/&lt;N&gt;/</code>. This mirrors the per-attempt
+pattern already used for tasks.</p>
+<div class="highlight"><pre><span></span><code>.workflow/&lt;graph&gt;/
+├── runs/
+│   ├── 0/
+│   │   ├── signals/&lt;task-id&gt;/
+│   │   │   ├── status/
+│   │   │   ├── attempts/&lt;N&gt;/
+│   │   │   ├── manifest.json
+│   │   │   ├── resolved.json      ← written on task completion
+│   │   │   └── ...
+│   │   ├── workstreams/&lt;ws-id&gt;/
+│   │   │   ├── pending
+│   │   │   ├── active
+│   │   │   ├── ...
+│   │   │   └── resolved.json      ← written on workstream merge
+│   │   ├── run_info.json
+│   │   ├── run_config.json
+│   │   └── graph.yaml
+│   └── 1/
+│       └── ...
+</code></pre></div>
+<p><strong>Why per-run directories:</strong>
+- <strong>Fresh restart is clean.</strong> <code>--force-fresh</code> increments the run number.
+  Previous runs are intact and inspectable — no decision about what to
+  delete vs. preserve.
+- <strong>Graph modification is tractable.</strong> Each run has its frozen
+  <code>graph.yaml</code>. We validate that completed tasks from run N still exist
+  with compatible definitions in run N+1's graph.
+- <strong>History is preserved.</strong> Compare runs, debug regressions, inspect
+  what an agent did in run 0 vs. run 1.
+- <strong>Consistent with per-attempt pattern.</strong> The codebase already uses
+  numbered subdirectories for task attempts. Per-run directories apply
+  the same principle one level up.</p>
+<p><strong>Worktrees are NOT per-run.</strong> Worktrees at <code>.worktrees/&lt;graph&gt;/&lt;ws-id&gt;</code>
+are ephemeral infrastructure. On resume (same run), they are reused
+as-is. On fresh restart (new run), stale worktrees/branches are cleaned
+up — a subset of what <code>reset_graph.py</code> does, without resetting main to
+start_head.</p>
+<p><strong>Path plumbing impact:</strong> Code that currently computes paths from
+<code>.workflow/&lt;graph&gt;/</code> changes to <code>.workflow/&lt;graph&gt;/runs/&lt;N&gt;/</code>. The
+touchpoints are concentrated in ~6 places that construct the root
+directory. Internal structure within a run is identical. Most code
+already receives <code>signal_dir</code> or computed paths, so the change is
+localized.</p>
+<h3 id="definition-graph-vs-execution-graph">Definition graph vs. execution graph</h3>
+<p>Two views of the graph coexist:</p>
+<ul>
+<li><strong>Definition graph</strong> — what <code>graph.yaml</code> + CLI resolution produces.
+  This is the <em>plan</em>.</li>
+<li><strong>Execution graph</strong> — what actually happened. This is a <em>logical view</em>
+  reconstructed from per-task artifacts (<code>resolved.json</code>, status
+  signals, <code>.done</code> files). It is never serialized as a single file.</li>
+</ul>
+<p>When a fresh run starts, the execution graph is empty and the definition
+graph drives everything. As tasks complete, they become frozen facts in
+the execution graph. On resume, the execution graph is the starting
+point — completed tasks use their recorded state, pending tasks use the
+current definition graph.</p>
+<p><strong>The execution graph always wins.</strong> Completed tasks use <code>resolved.json</code>
+unconditionally. The current YAML/CLI resolution for those tasks is
+irrelevant — it is never consulted for scheduling, instruction
+generation, or anything else. If the current YAML differs from what
+actually ran, the user sees an informational override report, but the
+system proceeds using the frozen values. This is not an error — the
+user can update their YAML to match reality or leave it.</p>
+<p>The only genuine error is a completed task ID <em>missing</em> from the current
+graph, because the orchestrator's DAG needs the node for dependency
+resolution.</p>
+<h3 id="frozen-records">Frozen records</h3>
+<p>Two levels of frozen records capture the execution graph:</p>
+<h4 id="task-level-resolvedjson-in-signal-directory">Task-level: <code>resolved.json</code> in signal directory</h4>
+<p>Written when a task reaches a terminal success state (PR_MERGED or
+COMPLETED):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write_tests&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;workstream_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ws-main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;dependencies&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;write_spec&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;inputs_from&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;task&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;write_spec&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stubs&quot;</span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test_writer&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;claude-sonnet-4-6&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tagged_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tests/test_foo.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;test&quot;</span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;branch_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agentrelay/my-graph/write_tests&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;integration_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;agentrelay/my-graph/ws-main/integration&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;integration_branch_before_merge&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;abc123&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;completed_at_attempt&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pr_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://github.com/...&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>integration_branch_before_merge</code> records the integration branch commit
+SHA just before the task's PR was merged. Enables <code>reset-task</code> to
+cleanly roll back the integration branch without commit archaeology.</p>
+<h4 id="workstream-level-resolvedjson-in-workstream-signal-directory">Workstream-level: <code>resolved.json</code> in workstream signal directory</h4>
+<p>Written when a workstream's integration PR is merged into its target
+branch (typically <code>main</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;workstream_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ws-1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;integration_pr_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://github.com/...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;main&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;target_branch_before_merge&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;def456&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;merged_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-12T14:30:00Z&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>target_branch_before_merge</code> records the target branch (usually <code>main</code>)
+commit SHA just before the integration PR was merged. Enables
+<code>reset-workstream</code> to cleanly roll back the target branch without commit
+archaeology.</p>
+<p><strong>Why <code>resolved.json</code> and not just <code>manifest.json</code>:</strong> <code>manifest.json</code> is
+oriented toward agent instructions (dependency descriptions, tool lists).
+<code>resolved.json</code> captures the orchestration-relevant attributes needed to
+validate and reconstruct the execution graph, plus the pre-merge SHAs
+needed for stack-based undo.</p>
+<h3 id="frozen-task-validation">Frozen task validation</h3>
+<p>On resume, completed tasks are validated against the current definition
+graph:</p>
+<ol>
+<li><strong>Task ID must exist</strong> in the current graph. A completed task that
+   has been removed is an error — its node is needed for DAG dependency
+   resolution.</li>
+<li><strong>Attribute differences produce an informational override report</strong>,
+   not an error. The execution graph wins unconditionally — the frozen
+   <code>resolved.json</code> values are used for the completed task regardless of
+   what the current YAML says.</li>
+</ol>
+<p>Override report (printed only when differences exist):</p>
+<div class="highlight"><pre><span></span><code>Frozen task overrides (current YAML/CLI differs from executed values):
+
+  write_spec:
+    model: claude-sonnet-4-6 (current: claude-opus-4-6)
+    description: changed (frozen value preserved)
+
+  write_tests:
+    role: test_writer (current: generic)
+</code></pre></div>
+<p>This report serves as a safety check — the user sees exactly what's
+being overridden and can choose to accept it, update their YAML to
+match, or use <code>reset-task</code> / <code>agentrelay reset</code> to undo completed
+work and re-run with different settings.</p>
+<p>The comparison is a pure function: resolve the current graph, load
+<code>resolved.json</code> for each frozen task, diff per-attribute, produce a
+list of overrides for the console to format.</p>
+<p><strong>Pending/failed tasks are free to change.</strong> New tasks can be added,
+pending tasks can have any attribute modified, failed tasks can be
+reconfigured. Only completed (frozen) tasks use their recorded values.</p>
+<h3 id="worktree-preservation-for-mid-workstream-resume">Worktree preservation for mid-workstream resume</h3>
+<p>Worktrees must be preserved during resume because they contain the
+execution state for in-progress workstreams. Concretely:</p>
+<p>For a workstream with A → B → C where A completed and B failed:
+- The worktree contains the integration branch with A's merged code
+- B's task branch may have WIP commits (pushed or unpushed)
+- Deleting the worktree would lose B's unpushed work
+- The existing retry logic in <code>WorktreeTaskPreparer</code> (force-create
+  branch) preserves the agent's prior commits so they can fix their
+  code — this only works if the worktree survives</p>
+<table>
+<thead>
+<tr>
+<th>Run mode</th>
+<th>Worktree handling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Resume (same run)</td>
+<td>Reused as-is. Idempotent preparer skips creation.</td>
+</tr>
+<tr>
+<td>Force-fresh (new run)</td>
+<td>Cleaned up (branches deleted, worktrees removed). New worktrees created from current base.</td>
+</tr>
+<tr>
+<td>Fresh (no prior run)</td>
+<td>Normal creation.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="stale-state-normalization">Stale state normalization</h3>
+<p>When the orchestrator is interrupted, some tasks may be left in
+transient states (RUNNING, PR_CREATED) that don't reflect reality.
+These must be normalized before the orchestrator can resume:</p>
+<p><strong>RUNNING tasks</strong> — the agent process is dead (orchestrator restarted).
+Check the current attempt directory for agent completion signals:
+1. <code>.done</code> exists → agent finished. Read line 2 for PR URL. Write
+   <code>pr_created</code> or <code>completed</code> status signal.
+2. <code>.failed</code> exists → agent reported failure. Write <code>failed</code> status
+   signal.
+3. Neither exists → agent was killed mid-run. Write <code>failed</code> status
+   signal.</p>
+<p>After normalization, no task remains in RUNNING state.</p>
+<p><strong>PR_CREATED tasks</strong> — the task PR was created but the orchestrator
+didn't get to merge it. Check PR status:
+1. PR already merged (manually or by CI) → write <code>pr_merged</code> signal.
+2. PR still open → attempt <code>gh pr merge</code>. If success → write
+   <code>pr_merged</code> signal. If merge fails → write <code>failed</code> signal (retry
+   will preserve the agent's prior commits via the existing
+   force-create-branch logic in <code>WorktreeTaskPreparer</code>).</p>
+<p>After normalization, no task remains in PR_CREATED state. The
+orchestrator's existing init code
+(<code>_initialize_attempts_used()</code> at orchestrator.py:310-323) then handles
+all remaining states without changes.</p>
+<h3 id="workstream-state-follows-from-task-state">Workstream state follows from task state</h3>
+<p>Workstreams don't need independent normalization. The orchestrator's
+<code>_refresh_workstream_terminal_states()</code> and
+<code>_process_merge_ready_workstreams()</code> already recompute workstream state
+from task states during init. We reconstruct workstream runtimes with
+their on-disk signal state, and the orchestrator's init path handles
+the rest.</p>
+<p>One edge case: <strong>workstream PR_CREATED</strong> — the integration PR was
+created but the orchestrator died before detecting its merge. This is
+handled by the existing <code>_poll_integration_merges()</code> in the main loop,
+which checks open integration PRs and writes merge sentinels. No new
+code needed.</p>
+<h3 id="config-compatibility">Config compatibility</h3>
+<p>On resume, the previous run's <code>run_config.json</code> exists. The MVP
+approach:
+- Load and log the previous config for the user.
+- If current CLI flags differ from the previous config on key fields
+  (<code>max_concurrency</code>, <code>max_task_attempts</code>, <code>sandbox</code>), emit a warning
+  but proceed. The current session's config wins.
+- <code>run_info.json</code> is not rewritten (preserves the original start HEAD
+  for reset).
+- <code>run_config.json</code> is updated to reflect the current session's config.</p>
+<h3 id="resume-summary-table">Resume summary table</h3>
+<p>On resume, the console prints a status table before the orchestrator
+starts:</p>
+<div class="highlight"><pre><span></span><code>Resuming graph &#39;my-graph&#39; (run 0)
+
+  Task            Status     Action
+  ─────────────── ────────── ──────────────────
+  write_spec      completed  skipping (frozen)
+  write_tests     completed  skipping (frozen)
+  write_impl      failed     retrying (attempt 2/3)
+  review          pending    starting
+</code></pre></div>
+<p>The word "frozen" signals that the task is locked — not just skipped.</p>
+<p>On a fresh restart (new run number), the table also appears but with
+context:</p>
+<div class="highlight"><pre><span></span><code>Starting graph &#39;my-graph&#39; (run 1, previous run: 0)
+
+  Task            Previous   Action
+  ─────────────── ────────── ──────────────────
+  write_spec      completed  skipping (frozen from run 0)
+  write_tests     completed  skipping (frozen from run 0)
+  write_impl      failed     starting fresh
+  review          pending    starting fresh
+  new_task        (new)      starting fresh
+</code></pre></div>
+<h3 id="stack-based-undo-model">Stack-based undo model</h3>
+<p>The same stack-based undo pattern applies at three levels of the
+execution hierarchy. At each level, work is merged sequentially into a
+target branch, forming a stack. Undo can only peel from the tip.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Stack of merges into</th>
+<th>Peel command</th>
+<th>Pre-merge SHA field</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task</td>
+<td>Integration branch</td>
+<td><code>reset-task</code></td>
+<td><code>integration_branch_before_merge</code> in task <code>resolved.json</code></td>
+</tr>
+<tr>
+<td>Workstream</td>
+<td>Target branch (main)</td>
+<td><code>reset-workstream</code></td>
+<td><code>target_branch_before_merge</code> in workstream <code>resolved.json</code></td>
+</tr>
+<tr>
+<td>Graph</td>
+<td>Everything</td>
+<td><code>agentrelay reset</code></td>
+<td><code>start_head</code> in <code>run_info.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>Additionally, <code>teardown-workstream</code> removes workstream infrastructure
+(worktree, integration branch) without touching the target branch.
+This is not an undo operation — it's infrastructure cleanup for
+workstreams that have had all their tasks peeled back.</p>
+<p>The stack model defines which states are safe to reach. But it does not
+constrain the execution model — once a target state is validated as
+reachable, the system can jump directly to it rather than popping
+sequentially. See <code>reset-to</code> below.</p>
+<h4 id="reset-task"><code>reset-task</code></h4>
+<div class="highlight"><pre><span></span><code>agentrelay reset-task &lt;graph.yaml&gt; --task &lt;task-id&gt;
+agentrelay reset-task &lt;graph.yaml&gt; --workstream &lt;ws-id&gt;   # auto-detect tip
+</code></pre></div>
+<p>Resets the most recently touched task in its workstream — peeling back
+execution state from the tip of the workstream's execution stack.</p>
+<p><strong>Stack-based undo model.</strong> Within a workstream, tasks execute strictly
+one at a time (enforced by the existing <code>_workstream_can_run()</code>
+serialization logic). This means the execution history is a stack, and
+<code>reset-task</code> can only peel from the tip.</p>
+<p>If <code>--task</code> is provided, validates that the given task is the tip —
+errors with guidance if it isn't. If <code>--workstream</code> is provided
+instead, auto-detects the tip task in that workstream. One of the two
+must be specified — in a multi-workstream graph, the tip is ambiguous
+without knowing which workstream.</p>
+<p><strong>For a non-merged task</strong> (FAILED, RUNNING, or stale PR_CREATED):
+1. Delete the task's signal directory
+2. Delete the task's remote and local branches
+3. Switch worktree back to the integration branch (if task branch was
+   checked out)</p>
+<p><strong>For a merged task</strong> (PR_MERGED or COMPLETED):
+1. Reset the integration branch to <code>integration_branch_before_merge</code>
+   from <code>resolved.json</code> (safe because the stack constraint guarantees
+   nothing was merged after this task)
+2. Force-push the integration branch
+3. Delete the task's signal directory
+4. Delete the task's remote and local branches</p>
+<p>After reset, the task has no signal dir → probe treats it as PENDING.
+Re-running the graph gives a clean start on that task.</p>
+<p><strong>Successive resets</strong> peel back the workstream one task at a time:
+<div class="highlight"><pre><span></span><code>agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-c<span class="w">   </span><span class="c1"># C was failed</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-b<span class="w">   </span><span class="c1"># B was merged</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-a<span class="w">   </span><span class="c1"># A was merged</span>
+</code></pre></div></p>
+<p>After all tasks are peeled, the integration branch is back at its
+original branch point (wherever <code>base_branch</code> was when the workstream
+was first prepared). Workstream infrastructure (worktree, integration
+branch) remains in place. Re-running gives a clean start on Task A
+using the existing infrastructure.</p>
+<p><strong>Note on base branch staleness:</strong> If <code>main</code> has moved since the
+workstream was first prepared, the integration branch's base is stale.
+For a quick retry this is fine. For a full redo with fresh <code>main</code>, use
+<code>teardown-workstream</code> after peeling all tasks to rebuild infrastructure
+from current <code>main</code>.</p>
+<h4 id="teardown-workstream"><code>teardown-workstream</code></h4>
+<div class="highlight"><pre><span></span><code>agentrelay teardown-workstream &lt;graph.yaml&gt; --workstream &lt;ws-id&gt;
+</code></pre></div>
+<p>Removes workstream infrastructure — worktree, integration branch,
+workstream signal directory. This is infrastructure cleanup, not an
+undo of merged work. Only valid when all tasks in the workstream have
+been peeled back (no task has a signal directory). Errors with guidance
+if any task still has state.</p>
+<p><strong>Operation:</strong>
+1. Validate precondition: all tasks in the workstream have no signal
+   dirs (all peeled back via <code>reset-task</code>). Error if any task still has
+   state.
+2. Remove the worktree (<code>git worktree remove .worktrees/&lt;graph&gt;/&lt;ws-id&gt;</code>)
+3. Delete the integration branch (local + remote)
+4. Delete the workstream signal directory
+5. Prune stale git worktree refs</p>
+<p>After this, the workstream is back to PENDING (no signal dir → probe
+returns PENDING). On next <code>agentrelay run</code>, <code>GitWorkstreamPreparer</code>
+creates a fresh worktree and integration branch off current <code>main</code>.</p>
+<p><strong>Typical workflow for full workstream redo with fresh base:</strong>
+<div class="highlight"><pre><span></span><code><span class="c1"># Peel back all tasks</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-c
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-b
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-a
+
+<span class="c1"># Wipe infrastructure to get fresh main</span>
+agentrelay<span class="w"> </span>teardown-workstream<span class="w"> </span>my-graph.yaml<span class="w"> </span>--workstream<span class="w"> </span>ws-1
+
+<span class="c1"># Re-run — fresh worktree off current main</span>
+agentrelay<span class="w"> </span>run<span class="w"> </span>my-graph.yaml
+</code></pre></div></p>
+<h4 id="reset-workstream"><code>reset-workstream</code></h4>
+<div class="highlight"><pre><span></span><code>agentrelay reset-workstream &lt;graph.yaml&gt; --workstream &lt;ws-id&gt;
+</code></pre></div>
+<p>Peels a fully merged workstream from its target branch (typically
+<code>main</code>). This is the workstream-level equivalent of <code>reset-task</code> — it
+undoes the integration PR merge. Only valid when the workstream is the
+most recently merged workstream on its target branch (stack constraint).</p>
+<p><strong>Preconditions:</strong>
+1. The workstream must be in MERGED status (its integration PR was
+   merged into the target branch).
+2. The workstream must be the most recently merged workstream on its
+   target branch. Error with guidance if a later workstream was merged
+   after it.</p>
+<p><strong>Operation:</strong>
+1. Read <code>target_branch_before_merge</code> from the workstream's
+   <code>resolved.json</code>
+2. Reset the target branch to that SHA
+3. Force-push the target branch
+4. Clean up all workstream state: close/delete integration PR, delete
+   integration branch, remove worktree, delete all task signal
+   directories, delete all task branches, delete workstream signal
+   directory
+5. Prune stale git worktree refs
+6. Print confirmation: "Reset workstream 'ws-2'. Target branch 'main'
+   rolled back. All workstream state removed."</p>
+<p>After this, the workstream and all its tasks are gone — as if they
+never ran. The target branch is back to where it was before this
+workstream's integration PR was merged. Re-running the graph starts
+this workstream from scratch.</p>
+<p><strong>Example — four-workstream graph:</strong>
+<div class="highlight"><pre><span></span><code>WS-1 (merged) → WS-2 (merged) → WS-3 (interrupted) → WS-4 (interrupted)
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Using reset-to (one command, direct jump):</span>
+agentrelay<span class="w"> </span>reset-to<span class="w"> </span>my-graph.yaml<span class="w"> </span>--after<span class="w"> </span>ws-1
+
+<span class="c1"># Or using primitive commands (step-by-step):</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-i<span class="w">   </span><span class="c1"># WS-3 tip</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-h<span class="w">   </span><span class="c1"># WS-3</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-g<span class="w">   </span><span class="c1"># WS-3</span>
+agentrelay<span class="w"> </span>teardown-workstream<span class="w"> </span>my-graph.yaml<span class="w"> </span>--workstream<span class="w"> </span>ws-3
+
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-l<span class="w">   </span><span class="c1"># WS-4 tip</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-k<span class="w">   </span><span class="c1"># WS-4</span>
+agentrelay<span class="w"> </span>reset-task<span class="w"> </span>my-graph.yaml<span class="w"> </span>--task<span class="w"> </span>task-j<span class="w">   </span><span class="c1"># WS-4</span>
+agentrelay<span class="w"> </span>teardown-workstream<span class="w"> </span>my-graph.yaml<span class="w"> </span>--workstream<span class="w"> </span>ws-4
+
+agentrelay<span class="w"> </span>reset-workstream<span class="w"> </span>my-graph.yaml<span class="w"> </span>--workstream<span class="w"> </span>ws-2
+
+<span class="c1"># Either way, re-run — WS-1 frozen, WS-2/3/4 start fresh</span>
+agentrelay<span class="w"> </span>run<span class="w"> </span>my-graph.yaml
+</code></pre></div>
+<h4 id="reset-to-direct-jump-batch-rollback"><code>reset-to</code> — direct-jump batch rollback</h4>
+<div class="highlight"><pre><span></span><code>agentrelay reset-to &lt;graph.yaml&gt; --after &lt;task-or-workstream-id&gt;
+</code></pre></div>
+<p>Rolls the graph back to an arbitrary reachable state in a single
+command. The user specifies the target ("keep everything up to and
+including X"), and the system computes the minimum set of operations
+to reach that state, displays a plan, and executes after confirmation.</p>
+<p><strong>Target specification:</strong>
+- <code>--after task-b</code> — keep task B and everything before it in its
+  workstream. Peel later tasks. Other workstreams untouched.
+- <code>--after ws-1</code> — keep WS-1 and everything merged before it on its
+  target branch. Remove later merged workstreams from the target
+  branch, tear down in-progress workstreams.</p>
+<p><strong>Direct jump, not sequential pops.</strong> The stack model defines which
+states are reachable, but once the target is validated, the system
+jumps directly rather than popping one-by-one. Each <code>resolved.json</code>
+has the exact SHA to reset to, so:</p>
+<ul>
+<li>Removing 3 tasks from an integration branch = 1 branch reset +
+  1 force-push (to the first removed task's
+  <code>integration_branch_before_merge</code>), then batch-delete signal dirs
+  and branches.</li>
+<li>Removing 2 workstreams from main = 1 main reset + 1 force-push
+  (to the first removed workstream's <code>target_branch_before_merge</code>),
+  then batch cleanup of all workstream state.</li>
+</ul>
+<p>This is more efficient than sequential pops (fewer force-pushes) and
+simpler conceptually (one atomic operation).</p>
+<p><strong>Execution plan display:</strong>
+<div class="highlight"><pre><span></span><code>$ agentrelay reset-to my-graph.yaml --after ws-1
+
+Plan:
+  Reset main to abc123 (before ws-2 merge)
+  Remove WS-2: delete integration branch, worktree, 3 task branches,
+    all signal files
+  Remove WS-3: delete worktree, 2 task branches, signal files
+    (was in-progress, not merged to main)
+  Remove WS-4: delete worktree, 1 task branch, signal files
+    (was in-progress, not merged to main)
+
+  1 force-push (main)
+  3 worktrees removed
+  6 branches deleted
+  10 signal directories deleted
+
+Proceed? [y/N]
+</code></pre></div></p>
+<p>The plan distinguishes between workstreams being unmerged from the
+target branch (destructive) vs. those simply being cleaned up
+(infrastructure removal). The user sees exactly what will happen.</p>
+<p><strong>Validation rules:</strong>
+1. The target must exist and be completed (in a success state).
+2. Everything after the target must form a valid removal set — no
+   completed task can remain that depends on a task being removed
+   (would break the execution graph).
+3. Workstreams being removed from the target branch must be in
+   stack-tip order (most recently merged first).</p>
+<p><strong>Shared utility layer.</strong> <code>reset-to</code>, <code>reset-task</code>,
+<code>reset-workstream</code>, and <code>teardown-workstream</code> all use the same
+underlying operations:
+- <code>_reset_branch(repo_path, branch, target_sha)</code> — reset + force-push
+- <code>_delete_task_state(run_dir, task_id, graph_name, repo_path)</code> —
+  signal dir + branch cleanup
+- <code>_delete_workstream_state(run_dir, ws_id, graph_name, repo_path)</code> —
+  worktree + integration branch + signal dir cleanup</p>
+<p>The primitive commands (<code>reset-task</code>, <code>reset-workstream</code>,
+<code>teardown-workstream</code>) validate constraints and call these utilities
+for a single target. <code>reset-to</code> validates the target state, computes
+the full operation set, and calls the same utilities in batch.</p>
+<h3 id="idempotent-preparation-as-a-safety-net">Idempotent preparation as a safety net</h3>
+<p>The orchestrator only calls <code>workstream_runner.prepare()</code> for PENDING
+workstreams, so reconstructed ACTIVE/MERGE_READY/etc. workstreams skip
+preparation entirely. However, defensive idempotency in the workstream
+preparer prevents crashes if reconstruction misclassifies a state. This
+is a small, low-risk change.</p>
+<h3 id="mvp-scope-boundaries">MVP scope boundaries</h3>
+<p><strong>In scope:</strong>
+- Per-run directory layout
+- <code>resolved.json</code> written on task completion (includes pre-merge SHA)
+- Workstream-level <code>resolved.json</code> on integration PR merge (includes
+  target branch pre-merge SHA)
+- Auto-detect resume vs. fresh run
+- <code>--force-fresh</code> CLI flag to start a new run
+- Reconstruct task/workstream runtimes from signal files on disk
+- Frozen task validation (informational override report, error only on
+  missing task ID)
+- Normalize stale RUNNING/PR_CREATED states
+- Skip completed tasks, retry failed tasks, proceed with unstarted
+- Resume-safe workstream preparation
+- Resume summary table
+- Stale worktree/branch cleanup on fresh restart
+- <code>reset-task</code> command (stack-based undo from workstream tip)
+- <code>teardown-workstream</code> command (wipe empty workstream infrastructure)
+- <code>reset-workstream</code> command (stack-based undo from target branch tip)
+- <code>reset-to</code> command (direct-jump batch rollback to any reachable state)</p>
+<p><strong>Explicitly deferred to Rust:</strong>
+- Corruption detection / worktree validation
+- Cherry-pick re-run of individual tasks (re-run task B but keep C
+  and D — requires reordering merged work, not just peeling from tip)
+- Human-triggered re-run of a completed task in place ("rewind" — redo
+  task B with different instructions without disturbing later tasks)
+- Carry-forward of <code>resolved.json</code> across runs (MVP references backward
+  to the previous run's resolved files rather than copying them into
+  the new run directory)</p>
+<h2 id="plan">Plan</h2>
+<h3 id="pr-a-per-run-directory-layout">PR A: Per-run directory layout</h3>
+<p><strong>Scope:</strong> Structural foundation. Must land first — all subsequent PRs
+build on the new directory layout.</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong>Introduce run directory computation.</strong> New helper function (likely
+   in <code>run_graph.py</code> or a small utility) that determines the current
+   run directory:</li>
+<li>Fresh run: <code>runs/0/</code> (or next available number)</li>
+<li>Resume: latest existing <code>runs/&lt;N&gt;/</code></li>
+<li>
+<p>Force-fresh: <code>runs/&lt;N+1&gt;/</code></p>
+</li>
+<li>
+<p><strong>Update path construction</strong> in the ~6 places that build paths from
+   the workflow directory root:</p>
+</li>
+<li><code>_record_run_start()</code> → writes to <code>runs/&lt;N&gt;/run_info.json</code></li>
+<li><code>_record_run_config()</code> → writes to <code>runs/&lt;N&gt;/run_config.json</code></li>
+<li><code>_copy_graph_yaml()</code> → copies to <code>runs/&lt;N&gt;/graph.yaml</code></li>
+<li><code>GitWorkstreamPreparer</code> → signal_dir under <code>runs/&lt;N&gt;/workstreams/</code></li>
+<li><code>WorktreeTaskPreparer</code> → signal_dir under <code>runs/&lt;N&gt;/signals/</code></li>
+<li>
+<p>Agent instructions: <code>graph_yaml_path</code> and <code>signals_base_path</code>
+     under <code>runs/&lt;N&gt;/</code></p>
+</li>
+<li>
+<p><strong>Propagate run directory.</strong> The run directory path needs to flow
+   from <code>run_graph()</code> through to the builders. Options:</p>
+</li>
+<li>Pass <code>run_dir: Path</code> instead of <code>graph_name</code> + <code>repo_path</code> where
+     paths are constructed, or</li>
+<li>Add a <code>run_dir</code> parameter alongside existing params and use it
+     for path construction while keeping <code>graph_name</code> for naming.</li>
+</ol>
+<p>The exact threading will become clear during implementation; the key
+   constraint is that no code should compute
+   <code>.workflow/&lt;graph&gt;/signals/...</code> directly anymore — it should go
+   through the run directory.</p>
+<ol>
+<li><strong>Update <code>reset_graph.py</code></strong> to handle per-run layout:</li>
+<li>Reads <code>run_info.json</code> from the latest run directory</li>
+<li>
+<p>Removes the entire <code>.workflow/&lt;graph&gt;/</code> tree (all runs)</p>
+</li>
+<li>
+<p><strong>Diagram update</strong>: update module diagram annotations if any new
+   classes/functions are added.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/run_graph.py</code>
+- <code>src/agentrelay/workstream/implementations/workstream_preparer.py</code>
+- <code>src/agentrelay/task_runner/implementations/task_preparer.py</code>
+- <code>src/agentrelay/reset_graph.py</code>
+- Tests for all affected files</p>
+<p><strong>Tests:</strong>
+- Run directory numbering: first run → <code>runs/0/</code>, second → <code>runs/1/</code>
+- Signal files written to correct run directory
+- Reset reads from latest run directory
+- Existing test suite passes with updated paths</p>
+<h3 id="pr-b-frozen-records-and-validation">PR B: Frozen records and validation</h3>
+<p><strong>Scope:</strong> Core resumption data model. Can develop in parallel with
+PR A once the directory layout contract is agreed (even if PR A hasn't
+landed, PR B can use the agreed path convention).</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong>Write task <code>resolved.json</code> on task completion.</strong> In the task
+   runner's completion path (after PR_MERGED or COMPLETED status is
+   written):</li>
+<li>Build a <code>ResolvedTask</code> dataclass from the runtime's task spec and
+     execution state</li>
+<li>Record <code>integration_branch_before_merge</code> SHA (read from git just
+     before the merge step)</li>
+<li>
+<p>Serialize to <code>signal_dir/resolved.json</code></p>
+</li>
+<li>
+<p><strong>Write workstream <code>resolved.json</code> on integration merge.</strong> In the
+   workstream runner's merge detection path (when the integration PR
+   merge is detected):</p>
+</li>
+<li>Build a <code>ResolvedWorkstream</code> dataclass</li>
+<li>Record <code>target_branch_before_merge</code> SHA (read from git just
+     before the merge, or from the integration PR merge event)</li>
+<li>
+<p>Serialize to workstream <code>signal_dir/resolved.json</code></p>
+</li>
+<li>
+<p><strong><code>ResolvedTask</code> dataclass</strong> — captures the frozen task definition:
+   <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResolvedTask</span><span class="p">:</span>
+    <span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">workstream_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dependencies</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">inputs_from</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InputsFromSpec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">role</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">tagged_paths</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TaggedPathSpec</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">branch_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">integration_branch</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">integration_branch_before_merge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">completed_at_attempt</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">pr_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong><code>ResolvedWorkstream</code> dataclass</strong> — captures the frozen workstream
+   merge:
+   <div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResolvedWorkstream</span><span class="p">:</span>
+    <span class="n">workstream_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">integration_pr_url</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">target_branch</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">target_branch_before_merge</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">merged_at</span><span class="p">:</span> <span class="nb">str</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>Validation function</strong>: <code>validate_frozen_tasks(frozen: dict[str,
+   ResolvedTask], current_graph: TaskGraph) -&gt; FrozenValidation</code></p>
+</li>
+<li>For each frozen task: check existence in current graph</li>
+<li>Missing task ID → hard error (DAG needs the node)</li>
+<li>Attribute differences → collected as informational overrides</li>
+<li>
+<p>Returns structured result with errors and overrides</p>
+</li>
+<li>
+<p><strong>Override comparison</strong>: <code>compare_resolved(frozen: ResolvedTask,
+   current_resolution: ResolvedTask) -&gt; list[Override]</code> — pure function
+   that diffs two resolved tasks and returns per-attribute overrides
+   for the console to format.</p>
+</li>
+<li>
+<p><strong>Diagram update</strong>: add <code>ResolvedTask</code> and <code>ResolvedWorkstream</code> to
+   the diagram.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/orchestrator/resolved.py</code> (new — dataclasses +
+  serialization + validation)
+- <code>src/agentrelay/task_runner/core/runner.py</code> (write resolved.json on
+  completion, capture pre-merge SHA)
+- <code>src/agentrelay/workstream/core/runner.py</code> or integration path (write
+  workstream resolved.json on merge detection)
+- <code>docs/diagrams/uml/diagram-detailed.d2</code>
+- <code>test/orchestrator/test_resolved.py</code> (new)
+- <code>test/task_runner/core/test_runner.py</code> (resolved.json written)</p>
+<p><strong>Tests:</strong>
+- <code>ResolvedTask</code> round-trip serialization (write + read)
+- <code>ResolvedWorkstream</code> round-trip serialization (write + read)
+- <code>validate_frozen_tasks()</code>: matching graph passes, missing task errors,
+  attribute differences produce overrides (not errors)
+- <code>compare_resolved()</code>: identical tasks → no overrides, each differing
+  attribute produces an override entry
+- Integration: task runner writes <code>resolved.json</code> after PR_MERGED
+- Integration: task runner writes <code>resolved.json</code> after COMPLETED
+- Integration: <code>integration_branch_before_merge</code> SHA is captured
+- Integration: workstream <code>resolved.json</code> written on merge detection
+- Integration: <code>target_branch_before_merge</code> SHA is captured
+- Edge case: task with no PR (COMPLETED) → <code>pr_url</code> is null,
+  <code>integration_branch_before_merge</code> is null
+- Edge case: workstream with no commits ahead → no integration PR,
+  <code>integration_pr_url</code> is null</p>
+<h3 id="pr-c-state-probing-and-runtime-reconstruction">PR C: State probing and runtime reconstruction</h3>
+<p><strong>Scope:</strong> Core probe logic. Depends on PR A (path layout) and PR B
+(resolved.json format).</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li>
+<p><strong>New <code>orchestrator/probe.py</code> module</strong> — state probing functions:</p>
+</li>
+<li>
+<p><code>probe_graph_state(repo_path, graph_name, graph, run_dir)
+     -&gt; GraphProbe</code> — top-level entry point. Returns a <code>GraphProbe</code>
+     dataclass with reconstructed task/workstream runtimes and frozen
+     task records.</p>
+</li>
+<li>
+<p><code>_probe_task_state(run_dir, task_id)</code> — reads a single task's
+     on-disk state:</p>
+<ul>
+<li>Compute <code>signal_dir</code> = <code>run_dir / "signals" / task_id</code></li>
+<li>Read status via <code>_read_task_status_from_signals(signal_dir)</code></li>
+<li>Determine <code>attempt_num</code> from highest-numbered
+   <code>attempts/&lt;N&gt;/</code> subdirectory</li>
+<li>Read PR URL from <code>.done</code> file (line 2) if in a completed state</li>
+<li>Load <code>resolved.json</code> if present (frozen task)</li>
+<li>Derive <code>branch_name</code> from convention:
+   <code>agentrelay/&lt;graph_name&gt;/&lt;task_id&gt;</code></li>
+</ul>
+</li>
+<li>
+<p><code>_probe_workstream_state(run_dir, ws_id)</code> — reads a single
+     workstream's on-disk state:</p>
+<ul>
+<li>Compute <code>signal_dir</code> = <code>run_dir / "workstreams" / ws_id</code></li>
+<li>Read status via <code>_read_status_from_signals(signal_dir)</code></li>
+<li>Read <code>worktree_path</code> =
+   <code>repo_path / ".worktrees" / graph_name / ws_id</code></li>
+<li>Derive <code>branch_name</code>:
+   <code>agentrelay/&lt;graph_name&gt;/&lt;ws_id&gt;/integration</code></li>
+<li>Read <code>merge_pr_url</code> from <code>pr_created</code> signal file content</li>
+<li>Load workstream <code>resolved.json</code> if present</li>
+</ul>
+</li>
+<li>
+<p><code>_normalize_stale_running(signal_dir, attempt_dir)</code> — check
+     <code>.done</code>/<code>.failed</code> in the attempt directory, write the appropriate
+     status signal, return the resolved status.</p>
+</li>
+<li>
+<p><code>_normalize_stale_pr_created(signal_dir, pr_url)</code> — check PR
+     merge status via <code>gh pr view</code>, attempt merge if open, write the
+     resolved status signal.</p>
+</li>
+<li>
+<p><strong><code>TaskRuntimeBuilder.from_disk()</code> class method</strong> in <code>builders.py</code>:</p>
+</li>
+<li>For each task in graph: call <code>_probe_task_state()</code>, construct
+     <code>TaskRuntime</code> with populated <code>TaskState</code> and <code>TaskArtifacts</code>.</li>
+<li>
+<p>Return <code>dict[str, TaskRuntime]</code> matching <code>from_graph()</code> signature.</p>
+</li>
+<li>
+<p><strong><code>WorkstreamRuntimeBuilder.from_disk()</code> class method</strong> in
+   <code>builders.py</code>:</p>
+</li>
+<li>For each workstream in graph: call <code>_probe_workstream_state()</code>,
+     construct <code>WorkstreamRuntime</code> with populated state/artifacts.</li>
+<li>
+<p>Return <code>dict[str, WorkstreamRuntime]</code> matching <code>from_graph()</code>
+     signature.</p>
+</li>
+<li>
+<p><strong>Diagram update</strong>: add <code>probe.py</code> to
+   <code>docs/diagrams/uml/diagram-detailed.d2</code> under the <code>orchestrator</code>
+   module. Re-render with <code>pixi run diagram</code>.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/orchestrator/probe.py</code> (new)
+- <code>src/agentrelay/orchestrator/__init__.py</code> (export)
+- <code>src/agentrelay/orchestrator/builders.py</code> (new class methods)
+- <code>docs/diagrams/uml/diagram-detailed.d2</code> (new node)
+- <code>test/orchestrator/test_probe.py</code> (new)
+- <code>test/orchestrator/test_builders.py</code> (new from_disk tests)</p>
+<p><strong>Tests:</strong>
+- <code>_probe_task_state()</code> with each status: PENDING, COMPLETED,
+  PR_MERGED, FAILED, RUNNING (with/without <code>.done</code>), PR_CREATED
+- <code>_probe_workstream_state()</code> with each status, including MERGED
+  (with <code>resolved.json</code>)
+- <code>_normalize_stale_running()</code> — all three outcomes (done, failed,
+  neither)
+- <code>_normalize_stale_pr_created()</code> — merged, mergeable, unmergeable
+- <code>from_disk()</code> end-to-end with mocked filesystem + gh calls
+- Edge case: signal_dir does not exist (task never started)
+- Edge case: zero attempt directories (task was pending)
+- Edge case: <code>resolved.json</code> present → frozen task loaded into probe</p>
+<h3 id="pr-d-idempotent-workstream-preparation">PR D: Idempotent workstream preparation</h3>
+<p><strong>Scope:</strong> Small, defensive. Develop in parallel with PR B and PR C.
+Depends on PR A (path layout).</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong><code>GitWorkstreamPreparer.prepare_workstream()</code></strong> — add an existence
+   check before <code>git.worktree_add()</code>:
+   <div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">worktree_path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+    <span class="c1"># Worktree already exists (resume scenario). Skip creation,</span>
+    <span class="c1"># just populate state from existing infrastructure.</span>
+    <span class="k">pass</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">fetch_branch</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">update_local_ref</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+    <span class="n">git</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+   State assignment (<code>signal_dir</code>, <code>worktree_path</code>, <code>branch_name</code>,
+   <code>mark_pending()</code>) happens unconditionally — idempotent on existing
+   signal files.</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/workstream/implementations/workstream_preparer.py</code>
+- <code>test/workstream/implementations/test_workstream_preparer.py</code></p>
+<p><strong>Tests:</strong>
+- Existing tests continue to pass (fresh-run path unchanged)
+- New test: prepare with pre-existing worktree directory → skips git
+  operations, sets state correctly
+- New test: prepare with pre-existing worktree + existing signal_dir →
+  no crash, state set correctly</p>
+<h3 id="pr-e-wire-resumption-into-run_graphpy-cli">PR E: Wire resumption into run_graph.py + CLI</h3>
+<p><strong>Scope:</strong> Integration glue. Depends on PR A, B, C, and D.</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li>
+<p><strong>Replace <code>_check_for_conflicts()</code></strong> with <code>_detect_run_mode()</code>:
+   <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">_RunMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">FRESH</span> <span class="o">=</span> <span class="s2">&quot;fresh&quot;</span>
+    <span class="n">RESUME</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span>
+    <span class="n">FORCE_FRESH</span> <span class="o">=</span> <span class="s2">&quot;force_fresh&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_detect_run_mode</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">force_fresh</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_RunMode</span><span class="p">:</span>
+    <span class="n">workflow_dir</span> <span class="o">=</span> <span class="n">repo_path</span> <span class="o">/</span> <span class="s2">&quot;.workflow&quot;</span> <span class="o">/</span> <span class="n">graph_name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">workflow_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">_RunMode</span><span class="o">.</span><span class="n">FRESH</span>
+    <span class="k">if</span> <span class="n">force_fresh</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_RunMode</span><span class="o">.</span><span class="n">FORCE_FRESH</span>
+    <span class="k">return</span> <span class="n">_RunMode</span><span class="o">.</span><span class="n">RESUME</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong><code>--force-fresh</code> / <code>-F</code> CLI flag</strong> on the <code>run</code> subcommand:</p>
+</li>
+<li>Starts a new run directory (<code>runs/&lt;N+1&gt;/</code>)</li>
+<li>Cleans up stale worktrees/branches from the previous run (the
+     git-cleanup subset of <code>reset_graph.py</code>, without resetting main)</li>
+<li>
+<p>Previous run directories are preserved for history</p>
+</li>
+<li>
+<p><strong>Stale git cleanup helper</strong>: <code>_cleanup_stale_git_state(repo_path,
+   graph_name)</code> — removes worktrees and deletes branches from the
+   previous run. Extracted from <code>reset_graph.py</code> to avoid duplication.</p>
+</li>
+<li>
+<p><strong>Update <code>run_graph()</code></strong> control flow:</p>
+</li>
+<li>If FRESH: existing behavior in <code>runs/0/</code></li>
+<li>If RESUME:<ul>
+<li>Determine latest run directory</li>
+<li>Call <code>probe_graph_state()</code> to reconstruct runtimes</li>
+<li>Call <code>validate_frozen_tasks()</code> — error only if completed task
+   ID is missing from current graph</li>
+<li>Print frozen override report if attribute differences exist</li>
+<li>Load and compare <code>run_config.json</code> with current config; emit
+   warnings on mismatch</li>
+<li>Print resume summary table</li>
+<li>Pass reconstructed runtimes to <code>orchestrator.run()</code></li>
+</ul>
+</li>
+<li>
+<p>If FORCE_FRESH:</p>
+<ul>
+<li>Clean up stale git state</li>
+<li>Load <code>resolved.json</code> files from latest completed run</li>
+<li>Call <code>validate_frozen_tasks()</code> against current graph</li>
+<li>Create next run directory (<code>runs/&lt;N+1&gt;/</code>)</li>
+<li>Record run start, copy graph yaml, record config</li>
+<li>Build runtimes from <code>from_graph()</code> but mark frozen tasks as
+   completed (reference backward to previous run's state)</li>
+<li>Print fresh-restart summary table</li>
+<li>Pass runtimes to <code>orchestrator.run()</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Resume summary table</strong> — print before orchestrator starts:</p>
+</li>
+<li>Task status table with frozen/retrying/starting actions</li>
+<li>
+<p>Frozen override report (informational, only when differences
+     exist)</p>
+</li>
+<li>
+<p><strong>Config comparison</strong>: <code>_check_config_compatibility()</code> — load
+   previous <code>run_config.json</code>, compare key fields, return warnings.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/run_graph.py</code>
+- <code>src/agentrelay/cli.py</code> (add <code>--force-fresh</code> / <code>-F</code>)
+- <code>src/agentrelay/output/console.py</code> (resume table + override report)
+- <code>src/agentrelay/orchestrator/events.py</code> (if adding resume event kind)
+- <code>test/test_run_graph.py</code>
+- <code>test/test_cli.py</code></p>
+<p><strong>Tests:</strong>
+- <code>_detect_run_mode()</code>: fresh, resume, force-fresh
+- <code>_check_config_compatibility()</code>: matching config, differing config
+- <code>_cleanup_stale_git_state()</code>: worktrees removed, branches deleted
+- Resume summary table formatting
+- Frozen override report formatting (informational, not error)
+- Integration test: run_graph with pre-populated <code>.workflow/</code> dir and
+  signal files → orchestrator receives pre-built runtimes
+- Integration test: run_graph fresh (no <code>.workflow/</code>) → existing
+  behavior preserved
+- Integration test: force-fresh with previous run → new run dir created,
+  stale state cleaned up, frozen tasks validated
+- Integration test: resume with modified YAML for completed task →
+  override report printed, execution graph wins</p>
+<h3 id="pr-f-shared-reset-utilities-primitive-commands">PR F: Shared reset utilities + primitive commands</h3>
+<p><strong>Scope:</strong> Shared utility layer and three primitive undo commands.
+Depends on PR A (path layout) and PR B (<code>resolved.json</code> for pre-merge
+SHAs).</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong>Shared reset utility module</strong> — <code>src/agentrelay/reset_ops.py</code>:</li>
+<li><code>_reset_branch(repo_path, branch, target_sha)</code> — reset branch to
+     SHA + force-push. Used by <code>reset-task</code> (integration branch),
+     <code>reset-workstream</code> (target branch), and <code>reset-to</code> (both).</li>
+<li><code>_delete_task_state(run_dir, task_id, graph_name, repo_path)</code> —
+     delete task signal directory + task branch (local + remote).</li>
+<li><code>_delete_workstream_state(run_dir, ws_id, graph_name, repo_path)</code>
+     — remove worktree + delete integration branch + delete workstream
+     signal directory + prune worktree refs.</li>
+<li><code>_find_workstream_tip(run_dir, graph, ws_id)</code> — find the most
+     recently touched task in a workstream by scanning signal dirs.</li>
+<li><code>_workstream_merge_order(run_dir, graph)</code> — determine the order
+     in which workstreams were merged to the target branch, from
+     workstream <code>resolved.json</code> timestamps.</li>
+</ol>
+<p>These are stateless, composable building blocks. The primitive
+   commands validate constraints and call them for a single target.
+   <code>reset-to</code> calls them in batch.</p>
+<ol>
+<li><strong><code>reset-task</code> subcommand</strong> in <code>cli.py</code>:</li>
+<li>Argument: <code>graph_yaml</code> (positional), <code>--task</code> / <code>-t</code> or
+     <code>--workstream</code> / <code>-w</code> (one required)</li>
+<li>If <code>--workstream</code> provided: auto-detect the tip task via
+     <code>_find_workstream_tip()</code></li>
+<li>
+<p>If <code>--task</code> provided: validate that the target is the tip of its
+     workstream's execution stack — error with guidance if not</p>
+</li>
+<li>
+<p><strong><code>reset_task()</code> function</strong> — core logic:</p>
+</li>
+<li>Determine the workstream for the target task</li>
+<li>Find all tasks in the workstream, ordered by execution sequence</li>
+<li>Validate the target is the tip</li>
+<li>If task status is FAILED / RUNNING / stale PR_CREATED (not merged):<ul>
+<li>Call <code>_delete_task_state()</code></li>
+<li>Switch worktree to integration branch if task branch was
+   checked out</li>
+</ul>
+</li>
+<li>If task status is PR_MERGED / COMPLETED (merged):<ul>
+<li>Read <code>integration_branch_before_merge</code> from <code>resolved.json</code></li>
+<li>Call <code>_reset_branch()</code> on integration branch</li>
+<li>Call <code>_delete_task_state()</code></li>
+</ul>
+</li>
+<li>
+<p>Print confirmation: "Reset task 'task-c'. Workstream tip is now
+     'task-b'." (or "Workstream has no remaining tasks.")</p>
+</li>
+<li>
+<p><strong><code>teardown-workstream</code> subcommand</strong> in <code>cli.py</code>:</p>
+</li>
+<li>Arguments: <code>graph_yaml</code> (positional), <code>--workstream</code> / <code>-w</code>
+     (required)</li>
+<li>
+<p>Validate precondition: all tasks in the workstream have no signal
+     directories</p>
+</li>
+<li>
+<p><strong><code>teardown_workstream()</code> function</strong> — core logic:</p>
+</li>
+<li>Validate all tasks are peeled back (no signal dirs)</li>
+<li>Call <code>_delete_workstream_state()</code></li>
+<li>
+<p>Print confirmation: "Teardown workstream 'ws-1'. Infrastructure
+     removed. Next run will create fresh worktree from current main."</p>
+</li>
+<li>
+<p><strong><code>reset-workstream</code> subcommand</strong> in <code>cli.py</code>:</p>
+</li>
+<li>Arguments: <code>graph_yaml</code> (positional), <code>--workstream</code> / <code>-w</code>
+     (required)</li>
+<li>
+<p>Validate preconditions: workstream is MERGED, and is the most
+     recently merged workstream on its target branch</p>
+</li>
+<li>
+<p><strong><code>reset_workstream()</code> function</strong> — core logic:</p>
+</li>
+<li>Read <code>target_branch_before_merge</code> from workstream <code>resolved.json</code></li>
+<li>Validate this is the tip via <code>_workstream_merge_order()</code></li>
+<li>Call <code>_reset_branch()</code> on target branch</li>
+<li>Clean up all workstream state: close/delete integration PR,
+     call <code>_delete_task_state()</code> for each task, call
+     <code>_delete_workstream_state()</code></li>
+<li>
+<p>Print confirmation: "Reset workstream 'ws-2'. Target branch
+     'main' rolled back to <sha>. All workstream state removed."</p>
+</li>
+<li>
+<p><strong>Diagram update</strong>: add new functions/classes to diagram if needed.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/cli.py</code> (new subcommands)
+- <code>src/agentrelay/reset_ops.py</code> (new — shared utilities)
+- <code>src/agentrelay/reset_task.py</code> (new — reset-task core logic)
+- <code>src/agentrelay/reset_workstream.py</code> (new — teardown + reset
+  workstream core logic)
+- <code>docs/diagrams/uml/diagram-detailed.d2</code>
+- <code>test/test_reset_ops.py</code> (new — shared utility tests)
+- <code>test/test_reset_task.py</code> (new)
+- <code>test/test_reset_workstream.py</code> (new)</p>
+<p><strong>Tests:</strong>
+- <code>_reset_branch()</code>: resets and force-pushes
+- <code>_delete_task_state()</code>: signal dir + branch deleted
+- <code>_delete_workstream_state()</code>: worktree + branch + signal dir deleted
+- <code>_find_workstream_tip()</code>: finds correct tip task
+- <code>_workstream_merge_order()</code>: returns correct merge ordering
+- <code>reset_task()</code>: non-merged tip task → signal dir + branch deleted
+- <code>reset_task()</code>: merged tip task → integration branch reset, signal
+  dir + branch deleted
+- <code>reset_task()</code>: non-tip task → error with guidance
+- <code>reset_task()</code>: auto-detect tip when <code>--workstream</code> provided
+- <code>reset_task()</code>: successive resets peel back workstream correctly
+- <code>teardown_workstream()</code>: all tasks peeled → infrastructure removed
+- <code>teardown_workstream()</code>: tasks still have state → error with guidance
+- <code>reset_workstream()</code>: tip merged workstream → target branch reset,
+  all state removed
+- <code>reset_workstream()</code>: non-tip merged workstream → error with guidance
+- <code>reset_workstream()</code>: non-merged workstream → error with guidance
+- Integration: reset all tasks + teardown-workstream → re-run creates
+  fresh infrastructure from current main
+- Integration: reset-workstream on tip → target branch rolled back,
+  re-run starts workstream from scratch</p>
+<h3 id="pr-g-reset-to-batch-rollback">PR G: <code>reset-to</code> batch rollback</h3>
+<p><strong>Scope:</strong> Direct-jump batch rollback command. Depends on PR F (shared
+utilities).</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong><code>reset-to</code> subcommand</strong> in <code>cli.py</code>:</li>
+<li>
+<p>Arguments: <code>graph_yaml</code> (positional), <code>--after</code> (required, task
+     ID or workstream ID)</p>
+</li>
+<li>
+<p><strong><code>reset_to()</code> function</strong> — core logic:</p>
+</li>
+</ol>
+<p>a. <strong>Probe current state</strong> — read all task/workstream statuses and
+      <code>resolved.json</code> files to understand the current execution graph.</p>
+<p>b. <strong>Resolve the target</strong> — determine what <code>--after X</code> means:
+      - If X is a task ID: keep that task and everything before it in
+        its workstream. Other workstreams are untouched unless they
+        are downstream (merged after a workstream being removed).
+      - If X is a workstream ID: keep that workstream and everything
+        merged before it on the target branch.</p>
+<p>c. <strong>Compute the removal set</strong> — everything that needs to be undone
+      to reach the target state:
+      - Tasks to remove from integration branches (per workstream)
+      - Workstream infrastructure to tear down
+      - Workstreams to unmerge from the target branch
+      - Validate: no completed task that would remain depends on a
+        task being removed.</p>
+<p>d. <strong>Compute the minimum operations:</strong>
+      - For each integration branch being rolled back: one
+        <code>_reset_branch()</code> call using the first-removed task's
+        <code>integration_branch_before_merge</code> SHA.
+      - For the target branch (if workstreams are being unmerged): one
+        <code>_reset_branch()</code> call using the first-removed workstream's
+        <code>target_branch_before_merge</code> SHA.
+      - Batch <code>_delete_task_state()</code> for all removed tasks.
+      - Batch <code>_delete_workstream_state()</code> for all removed/torn-down
+        workstreams.</p>
+<p>e. <strong>Display the plan</strong> — structured summary of all operations,
+      showing branch resets, force-pushes, and cleanup counts.</p>
+<p>f. <strong>Prompt for confirmation</strong> — <code>Proceed? [y/N]</code></p>
+<p>g. <strong>Execute</strong> — call shared utilities. Order:
+      1. Reset target branch (if needed) — most destructive, do first
+      2. Reset integration branches (if needed)
+      3. Delete task state (signal dirs + branches)
+      4. Delete workstream state (worktrees + integration branches +
+         signal dirs)</p>
+<ol>
+<li><strong>Diagram update</strong>: add to diagram if needed.</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/cli.py</code> (new subcommand)
+- <code>src/agentrelay/reset_to.py</code> (new — target resolution, removal set
+  computation, plan display, execution)
+- <code>test/test_reset_to.py</code> (new)</p>
+<p><strong>Tests:</strong>
+- Target resolution: <code>--after task-b</code> in a 3-task workstream →
+  correct removal set (task C)
+- Target resolution: <code>--after ws-1</code> in a 4-workstream graph →
+  correct removal set (ws-2 from main, ws-3/ws-4 teardown)
+- Minimum operations: 3 tasks removed from one integration branch →
+  1 branch reset (not 3)
+- Minimum operations: 2 workstreams removed from main → 1 main reset
+  (not 2)
+- Validation: remaining completed task depends on removed task → error
+- Plan display: correct operation counts and descriptions
+- Integration: <code>reset-to --after task-a</code> with A,B,C all merged →
+  integration branch reset once, B and C cleaned up
+- Integration: <code>reset-to --after ws-1</code> with ws-1 merged, ws-2 merged,
+  ws-3 in progress → main reset once, all state for ws-2/ws-3 removed
+- Integration: reset-to then re-run → graph resumes correctly from
+  the target state</p>
+<h2 id="merge-order">Merge order</h2>
+<div class="highlight"><pre><span></span><code>PR A (per-run dirs) ──→ PR B (frozen records) ──┐
+                   │                            ├──→ PR E (wiring + CLI)
+                   ├──→ PR C (state probing) ───┘
+                   │
+                   ├──→ PR D (idempotent prep)
+                   │
+                   └──→ PR F (shared utils + primitive cmds) ──→ PR G (reset-to)
+                        (depends on A + B)
+</code></pre></div>
+<p>PR A must land first (directory layout foundation). After PR A:
+- PRs B, C, D can develop in parallel
+- PR F can start once PR B lands (needs <code>resolved.json</code> format)
+- PR E depends on B, C, and D
+- PR G depends on PR F (uses shared utilities)
+- PR E and PR G are independent of each other</p>
+<h2 id="risk-assessment">Risk assessment</h2>
+<p><strong>Low risk:</strong>
+- PR A is path plumbing — mechanical, well-scoped, concentrated in ~6
+  places.
+- PR B is a new write + dataclass + validation — clean addition, no
+  existing behavior changes.
+- PR D is a small defensive change with clear skip-if-exists semantics.
+- The orchestrator's existing init path already handles pre-built
+  runtimes — no changes needed inside the orchestrator.
+- Signal-file-backed status means all state is inspectable and
+  debuggable on disk.
+- PR G reuses PR F's shared utilities — no new destructive primitives,
+  just composition.</p>
+<p><strong>Medium risk:</strong>
+- Stale PR_CREATED normalization calls <code>gh pr merge</code> as a side effect
+  during probe. If the PR has merge conflicts, it fails gracefully
+  (task marked FAILED, retried). But it's a side effect in what should
+  be a read-mostly operation.
+- Attempt number reconstruction from <code>attempts/&lt;N&gt;/</code> subdirectories
+  must handle edge cases (no attempts dir = attempt 0, gaps in
+  numbering).
+- FORCE_FRESH run mode has the most complex flow — it combines cleanup,
+  validation, and fresh-start in a single path. Careful testing needed.
+- <code>reset-task</code> and <code>reset-workstream</code> perform force-pushes. Safe due
+  to the stack constraint (nothing was merged after the tip), but
+  force-push is inherently destructive. The stack constraint is
+  validated before any destructive operation.
+- <code>reset-workstream</code> and <code>reset-to</code> may force-push to the target
+  branch (usually <code>main</code>). This is the most destructive operation in
+  the system. The stack constraint and <code>target_branch_before_merge</code>
+  SHA make it deterministic, but careful validation is essential.
+- <code>reset-to</code> computes a multi-level removal set — the target
+  resolution and validation logic must correctly handle cross-workstream
+  dependencies and mixed workstream states (some merged, some
+  in-progress, some pending).</p>
+<p><strong>Mitigations:</strong>
+- All normalization writes status signals to disk, so the state is
+  always consistent even if the probe is interrupted.
+- <code>resolved.json</code> is write-once — no mutation, no corruption risk.
+- Pre-merge SHAs (<code>integration_branch_before_merge</code>,
+  <code>target_branch_before_merge</code>) make all undo operations deterministic —
+  no commit archaeology.
+- Stack constraints are validated before any destructive operation at
+  every level.
+- <code>reset-to</code> displays a full plan and requires explicit confirmation
+  before executing.
+- <code>reset-to</code> uses the same shared utilities as the primitive commands —
+  no new destructive code paths, just composition.
+- Extensive unit tests for each probe and reset path.
+- E2e graph specifically tests the resume scenario end-to-end.</p>
+<h2 id="estimated-effort">Estimated effort</h2>
+<ul>
+<li>PR A: 1 day (path plumbing + test updates)</li>
+<li>PR B: 1–1.5 days (two dataclasses, serialization, validation, tests)</li>
+<li>PR C: 1–1.5 days (probe logic + tests)</li>
+<li>PR D: 0.5 day (small change, focused tests)</li>
+<li>PR E: 1–1.5 days (wiring, CLI, summary table, override report)</li>
+<li>PR F: 1.5 days (shared utilities + three commands, stack validation)</li>
+<li>PR G: 1 day (target resolution, removal set, plan display, tests)</li>
+<li>Total: 5.5–6.5 days (B, C, D parallelizable after A; F after B;
+  E after B+C+D; G after F. E and G are independent.)</li>
+</ul>
+<h2 id="decisions-resolved">Decisions resolved</h2>
+<ol>
+<li>
+<p><strong>Resume summary table:</strong> Yes. Two sections — task status table
+   (always) and frozen override report (only when differences exist).</p>
+</li>
+<li>
+<p><strong>Fresh restart:</strong> Yes, via <code>--force-fresh</code> / <code>-F</code>. Previous run
+   directories are preserved. Stale git state (worktrees, branches) is
+   cleaned up.</p>
+</li>
+<li>
+<p><strong>Frozen task validation:</strong> Execution graph wins. Attribute
+   differences produce an informational override report, not an error.
+   The only hard error is a completed task ID missing from the current
+   graph (DAG needs the node). Pending/failed tasks are free to change.</p>
+</li>
+<li>
+<p><strong>Per-run directories:</strong> Yes. <code>.workflow/&lt;graph&gt;/runs/&lt;N&gt;/</code> mirrors
+   the per-attempt pattern for tasks. History preserved, fresh restart
+   is clean.</p>
+</li>
+<li>
+<p><strong>Frozen records:</strong> <code>resolved.json</code> written at two levels:</p>
+</li>
+<li>Task-level: once per completed task, with
+     <code>integration_branch_before_merge</code> SHA.</li>
+<li>
+<p>Workstream-level: once per merged workstream, with
+     <code>target_branch_before_merge</code> SHA.
+   These are the source of truth for the execution graph and enable
+   deterministic undo at every level.</p>
+</li>
+<li>
+<p><strong>Worktree preservation:</strong> Required for mid-workstream resume.
+   Worktrees contain the integration branch with merged task code and
+   potentially WIP commits from failed tasks.</p>
+</li>
+<li>
+<p><strong>Stack-based undo model:</strong> Uniform pattern at three levels:</p>
+</li>
+<li><code>reset-task</code>: peel task from integration branch tip</li>
+<li><code>reset-workstream</code>: peel workstream from target branch tip</li>
+<li>
+<p><code>agentrelay reset</code>: wipe everything
+   Plus <code>teardown-workstream</code> for infrastructure cleanup (not an undo).
+   <code>teardown-workstream</code> requires all tasks peeled first.
+   <code>reset-workstream</code> requires the workstream to be the most recently
+   merged on its target branch.</p>
+</li>
+<li>
+<p><strong>Direct-jump batch rollback:</strong> <code>reset-to --after &lt;id&gt;</code> computes
+   the minimum operations to reach a target state and executes them
+   in batch. Uses the same shared utilities as the primitive commands.
+   The stack model validates which states are reachable; the direct
+   jump avoids redundant sequential pops (one branch reset instead of
+   N).</p>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
