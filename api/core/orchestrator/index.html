@@ -3562,13 +3562,13 @@ ended <code>FAILED</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">280</span>
 <span class="normal">281</span>
-<span class="normal">282</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_auto_merger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationAutoMerger</span><span class="p">:</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_auto_merger</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationAutoMerger</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard integration auto-merger for GitHub CLI.</span>
 
 <span class="sd">    Returns:</span>
@@ -3625,13 +3625,13 @@ ended <code>FAILED</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">271</span>
 <span class="normal">272</span>
-<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_merge_checker</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationMergeChecker</span><span class="p">:</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_integration_merge_checker</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GhIntegrationMergeChecker</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard integration merge checker for GitHub CLI.</span>
 
 <span class="sd">    Returns:</span>
@@ -3648,7 +3648,7 @@ ended <code>FAILED</code>.</p>
 
 
 <h2 id="agentrelay.orchestrator.build_standard_runner" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">build_standard_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">context_content</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">(),</span> <span class="n">credential_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anthropic_credential</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">build_standard_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">run_dir</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">keep_panes</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">context_content</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="p">(),</span> <span class="n">credential_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">anthropic_credential</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h2>
 
@@ -3954,9 +3954,11 @@ implementations. Refer to the sensitivity table in
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
-<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
+<span class="normal">232</span>
+<span class="normal">233</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">run_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph</span><span class="p">:</span> <span class="n">TaskGraph</span><span class="p">,</span>
     <span class="n">keep_panes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -4034,7 +4036,7 @@ implementations. Refer to the sensitivity table in
         <span class="n">dep_ids</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">dependency_ids</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
         <span class="n">dep_descs</span> <span class="o">=</span> <span class="p">{</span><span class="n">did</span><span class="p">:</span> <span class="n">graph</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">did</span><span class="p">)</span><span class="o">.</span><span class="n">description</span> <span class="k">for</span> <span class="n">did</span> <span class="ow">in</span> <span class="n">dep_ids</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">WorktreeTaskPreparer</span><span class="p">(</span>
-            <span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span>
+            <span class="n">run_dir</span><span class="o">=</span><span class="n">run_dir</span><span class="p">,</span>
             <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">,</span>
             <span class="n">dependency_descriptions</span><span class="o">=</span><span class="n">dep_descs</span><span class="p">,</span>
             <span class="n">context_content</span><span class="o">=</span><span class="n">context_content</span><span class="p">,</span>
@@ -4073,7 +4075,7 @@ implementations. Refer to the sensitivity table in
 
 
 <h2 id="agentrelay.orchestrator.build_standard_workstream_runner" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">build_standard_workstream_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">)</span></code>
+            <code class="highlight language-python"><span class="n">build_standard_workstream_runner</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="n">run_dir</span><span class="p">)</span></code>
 
 </h2>
 
@@ -4170,8 +4172,7 @@ implementations. Refer to the sensitivity table in
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/orchestrator/builders.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">235</span>
-<span class="normal">236</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">236</span>
 <span class="normal">237</span>
 <span class="normal">238</span>
 <span class="normal">239</span>
@@ -4199,9 +4200,14 @@ implementations. Refer to the sensitivity table in
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
-<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_standard_workstream_runner</span><span class="p">(</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">run_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StandardWorkstreamRunner</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the standard workstream runner for git worktree + GitHub CLI.</span>
 
@@ -4225,7 +4231,9 @@ implementations. Refer to the sensitivity table in
 <span class="sd">        A fully wired :class:`StandardWorkstreamRunner`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">StandardWorkstreamRunner</span><span class="p">(</span>
-        <span class="n">_preparer</span><span class="o">=</span><span class="n">GitWorkstreamPreparer</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">),</span>
+        <span class="n">_preparer</span><span class="o">=</span><span class="n">GitWorkstreamPreparer</span><span class="p">(</span>
+            <span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="o">=</span><span class="n">graph_name</span><span class="p">,</span> <span class="n">run_dir</span><span class="o">=</span><span class="n">run_dir</span>
+        <span class="p">),</span>
         <span class="n">_integrator</span><span class="o">=</span><span class="n">GhWorkstreamIntegrator</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
         <span class="n">_teardown</span><span class="o">=</span><span class="n">GitWorkstreamTeardown</span><span class="p">(</span><span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">),</span>
     <span class="p">)</span>

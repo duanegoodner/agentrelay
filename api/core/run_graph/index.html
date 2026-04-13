@@ -1920,16 +1920,7 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/run_graph.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">392</span>
-<span class="normal">393</span>
-<span class="normal">394</span>
-<span class="normal">395</span>
-<span class="normal">396</span>
-<span class="normal">397</span>
-<span class="normal">398</span>
-<span class="normal">399</span>
-<span class="normal">400</span>
-<span class="normal">401</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">401</span>
 <span class="normal">402</span>
 <span class="normal">403</span>
 <span class="normal">404</span>
@@ -2089,7 +2080,17 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 <span class="normal">558</span>
 <span class="normal">559</span>
 <span class="normal">560</span>
-<span class="normal">561</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_graph</span><span class="p">(</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_graph</span><span class="p">(</span>
     <span class="n">graph_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
@@ -2193,11 +2194,11 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 
     <span class="k">assert</span> <span class="n">graph</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Graph must have a name&quot;</span>
 
-    <span class="n">_check_for_conflicts</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">run_dir</span> <span class="o">=</span> <span class="n">_resolve_run_dir</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="n">_validate_tmux_sessions</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
     <span class="n">validate_tools</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">tools</span><span class="p">)</span>
-    <span class="n">_record_run_start</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    <span class="n">_copy_graph_yaml</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">graph_path</span><span class="p">)</span>
+    <span class="n">_record_run_start</span><span class="p">(</span><span class="n">run_dir</span><span class="p">,</span> <span class="n">repo_path</span><span class="p">)</span>
+    <span class="n">_copy_graph_yaml</span><span class="p">(</span><span class="n">run_dir</span><span class="p">,</span> <span class="n">graph_path</span><span class="p">)</span>
 
     <span class="c1"># Resolve Anthropic credential: CLI flag &gt; graph YAML default &gt; auto-select.</span>
     <span class="n">effective_anthropic_name</span> <span class="o">=</span> <span class="n">anthropic_credential_name</span> <span class="ow">or</span> <span class="n">ops</span><span class="o">.</span><span class="n">anthropic_credential</span>
@@ -2208,8 +2209,7 @@ use from the credentials YAML <code>anthropic</code> section.</p>
         <span class="p">)</span>
 
     <span class="n">_record_run_config</span><span class="p">(</span>
-        <span class="n">repo_path</span><span class="p">,</span>
-        <span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="n">run_dir</span><span class="p">,</span>
         <span class="n">config</span><span class="p">,</span>
         <span class="n">keep_panes</span><span class="o">=</span><span class="n">effective_keep_panes</span><span class="p">,</span>
         <span class="n">model</span><span class="o">=</span><span class="n">model_override</span><span class="p">,</span>
@@ -2233,6 +2233,7 @@ use from the credentials YAML <code>anthropic</code> section.</p>
         <span class="n">task_runner</span> <span class="o">=</span> <span class="n">build_standard_runner</span><span class="p">(</span>
             <span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span>
             <span class="n">graph_name</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">run_dir</span><span class="o">=</span><span class="n">run_dir</span><span class="p">,</span>
             <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span>
             <span class="n">keep_panes</span><span class="o">=</span><span class="n">effective_keep_panes</span><span class="p">,</span>
             <span class="n">tools</span><span class="o">=</span><span class="n">ops</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span>
@@ -2242,6 +2243,7 @@ use from the credentials YAML <code>anthropic</code> section.</p>
         <span class="n">workstream_runner</span> <span class="o">=</span> <span class="n">build_standard_workstream_runner</span><span class="p">(</span>
             <span class="n">repo_path</span><span class="o">=</span><span class="n">repo_path</span><span class="p">,</span>
             <span class="n">graph_name</span><span class="o">=</span><span class="n">graph</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">run_dir</span><span class="o">=</span><span class="n">run_dir</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">orchestrator</span> <span class="o">=</span> <span class="n">Orchestrator</span><span class="p">(</span>
             <span class="n">graph</span><span class="o">=</span><span class="n">graph</span><span class="p">,</span>
@@ -2312,17 +2314,7 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/run_graph.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">564</span>
-<span class="normal">565</span>
-<span class="normal">566</span>
-<span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">574</span>
 <span class="normal">575</span>
 <span class="normal">576</span>
 <span class="normal">577</span>
@@ -2352,7 +2344,17 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 <span class="normal">601</span>
 <span class="normal">602</span>
 <span class="normal">603</span>
-<span class="normal">604</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dry_run</span><span class="p">(</span><span class="n">graph_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dry_run</span><span class="p">(</span><span class="n">graph_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate a graph YAML and print the execution plan.</span>
 
 <span class="sd">    Args:</span>
@@ -2415,17 +2417,7 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/run_graph.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">729</span>
-<span class="normal">730</span>
-<span class="normal">731</span>
-<span class="normal">732</span>
-<span class="normal">733</span>
-<span class="normal">734</span>
-<span class="normal">735</span>
-<span class="normal">736</span>
-<span class="normal">737</span>
-<span class="normal">738</span>
-<span class="normal">739</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">739</span>
 <span class="normal">740</span>
 <span class="normal">741</span>
 <span class="normal">742</span>
@@ -2476,7 +2468,17 @@ use from the credentials YAML <code>anthropic</code> section.</p>
 <span class="normal">787</span>
 <span class="normal">788</span>
 <span class="normal">789</span>
-<span class="normal">790</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">790</span>
+<span class="normal">791</span>
+<span class="normal">792</span>
+<span class="normal">793</span>
+<span class="normal">794</span>
+<span class="normal">795</span>
+<span class="normal">796</span>
+<span class="normal">797</span>
+<span class="normal">798</span>
+<span class="normal">799</span>
+<span class="normal">800</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI entry point for running an agentrelay task graph.&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">_build_parser</span><span class="p">()</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>

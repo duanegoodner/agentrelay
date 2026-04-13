@@ -8375,8 +8375,7 @@ creates and checks out branches within it.</p>
 <span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorktreeTaskPreparer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a task branch in a shared workstream worktree and write protocol files.</span>
 
@@ -8389,7 +8388,7 @@ creates and checks out branches within it.</p>
 <span class="sd">    creates and checks out branches within it.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">repo_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">run_dir</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">graph_name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">dependency_descriptions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">context_content</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -8424,7 +8423,7 @@ creates and checks out branches within it.</p>
 
         <span class="n">task</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span>
         <span class="n">branch_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">signal_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.workflow/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/signals/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">signal_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">/</span> <span class="s2">&quot;signals&quot;</span> <span class="o">/</span> <span class="n">task</span><span class="o">.</span><span class="n">id</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">git</span><span class="o">.</span><span class="n">current_branch</span><span class="p">(</span><span class="n">workstream_worktree_path</span><span class="p">)</span> <span class="o">==</span> <span class="n">branch_name</span><span class="p">:</span>
@@ -8446,7 +8445,7 @@ creates and checks out branches within it.</p>
 
         <span class="n">signals</span><span class="o">.</span><span class="n">ensure_signal_dir</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">)</span>
 
-        <span class="n">input_files</span> <span class="o">=</span> <span class="n">_resolve_input_files</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">)</span>
+        <span class="n">input_files</span> <span class="o">=</span> <span class="n">_resolve_input_files</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span><span class="p">)</span>
 
         <span class="n">manifest</span> <span class="o">=</span> <span class="n">build_manifest</span><span class="p">(</span>
             <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
@@ -8464,15 +8463,14 @@ creates and checks out branches within it.</p>
         <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;policies.json&quot;</span><span class="p">,</span> <span class="n">policies_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="p">))</span>
 
         <span class="n">isolation</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">isolation</span>
-        <span class="n">workflow_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.workflow/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">instructions</span> <span class="o">=</span> <span class="n">resolve_instructions</span><span class="p">(</span>
             <span class="n">task</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
             <span class="n">manifest</span><span class="p">,</span>
             <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">adr_verbosity</span><span class="p">,</span>
             <span class="n">sandbox_type</span><span class="o">=</span><span class="n">isolation</span><span class="o">.</span><span class="n">sandbox_type</span> <span class="k">if</span> <span class="n">isolation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">worktree_path</span><span class="o">=</span><span class="n">workstream_worktree_path</span><span class="p">,</span>
-            <span class="n">graph_yaml_path</span><span class="o">=</span><span class="n">workflow_base</span> <span class="o">/</span> <span class="s2">&quot;graph.yaml&quot;</span><span class="p">,</span>
-            <span class="n">signals_base_path</span><span class="o">=</span><span class="n">workflow_base</span> <span class="o">/</span> <span class="s2">&quot;signals&quot;</span><span class="p">,</span>
+            <span class="n">graph_yaml_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">/</span> <span class="s2">&quot;graph.yaml&quot;</span><span class="p">,</span>
+            <span class="n">signals_base_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">/</span> <span class="s2">&quot;signals&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;instructions.md&quot;</span><span class="p">,</span> <span class="n">instructions</span><span class="p">)</span>
 
@@ -8663,8 +8661,7 @@ and writes protocol files to the signal directory.</p>
 <span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">137</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runtime</span><span class="p">:</span> <span class="n">TaskRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Prepare runtime execution prerequisites.</span>
 
 <span class="sd">    Creates a task branch in the workstream worktree, checks it out,</span>
@@ -8693,7 +8690,7 @@ and writes protocol files to the signal directory.</p>
 
     <span class="n">task</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">task</span>
     <span class="n">branch_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;agentrelay/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">signal_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.workflow/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">/signals/</span><span class="si">{</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">signal_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">/</span> <span class="s2">&quot;signals&quot;</span> <span class="o">/</span> <span class="n">task</span><span class="o">.</span><span class="n">id</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">git</span><span class="o">.</span><span class="n">current_branch</span><span class="p">(</span><span class="n">workstream_worktree_path</span><span class="p">)</span> <span class="o">==</span> <span class="n">branch_name</span><span class="p">:</span>
@@ -8715,7 +8712,7 @@ and writes protocol files to the signal directory.</p>
 
     <span class="n">signals</span><span class="o">.</span><span class="n">ensure_signal_dir</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">)</span>
 
-    <span class="n">input_files</span> <span class="o">=</span> <span class="n">_resolve_input_files</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="p">)</span>
+    <span class="n">input_files</span> <span class="o">=</span> <span class="n">_resolve_input_files</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span><span class="p">)</span>
 
     <span class="n">manifest</span> <span class="o">=</span> <span class="n">build_manifest</span><span class="p">(</span>
         <span class="n">task</span><span class="o">=</span><span class="n">task</span><span class="p">,</span>
@@ -8733,15 +8730,14 @@ and writes protocol files to the signal directory.</p>
     <span class="n">signals</span><span class="o">.</span><span class="n">write_json</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;policies.json&quot;</span><span class="p">,</span> <span class="n">policies_to_dict</span><span class="p">(</span><span class="n">policies</span><span class="p">))</span>
 
     <span class="n">isolation</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">isolation</span>
-    <span class="n">workflow_base</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.workflow/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_name</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="n">instructions</span> <span class="o">=</span> <span class="n">resolve_instructions</span><span class="p">(</span>
         <span class="n">task</span><span class="o">.</span><span class="n">role</span><span class="p">,</span>
         <span class="n">manifest</span><span class="p">,</span>
         <span class="n">adr_verbosity</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">primary_agent</span><span class="o">.</span><span class="n">adr_verbosity</span><span class="p">,</span>
         <span class="n">sandbox_type</span><span class="o">=</span><span class="n">isolation</span><span class="o">.</span><span class="n">sandbox_type</span> <span class="k">if</span> <span class="n">isolation</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">worktree_path</span><span class="o">=</span><span class="n">workstream_worktree_path</span><span class="p">,</span>
-        <span class="n">graph_yaml_path</span><span class="o">=</span><span class="n">workflow_base</span> <span class="o">/</span> <span class="s2">&quot;graph.yaml&quot;</span><span class="p">,</span>
-        <span class="n">signals_base_path</span><span class="o">=</span><span class="n">workflow_base</span> <span class="o">/</span> <span class="s2">&quot;signals&quot;</span><span class="p">,</span>
+        <span class="n">graph_yaml_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">/</span> <span class="s2">&quot;graph.yaml&quot;</span><span class="p">,</span>
+        <span class="n">signals_base_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">run_dir</span> <span class="o">/</span> <span class="s2">&quot;signals&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">signals</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">signal_dir</span><span class="p">,</span> <span class="s2">&quot;instructions.md&quot;</span><span class="p">,</span> <span class="n">instructions</span><span class="p">)</span>
 
