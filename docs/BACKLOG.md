@@ -44,6 +44,30 @@ Near-term items for the current architecture track.
   orchestrator would use the same machinery. High complexity; defer until the
   simpler human-intervention mechanism is validated in practice.
   See `docs/discussions/CONTEXT_SHARING.md`.
+- **Rewind completed task in place**: Redo a specific completed task
+  (e.g., task B in A → B → C) without disturbing downstream tasks (C)
+  that were built on its output. The agent re-runs on the integration
+  branch and produces a "fixup" PR that layers on top of the existing
+  history rather than replacing it. Unlike `reset-to --after task-a`
+  (which peels B and C, then re-runs both), rewind preserves C's work.
+  Useful for small corrections ("B forgot a docstring," "B's test has a
+  typo") where re-running downstream tasks is wasted effort.
+  **Value: medium.** Saves agent compute on large graphs when a small
+  fix is needed to an early task. Most impactful when graphs are long
+  (many tasks after the one being fixed) and the fix is genuinely
+  non-breaking.
+  **Difficulty: high.** Three hard problems: (1) the git mechanics —
+  the agent needs to work on a branch that already has C's commits on
+  top, producing a patch that fits between B and C conceptually but sits
+  after C in git history; (2) safety validation — the system must either
+  verify that B's changes don't conflict with C's work (hard to define
+  precisely) or trust the user's judgment; (3) updated `resolved.json`
+  — B's frozen record needs to be updated without invalidating C's
+  record, which assumed the original B. Benefits from the Rust state
+  machine architecture where these invariants can be encoded in types.
+  Prerequisite: the stack-based undo model from the graph resumption
+  sprint (2026-04-12) provides the foundational `resolved.json` records
+  and execution graph concepts this feature would build on.
 - **Human intervention on task failure**: When an agent declares a task failed,
   allow a human to fix the problem (e.g., correct an upstream file, adjust the
   worktree) and then trigger a retry of the failed task without restarting the
@@ -683,6 +707,26 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   YAML value, only the YAML is preserved (copied to `.workflow/`).
   Simple JSON dump of all resolved config. Useful for post-mortem
   debugging and future graph resumption.
+- **Carry-forward of `resolved.json` across runs**: When starting a
+  force-fresh run (run N+1), copy `resolved.json` files for frozen tasks
+  from run N into run N+1's signal directories. This makes each run
+  directory fully self-contained — run N+1 has its own copies of all
+  frozen task records rather than referencing backward into run N's
+  directory. Currently (MVP from sprint 2026-04-12), run N+1 references
+  run N's files in place. The backward-reference approach works but
+  creates a dependency chain: if run N is deleted (manually or by a
+  future history pruning feature), run N+1 loses its frozen task
+  metadata. The code still works (completed tasks are still completed —
+  their code is on main), but validation and override reports lose their
+  data source.
+  **Value: low.** Only matters when old run directories are deleted,
+  which requires a cleanup feature that doesn't exist yet. The backward
+  reference is sufficient for all current workflows.
+  **Difficulty: low.** Implementation is trivial — file copies during
+  run initialization. The design work was already done in the graph
+  resumption sprint (2026-04-12); this is just the "copy instead of
+  reference" variant. Becomes worth doing when run history pruning is
+  added.
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
 - **Orchestrator log files**: The orchestrator currently writes all output to
