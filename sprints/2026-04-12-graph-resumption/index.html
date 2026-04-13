@@ -1691,6 +1691,89 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#parallelization-assessment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallelization assessment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parallelization assessment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependency-chain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency chain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hard-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hard dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#independent-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Independent pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-overlap-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File overlap risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-execution-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended execution phases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3002,6 +3085,134 @@ utilities).</p>
    N).</p>
 </li>
 </ol>
+<h2 id="parallelization-assessment">Parallelization assessment</h2>
+<blockquote>
+<p><strong>Assessed:</strong> 2026-04-13. Update this section if PR specs or
+dependencies change.</p>
+</blockquote>
+<h3 id="dependency-chain">Dependency chain</h3>
+<p>The dependency graph is deep. PR A is the foundation — every other PR
+depends on it (directly or transitively). The longest chain is
+A → B → C → E (4 PRs deep).</p>
+<div class="highlight"><pre><span></span><code>PR A (per-run dirs) ──→ PR B (frozen records) ──→ PR C (state probing) ──→ PR E (wiring)
+                   │                          │
+                   ├──→ PR D (idempotent prep) ──→ PR E
+                   │                          │
+                   └──────────────────────────→ PR F (reset utils) ──→ PR G (reset-to)
+</code></pre></div>
+<h3 id="hard-dependencies">Hard dependencies</h3>
+<table>
+<thead>
+<tr>
+<th>From</th>
+<th>To</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A → B</td>
+<td>B writes <code>resolved.json</code> to paths determined by A's layout</td>
+<td></td>
+</tr>
+<tr>
+<td>A → C</td>
+<td>C reads signal files from A's run directories</td>
+<td></td>
+</tr>
+<tr>
+<td>A → D</td>
+<td>D modifies <code>workstream_preparer.py</code>, which A also modifies</td>
+<td></td>
+</tr>
+<tr>
+<td>A → F</td>
+<td>F reads from A's run directories</td>
+<td></td>
+</tr>
+<tr>
+<td>B → C</td>
+<td>C imports <code>ResolvedTask</code> from B's <code>resolved.py</code></td>
+<td></td>
+</tr>
+<tr>
+<td>B → E</td>
+<td>E calls B's <code>validate_frozen_tasks()</code></td>
+<td></td>
+</tr>
+<tr>
+<td>B → F</td>
+<td>F reads B's <code>resolved.json</code> for pre-merge SHAs</td>
+<td></td>
+</tr>
+<tr>
+<td>C → E</td>
+<td>E calls C's <code>probe_graph_state()</code></td>
+<td></td>
+</tr>
+<tr>
+<td>D → E</td>
+<td>E assumes D's idempotent prep behavior</td>
+<td></td>
+</tr>
+<tr>
+<td>F → G</td>
+<td>G imports F's <code>reset_ops.py</code> utilities</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="independent-pairs">Independent pairs</h3>
+<table>
+<thead>
+<tr>
+<th>Pair</th>
+<th>Why independent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B ↔ D</td>
+<td>Different files (<code>task_runner/core/runner.py</code> vs <code>workstream_preparer.py</code>), no imports</td>
+</tr>
+<tr>
+<td>C ↔ F</td>
+<td>Different files (<code>orchestrator/probe.py</code> + <code>builders.py</code> vs <code>reset_ops.py</code> + <code>reset_task.py</code>), no imports</td>
+</tr>
+<tr>
+<td>C ↔ D</td>
+<td>Different files, no imports</td>
+</tr>
+<tr>
+<td>E ↔ G</td>
+<td>No shared files, no imports</td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-overlap-risk">File overlap risk</h3>
+<p>E and F both modify <code>cli.py</code>, but in different regions — E adds a
+<code>--force-fresh</code> flag to the existing <code>run</code> subcommand, F adds three
+new subcommands (<code>reset-task</code>, <code>teardown-workstream</code>,
+<code>reset-workstream</code>). Land F before E to minimize conflict (F's changes
+are additive new subcommands).</p>
+<h3 id="recommended-execution-phases">Recommended execution phases</h3>
+<div class="highlight"><pre><span></span><code>Phase 1:  PR A              (alone — foundation)
+Phase 2:  PR B ‖ PR D       (parallel — independent files)
+Phase 3:  PR C ‖ PR F       (parallel — C needs B, F needs A+B)
+Phase 4:  PR E ‖ PR G       (parallel — E needs B+C+D, G needs F)
+</code></pre></div>
+<p>Merge order within phases:
+- <strong>Phase 2:</strong> Land B before D — B is on the critical path (C, E, F
+  all need it), D is only needed by E.
+- <strong>Phase 3:</strong> Land F before C — unblocks G earlier, and F's <code>cli.py</code>
+  changes (new subcommands) merge cleanly before E's changes (flag on
+  existing subcommand).
+- <strong>Phase 4:</strong> E and G are independent — either order is fine.</p>
+<h3 id="summary">Summary</h3>
+<p>Parallelization is limited but real. Maximum 2 PRs at a time, in
+three parallel pairs (B‖D, C‖F, E‖G). The critical path is 4 phases
+regardless of parallelization. The main value is developing B+D
+simultaneously (saves ~0.5 day) and C+F simultaneously (saves ~1 day).</p>
 
 
 
