@@ -107,6 +107,11 @@ orchestrator_pkg: "orchestrator/" {
   TaskRuntimeBuilder: "TaskRuntimeBuilder" { shape: class }
 }
 
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  resolved_functions: "resolved_functions <<module>>" { shape: class }
+}
+
 sandbox_pkg: "sandbox/" {
   style.opacity: 0.5
   sandbox_core_pkg: "core/" {
@@ -142,3 +147,4 @@ task_runtime_pkg.TaskArtifacts -> agent_pkg.agent_core_pkg.AgentAddress: "agent_
 task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: "sandbox (optional)" { class: composition }
 task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.SandboxContext: "sandbox_context (optional)" { class: composition }
 orchestrator_pkg.Orchestrator -> task_runtime_pkg.TaskRuntime: mutates { class: dependency }
+resolved_py.resolved_functions -> task_runtime_pkg.TaskRuntime: reads { class: dependency }

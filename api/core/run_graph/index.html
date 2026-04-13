@@ -2251,8 +2251,8 @@ use from the credentials YAML <code>anthropic</code> section.</p>
             <span class="n">workstream_runner</span><span class="o">=</span><span class="n">workstream_runner</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
             <span class="n">listener</span><span class="o">=</span><span class="n">ConsoleListener</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">),</span>
-            <span class="n">integration_merge_checker</span><span class="o">=</span><span class="n">build_integration_merge_checker</span><span class="p">(),</span>
-            <span class="n">integration_auto_merger</span><span class="o">=</span><span class="n">build_integration_auto_merger</span><span class="p">(),</span>
+            <span class="n">integration_merge_checker</span><span class="o">=</span><span class="n">build_integration_merge_checker</span><span class="p">(</span><span class="n">repo_path</span><span class="p">),</span>
+            <span class="n">integration_auto_merger</span><span class="o">=</span><span class="n">build_integration_auto_merger</span><span class="p">(</span><span class="n">repo_path</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="k">await</span> <span class="n">orchestrator</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
     <span class="k">finally</span><span class="p">:</span>

@@ -90,9 +90,14 @@ task_runner_pkg: "task_runner/" {
       +check_gate(runtime): GateCheckResult
     }
 
+    TaskMergeResult: "TaskMergeResult <<frozen dataclass>>" {
+      shape: class
+      integration_branch_before_merge: str
+    }
+
     TaskMerger: "TaskMerger <<protocol>>" {
       shape: class
-      +merge_pr(runtime, pr_url): void
+      +merge_pr(runtime, pr_url): TaskMergeResult
     }
 
     TaskLogCapture: "TaskLogCapture <<protocol>>" {
@@ -176,7 +181,7 @@ task_runner_pkg: "task_runner/" {
     GhTaskMerger: "GhTaskMerger <<dataclass>>" {
       shape: class
       repo_path: Path
-      +merge_pr(runtime, pr_url): void
+      +merge_pr(runtime, pr_url): TaskMergeResult
     }
 
     WorktreeTaskLogCapture: "WorktreeTaskLogCapture <<dataclass>>" {
@@ -237,6 +242,11 @@ orchestrator_pkg: "orchestrator/" {
   builders: "builders <<module>>" { shape: class }
 }
 
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  resolved_functions: "resolved_functions <<module>>" { shape: class }
+}
+
 task_runtime_pkg: "task_runtime/" {
   style.opacity: 0.5
   TaskRuntime: "TaskRuntime <<mutable dataclass>>" { shape: class }
@@ -295,3 +305,4 @@ task_runner_pkg.task_runner_impl_pkg.ShellGateChecker -> ops_pkg.signals: uses {
 task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.gh: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> resolved_py.resolved_functions: "writes resolved.json" { class: dependency }
