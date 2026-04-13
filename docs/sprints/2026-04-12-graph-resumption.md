@@ -1319,3 +1319,78 @@ PR A must land first (directory layout foundation). After PR A:
    The stack model validates which states are reachable; the direct
    jump avoids redundant sequential pops (one branch reset instead of
    N).
+
+## Parallelization assessment
+
+> **Assessed:** 2026-04-13. Update this section if PR specs or
+> dependencies change.
+
+### Dependency chain
+
+The dependency graph is deep. PR A is the foundation — every other PR
+depends on it (directly or transitively). The longest chain is
+A → B → C → E (4 PRs deep).
+
+```
+PR A (per-run dirs) ──→ PR B (frozen records) ──→ PR C (state probing) ──→ PR E (wiring)
+                   │                          │
+                   ├──→ PR D (idempotent prep) ──→ PR E
+                   │                          │
+                   └──────────────────────────→ PR F (reset utils) ──→ PR G (reset-to)
+```
+
+### Hard dependencies
+
+| From | To | Reason |
+|---|---|---|
+| A → B | B writes `resolved.json` to paths determined by A's layout |
+| A → C | C reads signal files from A's run directories |
+| A → D | D modifies `workstream_preparer.py`, which A also modifies |
+| A → F | F reads from A's run directories |
+| B → C | C imports `ResolvedTask` from B's `resolved.py` |
+| B → E | E calls B's `validate_frozen_tasks()` |
+| B → F | F reads B's `resolved.json` for pre-merge SHAs |
+| C → E | E calls C's `probe_graph_state()` |
+| D → E | E assumes D's idempotent prep behavior |
+| F → G | G imports F's `reset_ops.py` utilities |
+
+### Independent pairs
+
+| Pair | Why independent |
+|---|---|
+| B ↔ D | Different files (`task_runner/core/runner.py` vs `workstream_preparer.py`), no imports |
+| C ↔ F | Different files (`orchestrator/probe.py` + `builders.py` vs `reset_ops.py` + `reset_task.py`), no imports |
+| C ↔ D | Different files, no imports |
+| E ↔ G | No shared files, no imports |
+
+### File overlap risk
+
+E and F both modify `cli.py`, but in different regions — E adds a
+`--force-fresh` flag to the existing `run` subcommand, F adds three
+new subcommands (`reset-task`, `teardown-workstream`,
+`reset-workstream`). Land F before E to minimize conflict (F's changes
+are additive new subcommands).
+
+### Recommended execution phases
+
+```
+Phase 1:  PR A              (alone — foundation)
+Phase 2:  PR B ‖ PR D       (parallel — independent files)
+Phase 3:  PR C ‖ PR F       (parallel — C needs B, F needs A+B)
+Phase 4:  PR E ‖ PR G       (parallel — E needs B+C+D, G needs F)
+```
+
+Merge order within phases:
+- **Phase 2:** Land B before D — B is on the critical path (C, E, F
+  all need it), D is only needed by E.
+- **Phase 3:** Land F before C — unblocks G earlier, and F's `cli.py`
+  changes (new subcommands) merge cleanly before E's changes (flag on
+  existing subcommand).
+- **Phase 4:** E and G are independent — either order is fine.
+
+### Summary
+
+Parallelization is limited but real. Maximum 2 PRs at a time, in
+three parallel pairs (B‖D, C‖F, E‖G). The critical path is 4 phases
+regardless of parallelization. The main value is developing B+D
+simultaneously (saves ~0.5 day) and C+F simultaneously (saves ~1 day).
