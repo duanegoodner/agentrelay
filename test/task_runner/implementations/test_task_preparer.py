@@ -28,9 +28,11 @@ def _make_runtime(
     return runtime
 
 
-def _make_preparer(repo_path: Path = Path("/repo")) -> WorktreeTaskPreparer:
+def _make_preparer(
+    run_dir: Path = Path("/repo/.workflow/demo/runs/0"),
+) -> WorktreeTaskPreparer:
     return WorktreeTaskPreparer(
-        repo_path=repo_path,
+        run_dir=run_dir,
         graph_name="demo",
         dependency_descriptions={"dep_1": "A dependency"},
     )
@@ -57,7 +59,7 @@ class TestWorktreeTaskPreparer:
         _mock_resolve: MagicMock,
     ) -> None:
         """Calls git.branch_create and git.checkout in the workstream worktree."""
-        preparer = _make_preparer(repo_path=Path("/repo"))
+        preparer = _make_preparer(run_dir=Path("/repo/.workflow/demo/runs/0"))
         runtime = _make_runtime()
         mock_build_manifest.return_value = MagicMock()
         mock_git.current_branch.return_value = None  # Fresh prepare.
@@ -103,7 +105,7 @@ class TestWorktreeTaskPreparer:
         runtime = _make_runtime()
         preparer.prepare(runtime)
 
-        signal_dir = Path("/repo/.workflow/demo/signals/task_1")
+        signal_dir = Path("/repo/.workflow/demo/runs/0/signals/task_1")
         mock_signals.write_json.assert_any_call(
             signal_dir, "manifest.json", {"manifest": "data"}
         )
@@ -140,7 +142,9 @@ class TestWorktreeTaskPreparer:
 
         assert runtime.state.worktree_path == Path("/worktrees/demo/ws-1")
         assert runtime.state.branch_name == "agentrelay/demo/task_1"
-        assert runtime.state.signal_dir == Path("/repo/.workflow/demo/signals/task_1")
+        assert runtime.state.signal_dir == Path(
+            "/repo/.workflow/demo/runs/0/signals/task_1"
+        )
 
     @patch("agentrelay.task_runner.implementations.task_preparer.resolve_instructions")
     @patch("agentrelay.task_runner.implementations.task_preparer.policies_to_dict")
@@ -167,7 +171,7 @@ class TestWorktreeTaskPreparer:
         runtime = _make_runtime()
         preparer.prepare(runtime)
 
-        signal_dir = Path("/repo/.workflow/demo/signals/task_1")
+        signal_dir = Path("/repo/.workflow/demo/runs/0/signals/task_1")
         mock_signals.write_text.assert_any_call(
             signal_dir, "context.md", "# Context\nPrevious task output."
         )
@@ -247,7 +251,7 @@ class TestWorktreeTaskPreparer:
         mock_git.branch_create.assert_not_called()
         mock_git.checkout.assert_not_called()
         # Protocol files are still written.
-        signal_dir = Path("/repo/.workflow/demo/signals/task_1")
+        signal_dir = Path("/repo/.workflow/demo/runs/0/signals/task_1")
         mock_signals.write_json.assert_any_call(
             signal_dir, "manifest.json", _mock_manifest_to_dict.return_value
         )
@@ -342,8 +346,12 @@ class TestWorktreeTaskPreparer:
 
         mock_resolve.assert_called_once()
         _, kwargs = mock_resolve.call_args
-        assert kwargs.get("graph_yaml_path") == Path("/repo/.workflow/demo/graph.yaml")
-        assert kwargs.get("signals_base_path") == Path("/repo/.workflow/demo/signals")
+        assert kwargs.get("graph_yaml_path") == Path(
+            "/repo/.workflow/demo/runs/0/graph.yaml"
+        )
+        assert kwargs.get("signals_base_path") == Path(
+            "/repo/.workflow/demo/runs/0/signals"
+        )
 
     def test_satisfies_task_preparer_protocol(self) -> None:
         """WorktreeTaskPreparer satisfies the TaskPreparer protocol."""
@@ -354,13 +362,18 @@ class TestWorktreeTaskPreparer:
 class TestResolveInputFiles:
     """Tests for _resolve_input_files."""
 
+    def _make_run_dir(self, tmp_path: Path) -> Path:
+        run_dir = tmp_path / ".workflow" / "g" / "runs" / "0"
+        run_dir.mkdir(parents=True, exist_ok=True)
+        return run_dir
+
     def _write_outputs_json(
-        self, tmp_path: Path, graph_name: str, task_id: str, files: list[dict]
+        self, run_dir: Path, task_id: str, files: list[dict]
     ) -> None:
         """Write a mock outputs.json for an upstream task."""
         import json
 
-        signal_dir = tmp_path / f".workflow/{graph_name}/signals/{task_id}"
+        signal_dir = run_dir / "signals" / task_id
         signal_dir.mkdir(parents=True, exist_ok=True)
         (signal_dir / "outputs.json").write_text(
             json.dumps({"schema_version": "1", "files": files})
@@ -368,9 +381,9 @@ class TestResolveInputFiles:
 
     def test_resolves_from_upstream_outputs(self, tmp_path: Path) -> None:
         """Reads upstream outputs.json and returns InputFileInfo entries."""
+        run_dir = self._make_run_dir(tmp_path)
         self._write_outputs_json(
-            tmp_path,
-            "g",
+            run_dir,
             "spec",
             [{"path": "src/q.py", "action": "created", "category": "stubs"}],
         )
@@ -379,16 +392,16 @@ class TestResolveInputFiles:
             role=AgentRole.GENERIC,
             inputs_from=(InputFrom(task="spec", category="stubs"),),
         )
-        result = _resolve_input_files(task, tmp_path, "g")
+        result = _resolve_input_files(task, run_dir)
         assert result == (
             InputFileInfo(path=Path("src/q.py"), category="stubs", source_task="spec"),
         )
 
     def test_filters_by_category(self, tmp_path: Path) -> None:
         """Only entries matching the category are returned."""
+        run_dir = self._make_run_dir(tmp_path)
         self._write_outputs_json(
-            tmp_path,
-            "g",
+            run_dir,
             "spec",
             [
                 {"path": "src/q.py", "action": "created", "category": "stubs"},
@@ -400,15 +413,15 @@ class TestResolveInputFiles:
             role=AgentRole.GENERIC,
             inputs_from=(InputFrom(task="spec", category="stubs"),),
         )
-        result = _resolve_input_files(task, tmp_path, "g")
+        result = _resolve_input_files(task, run_dir)
         assert len(result) == 1
         assert result[0].path == Path("src/q.py")
 
     def test_no_category_takes_all(self, tmp_path: Path) -> None:
         """When category is None, all entries are included."""
+        run_dir = self._make_run_dir(tmp_path)
         self._write_outputs_json(
-            tmp_path,
-            "g",
+            run_dir,
             "spec",
             [
                 {"path": "src/q.py", "action": "created", "category": "stubs"},
@@ -420,13 +433,14 @@ class TestResolveInputFiles:
             role=AgentRole.GENERIC,
             inputs_from=(InputFrom(task="spec", category=None),),
         )
-        result = _resolve_input_files(task, tmp_path, "g")
+        result = _resolve_input_files(task, run_dir)
         assert len(result) == 2
 
     def test_missing_outputs_raises(self, tmp_path: Path) -> None:
         """Missing outputs.json raises FileNotFoundError."""
+        run_dir = self._make_run_dir(tmp_path)
         # Signal dir exists but no outputs.json
-        signal_dir = tmp_path / ".workflow/g/signals/spec"
+        signal_dir = run_dir / "signals" / "spec"
         signal_dir.mkdir(parents=True, exist_ok=True)
 
         task = Task(
@@ -435,25 +449,24 @@ class TestResolveInputFiles:
             inputs_from=(InputFrom(task="spec"),),
         )
         with pytest.raises(FileNotFoundError, match="upstream task 'spec'"):
-            _resolve_input_files(task, tmp_path, "g")
+            _resolve_input_files(task, run_dir)
 
     def test_skipped_when_empty(self) -> None:
         """Task without inputs_from returns empty tuple."""
         task = Task(id="t1", role=AgentRole.GENERIC)
-        result = _resolve_input_files(task, Path("/unused"), "g")
+        result = _resolve_input_files(task, Path("/unused"))
         assert result == ()
 
     def test_multiple_sources(self, tmp_path: Path) -> None:
         """Multiple inputs_from entries combine results from all sources."""
+        run_dir = self._make_run_dir(tmp_path)
         self._write_outputs_json(
-            tmp_path,
-            "g",
+            run_dir,
             "spec",
             [{"path": "src/q.py", "action": "created", "category": "stubs"}],
         )
         self._write_outputs_json(
-            tmp_path,
-            "g",
+            run_dir,
             "test",
             [{"path": "test/test_q.py", "action": "created", "category": "tests"}],
         )
@@ -465,7 +478,7 @@ class TestResolveInputFiles:
                 InputFrom(task="test", category="tests"),
             ),
         )
-        result = _resolve_input_files(task, tmp_path, "g")
+        result = _resolve_input_files(task, run_dir)
         assert len(result) == 2
         assert result[0].source_task == "spec"
         assert result[1].source_task == "test"

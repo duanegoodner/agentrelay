@@ -124,6 +124,7 @@ class WorkstreamRuntimeBuilder:
 def build_standard_runner(
     repo_path: Path,
     graph_name: str,
+    run_dir: Path,
     graph: TaskGraph,
     keep_panes: bool = False,
     poll_interval: float = 2.0,
@@ -201,7 +202,7 @@ def build_standard_runner(
         dep_ids = graph.dependency_ids(runtime.task.id)
         dep_descs = {did: graph.task(did).description for did in dep_ids}
         return WorktreeTaskPreparer(
-            repo_path=repo_path,
+            run_dir=run_dir,
             graph_name=graph_name,
             dependency_descriptions=dep_descs,
             context_content=context_content,
@@ -235,6 +236,7 @@ def build_standard_runner(
 def build_standard_workstream_runner(
     repo_path: Path,
     graph_name: str,
+    run_dir: Path,
 ) -> StandardWorkstreamRunner:
     """Build the standard workstream runner for git worktree + GitHub CLI.
 
@@ -258,7 +260,9 @@ def build_standard_workstream_runner(
         A fully wired :class:`StandardWorkstreamRunner`.
     """
     return StandardWorkstreamRunner(
-        _preparer=GitWorkstreamPreparer(repo_path=repo_path, graph_name=graph_name),
+        _preparer=GitWorkstreamPreparer(
+            repo_path=repo_path, graph_name=graph_name, run_dir=run_dir
+        ),
         _integrator=GhWorkstreamIntegrator(repo_path=repo_path),
         _teardown=GitWorkstreamTeardown(repo_path=repo_path),
     )

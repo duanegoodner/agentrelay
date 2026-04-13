@@ -43,6 +43,7 @@ def test_build_returns_standard_task_runner() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     assert isinstance(runner, StandardTaskRunner)
@@ -53,6 +54,7 @@ def test_preparer_dispatch_returns_worktree_task_preparer() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("b"))
@@ -65,12 +67,14 @@ def test_preparer_computes_dependency_descriptions() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("b"))
     preparer = runner._preparer(runtime)
     assert isinstance(preparer, WorktreeTaskPreparer)
     assert preparer.dependency_descriptions == {"a": "task A"}
+    assert preparer.run_dir == Path("/repo/.workflow/test_graph/runs/0")
 
 
 def test_launcher_dispatch_returns_tmux_launcher() -> None:
@@ -78,6 +82,7 @@ def test_launcher_dispatch_returns_tmux_launcher() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("a"))
@@ -89,6 +94,7 @@ def test_kickoff_dispatch_returns_tmux_kickoff() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("a"))
@@ -100,6 +106,7 @@ def test_completion_checker_dispatch_returns_signal_checker() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
         poll_interval=5.0,
     )
@@ -114,6 +121,7 @@ def test_merger_dispatch_returns_gh_merger() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("a"))
@@ -127,6 +135,7 @@ def test_gate_checker_is_shell_gate_checker() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     assert isinstance(runner._gate_checker, ShellGateChecker)
@@ -137,6 +146,7 @@ def test_teardown_dispatch_returns_worktree_teardown() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
         keep_panes=True,
     )
@@ -152,6 +162,7 @@ def test_launcher_has_null_credential_provider() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("a"))
@@ -167,6 +178,7 @@ def test_launcher_uses_custom_credential_provider() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
         credential_provider=mock_cp,
     )
@@ -197,6 +209,7 @@ def test_oci_launcher_has_no_anthropic_credential_by_default() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
     )
     runtime = TaskRuntime(task=graph.task("a"))
@@ -219,6 +232,7 @@ def test_oci_launcher_passes_anthropic_credential_to_sandbox() -> None:
     runner = build_standard_runner(
         repo_path=Path("/repo"),
         graph_name="test_graph",
+        run_dir=Path("/repo/.workflow/test_graph/runs/0"),
         graph=graph,
         anthropic_credential=cred,
     )

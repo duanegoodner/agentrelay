@@ -28,7 +28,7 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import gh, git
@@ -67,12 +67,40 @@ class ResetPlan:
     log: list[str] = field(default_factory=list)
 
 
+def _find_latest_run_dir(workflow_dir: Path) -> Optional[Path]:
+    """Find the latest numbered run directory under ``runs/``.
+
+    Returns:
+        Path to the latest run directory, or ``None`` if no numbered
+        run directories exist.
+    """
+    runs_dir = workflow_dir / "runs"
+    if not runs_dir.is_dir():
+        return None
+    run_nums = sorted(
+        int(d.name) for d in runs_dir.iterdir() if d.is_dir() and d.name.isdigit()
+    )
+    if not run_nums:
+        return None
+    return runs_dir / str(run_nums[-1])
+
+
 def _load_run_info(workflow_dir: Path) -> dict[str, str]:
     """Read and return run_info.json from the workflow directory.
+
+    Checks for a per-run layout (``runs/<N>/run_info.json``) first,
+    then falls back to a top-level ``run_info.json`` for backward
+    compatibility.
 
     Raises:
         FileNotFoundError: If run_info.json does not exist.
     """
+    latest = _find_latest_run_dir(workflow_dir)
+    if latest is not None:
+        path = latest / "run_info.json"
+        if path.is_file():
+            return json.loads(path.read_text())
+    # Backward compat: top-level run_info.json.
     path = workflow_dir / "run_info.json"
     if not path.is_file():
         raise FileNotFoundError(

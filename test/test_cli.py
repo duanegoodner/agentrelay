@@ -571,11 +571,11 @@ def test_handle_dry_run_subcommand(
 
 
 def test_conflict_error_message_uses_new_cli(tmp_path: Path) -> None:
-    from agentrelay.run_graph import _check_for_conflicts, _ConflictError
+    from agentrelay.run_graph import _ConflictError, _resolve_run_dir
 
     (tmp_path / ".workflow" / "test-graph").mkdir(parents=True)
     with pytest.raises(_ConflictError, match="agentrelay reset"):
-        _check_for_conflicts(tmp_path, "test-graph")
+        _resolve_run_dir(tmp_path, "test-graph")
 
 
 # --- build_parser: --graph-dir on run ---

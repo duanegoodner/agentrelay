@@ -30,6 +30,7 @@ class GitWorkstreamPreparer:
 
     repo_path: Path
     graph_name: str
+    run_dir: Path
 
     def prepare_workstream(self, workstream_runtime: WorkstreamRuntime) -> None:
         """Provision worktree and integration branch for this workstream.
@@ -61,9 +62,7 @@ class GitWorkstreamPreparer:
                 f"Failed to provision workstream {spec.id!r}: {exc}",
             ) from exc
 
-        signal_dir = (
-            self.repo_path / ".workflow" / self.graph_name / "workstreams" / spec.id
-        )
+        signal_dir = self.run_dir / "workstreams" / spec.id
         workstream_runtime.state.signal_dir = signal_dir
         workstream_runtime.state.worktree_path = worktree_path
         workstream_runtime.state.branch_name = branch_name

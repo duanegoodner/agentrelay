@@ -24,15 +24,42 @@ def _git(args: list[str]) -> None:
 # --- _load_run_info ---
 
 
-def test_load_run_info_reads_file(tmp_path: Path) -> None:
+def test_load_run_info_reads_from_per_run_dir(tmp_path: Path) -> None:
+    """run_info.json is read from the latest numbered run directory."""
     workflow_dir = tmp_path / ".workflow" / "test"
-    workflow_dir.mkdir(parents=True)
+    run_dir = workflow_dir / "runs" / "0"
+    run_dir.mkdir(parents=True)
     info = {"start_head": "abc123", "started_at": "2026-03-18T00:00:00Z"}
-    (workflow_dir / "run_info.json").write_text(json.dumps(info))
+    (run_dir / "run_info.json").write_text(json.dumps(info))
 
     result = _load_run_info(workflow_dir)
     assert result["start_head"] == "abc123"
     assert result["started_at"] == "2026-03-18T00:00:00Z"
+
+
+def test_load_run_info_backward_compat_top_level(tmp_path: Path) -> None:
+    """Falls back to top-level run_info.json for backward compat."""
+    workflow_dir = tmp_path / ".workflow" / "test"
+    workflow_dir.mkdir(parents=True)
+    info = {"start_head": "def456", "started_at": "2026-03-18T01:00:00Z"}
+    (workflow_dir / "run_info.json").write_text(json.dumps(info))
+
+    result = _load_run_info(workflow_dir)
+    assert result["start_head"] == "def456"
+
+
+def test_load_run_info_prefers_latest_run(tmp_path: Path) -> None:
+    """When multiple run dirs exist, reads from the latest one."""
+    workflow_dir = tmp_path / ".workflow" / "test"
+    for n in (0, 1, 2):
+        run_dir = workflow_dir / "runs" / str(n)
+        run_dir.mkdir(parents=True)
+        (run_dir / "run_info.json").write_text(
+            json.dumps({"start_head": f"sha-{n}", "started_at": "t"})
+        )
+
+    result = _load_run_info(workflow_dir)
+    assert result["start_head"] == "sha-2"
 
 
 def test_load_run_info_raises_on_missing(tmp_path: Path) -> None:
@@ -60,11 +87,11 @@ def reset_repo(tmp_path: Path) -> Path:
     _git(["-C", str(clone), "commit", "-m", "initial"])
     _git(["-C", str(clone), "push", "-u", "origin", "main"])
 
-    # Record start HEAD.
+    # Record start HEAD in per-run directory.
     start_head = git.rev_parse_head(clone)
-    workflow_dir = clone / ".workflow" / "test-graph"
+    run_dir = clone / ".workflow" / "test-graph" / "runs" / "0"
     signals.write_json(
-        workflow_dir,
+        run_dir,
         "run_info.json",
         {"start_head": start_head, "started_at": "2026-03-18T00:00:00Z"},
     )
@@ -133,9 +160,9 @@ def test_plan_reset_detects_out_of_order(reset_repo: Path) -> None:
     # Reset main back one commit to make start_head ahead of HEAD.
     _git(["-C", str(reset_repo), "reset", "--hard", "HEAD~1"])
 
-    workflow_dir = reset_repo / ".workflow" / "test-graph"
+    run_dir = reset_repo / ".workflow" / "test-graph" / "runs" / "0"
     signals.write_json(
-        workflow_dir,
+        run_dir,
         "run_info.json",
         {"start_head": current_head, "started_at": "2026-03-18T00:00:00Z"},
     )
@@ -187,8 +214,8 @@ def test_execute_reset_closes_prs(reset_repo: Path) -> None:
 
 def test_execute_reset_resets_main(reset_repo: Path) -> None:
     # Record the start head.
-    workflow_dir = reset_repo / ".workflow" / "test-graph"
-    run_info = json.loads((workflow_dir / "run_info.json").read_text())
+    run_dir = reset_repo / ".workflow" / "test-graph" / "runs" / "0"
+    run_info = json.loads((run_dir / "run_info.json").read_text())
     start_head = run_info["start_head"]
 
     # Add a commit to main after start_head.
@@ -218,9 +245,9 @@ def test_execute_reset_skips_main_when_out_of_order(reset_repo: Path) -> None:
     _git(["-C", str(reset_repo), "push", "origin", "main"])
     _git(["-C", str(reset_repo), "reset", "--hard", current_head])
 
-    workflow_dir = reset_repo / ".workflow" / "test-graph"
+    run_dir = reset_repo / ".workflow" / "test-graph" / "runs" / "0"
     signals.write_json(
-        workflow_dir,
+        run_dir,
         "run_info.json",
         {"start_head": ahead_head, "started_at": "2026-03-18T00:00:00Z"},
     )
@@ -283,12 +310,14 @@ def test_execute_reset_idempotent(reset_repo: Path) -> None:
 
 
 def test_run_graph_writes_run_info(tmp_git_repo: Path) -> None:
-    """run_graph's _record_run_start writes run_info.json."""
+    """run_graph's _record_run_start writes run_info.json to run directory."""
     from agentrelay.run_graph import _record_run_start
 
-    _record_run_start(tmp_git_repo, "my-graph")
+    run_dir = tmp_git_repo / ".workflow" / "my-graph" / "runs" / "0"
+    run_dir.mkdir(parents=True)
+    _record_run_start(run_dir, tmp_git_repo)
 
-    run_info_path = tmp_git_repo / ".workflow" / "my-graph" / "run_info.json"
+    run_info_path = run_dir / "run_info.json"
     assert run_info_path.is_file()
 
     info = json.loads(run_info_path.read_text())
