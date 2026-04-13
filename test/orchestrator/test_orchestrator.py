@@ -19,6 +19,8 @@ from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 from agentrelay.workstream import (
+    IntegrationMergeCheckResult,
+    IntegrationMergeResult,
     WorkstreamRunResult,
     WorkstreamRuntime,
     WorkstreamSpec,
@@ -764,12 +766,18 @@ class ScriptedMergeChecker:
     polls_before_merged: dict[str, int] = field(default_factory=dict)
     _poll_counts: dict[str, int] = field(default_factory=dict)
 
-    def is_merged(self, workstream_runtime: WorkstreamRuntime) -> bool:  # noqa: D102
+    def is_merged(  # noqa: D102
+        self, workstream_runtime: WorkstreamRuntime
+    ) -> IntegrationMergeCheckResult:
         ws_id = workstream_runtime.spec.id
         threshold = self.polls_before_merged.get(ws_id, 0)
         count = self._poll_counts.get(ws_id, 0) + 1
         self._poll_counts[ws_id] = count
-        return count > threshold
+        merged = count > threshold
+        return IntegrationMergeCheckResult(
+            merged=merged,
+            target_branch_before_merge=f"polled_sha_{ws_id}" if merged else None,
+        )
 
 
 def test_cross_workstream_task_blocks_until_upstream_merged() -> None:
@@ -983,11 +991,14 @@ class RecordingAutoMerger:
     merge_calls: list[str] = field(default_factory=list)
     should_fail: set[str] = field(default_factory=set)
 
-    def merge(self, workstream_runtime: WorkstreamRuntime) -> None:  # noqa: D102
+    def merge(  # noqa: D102
+        self, workstream_runtime: WorkstreamRuntime
+    ) -> IntegrationMergeResult:
         ws_id = workstream_runtime.spec.id
         self.merge_calls.append(ws_id)
         if ws_id in self.should_fail:
             raise RuntimeError(f"merge failed for {ws_id}")
+        return IntegrationMergeResult(target_branch_before_merge=f"auto_sha_{ws_id}")
 
 
 def test_auto_merge_when_no_concerns() -> None:

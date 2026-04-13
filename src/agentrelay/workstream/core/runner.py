@@ -114,6 +114,8 @@ class StandardWorkstreamRunner:
         """Create the integration PR for the workstream.
 
         Transitions to ``PR_CREATED`` on success, or ``FAILED`` on error.
+        When the integration PR is skipped (no commits ahead), stores the
+        authoritative target branch SHA on the runtime artifacts.
 
         Args:
             workstream_runtime: Workstream runtime to integrate.
@@ -122,10 +124,15 @@ class StandardWorkstreamRunner:
             WorkstreamRunResult: Snapshot of state after the operation.
         """
         try:
-            self._integrator.create_integration_pr(workstream_runtime)
+            result = self._integrator.create_integration_pr(workstream_runtime)
         except Exception as exc:
             workstream_runtime.mark_failed(f"{type(exc).__name__}: {exc}")
             return WorkstreamRunResult.from_runtime(workstream_runtime)
+
+        if result.skipped:
+            workstream_runtime.artifacts.target_branch_before_any_merge = (
+                result.target_branch_authoritative_sha
+            )
 
         return WorkstreamRunResult.from_runtime(workstream_runtime)
 

@@ -77,6 +77,15 @@ Near-term items for the current architecture track.
   humans unblock downstream tasks after fixing transient or environmental
   issues. Design this after gaining more experience with failure modes in
   e2e testing (PR C, PR D).
+- **Tmux kickoff send_keys may not auto-submit in newer Claude Code versions**:
+  Observed in e2e testing (2026-04-13, Claude Code 2.1.105) that
+  `tmux send_keys ... Enter` types the kickoff prompt but does not submit
+  it — the agent sits idle until a human presses Enter in the tmux pane.
+  Likely caused by a Claude Code update changing the default prompt
+  submission behavior. Investigate whether Claude Code now requires
+  double-Enter, Ctrl+Enter, or a different key to submit. Fix in
+  `TmuxTaskKickoff.kickoff()` or `ops/tmux.send_keys()`. May also need
+  to update the OCI container's pre-seeded Claude Code configuration.
 
 ## Integration
 

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from agentrelay.ops import gh, git
+from agentrelay.workstream.core.io import IntegrationResult
 from agentrelay.workstream.core.runtime import WorkstreamRuntime
 
 _MAX_DESCRIPTION_LENGTH = 200
@@ -98,12 +99,23 @@ class GhWorkstreamIntegrator:
 
     repo_path: Path
 
-    def create_integration_pr(self, workstream_runtime: WorkstreamRuntime) -> None:
+    def create_integration_pr(
+        self, workstream_runtime: WorkstreamRuntime
+    ) -> IntegrationResult:
         """Create a PR from the integration branch to the merge target.
+
+        When the integration branch has no commits ahead of the target,
+        the PR is skipped and the workstream transitions directly to
+        ``MERGED``.  In this case, the integrator is the authoritative
+        source for the target branch SHA (nothing changed).
 
         Args:
             workstream_runtime: Workstream runtime whose integration branch
                 should be submitted as a PR.
+
+        Returns:
+            IntegrationResult: Whether the PR was skipped and the
+            authoritative target branch SHA when skipped.
         """
         spec = workstream_runtime.spec
         branch_name = workstream_runtime.state.branch_name
@@ -113,8 +125,11 @@ class GhWorkstreamIntegrator:
             self.repo_path, spec.merge_target_branch, branch_name
         )
         if ahead == 0:
+            target_sha = git.rev_parse(self.repo_path, spec.merge_target_branch)
             workstream_runtime.mark_merged()
-            return
+            return IntegrationResult(
+                skipped=True, target_branch_authoritative_sha=target_sha
+            )
 
         body = _build_pr_body(workstream_runtime)
 
@@ -127,3 +142,4 @@ class GhWorkstreamIntegrator:
         )
 
         workstream_runtime.mark_pr_created(pr_url)
+        return IntegrationResult(skipped=False)

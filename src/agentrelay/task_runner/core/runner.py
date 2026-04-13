@@ -21,6 +21,7 @@ from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.errors import IntegrationFailureClass, classify_integration_error
 from agentrelay.ops import gh, signals
+from agentrelay.resolved import build_resolved_task
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
     TaskCompletionChecker,
@@ -300,15 +301,21 @@ class StandardTaskRunner:
 
                 self._emit_step("task_pr_merging", runtime, signal.pr_url)
                 try:
-                    self._merger(runtime).merge_pr(runtime, signal.pr_url)
+                    merge_result = self._merger(runtime).merge_pr(
+                        runtime, signal.pr_url
+                    )
                 except Exception as exc:
                     fc = self._record_io_failure(runtime, exc)
                     return TaskRunResult.from_runtime(runtime, failure_class=fc)
 
                 self._transition(runtime, TaskStatus.PR_MERGED)
+                self._write_resolved_task(
+                    runtime, merge_result.integration_branch_before_merge
+                )
             else:
                 # PR-less completion (e.g., review-only task with no changes).
                 self._transition(runtime, TaskStatus.COMPLETED)
+                self._write_resolved_task(runtime, None)
         finally:
             try:
                 self._log_capture(runtime).capture_log(runtime)
@@ -402,6 +409,25 @@ class StandardTaskRunner:
             return
         if body:
             signals.write_text(runtime.attempt_dir, "summary.md", body)
+
+    def _write_resolved_task(
+        self,
+        runtime: TaskRuntime,
+        integration_branch_before_merge: Optional[str],
+    ) -> None:
+        """Write ``resolved.json`` for a successfully completed task.
+
+        Failures are recorded as concerns rather than crashing the task.
+        """
+        if runtime.state.signal_dir is None:
+            return
+        try:
+            resolved = build_resolved_task(runtime, integration_branch_before_merge)
+            signals.write_json(
+                runtime.state.signal_dir, "resolved.json", resolved.to_dict()
+            )
+        except Exception as exc:  # noqa: BLE001
+            runtime.artifacts.concerns.append(f"resolved_json_failed: {exc}")
 
     def _record_io_failure(
         self, runtime: TaskRuntime, exc: Exception

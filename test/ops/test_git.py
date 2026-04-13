@@ -16,6 +16,7 @@ from agentrelay.ops.git import (
     ls_remote_branch_exists,
     pull_ff_only,
     push_branch,
+    rev_parse,
     set_config,
     update_local_ref,
     worktree_add,
@@ -592,3 +593,44 @@ class TestWorktreeGitDir:
 
         with pytest.raises(ValueError, match="does not contain a gitdir line"):
             worktree_git_dir(wt_path)
+
+
+# ── Rev-parse tests ──
+
+
+class TestRevParse:
+    """Tests for rev_parse."""
+
+    def test_resolves_branch_name(self, tmp_git_repo: Path) -> None:
+        """Resolves a branch name to the same SHA as HEAD."""
+        expected = _head_sha(tmp_git_repo)
+        assert rev_parse(tmp_git_repo, "main") == expected
+
+    def test_resolves_head(self, tmp_git_repo: Path) -> None:
+        """Resolves HEAD to the current commit SHA."""
+        expected = _head_sha(tmp_git_repo)
+        assert rev_parse(tmp_git_repo, "HEAD") == expected
+
+    def test_resolves_parent_ref(self, tmp_git_repo: Path) -> None:
+        """Resolves parent ref (SHA^1) to the parent commit."""
+        # Create a second commit so HEAD^ exists.
+        (tmp_git_repo / "file2.txt").write_text("second\n")
+        subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "add", "file2.txt"],
+            check=True,
+            capture_output=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(tmp_git_repo), "commit", "-m", "second"],
+            check=True,
+            capture_output=True,
+        )
+        head_sha = _head_sha(tmp_git_repo)
+        parent_sha = rev_parse(tmp_git_repo, head_sha + "^1")
+        assert parent_sha != head_sha
+        assert len(parent_sha) == 40
+
+    def test_raises_on_invalid_ref(self, tmp_git_repo: Path) -> None:
+        """Raises CalledProcessError for a ref that does not exist."""
+        with pytest.raises(subprocess.CalledProcessError):
+            rev_parse(tmp_git_repo, "nonexistent-ref")

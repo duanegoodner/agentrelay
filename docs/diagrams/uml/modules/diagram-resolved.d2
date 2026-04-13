@@ -1,0 +1,132 @@
+direction: down
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  resolved — frozen execution records
+# ─────────────────────────────────────────────
+resolved_py: "resolved.py" {
+  InputFromSpec: "InputFromSpec <<frozen dataclass>>" {
+    shape: class
+    task: str
+    category: "str | None"
+  }
+
+  TaggedPathSpec: "TaggedPathSpec <<frozen dataclass>>" {
+    shape: class
+    path: str
+    category: str
+  }
+
+  ResolvedTask: "ResolvedTask <<frozen dataclass>>" {
+    shape: class
+    task_id: str
+    workstream_id: str
+    dependencies: "tuple[str, ...]"
+    inputs_from: "tuple[InputFromSpec, ...]"
+    role: str
+    model: "str | None"
+    tagged_paths: "tuple[TaggedPathSpec, ...]"
+    branch_name: str
+    integration_branch: str
+    integration_branch_before_merge: "str | None"
+    completed_at_attempt: int
+    pr_url: "str | None"
+    +to_dict(): dict
+    +from_dict(d): ResolvedTask
+  }
+
+  ResolvedWorkstream: "ResolvedWorkstream <<frozen dataclass>>" {
+    shape: class
+    workstream_id: str
+    integration_pr_url: "str | None"
+    target_branch: str
+    target_branch_before_any_merge: str
+    merge_occurred: bool
+    merged_at: "str | None"
+    +to_dict(): dict
+    +from_dict(d): ResolvedWorkstream
+  }
+
+  resolved_functions: "resolved_functions <<module>>" {
+    shape: class
+    module_path: resolved
+    "+build_resolved_task(runtime, sha)": ResolvedTask
+    "+build_resolved_workstream(ws_runtime)": ResolvedWorkstream
+  }
+}
+
+
+# ─── External dependencies ───
+
+orchestrator_pkg: "orchestrator/" {
+  style.opacity: 0.5
+  _OrchestratorRun: "_OrchestratorRun <<internal>>" { shape: class }
+}
+
+task_runner_pkg: "task_runner/" {
+  style.opacity: 0.5
+  task_runner_core_pkg: "core/" {
+    StandardTaskRunner: "StandardTaskRunner" { shape: class }
+  }
+}
+
+task_runtime_pkg: "task_runtime/" {
+  style.opacity: 0.5
+  TaskRuntime: "TaskRuntime <<mutable dataclass>>" { shape: class }
+}
+
+workstream_pkg: "workstream/" {
+  style.opacity: 0.5
+  workstream_core_pkg: "core/" {
+    WorkstreamRuntime: "WorkstreamRuntime" { shape: class }
+  }
+}
+
+
+# ─── Relationships ───
+
+resolved_py.ResolvedTask -> resolved_py.InputFromSpec: inputs_from { class: composition }
+resolved_py.ResolvedTask -> resolved_py.TaggedPathSpec: tagged_paths { class: composition }
+resolved_py.resolved_functions -> resolved_py.ResolvedTask: builds { class: dependency }
+resolved_py.resolved_functions -> resolved_py.ResolvedWorkstream: builds { class: dependency }
+resolved_py.resolved_functions -> task_runtime_pkg.TaskRuntime: reads { class: dependency }
+resolved_py.resolved_functions -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: reads { class: dependency }
+task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> resolved_py.resolved_functions: "writes resolved.json" { class: dependency }
+orchestrator_pkg._OrchestratorRun -> resolved_py.resolved_functions: "writes resolved.json" { class: dependency }

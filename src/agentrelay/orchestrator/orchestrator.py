@@ -18,10 +18,12 @@ from types import MappingProxyType
 from typing import Optional, Protocol, runtime_checkable
 
 from agentrelay.errors import IntegrationFailureClass
+from agentrelay.ops import signals
 from agentrelay.orchestrator.builders import (
     TaskRuntimeBuilder,
     WorkstreamRuntimeBuilder,
 )
+from agentrelay.resolved import build_resolved_workstream
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner import TaskRunner, TaskRunResult, TearDownMode
 from agentrelay.task_runtime import SUCCESS_STATUSES, TaskRuntime, TaskStatus
@@ -765,6 +767,7 @@ class _OrchestratorRun:
                 result = self._orchestrator.workstream_runner.integrate(ws_runtime)
 
                 if result.status == WorkstreamStatus.MERGED:
+                    self._write_resolved_workstream(ws_runtime)
                     self._emit(
                         OrchestratorEvent(
                             kind="workstream_integration_skipped",
@@ -827,7 +830,7 @@ class _OrchestratorRun:
             return
 
         try:
-            merger.merge(ws_runtime)
+            merge_result = merger.merge(ws_runtime)
         except Exception as exc:  # noqa: BLE001
             self._emit(
                 OrchestratorEvent(
@@ -838,7 +841,11 @@ class _OrchestratorRun:
             )
             return
 
+        ws_runtime.artifacts.target_branch_before_any_merge = (
+            merge_result.target_branch_before_merge
+        )
         ws_runtime.mark_merged()
+        self._write_resolved_workstream(ws_runtime)
         self._emit(
             OrchestratorEvent(
                 kind="workstream_auto_merged",
@@ -865,8 +872,13 @@ class _OrchestratorRun:
             ws_runtime = self._workstream_runtimes[workstream_id]
             if ws_runtime.status != WorkstreamStatus.PR_CREATED:
                 continue
-            if checker.is_merged(ws_runtime):
+            check_result = checker.is_merged(ws_runtime)
+            if check_result.merged:
+                ws_runtime.artifacts.target_branch_before_any_merge = (
+                    check_result.target_branch_before_merge
+                )
                 ws_runtime.mark_merged()
+                self._write_resolved_workstream(ws_runtime)
                 self._emit(
                     OrchestratorEvent(
                         kind="workstream_merged",
@@ -874,6 +886,21 @@ class _OrchestratorRun:
                         message=ws_runtime.artifacts.merge_pr_url,
                     ),
                 )
+
+    def _write_resolved_workstream(self, ws_runtime: WorkstreamRuntime) -> None:
+        """Write ``resolved.json`` for a successfully merged workstream.
+
+        Failures are logged but do not crash the orchestrator.
+        """
+        if ws_runtime.state.signal_dir is None:
+            return
+        try:
+            resolved = build_resolved_workstream(ws_runtime)
+            signals.write_json(
+                ws_runtime.state.signal_dir, "resolved.json", resolved.to_dict()
+            )
+        except Exception:  # noqa: BLE001
+            pass  # Non-critical — resolved.json is for resumption, not execution.
 
     def _has_pending_integration_merges(self) -> bool:
         """True if any pending task is waiting for an upstream integration merge."""

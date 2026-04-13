@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from agentrelay.ops import gh, git, signals
+from agentrelay.task_runner.core.io import TaskMergeResult
 from agentrelay.task_runtime import TaskRuntime
 
 
@@ -27,12 +28,18 @@ class GhTaskMerger:
 
     repo_path: Path
 
-    def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> None:
+    def merge_pr(self, runtime: TaskRuntime, pr_url: str) -> TaskMergeResult:
         """Merge the completed task PR.
+
+        Captures the integration branch SHA before merging for rollback
+        support. Returns a :class:`TaskMergeResult` with the pre-merge SHA.
 
         Args:
             runtime: Runtime envelope being merged.
             pr_url: Pull request URL to merge.
+
+        Returns:
+            TaskMergeResult: Pre-merge SHA of the integration branch.
 
         Raises:
             ValueError: If ``runtime.state.integration_branch`` is None.
@@ -42,6 +49,8 @@ class GhTaskMerger:
             raise ValueError(
                 "runtime.state.integration_branch must be set before merge_pr()"
             )
+
+        before_sha = git.rev_parse(self.repo_path, integration_branch)
 
         gh.pr_merge(pr_url)
 
@@ -55,3 +64,7 @@ class GhTaskMerger:
         if runtime.state.signal_dir is not None:
             timestamp = datetime.now(timezone.utc).isoformat() + "\n"
             signals.write_text(runtime.state.signal_dir, ".merged", timestamp)
+
+        return TaskMergeResult(
+            integration_branch_before_merge=before_sha,
+        )

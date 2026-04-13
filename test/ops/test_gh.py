@@ -8,7 +8,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from agentrelay.ops.gh import pr_body, pr_create, pr_is_merged, pr_merge
+from agentrelay.ops.gh import (
+    pr_body,
+    pr_create,
+    pr_is_merged,
+    pr_merge,
+    pr_merge_commit_sha,
+)
 
 
 class TestPrCreate:
@@ -177,3 +183,46 @@ class TestPrBody:
         mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
         with pytest.raises(subprocess.CalledProcessError):
             pr_body("https://github.com/org/repo/pull/99")
+
+
+class TestPrMergeCommitSha:
+    """Tests for pr_merge_commit_sha."""
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_sha_when_merged(self, mock_run: MagicMock) -> None:
+        """Returns the merge commit SHA for a merged PR."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="abc123def456\n", stderr=""
+        )
+        sha = pr_merge_commit_sha("https://github.com/org/repo/pull/42")
+
+        assert sha == "abc123def456"
+        mock_run.assert_called_once_with(
+            [
+                "gh",
+                "pr",
+                "view",
+                "https://github.com/org/repo/pull/42",
+                "--json",
+                "mergeCommit",
+                "--jq",
+                ".mergeCommit.oid",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_none_when_empty_output(self, mock_run: MagicMock) -> None:
+        """Returns None when gh returns empty output (PR not merged)."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="\n", stderr=""
+        )
+        assert pr_merge_commit_sha("https://github.com/org/repo/pull/42") is None
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_returns_none_on_subprocess_error(self, mock_run: MagicMock) -> None:
+        """Returns None on CalledProcessError instead of raising."""
+        mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
+        assert pr_merge_commit_sha("https://github.com/org/repo/pull/42") is None

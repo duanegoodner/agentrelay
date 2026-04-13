@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from agentrelay.workstream.core.io import WorkstreamIntegrator
+from agentrelay.workstream.core.io import IntegrationResult, WorkstreamIntegrator
 from agentrelay.workstream.core.runtime import (
     TaskSummary,
     WorkstreamRuntime,
@@ -195,10 +195,11 @@ class TestGhWorkstreamIntegrator:
     ) -> None:
         """Marks merged and skips gh.pr_create when branch has 0 commits ahead."""
         mock_git.rev_list_count.return_value = 0
+        mock_git.rev_parse.return_value = "target_sha_abc"
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
-        integrator.create_integration_pr(runtime)
+        result = integrator.create_integration_pr(runtime)
 
         mock_git.rev_list_count.assert_called_once_with(
             Path("/repo"), "main", "agentrelay/demo/ws-1/integration"
@@ -206,6 +207,9 @@ class TestGhWorkstreamIntegrator:
         mock_gh.pr_create.assert_not_called()
         assert runtime.status == WorkstreamStatus.MERGED
         assert runtime.artifacts.merge_pr_url is None
+        assert result == IntegrationResult(
+            skipped=True, target_branch_authoritative_sha="target_sha_abc"
+        )
 
     @patch(_GIT)
     @patch(_GH)
@@ -220,11 +224,12 @@ class TestGhWorkstreamIntegrator:
         integrator = GhWorkstreamIntegrator(repo_path=Path("/repo"))
         runtime = _make_runtime()
 
-        integrator.create_integration_pr(runtime)
+        result = integrator.create_integration_pr(runtime)
 
         mock_gh.pr_create.assert_called_once()
         assert runtime.status == WorkstreamStatus.PR_CREATED
         assert runtime.artifacts.merge_pr_url == "https://github.com/org/repo/pull/99"
+        assert result == IntegrationResult(skipped=False)
 
     @patch(_GIT)
     @patch(_GH)

@@ -1,0 +1,14 @@
+name: no-commit-single
+model: claude-sonnet-4-6
+
+# Single task that completes without a PR.
+# Validates: task COMPLETED status, resolved.json with null pr_url
+# and null integration_branch_before_merge.
+
+tasks:
+  - id: review_only
+    description: >-
+      Review the project README.md file. Summarize what the project does
+      in one sentence. Do NOT make any code changes, commits, or create a PR.
+      Complete using agentrelay-complete-no-pr.
+    dependencies: []

@@ -57,6 +57,7 @@ ops_pkg: "ops/" {
     +push_branch(repo, branch, set_upstream): void
     +push_delete_branch(repo, branch): void
     +ls_remote_branch_exists(repo, branch): bool
+    +rev_parse(repo, ref): str
     +set_config(repo, key, value): void
     +worktree_git_dir(worktree_path): Path
   }
@@ -78,6 +79,7 @@ ops_pkg: "ops/" {
     +pr_merge(pr_url): void
     +pr_body(pr_url): str
     +pr_is_merged(pr_url): bool
+    +pr_merge_commit_sha(pr_url): "str | None"
   }
 
   signals: "signals <<module>>" {
@@ -167,8 +169,11 @@ sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.git: uses { class: dependency
 workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamTeardown -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.git: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.git: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskPreparer -> ops_pkg.signals: uses { class: dependency }
 task_runner_pkg.task_runner_impl_pkg.SignalCompletionChecker -> ops_pkg.signals: uses { class: dependency }

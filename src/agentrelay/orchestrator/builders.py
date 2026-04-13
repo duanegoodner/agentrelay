@@ -268,19 +268,25 @@ def build_standard_workstream_runner(
     )
 
 
-def build_integration_merge_checker() -> GhIntegrationMergeChecker:
+def build_integration_merge_checker(repo_path: Path) -> GhIntegrationMergeChecker:
     """Build the standard integration merge checker for GitHub CLI.
+
+    Args:
+        repo_path: Path to the repository (for git ref resolution).
 
     Returns:
         A :class:`GhIntegrationMergeChecker` instance.
     """
-    return GhIntegrationMergeChecker()
+    return GhIntegrationMergeChecker(repo_path=repo_path)
 
 
-def build_integration_auto_merger() -> GhIntegrationAutoMerger:
+def build_integration_auto_merger(repo_path: Path) -> GhIntegrationAutoMerger:
     """Build the standard integration auto-merger for GitHub CLI.
+
+    Args:
+        repo_path: Path to the repository (for pre-merge SHA capture).
 
     Returns:
         A :class:`GhIntegrationAutoMerger` instance.
     """
-    return GhIntegrationAutoMerger()
+    return GhIntegrationAutoMerger(repo_path=repo_path)
