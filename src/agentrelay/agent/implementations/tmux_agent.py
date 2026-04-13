@@ -6,6 +6,7 @@ Classes:
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -86,3 +87,7 @@ class TmuxAgent(Agent):
             pane_id,
             f"Read {instructions_path} and follow the steps exactly.",
         )
+        # Claude Code >= 2.1.105 interprets the first Enter as a newline
+        # in the TUI input box. A second Enter after a brief delay submits.
+        time.sleep(0.3)
+        tmux.send_keys(pane_id, "", press_enter=True)
