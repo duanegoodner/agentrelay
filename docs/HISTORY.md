@@ -4,6 +4,15 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-13
+
+### Fix tmux kickoff prompt submission
+
+- **Double-Enter for Claude Code TUI** (PR B2): Claude Code >= 2.1.105
+  interprets the first Enter as a newline in the TUI input box rather than
+  a submit. `send_kickoff()` now sends a second Enter after a brief delay
+  to reliably submit agent kickoff prompts.
+
 ## 2026-04-09
 
 ### CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–G)

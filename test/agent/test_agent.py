@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import subprocess
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 
@@ -161,36 +161,49 @@ class TestTmuxAgentFromConfig:
 class TestTmuxAgentSendKickoff:
     """Tests for TmuxAgent.send_kickoff method."""
 
+    @patch("agentrelay.agent.implementations.tmux_agent.time.sleep")
     @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
     @patch("agentrelay.agent.implementations.tmux_agent.tmux.wait_for_tui_ready")
     def test_waits_for_tui_then_sends_prompt(
-        self, mock_wait: MagicMock, mock_send_keys: MagicMock
+        self,
+        mock_wait: MagicMock,
+        mock_send_keys: MagicMock,
+        mock_sleep: MagicMock,
     ) -> None:
-        """Waits for TUI ready, then sends the kickoff prompt."""
+        """Waits for TUI ready, then sends prompt with a second Enter to submit."""
         mock_wait.return_value = True
         agent = TmuxAgent(_address=TmuxAddress(session="s", pane_id="%42"))
 
         agent.send_kickoff("/tmp/signals/instructions.md")
 
         mock_wait.assert_called_once_with("%42")
-        mock_send_keys.assert_called_once_with(
-            "%42",
-            "Read /tmp/signals/instructions.md and follow the steps exactly.",
-        )
+        assert mock_send_keys.call_args_list == [
+            call(
+                "%42",
+                "Read /tmp/signals/instructions.md and follow the steps exactly.",
+            ),
+            call("%42", "", press_enter=True),
+        ]
+        mock_sleep.assert_called_once_with(0.3)
 
+    @patch("agentrelay.agent.implementations.tmux_agent.time.sleep")
     @patch("agentrelay.agent.implementations.tmux_agent.tmux.send_keys")
     @patch("agentrelay.agent.implementations.tmux_agent.tmux.wait_for_tui_ready")
     def test_uses_correct_pane_id(
-        self, mock_wait: MagicMock, mock_send_keys: MagicMock
+        self,
+        mock_wait: MagicMock,
+        mock_send_keys: MagicMock,
+        _mock_sleep: MagicMock,
     ) -> None:
-        """Uses the agent's pane_id for both wait and send."""
+        """Uses the agent's pane_id for both wait and send_keys calls."""
         mock_wait.return_value = True
         agent = TmuxAgent(_address=TmuxAddress(session="s", pane_id="%99"))
 
         agent.send_kickoff("/path/to/instructions.md")
 
         assert mock_wait.call_args[0][0] == "%99"
-        assert mock_send_keys.call_args[0][0] == "%99"
+        for c in mock_send_keys.call_args_list:
+            assert c[0][0] == "%99"
 
 
 # ── Tests for TmuxAddress.capture_log ──
