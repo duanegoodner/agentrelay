@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-13
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-13">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-tmux-kickoff-prompt-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix tmux kickoff prompt submission
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-09" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2331,6 +2359,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-13
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-13">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fix-tmux-kickoff-prompt-submission" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fix tmux kickoff prompt submission
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-09" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3325,6 +3381,14 @@
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
+<h2 id="2026-04-13">2026-04-13</h2>
+<h3 id="fix-tmux-kickoff-prompt-submission">Fix tmux kickoff prompt submission</h3>
+<ul>
+<li><strong>Double-Enter for Claude Code TUI</strong> (PR B2): Claude Code &gt;= 2.1.105
+  interprets the first Enter as a newline in the TUI input box rather than
+  a submit. <code>send_kickoff()</code> now sends a second Enter after a brief delay
+  to reliably submit agent kickoff prompts.</li>
+</ul>
 <h2 id="2026-04-09">2026-04-09</h2>
 <h3 id="cli-cleanup-and-diagram-tooling-sprint-2026-04-09-prs-ag">CLI cleanup and diagram tooling (sprint 2026-04-09 PRs A–G)</h3>
 <ul>

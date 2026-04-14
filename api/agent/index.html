@@ -3030,8 +3030,7 @@ the TmuxAddress (session + pane_id) of its running process.</p>
 
               <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/agentrelay/agent/implementations/tmux_agent.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">21</span>
-<span class="normal">22</span>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">22</span>
 <span class="normal">23</span>
 <span class="normal">24</span>
 <span class="normal">25</span>
@@ -3097,7 +3096,12 @@ the TmuxAddress (session + pane_id) of its running process.</p>
 <span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
-<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TmuxAgent</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A live agent running in a tmux pane.</span>
 
@@ -3165,6 +3169,10 @@ the TmuxAddress (session + pane_id) of its running process.</p>
             <span class="n">pane_id</span><span class="p">,</span>
             <span class="sa">f</span><span class="s2">&quot;Read </span><span class="si">{</span><span class="n">instructions_path</span><span class="si">}</span><span class="s2"> and follow the steps exactly.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># Claude Code &gt;= 2.1.105 interprets the first Enter as a newline</span>
+        <span class="c1"># in the TUI input box. A second Enter after a brief delay submits.</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="n">tmux</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">pane_id</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">press_enter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -3341,8 +3349,7 @@ by an :class:<code>AgentSandbox</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent/implementations/tmux_agent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">39</span>
-<span class="normal">40</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
@@ -3371,7 +3378,8 @@ by an :class:<code>AgentSandbox</code>.</p>
 <span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
-<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">69</span>
+<span class="normal">70</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">AgentConfig</span><span class="p">,</span>
@@ -3459,8 +3467,7 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/agentrelay/agent/implementations/tmux_agent.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
-<span class="normal">72</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">72</span>
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
@@ -3476,7 +3483,12 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
 <span class="normal">85</span>
 <span class="normal">86</span>
 <span class="normal">87</span>
-<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">send_kickoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instructions_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">send_kickoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instructions_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait for the agent&#39;s TUI to be ready, then send the kickoff message.</span>
 
 <span class="sd">    Sends an initial prompt to the agent pointing it to its task instructions.</span>
@@ -3494,6 +3506,10 @@ Typically the signal_dir/instructions.md file written by the orchestrator.</p>
         <span class="n">pane_id</span><span class="p">,</span>
         <span class="sa">f</span><span class="s2">&quot;Read </span><span class="si">{</span><span class="n">instructions_path</span><span class="si">}</span><span class="s2"> and follow the steps exactly.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># Claude Code &gt;= 2.1.105 interprets the first Enter as a newline</span>
+    <span class="c1"># in the TUI input box. A second Enter after a brief delay submits.</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">tmux</span><span class="o">.</span><span class="n">send_keys</span><span class="p">(</span><span class="n">pane_id</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">press_enter</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
