@@ -97,6 +97,8 @@ resolved_py: "resolved.py" {
 
 orchestrator_pkg: "orchestrator/" {
   style.opacity: 0.5
+  TaskProbe: "TaskProbe <<frozen dataclass>>" { shape: class }
+  WorkstreamProbe: "WorkstreamProbe <<frozen dataclass>>" { shape: class }
   _OrchestratorRun: "_OrchestratorRun <<internal>>" { shape: class }
 }
 
@@ -122,6 +124,8 @@ workstream_pkg: "workstream/" {
 
 # ─── Relationships ───
 
+orchestrator_pkg.TaskProbe -> resolved_py.ResolvedTask: "resolved (optional)" { class: composition }
+orchestrator_pkg.WorkstreamProbe -> resolved_py.ResolvedWorkstream: "resolved (optional)" { class: composition }
 resolved_py.ResolvedTask -> resolved_py.InputFromSpec: inputs_from { class: composition }
 resolved_py.ResolvedTask -> resolved_py.TaggedPathSpec: tagged_paths { class: composition }
 resolved_py.resolved_functions -> resolved_py.ResolvedTask: builds { class: dependency }

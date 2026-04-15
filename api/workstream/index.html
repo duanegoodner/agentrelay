@@ -1414,6 +1414,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.workstream.TaskPrProber" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskPrProber
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskPrProber">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.TaskPrProber.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.TaskPrProber.try_merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        try_merge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamIntegrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1819,6 +1858,45 @@
     <span class="md-ellipsis">
       
         is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhTaskPrProber" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GhTaskPrProber
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GhTaskPrProber">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhTaskPrProber.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhTaskPrProber.try_merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        try_merge
       
     </span>
   </a>
@@ -2057,6 +2135,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#agentrelay.workstream.TaskPrProber" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TaskPrProber
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TaskPrProber">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.TaskPrProber.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.TaskPrProber.try_merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        try_merge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#agentrelay.workstream.WorkstreamIntegrator" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2462,6 +2579,45 @@
     <span class="md-ellipsis">
       
         is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhTaskPrProber" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GhTaskPrProber
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GhTaskPrProber">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhTaskPrProber.is_merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        is_merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agentrelay.workstream.GhTaskPrProber.try_merge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        try_merge
       
     </span>
   </a>
@@ -3383,6 +3539,352 @@ performs the actual merge is the authoritative source instead.</p>
 
 
 
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.TaskPrProber" class="doc doc-heading">
+            <code>TaskPrProber</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="typing.Protocol">Protocol</span></code></p>
+
+
+
+        <p>Check and optionally merge an individual task PR.</p>
+<p>Used by the resumption probe to normalize stale <code>PR_CREATED</code> tasks
+left behind when the orchestrator was interrupted between PR creation
+and merge.  Kept behind a protocol so the probe module does not depend
+directly on <code>ops/gh</code>, matching the pattern used by
+:class:<code>TaskMerger</code>, :class:<code>IntegrationMergeChecker</code>, and
+:class:<code>IntegrationAutoMerger</code>.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@runtime_checkable</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TaskPrProber</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check and optionally merge an individual task PR.</span>
+
+<span class="sd">    Used by the resumption probe to normalize stale ``PR_CREATED`` tasks</span>
+<span class="sd">    left behind when the orchestrator was interrupted between PR creation</span>
+<span class="sd">    and merge.  Kept behind a protocol so the probe module does not depend</span>
+<span class="sd">    directly on ``ops/gh``, matching the pattern used by</span>
+<span class="sd">    :class:`TaskMerger`, :class:`IntegrationMergeChecker`, and</span>
+<span class="sd">    :class:`IntegrationAutoMerger`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether the given task PR is already merged.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pr_url: URL of the task PR to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``True`` if the PR is merged, ``False`` otherwise (including</span>
+<span class="sd">            transient failures that should not crash the probe).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Best-effort merge of the given task PR.</span>
+
+<span class="sd">        Unlike :meth:`TaskMerger.merge_pr`, this does not raise on failure.</span>
+<span class="sd">        A ``False`` return means &quot;leave for manual review&quot; — the caller</span>
+<span class="sd">        treats this as retry-eligible, not as an internal error.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pr_url: URL of the task PR to merge.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ``True`` on merge success, ``False`` on any merge failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.TaskPrProber.is_merged" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_merged</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return whether the given task PR is already merged.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>pr_url</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>URL of the task PR to check.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>True</code> if the PR is merged, <code>False</code> otherwise (including</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>transient failures that should not crash the probe).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether the given task PR is already merged.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pr_url: URL of the task PR to check.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``True`` if the PR is merged, ``False`` otherwise (including</span>
+<span class="sd">        transient failures that should not crash the probe).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.TaskPrProber.try_merge" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">try_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Best-effort merge of the given task PR.</p>
+<p>Unlike :meth:<code>TaskMerger.merge_pr</code>, this does not raise on failure.
+A <code>False</code> return means "leave for manual review" — the caller
+treats this as retry-eligible, not as an internal error.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>pr_url</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>URL of the task PR to merge.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>True</code> on merge success, <code>False</code> on any merge failure.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/core/io.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Best-effort merge of the given task PR.</span>
+
+<span class="sd">    Unlike :meth:`TaskMerger.merge_pr`, this does not raise on failure.</span>
+<span class="sd">    A ``False`` return means &quot;leave for manual review&quot; — the caller</span>
+<span class="sd">    treats this as retry-eligible, not as an internal error.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pr_url: URL of the task PR to merge.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        ``True`` on merge success, ``False`` on any merge failure.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 
 
@@ -6728,6 +7230,229 @@ commit cannot be determined.</p>
     <span class="k">return</span> <span class="n">IntegrationMergeCheckResult</span><span class="p">(</span>
         <span class="n">merged</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">target_branch_before_merge</span><span class="o">=</span><span class="n">before_sha</span>
     <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="agentrelay.workstream.GhTaskPrProber" class="doc doc-heading">
+            <code>GhTaskPrProber</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Probe task PR merge state via the GitHub CLI.</p>
+<p>Stateless thin wrapper over :func:<code>agentrelay.ops.gh.pr_is_merged</code> and
+:func:<code>agentrelay.ops.gh.pr_merge</code>.  Used by the resumption probe to
+normalize stale <code>PR_CREATED</code> tasks without depending directly on the
+<code>ops/gh</code> module, matching the protocol-isolation pattern used by
+:class:<code>GhTaskMerger</code>, :class:<code>GhIntegrationMergeChecker</code>, and
+:class:<code>GhIntegrationAutoMerger</code>.</p>
+
+
+
+
+
+
+
+
+              <details class="mkdocstrings-source">
+                <summary>Source code in <code>src/agentrelay/workstream/implementations/task_pr_prober.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GhTaskPrProber</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Probe task PR merge state via the GitHub CLI.</span>
+
+<span class="sd">    Stateless thin wrapper over :func:`agentrelay.ops.gh.pr_is_merged` and</span>
+<span class="sd">    :func:`agentrelay.ops.gh.pr_merge`.  Used by the resumption probe to</span>
+<span class="sd">    normalize stale ``PR_CREATED`` tasks without depending directly on the</span>
+<span class="sd">    ``ops/gh`` module, matching the protocol-isolation pattern used by</span>
+<span class="sd">    :class:`GhTaskMerger`, :class:`GhIntegrationMergeChecker`, and</span>
+<span class="sd">    :class:`GhIntegrationAutoMerger`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return whether the given task PR is already merged.</span>
+
+<span class="sd">        Delegates to :func:`agentrelay.ops.gh.pr_is_merged`, which returns</span>
+<span class="sd">        ``False`` on subprocess failure rather than raising — safe for use</span>
+<span class="sd">        in the probe&#39;s normalization path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_is_merged</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">try_merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Best-effort merge of the given task PR.</span>
+
+<span class="sd">        Wraps :func:`agentrelay.ops.gh.pr_merge` in a try/except so merge</span>
+<span class="sd">        failures (conflicts, branch protection, transient network errors)</span>
+<span class="sd">        return ``False`` instead of propagating a ``CalledProcessError``.</span>
+<span class="sd">        The probe treats ``False`` as retry-eligible ``FAILED``, not as an</span>
+<span class="sd">        internal error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">gh</span><span class="o">.</span><span class="n">pr_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.GhTaskPrProber.is_merged" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">is_merged</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Return whether the given task PR is already merged.</p>
+<p>Delegates to :func:<code>agentrelay.ops.gh.pr_is_merged</code>, which returns
+<code>False</code> on subprocess failure rather than raising — safe for use
+in the probe's normalization path.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/implementations/task_pr_prober.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">is_merged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return whether the given task PR is already merged.</span>
+
+<span class="sd">    Delegates to :func:`agentrelay.ops.gh.pr_is_merged`, which returns</span>
+<span class="sd">    ``False`` on subprocess failure rather than raising — safe for use</span>
+<span class="sd">    in the probe&#39;s normalization path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">gh</span><span class="o">.</span><span class="n">pr_is_merged</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="agentrelay.workstream.GhTaskPrProber.try_merge" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">try_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Best-effort merge of the given task PR.</p>
+<p>Wraps :func:<code>agentrelay.ops.gh.pr_merge</code> in a try/except so merge
+failures (conflicts, branch protection, transient network errors)
+return <code>False</code> instead of propagating a <code>CalledProcessError</code>.
+The probe treats <code>False</code> as retry-eligible <code>FAILED</code>, not as an
+internal error.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/agentrelay/workstream/implementations/task_pr_prober.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">try_merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pr_url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Best-effort merge of the given task PR.</span>
+
+<span class="sd">    Wraps :func:`agentrelay.ops.gh.pr_merge` in a try/except so merge</span>
+<span class="sd">    failures (conflicts, branch protection, transient network errors)</span>
+<span class="sd">    return ``False`` instead of propagating a ``CalledProcessError``.</span>
+<span class="sd">    The probe treats ``False`` as retry-eligible ``FAILED``, not as an</span>
+<span class="sd">    internal error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">gh</span><span class="o">.</span><span class="n">pr_merge</span><span class="p">(</span><span class="n">pr_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

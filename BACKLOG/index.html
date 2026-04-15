@@ -2088,6 +2088,29 @@
 </ul>
 <h2 id="integration">Integration</h2>
 <ul>
+<li><strong>Local-only execution mode (no remote repository)</strong>: The protocol layer
+  (<code>TaskMerger</code>, <code>WorkstreamIntegrator</code>, <code>IntegrationMergeChecker</code>,
+  <code>IntegrationAutoMerger</code>) isolates the orchestrator from GitHub <em>specifically</em>,
+  but still assumes <em>some</em> remote exists — PR creation, PR merge, push/fetch
+  are baked into the protocol method signatures and the <code>PR_CREATED</code>/<code>PR_MERGED</code>
+  status model.  A truly local-only mode (no remote, no PRs) would require:</li>
+<li>Local-merge <code>TaskMerger</code> that merges task branches into the integration
+    branch directly (git merge, no PR).</li>
+<li>Local-merge <code>WorkstreamIntegrator</code> that merges integration branches into
+    the target branch directly.</li>
+<li>Agent SDK <code>complete()</code> path that commits and signals done without calling
+    <code>gh pr create</code>.</li>
+<li>Status flow change: tasks would skip <code>PR_CREATED</code> and go directly to
+    <code>PR_MERGED</code> (or a new <code>MERGED</code> status).</li>
+<li><code>ops/git.py</code> operations that currently hardcode <code>origin</code> would need to
+    become no-ops or conditional.
+  This is a different axis than GitHub→GitLab portability (which the current
+  protocol layer supports via new <code>Gh*</code>-style implementations).  Design
+  deliberately rather than shoehorning into existing protocols.
+  Additionally, <code>agent_sdk/task_helper.py</code> calls <code>gh</code> directly — it's the
+  one place where platform coupling bypasses the protocol layer.  Decoupling
+  it was already noted as a backlog item (see platform coupling note in
+  MEMORY.md).</li>
 <li><strong>Prototype feature audit</strong>: Audit <code>src/agentrelay/prototypes/v01/</code>
   functionality, compare against the primary architecture, and determine if
   any features from the prototype are missing and ought to be added. The
@@ -2779,6 +2802,44 @@ sequence; all depend on e2e observation after graph YAML delivery ships.</p>
   files) rather than keeping panes alive after failure. The default
   <code>TearDownMode</code> has been changed to <code>ALWAYS</code> (PR D, sprint 2026-04-09);
   <code>ON_SUCCESS</code> is now an opt-in debugging mode for live pane inspection.</li>
+<li><strong>CLI tool for inspecting existing run state (<code>agentrelay probe</code>)</strong>:
+  Add a subcommand that runs the existing <code>probe_graph_state()</code> machinery
+  (landed in sprint 2026-04-12, PR C) against a graph's workflow directory
+  and prints a tabular summary of each task and workstream: status,
+  attempt number, branch name, PR URL, whether a frozen <code>resolved.json</code>
+  exists, and worktree path.  Use cases:</li>
+<li>Debugging stuck or aborted runs — "what state is this in right now?"
+    without triggering a re-run.</li>
+<li>Pre-resume inspection — see what <code>agentrelay run</code> would pick up
+    before committing to a restart (complements the resume summary
+    table that PR E will print).</li>
+<li>Operator workflows — a quick tabular view of multi-workstream state
+    instead of spelunking <code>.workflow/&lt;graph&gt;/runs/&lt;N&gt;/</code> by hand.</li>
+<li>Scripting — a <code>--json</code> output mode lets external tools query run
+    state programmatically.
+  <strong>Shape:</strong> <code>agentrelay probe &lt;graph&gt; [--run N] [--json] [--dry-run]</code>.
+  Defaults to the latest run directory; <code>--run N</code> selects a specific
+  one.  <code>--json</code> emits the probe result as structured JSON instead of
+  the tabular view.
+  <strong>Important design tension — the probe mutates disk.</strong>
+  <code>probe_graph_state()</code> writes status signal files during stale-state
+  normalization and can even merge a stale PR via the <code>TaskPrProber</code>.
+  A CLI named <code>probe</code> that users expect to be read-only would surprise
+  them.  Resolution options:</li>
+<li>Add a <code>--dry-run</code> flag (the default) that skips normalization —
+     probe reports what <em>is</em> on disk, not what the orchestrator would
+     see on resume.  A <code>--normalize</code> (or <code>--write</code>) opt-in runs the
+     mutating path.</li>
+<li>Or factor the probe into two layers: a pure read-only
+     reconstruction function and a separate normalization function.
+     The CLI calls only the read-only layer; <code>run_graph.py</code> (PR E)
+     calls both.  This is the cleaner design but requires refactoring
+     <code>probe.py</code>.
+  The refactor is probably worth doing regardless — it makes the
+  read-only probe usable from other contexts (tests, audit scripts,
+  future UI) without the mutation side effect.
+  <strong>Depends on:</strong> nothing — probe machinery already landed in PR C.
+  Can be built any time after sprint 2026-04-12 merges.</li>
 </ul>
 
 
