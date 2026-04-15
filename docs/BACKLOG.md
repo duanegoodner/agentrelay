@@ -807,3 +807,41 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   files) rather than keeping panes alive after failure. The default
   `TearDownMode` has been changed to `ALWAYS` (PR D, sprint 2026-04-09);
   `ON_SUCCESS` is now an opt-in debugging mode for live pane inspection.
+- **CLI tool for inspecting existing run state (`agentrelay probe`)**:
+  Add a subcommand that runs the existing `probe_graph_state()` machinery
+  (landed in sprint 2026-04-12, PR C) against a graph's workflow directory
+  and prints a tabular summary of each task and workstream: status,
+  attempt number, branch name, PR URL, whether a frozen `resolved.json`
+  exists, and worktree path.  Use cases:
+  - Debugging stuck or aborted runs — "what state is this in right now?"
+    without triggering a re-run.
+  - Pre-resume inspection — see what `agentrelay run` would pick up
+    before committing to a restart (complements the resume summary
+    table that PR E will print).
+  - Operator workflows — a quick tabular view of multi-workstream state
+    instead of spelunking `.workflow/<graph>/runs/<N>/` by hand.
+  - Scripting — a `--json` output mode lets external tools query run
+    state programmatically.
+  **Shape:** `agentrelay probe <graph> [--run N] [--json] [--dry-run]`.
+  Defaults to the latest run directory; `--run N` selects a specific
+  one.  `--json` emits the probe result as structured JSON instead of
+  the tabular view.
+  **Important design tension — the probe mutates disk.**
+  `probe_graph_state()` writes status signal files during stale-state
+  normalization and can even merge a stale PR via the `TaskPrProber`.
+  A CLI named `probe` that users expect to be read-only would surprise
+  them.  Resolution options:
+  1. Add a `--dry-run` flag (the default) that skips normalization —
+     probe reports what *is* on disk, not what the orchestrator would
+     see on resume.  A `--normalize` (or `--write`) opt-in runs the
+     mutating path.
+  2. Or factor the probe into two layers: a pure read-only
+     reconstruction function and a separate normalization function.
+     The CLI calls only the read-only layer; `run_graph.py` (PR E)
+     calls both.  This is the cleaner design but requires refactoring
+     `probe.py`.
+  The refactor is probably worth doing regardless — it makes the
+  read-only probe usable from other contexts (tests, audit scripts,
+  future UI) without the mutation side effect.
+  **Depends on:** nothing — probe machinery already landed in PR C.
+  Can be built any time after sprint 2026-04-12 merges.
