@@ -98,6 +98,7 @@ orchestrator_pkg: "orchestrator/" {
   Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
   TaskRuntimeBuilder: "TaskRuntimeBuilder" { shape: class }
   WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" { shape: class }
+  probe: "probe <<module>>" { shape: class }
 }
 
 run_graph_py: "run_graph.py" {
@@ -127,5 +128,6 @@ task_graph_pkg.TaskGraph -> task_graph_pkg._indexing: uses { class: dependency }
 task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: dependency }
 orchestrator_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
 orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.probe -> task_graph_pkg.TaskGraph: reads { class: dependency }
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
 run_graph_py.run_graph_functions -> task_graph_pkg.TaskGraphBuilder: loads YAML { class: dependency }

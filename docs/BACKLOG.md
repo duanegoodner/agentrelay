@@ -89,6 +89,29 @@ Near-term items for the current architecture track.
 
 ## Integration
 
+- **Local-only execution mode (no remote repository)**: The protocol layer
+  (`TaskMerger`, `WorkstreamIntegrator`, `IntegrationMergeChecker`,
+  `IntegrationAutoMerger`) isolates the orchestrator from GitHub *specifically*,
+  but still assumes *some* remote exists — PR creation, PR merge, push/fetch
+  are baked into the protocol method signatures and the `PR_CREATED`/`PR_MERGED`
+  status model.  A truly local-only mode (no remote, no PRs) would require:
+  - Local-merge `TaskMerger` that merges task branches into the integration
+    branch directly (git merge, no PR).
+  - Local-merge `WorkstreamIntegrator` that merges integration branches into
+    the target branch directly.
+  - Agent SDK `complete()` path that commits and signals done without calling
+    `gh pr create`.
+  - Status flow change: tasks would skip `PR_CREATED` and go directly to
+    `PR_MERGED` (or a new `MERGED` status).
+  - `ops/git.py` operations that currently hardcode `origin` would need to
+    become no-ops or conditional.
+  This is a different axis than GitHub→GitLab portability (which the current
+  protocol layer supports via new `Gh*`-style implementations).  Design
+  deliberately rather than shoehorning into existing protocols.
+  Additionally, `agent_sdk/task_helper.py` calls `gh` directly — it's the
+  one place where platform coupling bypasses the protocol layer.  Decoupling
+  it was already noted as a backlog item (see platform coupling note in
+  MEMORY.md).
 - **Prototype feature audit**: Audit `src/agentrelay/prototypes/v01/`
   functionality, compare against the primary architecture, and determine if
   any features from the prototype are missing and ought to be added. The

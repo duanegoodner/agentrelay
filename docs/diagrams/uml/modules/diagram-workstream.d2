@@ -143,6 +143,12 @@ workstream_pkg: "workstream/" {
       +merge(workstream_runtime): IntegrationMergeResult
     }
 
+    TaskPrProber: "TaskPrProber <<protocol>>" {
+      shape: class
+      +is_merged(pr_url): bool
+      +try_merge(pr_url): bool
+    }
+
     WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
       shape: class
       workstream_id: str
@@ -199,6 +205,12 @@ workstream_pkg: "workstream/" {
       repo_path: Path
       +merge(workstream_runtime): IntegrationMergeResult
     }
+
+    GhTaskPrProber: "GhTaskPrProber <<dataclass>>" {
+      shape: class
+      +is_merged(pr_url): bool
+      +try_merge(pr_url): bool
+    }
   }
 }
 
@@ -214,8 +226,10 @@ ops_pkg: "ops/" {
 orchestrator_pkg: "orchestrator/" {
   style.opacity: 0.5
   Orchestrator: "Orchestrator <<mutable dataclass>>" { shape: class }
+  WorkstreamProbe: "WorkstreamProbe <<frozen dataclass>>" { shape: class }
   WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" { shape: class }
   builders: "builders <<module>>" { shape: class }
+  probe: "probe <<module>>" { shape: class }
 }
 
 resolved_py: "resolved.py" {
@@ -247,6 +261,8 @@ task_py.Task -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: "workstream_i
 workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_graph_pkg.TaskGraph -> workstream_pkg.workstream_core_pkg.WorkstreamSpec: contains { class: composition }
 orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
+orchestrator_pkg.WorkstreamProbe -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
+orchestrator_pkg.probe -> workstream_pkg.workstream_core_pkg.TaskPrProber: "uses (normalization)" { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_core_pkg.StandardWorkstreamRunner: builds { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer: registers { class: dependency }
 orchestrator_pkg.builders -> workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator: registers { class: dependency }
@@ -276,6 +292,8 @@ workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.git: use
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhTaskPrProber -> workstream_pkg.workstream_core_pkg.TaskPrProber: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhTaskPrProber -> ops_pkg.gh: uses { class: dependency }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.WorkstreamRunner: "delegates workstream lifecycle" { class: composition }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationMergeChecker: "polls merge status" { class: composition }
 orchestrator_pkg.Orchestrator -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: "auto-merges integration PRs" { class: composition }

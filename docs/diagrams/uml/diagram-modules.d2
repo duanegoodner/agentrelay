@@ -72,6 +72,8 @@ task_graph_pkg -> workstream_pkg { class: dependency }
 orchestrator_pkg -> task_graph_pkg { class: dependency }
 orchestrator_pkg -> task_runtime_pkg { class: dependency }
 orchestrator_pkg -> workstream_pkg { class: dependency }
+orchestrator_pkg -> resolved_py { class: dependency }
+orchestrator_pkg -> ops_pkg { class: dependency }
 task_runner_pkg -> task_runtime_pkg { class: dependency }
 task_runner_pkg -> agent_pkg { class: dependency }
 task_runner_pkg -> errors_pkg { class: dependency }
@@ -94,7 +96,6 @@ output_pkg -> orchestrator_pkg { class: dependency }
 resolved_py -> task_runtime_pkg { class: dependency }
 resolved_py -> workstream_pkg { class: dependency }
 task_runner_pkg -> resolved_py { class: dependency }
-orchestrator_pkg -> resolved_py { class: dependency }
 agent_sdk_pkg -> agent_comm_protocol_pkg { class: dependency }
 agent_sdk_pkg -> ops_pkg { class: dependency }
 agent_comm_protocol_pkg -> tools_py { class: dependency }

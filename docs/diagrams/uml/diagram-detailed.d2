@@ -227,6 +227,12 @@ workstream_pkg: "workstream/" {
       +merge(workstream_runtime): IntegrationMergeResult
     }
 
+    TaskPrProber: "TaskPrProber <<protocol>>" {
+      shape: class
+      +is_merged(pr_url): bool
+      +try_merge(pr_url): bool
+    }
+
     WorkstreamRunResult: "WorkstreamRunResult <<frozen dataclass>>" {
       shape: class
       workstream_id: str
@@ -282,6 +288,12 @@ workstream_pkg: "workstream/" {
       shape: class
       repo_path: Path
       +merge(workstream_runtime): IntegrationMergeResult
+    }
+
+    GhTaskPrProber: "GhTaskPrProber <<dataclass>>" {
+      shape: class
+      +is_merged(pr_url): bool
+      +try_merge(pr_url): bool
     }
   }
 }
@@ -625,11 +637,13 @@ orchestrator_pkg: "orchestrator/" {
   TaskRuntimeBuilder: "TaskRuntimeBuilder" {
     shape: class
     +from_graph(graph): "dict[str, TaskRuntime]"
+    +from_probe(graph, probe): "dict[str, TaskRuntime]"
   }
 
   WorkstreamRuntimeBuilder: "WorkstreamRuntimeBuilder" {
     shape: class
     +from_graph(graph): "dict[str, WorkstreamRuntime]"
+    +from_probe(graph, probe): "dict[str, WorkstreamRuntime]"
   }
 
   builders: "builders <<module>>" {
@@ -637,6 +651,40 @@ orchestrator_pkg: "orchestrator/" {
     module_path: orchestrator.builders
     "+build_standard_runner(...)": StandardTaskRunner
     "+build_standard_workstream_runner(...)": StandardWorkstreamRunner
+  }
+
+  TaskProbe: "TaskProbe <<frozen dataclass>>" {
+    shape: class
+    task_id: str
+    status: TaskStatus
+    signal_dir: Path
+    attempt_num: int
+    branch_name: str
+    pr_url: "str | None"
+    resolved: "ResolvedTask | None"
+  }
+
+  WorkstreamProbe: "WorkstreamProbe <<frozen dataclass>>" {
+    shape: class
+    workstream_id: str
+    status: WorkstreamStatus
+    signal_dir: Path
+    worktree_path: Path
+    branch_name: str
+    merge_pr_url: "str | None"
+    resolved: "ResolvedWorkstream | None"
+  }
+
+  GraphProbe: "GraphProbe <<frozen dataclass>>" {
+    shape: class
+    task_probes: "dict[str, TaskProbe]"
+    workstream_probes: "dict[str, WorkstreamProbe]"
+  }
+
+  probe: "probe <<module>>" {
+    shape: class
+    module_path: orchestrator.probe
+    "+probe_graph_state(repo_path, graph_name, graph, run_dir, pr_prober)": GraphProbe
   }
 }
 
@@ -1266,8 +1314,22 @@ task_graph_pkg.TaskGraphBuilder -> task_graph_pkg.TaskGraph: builds { class: dep
 # --- builders (in orchestrator/) ---
 orchestrator_pkg.TaskRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
 orchestrator_pkg.TaskRuntimeBuilder -> task_runtime_pkg.TaskRuntime: builds { class: dependency }
+orchestrator_pkg.TaskRuntimeBuilder -> orchestrator_pkg.GraphProbe: "reads (from_probe)" { class: dependency }
 orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { class: dependency }
 orchestrator_pkg.WorkstreamRuntimeBuilder -> workstream_pkg.workstream_core_pkg.WorkstreamRuntime: builds { class: dependency }
+orchestrator_pkg.WorkstreamRuntimeBuilder -> orchestrator_pkg.GraphProbe: "reads (from_probe)" { class: dependency }
+
+# --- probe (in orchestrator/) ---
+orchestrator_pkg.probe -> orchestrator_pkg.GraphProbe: returns { class: dependency }
+orchestrator_pkg.GraphProbe -> orchestrator_pkg.TaskProbe: task_probes { class: composition }
+orchestrator_pkg.GraphProbe -> orchestrator_pkg.WorkstreamProbe: workstream_probes { class: composition }
+orchestrator_pkg.TaskProbe -> task_runtime_pkg.TaskStatus: status { class: composition }
+orchestrator_pkg.TaskProbe -> resolved_py.ResolvedTask: "resolved (optional)" { class: composition }
+orchestrator_pkg.WorkstreamProbe -> workstream_pkg.workstream_core_pkg.WorkstreamStatus: status { class: composition }
+orchestrator_pkg.WorkstreamProbe -> resolved_py.ResolvedWorkstream: "resolved (optional)" { class: composition }
+orchestrator_pkg.probe -> task_graph_pkg.TaskGraph: reads { class: dependency }
+orchestrator_pkg.probe -> workstream_pkg.workstream_core_pkg.TaskPrProber: "uses (normalization)" { class: dependency }
+orchestrator_pkg.probe -> ops_pkg.signals: "reads signal files" { class: dependency }
 
 # --- task_runner ---
 task_runner_pkg.task_runner_core_pkg.StandardTaskRunner -> task_runner_pkg.task_runner_core_pkg.TaskRunner: satisfies { class: implementation }
@@ -1341,6 +1403,8 @@ workstream_pkg.workstream_impl_pkg.GhIntegrationMergeChecker -> ops_pkg.git: use
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> workstream_pkg.workstream_core_pkg.IntegrationAutoMerger: satisfies { class: implementation }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.gh: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhIntegrationAutoMerger -> ops_pkg.git: uses { class: dependency }
+workstream_pkg.workstream_impl_pkg.GhTaskPrProber -> workstream_pkg.workstream_core_pkg.TaskPrProber: satisfies { class: implementation }
+workstream_pkg.workstream_impl_pkg.GhTaskPrProber -> ops_pkg.gh: uses { class: dependency }
 
 # --- orchestrator ---
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
