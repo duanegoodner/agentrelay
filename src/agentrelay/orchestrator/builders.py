@@ -22,6 +22,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
+from agentrelay.orchestrator.probe import GraphProbe
 from agentrelay.sandbox import (
     AnthropicCredential,
     ClaudeCodeAdapter,
@@ -96,6 +97,44 @@ class TaskRuntimeBuilder:
             runtimes[task_id] = TaskRuntime(task=graph.task(task_id))
         return runtimes
 
+    @classmethod
+    def from_probe(cls, graph: TaskGraph, probe: GraphProbe) -> dict[str, TaskRuntime]:
+        """Build runtimes pre-populated from a disk probe.
+
+        Each runtime's :class:`TaskState` and :class:`TaskArtifacts` are
+        populated from the corresponding :class:`TaskProbe` when the task's
+        signal directory exists on disk.  Tasks that never started (no
+        signal dir) get fresh default state equivalent to
+        :meth:`from_graph`.
+
+        ``integration_branch`` and ``workstream_worktree_path`` on
+        ``TaskState`` are **not** set here — the orchestrator sets those
+        at dispatch time from the corresponding workstream runtime.
+        Transient per-attempt fields (``agent_address``, ``sandbox``,
+        ``sandbox_context``) are also intentionally left at their
+        defaults; they belong to a live agent session and are discarded
+        across orchestrator restarts.
+
+        Args:
+            graph: Validated immutable task graph.
+            probe: Result of :func:`probe_graph_state` for the same graph.
+
+        Returns:
+            dict[str, TaskRuntime]: Task runtimes keyed by task ID.
+        """
+        runtimes: dict[str, TaskRuntime] = {}
+        for task_id in graph.task_ids():
+            task = graph.task(task_id)
+            task_probe = probe.task_probes[task_id]
+            runtime = TaskRuntime(task=task)
+            if task_probe.signal_dir.is_dir():
+                runtime.state.signal_dir = task_probe.signal_dir
+                runtime.state.branch_name = task_probe.branch_name
+                runtime.state.attempt_num = task_probe.attempt_num
+                runtime.artifacts.pr_url = task_probe.pr_url
+            runtimes[task_id] = runtime
+        return runtimes
+
 
 class WorkstreamRuntimeBuilder:
     """Builder for initializing per-workstream runtime envelopes from a graph."""
@@ -118,6 +157,46 @@ class WorkstreamRuntimeBuilder:
             runtimes[workstream_id] = WorkstreamRuntime(
                 spec=graph.workstream(workstream_id)
             )
+        return runtimes
+
+    @classmethod
+    def from_probe(
+        cls, graph: TaskGraph, probe: GraphProbe
+    ) -> dict[str, WorkstreamRuntime]:
+        """Build runtimes pre-populated from a disk probe.
+
+        Each runtime's :class:`WorkstreamState` and
+        :class:`WorkstreamArtifacts` are populated from the corresponding
+        :class:`WorkstreamProbe` when the workstream's signal directory
+        exists on disk.  Workstreams that never prepared (no signal dir)
+        get fresh default state equivalent to :meth:`from_graph`.
+
+        If the probe carries a frozen :class:`ResolvedWorkstream` record,
+        its ``target_branch_before_any_merge`` value is copied into
+        ``runtime.artifacts`` so downstream rollback logic can reach it
+        without re-reading ``resolved.json``.
+
+        Args:
+            graph: Validated immutable task graph.
+            probe: Result of :func:`probe_graph_state` for the same graph.
+
+        Returns:
+            dict[str, WorkstreamRuntime]: Workstream runtimes keyed by ID.
+        """
+        runtimes: dict[str, WorkstreamRuntime] = {}
+        for workstream_id in graph.workstream_ids():
+            ws_probe = probe.workstream_probes[workstream_id]
+            runtime = WorkstreamRuntime(spec=graph.workstream(workstream_id))
+            if ws_probe.signal_dir.is_dir():
+                runtime.state.signal_dir = ws_probe.signal_dir
+                runtime.state.worktree_path = ws_probe.worktree_path
+                runtime.state.branch_name = ws_probe.branch_name
+                runtime.artifacts.merge_pr_url = ws_probe.merge_pr_url
+                if ws_probe.resolved is not None:
+                    runtime.artifacts.target_branch_before_any_merge = (
+                        ws_probe.resolved.target_branch_before_any_merge
+                    )
+            runtimes[workstream_id] = runtime
         return runtimes
 
 
