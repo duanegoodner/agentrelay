@@ -156,12 +156,53 @@ class IntegrationAutoMerger(Protocol):
         ...
 
 
+@runtime_checkable
+class TaskPrProber(Protocol):
+    """Check and optionally merge an individual task PR.
+
+    Used by the resumption probe to normalize stale ``PR_CREATED`` tasks
+    left behind when the orchestrator was interrupted between PR creation
+    and merge.  Kept behind a protocol so the probe module does not depend
+    directly on ``ops/gh``, matching the pattern used by
+    :class:`TaskMerger`, :class:`IntegrationMergeChecker`, and
+    :class:`IntegrationAutoMerger`.
+    """
+
+    def is_merged(self, pr_url: str) -> bool:
+        """Return whether the given task PR is already merged.
+
+        Args:
+            pr_url: URL of the task PR to check.
+
+        Returns:
+            ``True`` if the PR is merged, ``False`` otherwise (including
+            transient failures that should not crash the probe).
+        """
+        ...
+
+    def try_merge(self, pr_url: str) -> bool:
+        """Best-effort merge of the given task PR.
+
+        Unlike :meth:`TaskMerger.merge_pr`, this does not raise on failure.
+        A ``False`` return means "leave for manual review" — the caller
+        treats this as retry-eligible, not as an internal error.
+
+        Args:
+            pr_url: URL of the task PR to merge.
+
+        Returns:
+            ``True`` on merge success, ``False`` on any merge failure.
+        """
+        ...
+
+
 __all__ = [
     "IntegrationAutoMerger",
     "IntegrationMergeCheckResult",
     "IntegrationMergeChecker",
     "IntegrationMergeResult",
     "IntegrationResult",
+    "TaskPrProber",
     "WorkstreamIntegrator",
     "WorkstreamPreparer",
     "WorkstreamTeardown",
