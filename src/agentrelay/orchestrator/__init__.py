@@ -21,8 +21,15 @@ from agentrelay.orchestrator.orchestrator import (
     OrchestratorResult,
     TaskOutcomeClass,
 )
+from agentrelay.orchestrator.probe import (
+    GraphProbe,
+    TaskProbe,
+    WorkstreamProbe,
+    probe_graph_state,
+)
 
 __all__ = [
+    "GraphProbe",
     "Orchestrator",
     "OrchestratorConfig",
     "OrchestratorEvent",
@@ -30,10 +37,13 @@ __all__ = [
     "OrchestratorOutcome",
     "OrchestratorResult",
     "TaskOutcomeClass",
+    "TaskProbe",
     "TaskRuntimeBuilder",
+    "WorkstreamProbe",
     "WorkstreamRuntimeBuilder",
     "build_integration_auto_merger",
     "build_integration_merge_checker",
     "build_standard_runner",
     "build_standard_workstream_runner",
+    "probe_graph_state",
 ]
