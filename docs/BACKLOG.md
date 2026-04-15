@@ -89,6 +89,29 @@ Near-term items for the current architecture track.
 
 ## Integration
 
+- **Local-only execution mode (no remote repository)**: The protocol layer
+  (`TaskMerger`, `WorkstreamIntegrator`, `IntegrationMergeChecker`,
+  `IntegrationAutoMerger`) isolates the orchestrator from GitHub *specifically*,
+  but still assumes *some* remote exists — PR creation, PR merge, push/fetch
+  are baked into the protocol method signatures and the `PR_CREATED`/`PR_MERGED`
+  status model.  A truly local-only mode (no remote, no PRs) would require:
+  - Local-merge `TaskMerger` that merges task branches into the integration
+    branch directly (git merge, no PR).
+  - Local-merge `WorkstreamIntegrator` that merges integration branches into
+    the target branch directly.
+  - Agent SDK `complete()` path that commits and signals done without calling
+    `gh pr create`.
+  - Status flow change: tasks would skip `PR_CREATED` and go directly to
+    `PR_MERGED` (or a new `MERGED` status).
+  - `ops/git.py` operations that currently hardcode `origin` would need to
+    become no-ops or conditional.
+  This is a different axis than GitHub→GitLab portability (which the current
+  protocol layer supports via new `Gh*`-style implementations).  Design
+  deliberately rather than shoehorning into existing protocols.
+  Additionally, `agent_sdk/task_helper.py` calls `gh` directly — it's the
+  one place where platform coupling bypasses the protocol layer.  Decoupling
+  it was already noted as a backlog item (see platform coupling note in
+  MEMORY.md).
 - **Prototype feature audit**: Audit `src/agentrelay/prototypes/v01/`
   functionality, compare against the primary architecture, and determine if
   any features from the prototype are missing and ought to be added. The
@@ -784,3 +807,41 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   files) rather than keeping panes alive after failure. The default
   `TearDownMode` has been changed to `ALWAYS` (PR D, sprint 2026-04-09);
   `ON_SUCCESS` is now an opt-in debugging mode for live pane inspection.
+- **CLI tool for inspecting existing run state (`agentrelay probe`)**:
+  Add a subcommand that runs the existing `probe_graph_state()` machinery
+  (landed in sprint 2026-04-12, PR C) against a graph's workflow directory
+  and prints a tabular summary of each task and workstream: status,
+  attempt number, branch name, PR URL, whether a frozen `resolved.json`
+  exists, and worktree path.  Use cases:
+  - Debugging stuck or aborted runs — "what state is this in right now?"
+    without triggering a re-run.
+  - Pre-resume inspection — see what `agentrelay run` would pick up
+    before committing to a restart (complements the resume summary
+    table that PR E will print).
+  - Operator workflows — a quick tabular view of multi-workstream state
+    instead of spelunking `.workflow/<graph>/runs/<N>/` by hand.
+  - Scripting — a `--json` output mode lets external tools query run
+    state programmatically.
+  **Shape:** `agentrelay probe <graph> [--run N] [--json] [--dry-run]`.
+  Defaults to the latest run directory; `--run N` selects a specific
+  one.  `--json` emits the probe result as structured JSON instead of
+  the tabular view.
+  **Important design tension — the probe mutates disk.**
+  `probe_graph_state()` writes status signal files during stale-state
+  normalization and can even merge a stale PR via the `TaskPrProber`.
+  A CLI named `probe` that users expect to be read-only would surprise
+  them.  Resolution options:
+  1. Add a `--dry-run` flag (the default) that skips normalization —
+     probe reports what *is* on disk, not what the orchestrator would
+     see on resume.  A `--normalize` (or `--write`) opt-in runs the
+     mutating path.
+  2. Or factor the probe into two layers: a pure read-only
+     reconstruction function and a separate normalization function.
+     The CLI calls only the read-only layer; `run_graph.py` (PR E)
+     calls both.  This is the cleaner design but requires refactoring
+     `probe.py`.
+  The refactor is probably worth doing regardless — it makes the
+  read-only probe usable from other contexts (tests, audit scripts,
+  future UI) without the mutation side effect.
+  **Depends on:** nothing — probe machinery already landed in PR C.
+  Can be built any time after sprint 2026-04-12 merges.

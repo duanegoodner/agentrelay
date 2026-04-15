@@ -15,6 +15,7 @@ from agentrelay.workstream.core.io import (
     IntegrationMergeCheckResult,
     IntegrationMergeResult,
     IntegrationResult,
+    TaskPrProber,
     WorkstreamIntegrator,
     WorkstreamPreparer,
     WorkstreamTeardown,
@@ -38,6 +39,9 @@ from agentrelay.workstream.implementations.integration_auto_merger import (
 from agentrelay.workstream.implementations.integration_merge_checker import (
     GhIntegrationMergeChecker,
 )
+from agentrelay.workstream.implementations.task_pr_prober import (
+    GhTaskPrProber,
+)
 from agentrelay.workstream.implementations.workstream_integrator import (
     GhWorkstreamIntegrator,
 )
@@ -51,6 +55,7 @@ from agentrelay.workstream.implementations.workstream_teardown import (
 __all__ = [
     "GhIntegrationAutoMerger",
     "GhIntegrationMergeChecker",
+    "GhTaskPrProber",
     "GhWorkstreamIntegrator",
     "GitWorkstreamPreparer",
     "GitWorkstreamTeardown",
@@ -59,6 +64,7 @@ __all__ = [
     "IntegrationMergeChecker",
     "IntegrationMergeResult",
     "IntegrationResult",
+    "TaskPrProber",
     "TaskSummary",
     "WorkstreamArtifacts",
     "WorkstreamIntegrator",
