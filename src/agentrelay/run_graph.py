@@ -462,10 +462,12 @@ def _copy_frozen_artifacts(
     - ``status/`` signal files (so ``_read_task_status_from_signals`` returns
       the correct terminal status)
 
-    For each MERGED workstream, copies:
-    - ``resolved.json``
-    - All signal files (so workstream status reads as MERGED and the
-      orchestrator does not attempt to re-create integration PRs)
+    For each non-PENDING workstream, copies all signal files (and
+    ``resolved.json`` if present).  Without these files the orchestrator
+    cannot read the correct workstream status — for example, a
+    ``PR_CREATED`` workstream would appear PENDING, and
+    ``_refresh_workstream_terminal_states`` would try to write
+    ``merge_ready`` to a missing ``signal_dir``.
 
     Args:
         prior_run_dir: Path to the prior run directory.
@@ -499,9 +501,11 @@ def _copy_frozen_artifacts(
                     shutil.copy2(signal_file, dst_status / signal_file.name)
 
     for ws_id, ws_probe in probe.workstream_probes.items():
-        if ws_probe.status != WorkstreamStatus.MERGED:
+        if ws_probe.status == WorkstreamStatus.PENDING:
             continue
         src_dir = prior_run_dir / "workstreams" / ws_id
+        if not src_dir.is_dir():
+            continue
         dst_dir = new_run_dir / "workstreams" / ws_id
         dst_dir.mkdir(parents=True, exist_ok=True)
 
@@ -522,9 +526,12 @@ def _build_resume_runtimes(
     were copied by :func:`_copy_frozen_artifacts`).  Non-frozen tasks
     start as PENDING with default state.
 
-    MERGED workstreams get their state populated from the probe.
-    Non-MERGED workstreams start as PENDING — the orchestrator will call
-    ``prepare()`` which is idempotent (PR D reuses existing worktrees).
+    Non-PENDING workstreams get their state populated from the probe
+    (signal_dir, worktree_path, branch_name, merge_pr_url).  This
+    ensures the orchestrator can read the correct status and write
+    status transitions.  PENDING workstreams start with default state —
+    the orchestrator will call ``prepare()`` which is idempotent (PR D
+    reuses existing worktrees).
 
     Args:
         graph: Current graph definition.
@@ -546,7 +553,7 @@ def _build_resume_runtimes(
 
     workstream_runtimes = WorkstreamRuntimeBuilder.from_graph(graph)
     for ws_id, ws_probe in probe.workstream_probes.items():
-        if ws_probe.status != WorkstreamStatus.MERGED:
+        if ws_probe.status == WorkstreamStatus.PENDING:
             continue
         ws_runtime = workstream_runtimes[ws_id]
         ws_runtime.state.signal_dir = new_run_dir / "workstreams" / ws_id

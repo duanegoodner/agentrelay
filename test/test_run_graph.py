@@ -1117,6 +1117,41 @@ def test_copy_frozen_artifacts_copies_merged_workstream(tmp_path: Path) -> None:
     assert (dst / "pr_created").is_file()
 
 
+def test_copy_frozen_artifacts_copies_pr_created_workstream(tmp_path: Path) -> None:
+    """Copies signal files for PR_CREATED workstreams (not just MERGED)."""
+    prior = tmp_path / "prior"
+    ws_dir = prior / "workstreams" / "ws-1"
+    ws_dir.mkdir(parents=True)
+    (ws_dir / "pending").write_text("")
+    (ws_dir / "active").write_text("")
+    (ws_dir / "merge_ready").write_text("")
+    (ws_dir / "pr_created").write_text("https://github.com/test/repo/pull/10")
+
+    probe = GraphProbe(
+        task_probes={},
+        workstream_probes={"ws-1": _make_ws_probe("ws-1", status="pr_created")},
+    )
+    new = tmp_path / "new"
+    _copy_frozen_artifacts(prior, new, probe)
+
+    dst = new / "workstreams" / "ws-1"
+    assert (dst / "pr_created").is_file()
+    assert (dst / "active").is_file()
+
+
+def test_copy_frozen_artifacts_skips_pending_workstream(tmp_path: Path) -> None:
+    """PENDING workstreams are not copied."""
+    prior = tmp_path / "prior"
+    probe = GraphProbe(
+        task_probes={},
+        workstream_probes={"ws-1": _make_ws_probe("ws-1", status="pending")},
+    )
+    new = tmp_path / "new"
+    _copy_frozen_artifacts(prior, new, probe)
+
+    assert not (new / "workstreams" / "ws-1").exists()
+
+
 # --- _compare_run_configs ---
 
 
