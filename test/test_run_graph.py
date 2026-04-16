@@ -9,18 +9,29 @@ import pytest
 
 from agentrelay.orchestrator import OrchestratorConfig
 from agentrelay.orchestrator.builders import build_standard_workstream_runner
+from agentrelay.orchestrator.probe import (  # noqa: F401
+    GraphProbe,
+    TaskProbe,
+    WorkstreamProbe,
+)
+from agentrelay.resolved import ResolvedTask, ResolvedWorkstream  # noqa: F401
 from agentrelay.run_graph import (
     OperationalConfig,
     _any_task_uses_oci,
     _apply_overrides,
     _build_parser,
-    _ConflictError,
+    _build_resume_runtimes,
+    _compare_run_configs,
+    _copy_frozen_artifacts,
     _copy_graph_yaml,
     _extract_operational_config,
     _load_and_prepare_graph,
+    _read_prior_start_head,
     _record_run_config,
+    _record_run_start,
     _resolve_override,
-    _resolve_run_dir,
+    _resolve_run_context,
+    _RunContext,
     dry_run,
 )
 from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
@@ -538,30 +549,47 @@ def test_record_run_config_handles_none_optionals(tmp_path: Path) -> None:
     assert data["anthropic_credential"] is None
 
 
-# --- _resolve_run_dir ---
+# --- _resolve_run_context ---
 
 
-def test_resolve_run_dir_fresh_returns_runs_0(tmp_path: Path) -> None:
+def test_resolve_run_context_fresh_returns_runs_0(tmp_path: Path) -> None:
     """Fresh run (nothing exists) returns runs/0/ and creates it."""
-    run_dir = _resolve_run_dir(tmp_path, "my-graph")
-    assert run_dir == tmp_path / ".workflow" / "my-graph" / "runs" / "0"
-    assert run_dir.is_dir()
+    ctx = _resolve_run_context(tmp_path, "my-graph")
+    assert ctx.run_dir == tmp_path / ".workflow" / "my-graph" / "runs" / "0"
+    assert ctx.run_dir.is_dir()
+    assert ctx.prior_run_dir is None
+    assert ctx.is_resume is False
+    assert ctx.run_number == 0
+    assert ctx.prior_run_number is None
 
 
-def test_resolve_run_dir_raises_on_existing_workflow(tmp_path: Path) -> None:
-    """Raises _ConflictError if .workflow/<graph>/ already exists."""
-    workflow_dir = tmp_path / ".workflow" / "my-graph"
-    workflow_dir.mkdir(parents=True)
-    with pytest.raises(_ConflictError, match="Leftover state"):
-        _resolve_run_dir(tmp_path, "my-graph")
+def test_resolve_run_context_resume_creates_next_run(tmp_path: Path) -> None:
+    """Resume creates runs/1/ when runs/0/ exists."""
+    run_0 = tmp_path / ".workflow" / "my-graph" / "runs" / "0"
+    run_0.mkdir(parents=True)
+    ctx = _resolve_run_context(tmp_path, "my-graph")
+    assert ctx.run_dir == tmp_path / ".workflow" / "my-graph" / "runs" / "1"
+    assert ctx.run_dir.is_dir()
+    assert ctx.prior_run_dir == run_0
+    assert ctx.is_resume is True
+    assert ctx.run_number == 1
+    assert ctx.prior_run_number == 0
 
 
-def test_resolve_run_dir_raises_on_existing_worktrees(tmp_path: Path) -> None:
-    """Raises _ConflictError if .worktrees/<graph>/ already exists."""
-    worktree_dir = tmp_path / ".worktrees" / "my-graph"
-    worktree_dir.mkdir(parents=True)
-    with pytest.raises(_ConflictError, match="Leftover state"):
-        _resolve_run_dir(tmp_path, "my-graph")
+def test_resolve_run_context_resume_multiple_prior_runs(tmp_path: Path) -> None:
+    """Resume finds latest run and creates N+1."""
+    for i in range(3):
+        (tmp_path / ".workflow" / "g" / "runs" / str(i)).mkdir(parents=True)
+    ctx = _resolve_run_context(tmp_path, "g")
+    assert ctx.run_number == 3
+    assert ctx.prior_run_number == 2
+
+
+def test_resolve_run_context_workflow_exists_no_runs_raises(tmp_path: Path) -> None:
+    """Workflow dir exists but no runs/ subdir raises RuntimeError."""
+    (tmp_path / ".workflow" / "g").mkdir(parents=True)
+    with pytest.raises(RuntimeError, match="no run directories"):
+        _resolve_run_context(tmp_path, "g")
 
 
 # --- docker_build.sh syntax ---
@@ -947,3 +975,263 @@ def test_docker_build_script_is_valid_bash() -> None:
         text=True,
     )
     assert result.returncode == 0, f"Bash syntax error: {result.stderr}"
+
+
+# --- _copy_frozen_artifacts ---
+
+
+def _make_task_probe(
+    task_id: str,
+    *,
+    resolved: bool = False,
+    status: str = "pending",
+) -> TaskProbe:
+    """Build a minimal TaskProbe for testing."""
+    from agentrelay.task_runtime import TaskStatus
+
+    status_enum = TaskStatus(status)
+    resolved_obj: ResolvedTask | None = None
+    if resolved:
+        resolved_obj = ResolvedTask(
+            task_id=task_id,
+            workstream_id="ws-1",
+            dependencies=(),
+            inputs_from=(),
+            role="generic",
+            model=None,
+            tagged_paths=(),
+            branch_name=f"agentrelay/g/{task_id}",
+            integration_branch="agentrelay/g/ws-1/integration",
+            integration_branch_before_merge="abc123",
+            completed_at_attempt=0,
+            pr_url=f"https://github.com/test/repo/pull/1",
+        )
+    return TaskProbe(
+        task_id=task_id,
+        status=status_enum,
+        signal_dir=Path("/fake/signals") / task_id,
+        attempt_num=0,
+        branch_name=f"agentrelay/g/{task_id}",
+        pr_url=f"https://github.com/test/repo/pull/1" if resolved else None,
+        resolved=resolved_obj,
+    )
+
+
+def _make_ws_probe(
+    ws_id: str,
+    *,
+    status: str = "pending",
+    resolved: bool = False,
+) -> WorkstreamProbe:
+    """Build a minimal WorkstreamProbe for testing."""
+    from agentrelay.workstream.core.runtime import WorkstreamStatus
+
+    status_enum = WorkstreamStatus(status)
+    resolved_obj = None
+    if resolved:
+        resolved_obj = ResolvedWorkstream(
+            workstream_id=ws_id,
+            integration_pr_url="https://github.com/test/repo/pull/10",
+            target_branch="main",
+            target_branch_before_any_merge="def456",
+            merge_occurred=True,
+            merged_at="2026-04-16T00:00:00Z",
+        )
+    return WorkstreamProbe(
+        workstream_id=ws_id,
+        status=status_enum,
+        signal_dir=Path("/fake/workstreams") / ws_id,
+        worktree_path=Path("/fake/.worktrees/g") / ws_id,
+        branch_name=f"agentrelay/g/{ws_id}/integration",
+        merge_pr_url="https://github.com/test/repo/pull/10" if resolved else None,
+        resolved=resolved_obj,
+    )
+
+
+def test_copy_frozen_artifacts_copies_resolved_and_outputs(tmp_path: Path) -> None:
+    """Copies resolved.json, outputs.json, and status files for frozen tasks."""
+    prior = tmp_path / "prior"
+    new = tmp_path / "new"
+
+    # Set up prior run signal dir for a frozen task.
+    sig = prior / "signals" / "task_a"
+    (sig / "status").mkdir(parents=True)
+    (sig / "resolved.json").write_text('{"task_id": "task_a"}')
+    (sig / "outputs.json").write_text('{"files": []}')
+    (sig / "status" / "pr_merged").write_text("")
+
+    probe = GraphProbe(
+        task_probes={
+            "task_a": _make_task_probe("task_a", resolved=True, status="pr_merged")
+        },
+        workstream_probes={},
+    )
+    _copy_frozen_artifacts(prior, new, probe)
+
+    dst = new / "signals" / "task_a"
+    assert (dst / "resolved.json").is_file()
+    assert (dst / "outputs.json").is_file()
+    assert (dst / "status" / "pr_merged").is_file()
+
+
+def test_copy_frozen_artifacts_skips_non_frozen_tasks(tmp_path: Path) -> None:
+    """Non-frozen tasks (no resolved.json) are not copied."""
+    prior = tmp_path / "prior"
+    sig = prior / "signals" / "task_b"
+    (sig / "status").mkdir(parents=True)
+    (sig / "status" / "failed").write_text("")
+
+    probe = GraphProbe(
+        task_probes={
+            "task_b": _make_task_probe("task_b", resolved=False, status="failed")
+        },
+        workstream_probes={},
+    )
+    new = tmp_path / "new"
+    _copy_frozen_artifacts(prior, new, probe)
+
+    assert not (new / "signals" / "task_b").exists()
+
+
+def test_copy_frozen_artifacts_copies_merged_workstream(tmp_path: Path) -> None:
+    """Copies signal files for MERGED workstreams."""
+    prior = tmp_path / "prior"
+    ws_dir = prior / "workstreams" / "ws-1"
+    ws_dir.mkdir(parents=True)
+    (ws_dir / "resolved.json").write_text('{"workstream_id": "ws-1"}')
+    (ws_dir / "merged").write_text("")
+    (ws_dir / "pr_created").write_text("https://github.com/test/repo/pull/10")
+
+    probe = GraphProbe(
+        task_probes={},
+        workstream_probes={
+            "ws-1": _make_ws_probe("ws-1", status="merged", resolved=True)
+        },
+    )
+    new = tmp_path / "new"
+    _copy_frozen_artifacts(prior, new, probe)
+
+    dst = new / "workstreams" / "ws-1"
+    assert (dst / "resolved.json").is_file()
+    assert (dst / "merged").is_file()
+    assert (dst / "pr_created").is_file()
+
+
+# --- _compare_run_configs ---
+
+
+def test_compare_run_configs_matching(tmp_path: Path) -> None:
+    """Matching configs return no warnings."""
+    config = OrchestratorConfig()
+    (tmp_path / "run_config.json").write_text(
+        json.dumps(
+            {
+                "max_concurrency": config.max_concurrency,
+                "max_task_attempts": config.max_task_attempts,
+                "task_teardown_mode": config.task_teardown_mode.value,
+                "model": None,
+                "sandbox": None,
+            }
+        )
+    )
+    warnings = _compare_run_configs(tmp_path, config, model=None, sandbox=None)
+    assert warnings == []
+
+
+def test_compare_run_configs_detects_changes(tmp_path: Path) -> None:
+    """Differing fields produce warnings."""
+    config = OrchestratorConfig(max_concurrency=4)
+    (tmp_path / "run_config.json").write_text(
+        json.dumps(
+            {
+                "max_concurrency": 2,
+                "max_task_attempts": config.max_task_attempts,
+                "task_teardown_mode": config.task_teardown_mode.value,
+                "model": None,
+                "sandbox": None,
+            }
+        )
+    )
+    warnings = _compare_run_configs(tmp_path, config, model=None, sandbox=None)
+    assert len(warnings) == 1
+    assert "max_concurrency" in warnings[0]
+
+
+def test_compare_run_configs_missing_file(tmp_path: Path) -> None:
+    """Missing run_config.json returns empty list."""
+    config = OrchestratorConfig()
+    warnings = _compare_run_configs(tmp_path, config, model=None, sandbox=None)
+    assert warnings == []
+
+
+# --- _read_prior_start_head / _record_run_start ---
+
+
+def test_read_prior_start_head(tmp_path: Path) -> None:
+    """Reads start_head from run_info.json."""
+    (tmp_path / "run_info.json").write_text(
+        json.dumps({"start_head": "abc123", "started_at": "2026-01-01T00:00:00Z"})
+    )
+    assert _read_prior_start_head(tmp_path) == "abc123"
+
+
+def test_record_run_start_with_override(tmp_path: Path) -> None:
+    """start_head override is written instead of git rev-parse."""
+    _record_run_start(tmp_path, tmp_path, start_head="override_sha")
+    data = json.loads((tmp_path / "run_info.json").read_text())
+    assert data["start_head"] == "override_sha"
+
+
+# --- _build_resume_runtimes ---
+
+
+def test_build_resume_runtimes_frozen_task(tmp_path: Path) -> None:
+    """Frozen task gets signal_dir and branch_name from probe."""
+    from agentrelay.task_graph import TaskGraphBuilder
+    from agentrelay.task_runtime import TaskStatus
+
+    graph = TaskGraphBuilder.from_dict(
+        {"name": "g", "tasks": [{"id": "task_a", "description": "first"}]}
+    )
+    # Set up signal dir in new run dir (as _copy_frozen_artifacts would).
+    sig_dir = tmp_path / "signals" / "task_a" / "status"
+    sig_dir.mkdir(parents=True)
+    (sig_dir / "pr_merged").write_text("")
+    (tmp_path / "signals" / "task_a" / "resolved.json").write_text("{}")
+
+    probe = GraphProbe(
+        task_probes={
+            "task_a": _make_task_probe("task_a", resolved=True, status="pr_merged")
+        },
+        workstream_probes={
+            ws_id: _make_ws_probe(ws_id) for ws_id in graph.workstream_ids()
+        },
+    )
+    task_rts, _ws_rts = _build_resume_runtimes(graph, probe, tmp_path)
+
+    rt = task_rts["task_a"]
+    assert rt.state.signal_dir == tmp_path / "signals" / "task_a"
+    assert rt.status == TaskStatus.PR_MERGED
+
+
+def test_build_resume_runtimes_non_frozen_task(tmp_path: Path) -> None:
+    """Non-frozen task starts as PENDING with no signal_dir."""
+    from agentrelay.task_graph import TaskGraphBuilder
+    from agentrelay.task_runtime import TaskStatus
+
+    graph = TaskGraphBuilder.from_dict(
+        {"name": "g", "tasks": [{"id": "task_a", "description": "first"}]}
+    )
+    probe = GraphProbe(
+        task_probes={
+            "task_a": _make_task_probe("task_a", resolved=False, status="failed")
+        },
+        workstream_probes={
+            ws_id: _make_ws_probe(ws_id) for ws_id in graph.workstream_ids()
+        },
+    )
+    task_rts, _ = _build_resume_runtimes(graph, probe, tmp_path)
+
+    rt = task_rts["task_a"]
+    assert rt.state.signal_dir is None
+    assert rt.status == TaskStatus.PENDING

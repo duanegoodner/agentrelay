@@ -65,6 +65,7 @@ from agentrelay.workstream.implementations.integration_auto_merger import (
 from agentrelay.workstream.implementations.integration_merge_checker import (
     GhIntegrationMergeChecker,
 )
+from agentrelay.workstream.implementations.task_pr_prober import GhTaskPrProber
 from agentrelay.workstream.implementations.workstream_integrator import (
     GhWorkstreamIntegrator,
 )
@@ -369,3 +370,15 @@ def build_integration_auto_merger(repo_path: Path) -> GhIntegrationAutoMerger:
         A :class:`GhIntegrationAutoMerger` instance.
     """
     return GhIntegrationAutoMerger(repo_path=repo_path)
+
+
+def build_task_pr_prober() -> GhTaskPrProber:
+    """Build the standard task PR prober for GitHub CLI.
+
+    Used during graph resumption to normalize stale ``PR_CREATED`` tasks
+    by checking whether the PR was merged and optionally merging it.
+
+    Returns:
+        A :class:`GhTaskPrProber` instance.
+    """
+    return GhTaskPrProber()

@@ -21,6 +21,23 @@ Near-term items for the current architecture track.
   early users during the conversion, and "reset and re-run the entire graph
   because task 8 failed" is a poor first experience. Weigh against the risk
   of scope creep delaying the Rust timeline.
+- **Per-run worktrees**: Currently worktrees live at
+  `.worktrees/<graph>/<ws-id>/` and are shared across runs. An
+  alternative model would make worktrees per-run
+  (`.worktrees/<graph>/runs/<N>/<ws-id>/`), giving each run a completely
+  clean worktree and preserving prior runs' worktrees as read-only
+  artifacts. This would enable agents to inspect what a previous run's
+  agent did in the worktree (WIP commits, partial changes) without the
+  complexity of preserving the live worktree state across restarts.
+  **Skepticism**: unclear whether this would ever be worthwhile. The
+  current shared-worktree model works well — PR D makes preparation
+  idempotent for reuse, and agent instructions can reference prior run
+  artifacts (logs, concerns, signal files) without needing the worktree
+  itself. Per-run worktrees would increase disk usage, change the
+  worktree lifecycle model, and touch significant plumbing. The main
+  motivation (agent visibility into prior work) can likely be addressed
+  more cheaply by surfacing prior run artifacts in agent instructions.
+  Don't rule it out, but the bar for justifying it is high.
 - **Human-triggered partial graph re-run**: Allow a human monitoring a graph
   execution to intervene and re-run a subset of tasks — for example, after
   reviewing a missed note that indicates a completed task's output is
@@ -802,26 +819,10 @@ Full design discussion in `docs/discussions/PERSISTENT_AGENTS.md`.
   YAML value, only the YAML is preserved (copied to `.workflow/`).
   Simple JSON dump of all resolved config. Useful for post-mortem
   debugging and future graph resumption.
-- **Carry-forward of `resolved.json` across runs**: When starting a
-  force-fresh run (run N+1), copy `resolved.json` files for frozen tasks
-  from run N into run N+1's signal directories. This makes each run
-  directory fully self-contained — run N+1 has its own copies of all
-  frozen task records rather than referencing backward into run N's
-  directory. Currently (MVP from sprint 2026-04-12), run N+1 references
-  run N's files in place. The backward-reference approach works but
-  creates a dependency chain: if run N is deleted (manually or by a
-  future history pruning feature), run N+1 loses its frozen task
-  metadata. The code still works (completed tasks are still completed —
-  their code is on main), but validation and override reports lose their
-  data source.
-  **Value: low.** Only matters when old run directories are deleted,
-  which requires a cleanup feature that doesn't exist yet. The backward
-  reference is sufficient for all current workflows.
-  **Difficulty: low.** Implementation is trivial — file copies during
-  run initialization. The design work was already done in the graph
-  resumption sprint (2026-04-12); this is just the "copy instead of
-  reference" variant. Becomes worth doing when run history pruning is
-  added.
+- ~~**Carry-forward of `resolved.json` across runs**~~: **Resolved** in
+  sprint 2026-04-12 (PR E). The MVP copies `resolved.json` directly
+  rather than referencing backward into prior run directories. Each run
+  directory is self-contained.
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
 - **Orchestrator log files**: The orchestrator currently writes all output to

@@ -415,23 +415,6 @@ def test_handle_run_target_repo_forwarded(
 
 
 @patch("agentrelay.cli.run_graph", new_callable=AsyncMock)
-def test_handle_run_conflict_error_exits_1(
-    mock_run: AsyncMock,
-    tmp_path: Path,
-) -> None:
-    from agentrelay.run_graph import _ConflictError
-
-    graph = tmp_path / "g.yaml"
-    graph.write_text("name: test\ntasks: []\n")
-
-    mock_run.side_effect = _ConflictError("leftover state")
-
-    parser = build_parser()
-    args = parser.parse_args(["run", str(graph)])
-    with pytest.raises(SystemExit, match="1"):
-        _handle_run(args)
-
-
 @patch("agentrelay.cli.run_graph", new_callable=AsyncMock)
 @patch("agentrelay.cli._print_result")
 def test_handle_run_failed_outcome_exits_1(
@@ -565,17 +548,6 @@ def test_handle_dry_run_subcommand(
     _handle_dry_run(args)
 
     mock_do.assert_called_once_with(graph.resolve(), tmp_path.resolve())
-
-
-# --- run_graph.py error message update ---
-
-
-def test_conflict_error_message_uses_new_cli(tmp_path: Path) -> None:
-    from agentrelay.run_graph import _ConflictError, _resolve_run_dir
-
-    (tmp_path / ".workflow" / "test-graph").mkdir(parents=True)
-    with pytest.raises(_ConflictError, match="agentrelay reset"):
-        _resolve_run_dir(tmp_path, "test-graph")
 
 
 # --- build_parser: --graph-dir on run ---
