@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: Planning.**
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), and PR C (#194) merged.
 
 ## Goal
 
@@ -637,7 +637,7 @@ is a small, low-risk change.
 
 ## Plan
 
-### PR A: Per-run directory layout
+### PR A: Per-run directory layout — #191 Merged
 
 **Scope:** Structural foundation. Must land first — all subsequent PRs
 build on the new directory layout.
@@ -693,7 +693,7 @@ build on the new directory layout.
 - Reset reads from latest run directory
 - Existing test suite passes with updated paths
 
-### PR B: Frozen records and validation
+### PR B: Frozen records and validation — #192 Merged
 
 **Scope:** Core resumption data model. Can develop in parallel with
 PR A once the directory layout contract is agreed (even if PR A hasn't
@@ -791,7 +791,44 @@ landed, PR B can use the agreed path convention).
 - Edge case: workstream with no commits ahead → no integration PR,
   `integration_pr_url` is null
 
-### PR C: State probing and runtime reconstruction
+### PR B2: Fix tmux kickoff prompt submission — #193 Merged
+
+**Scope:** Quick fix for agent kickoff — Claude Code 2.1.105 changed
+prompt submission behavior so a single Enter no longer submits the
+prompt. Agents sit idle until a human presses Enter in the tmux pane.
+
+**Root cause:** `tmux send-keys ... Enter` types the kickoff message
+and presses Enter once. Newer Claude Code versions appear to require
+a second Enter (or the initial Enter is interpreted as a newline rather
+than a submit). The `wait_for_tui_ready()` marker detection ("bypass
+permissions") still works — the issue is specifically in the submit
+step.
+
+**Changes:**
+
+1. **Investigate the exact submission behavior.** In a fresh tmux pane
+   running `claude`, test whether:
+   - Double Enter submits
+   - A short delay + second Enter submits
+   - The behavior depends on prompt length or content
+
+2. **Fix `send_kickoff()` in `tmux_agent.py`** to reliably submit the
+   prompt. Likely: send a second `Enter` after a brief delay, or
+   switch to sending Enter as a separate `send-keys` call.
+
+3. **Verify with e2e.** Run `no_commit_single` (fastest graph) without
+   manual intervention to confirm agents start automatically.
+
+**Files touched:**
+- `src/agentrelay/agent/implementations/tmux_agent.py`
+- `src/agentrelay/ops/tmux.py` (if `send_keys` needs a retry/delay)
+- Possibly OCI container configuration if the issue affects containers
+
+**Tests:**
+- Existing `test_task_runner.py` and `test_tmux_agent.py` still pass
+- E2E: `no_commit_single` completes without manual Enter
+
+### PR C: State probing and runtime reconstruction — #194 Merged
 
 **Scope:** Core probe logic. Depends on PR A (path layout) and PR B
 (resolved.json format).
@@ -871,6 +908,70 @@ landed, PR B can use the agreed path convention).
 - Edge case: signal_dir does not exist (task never started)
 - Edge case: zero attempt directories (task was pending)
 - Edge case: `resolved.json` present → frozen task loaded into probe
+
+**Notes from implementation (2026-04-15):**
+
+- **Method naming:** shipped as `TaskRuntimeBuilder.from_probe()` /
+  `WorkstreamRuntimeBuilder.from_probe()` rather than `from_disk()` —
+  the builders take a `GraphProbe` object (not a filesystem path),
+  since the probe module owns all filesystem reads.  Keeps the
+  builders pure and testable without tmp_path fixtures.
+- **New protocol `TaskPrProber`** in `workstream/core/io.py` with
+  `is_merged(pr_url) -> bool` and `try_merge(pr_url) -> bool`.  Small
+  two-method protocol so the probe module can normalize stale
+  `PR_CREATED` tasks without depending directly on `ops/gh.py`,
+  matching the protocol-isolation pattern used by `TaskMerger`,
+  `IntegrationMergeChecker`, and `IntegrationAutoMerger`.
+  `GhTaskPrProber` is the implementation.  `try_merge` is explicitly
+  best-effort — wraps `gh.pr_merge` in try/except and returns `False`
+  on `CalledProcessError` rather than raising.
+- **Lazy `attempts/<N>/` creation:** the preparer only creates
+  `signal_dir` + `status/pending`; the per-attempt directory is
+  created lazily by the agent's first `TaskHelper` call.  That means
+  there is a real window where `status/running` exists but
+  `attempts/<N>/` does not.  `_normalize_stale_running` handles this
+  correctly without special code because `signals.read_signal_file()`
+  returns `None` when the parent directory is missing, routing the
+  task through the "no terminal signal" branch to `FAILED`.  This
+  edge case is documented in the `probe.py` module and
+  `_normalize_stale_running` docstrings so it flows into the
+  auto-generated API reference.
+- **Stale status signal files accumulate without cleanup.** When
+  normalization writes a new status signal file on top of an existing
+  one (e.g., `status/running` + newly-written `status/pr_merged`),
+  the latest-in-sequence rule in `_read_task_status_from_signals`
+  resolves correctly with `FAILED` taking absolute priority.  No
+  cleanup needed — verified against real `quick-chained/runs/0/` layout.
+- **Validation beyond unit tests:**
+  1. Python smoke test against a real prior run directory
+     (`/data/git/agentrelaydemos/main/.workflow/quick-chained/runs/0/`)
+     — reconstructed `pr_merged` status for both tasks, loaded real
+     PR URLs, `resolved.json` records with pre-merge SHAs, and a
+     workstream in `PR_CREATED` state with its integration PR URL.
+     Confirmed path resolution, status reading, and `resolved.json`
+     loading all work against a real orchestrator-written layout.
+  2. Synthetic stale-state injection: 5 scenarios on fresh copies of
+     the real run dir (stripped to force `RUNNING` with various
+     attempt-dir contents), exercising all four `_normalize_stale_running`
+     branches plus all four `_normalize_stale_pr_created` branches
+     plus the chained `RUNNING → PR_CREATED → {PR_MERGED, FAILED}`
+     paths.  5/5 pass.
+- **Full end-to-end "kill orchestrator, restart, verify resumption"
+  e2e** is **blocked on PR E** — the probe isn't wired into
+  `run_graph.py` yet.
+- **Backlog items added during PR C:**
+  - Local-only (no-remote) execution mode — the protocol layer
+    isolates from GitHub specifically but still assumes *some* remote
+    exists.  Backlogged under Integration rather than shoehorning
+    into PR C.
+  - CLI tool `agentrelay probe` for inspecting existing run state.
+    Can be built any time after PR C since the probe machinery now
+    exists.  Notes the design tension around the mutation side effect
+    (stale-state normalization) — a CLI named "probe" would need
+    either a `--dry-run` default or a refactor separating read-only
+    reconstruction from normalization.
+- **Test delta:** +46 new tests (1507 → 1553).  `pixi run check`
+  passes.  PR #194.
 
 ### PR D: Idempotent workstream preparation
 

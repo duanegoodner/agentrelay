@@ -177,6 +177,53 @@ unstarted tasks proceed."
 
 Estimated effort: 2–3 days.
 
+### Phase 4.5: Persistent agents (minimal prototype)
+
+**Goal:** Validate that agents carrying conversation context across
+tasks produces noticeably better output — and generate evidence that
+informs the Rust design for agent lifecycle, routing, and forking.
+
+**Why now:** The agentic orchestration field is advancing rapidly. A
+working prototype with observed results is more valuable to the broader
+conversation than a polished Rust implementation shipped later. The
+Python version will be the public-facing testing ground; persistent
+agents are a genuinely novel capability worth demonstrating early.
+Additionally, the Rust state machine should encode agent identity,
+lineage, and lifecycle as first-class types — empirical data from a
+Python prototype shapes that design from day one.
+
+**Depends on Phase 4:** Graph resumption provides building blocks
+(probe, runtime reconstruction, per-run directories) and ensures
+persistent agents survive graph interruption/restart.
+
+**MVP scope:**
+1. Static agent assignment in graph YAML — named agent slots per
+   workstream with model tiers, tasks assigned to slots
+2. Agents scoped to a single workstream (no cross-workstream release)
+3. Agent lifecycle: spawn once at first assigned task, stay alive
+   through subsequent tasks, tear down at workstream completion
+4. No forking, no runtime routing logic
+5. Tests + e2e validation with at least one multi-task workstream graph
+
+**What the MVP skips** (deferred to Rust):
+- LLM-assisted agent routing
+- Agent forking (`--fork-session` CLI support exists, but forking is
+  a scope decision for Phase 4.5, not a technical blocker)
+- Cross-workstream agent release
+- Fork budgets and retirement policies
+- Context window management beyond built-in compaction
+
+**What it delivers:** A graph author can declare "these three tasks
+share an agent" and the agent carries its full conversation history
+from task to task within a workstream. Comparison against the current
+model (independent agents per task) reveals whether persistent context
+improves output quality and what failure modes emerge.
+
+Full design discussion: `docs/discussions/PERSISTENT_AGENTS.md`.
+Backlog items: `docs/BACKLOG.md` (Persistent Agents section).
+
+Estimated effort: 1–2 sprints.
+
 ### Phase 5: Documentation sprint
 
 **Goal:** Make the project legible to outsiders. The Python codebase is
@@ -232,8 +279,9 @@ README and design docs so readers can quickly grasp the runtime model
 
 ### Phase 6: Freeze Python, begin Rust
 
-**Gate:** Phases 4–5 complete. Graph resumption works, documentation
-reflects the current system. (Phase 3 is done.)
+**Gate:** Phases 4–5 complete (4.5 optional but recommended). Graph
+resumption works, persistent agents validated (if 4.5 done),
+documentation reflects the current system.
 
 **Actions:**
 - Mark the Python codebase as frozen for new features
@@ -264,6 +312,9 @@ These backlog items are explicitly deferred to the Rust migration:
 | Signal directory restructure | High touch-count, better in greenfield |
 | Structured concern definitions | Rust-era instruction architecture |
 | `agentrelay-note` / `agentrelay-read` | Context sharing messaging |
+| LLM-assisted agent routing | Design-heavy, benefits from Rust state machine |
+| Agent forking | CLI support exists (`--fork-session`); full design deferred |
+| Cross-workstream agent release | Depends on agent routing |
 | Agent-assisted integration merging | Complex, benefits from Rust |
 | Orchestrator log files | Architectural plumbing |
 | Rust migration phases | Engine proxy → graph runner → full harness |
@@ -291,10 +342,15 @@ The Python version is ready to freeze when:
    everything. Completed tasks are skipped, failed tasks retry, unstarted
    tasks proceed. (Phase 4 — MVP)
 
-6. **A new user can understand what agentrelay does and try it** from the
+6. **Persistent agents validated** (optional but recommended) — static
+   agent assignment works, empirical data on whether persistent context
+   improves task output, failure modes documented. Evidence informs the
+   Rust agent lifecycle design. (Phase 4.5)
+
+7. **A new user can understand what agentrelay does and try it** from the
    README and docs alone — without reading source code or sprint docs.
    (Phase 5)
 
-7. **Documentation reflects the current state** — OCI as default, current
+8. **Documentation reflects the current state** — OCI as default, current
    CLI surface, design philosophy articulated, no stale references to
    removed features or prototype layer. (Phase 5)
