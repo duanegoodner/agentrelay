@@ -42,25 +42,32 @@ class GitWorkstreamPreparer:
         branch_name = f"agentrelay/{self.graph_name}/{spec.id}/integration"
         worktree_path = self.repo_path / ".worktrees" / self.graph_name / spec.id
 
-        try:
-            # Ensure the base branch is current before creating the worktree.
-            # Integration PR merges happen on the remote; the local ref may be
-            # stale unless we fetch + update before branching from it.
-            git.fetch_branch(self.repo_path, spec.base_branch)
-            git.update_local_ref(
-                self.repo_path,
-                spec.base_branch,
-                f"origin/{spec.base_branch}",
-            )
-            git.worktree_add(
-                self.repo_path, worktree_path, branch_name, spec.base_branch
-            )
-            git.push_branch(self.repo_path, branch_name, set_upstream=True)
-            git.set_config(worktree_path, "push.autoSetupRemote", "true")
-        except subprocess.CalledProcessError as exc:
-            raise _WorkspaceIntegrationError(
-                f"Failed to provision workstream {spec.id!r}: {exc}",
-            ) from exc
+        if worktree_path.is_dir():
+            # Resume scenario: worktree already exists from a prior run.
+            # Skip git operations — the integration branch and config are
+            # already in place.
+            pass
+        else:
+            try:
+                # Ensure the base branch is current before creating the
+                # worktree.  Integration PR merges happen on the remote; the
+                # local ref may be stale unless we fetch + update before
+                # branching from it.
+                git.fetch_branch(self.repo_path, spec.base_branch)
+                git.update_local_ref(
+                    self.repo_path,
+                    spec.base_branch,
+                    f"origin/{spec.base_branch}",
+                )
+                git.worktree_add(
+                    self.repo_path, worktree_path, branch_name, spec.base_branch
+                )
+                git.push_branch(self.repo_path, branch_name, set_upstream=True)
+                git.set_config(worktree_path, "push.autoSetupRemote", "true")
+            except subprocess.CalledProcessError as exc:
+                raise _WorkspaceIntegrationError(
+                    f"Failed to provision workstream {spec.id!r}: {exc}",
+                ) from exc
 
         signal_dir = self.run_dir / "workstreams" / spec.id
         workstream_runtime.state.signal_dir = signal_dir
