@@ -1566,10 +1566,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#pr-a-per-run-directory-layout" class="md-nav__link">
+  <a href="#pr-a-per-run-directory-layout-191-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR A: Per-run directory layout
+        PR A: Per-run directory layout — #191 Merged
       
     </span>
   </a>
@@ -1577,10 +1577,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-b-frozen-records-and-validation" class="md-nav__link">
+  <a href="#pr-b-frozen-records-and-validation-192-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR B: Frozen records and validation
+        PR B: Frozen records and validation — #192 Merged
       
     </span>
   </a>
@@ -1588,10 +1588,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-c-state-probing-and-runtime-reconstruction" class="md-nav__link">
+  <a href="#pr-b2-fix-tmux-kickoff-prompt-submission-193-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR C: State probing and runtime reconstruction
+        PR B2: Fix tmux kickoff prompt submission — #193 Merged
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-c-state-probing-and-runtime-reconstruction-194-merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR C: State probing and runtime reconstruction — #194 Merged
       
     </span>
   </a>
@@ -1793,7 +1804,7 @@
 
 <h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
 <blockquote>
-<p><strong>Status: Planning.</strong></p>
+<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), and PR C (#194) merged.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
@@ -2354,7 +2365,7 @@ is a small, low-risk change.</p>
   to the previous run's resolved files rather than copying them into
   the new run directory)</p>
 <h2 id="plan">Plan</h2>
-<h3 id="pr-a-per-run-directory-layout">PR A: Per-run directory layout</h3>
+<h3 id="pr-a-per-run-directory-layout-191-merged">PR A: Per-run directory layout — #191 Merged</h3>
 <p><strong>Scope:</strong> Structural foundation. Must land first — all subsequent PRs
 build on the new directory layout.</p>
 <p><strong>Changes:</strong></p>
@@ -2415,7 +2426,7 @@ build on the new directory layout.</p>
 - Signal files written to correct run directory
 - Reset reads from latest run directory
 - Existing test suite passes with updated paths</p>
-<h3 id="pr-b-frozen-records-and-validation">PR B: Frozen records and validation</h3>
+<h3 id="pr-b-frozen-records-and-validation-192-merged">PR B: Frozen records and validation — #192 Merged</h3>
 <p><strong>Scope:</strong> Core resumption data model. Can develop in parallel with
 PR A once the directory layout contract is agreed (even if PR A hasn't
 landed, PR B can use the agreed path convention).</p>
@@ -2519,7 +2530,43 @@ landed, PR B can use the agreed path convention).</p>
   <code>integration_branch_before_merge</code> is null
 - Edge case: workstream with no commits ahead → no integration PR,
   <code>integration_pr_url</code> is null</p>
-<h3 id="pr-c-state-probing-and-runtime-reconstruction">PR C: State probing and runtime reconstruction</h3>
+<h3 id="pr-b2-fix-tmux-kickoff-prompt-submission-193-merged">PR B2: Fix tmux kickoff prompt submission — #193 Merged</h3>
+<p><strong>Scope:</strong> Quick fix for agent kickoff — Claude Code 2.1.105 changed
+prompt submission behavior so a single Enter no longer submits the
+prompt. Agents sit idle until a human presses Enter in the tmux pane.</p>
+<p><strong>Root cause:</strong> <code>tmux send-keys ... Enter</code> types the kickoff message
+and presses Enter once. Newer Claude Code versions appear to require
+a second Enter (or the initial Enter is interpreted as a newline rather
+than a submit). The <code>wait_for_tui_ready()</code> marker detection ("bypass
+permissions") still works — the issue is specifically in the submit
+step.</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong>Investigate the exact submission behavior.</strong> In a fresh tmux pane
+   running <code>claude</code>, test whether:</li>
+<li>Double Enter submits</li>
+<li>A short delay + second Enter submits</li>
+<li>
+<p>The behavior depends on prompt length or content</p>
+</li>
+<li>
+<p><strong>Fix <code>send_kickoff()</code> in <code>tmux_agent.py</code></strong> to reliably submit the
+   prompt. Likely: send a second <code>Enter</code> after a brief delay, or
+   switch to sending Enter as a separate <code>send-keys</code> call.</p>
+</li>
+<li>
+<p><strong>Verify with e2e.</strong> Run <code>no_commit_single</code> (fastest graph) without
+   manual intervention to confirm agents start automatically.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/agent/implementations/tmux_agent.py</code>
+- <code>src/agentrelay/ops/tmux.py</code> (if <code>send_keys</code> needs a retry/delay)
+- Possibly OCI container configuration if the issue affects containers</p>
+<p><strong>Tests:</strong>
+- Existing <code>test_task_runner.py</code> and <code>test_tmux_agent.py</code> still pass
+- E2E: <code>no_commit_single</code> completes without manual Enter</p>
+<h3 id="pr-c-state-probing-and-runtime-reconstruction-194-merged">PR C: State probing and runtime reconstruction — #194 Merged</h3>
 <p><strong>Scope:</strong> Core probe logic. Depends on PR A (path layout) and PR B
 (resolved.json format).</p>
 <p><strong>Changes:</strong></p>
@@ -2614,6 +2661,70 @@ landed, PR B can use the agreed path convention).</p>
 - Edge case: signal_dir does not exist (task never started)
 - Edge case: zero attempt directories (task was pending)
 - Edge case: <code>resolved.json</code> present → frozen task loaded into probe</p>
+<p><strong>Notes from implementation (2026-04-15):</strong></p>
+<ul>
+<li><strong>Method naming:</strong> shipped as <code>TaskRuntimeBuilder.from_probe()</code> /
+  <code>WorkstreamRuntimeBuilder.from_probe()</code> rather than <code>from_disk()</code> —
+  the builders take a <code>GraphProbe</code> object (not a filesystem path),
+  since the probe module owns all filesystem reads.  Keeps the
+  builders pure and testable without tmp_path fixtures.</li>
+<li><strong>New protocol <code>TaskPrProber</code></strong> in <code>workstream/core/io.py</code> with
+  <code>is_merged(pr_url) -&gt; bool</code> and <code>try_merge(pr_url) -&gt; bool</code>.  Small
+  two-method protocol so the probe module can normalize stale
+  <code>PR_CREATED</code> tasks without depending directly on <code>ops/gh.py</code>,
+  matching the protocol-isolation pattern used by <code>TaskMerger</code>,
+  <code>IntegrationMergeChecker</code>, and <code>IntegrationAutoMerger</code>.
+  <code>GhTaskPrProber</code> is the implementation.  <code>try_merge</code> is explicitly
+  best-effort — wraps <code>gh.pr_merge</code> in try/except and returns <code>False</code>
+  on <code>CalledProcessError</code> rather than raising.</li>
+<li><strong>Lazy <code>attempts/&lt;N&gt;/</code> creation:</strong> the preparer only creates
+  <code>signal_dir</code> + <code>status/pending</code>; the per-attempt directory is
+  created lazily by the agent's first <code>TaskHelper</code> call.  That means
+  there is a real window where <code>status/running</code> exists but
+  <code>attempts/&lt;N&gt;/</code> does not.  <code>_normalize_stale_running</code> handles this
+  correctly without special code because <code>signals.read_signal_file()</code>
+  returns <code>None</code> when the parent directory is missing, routing the
+  task through the "no terminal signal" branch to <code>FAILED</code>.  This
+  edge case is documented in the <code>probe.py</code> module and
+  <code>_normalize_stale_running</code> docstrings so it flows into the
+  auto-generated API reference.</li>
+<li><strong>Stale status signal files accumulate without cleanup.</strong> When
+  normalization writes a new status signal file on top of an existing
+  one (e.g., <code>status/running</code> + newly-written <code>status/pr_merged</code>),
+  the latest-in-sequence rule in <code>_read_task_status_from_signals</code>
+  resolves correctly with <code>FAILED</code> taking absolute priority.  No
+  cleanup needed — verified against real <code>quick-chained/runs/0/</code> layout.</li>
+<li><strong>Validation beyond unit tests:</strong></li>
+<li>Python smoke test against a real prior run directory
+     (<code>/data/git/agentrelaydemos/main/.workflow/quick-chained/runs/0/</code>)
+     — reconstructed <code>pr_merged</code> status for both tasks, loaded real
+     PR URLs, <code>resolved.json</code> records with pre-merge SHAs, and a
+     workstream in <code>PR_CREATED</code> state with its integration PR URL.
+     Confirmed path resolution, status reading, and <code>resolved.json</code>
+     loading all work against a real orchestrator-written layout.</li>
+<li>Synthetic stale-state injection: 5 scenarios on fresh copies of
+     the real run dir (stripped to force <code>RUNNING</code> with various
+     attempt-dir contents), exercising all four <code>_normalize_stale_running</code>
+     branches plus all four <code>_normalize_stale_pr_created</code> branches
+     plus the chained <code>RUNNING → PR_CREATED → {PR_MERGED, FAILED}</code>
+     paths.  5/5 pass.</li>
+<li><strong>Full end-to-end "kill orchestrator, restart, verify resumption"
+  e2e</strong> is <strong>blocked on PR E</strong> — the probe isn't wired into
+  <code>run_graph.py</code> yet.</li>
+<li><strong>Backlog items added during PR C:</strong></li>
+<li>Local-only (no-remote) execution mode — the protocol layer
+    isolates from GitHub specifically but still assumes <em>some</em> remote
+    exists.  Backlogged under Integration rather than shoehorning
+    into PR C.</li>
+<li>CLI tool <code>agentrelay probe</code> for inspecting existing run state.
+    Can be built any time after PR C since the probe machinery now
+    exists.  Notes the design tension around the mutation side effect
+    (stale-state normalization) — a CLI named "probe" would need
+    either a <code>--dry-run</code> default or a refactor separating read-only
+    reconstruction from normalization.</li>
+<li><strong>Test delta:</strong> +46 new tests (1507 → 1553).  <code>pixi run check</code>
+  passes.  PR #194.</li>
+</ul>
 <h3 id="pr-d-idempotent-workstream-preparation">PR D: Idempotent workstream preparation</h3>
 <p><strong>Scope:</strong> Small, defensive. Develop in parallel with PR B and PR C.
 Depends on PR A (path layout).</p>

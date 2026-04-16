@@ -1,0 +1,2906 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-agent orchestration system">
+      
+      
+      
+        <link rel="canonical" href="https://duanegoodner.github.io/agentrelay/discussions/PERSISTENT_AGENTS/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
+    
+    
+      
+        <title>Persistent Agents — Design Discussion - agentrelay</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#persistent-agents-design-discussion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="agentrelay" class="md-header__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            agentrelay
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Persistent Agents — Design Discussion
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="agentrelay" class="md-nav__button md-logo" aria-label="agentrelay" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.5 15.5c0 1.11-.89 2-2 2s-2-.89-2-2 .9-2 2-2 2 .9 2 2m-9-2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.89 2-2-.89-2-2-2M23 15v3c0 .55-.45 1-1 1h-1v1c0 1.11-.89 2-2 2H5a2 2 0 0 1-2-2v-1H2c-.55 0-1-.45-1-1v-3c0-.55.45-1 1-1h1c0-3.87 3.13-7 7-7h1V5.73c-.6-.34-1-.99-1-1.73 0-1.1.9-2 2-2s2 .9 2 2c0 .74-.4 1.39-1 1.73V7h1c3.87 0 7 3.13 7 7h1c.55 0 1 .45 1 1m-2 1h-2v-2c0-2.76-2.24-5-5-5h-4c-2.76 0-5 2.24-5 5v2H3v1h2v3h14v-3h2z"/></svg>
+
+    </a>
+    agentrelay
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DIAGRAM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Diagram
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../WORKFLOW/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../SCHEMA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Graph Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MIGRATION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migration Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GUIDE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_12" id="__nav_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prototype v01
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_12">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Prototype v01
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/WORKFLOW_DESCRIPTION/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workflow Description
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/OPERATIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/DESIGN_DECISIONS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/HISTORY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    History
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../prototypes/v01/BACKLOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Backlog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_comm_protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_comm_protocol
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/agent_sdk/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    agent_sdk
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/ops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/orchestrator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    orchestrator
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/output/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    output
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/reset_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    reset_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/run_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    run_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/sandbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sandbox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_graph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/task_runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/task_runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    task_runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/workstream/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    workstream
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motivation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#relationship-to-existing-context-sharing-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relationship to existing context-sharing infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-mechanisms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core mechanisms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core mechanisms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-persistent-agents-sequential-context-carryover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Persistent agents (sequential context carryover)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-agent-pools-heterogeneous-capability-within-a-workstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Agent pools (heterogeneous capability within a workstream)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-agent-forking-dag-aware-context-cloning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Agent forking (DAG-aware context cloning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fork-point-snapshots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fork-point snapshots
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#framework-agnostic-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Framework-agnostic design
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-llm-agents-and-forking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local LLM agents and forking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-selection-and-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent selection and routing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agent selection and routing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#who-decides-which-agent-gets-which-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Who decides which agent gets which task?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-selection-forking-a-unified-routing-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent selection + forking: a unified routing model
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agent-lifecycle-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent lifecycle management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agent lifecycle management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#retirement-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retirement policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fork-budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fork budget
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teardown-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Teardown semantics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workstream-and-worktree-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workstream and worktree constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Workstream and worktree constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-worktree-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The worktree constraint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-workstream-agent-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-workstream agent release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forking-relaxes-the-worktree-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forking relaxes the worktree constraint
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context-window-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context window management
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Context window management">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-does-the-context-window-fill-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When does the context window fill up?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mitigation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mitigation strategies
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Failure modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-poisoning-across-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug poisoning across tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#context-bleed-and-role-isolation-tension" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context bleed and role isolation tension
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reproducibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-difficulty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging difficulty
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-rust-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Rust scope
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pre-Rust scope">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-to-build-now-minimal-python-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What to build now (minimal Python version)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-to-defer-to-rust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What to defer to Rust
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-build-anything-pre-rust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why build anything pre-Rust
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oci-isolation-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI isolation considerations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OCI isolation considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-claude-code-loads-at-session-startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Claude Code loads at session startup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-carries-over-between-sessions-not-just-conversation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memory carries over between sessions (not just conversation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-structure-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount structure options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mount-structure-details-option-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mount structure details (Option 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#experimental-validation-approach-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Experimental validation (Approach A)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complete-startup-file-inventory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete startup file inventory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remaining-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remaining concerns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="persistent-agents-design-discussion">Persistent Agents — Design Discussion</h1>
+<blockquote>
+<p><strong>Status: Design discussion.</strong> Not yet scheduled. Captures the design space
+for long-lived agents that span multiple tasks, including agent pools,
+routing, and agent forking. No implementation decisions are final — this
+document explores approaches and indicates current leanings.
+See <code>docs/BACKLOG.md</code> (Persistent Agents section) for backlog items.</p>
+</blockquote>
+<h2 id="motivation">Motivation</h2>
+<p>Today, agentrelay instantiates a new agent (Claude Code session in a fresh tmux
+pane) for every task. Each agent starts cold — no memory of prior tasks, no
+accumulated context. The only state that survives across tasks within a
+workstream is on-disk: the worktree contents, the integration branch, and signal
+directory artifacts (<code>summary.md</code>, <code>concerns.log</code>, etc.).</p>
+<p>This makes task execution predictable, but it discards something valuable:
+<strong>unserialized context</strong>. When an agent works on a task, it builds up internal
+state that never makes it into any artifact — dead ends it explored, implicit
+understanding of why a particular abstraction was chosen, "I noticed the error
+handling in module X is inconsistent but it wasn't relevant to my task"
+observations, half-formed hypotheses about code quality. This context is lost
+when the agent's session ends.</p>
+<p>File-based context sharing (graph YAML delivery, <code>agentrelay-note</code>,
+<code>agentrelay-read</code>) addresses the <em>serializable</em> subset: summaries, concerns,
+targeted notes. But the richest context — the agent's working memory — can't
+survive a <code>summary.md</code> round-trip. A downstream agent reading a summary gets
+the conclusions but not the reasoning chain that produced them.</p>
+<p>Persistent agents close this gap by keeping the LLM session alive across
+multiple tasks. The agent carries its full conversation history — every
+observation, every failed approach, every implicit pattern — from one task
+into the next.</p>
+<h2 id="relationship-to-existing-context-sharing-infrastructure">Relationship to existing context-sharing infrastructure</h2>
+<p>Persistent agents are a <strong>third axis</strong> of context sharing, not a replacement
+for the first two:</p>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Mechanism</th>
+<th>What survives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File-based pull</td>
+<td>Graph YAML + signal dir reads (shipped, #155)</td>
+<td>Structured artifacts: summaries, concerns, PR URLs</td>
+</tr>
+<tr>
+<td>File-based push</td>
+<td><code>agentrelay-note</code> / inbox (designed, deferred)</td>
+<td>Targeted messages between specific tasks</td>
+</tr>
+<tr>
+<td>In-context</td>
+<td>Persistent agent sessions</td>
+<td>Full reasoning chain, implicit observations, unserialized working memory</td>
+</tr>
+</tbody>
+</table>
+<p>Each axis has different strengths. File-based sharing is auditable, selective
+(agents read only what they need), and scales to large graphs. In-context
+sharing is richer but bounded by the context window and scoped to what one
+agent experienced directly. The three axes compose: a persistent agent that
+also has file-based access to other agents' artifacts gets the best of both.</p>
+<h2 id="core-mechanisms">Core mechanisms</h2>
+<p>Three distinct mechanisms address different parts of the design space.
+Each is independently useful; together they cover the full range of
+persistent-agent scenarios.</p>
+<h3 id="1-persistent-agents-sequential-context-carryover">1. Persistent agents (sequential context carryover)</h3>
+<p>One agent handles multiple tasks sequentially within a workstream, carrying
+its conversation history from task to task. After completing Task A, the
+agent receives Task B's instructions in the same session rather than being
+torn down.</p>
+<p><strong>What changes:</strong>
+- <code>TmuxAgent</code> lifecycle: instead of create → run → tear down per task, the
+  agent stays alive across tasks. Teardown happens when the agent's last
+  task completes (or at workstream completion).
+- <code>StandardTaskRunner</code>: instead of spawning a new agent, it sends the next
+  task's instructions to the existing agent's tmux pane.
+- Agent identity: today agents are anonymous pane handles. Persistent agents
+  need identity — "this is agent <code>planner</code> in workstream <code>ws_auth</code>, and it
+  has handled tasks A and D."</p>
+<p><strong>Value:</strong> Direct context carryover between related sequential tasks. A spec
+writer's full reasoning is available when the same agent later writes
+integration tests.</p>
+<h3 id="2-agent-pools-heterogeneous-capability-within-a-workstream">2. Agent pools (heterogeneous capability within a workstream)</h3>
+<p>A workstream has multiple agents of different capabilities/costs. Not every
+task needs the same model — a spec-writing task may need Opus, while a
+boilerplate implementation task works fine with Haiku.</p>
+<p><strong>What changes:</strong>
+- The workstream declares an agent pool (named agent slots with model tiers)
+  rather than assuming one anonymous agent per task.
+- The orchestrator (or assignment logic) picks which agent in the pool gets
+  each task, based on model fit, prior context, or both.</p>
+<p><strong>Value:</strong> Preserves cost optimization (expensive models only where needed)
+while enabling selective context sharing (related tasks assigned to the same
+agent). The graph author controls which tasks share context and which
+get independent agents.</p>
+<p><strong>Key design question:</strong> This creates a new concept — the <strong>agent slot</strong> —
+which sits between the workstream and the task in the hierarchy. Today the
+hierarchy is graph → workstream → task. With pools it becomes graph →
+workstream → agent → task (where each agent handles one or more tasks).</p>
+<h3 id="3-agent-forking-dag-aware-context-cloning">3. Agent forking (DAG-aware context cloning)</h3>
+<p>When the task DAG branches, an agent's conversation state is cloned so
+both branches inherit the parent's context. This is <code>fork()</code> for LLM agents.</p>
+<p><strong>Scenario:</strong> Agent α completes Task A. Task A has two downstream branches:
+A → B → C and A → D → E. The context from A is valuable for both C and E,
+but they may run in parallel (or even in different workstreams).</p>
+<div class="highlight"><pre><span></span><code>Agent α works on A
+    ├── fork → Agent α₁ works on B → C
+    └── fork → Agent α₂ works on D → E
+</code></pre></div>
+<p><strong>Technical mechanism:</strong> A Claude Code session's state is fundamentally a
+conversation history — a sequence of messages. Forking means serializing
+the conversation at the fork point and starting two new sessions, each
+initialized with the same prefix. Each fork diverges from there.</p>
+<p><strong>Claude Code session storage (empirically verified):</strong> Session state is
+stored as a single JSONL file at
+<code>~/.claude/projects/&lt;project-dir&gt;/&lt;session-id&gt;.jsonl</code>. Each line is a
+typed JSON object. The message types observed in real sessions:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td>User/orchestrator messages (includes cwd, git branch, version)</td>
+</tr>
+<tr>
+<td><code>assistant</code></td>
+<td>Claude's responses (includes tool calls and results)</td>
+</tr>
+<tr>
+<td><code>attachment</code></td>
+<td>File contents or images attached to messages</td>
+</tr>
+<tr>
+<td><code>file-history-snapshot</code></td>
+<td>Checkpoints for undo — maps message IDs to tracked file backups</td>
+</tr>
+<tr>
+<td><code>permission-mode</code></td>
+<td>Permission state changes (e.g., <code>bypassPermissions</code>)</td>
+</tr>
+<tr>
+<td><code>pr-link</code></td>
+<td>PR URLs created during the session</td>
+</tr>
+<tr>
+<td><code>system</code></td>
+<td>Session metadata (duration, message count)</td>
+</tr>
+<tr>
+<td><code>last-prompt</code></td>
+<td>The initial prompt that started the session</td>
+</tr>
+</tbody>
+</table>
+<p>Sessions that spawn subagents also get a directory at
+<code>&lt;session-id&gt;/subagents/agent-&lt;id&gt;.jsonl</code> alongside the parent JSONL.</p>
+<p>File-history snapshots (for undo) are stored separately at
+<code>~/.claude/file-history/&lt;session-id&gt;/</code> as raw file content keyed by
+content hash. These are per-session and would not carry over to a fork
+(the fork starts a new undo timeline in a potentially different worktree).</p>
+<p>Session sizes observed in real agentrelay usage: ~60KB for a short agent
+task (single e2e task) up to ~12MB for a long interactive session. These
+are trivially cheap to copy — the CoW filesystem optimization (BTRFS/ZFS)
+discussed below is unnecessary at these sizes; a plain file copy is fast
+enough.</p>
+<p><strong>Claude Code already supports forking.</strong> The CLI flag
+<code>claude --resume &lt;session-id&gt; --fork-session</code> creates a new session with
+a new ID, initialized from the conversation history of the source session.
+The forked session picks up fresh environment state (CLAUDE.md, git
+branch, etc.) at startup — only the conversation history carries over.
+This is exactly what our forking design needs: the fork gets the full
+reasoning chain from prior tasks but sees the current worktree state.</p>
+<p>The orchestrator's fork operation would be:
+1. Record the source session ID (this <em>is</em> the snapshot)
+2. Launch <code>claude --resume &lt;session-id&gt; --fork-session</code>
+3. Send the new task's instructions to the forked session</p>
+<p>This is much simpler than full conversation serialization — Claude Code
+handles the mechanics. The snapshot is just a session ID reference.</p>
+<p><strong>Forking does not require a live process (empirically verified).</strong>
+Session JSONLs persist on disk indefinitely after the Claude Code process
+exits. <code>--fork-session</code> reads the JSONL, copies the conversation prefix
+into a new session, and runs from there — no running pane needed.
+Verified by successfully forking a session from weeks prior whose
+process had long since terminated.</p>
+<p>This simplifies the workflow significantly: the orchestrator can let an
+agent complete a task, tear down the pane, and fork the dead session
+hours or days later on demand. No need to keep panes alive just to
+preserve fork-ability. The session JSONL on disk <em>is</em> the durable
+snapshot — we don't need a separate fork-and-label step at task
+boundaries. Just record the session ID after each task completes.</p>
+<p><strong>Project-directory scoping caveat:</strong> Claude Code resolves session IDs
+relative to <code>~/.claude/projects/&lt;project-dir&gt;/</code>. Attempting to resume a
+session from a different project directory fails with "No conversation
+found." For cross-workstream forking where workstreams map to different
+project directories (e.g., different worktree paths), the orchestrator
+would need to handle path mapping or ensure sessions are stored under a
+common project directory. Within a single workstream (the primary use
+case), this is a non-issue.</p>
+<p><strong>Rollback asymmetry in forked sessions.</strong> Claude Code's undo mechanism
+rolls back two things in lockstep: the conversation (JSONL truncation)
+and the filesystem (restoring file backups from
+<code>~/.claude/file-history/&lt;session-id&gt;/</code>). In a normal single-session
+workflow, these stay in sync because the file-history covers the full
+session.</p>
+<p>In a forked session, they diverge. The fork inherits the full
+conversation history (back through all prior tasks), but starts a fresh
+file-history (new session ID = new, empty backup directory). File backups
+only begin accumulating when the fork makes its first edit. This means:</p>
+<ul>
+<li><strong>Conversation</strong> can be rolled back to any point — including deep into
+  a prior task's history.</li>
+<li><strong>Files</strong> can only be rolled back to the start of the fork's own work,
+  since that's the earliest point the fork has backups for.</li>
+</ul>
+<p>Rolling the conversation back into a prior task's history without
+matching file rollback creates an inconsistency: the LLM sees a
+conversation state from "I just finished analyzing the spec" while the
+filesystem reflects all subsequent commits. The LLM might reference
+files that have changed, attempt to redo committed work, or be confused
+by code that "shouldn't exist yet" from its conversational perspective.</p>
+<p><strong>For agentrelay agents, this is a non-issue</strong> — the orchestrator
+controls the session lifecycle and would never roll back into a prior
+task's conversation. Agents don't have access to undo/rollback tooling.</p>
+<p><strong>For general Claude Code usage, it's worth awareness.</strong> The mismatch
+only appears when <code>--fork-session</code> is used, because the fork inherits
+conversation history but starts a fresh file-history. In the typical
+<code>--fork-session</code> use case (branching to explore a different approach),
+users naturally work forward from the fork point rather than rolling
+back past it — but this isn't enforced. A user who forks a session and
+then undoes past the fork point will get the conversation/filesystem
+desync described above.</p>
+<p><strong>Prompt caching synergy:</strong> The Anthropic API's prompt caching means the
+shared prefix (everything through Task A) is cached. Both forks hit that
+cache — you get two agents with rich context for barely more than the cost
+of one. The cost model actually rewards this pattern.</p>
+<p><strong>Merging forked agents:</strong> If the DAG converges (Task F depends on both
+C and E), can the two forks' contexts be recombined? Two divergent
+conversation histories don't concatenate cleanly. A practical approach:
+one fork continues into F with full in-context continuity; the other
+fork's final artifacts are injected as file-based context. A hybrid —
+in-context from one parent, file-based from the other. Which fork
+continues is itself a routing decision.</p>
+<h3 id="fork-point-snapshots">Fork-point snapshots</h3>
+<p>When we want to fork a busy agent, the valuable context is usually what
+the agent learned <em>before</em> its current task — not the in-progress work on
+the current task. If Agent α gained expert-level context from Task A and
+is now partway through Task B, a fork for Task C wants the post-A state,
+not the mid-B state. Mid-B context could even be harmful — partially
+formed hypotheses, dead-end explorations specific to B, or implementation
+details that create unwanted context bleed into C.</p>
+<p>This means we need <strong>pre-task snapshots</strong>: a saved reference to the
+agent's conversation state captured immediately before the agent begins
+each new task.</p>
+<p><strong>What a snapshot actually is (for Claude Code):</strong> Since
+<code>--fork-session</code> works on terminated sessions (see "Forking does not
+require a live process" above), a snapshot at a task boundary doesn't
+require an explicit operation at all for non-persistent agents. Each
+task's session ID is inherently a frozen snapshot — the JSONL persists
+on disk and can be forked at any time.</p>
+<p>For <strong>persistent agents</strong> (same session across multiple tasks), the
+session JSONL grows as tasks are added. To fork from a specific task
+boundary rather than the full history, we need to capture the pre-task
+state. Two approaches:</p>
+<ul>
+<li><strong>Fork-and-label:</strong> Before sending the next task's instructions,
+  fork the session (creating a new session ID that preserves the
+  pre-task state), then continue the original session with the new
+  task. The fork is the snapshot — it's a session JSONL frozen at
+  the task boundary, available for future forks.</li>
+<li><strong>JSONL truncation:</strong> Copy the session JSONL up to the last message
+  before the new task begins. This is a file operation, not a Claude
+  Code operation — just copy N lines of the JSONL. Simpler than
+  fork-and-label but relies on JSONL internals rather than the CLI API.</li>
+</ul>
+<p><strong>Current leaning:</strong> Fork-and-label for persistent agents. It uses the
+supported CLI mechanism and produces a valid session ID that can itself
+be forked later. The cost is one extra <code>--fork-session</code> call per task
+boundary per persistent agent — lightweight given the observed JSONL
+sizes (60KB–12MB, trivial to copy). For non-persistent agents (the
+current model where each task gets its own session), no snapshot
+operation is needed — the session ID <em>is</em> the snapshot.</p>
+<p><strong>Snapshot strategies:</strong></p>
+<p><strong>(a) Snapshot every agent before every task.</strong> Every persistent agent
+gets a fork-and-label checkpoint before each new task. Any checkpoint
+is available as a fork source. This is the most flexible approach —
+the router can choose which checkpoint is the best fork point.</p>
+<p><strong>(b) Snapshot only high-value agents.</strong> The graph author marks certain
+agent slots (or certain tasks) as snapshot-worthy. Only those
+checkpoints are persisted. Lower overhead but requires the graph author
+to predict which agents will be fork-worthy — which may not be known
+in advance.</p>
+<p><strong>(c) Snapshot all, prune eagerly.</strong> Take snapshots universally (like
+approach a), but discard them once a task completes and no remaining DAG
+path would benefit from forking at that point. The orchestrator can
+determine this from the graph topology: if all downstream tasks that
+could benefit from this agent's pre-Task-B state have already been
+dispatched or completed, the pre-B snapshot is safe to discard.</p>
+<p><strong>Current leaning:</strong> Approach (a) with optional pruning. Given the
+observed session file sizes (60KB–12MB), the storage cost of keeping
+all snapshots is negligible — a graph with 20 tasks and 5 persistent
+agents might accumulate ~200MB of snapshot JSONLs total. Pruning is
+an optimization, not a necessity. This simplifies the implementation:
+always snapshot, never worry about whether a snapshot exists.</p>
+<p><strong>Filesystem-level snapshots:</strong> For non-Claude-Code agent frameworks
+where session state may be larger (e.g., local LLM KV caches at
+hundreds of MB), copy-on-write filesystems (BTRFS, ZFS) or LVM
+snapshots could make checkpointing nearly free in both time and space.
+A BTRFS snapshot takes microseconds and consumes no additional space
+until the data diverges. This is an implementation detail for the
+framework adapter layer — Claude Code's small JSONLs don't need it,
+but a local LLM adapter might benefit significantly.</p>
+<h2 id="framework-agnostic-design">Framework-agnostic design</h2>
+<p>Agent forking is most naturally expressed today through Anthropic-specific
+mechanisms (conversation history serialization, prompt caching for shared
+prefixes). However, agentrelay's architecture is intentionally pluggable
+— <code>Agent</code> is an ABC, <code>AgentFrameworkAdapter</code> is a protocol, and the
+orchestrator depends on abstractions rather than concrete implementations.</p>
+<p><strong>Forking must follow the same pattern.</strong> The core orchestrator logic
+should express forking as a protocol-level operation — "clone this
+agent's state and produce a new agent initialized from it" — without
+assuming how the underlying framework implements it. Different frameworks
+will have different capabilities:</p>
+<table>
+<thead>
+<tr>
+<th>Framework</th>
+<th>Forking mechanism</th>
+<th>Fidelity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code (Anthropic API)</td>
+<td>Serialize conversation JSON, start new session with same prefix</td>
+<td>Full conversation history</td>
+</tr>
+<tr>
+<td>Local LLM (llama.cpp, vLLM, etc.)</td>
+<td>Copy KV cache state, or replay conversation prefix</td>
+<td>Full (KV cache) or near-full (replay)</td>
+</tr>
+<tr>
+<td>Other hosted APIs</td>
+<td>Replay conversation prefix (if API supports seeding)</td>
+<td>Depends on API</td>
+</tr>
+<tr>
+<td>Frameworks without fork support</td>
+<td>Not available — fall back to fresh agent + file-based context</td>
+<td>Degraded but functional</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The critical design constraint:</strong> agentrelay must not <em>require</em> forking
+support from an agent framework. Forking is an optimization — it
+preserves richer context than file-based sharing, but file-based sharing
+is the baseline. If a framework doesn't support forking, the routing
+decision simply never chooses option (b) "fork a busy agent" — it falls
+back to (a) "assign to an idle agent" or (c) "start fresh with
+file-based context." The orchestrator's routing logic treats fork
+capability as a <strong>capability advertisement</strong> from the framework adapter,
+not a hard requirement.</p>
+<p><strong>Protocol sketch:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">AgentFrameworkAdapter</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">supports_fork</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">snapshot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentSnapshot</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fork_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">snapshot</span><span class="p">:</span> <span class="n">AgentSnapshot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">:</span> <span class="o">...</span>
+</code></pre></div>
+<p>The <code>snapshot()</code> / <code>fork_from()</code> methods are only called when
+<code>supports_fork()</code> returns True. The routing layer checks this before
+considering fork as a dispatch option.</p>
+<h2 id="local-llm-agents-and-forking">Local LLM agents and forking</h2>
+<p>Eventually, agentrelay should support local LLM-based agents for tasks
+where a cloud model is unnecessary — simple implementations, boilerplate,
+straightforward test writing. The original motivation is cost: a local
+7B or 13B model handling a trivial task is dramatically cheaper than
+Opus.</p>
+<p>But local models also offer a <strong>unique advantage for forking research.</strong>
+With a local model, we have direct access to the inference engine's
+internal state — KV cache, tokenized conversation history, sampling
+state. Forking at the KV cache level is both faster and more faithful
+than conversation replay: the forked agent starts with the exact same
+internal state, not a re-encoding of the same text (which can produce
+subtly different hidden states due to attention pattern differences on
+re-processing).</p>
+<p><strong>Why this matters for the project:</strong></p>
+<ul>
+<li><strong>Prototyping fork mechanics:</strong> Working out the details of snapshot
+  timing, storage, pruning, and routing is easier when you can inspect
+  and manipulate the low-level state directly. A local model provides
+  a transparent sandbox for these experiments.</li>
+<li><strong>Validating the concept cheaply:</strong> Running persistent-agent
+  experiments with local models costs nothing per token. We can run
+  many graph executions with different fork strategies and measure
+  output quality differences without API costs.</li>
+<li><strong>Understanding fidelity trade-offs:</strong> Comparing KV-cache forking
+  (local) vs. conversation-replay forking (hosted API) reveals whether
+  the re-encoding difference matters in practice. If it doesn't,
+  conversation replay is sufficient everywhere; if it does, frameworks
+  that expose KV cache state have a meaningful advantage.</li>
+<li><strong>Informing the Rust design:</strong> The Rust implementation will need to
+  support both local and hosted models. Understanding the forking
+  mechanics of each informs the abstraction layer design — what the
+  <code>AgentFrameworkAdapter</code> protocol needs to express, and what the
+  snapshot format should contain.</li>
+</ul>
+<p><strong>Current leaning:</strong> Local LLM support is not in scope for the minimal
+Python prototype, but the framework-agnostic protocol design should
+accommodate it from the start. When local model support is implemented
+(likely in the Rust era), forking should be one of the first capabilities
+validated — both as a cost-effective testing ground and as a way to
+build intuition about snapshot mechanics before applying them to
+hosted-API agents.</p>
+<h2 id="agent-selection-and-routing">Agent selection and routing</h2>
+<h3 id="who-decides-which-agent-gets-which-task">Who decides which agent gets which task?</h3>
+<p><strong>Approach 1: Static declaration in graph YAML.</strong> The graph author
+explicitly assigns tasks to named agent slots:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">workstream</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ws_auth</span>
+<span class="w">  </span><span class="nt">agents</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">planner</span>
+<span class="w">      </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">claude-opus-4-6</span>
+<span class="w">      </span><span class="nt">tasks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">spec_auth</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">test_auth_integration</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">builder_x</span>
+<span class="w">      </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">claude-haiku-4-5-20251001</span>
+<span class="w">      </span><span class="nt">tasks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">impl_auth_handler</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">builder_y</span>
+<span class="w">      </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">claude-haiku-4-5-20251001</span>
+<span class="w">      </span><span class="nt">tasks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">impl_auth_middleware</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p><strong>Pro:</strong> Simple, predictable, no runtime routing logic. The graph author
+knows their problem and can make good assignments. Produces the most
+learning per unit of effort.
+<strong>Con:</strong> Rigid — the "right" assignment might depend on runtime state (e.g.,
+how hard Task B actually turns out to be, or what A discovered).</p>
+<p><strong>Approach 2: LLM-assisted routing.</strong> The graph YAML declares the pool
+(agent slots + model tiers) but doesn't assign tasks. At dispatch time, an
+LLM (either the orchestrator with a planning prompt, or a lightweight
+meta-agent) sees the available agents, their task histories, and the new
+task description, and picks the best fit.</p>
+<p><strong>Pro:</strong> Can reason about semantic relevance, not just graph topology. Can
+make nuanced judgments about whether an agent's prior context helps or
+hurts for a given task.
+<strong>Con:</strong> Adds latency and cost to every dispatch decision. Premature until
+static assignment has produced evidence that better routing would help.</p>
+<p><strong>Approach 3: Heuristic routing.</strong> Rule-based assignment without LLM
+involvement — prefer an agent that worked on a dependency, prefer a model
+tier that matches the task's complexity, prefer idle agents.</p>
+<p><strong>Pro:</strong> No LLM cost at dispatch time.
+<strong>Con:</strong> Hard to get right. The relevant "fitness" signal is often semantic
+(does this agent's prior experience help with this specific task?) which
+is exactly what heuristics struggle with.</p>
+<p><strong>Current leaning:</strong> Start with static (Approach 1) to validate the
+concept and gather data. Move to LLM-assisted routing (Approach 2) when
+we have evidence that dynamic assignment would improve outcomes. A useful
+intermediate step: run with LLM routing and have the LLM explain its
+reasoning. Over time, those explanations may reveal patterns that could
+be encoded as heuristics (Approach 3) — cheaper routing informed by
+LLM-observed patterns. But LLM routing may remain the best long-term
+approach; the problem is inherently about semantic judgment.</p>
+<h3 id="agent-selection-forking-a-unified-routing-model">Agent selection + forking: a unified routing model</h3>
+<p>Agent selection and forking compose naturally. Without forking, agent
+selection faces a tension: "the best-fit agent is busy on another task."
+The options are to serialize (wait for the agent to finish) or settle for
+a second-best agent. With forking, this tension dissolves — fork the
+best-fit agent and run both tasks in parallel, each with the ideal context.</p>
+<p>This means the routing decision becomes a <strong>three-way choice</strong> per task:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>(a) Assign to idle agent</strong></td>
+<td>An existing agent has relevant context and is available</td>
+</tr>
+<tr>
+<td><strong>(b) Fork a busy agent</strong></td>
+<td>The best-fit agent is busy, but its context is valuable enough to clone</td>
+</tr>
+<tr>
+<td><strong>(c) Start fresh</strong></td>
+<td>No existing agent has context worth carrying; a cold start is fine</td>
+</tr>
+</tbody>
+</table>
+<p>An LLM router is well-positioned to evaluate all three options. A static
+declaration can express (a) and (c) directly, and (b) as "fork from task
+X's agent."</p>
+<h2 id="agent-lifecycle-management">Agent lifecycle management</h2>
+<h3 id="retirement-policy">Retirement policy</h3>
+<p>Persistent agents and forking can cause the agent count to grow. Without
+bounds, a heavily-branching DAG could produce many live agents consuming
+resources (tmux panes, context window memory, API session state).</p>
+<p>An agent should be retired when:
+- It has no remaining tasks assigned (or likely to be assigned via routing)
+- No future fork point in the DAG would benefit from its context
+- Its context window is approaching capacity with diminishing returns</p>
+<p>The orchestrator already tracks which tasks remain in the DAG. Extending
+this to track "which agents have useful context for remaining tasks" is
+the natural next step.</p>
+<h3 id="fork-budget">Fork budget</h3>
+<p>A constraint on total live agents — either a hard cap (like
+<code>max_concurrency</code> for tasks, but for agent instances) or a soft heuristic
+guided by the router. The LLM router could evaluate: "is forking Agent α
+worth it for Task E, or is E different enough that a fresh agent would
+do just as well?"</p>
+<h3 id="teardown-semantics">Teardown semantics</h3>
+<p>Today, <code>teardown_mode</code> (always / never / on_success) applies per task.
+With persistent agents, teardown applies per agent lifetime — which spans
+multiple tasks within a workstream (or across workstreams if
+cross-workstream release is enabled). The pane stays alive between tasks;
+teardown happens when the agent is retired.</p>
+<h2 id="workstream-and-worktree-constraints">Workstream and worktree constraints</h2>
+<h3 id="the-worktree-constraint">The worktree constraint</h3>
+<p>Today: one agent ↔ one task ↔ one worktree. A persistent agent that
+handles multiple tasks must deal with worktrees. Three options:</p>
+<p><strong>(a) Scope agents to one workstream.</strong> Tasks within a workstream share a
+worktree and integration branch. A persistent agent stays in that worktree
+throughout — no confusion about "which branch am I on." This is the
+simplest approach and composes cleanly with everything else.</p>
+<p><strong>(b) Switch worktrees between tasks.</strong> The agent <code>cd</code>s to a different
+worktree when switching workstreams. Risk: the agent gets confused about
+branch state, leaves uncommitted changes in the old worktree, or carries
+stale filesystem assumptions.</p>
+<p><strong>(c) Neutral home directory.</strong> The agent has a workspace outside any
+worktree and <code>cd</code>s into the relevant one per task. Cleaner than (b) but
+still requires context-switching.</p>
+<p><strong>Current leaning:</strong> Start with (a) — agents scoped to one workstream.
+It's the smallest change and produces the biggest single win (sequential
+tasks within a workstream are the most context-related). Cross-workstream
+agents are a phase 2 concern.</p>
+<h3 id="cross-workstream-agent-release">Cross-workstream agent release</h3>
+<p>An agent that finishes all its tasks in Workstream X could be "released"
+to Workstream Y — carrying cross-workstream context. The constraint:</p>
+<blockquote>
+<p><strong>An agent can only be released to a downstream workstream that has a
+dependency-order relationship with the agent's current workstream.</strong></p>
+</blockquote>
+<p>This means:
+- The agent's current workstream must be fully complete (all tasks done,
+  integration PR merged).
+- The target workstream must not have started yet, or must be waiting on
+  the current workstream.
+- The agent "moves" — it leaves Workstream X's pool and joins Workstream
+  Y's pool.</p>
+<p>The agent switches worktrees at the workstream boundary (between
+workstreams, not between tasks). The context it carries is exactly the
+kind that's most valuable: "I built the thing that Workstream Y depends
+on."</p>
+<h3 id="forking-relaxes-the-worktree-constraint">Forking relaxes the worktree constraint</h3>
+<p>With forking, an agent doesn't need to <em>move</em> across workstreams. Instead,
+it forks at the workstream boundary. Each fork enters a different
+downstream workstream's worktree. The "one workstream at a time" rule is
+satisfied per-fork, while both forks carry the parent's full context.</p>
+<p>This is agent migration along the workstream dependency graph — but
+implemented as cloning rather than movement, so the source workstream
+retains an agent if needed.</p>
+<h2 id="context-window-management">Context window management</h2>
+<h3 id="when-does-the-context-window-fill-up">When does the context window fill up?</h3>
+<p>For workstream-scoped agents handling 2–5 tasks (typical for this
+project's graphs), context pressure is unlikely to be a problem. But a
+workstream with many tasks, or an agent that migrates across workstreams,
+could accumulate significant history.</p>
+<h3 id="mitigation-strategies">Mitigation strategies</h3>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Mechanism</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Compaction</strong></td>
+<td>Claude Code's <code>/compact</code> summarizes history</td>
+<td>Loses raw detail but preserves key observations; mechanical, no new infrastructure</td>
+</tr>
+<tr>
+<td><strong>Selective history</strong></td>
+<td>Only inject relevant prior-task history, not the full conversation</td>
+<td>Requires deciding what's "relevant" — essentially re-serializing, which undermines the value proposition</td>
+</tr>
+<tr>
+<td><strong>Fork and retire</strong></td>
+<td>When context pressure is high, fork the agent (preserving useful prefix), then the fork starts with a compacted history</td>
+<td>Natural fit with the forking mechanism</td>
+</tr>
+<tr>
+<td><strong>Agent-maintained scratchpad</strong></td>
+<td>Agent writes key observations to a persistent file between tasks</td>
+<td>Hybrid: critical observations survive even if context is compacted</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Current leaning:</strong> Rely on Claude Code's built-in compaction. It's
+already designed for this problem, and for the graph sizes we're working
+with, it's likely sufficient. Monitor context utilization during the
+static-assignment phase and design more sophisticated strategies only if
+compaction proves inadequate.</p>
+<h2 id="failure-modes">Failure modes</h2>
+<h3 id="bug-poisoning-across-tasks">Bug poisoning across tasks</h3>
+<p>If an agent makes a flawed assumption during Task A and carries it into
+Task B, the flaw propagates. With independent agents, Task B starts fresh
+and might avoid the same mistake. Persistent context is a double-edged
+sword — it carries both insights and errors.</p>
+<p><strong>Mitigation:</strong> File-based artifacts (summaries, concerns) serve as a
+cross-check. If Agent α's summary for Task A says X, but the code review
+or gate check reveals Y, the discrepancy surfaces. This is not a new
+problem — it's the same as a human developer carrying a wrong assumption
+across tasks.</p>
+<h3 id="context-bleed-and-role-isolation-tension">Context bleed and role isolation tension</h3>
+<p>A persistent <code>implementer</code> carrying context across three implementation
+tasks is obviously valuable. But a <code>test_writer</code> that previously worked
+as an <code>implementer</code> on the same code has seen the implementation — which
+is exactly what role isolation is meant to prevent (tests should verify
+behavior, not implementation details).</p>
+<p><strong>This means persistent agents and role isolation are in tension.</strong> The
+graph author needs to consider: does assigning tasks of different roles
+to the same agent compromise the independence that role separation
+provides? In some cases the answer is clearly no (spec → integration
+test). In others it's clearly yes (implementer → unit test for the same
+module).</p>
+<p><strong>Current leaning:</strong> Document the tension; let the graph author decide.
+Static assignment makes this explicit — if you assign both <code>implementer</code>
+and <code>test_writer</code> tasks to the same agent, you're opting into the
+trade-off knowingly.</p>
+<h3 id="reproducibility">Reproducibility</h3>
+<p>Running the same graph twice may produce different results because agent
+state varies with conversation history. With independent agents, each
+task starts from a deterministic input (instructions + worktree state).
+With persistent agents, each task also depends on the conversation history
+from prior tasks.</p>
+<p><strong>Mitigation:</strong> This is inherent to the value proposition — you can't
+have context carryover and perfect reproducibility. Accept it as a
+trade-off and focus on observability: log which agent handled which task,
+what context it carried, and what routing decisions were made. The signal
+directory already captures per-task artifacts; agent identity and lineage
+become additional metadata.</p>
+<h3 id="debugging-difficulty">Debugging difficulty</h3>
+<p>When a task fails with a persistent agent, the relevant context may span
+multiple prior tasks' worth of conversation. Debugging requires
+understanding not just the current task but the agent's full history.</p>
+<p><strong>Mitigation:</strong> The existing <code>agent.log</code> (tmux scrollback capture)
+already captures the full session. With persistent agents, this log grows
+to cover all tasks the agent handled — which is more to read, but also
+more complete. Agent identity metadata helps: "this failure occurred in
+agent <code>planner</code> after it handled tasks A, C, and F."</p>
+<h2 id="pre-rust-scope">Pre-Rust scope</h2>
+<h3 id="what-to-build-now-minimal-python-version">What to build now (minimal Python version)</h3>
+<p>The goal of the Python implementation is to <strong>validate the concept and
+generate evidence</strong> that informs the Rust design — not to be the
+production implementation.</p>
+<p><strong>Minimal scope:</strong>
+- Static assignment in graph YAML only (Approach 1)
+- Agents scoped to a single workstream (no cross-workstream release)
+- No forking (single instance per agent slot)
+- No runtime routing logic
+- Agent lifecycle: spawn once at first assigned task, stay alive through
+  subsequent tasks, tear down at workstream completion</p>
+<p>This is the smallest change that produces real data on whether persistent
+context improves task output quality. It requires modifications to
+<code>TmuxAgent</code> (lifecycle), <code>StandardTaskRunner</code> (send next instructions to
+existing pane vs. spawn new), and the graph YAML schema (agent slot
+declarations).</p>
+<p><strong>Estimated scope:</strong> 1–2 sprints.</p>
+<h3 id="what-to-defer-to-rust">What to defer to Rust</h3>
+<ul>
+<li>LLM-assisted routing</li>
+<li>Agent forking (CLI support exists via <code>--fork-session</code>; deferral is a
+  scope decision, not a technical blocker)</li>
+<li>Cross-workstream agent release</li>
+<li>Fork budgets and retirement policies</li>
+<li>Context window management beyond built-in compaction</li>
+</ul>
+<p>These features change the orchestrator's lifecycle assumptions
+fundamentally — every assumption that "task = session" becomes false.
+Implementing the full version in Python while Rust is also being built
+means two architectures drifting. The Rust state machine should encode
+agent identity, lineage, and lifecycle as first-class types.</p>
+<h3 id="why-build-anything-pre-rust">Why build anything pre-Rust</h3>
+<p>The agentic orchestration field is advancing rapidly. A minimal
+implementation with a writeup of observed results — "here's what happened
+when agents carried context across tasks" — is more valuable to the
+broader conversation than a feature-complete v1 released later. The
+Python prototype's job is to generate evidence: does persistent context
+produce noticeably better output? What failure modes appear? What routing
+patterns emerge? That evidence shapes the Rust design from day one rather
+than being retrofitted.</p>
+<h2 id="oci-isolation-considerations">OCI isolation considerations</h2>
+<h3 id="the-problem">The problem</h3>
+<p>Today, each OCI container is per-task, per-attempt
+(<code>agentrelay-{graph}-{task}-{attempt}</code>), created with <code>--rm</code>
+(auto-cleanup on exit). Claude Code runs inside the container, and its
+session state lives at <code>/home/agent/.claude/</code> on the container's
+ephemeral filesystem. When the container is torn down, the session JSONL
+is lost.</p>
+<p>This breaks both persistent agents (session must survive across tasks)
+and forking (session JSONL from container A must be accessible to
+container B).</p>
+<h3 id="what-claude-code-loads-at-session-startup">What Claude Code loads at session startup</h3>
+<p>Understanding what gets loaded and from where is essential for designing
+the mount structure.</p>
+<p><strong>From the working directory (worktree — already mounted):</strong>
+- <code>CLAUDE.md</code> — project instructions (repo root)
+- <code>.claude/settings.json</code> — project-level settings
+- <code>.claude/settings.local.json</code> — local overrides</p>
+<p><strong>From <code>~/.claude/</code> (inside the container):</strong>
+- <code>settings.json</code> — global settings (generated by <code>setup-credentials.py</code>)
+- <code>.credentials.json</code> — auth credentials (generated at startup)
+- <code>projects/&lt;project-dir&gt;/memory/MEMORY.md</code> — auto-memory index
+  (first 200 lines, loaded at startup)
+- <code>projects/&lt;project-dir&gt;/memory/*.md</code> — individual memory files
+  (loaded on demand when referenced)
+- <code>projects/&lt;project-dir&gt;/&lt;session-id&gt;.jsonl</code> — conversation history
+  (loaded on <code>--resume</code> or <code>--fork-session</code>)</p>
+<p><strong>Project-directory derivation:</strong> Claude Code derives <code>&lt;project-dir&gt;</code>
+from the cwd by encoding the path (slashes → dashes). Different cwds
+produce different project dirs. Within a workstream, all tasks share the
+same worktree cwd, so they share the same project dir. Across
+workstreams, worktree paths differ, so project dirs differ — this is the
+same cross-workstream session resolution caveat noted in the forking
+section.</p>
+<h3 id="memory-carries-over-between-sessions-not-just-conversation">Memory carries over between sessions (not just conversation)</h3>
+<p>Memory (<code>MEMORY.md</code> + individual memory files) is <strong>per-project-dir,
+not per-session</strong>. All sessions in the same project directory share the
+same memory. This has implications for persistent agents and forking:</p>
+<p><strong>Without OCI (NullSandbox):</strong> All agents working in the same worktree
+share the same project dir on the host, so they share memory. If
+Agent α writes a memory during Task A, Agent β in Task B (same
+worktree) sees it at startup. This is true today even without persistent
+agents — it's inherent to how Claude Code scopes memory.</p>
+<p><strong>With OCI:</strong> Each container has its own <code>/home/agent/.claude/</code>, so
+memory is isolated per container by default. If we mount a shared
+session store, memory comes along for the ride — agents in the same
+workstream would share memory.</p>
+<p><strong>Is shared agent memory desirable?</strong> It's a form of persistent
+context — but unlike conversation history, memory is explicit and
+curated (the agent decides what to save). It could be valuable: an
+agent that writes "module X has a subtle coupling to Y" as a memory
+during Task A gives all subsequent agents in the workstream that
+knowledge for free. It could also be problematic: agent memories
+follow Claude Code's own conventions, not our structured
+<code>summary.md</code>/<code>concerns.log</code> artifacts, making them harder to audit.</p>
+<p><strong>Current leaning:</strong> For the minimal Python prototype (NullSandbox
+only), memory sharing is a fact of the current architecture — observe
+whether agents use it and whether it helps. For OCI, the mount
+structure design determines whether memory is shared — design for it
+to be shared within a workstream (consistent with the NullSandbox
+behavior) but note it as an observation target.</p>
+<h3 id="mount-structure-options">Mount structure options</h3>
+<p><strong>Option 1: Mount the host user's <code>~/.claude/</code> into the container.</strong>
+Simple but unacceptable — exposes the host user's OAuth tokens, API
+key helpers, and personal session history to the container. This is
+the opposite of what OCI isolation provides.</p>
+<p><strong>Option 2: Mount a purpose-built session store at <code>/home/agent/.claude/</code>.</strong>
+Create a per-graph (or per-workstream) directory on the host that
+serves as the shared <code>~/.claude/</code> for all containers in that scope.
+Claude Code's native session resolution works unmodified — sessions
+and memory are read from and written to the mount.</p>
+<p><strong>Option 3: Orchestrator-managed JSONL extraction.</strong> After each task,
+copy the session JSONL out of the container (via <code>docker cp</code>) to a
+host location. Before a forked task, copy the source JSONL in. No
+shared mount needed.</p>
+<p><strong>Recommendation: Option 2</strong> (purpose-built session store). Option 1
+is ruled out on security grounds. Option 3 adds orchestrator complexity
+and requires the container to still be running at extraction time
+(before teardown). Option 2 lets Claude Code's native session and
+memory resolution work without fighting path conventions.</p>
+<h3 id="mount-structure-details-option-2">Mount structure details (Option 2)</h3>
+<p>The challenge with mounting all of <code>/home/agent/.claude/</code> from a shared
+store is that <code>setup-credentials.py</code> writes credential files
+(<code>settings.json</code>, <code>.credentials.json</code>) into <code>~/.claude/</code> at container
+startup. With a shared mount, concurrent containers would overwrite
+each other's credential files.</p>
+<p><strong>Approach A: Mount only <code>~/.claude/projects/&lt;project-dir&gt;/</code>.</strong>
+This is the subdirectory that contains session JSONLs and memory.
+Credentials, settings, cache, and other files remain on the container's
+ephemeral filesystem (generated per container as today). Requires
+knowing the project-dir path at container launch time — derivable
+from the worktree path.</p>
+<p><strong>Approach B: Mount all of <code>~/.claude/</code> but use per-container
+credential files.</strong> Move credential generation to a per-container
+subdirectory or use environment variables instead of files. More
+invasive change to <code>setup-credentials.py</code>.</p>
+<p><strong>Approach C: Per-agent subdirectories within the shared store.</strong>
+Each agent gets its own subdirectory in the shared store. Credentials
+don't collide. But Claude Code doesn't support relocating
+<code>~/.claude/</code> — it's hardcoded to the home directory. Would require
+symlinks or <code>HOME</code> env var manipulation per container.</p>
+<p><strong>Current leaning: Approach A.</strong> Mount only the <code>projects/&lt;project-dir&gt;/</code>
+subdirectory. This is the narrowest mount that achieves session and
+memory persistence. Credential files stay ephemeral and per-container.
+The orchestrator computes the project-dir path from the worktree path
+(same encoding Claude Code uses) and creates the host directory before
+launching the first container.</p>
+<h3 id="experimental-validation-approach-a">Experimental validation (Approach A)</h3>
+<p>Approach A was validated with live Docker containers using the
+<code>agentrelay-agent-claude-code-python</code> image. All three critical
+behaviors were confirmed:</p>
+<p><strong>1. Session JSONL persistence.</strong> Claude Code wrote its session JSONL
+to the mounted <code>projects/&lt;cwd-project-dir&gt;/</code> directory. The file
+survived container teardown and was visible on the host.</p>
+<p><strong>2. Memory visibility.</strong> MEMORY.md and individual memory files placed
+in the mounted <code>projects/&lt;git-root-project-dir&gt;/memory/</code> directory were
+loaded by Claude Code at startup. The agent correctly referenced memory
+content during conversation.</p>
+<p><strong>3. Cross-container forking.</strong> A second container successfully forked
+a session from the first container using
+<code>claude --resume &lt;session-id&gt; --fork-session</code>. The forked JSONL
+contained the original's full conversation history plus the new
+exchange, with a new session ID.</p>
+<p><strong>Key finding: two mounts required.</strong> Claude Code uses two different
+project directories for different purposes:</p>
+<table>
+<thead>
+<tr>
+<th>Purpose</th>
+<th>Derived from</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session JSONLs</td>
+<td>cwd (worktree path)</td>
+<td><code>-data-git-agentrelaydemos-main</code></td>
+</tr>
+<tr>
+<td>Memory files</td>
+<td>git repo root (bare repo path)</td>
+<td><code>-data-git-agentrelaydemos--git-bare</code></td>
+</tr>
+</tbody>
+</table>
+<p>Within a workstream, all tasks share the same worktree (cwd) and repo
+(git root), so both project dirs are consistent across tasks. The
+orchestrator needs to mount both:</p>
+<div class="highlight"><pre><span></span><code>Host: .workflow/&lt;graph&gt;/agent-sessions/&lt;cwd-project-dir&gt;/
+  → Container: /home/agent/.claude/projects/&lt;cwd-project-dir&gt;/
+     (session JSONLs live here)
+
+Host: .workflow/&lt;graph&gt;/agent-sessions/&lt;git-root-project-dir&gt;/
+  → Container: /home/agent/.claude/projects/&lt;git-root-project-dir&gt;/
+     (memory/ lives here)
+</code></pre></div>
+<p><strong>Project-dir encoding algorithm (verified):</strong> Replace <code>/</code> with <code>-</code>,
+replace <code>.</code> with <code>-</code>. Confirmed identical between host and container.
+Example: <code>/data/git/repo/.git-bare</code> → <code>-data-git-repo--git-bare</code>.</p>
+<p><strong>Credential isolation confirmed.</strong> <code>setup-credentials.py</code> writes to
+<code>~/.claude/settings.json</code> and <code>~/.claude/.credentials.json</code>, which are
+outside the <code>projects/</code> subtree. These remain on the container's
+ephemeral filesystem — no credential leakage through the mount.</p>
+<h3 id="complete-startup-file-inventory">Complete startup file inventory</h3>
+<p>All files Claude Code loads at startup, categorized by whether the two
+<code>projects/</code> mounts cover them:</p>
+<p><strong>From the working directory (worktree) — already mounted via existing
+OCI bind mount, no additional mount needed:</strong>
+- <code>CLAUDE.md</code> — project instructions at repo root
+- <code>.claude/settings.json</code> — project-level settings (permissions, hooks)
+- <code>.claude/settings.local.json</code> — local overrides
+- <code>.claude/commands/</code> — custom slash commands
+- <code>.claude/skills/</code> — custom skill definitions</p>
+<p><strong>From <code>~/.claude/</code> — container-ephemeral, generated at startup.
+No mount needed or wanted (contains credentials):</strong>
+- <code>~/.claude/settings.json</code> — global settings (generated by
+  <code>setup-credentials.py</code>)
+- <code>~/.claude/.credentials.json</code> — auth credentials (generated at
+  startup from injected env var or mounted OAuth token)
+- <code>~/.claude.json</code> — onboarding state, folder trust (generated by
+  <code>trust-workdir.py</code>)
+- <code>~/.claude/statsig.json</code> — baked into Docker image at build time</p>
+<p><strong>From <code>~/.claude/projects/</code> — covered by the two mounts:</strong>
+- <code>projects/&lt;cwd-project-dir&gt;/&lt;session-id&gt;.jsonl</code> — conversation
+  history (mount 1)
+- <code>projects/&lt;git-root-project-dir&gt;/memory/MEMORY.md</code> — memory index
+  (mount 2)
+- <code>projects/&lt;git-root-project-dir&gt;/memory/*.md</code> — individual memory
+  files (mount 2)</p>
+<p><strong>Not covered by mounts (gap analysis):</strong>
+- <code>~/.claude/CLAUDE.md</code> — user-level instructions. Not present in our
+  agent setup (not in the Docker image, agents don't have user-level
+  instructions). If ever needed, straightforward to add via any of:
+  bake into the Docker image (simplest for a universal agent CLAUDE.md),
+  mount a shared file as a third bind mount, put the instructions in
+  the repo's CLAUDE.md (already mounted via worktree), or generate at
+  container startup alongside credentials.</p>
+<p><strong>Not loaded at startup (runtime only, no mount needed):</strong>
+- <code>~/.claude/file-history/</code> — undo backups (per-session)
+- <code>~/.claude/history.jsonl</code> — session index
+- <code>~/.claude/plans/</code>, <code>~/.claude/todos/</code> — created during sessions
+- <code>~/.claude/sessions/</code> — lightweight PID/session-ID index
+- <code>~/.claude/session-env/</code>, <code>~/.claude/shell-snapshots/</code> — per-session
+  environment state</p>
+<p><strong>Conclusion:</strong> The two <code>projects/</code> mounts cover all startup files that
+matter for session persistence, memory sharing, and forking. The only
+gap (<code>~/.claude/CLAUDE.md</code>) is not currently used and is trivially
+addressable if needed.</p>
+<h3 id="remaining-concerns">Remaining concerns</h3>
+<ul>
+<li><strong>Project-dir encoding stability:</strong> We rely on Claude Code's
+  path-to-project-dir encoding remaining stable across versions.
+  If the encoding changes, the mount point breaks. Mitigable by
+  having the orchestrator verify the encoding at startup (run a
+  short Claude Code session and check which project dir it creates).</li>
+<li><strong>Cross-workstream forking with OCI:</strong> Different workstreams have
+  different worktree paths → different cwd project dirs → different
+  mount points. Forking across workstreams requires the orchestrator
+  to copy the source JSONL from one mount to the other (a one-time
+  <code>cp</code>, not a persistent mount change). The git-root project dir
+  (memory) is shared across all workstreams in the same repo.</li>
+<li><strong>Memory cleanup between runs:</strong> If the shared store persists
+  across graph runs, agent memories from a previous run could leak
+  into a new run. The orchestrator should clear or namespace the
+  store per run.</li>
+<li><strong>File-history (undo) backups:</strong> These live at
+  <code>~/.claude/file-history/&lt;session-id&gt;/</code> — outside the <code>projects/</code>
+  subtree. With Approach A, they remain on the container's ephemeral
+  filesystem. This is fine: forked sessions start a fresh undo
+  timeline anyway, and undo within a single task doesn't need
+  cross-container persistence.</li>
+</ul>
+<h2 id="open-questions">Open questions</h2>
+<ul>
+<li>
+<p><strong>Claude Code session cloning: RESOLVED.</strong> <code>claude --resume &lt;id&gt;
+  --fork-session</code> creates a new session from an existing session's
+  conversation history. This is the forking primitive we need. The
+  framework-agnostic protocol should still degrade gracefully for
+  frameworks without an equivalent mechanism.</p>
+</li>
+<li>
+<p><strong>Agent identity in signal files:</strong> How should agent identity be
+  recorded? Candidate: <code>manifest.json</code> gains an <code>agent.id</code> field; the
+  run-level <code>run_config.json</code> gains an agent roster. Agent lineage
+  (fork-of relationships) may warrant its own artifact.</p>
+</li>
+<li>
+<p><strong>Interaction with <code>max_task_attempts</code>:</strong> If a task fails and is retried,
+  does the retry go to the same persistent agent? The agent has context
+  about the failure (valuable), but also may be in a confused state
+  (harmful). The graph author might want to configure this per task.</p>
+</li>
+<li>
+<p><strong>Interaction with OCI isolation: PARTIALLY RESOLVED.</strong> See the
+  "OCI isolation considerations" section. Approach A (mount only the
+  <code>projects/&lt;project-dir&gt;/</code> subdirectory) addresses session and memory
+  persistence across containers. Remaining open: project-dir encoding
+  stability, cross-workstream JSONL copying, memory cleanup between
+  runs, and whether shared agent memory is desirable or needs controls.</p>
+</li>
+<li>
+<p><strong>Optimal pool sizing:</strong> How many agents should a workstream have? Too
+  few and context windows fill up; too many and context isn't shared.
+  The answer likely depends on graph size, task complexity, and model
+  context window capacity. Empirical data from the static-assignment
+  phase will inform this.</p>
+</li>
+<li>
+<p><strong>Fork-merge at DAG convergence:</strong> When two forks' downstream paths
+  converge, how is the converging task handled? Current thinking: one
+  fork continues with in-context carryover; the other fork's artifacts
+  are injected as file-based context. Which fork continues is a routing
+  decision. Is there a better approach?</p>
+</li>
+<li>
+<p><strong>Snapshot storage and format: PARTIALLY RESOLVED for Claude Code.</strong>
+  For Claude Code, a snapshot is just a forked session ID (via
+  fork-and-label). The JSONL file (~60KB–12MB) is small enough that
+  keeping all snapshots is negligible storage. For non-Claude-Code
+  frameworks (especially local LLMs with KV cache state at hundreds of
+  MB), the snapshot format is framework-specific — the adapter layer
+  defines its own serialization. A common envelope with framework-specific
+  payloads is worth considering but not required for the Python prototype.</p>
+</li>
+<li>
+<p><strong>Snapshot pruning: LOW PRIORITY for Claude Code.</strong> Given observed
+  session sizes, a graph with 20 tasks produces at most ~200MB of
+  snapshot JSONLs — pruning is an optimization, not a necessity. For
+  local LLM KV caches, pruning (or CoW filesystem snapshots) becomes
+  more important. Topology-aware pruning interacts with dynamic routing:
+  the router may need to declare which snapshots it considers valuable.</p>
+</li>
+<li>
+<p><strong>Copy-on-write filesystem availability:</strong> BTRFS/ZFS snapshots are
+  unnecessary for Claude Code's small JSONLs but potentially valuable for
+  local LLM KV cache snapshots. In OCI containers the filesystem is
+  typically overlayfs. This is a deployment-level concern for the adapter
+  layer, not a core orchestrator design question.</p>
+</li>
+<li>
+<p><strong>Local LLM framework selection:</strong> Which local inference engine to
+  target first for the <code>AgentFrameworkAdapter</code> implementation? Candidates
+  include llama.cpp (widest model support, C++ with Python bindings),
+  vLLM (production-grade, good KV cache management), and Ollama (easiest
+  setup, less low-level access). The choice affects what forking
+  mechanisms are available.</p>
+</li>
+</ul>
+<hr />
+<p><em>This document captures the design space as of 2026-04-16. It is not a
+final decision — it explores approaches and indicates current leanings.
+Implementation decisions will be made in sprint planning, informed by
+this discussion and by evidence from the minimal Python prototype.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
