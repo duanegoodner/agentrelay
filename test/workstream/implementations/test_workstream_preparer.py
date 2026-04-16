@@ -170,6 +170,54 @@ class TestGitWorkstreamPreparer:
         call_names = [c[0] for c in mock_git.method_calls]
         assert call_names.index("fetch_branch") < call_names.index("worktree_add")
 
+    @patch("agentrelay.workstream.implementations.workstream_preparer.git")
+    def test_skips_git_ops_when_worktree_exists(
+        self,
+        mock_git: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """Skips all git operations when worktree directory already exists."""
+        worktree_path = tmp_path / ".worktrees" / "demo" / "ws-1"
+        worktree_path.mkdir(parents=True)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
+        runtime = _make_runtime()
+
+        preparer.prepare_workstream(runtime)
+
+        mock_git.fetch_branch.assert_not_called()
+        mock_git.update_local_ref.assert_not_called()
+        mock_git.worktree_add.assert_not_called()
+        mock_git.push_branch.assert_not_called()
+        mock_git.set_config.assert_not_called()
+        assert runtime.state.worktree_path == worktree_path
+        assert runtime.state.branch_name == "agentrelay/demo/ws-1/integration"
+        assert runtime.state.signal_dir == run_dir / "workstreams" / "ws-1"
+
+    @patch("agentrelay.workstream.implementations.workstream_preparer.git")
+    def test_skips_git_ops_with_existing_signal_dir(
+        self,
+        mock_git: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """No crash when both worktree and signal dir already exist."""
+        worktree_path = tmp_path / ".worktrees" / "demo" / "ws-1"
+        worktree_path.mkdir(parents=True)
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        signal_dir = run_dir / "workstreams" / "ws-1"
+        signal_dir.mkdir(parents=True)
+        (signal_dir / "pending").write_text("")
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
+        runtime = _make_runtime()
+
+        preparer.prepare_workstream(runtime)
+
+        mock_git.fetch_branch.assert_not_called()
+        mock_git.worktree_add.assert_not_called()
+        assert runtime.state.worktree_path == worktree_path
+        assert runtime.state.branch_name == "agentrelay/demo/ws-1/integration"
+        assert runtime.state.signal_dir == signal_dir
+
     def test_satisfies_workstream_preparer_protocol(self) -> None:
         """GitWorkstreamPreparer satisfies the WorkstreamPreparer protocol."""
         preparer = _make_preparer()
