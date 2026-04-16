@@ -614,9 +614,15 @@ def _reset_stale_worktree_branches(
         if task_id in frozen_task_ids:
             continue
 
-        # Switch to the integration branch.
+        # Switch to the integration branch and remove untracked files.
+        # Untracked files from the interrupted agent survive branch
+        # switches.  Without cleanup, the new agent would see a partial,
+        # potentially incoherent view of the interrupted work (uncommitted
+        # files but not committed ones, since force-create overwrites the
+        # branch).  A clean worktree ensures a coherent fresh start.
         integration_branch = f"agentrelay/{graph_name}/{ws_id}/integration"
         git.checkout(worktree_path, integration_branch)
+        git.clean(worktree_path)
 
 
 def _compare_run_configs(

@@ -21,9 +21,9 @@ Near-term items for the current architecture track.
   early users during the conversion, and "reset and re-run the entire graph
   because task 8 failed" is a poor first experience. Weigh against the risk
   of scope creep delaying the Rust timeline.
-- **Per-run worktrees**: Currently worktrees live at
-  `.worktrees/<graph>/<ws-id>/` and are shared across runs. An
-  alternative model would make worktrees per-run
+- **Per-run worktrees / preserving interrupted agent work**: Currently
+  worktrees live at `.worktrees/<graph>/<ws-id>/` and are shared across
+  runs. An alternative model would make worktrees per-run
   (`.worktrees/<graph>/runs/<N>/<ws-id>/`), giving each run a completely
   clean worktree and preserving prior runs' worktrees as read-only
   artifacts. This would enable agents to inspect what a previous run's
@@ -38,6 +38,21 @@ Near-term items for the current architecture track.
   motivation (agent visibility into prior work) can likely be addressed
   more cheaply by surfacing prior run artifacts in agent instructions.
   Don't rule it out, but the bar for justifying it is high.
+  **Note on uncommitted work (discovered in PR E e2e testing,
+  2026-04-16):** Preserving *uncommitted* work from an interrupted agent
+  is trivially easy — just skip the `git clean -fd` that
+  `_reset_stale_worktree_branches()` runs during resume. Untracked files
+  survive branch switches naturally. However, this only works cleanly
+  when the interrupted agent made *no commits*. If the agent committed
+  some work and then had uncommitted changes on top, the resume path
+  creates an incoherent state: the uncommitted files survive (untracked),
+  but the committed files are lost (the branch is force-created from the
+  integration branch, overwriting the old task branch). The new agent
+  would see partial artifacts without the committed foundation they
+  depend on. Per-run worktrees would solve this by preserving the entire
+  worktree (committed + uncommitted) as a read-only artifact, but that's
+  a much larger change. For now, `git clean -fd` (always discard) is the
+  safe default.
 - **Human-triggered partial graph re-run**: Allow a human monitoring a graph
   execution to intervene and re-run a subset of tasks — for example, after
   reviewing a missed note that indicates a completed task's output is
