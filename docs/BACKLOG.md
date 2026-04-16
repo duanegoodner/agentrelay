@@ -637,6 +637,69 @@ sequence; all depend on e2e observation after graph YAML delivery ships.
   for it now, but ensure filesystem conventions established in graph YAML delivery
   don't accidentally preclude it.
 
+## Persistent Agents
+
+Long-lived agents that span multiple tasks, carrying conversation context
+across task boundaries. A third axis of context sharing alongside file-based
+pull (graph YAML, signal dirs) and file-based push (`agentrelay-note`).
+Full design discussion in `docs/discussions/PERSISTENT_AGENTS.md`.
+
+- **Static agent assignment in graph YAML**: Minimal first implementation.
+  Graph author declares named agent slots per workstream with model tiers and
+  assigns tasks to slots. Agents scoped to a single workstream. No runtime
+  routing, no forking. Validates the core hypothesis: does persistent context
+  produce noticeably better task output? Requires changes to `TmuxAgent`
+  (lifecycle), `StandardTaskRunner` (reuse existing pane), and graph YAML
+  schema (agent slot declarations). Consider implementing pre-Rust as a
+  learning prototype (1–2 sprints).
+- **LLM-assisted agent routing**: Replace static assignment with an LLM
+  router that evaluates available agents' task histories and the new task
+  description to pick the best fit. Three-way routing decision: assign to
+  idle agent with relevant context, fork a busy agent, or start fresh.
+  Defer until static assignment has produced evidence that dynamic routing
+  would improve outcomes. Have the LLM explain its routing reasoning —
+  over time, those explanations may reveal encodable heuristics.
+- **Agent forking (DAG-aware context cloning)**: When the task DAG branches,
+  clone an agent's conversation state so both branches inherit the parent's
+  context. Technically: serialize conversation history at fork point, start
+  two sessions with the same prefix. Plays into Anthropic API prompt caching
+  (shared prefix cached, each fork pays only for divergent suffix). Requires
+  Claude Code support for session cloning. Defer to Rust unless Claude Code
+  adds the necessary hooks sooner.
+- **Cross-workstream agent release**: Allow an agent that completes all tasks
+  in Workstream X to be released to downstream Workstream Y, carrying
+  cross-workstream context. Constraint: target workstream must have a
+  dependency-order relationship with the source. Agent switches worktrees at
+  the workstream boundary. Defer to Rust.
+- **Agent retirement policy and fork budget**: Lifecycle management to prevent
+  unbounded agent/fork growth. Retire agents with no remaining useful tasks;
+  cap total live agents. The LLM router is well-positioned to judge whether
+  forking is worth it vs. starting fresh. Defer to Rust.
+- **Agent identity and lineage metadata**: Record which agent handled which
+  task, fork-of relationships, and routing decisions in signal directory
+  artifacts. Needed for debugging and observability of persistent-agent runs.
+- **Fork-point snapshots**: Serialize agent conversation state before each
+  task begins, enabling forks from any prior task boundary (not mid-task
+  state). Explore snapshot-all-prune-eagerly strategy with topology-aware
+  pruning. Investigate BTRFS/ZFS/LVM copy-on-write snapshots for
+  near-zero-cost checkpointing. See `docs/discussions/PERSISTENT_AGENTS.md`
+  (Fork-point snapshots section).
+- **Framework-agnostic fork protocol**: Design forking as a capability
+  advertisement on `AgentFrameworkAdapter` — `supports_fork()`,
+  `snapshot()`, `fork_from()`. Orchestrator routing degrades gracefully
+  when the framework doesn't support forking (falls back to fresh agent +
+  file-based context). Core orchestrator logic must not couple to
+  Anthropic-specific mechanisms. See `docs/discussions/PERSISTENT_AGENTS.md`
+  (Framework-agnostic design section).
+- **Local LLM agent support**: Implement `AgentFrameworkAdapter` for a
+  local inference engine (llama.cpp, vLLM, or Ollama). Primary motivation:
+  cost optimization for simple tasks. Secondary motivation: local models
+  provide direct access to KV cache state, enabling higher-fidelity
+  forking and a transparent sandbox for prototyping fork mechanics.
+  Validating fork strategies with local models (zero per-token cost)
+  before applying them to hosted-API agents. See
+  `docs/discussions/PERSISTENT_AGENTS.md` (Local LLM agents section).
+
 ## Signal Directory Structure
 
 - **Signal directory restructure**: Split `signal_dir/` into two named
