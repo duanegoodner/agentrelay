@@ -424,6 +424,7 @@ def test_run_graph_creates_and_removes_network_for_oci(tmp_path: Path) -> None:
         patch("agentrelay.run_graph.docker_ops") as mock_docker,
     ):
         mock_docker.is_available.return_value = True
+        mock_docker.network_exists.return_value = False
         asyncio.run(
             run_graph(
                 graph_path=graph_path,
@@ -432,6 +433,7 @@ def test_run_graph_creates_and_removes_network_for_oci(tmp_path: Path) -> None:
             )
         )
 
+    mock_docker.network_exists.assert_called_once_with("agentrelay-oci-test")
     mock_docker.network_create.assert_called_once_with("agentrelay-oci-test")
     mock_docker.network_remove.assert_called_once_with("agentrelay-oci-test")
 

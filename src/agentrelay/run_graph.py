@@ -915,7 +915,8 @@ async def run_graph(
             raise RuntimeError(
                 "Docker is required for OCI sandbox but is not available"
             )
-        docker_ops.network_create(network_name)
+        if not docker_ops.network_exists(network_name):
+            docker_ops.network_create(network_name)
 
     try:
         task_runner = build_standard_runner(
