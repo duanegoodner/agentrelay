@@ -8,7 +8,10 @@ from pathlib import Path
 import pytest
 
 from agentrelay.orchestrator import OrchestratorConfig
-from agentrelay.orchestrator.builders import build_standard_workstream_runner
+from agentrelay.orchestrator.builders import (
+    build_sandbox_infrastructure_manager,
+    build_standard_workstream_runner,
+)
 from agentrelay.orchestrator.probe import (  # noqa: F401
     GraphProbe,
     TaskProbe,
@@ -17,7 +20,7 @@ from agentrelay.orchestrator.probe import (  # noqa: F401
 from agentrelay.resolved import ResolvedTask, ResolvedWorkstream  # noqa: F401
 from agentrelay.run_graph import (
     OperationalConfig,
-    _any_task_uses_oci,
+    RunOptions,
     _apply_overrides,
     _build_parser,
     _build_resume_runtimes,
@@ -29,12 +32,19 @@ from agentrelay.run_graph import (
     _read_prior_start_head,
     _record_run_config,
     _record_run_start,
+    _resolve_config,
     _resolve_override,
     _resolve_run_context,
     _RunContext,
     dry_run,
 )
-from agentrelay.sandbox import IsolationConfig, SandboxType, TokenTier
+from agentrelay.sandbox import (
+    IsolationConfig,
+    NullSandboxInfrastructureManager,
+    OciSandboxInfrastructureManager,
+    SandboxType,
+    TokenTier,
+)
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.workstream.implementations.workstream_integrator import (
@@ -377,22 +387,23 @@ def test_build_standard_workstream_runner_teardown_config(tmp_path: Path) -> Non
     assert teardown.repo_path == tmp_path
 
 
-# --- _any_task_uses_oci ---
+# --- build_sandbox_infrastructure_manager ---
 
 
-def test_any_task_uses_oci_false_when_no_isolation() -> None:
-    """Returns False when no tasks have isolation config."""
+def test_build_sandbox_infra_returns_null_when_no_isolation() -> None:
+    """Returns NullSandboxInfrastructureManager when no tasks have isolation."""
     graph = TaskGraph.from_tasks(
         (
             Task(id="a", role=AgentRole.GENERIC),
             Task(id="b", role=AgentRole.GENERIC, dependencies=("a",)),
         )
     )
-    assert _any_task_uses_oci(graph) is False
+    mgr = build_sandbox_infrastructure_manager(graph)
+    assert isinstance(mgr, NullSandboxInfrastructureManager)
 
 
-def test_any_task_uses_oci_true_when_oci_task() -> None:
-    """Returns True when at least one task uses OCI sandbox."""
+def test_build_sandbox_infra_returns_oci_when_oci_task() -> None:
+    """Returns OciSandboxInfrastructureManager when a task uses OCI sandbox."""
     oci_config = AgentConfig(
         isolation=IsolationConfig(
             sandbox_type=SandboxType.OCI,
@@ -403,13 +414,15 @@ def test_any_task_uses_oci_true_when_oci_task() -> None:
         (
             Task(id="a", role=AgentRole.GENERIC),
             Task(id="b", role=AgentRole.GENERIC, primary_agent=oci_config),
-        )
+        ),
+        name="test-graph",
     )
-    assert _any_task_uses_oci(graph) is True
+    mgr = build_sandbox_infrastructure_manager(graph)
+    assert isinstance(mgr, OciSandboxInfrastructureManager)
 
 
-def test_any_task_uses_oci_false_when_all_none_sandbox() -> None:
-    """Returns False when all tasks explicitly use SandboxType.NONE."""
+def test_build_sandbox_infra_returns_null_when_all_none_sandbox() -> None:
+    """Returns NullSandboxInfrastructureManager when all tasks use NONE sandbox."""
     none_config = AgentConfig(
         isolation=IsolationConfig(
             sandbox_type=SandboxType.NONE,
@@ -419,11 +432,12 @@ def test_any_task_uses_oci_false_when_all_none_sandbox() -> None:
     graph = TaskGraph.from_tasks(
         (Task(id="a", role=AgentRole.GENERIC, primary_agent=none_config),)
     )
-    assert _any_task_uses_oci(graph) is False
+    mgr = build_sandbox_infrastructure_manager(graph)
+    assert isinstance(mgr, NullSandboxInfrastructureManager)
 
 
-def test_any_task_uses_oci_round_trip_from_yaml(tmp_path: Path) -> None:
-    """YAML with isolation: {sandbox: oci} is detected by _any_task_uses_oci."""
+def test_build_sandbox_infra_round_trip_oci_yaml(tmp_path: Path) -> None:
+    """YAML with isolation: {sandbox: oci} produces OCI manager."""
     content = """\
 name: oci-yaml-test
 isolation:
@@ -437,11 +451,12 @@ tasks:
     path = tmp_path / "graph.yaml"
     path.write_text(content)
     graph, _ = _load_and_prepare_graph(path)
-    assert _any_task_uses_oci(graph) is True
+    mgr = build_sandbox_infrastructure_manager(graph)
+    assert isinstance(mgr, OciSandboxInfrastructureManager)
 
 
-def test_any_task_uses_oci_round_trip_no_isolation_yaml(tmp_path: Path) -> None:
-    """YAML without isolation config is not detected as OCI."""
+def test_build_sandbox_infra_round_trip_no_isolation_yaml(tmp_path: Path) -> None:
+    """YAML without isolation config produces Null manager."""
     content = """\
 name: plain-test
 tasks:
@@ -452,7 +467,8 @@ tasks:
     path = tmp_path / "graph.yaml"
     path.write_text(content)
     graph, _ = _load_and_prepare_graph(path)
-    assert _any_task_uses_oci(graph) is False
+    mgr = build_sandbox_infrastructure_manager(graph)
+    assert isinstance(mgr, NullSandboxInfrastructureManager)
 
 
 # --- _copy_graph_yaml ---
@@ -882,7 +898,9 @@ tasks:
     path = tmp_path / "graph.yaml"
     path.write_text(content)
     graph, _ = _load_and_prepare_graph(path, sandbox_override="oci")
-    assert _any_task_uses_oci(graph) is True
+    assert isinstance(
+        build_sandbox_infrastructure_manager(graph), OciSandboxInfrastructureManager
+    )
 
 
 def test_load_and_prepare_graph_sandbox_override_none(tmp_path: Path) -> None:
@@ -900,7 +918,9 @@ tasks:
     path = tmp_path / "graph.yaml"
     path.write_text(content)
     graph, _ = _load_and_prepare_graph(path, sandbox_override="none")
-    assert _any_task_uses_oci(graph) is False
+    assert isinstance(
+        build_sandbox_infrastructure_manager(graph), NullSandboxInfrastructureManager
+    )
 
 
 def test_load_and_prepare_graph_sandbox_override_preserves_token_tier(
@@ -1210,9 +1230,9 @@ def test_read_prior_start_head(tmp_path: Path) -> None:
     assert _read_prior_start_head(tmp_path) == "abc123"
 
 
-def test_record_run_start_with_override(tmp_path: Path) -> None:
-    """start_head override is written instead of git rev-parse."""
-    _record_run_start(tmp_path, tmp_path, start_head="override_sha")
+def test_record_run_start_writes_start_head(tmp_path: Path) -> None:
+    """start_head is written to run_info.json."""
+    _record_run_start(tmp_path, "override_sha")
     data = json.loads((tmp_path / "run_info.json").read_text())
     assert data["start_head"] == "override_sha"
 
@@ -1270,3 +1290,78 @@ def test_build_resume_runtimes_non_frozen_task(tmp_path: Path) -> None:
     rt = task_rts["task_a"]
     assert rt.state.signal_dir is None
     assert rt.status == TaskStatus.PENDING
+
+
+# --- RunOptions ---
+
+
+def test_run_options_defaults() -> None:
+    """Default RunOptions has None/False for all optional fields."""
+    opts = RunOptions()
+    assert opts.tmux_session is None
+    assert opts.keep_panes is False
+    assert opts.model_override is None
+    assert opts.max_concurrency is None
+    assert opts.verbose is False
+
+
+def test_run_options_frozen() -> None:
+    """RunOptions is immutable."""
+    opts = RunOptions()
+    with pytest.raises(AttributeError):
+        opts.verbose = True  # type: ignore[misc]
+
+
+# --- _resolve_config ---
+
+
+def test_resolve_config_defaults() -> None:
+    """Both ops and options at defaults produce default OrchestratorConfig."""
+    ops = OperationalConfig()
+    opts = RunOptions()
+    config, keep_panes = _resolve_config(ops, opts)
+    assert config == OrchestratorConfig()
+    assert keep_panes is False
+
+
+def test_resolve_config_cli_overrides_yaml() -> None:
+    """CLI values in RunOptions override YAML values in OperationalConfig."""
+    ops = OperationalConfig(max_concurrency=2)
+    opts = RunOptions(max_concurrency=4)
+    config, _ = _resolve_config(ops, opts)
+    assert config.max_concurrency == 4
+
+
+def test_resolve_config_yaml_used_when_cli_none() -> None:
+    """YAML values are used when CLI values are None."""
+    ops = OperationalConfig(max_concurrency=3, max_task_attempts=2)
+    opts = RunOptions()
+    config, _ = _resolve_config(ops, opts)
+    assert config.max_concurrency == 3
+    assert config.max_task_attempts == 2
+
+
+def test_resolve_config_keep_panes_from_cli() -> None:
+    """keep_panes from CLI (True) takes effect."""
+    ops = OperationalConfig(keep_panes=False)
+    opts = RunOptions(keep_panes=True)
+    _, keep_panes = _resolve_config(ops, opts)
+    assert keep_panes is True
+
+
+def test_resolve_config_keep_panes_from_yaml() -> None:
+    """keep_panes from YAML takes effect when CLI is False."""
+    ops = OperationalConfig(keep_panes=True)
+    opts = RunOptions(keep_panes=False)
+    _, keep_panes = _resolve_config(ops, opts)
+    assert keep_panes is True
+
+
+def test_resolve_config_teardown_mode() -> None:
+    """teardown_mode from CLI is resolved correctly."""
+    ops = OperationalConfig()
+    opts = RunOptions(teardown_mode="never")
+    config, _ = _resolve_config(ops, opts)
+    from agentrelay.task_runner.core.runner import TearDownMode
+
+    assert config.task_teardown_mode == TearDownMode.NEVER

@@ -12,14 +12,39 @@ from agentrelay.errors import IntegrationFailureClass
 from agentrelay.orchestrator import (
     OrchestratorOutcome,
 )
-from agentrelay.run_graph import run_graph
+from agentrelay.run_graph import RunOptions, run_graph
+from agentrelay.sandbox import NullSandboxInfrastructureManager
 from agentrelay.task_runner import TaskRunResult, TearDownMode
 from agentrelay.task_runtime import TaskRuntime, TaskStatus
 from agentrelay.workstream import (
     WorkstreamRunResult,
     WorkstreamRuntime,
-    WorkstreamStatus,
 )
+
+
+class _NoOpSessionResolver:
+    """Session resolver that accepts any session without tmux checks."""
+
+    def __init__(self, session: str = "test-session") -> None:
+        self._session = session
+
+    def resolve(self, cli_session: str | None) -> str:
+        return cli_session if cli_session is not None else self._session
+
+    def validate(self, graph: object) -> None:
+        pass
+
+
+class _NoOpRunRepoManager:
+    """Repo manager that returns a fake HEAD and skips worktree cleanup."""
+
+    def current_head(self) -> str:
+        return "fake_head_sha"
+
+    def reset_stale_worktree_branches(
+        self, graph: object, frozen_task_ids: object
+    ) -> None:
+        pass
 
 
 @dataclass
@@ -119,38 +144,64 @@ tasks:
     return path
 
 
+def _run_with_patches(
+    graph_path: Path,
+    tmp_path: Path,
+    task_runner: ScriptedTaskRunner,
+    ws_runner: NoOpWorkstreamRunner,
+    options: RunOptions | None = None,
+):
+    """Run a graph with standard patches and return the result."""
+    if options is None:
+        options = RunOptions(tmux_session="test-session")
+
+    noop_resolver = _NoOpSessionResolver()
+    null_infra = NullSandboxInfrastructureManager()
+    noop_repo = _NoOpRunRepoManager()
+
+    with (
+        patch(
+            "agentrelay.run_graph.build_standard_runner",
+            return_value=task_runner,
+        ),
+        patch(
+            "agentrelay.run_graph.build_standard_workstream_runner",
+            return_value=ws_runner,
+        ),
+        patch("agentrelay.run_graph._record_run_start"),
+        patch("agentrelay.run_graph._record_run_config"),
+        patch(
+            "agentrelay.run_graph.build_session_resolver",
+            return_value=noop_resolver,
+        ),
+        patch(
+            "agentrelay.run_graph.build_sandbox_infrastructure_manager",
+            return_value=null_infra,
+        ),
+        patch(
+            "agentrelay.run_graph.build_run_repo_manager",
+            return_value=noop_repo,
+        ),
+    ):
+        return asyncio.run(
+            run_graph(
+                graph_path=graph_path,
+                repo_path=tmp_path,
+                options=options,
+            )
+        )
+
+
 def test_run_graph_wires_orchestrator(tmp_path: Path) -> None:
     """Full wiring: YAML -> graph -> orchestrator with test doubles."""
     graph_path = _write_graph_yaml(tmp_path)
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
-    with (
-        patch(
-            "agentrelay.run_graph.build_standard_runner",
-            return_value=task_runner,
-        ) as mock_build_runner,
-        patch(
-            "agentrelay.run_graph.build_standard_workstream_runner",
-            return_value=ws_runner,
-        ) as mock_build_ws,
-        patch("agentrelay.run_graph._record_run_start"),
-        patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
-    ):
-        result = asyncio.run(
-            run_graph(
-                graph_path=graph_path,
-                repo_path=tmp_path,
-                tmux_session="test-session",
-            )
-        )
+    result = _run_with_patches(graph_path, tmp_path, task_runner, ws_runner)
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     assert set(result.task_runtimes.keys()) == {"task_a", "task_b"}
-
-    mock_build_runner.assert_called_once()
-    mock_build_ws.assert_called_once()
 
     assert ws_runner.prepare_calls == ["default"]
     assert ws_runner.integrate_calls == ["default"]
@@ -167,29 +218,15 @@ def test_run_graph_passes_orchestrator_config(tmp_path: Path) -> None:
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
-    with (
-        patch(
-            "agentrelay.run_graph.build_standard_runner",
-            return_value=task_runner,
-        ),
-        patch(
-            "agentrelay.run_graph.build_standard_workstream_runner",
-            return_value=ws_runner,
-        ),
-        patch("agentrelay.run_graph._record_run_start"),
-        patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
-    ):
-        result = asyncio.run(
-            run_graph(
-                graph_path=graph_path,
-                repo_path=tmp_path,
-                tmux_session="test-session",
-                max_concurrency=3,
-                max_task_attempts=2,
-                teardown_mode="never",
-            )
-        )
+    options = RunOptions(
+        tmux_session="test-session",
+        max_concurrency=3,
+        max_task_attempts=2,
+        teardown_mode="never",
+    )
+    result = _run_with_patches(
+        graph_path, tmp_path, task_runner, ws_runner, options=options
+    )
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
     for call in task_runner.calls:
@@ -202,6 +239,10 @@ def test_run_graph_with_operational_yaml_keys(tmp_path: Path) -> None:
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
+    noop_resolver = _NoOpSessionResolver()
+    null_infra = NullSandboxInfrastructureManager()
+    noop_repo = _NoOpRunRepoManager()
+
     with (
         patch(
             "agentrelay.run_graph.build_standard_runner",
@@ -213,13 +254,24 @@ def test_run_graph_with_operational_yaml_keys(tmp_path: Path) -> None:
         ),
         patch("agentrelay.run_graph._record_run_start"),
         patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
+        patch(
+            "agentrelay.run_graph.build_session_resolver",
+            return_value=noop_resolver,
+        ),
+        patch(
+            "agentrelay.run_graph.build_sandbox_infrastructure_manager",
+            return_value=null_infra,
+        ),
+        patch(
+            "agentrelay.run_graph.build_run_repo_manager",
+            return_value=noop_repo,
+        ),
     ):
         result = asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
-                tmux_session="test-session",
+                options=RunOptions(tmux_session="test-session"),
             )
         )
 
@@ -239,27 +291,13 @@ def test_run_graph_cli_overrides_yaml(tmp_path: Path) -> None:
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
-    with (
-        patch(
-            "agentrelay.run_graph.build_standard_runner",
-            return_value=task_runner,
-        ),
-        patch(
-            "agentrelay.run_graph.build_standard_workstream_runner",
-            return_value=ws_runner,
-        ),
-        patch("agentrelay.run_graph._record_run_start"),
-        patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
-    ):
-        result = asyncio.run(
-            run_graph(
-                graph_path=graph_path,
-                repo_path=tmp_path,
-                tmux_session="cli-session",
-                model_override="cli-model",
-            )
-        )
+    options = RunOptions(
+        tmux_session="cli-session",
+        model_override="cli-model",
+    )
+    result = _run_with_patches(
+        graph_path, tmp_path, task_runner, ws_runner, options=options
+    )
 
     assert result.outcome == OrchestratorOutcome.SUCCEEDED
 
@@ -274,26 +312,7 @@ def test_run_graph_with_task_failure(tmp_path: Path) -> None:
     task_runner = ScriptedTaskRunner(script={("task_a", 0): "fail"})
     ws_runner = NoOpWorkstreamRunner()
 
-    with (
-        patch(
-            "agentrelay.run_graph.build_standard_runner",
-            return_value=task_runner,
-        ),
-        patch(
-            "agentrelay.run_graph.build_standard_workstream_runner",
-            return_value=ws_runner,
-        ),
-        patch("agentrelay.run_graph._record_run_start"),
-        patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
-    ):
-        result = asyncio.run(
-            run_graph(
-                graph_path=graph_path,
-                repo_path=tmp_path,
-                tmux_session="test-session",
-            )
-        )
+    result = _run_with_patches(graph_path, tmp_path, task_runner, ws_runner)
 
     assert result.outcome == OrchestratorOutcome.COMPLETED_WITH_FAILURES
     assert result.task_runtimes["task_a"].status == TaskStatus.FAILED
@@ -306,6 +325,10 @@ def test_run_graph_passes_credential_provider(tmp_path: Path) -> None:
     ws_runner = NoOpWorkstreamRunner()
     mock_cp = MagicMock()
 
+    noop_resolver = _NoOpSessionResolver()
+    null_infra = NullSandboxInfrastructureManager()
+    noop_repo = _NoOpRunRepoManager()
+
     with (
         patch(
             "agentrelay.run_graph.build_standard_runner",
@@ -317,14 +340,27 @@ def test_run_graph_passes_credential_provider(tmp_path: Path) -> None:
         ),
         patch("agentrelay.run_graph._record_run_start"),
         patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
+        patch(
+            "agentrelay.run_graph.build_session_resolver",
+            return_value=noop_resolver,
+        ),
+        patch(
+            "agentrelay.run_graph.build_sandbox_infrastructure_manager",
+            return_value=null_infra,
+        ),
+        patch(
+            "agentrelay.run_graph.build_run_repo_manager",
+            return_value=noop_repo,
+        ),
     ):
         asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
-                tmux_session="test-session",
-                credential_provider=mock_cp,
+                options=RunOptions(
+                    tmux_session="test-session",
+                    credential_provider=mock_cp,
+                ),
             )
         )
 
@@ -357,6 +393,10 @@ def test_run_graph_resolves_anthropic_credential(tmp_path: Path) -> None:
     )
     provider = FileCredentialProvider(path=creds_file)
 
+    noop_resolver = _NoOpSessionResolver()
+    null_infra = NullSandboxInfrastructureManager()
+    noop_repo = _NoOpRunRepoManager()
+
     with (
         patch(
             "agentrelay.run_graph.build_standard_runner",
@@ -368,15 +408,28 @@ def test_run_graph_resolves_anthropic_credential(tmp_path: Path) -> None:
         ),
         patch("agentrelay.run_graph._record_run_start"),
         patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
+        patch(
+            "agentrelay.run_graph.build_session_resolver",
+            return_value=noop_resolver,
+        ),
+        patch(
+            "agentrelay.run_graph.build_sandbox_infrastructure_manager",
+            return_value=null_infra,
+        ),
+        patch(
+            "agentrelay.run_graph.build_run_repo_manager",
+            return_value=noop_repo,
+        ),
     ):
         asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
-                tmux_session="test-session",
-                credential_provider=provider,
-                anthropic_credential_name="test_key",
+                options=RunOptions(
+                    tmux_session="test-session",
+                    credential_provider=provider,
+                    anthropic_credential_name="test_key",
+                ),
             )
         )
 
@@ -404,11 +457,15 @@ tasks:
 
 
 def test_run_graph_creates_and_removes_network_for_oci(tmp_path: Path) -> None:
-    """Docker network is created before run and removed after."""
+    """OCI infra manager setup/teardown is called for OCI graphs."""
     graph_path = _write_graph_yaml_with_oci(tmp_path)
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
+    mock_infra = MagicMock()
+    noop_resolver = _NoOpSessionResolver()
+    noop_repo = _NoOpRunRepoManager()
+
     with (
         patch(
             "agentrelay.run_graph.build_standard_runner",
@@ -420,51 +477,36 @@ def test_run_graph_creates_and_removes_network_for_oci(tmp_path: Path) -> None:
         ),
         patch("agentrelay.run_graph._record_run_start"),
         patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
-        patch("agentrelay.run_graph.docker_ops") as mock_docker,
+        patch(
+            "agentrelay.run_graph.build_session_resolver",
+            return_value=noop_resolver,
+        ),
+        patch(
+            "agentrelay.run_graph.build_sandbox_infrastructure_manager",
+            return_value=mock_infra,
+        ),
+        patch(
+            "agentrelay.run_graph.build_run_repo_manager",
+            return_value=noop_repo,
+        ),
     ):
-        mock_docker.is_available.return_value = True
-        mock_docker.network_exists.return_value = False
         asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=tmp_path,
-                tmux_session="test-session",
+                options=RunOptions(tmux_session="test-session"),
             )
         )
 
-    mock_docker.network_exists.assert_called_once_with("agentrelay-oci-test")
-    mock_docker.network_create.assert_called_once_with("agentrelay-oci-test")
-    mock_docker.network_remove.assert_called_once_with("agentrelay-oci-test")
+    mock_infra.setup.assert_called_once()
+    mock_infra.teardown.assert_called_once()
 
 
 def test_run_graph_skips_network_when_no_oci(tmp_path: Path) -> None:
-    """Docker network ops are not called when no tasks use OCI."""
+    """Null infra manager is used when no tasks use OCI (setup/teardown are no-ops)."""
     graph_path = _write_graph_yaml(tmp_path)
     task_runner = ScriptedTaskRunner()
     ws_runner = NoOpWorkstreamRunner()
 
-    with (
-        patch(
-            "agentrelay.run_graph.build_standard_runner",
-            return_value=task_runner,
-        ),
-        patch(
-            "agentrelay.run_graph.build_standard_workstream_runner",
-            return_value=ws_runner,
-        ),
-        patch("agentrelay.run_graph._record_run_start"),
-        patch("agentrelay.run_graph._record_run_config"),
-        patch("agentrelay.run_graph._validate_tmux_sessions"),
-        patch("agentrelay.run_graph.docker_ops") as mock_docker,
-    ):
-        asyncio.run(
-            run_graph(
-                graph_path=graph_path,
-                repo_path=tmp_path,
-                tmux_session="test-session",
-            )
-        )
-
-    mock_docker.network_create.assert_not_called()
-    mock_docker.network_remove.assert_not_called()
+    result = _run_with_patches(graph_path, tmp_path, task_runner, ws_runner)
+    assert result.outcome == OrchestratorOutcome.SUCCEEDED

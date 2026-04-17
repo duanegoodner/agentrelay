@@ -13,6 +13,7 @@ from agentrelay.sandbox.core.config import (
     TokenTier,
 )
 from agentrelay.sandbox.core.credentials import CredentialProvider
+from agentrelay.sandbox.core.infrastructure import SandboxInfrastructureManager
 from agentrelay.sandbox.core.sandbox import AgentSandbox
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
     "CredentialProvider",
     "IsolationConfig",
     "SandboxContext",
+    "SandboxInfrastructureManager",
     "SandboxType",
     "TokenTier",
 ]
