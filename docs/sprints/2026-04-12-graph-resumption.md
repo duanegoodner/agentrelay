@@ -1136,6 +1136,52 @@ Key decisions driving the simplification:
   to orchestrator
 - Integration test: resume with modified YAML → override report printed
 
+### PR E.5: Refactor run_graph.py — infrastructure decoupling + phase extraction
+
+**Scope:** Cleanup follow-up to PR E. Reduces `run_graph.py` coupling
+to concrete infrastructure and improves readability by extracting the
+monolithic `run_graph()` function into named phases.
+
+**Motivation (discovered during PR E):** PR E added ~40 lines of inline
+resume logic to an already long function. `run_graph()` directly calls
+`docker_ops` (network create/exists/remove) and `tmux.current_session()`
+— the wiring layer knows concrete infrastructure mechanisms. If we add
+Podman-specific setup, SSH tunnels, or a non-tmux agent environment,
+those details would naturally land in `run_graph.py`, turning it from a
+composition layer into an implementation layer.
+
+**Changes:**
+
+1. **Extract infrastructure lifecycle behind protocols:**
+   - Docker/Podman network lifecycle → protocol behind a factory in
+     `builders.py` (similar to `build_task_pr_prober()`).
+   - tmux session detection/validation → protocol on
+     `AgentEnvironment` or a new `SessionResolver` abstraction.
+   - `run_graph.py` calls factories/protocols, never `docker_ops` or
+     `tmux` directly.
+
+2. **Extract `run_graph()` into named phases:**
+   - `_resolve_config(ops, cli_args) -> OrchestratorConfig` — the
+     verbose CLI > YAML > default resolution chain.
+   - `_setup_resume(ctx, graph, config) -> (task_runtimes,
+     workstream_runtimes)` — probe, validate, copy, build runtimes,
+     print summary.
+   - `_setup_infrastructure(graph) -> cleanup_callback` — network
+     creation, session validation.
+   - Top-level `run_graph()` becomes a short sequence of phase calls.
+
+3. **Reduce `run_graph()` parameter count:** Group related parameters
+   into a config dataclass (e.g., `RunOptions` combining model, sandbox,
+   credentials, verbose, keep_panes, etc.). The 13-keyword signature
+   becomes 3–4 parameters.
+
+**Files touched:**
+- `src/agentrelay/run_graph.py`
+- `src/agentrelay/orchestrator/builders.py` (new factories)
+- Tests for refactored functions
+
+**Depends on:** PR E (merged).
+
 ### PR F: Shared reset utilities + primitive commands
 
 **Scope:** Shared utility layer and three primitive undo commands.
