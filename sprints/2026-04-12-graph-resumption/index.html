@@ -1610,10 +1610,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-d-idempotent-workstream-preparation" class="md-nav__link">
+  <a href="#pr-d-idempotent-workstream-preparation-196-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR D: Idempotent workstream preparation
+        PR D: Idempotent workstream preparation — #196 Merged
       
     </span>
   </a>
@@ -1625,6 +1625,17 @@
     <span class="md-ellipsis">
       
         PR E: Wire resumption into run_graph.py + CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-e2-refactor-run_graphpy-infrastructure-decoupling-phase-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction
       
     </span>
   </a>
@@ -1804,7 +1815,7 @@
 
 <h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), and PR C (#194) merged.</p>
+<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), and PR D (#196) merged.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
@@ -2725,7 +2736,7 @@ step.</p>
 <li><strong>Test delta:</strong> +46 new tests (1507 → 1553).  <code>pixi run check</code>
   passes.  PR #194.</li>
 </ul>
-<h3 id="pr-d-idempotent-workstream-preparation">PR D: Idempotent workstream preparation</h3>
+<h3 id="pr-d-idempotent-workstream-preparation-196-merged">PR D: Idempotent workstream preparation — #196 Merged</h3>
 <p><strong>Scope:</strong> Small, defensive. Develop in parallel with PR B and PR C.
 Depends on PR A (path layout).</p>
 <p><strong>Changes:</strong></p>
@@ -2758,102 +2769,185 @@ Depends on PR A (path layout).</p>
   no crash, state set correctly</p>
 <h3 id="pr-e-wire-resumption-into-run_graphpy-cli">PR E: Wire resumption into run_graph.py + CLI</h3>
 <p><strong>Scope:</strong> Integration glue. Depends on PR A, B, C, and D.</p>
+<p><strong>Design simplification (2026-04-16):</strong> The original plan had three run
+modes (FRESH, RESUME reusing the same run dir, FORCE_FRESH creating a
+new one with <code>--force-fresh</code> / <code>-F</code> flag). This was simplified to a
+single resume mode: if a prior run exists, always create a new
+<code>runs/&lt;N+1&gt;/</code> directory, always restart in-flight tasks from scratch,
+always copy <code>resolved.json</code> forward. No <code>--force-fresh</code> flag. The user
+uses <code>agentrelay reset</code> for a full wipe including frozen tasks.</p>
+<p>Key decisions driving the simplification:
+- Every orchestrator session gets its own run directory — no invisible
+  resume boundaries within a single run dir.
+- In-flight tasks always restart fresh (source file changes discarded).
+  Agents can reference prior run artifacts (logs, concerns) through
+  instructions for context.
+- <code>resolved.json</code> is always copied into the new run dir — each run dir
+  is self-contained. Backward-reference approach was rejected because
+  chained resumes (run 0 → run 1 → run 2) would lose frozen records.
+- <code>outputs.json</code> is copied alongside <code>resolved.json</code> so downstream
+  non-frozen tasks can resolve <code>inputs_from</code>.
+- Worktrees remain shared (not per-run). PR D's idempotent prep handles
+  reuse.
+- <code>start_head</code> is propagated from the original run so
+  <code>agentrelay reset</code> always finds the correct pre-graph HEAD.</p>
 <p><strong>Changes:</strong></p>
 <ol>
 <li>
-<p><strong>Replace <code>_check_for_conflicts()</code></strong> with <code>_detect_run_mode()</code>:
-   <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">_RunMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
-    <span class="n">FRESH</span> <span class="o">=</span> <span class="s2">&quot;fresh&quot;</span>
-    <span class="n">RESUME</span> <span class="o">=</span> <span class="s2">&quot;resume&quot;</span>
-    <span class="n">FORCE_FRESH</span> <span class="o">=</span> <span class="s2">&quot;force_fresh&quot;</span>
+<p><strong>Replace <code>_resolve_run_dir()</code></strong> with <code>_resolve_run_context()</code>:
+   <div class="highlight"><pre><span></span><code><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_RunContext</span><span class="p">:</span>
+    <span class="n">run_dir</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">prior_run_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>  <span class="c1"># None for fresh runs</span>
+    <span class="n">is_resume</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">run_number</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">prior_run_number</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_detect_run_mode</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">force_fresh</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_RunMode</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_run_context</span><span class="p">(</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">graph_name</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_RunContext</span><span class="p">:</span>
     <span class="n">workflow_dir</span> <span class="o">=</span> <span class="n">repo_path</span> <span class="o">/</span> <span class="s2">&quot;.workflow&quot;</span> <span class="o">/</span> <span class="n">graph_name</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">workflow_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-        <span class="k">return</span> <span class="n">_RunMode</span><span class="o">.</span><span class="n">FRESH</span>
-    <span class="k">if</span> <span class="n">force_fresh</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_RunMode</span><span class="o">.</span><span class="n">FORCE_FRESH</span>
-    <span class="k">return</span> <span class="n">_RunMode</span><span class="o">.</span><span class="n">RESUME</span>
+        <span class="c1"># Fresh: create runs/0/</span>
+        <span class="o">...</span>
+    <span class="c1"># Resume: find latest run, create runs/&lt;N+1&gt;/</span>
+    <span class="o">...</span>
+</code></pre></div>
+   Auto-detect: no CLI flag needed.</p>
+</li>
+<li>
+<p><strong>Remove <code>_ConflictError</code></strong> — no longer raised. Resume replaces the
+   conflict-and-refuse behavior.</p>
+</li>
+<li>
+<p><strong>Copy frozen artifacts</strong> into new run dir:</p>
+</li>
+<li>For frozen tasks: <code>resolved.json</code>, <code>outputs.json</code> (if exists),
+     <code>status/</code> signal files.</li>
+<li>For MERGED workstreams: <code>resolved.json</code> and all signal files.</li>
+<li>
+<p>Without <code>merged</code> status, <code>_refresh_workstream_terminal_states()</code>
+     would mark the workstream MERGE_READY and try to create a new
+     integration PR for already-merged work.</p>
+</li>
+<li>
+<p><strong>Build resume runtimes</strong> from <code>from_graph()</code> + patch:</p>
+</li>
+<li>Frozen tasks: set <code>signal_dir</code> to new run dir (where status files
+     were copied), set <code>branch_name</code>, <code>attempt_num</code>, <code>pr_url</code> from
+     the probe.</li>
+<li>Non-frozen tasks: leave as default (PENDING).</li>
+<li>MERGED workstreams: set <code>signal_dir</code> to new run dir.</li>
+<li>
+<p>Non-MERGED workstreams: leave as PENDING — idempotent prep reuses
+     existing worktrees.</p>
+</li>
+<li>
+<p><strong>Reset stale worktree branches</strong>: Before dispatch, switch any
+   worktree checked out on a non-frozen task branch back to its
+   integration branch. This ensures <code>WorktreeTaskPreparer</code> takes the
+   force-create path (clean branch) rather than the retry path (which
+   preserves old WIP commits).</p>
+</li>
+<li>
+<p><strong>Propagate <code>start_head</code></strong>: On resume, copy <code>start_head</code> from the
+   prior run's <code>run_info.json</code> instead of using <code>git rev-parse HEAD</code>.
+   This preserves the original reset point across run chains.</p>
+</li>
+<li>
+<p><strong>Resume summary table</strong> — print before orchestrator starts:
+   <div class="highlight"><pre><span></span><code>Resuming graph &#39;my-graph&#39; (run 1, prior: run 0)
+
+  Task            Status     Action
+  --------------- ---------- ------------------
+  write_spec      completed  skip (frozen)
+  write_impl      failed     restart
+  review          pending    start
 </code></pre></div></p>
 </li>
 <li>
-<p><strong><code>--force-fresh</code> / <code>-F</code> CLI flag</strong> on the <code>run</code> subcommand:</p>
-</li>
-<li>Starts a new run directory (<code>runs/&lt;N+1&gt;/</code>)</li>
-<li>Cleans up stale worktrees/branches from the previous run (the
-     git-cleanup subset of <code>reset_graph.py</code>, without resetting main)</li>
-<li>
-<p>Previous run directories are preserved for history</p>
+<p><strong>Frozen override report</strong> — print only when attribute differences
+   exist between frozen <code>resolved.json</code> and current YAML/CLI.</p>
 </li>
 <li>
-<p><strong>Stale git cleanup helper</strong>: <code>_cleanup_stale_git_state(repo_path,
-   graph_name)</code> — removes worktrees and deletes branches from the
-   previous run. Extracted from <code>reset_graph.py</code> to avoid duplication.</p>
+<p><strong>Config comparison</strong> — compare prior <code>run_config.json</code> with current
+   settings, emit warnings on mismatch. Current config wins.</p>
 </li>
 <li>
-<p><strong>Update <code>run_graph()</code></strong> control flow:</p>
-</li>
-<li>If FRESH: existing behavior in <code>runs/0/</code></li>
-<li>If RESUME:<ul>
-<li>Determine latest run directory</li>
-<li>Call <code>probe_graph_state()</code> to reconstruct runtimes</li>
-<li>Call <code>validate_frozen_tasks()</code> — error only if completed task
-   ID is missing from current graph</li>
-<li>Print frozen override report if attribute differences exist</li>
-<li>Load and compare <code>run_config.json</code> with current config; emit
-   warnings on mismatch</li>
-<li>Print resume summary table</li>
-<li>Pass reconstructed runtimes to <code>orchestrator.run()</code></li>
-</ul>
-</li>
-<li>
-<p>If FORCE_FRESH:</p>
-<ul>
-<li>Clean up stale git state</li>
-<li>Load <code>resolved.json</code> files from latest completed run</li>
-<li>Call <code>validate_frozen_tasks()</code> against current graph</li>
-<li>Create next run directory (<code>runs/&lt;N+1&gt;/</code>)</li>
-<li>Record run start, copy graph yaml, record config</li>
-<li>Build runtimes from <code>from_graph()</code> but mark frozen tasks as
-   completed (reference backward to previous run's state)</li>
-<li>Print fresh-restart summary table</li>
-<li>Pass runtimes to <code>orchestrator.run()</code></li>
-</ul>
-</li>
-<li>
-<p><strong>Resume summary table</strong> — print before orchestrator starts:</p>
-</li>
-<li>Task status table with frozen/retrying/starting actions</li>
-<li>
-<p>Frozen override report (informational, only when differences
-     exist)</p>
-</li>
-<li>
-<p><strong>Config comparison</strong>: <code>_check_config_compatibility()</code> — load
-   previous <code>run_config.json</code>, compare key fields, return warnings.</p>
+<p><strong><code>build_task_pr_prober()</code> factory</strong> in <code>orchestrator/builders.py</code> —
+    follows the pattern of <code>build_integration_merge_checker()</code>. Keeps
+    concrete <code>GhTaskPrProber</code> import in builders, not in <code>run_graph.py</code>.</p>
 </li>
 </ol>
 <p><strong>Files touched:</strong>
 - <code>src/agentrelay/run_graph.py</code>
-- <code>src/agentrelay/cli.py</code> (add <code>--force-fresh</code> / <code>-F</code>)
+- <code>src/agentrelay/orchestrator/builders.py</code> (<code>build_task_pr_prober()</code>)
 - <code>src/agentrelay/output/console.py</code> (resume table + override report)
-- <code>src/agentrelay/orchestrator/events.py</code> (if adding resume event kind)
+- <code>src/agentrelay/cli.py</code> (remove <code>_ConflictError</code> handling)
 - <code>test/test_run_graph.py</code>
+- <code>test/output/test_console.py</code>
 - <code>test/test_cli.py</code></p>
 <p><strong>Tests:</strong>
-- <code>_detect_run_mode()</code>: fresh, resume, force-fresh
-- <code>_check_config_compatibility()</code>: matching config, differing config
-- <code>_cleanup_stale_git_state()</code>: worktrees removed, branches deleted
+- <code>_resolve_run_context()</code>: fresh, resume, multiple prior runs
+- <code>_copy_frozen_artifacts()</code>: frozen task with/without outputs, merged
+  workstream, non-merged workstream
+- <code>_build_resume_runtimes()</code>: mix of frozen/non-frozen tasks, verify
+  signal_dir and status
+- <code>_reset_stale_worktree_branches()</code>: stale branch switched, frozen
+  branch untouched, missing worktree skipped
+- <code>_compare_run_configs()</code>: matching, mismatched, missing file
+- <code>start_head</code> propagation: fresh uses HEAD, resume uses prior
 - Resume summary table formatting
-- Frozen override report formatting (informational, not error)
-- Integration test: run_graph with pre-populated <code>.workflow/</code> dir and
-  signal files → orchestrator receives pre-built runtimes
-- Integration test: run_graph fresh (no <code>.workflow/</code>) → existing
-  behavior preserved
-- Integration test: force-fresh with previous run → new run dir created,
-  stale state cleaned up, frozen tasks validated
-- Integration test: resume with modified YAML for completed task →
-  override report printed, execution graph wins</p>
+- Frozen override report formatting
+- Integration test: <code>run_graph()</code> fresh → existing behavior preserved
+- Integration test: <code>run_graph()</code> resume → pre-built runtimes passed
+  to orchestrator
+- Integration test: resume with modified YAML → override report printed</p>
+<h3 id="pr-e2-refactor-run_graphpy-infrastructure-decoupling-phase-extraction">PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction</h3>
+<p><strong>Scope:</strong> Cleanup follow-up to PR E. Reduces <code>run_graph.py</code> coupling
+to concrete infrastructure and improves readability by extracting the
+monolithic <code>run_graph()</code> function into named phases.</p>
+<p><strong>Motivation (discovered during PR E):</strong> PR E added ~40 lines of inline
+resume logic to an already long function. <code>run_graph()</code> directly calls
+<code>docker_ops</code> (network create/exists/remove) and <code>tmux.current_session()</code>
+— the wiring layer knows concrete infrastructure mechanisms. If we add
+Podman-specific setup, SSH tunnels, or a non-tmux agent environment,
+those details would naturally land in <code>run_graph.py</code>, turning it from a
+composition layer into an implementation layer.</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong>Extract infrastructure lifecycle behind protocols:</strong></li>
+<li>Docker/Podman network lifecycle → protocol behind a factory in
+     <code>builders.py</code> (similar to <code>build_task_pr_prober()</code>).</li>
+<li>tmux session detection/validation → protocol on
+     <code>AgentEnvironment</code> or a new <code>SessionResolver</code> abstraction.</li>
+<li>
+<p><code>run_graph.py</code> calls factories/protocols, never <code>docker_ops</code> or
+     <code>tmux</code> directly.</p>
+</li>
+<li>
+<p><strong>Extract <code>run_graph()</code> into named phases:</strong></p>
+</li>
+<li><code>_resolve_config(ops, cli_args) -&gt; OrchestratorConfig</code> — the
+     verbose CLI &gt; YAML &gt; default resolution chain.</li>
+<li><code>_setup_resume(ctx, graph, config) -&gt; (task_runtimes,
+     workstream_runtimes)</code> — probe, validate, copy, build runtimes,
+     print summary.</li>
+<li><code>_setup_infrastructure(graph) -&gt; cleanup_callback</code> — network
+     creation, session validation.</li>
+<li>
+<p>Top-level <code>run_graph()</code> becomes a short sequence of phase calls.</p>
+</li>
+<li>
+<p><strong>Reduce <code>run_graph()</code> parameter count:</strong> Group related parameters
+   into a config dataclass (e.g., <code>RunOptions</code> combining model, sandbox,
+   credentials, verbose, keep_panes, etc.). The 13-keyword signature
+   becomes 3–4 parameters.</p>
+</li>
+</ol>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/run_graph.py</code>
+- <code>src/agentrelay/orchestrator/builders.py</code> (new factories)
+- Tests for refactored functions</p>
+<p><strong>Depends on:</strong> PR E (merged).</p>
 <h3 id="pr-f-shared-reset-utilities-primitive-commands">PR F: Shared reset utilities + primitive commands</h3>
 <p><strong>Scope:</strong> Shared utility layer and three primitive undo commands.
 Depends on PR A (path layout) and PR B (<code>resolved.json</code> for pre-merge

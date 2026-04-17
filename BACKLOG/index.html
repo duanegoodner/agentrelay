@@ -2027,6 +2027,22 @@
 <hr />
 <h2 id="core-execution">Core Execution</h2>
 <ul>
+<li><strong>Decouple <code>run_graph.py</code> from infrastructure implementation details</strong>:
+  <code>run_graph.run_graph()</code> currently calls <code>docker_ops</code> directly (network
+  create/exists/remove) and <code>tmux.current_session()</code> for session detection.
+  This means the wiring layer knows concrete infrastructure mechanisms —
+  if we add Podman-specific setup, SSH tunnels, or a non-tmux agent
+  environment, those details would naturally land in <code>run_graph.py</code>,
+  turning it from a composition layer into an implementation layer.
+  Extract infrastructure lifecycle (network setup/teardown, session
+  detection/validation) behind protocols that <code>run_graph.py</code> calls
+  without knowing the concrete mechanism.  Candidates:</li>
+<li>Docker/Podman network lifecycle → protocol behind a factory in
+    <code>builders.py</code> (similar to <code>build_task_pr_prober()</code>).</li>
+<li>tmux session detection/validation → protocol on
+    <code>AgentEnvironment</code> or a new <code>SessionResolver</code> abstraction.
+  Address before adding new infrastructure types (non-tmux environments,
+  alternative container runtimes beyond the <code>runtime</code> parameter).</li>
 <li>Expand orchestrator support for richer resume hooks and durable state checkpoints.</li>
 <li><strong>Graph resumption across orchestrator runs</strong>: When a graph is re-launched
   and <code>.workflow/&lt;graph&gt;/</code> already exists from a previous run, the orchestrator
@@ -2042,6 +2058,38 @@
   early users during the conversion, and "reset and re-run the entire graph
   because task 8 failed" is a poor first experience. Weigh against the risk
   of scope creep delaying the Rust timeline.</li>
+<li><strong>Per-run worktrees / preserving interrupted agent work</strong>: Currently
+  worktrees live at <code>.worktrees/&lt;graph&gt;/&lt;ws-id&gt;/</code> and are shared across
+  runs. An alternative model would make worktrees per-run
+  (<code>.worktrees/&lt;graph&gt;/runs/&lt;N&gt;/&lt;ws-id&gt;/</code>), giving each run a completely
+  clean worktree and preserving prior runs' worktrees as read-only
+  artifacts. This would enable agents to inspect what a previous run's
+  agent did in the worktree (WIP commits, partial changes) without the
+  complexity of preserving the live worktree state across restarts.
+  <strong>Skepticism</strong>: unclear whether this would ever be worthwhile. The
+  current shared-worktree model works well — PR D makes preparation
+  idempotent for reuse, and agent instructions can reference prior run
+  artifacts (logs, concerns, signal files) without needing the worktree
+  itself. Per-run worktrees would increase disk usage, change the
+  worktree lifecycle model, and touch significant plumbing. The main
+  motivation (agent visibility into prior work) can likely be addressed
+  more cheaply by surfacing prior run artifacts in agent instructions.
+  Don't rule it out, but the bar for justifying it is high.
+  <strong>Note on uncommitted work (discovered in PR E e2e testing,
+  2026-04-16):</strong> Preserving <em>uncommitted</em> work from an interrupted agent
+  is trivially easy — just skip the <code>git clean -fd</code> that
+  <code>_reset_stale_worktree_branches()</code> runs during resume. Untracked files
+  survive branch switches naturally. However, this only works cleanly
+  when the interrupted agent made <em>no commits</em>. If the agent committed
+  some work and then had uncommitted changes on top, the resume path
+  creates an incoherent state: the uncommitted files survive (untracked),
+  but the committed files are lost (the branch is force-created from the
+  integration branch, overwriting the old task branch). The new agent
+  would see partial artifacts without the committed foundation they
+  depend on. Per-run worktrees would solve this by preserving the entire
+  worktree (committed + uncommitted) as a read-only artifact, but that's
+  a much larger change. For now, <code>git clean -fd</code> (always discard) is the
+  safe default.</li>
 <li><strong>Human-triggered partial graph re-run</strong>: Allow a human monitoring a graph
   execution to intervene and re-run a subset of tasks — for example, after
   reviewing a missed note that indicates a completed task's output is
@@ -2735,6 +2783,28 @@ Full design discussion in <code>docs/discussions/PERSISTENT_AGENTS.md</code>.</p
 </ul>
 <h2 id="code-quality">Code Quality</h2>
 <ul>
+<li><strong>Audit and refactor <code>run_graph.run_graph()</code></strong>: The function has grown
+  long and complex — config resolution, resume detection, probing,
+  artifact copying, runtime building, credential resolution, Docker
+  network lifecycle, runner construction, and orchestrator wiring are all
+  inline.  Most of the <code>if ... is not None</code> branches are config
+  resolution (CLI &gt; YAML &gt; default), which is verbose but mechanical.
+  The resume path (added in PR E, sprint 2026-04-12) added another ~40
+  lines of inline logic.  Refactoring goals:</li>
+<li><strong>Extract phases into named functions</strong>: e.g.,
+    <code>_resolve_config(ops, cli_args) -&gt; OrchestratorConfig</code>,
+    <code>_setup_resume(ctx, graph, config) -&gt; (runtimes, runtimes)</code>,
+    <code>_setup_infrastructure(graph) -&gt; cleanup_callback</code>.  The top-level
+    <code>run_graph()</code> becomes a short sequence of phase calls.</li>
+<li><strong>Decouple from concrete infrastructure</strong>: see the separate backlog
+    item "Decouple <code>run_graph.py</code> from infrastructure implementation
+    details" above.  The refactor and the decoupling are complementary
+    but can be done independently.</li>
+<li><strong>Reduce parameter count</strong>: <code>run_graph()</code> has 13 keyword arguments.
+    Consider grouping related parameters into a config dataclass (e.g.,
+    <code>RunOptions</code> combining model, sandbox, credentials, verbose, etc.).
+  Natural timing: before or during the Rust migration planning, when
+  the function's structure needs to be well-understood for porting.</li>
 <li><strong>Replace raw tuple returns with named types</strong>: Audit the codebase for
   functions that return raw tuples (especially heterogeneous ones) and
   replace them with <code>dataclass</code> or <code>NamedTuple</code> return types. Named
@@ -2818,26 +2888,10 @@ Full design discussion in <code>docs/discussions/PERSISTENT_AGENTS.md</code>.</p
   YAML value, only the YAML is preserved (copied to <code>.workflow/</code>).
   Simple JSON dump of all resolved config. Useful for post-mortem
   debugging and future graph resumption.</li>
-<li><strong>Carry-forward of <code>resolved.json</code> across runs</strong>: When starting a
-  force-fresh run (run N+1), copy <code>resolved.json</code> files for frozen tasks
-  from run N into run N+1's signal directories. This makes each run
-  directory fully self-contained — run N+1 has its own copies of all
-  frozen task records rather than referencing backward into run N's
-  directory. Currently (MVP from sprint 2026-04-12), run N+1 references
-  run N's files in place. The backward-reference approach works but
-  creates a dependency chain: if run N is deleted (manually or by a
-  future history pruning feature), run N+1 loses its frozen task
-  metadata. The code still works (completed tasks are still completed —
-  their code is on main), but validation and override reports lose their
-  data source.
-  <strong>Value: low.</strong> Only matters when old run directories are deleted,
-  which requires a cleanup feature that doesn't exist yet. The backward
-  reference is sufficient for all current workflows.
-  <strong>Difficulty: low.</strong> Implementation is trivial — file copies during
-  run initialization. The design work was already done in the graph
-  resumption sprint (2026-04-12); this is just the "copy instead of
-  reference" variant. Becomes worth doing when run history pruning is
-  added.</li>
+<li>~~<strong>Carry-forward of <code>resolved.json</code> across runs</strong>~~: <strong>Resolved</strong> in
+  sprint 2026-04-12 (PR E). The MVP copies <code>resolved.json</code> directly
+  rather than referencing backward into prior run directories. Each run
+  directory is self-contained.</li>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
 <li>Define the minimal durable signals needed for reliable resume behavior.</li>
 <li><strong>Orchestrator log files</strong>: The orchestrator currently writes all output to
