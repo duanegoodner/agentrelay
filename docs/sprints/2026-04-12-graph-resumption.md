@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), and PR C (#194) merged.
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), and PR D (#196) merged.
 
 ## Goal
 
@@ -973,7 +973,7 @@ step.
 - **Test delta:** +46 new tests (1507 → 1553).  `pixi run check`
   passes.  PR #194.
 
-### PR D: Idempotent workstream preparation
+### PR D: Idempotent workstream preparation — #196 Merged
 
 **Scope:** Small, defensive. Develop in parallel with PR B and PR C.
 Depends on PR A (path layout).
@@ -1013,87 +1013,174 @@ Depends on PR A (path layout).
 
 **Scope:** Integration glue. Depends on PR A, B, C, and D.
 
+**Design simplification (2026-04-16):** The original plan had three run
+modes (FRESH, RESUME reusing the same run dir, FORCE_FRESH creating a
+new one with `--force-fresh` / `-F` flag). This was simplified to a
+single resume mode: if a prior run exists, always create a new
+`runs/<N+1>/` directory, always restart in-flight tasks from scratch,
+always copy `resolved.json` forward. No `--force-fresh` flag. The user
+uses `agentrelay reset` for a full wipe including frozen tasks.
+
+Key decisions driving the simplification:
+- Every orchestrator session gets its own run directory — no invisible
+  resume boundaries within a single run dir.
+- In-flight tasks always restart fresh (source file changes discarded).
+  Agents can reference prior run artifacts (logs, concerns) through
+  instructions for context.
+- `resolved.json` is always copied into the new run dir — each run dir
+  is self-contained. Backward-reference approach was rejected because
+  chained resumes (run 0 → run 1 → run 2) would lose frozen records.
+- `outputs.json` is copied alongside `resolved.json` so downstream
+  non-frozen tasks can resolve `inputs_from`.
+- Worktrees remain shared (not per-run). PR D's idempotent prep handles
+  reuse.
+- `start_head` is propagated from the original run so
+  `agentrelay reset` always finds the correct pre-graph HEAD.
+
 **Changes:**
 
-1. **Replace `_check_for_conflicts()`** with `_detect_run_mode()`:
+1. **Replace `_resolve_run_dir()`** with `_resolve_run_context()`:
    ```python
-   class _RunMode(Enum):
-       FRESH = "fresh"
-       RESUME = "resume"
-       FORCE_FRESH = "force_fresh"
+   @dataclasses.dataclass(frozen=True)
+   class _RunContext:
+       run_dir: Path
+       prior_run_dir: Optional[Path]  # None for fresh runs
+       is_resume: bool
+       run_number: int
+       prior_run_number: Optional[int]
 
-   def _detect_run_mode(repo_path, graph_name, *, force_fresh) -> _RunMode:
+   def _resolve_run_context(repo_path, graph_name) -> _RunContext:
        workflow_dir = repo_path / ".workflow" / graph_name
        if not workflow_dir.is_dir():
-           return _RunMode.FRESH
-       if force_fresh:
-           return _RunMode.FORCE_FRESH
-       return _RunMode.RESUME
+           # Fresh: create runs/0/
+           ...
+       # Resume: find latest run, create runs/<N+1>/
+       ...
+   ```
+   Auto-detect: no CLI flag needed.
+
+2. **Remove `_ConflictError`** — no longer raised. Resume replaces the
+   conflict-and-refuse behavior.
+
+3. **Copy frozen artifacts** into new run dir:
+   - For frozen tasks: `resolved.json`, `outputs.json` (if exists),
+     `status/` signal files.
+   - For MERGED workstreams: `resolved.json` and all signal files.
+   - Without `merged` status, `_refresh_workstream_terminal_states()`
+     would mark the workstream MERGE_READY and try to create a new
+     integration PR for already-merged work.
+
+4. **Build resume runtimes** from `from_graph()` + patch:
+   - Frozen tasks: set `signal_dir` to new run dir (where status files
+     were copied), set `branch_name`, `attempt_num`, `pr_url` from
+     the probe.
+   - Non-frozen tasks: leave as default (PENDING).
+   - MERGED workstreams: set `signal_dir` to new run dir.
+   - Non-MERGED workstreams: leave as PENDING — idempotent prep reuses
+     existing worktrees.
+
+5. **Reset stale worktree branches**: Before dispatch, switch any
+   worktree checked out on a non-frozen task branch back to its
+   integration branch. This ensures `WorktreeTaskPreparer` takes the
+   force-create path (clean branch) rather than the retry path (which
+   preserves old WIP commits).
+
+6. **Propagate `start_head`**: On resume, copy `start_head` from the
+   prior run's `run_info.json` instead of using `git rev-parse HEAD`.
+   This preserves the original reset point across run chains.
+
+7. **Resume summary table** — print before orchestrator starts:
+   ```
+   Resuming graph 'my-graph' (run 1, prior: run 0)
+
+     Task            Status     Action
+     --------------- ---------- ------------------
+     write_spec      completed  skip (frozen)
+     write_impl      failed     restart
+     review          pending    start
    ```
 
-2. **`--force-fresh` / `-F` CLI flag** on the `run` subcommand:
-   - Starts a new run directory (`runs/<N+1>/`)
-   - Cleans up stale worktrees/branches from the previous run (the
-     git-cleanup subset of `reset_graph.py`, without resetting main)
-   - Previous run directories are preserved for history
+8. **Frozen override report** — print only when attribute differences
+   exist between frozen `resolved.json` and current YAML/CLI.
 
-3. **Stale git cleanup helper**: `_cleanup_stale_git_state(repo_path,
-   graph_name)` — removes worktrees and deletes branches from the
-   previous run. Extracted from `reset_graph.py` to avoid duplication.
+9. **Config comparison** — compare prior `run_config.json` with current
+   settings, emit warnings on mismatch. Current config wins.
 
-4. **Update `run_graph()`** control flow:
-   - If FRESH: existing behavior in `runs/0/`
-   - If RESUME:
-     - Determine latest run directory
-     - Call `probe_graph_state()` to reconstruct runtimes
-     - Call `validate_frozen_tasks()` — error only if completed task
-       ID is missing from current graph
-     - Print frozen override report if attribute differences exist
-     - Load and compare `run_config.json` with current config; emit
-       warnings on mismatch
-     - Print resume summary table
-     - Pass reconstructed runtimes to `orchestrator.run()`
-   - If FORCE_FRESH:
-     - Clean up stale git state
-     - Load `resolved.json` files from latest completed run
-     - Call `validate_frozen_tasks()` against current graph
-     - Create next run directory (`runs/<N+1>/`)
-     - Record run start, copy graph yaml, record config
-     - Build runtimes from `from_graph()` but mark frozen tasks as
-       completed (reference backward to previous run's state)
-     - Print fresh-restart summary table
-     - Pass runtimes to `orchestrator.run()`
-
-5. **Resume summary table** — print before orchestrator starts:
-   - Task status table with frozen/retrying/starting actions
-   - Frozen override report (informational, only when differences
-     exist)
-
-6. **Config comparison**: `_check_config_compatibility()` — load
-   previous `run_config.json`, compare key fields, return warnings.
+10. **`build_task_pr_prober()` factory** in `orchestrator/builders.py` —
+    follows the pattern of `build_integration_merge_checker()`. Keeps
+    concrete `GhTaskPrProber` import in builders, not in `run_graph.py`.
 
 **Files touched:**
 - `src/agentrelay/run_graph.py`
-- `src/agentrelay/cli.py` (add `--force-fresh` / `-F`)
+- `src/agentrelay/orchestrator/builders.py` (`build_task_pr_prober()`)
 - `src/agentrelay/output/console.py` (resume table + override report)
-- `src/agentrelay/orchestrator/events.py` (if adding resume event kind)
+- `src/agentrelay/cli.py` (remove `_ConflictError` handling)
 - `test/test_run_graph.py`
+- `test/output/test_console.py`
 - `test/test_cli.py`
 
 **Tests:**
-- `_detect_run_mode()`: fresh, resume, force-fresh
-- `_check_config_compatibility()`: matching config, differing config
-- `_cleanup_stale_git_state()`: worktrees removed, branches deleted
+- `_resolve_run_context()`: fresh, resume, multiple prior runs
+- `_copy_frozen_artifacts()`: frozen task with/without outputs, merged
+  workstream, non-merged workstream
+- `_build_resume_runtimes()`: mix of frozen/non-frozen tasks, verify
+  signal_dir and status
+- `_reset_stale_worktree_branches()`: stale branch switched, frozen
+  branch untouched, missing worktree skipped
+- `_compare_run_configs()`: matching, mismatched, missing file
+- `start_head` propagation: fresh uses HEAD, resume uses prior
 - Resume summary table formatting
-- Frozen override report formatting (informational, not error)
-- Integration test: run_graph with pre-populated `.workflow/` dir and
-  signal files → orchestrator receives pre-built runtimes
-- Integration test: run_graph fresh (no `.workflow/`) → existing
-  behavior preserved
-- Integration test: force-fresh with previous run → new run dir created,
-  stale state cleaned up, frozen tasks validated
-- Integration test: resume with modified YAML for completed task →
-  override report printed, execution graph wins
+- Frozen override report formatting
+- Integration test: `run_graph()` fresh → existing behavior preserved
+- Integration test: `run_graph()` resume → pre-built runtimes passed
+  to orchestrator
+- Integration test: resume with modified YAML → override report printed
+
+### PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction
+
+**Scope:** Cleanup follow-up to PR E. Reduces `run_graph.py` coupling
+to concrete infrastructure and improves readability by extracting the
+monolithic `run_graph()` function into named phases.
+
+**Motivation (discovered during PR E):** PR E added ~40 lines of inline
+resume logic to an already long function. `run_graph()` directly calls
+`docker_ops` (network create/exists/remove) and `tmux.current_session()`
+— the wiring layer knows concrete infrastructure mechanisms. If we add
+Podman-specific setup, SSH tunnels, or a non-tmux agent environment,
+those details would naturally land in `run_graph.py`, turning it from a
+composition layer into an implementation layer.
+
+**Changes:**
+
+1. **Extract infrastructure lifecycle behind protocols:**
+   - Docker/Podman network lifecycle → protocol behind a factory in
+     `builders.py` (similar to `build_task_pr_prober()`).
+   - tmux session detection/validation → protocol on
+     `AgentEnvironment` or a new `SessionResolver` abstraction.
+   - `run_graph.py` calls factories/protocols, never `docker_ops` or
+     `tmux` directly.
+
+2. **Extract `run_graph()` into named phases:**
+   - `_resolve_config(ops, cli_args) -> OrchestratorConfig` — the
+     verbose CLI > YAML > default resolution chain.
+   - `_setup_resume(ctx, graph, config) -> (task_runtimes,
+     workstream_runtimes)` — probe, validate, copy, build runtimes,
+     print summary.
+   - `_setup_infrastructure(graph) -> cleanup_callback` — network
+     creation, session validation.
+   - Top-level `run_graph()` becomes a short sequence of phase calls.
+
+3. **Reduce `run_graph()` parameter count:** Group related parameters
+   into a config dataclass (e.g., `RunOptions` combining model, sandbox,
+   credentials, verbose, keep_panes, etc.). The 13-keyword signature
+   becomes 3–4 parameters.
+
+**Files touched:**
+- `src/agentrelay/run_graph.py`
+- `src/agentrelay/orchestrator/builders.py` (new factories)
+- Tests for refactored functions
+
+**Depends on:** PR E (merged).
 
 ### PR F: Shared reset utilities + primitive commands
 

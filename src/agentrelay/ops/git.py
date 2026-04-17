@@ -340,6 +340,23 @@ def reset_hard(repo: Path, ref: str) -> None:
     )
 
 
+def clean(repo: Path) -> None:
+    """Remove untracked files and directories from a working tree.
+
+    Runs ``git -C <repo> clean -fd``.  Used during resume to ensure a
+    coherent fresh start — untracked files from an interrupted agent
+    would otherwise survive branch switches.
+
+    Args:
+        repo: Path to the repository or worktree.
+    """
+    subprocess.run(
+        ["git", "-C", str(repo), "clean", "-fd"],
+        check=True,
+        capture_output=True,
+    )
+
+
 def set_config(repo: Path, key: str, value: str) -> None:
     """Set a git config value in the local repo.
 

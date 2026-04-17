@@ -11,6 +11,7 @@ from agentrelay.orchestrator.builders import (
     build_integration_merge_checker,
     build_standard_runner,
     build_standard_workstream_runner,
+    build_task_pr_prober,
 )
 from agentrelay.orchestrator.orchestrator import (
     Orchestrator,
@@ -45,5 +46,6 @@ __all__ = [
     "build_integration_merge_checker",
     "build_standard_runner",
     "build_standard_workstream_runner",
+    "build_task_pr_prober",
     "probe_graph_state",
 ]

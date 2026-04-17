@@ -1,7 +1,9 @@
 """Console output for orchestrator events and results.
 
 Provides :class:`ConsoleListener` for real-time event output during a run,
-and :func:`print_summary` for a post-run summary table.
+:func:`print_summary` for a post-run summary table, and resume-specific
+formatting functions (:func:`print_resume_summary`,
+:func:`print_override_report`, :func:`print_config_warnings`).
 """
 
 from __future__ import annotations
@@ -17,6 +19,7 @@ from agentrelay.orchestrator import (
     OrchestratorResult,
     TaskOutcomeClass,
 )
+from agentrelay.resolved_validation import FrozenValidationResult
 from agentrelay.task_runtime import TaskStatus
 
 
@@ -344,3 +347,143 @@ def _write_concerns(
                 concern, width=76, initial_indent="    ", subsequent_indent="    "
             )
             stream.write(wrapped + "\n")
+
+
+# ---------------------------------------------------------------------------
+# Resume-specific output
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ResumeTaskInfo:
+    """Per-task information for the resume summary table.
+
+    Attributes:
+        task_id: Task identifier.
+        status: Task status from the prior run probe.
+        frozen: Whether the task has a frozen ``resolved.json`` record.
+    """
+
+    task_id: str
+    status: TaskStatus
+    frozen: bool
+
+
+def _resume_action(info: ResumeTaskInfo) -> str:
+    """Compute the human-readable action for a task in the resume table."""
+    if info.frozen:
+        return "skip (frozen)"
+    if info.status == TaskStatus.FAILED:
+        return "restart"
+    if info.status == TaskStatus.PENDING:
+        return "start"
+    # Stale states (RUNNING, PR_CREATED) should already be normalized by the
+    # probe, but handle gracefully.
+    return "restart"
+
+
+def print_resume_summary(
+    graph_name: str,
+    run_number: int,
+    prior_run_number: int,
+    task_infos: Sequence[ResumeTaskInfo],
+    *,
+    stream: TextIO = sys.stderr,
+) -> None:
+    """Print a pre-orchestrator resume summary table.
+
+    Shows the status and planned action for each task in graph topological
+    order.
+
+    Args:
+        graph_name: Name of the graph being resumed.
+        run_number: New run number being created.
+        prior_run_number: Run number of the prior run being resumed from.
+        task_infos: Per-task resume info in graph topological order.
+        stream: Output stream (default stderr).
+    """
+    stream.write(
+        f"\nResuming graph '{graph_name}' (run {run_number}, prior: run {prior_run_number})\n"
+    )
+
+    if not task_infos:
+        stream.write("\n  (no tasks)\n")
+        stream.flush()
+        return
+
+    headers = ("Task", "Status", "Action")
+    rows: list[tuple[str, str, str]] = []
+    status_labels = {
+        TaskStatus.PR_MERGED: "completed",
+        TaskStatus.COMPLETED: "completed",
+        TaskStatus.FAILED: "failed",
+        TaskStatus.RUNNING: "running",
+        TaskStatus.PR_CREATED: "pr_created",
+        TaskStatus.PENDING: "pending",
+    }
+    for info in task_infos:
+        label = status_labels.get(info.status, info.status.value)
+        action = _resume_action(info)
+        rows.append((info.task_id, label, action))
+
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for i, cell in enumerate(row):
+            widths[i] = max(widths[i], len(cell))
+
+    def _fmt(cells: tuple[str, ...]) -> str:
+        return "  ".join(cell.ljust(widths[i]) for i, cell in enumerate(cells))
+
+    stream.write("\n")
+    stream.write("  " + _fmt(headers) + "\n")
+    stream.write("  " + "  ".join("\u2500" * w for w in widths) + "\n")
+    for row in rows:
+        stream.write("  " + _fmt(row) + "\n")
+
+    stream.flush()
+
+
+def print_override_report(
+    validation: FrozenValidationResult,
+    *,
+    stream: TextIO = sys.stderr,
+) -> None:
+    """Print informational override report for frozen tasks.
+
+    Called only when ``validation.has_overrides`` is ``True``.
+
+    Args:
+        validation: Frozen validation result from
+            :func:`~agentrelay.resolved_validation.validate_frozen_tasks`.
+        stream: Output stream (default stderr).
+    """
+    stream.write(
+        "\nFrozen task overrides (current YAML differs from executed values):\n"
+    )
+    for task_result in validation.task_results:
+        if not task_result.has_overrides:
+            continue
+        stream.write(f"\n  {task_result.task_id}:\n")
+        for mismatch in task_result.mismatches:
+            stream.write(
+                f"    {mismatch.field}: {mismatch.resolved_value}"
+                f" (current: {mismatch.current_value})\n"
+            )
+    stream.flush()
+
+
+def print_config_warnings(
+    warnings: Sequence[str],
+    *,
+    stream: TextIO = sys.stderr,
+) -> None:
+    """Print config mismatch warnings from a prior run.
+
+    Args:
+        warnings: Warning strings from config comparison.
+        stream: Output stream (default stderr).
+    """
+    stream.write("\nConfig changed from prior run:\n")
+    for warning in warnings:
+        stream.write(f"  {warning}\n")
+    stream.flush()

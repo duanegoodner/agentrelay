@@ -19,6 +19,8 @@ from __future__ import annotations
 import argparse
 import asyncio
 import dataclasses
+import json
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -29,16 +31,30 @@ import yaml
 from agentrelay.ops import docker as docker_ops
 from agentrelay.ops import git, signals, tmux
 from agentrelay.orchestrator import (
+    GraphProbe,
     Orchestrator,
     OrchestratorConfig,
     OrchestratorOutcome,
     OrchestratorResult,
+    TaskRuntimeBuilder,
+    WorkstreamRuntimeBuilder,
     build_integration_auto_merger,
     build_integration_merge_checker,
     build_standard_runner,
     build_standard_workstream_runner,
+    build_task_pr_prober,
+    probe_graph_state,
 )
-from agentrelay.output import ConsoleListener, print_summary
+from agentrelay.output import (
+    ConsoleListener,
+    ResumeTaskInfo,
+    print_config_warnings,
+    print_override_report,
+    print_resume_summary,
+    print_summary,
+)
+from agentrelay.reset_graph import _find_latest_run_dir
+from agentrelay.resolved_validation import validate_frozen_tasks
 from agentrelay.sandbox import (
     AnthropicCredential,
     CredentialProvider,
@@ -47,7 +63,9 @@ from agentrelay.sandbox import (
 )
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
+from agentrelay.task_runtime import TaskRuntime
 from agentrelay.tools import ToolValidationError, validate_tools
+from agentrelay.workstream import WorkstreamRuntime, WorkstreamStatus
 
 
 @dataclasses.dataclass(frozen=True)
@@ -218,44 +236,73 @@ def _load_and_prepare_graph(
     return (graph, ops)
 
 
-class _ConflictError(RuntimeError):
-    """Raised when leftover state from a previous run would conflict."""
+@dataclasses.dataclass(frozen=True)
+class _RunContext:
+    """Result of resolving whether this is a fresh or resume run.
+
+    Attributes:
+        run_dir: Path to the run directory for this session.
+        prior_run_dir: Path to the prior run directory, or ``None`` for
+            fresh runs.
+        is_resume: ``True`` if resuming from a prior run.
+        run_number: Integer run number for this session.
+        prior_run_number: Integer run number of the prior run, or ``None``.
+    """
+
+    run_dir: Path
+    prior_run_dir: Optional[Path]
+    is_resume: bool
+    run_number: int
+    prior_run_number: Optional[int]
 
 
-def _resolve_run_dir(repo_path: Path, graph_name: str) -> Path:
-    """Determine the run directory for a fresh graph execution.
+def _resolve_run_context(repo_path: Path, graph_name: str) -> _RunContext:
+    """Detect whether this is a fresh or resume run and create the run dir.
 
-    Creates and returns ``runs/0/`` under the workflow directory.
-    Raises :class:`_ConflictError` if leftover state from a previous run
-    exists.
+    If ``.workflow/<graph>/`` does not exist, creates ``runs/0/`` (fresh).
+    If it exists, finds the latest run directory and creates
+    ``runs/<N+1>/`` (resume).
 
     Args:
         repo_path: Path to the repository root.
         graph_name: Name of the task graph being executed.
 
     Returns:
-        Path to the run directory (e.g. ``.workflow/<graph>/runs/0``).
+        _RunContext describing the run directory and resume state.
 
     Raises:
-        _ConflictError: If ``.workflow/<graph>`` or ``.worktrees/<graph>``
-            already exists.
+        RuntimeError: If the workflow directory exists but contains no
+            valid run directories.
     """
     workflow_dir = repo_path / ".workflow" / graph_name
-    worktree_dir = repo_path / ".worktrees" / graph_name
-    conflicts = []
-    if workflow_dir.is_dir():
-        conflicts.append(str(workflow_dir))
-    if worktree_dir.is_dir():
-        conflicts.append(str(worktree_dir))
-    if conflicts:
-        dirs = ", ".join(conflicts)
-        raise _ConflictError(
-            f"Leftover state from a previous run of graph '{graph_name}': {dirs}\n"
-            f"Run `agentrelay reset <graph.yaml>` to clean up first."
+    if not workflow_dir.is_dir():
+        run_dir = workflow_dir / "runs" / "0"
+        run_dir.mkdir(parents=True, exist_ok=True)
+        return _RunContext(
+            run_dir=run_dir,
+            prior_run_dir=None,
+            is_resume=False,
+            run_number=0,
+            prior_run_number=None,
         )
-    run_dir = workflow_dir / "runs" / "0"
+
+    prior_run_dir = _find_latest_run_dir(workflow_dir)
+    if prior_run_dir is None:
+        raise RuntimeError(
+            f"Workflow directory exists but has no run directories: {workflow_dir}\n"
+            "Run `agentrelay reset` to clean up, or remove the directory manually."
+        )
+    prior_run_number = int(prior_run_dir.name)
+    new_run_number = prior_run_number + 1
+    run_dir = workflow_dir / "runs" / str(new_run_number)
     run_dir.mkdir(parents=True, exist_ok=True)
-    return run_dir
+    return _RunContext(
+        run_dir=run_dir,
+        prior_run_dir=prior_run_dir,
+        is_resume=True,
+        run_number=new_run_number,
+        prior_run_number=prior_run_number,
+    )
 
 
 class _SessionError(RuntimeError):
@@ -288,7 +335,12 @@ def _validate_tmux_sessions(graph: TaskGraph) -> None:
             )
 
 
-def _record_run_start(run_dir: Path, repo_path: Path) -> None:
+def _record_run_start(
+    run_dir: Path,
+    repo_path: Path,
+    *,
+    start_head: Optional[str] = None,
+) -> None:
     """Write run_info.json with start HEAD and timestamp.
 
     This file is read by ``reset_graph`` to know what SHA to reset to.
@@ -296,8 +348,14 @@ def _record_run_start(run_dir: Path, repo_path: Path) -> None:
     Args:
         run_dir: Path to the per-run directory.
         repo_path: Path to the repository root (for ``git rev-parse``).
+        start_head: Override for the start HEAD SHA.  When resuming,
+            pass the prior run's ``start_head`` so that
+            ``agentrelay reset`` always finds the original pre-graph
+            HEAD regardless of how many resume cycles have occurred.
+            When ``None``, reads from ``git rev-parse HEAD``.
     """
-    start_head = git.rev_parse_head(repo_path)
+    if start_head is None:
+        start_head = git.rev_parse_head(repo_path)
     signals.write_json(
         run_dir,
         "run_info.json",
@@ -306,6 +364,24 @@ def _record_run_start(run_dir: Path, repo_path: Path) -> None:
             "started_at": datetime.now(timezone.utc).isoformat(),
         },
     )
+
+
+def _read_prior_start_head(prior_run_dir: Path) -> str:
+    """Read ``start_head`` from a prior run's ``run_info.json``.
+
+    Args:
+        prior_run_dir: Path to the prior run directory.
+
+    Returns:
+        The ``start_head`` SHA string.
+
+    Raises:
+        FileNotFoundError: If ``run_info.json`` does not exist.
+        KeyError: If ``start_head`` is missing from the JSON.
+    """
+    path = prior_run_dir / "run_info.json"
+    data = json.loads(path.read_text())
+    return str(data["start_head"])
 
 
 def _record_run_config(
@@ -366,6 +442,244 @@ def _copy_graph_yaml(run_dir: Path, graph_path: Path) -> None:
     dest = run_dir / "graph.yaml"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(graph_path.read_bytes())
+
+
+# ---------------------------------------------------------------------------
+# Resume helpers
+# ---------------------------------------------------------------------------
+
+
+def _copy_frozen_artifacts(
+    prior_run_dir: Path,
+    new_run_dir: Path,
+    probe: GraphProbe,
+) -> None:
+    """Copy frozen task and workstream artifacts from a prior run to a new run.
+
+    For each frozen task (has a ``resolved.json``), copies:
+    - ``resolved.json``
+    - ``outputs.json`` (if present — needed for downstream ``inputs_from``)
+    - ``status/`` signal files (so ``_read_task_status_from_signals`` returns
+      the correct terminal status)
+
+    For each non-PENDING workstream, copies all signal files (and
+    ``resolved.json`` if present).  Without these files the orchestrator
+    cannot read the correct workstream status — for example, a
+    ``PR_CREATED`` workstream would appear PENDING, and
+    ``_refresh_workstream_terminal_states`` would try to write
+    ``merge_ready`` to a missing ``signal_dir``.
+
+    Args:
+        prior_run_dir: Path to the prior run directory.
+        new_run_dir: Path to the new run directory.
+        probe: Probe result from the prior run.
+    """
+    for task_id, task_probe in probe.task_probes.items():
+        if task_probe.resolved is None:
+            continue
+        src_dir = prior_run_dir / "signals" / task_id
+        dst_dir = new_run_dir / "signals" / task_id
+        dst_dir.mkdir(parents=True, exist_ok=True)
+
+        # Copy resolved.json.
+        src_resolved = src_dir / "resolved.json"
+        if src_resolved.is_file():
+            shutil.copy2(src_resolved, dst_dir / "resolved.json")
+
+        # Copy outputs.json (needed for downstream inputs_from resolution).
+        src_outputs = src_dir / "outputs.json"
+        if src_outputs.is_file():
+            shutil.copy2(src_outputs, dst_dir / "outputs.json")
+
+        # Copy status signal files.
+        src_status = src_dir / "status"
+        if src_status.is_dir():
+            dst_status = dst_dir / "status"
+            dst_status.mkdir(parents=True, exist_ok=True)
+            for signal_file in src_status.iterdir():
+                if signal_file.is_file():
+                    shutil.copy2(signal_file, dst_status / signal_file.name)
+
+    for ws_id, ws_probe in probe.workstream_probes.items():
+        if ws_probe.status == WorkstreamStatus.PENDING:
+            continue
+        src_dir = prior_run_dir / "workstreams" / ws_id
+        if not src_dir.is_dir():
+            continue
+        dst_dir = new_run_dir / "workstreams" / ws_id
+        dst_dir.mkdir(parents=True, exist_ok=True)
+
+        for item in src_dir.iterdir():
+            if item.is_file():
+                shutil.copy2(item, dst_dir / item.name)
+
+
+def _build_resume_runtimes(
+    graph: TaskGraph,
+    probe: GraphProbe,
+    new_run_dir: Path,
+) -> tuple[dict[str, TaskRuntime], dict[str, WorkstreamRuntime]]:
+    """Build runtimes for a resume run from a prior-run probe.
+
+    Frozen tasks (those with ``resolved.json`` in the probe) get their
+    ``signal_dir`` pointed at the new run directory (where status files
+    were copied by :func:`_copy_frozen_artifacts`).  Non-frozen tasks
+    start as PENDING with default state.
+
+    Non-PENDING workstreams get their state populated from the probe
+    (signal_dir, worktree_path, branch_name, merge_pr_url).  This
+    ensures the orchestrator can read the correct status and write
+    status transitions.  PENDING workstreams start with default state —
+    the orchestrator will call ``prepare()`` which is idempotent (PR D
+    reuses existing worktrees).
+
+    Args:
+        graph: Current graph definition.
+        probe: Probe result from the prior run.
+        new_run_dir: Path to the new run directory.
+
+    Returns:
+        Tuple of ``(task_runtimes, workstream_runtimes)``.
+    """
+    task_runtimes = TaskRuntimeBuilder.from_graph(graph)
+    for task_id, task_probe in probe.task_probes.items():
+        if task_probe.resolved is None:
+            continue
+        runtime = task_runtimes[task_id]
+        runtime.state.signal_dir = new_run_dir / "signals" / task_id
+        runtime.state.branch_name = task_probe.branch_name
+        runtime.state.attempt_num = task_probe.attempt_num
+        runtime.artifacts.pr_url = task_probe.pr_url
+
+    workstream_runtimes = WorkstreamRuntimeBuilder.from_graph(graph)
+    for ws_id, ws_probe in probe.workstream_probes.items():
+        if ws_probe.status == WorkstreamStatus.PENDING:
+            continue
+        ws_runtime = workstream_runtimes[ws_id]
+        ws_runtime.state.signal_dir = new_run_dir / "workstreams" / ws_id
+        ws_runtime.state.worktree_path = ws_probe.worktree_path
+        ws_runtime.state.branch_name = ws_probe.branch_name
+        ws_runtime.artifacts.merge_pr_url = ws_probe.merge_pr_url
+        if ws_probe.resolved is not None:
+            ws_runtime.artifacts.target_branch_before_any_merge = (
+                ws_probe.resolved.target_branch_before_any_merge
+            )
+
+    return task_runtimes, workstream_runtimes
+
+
+def _reset_stale_worktree_branches(
+    repo_path: Path,
+    graph_name: str,
+    graph: TaskGraph,
+    frozen_task_ids: set[str],
+) -> None:
+    """Switch worktrees off stale task branches before dispatch.
+
+    When a worktree is checked out on a non-frozen task's branch, the
+    task preparer would treat it as a retry (preserving old WIP commits).
+    Switching to the integration branch forces the preparer to
+    force-create a clean task branch.
+
+    Args:
+        repo_path: Path to the repository root.
+        graph_name: Name of the graph.
+        graph: Current graph definition.
+        frozen_task_ids: Set of task IDs that are frozen (should not be
+            touched).
+    """
+    task_branch_prefix = f"agentrelay/{graph_name}/"
+    for ws_id in graph.workstream_ids():
+        worktree_path = repo_path / ".worktrees" / graph_name / ws_id
+        if not worktree_path.is_dir():
+            continue
+
+        try:
+            current = git.current_branch(worktree_path)
+        except Exception:
+            continue
+
+        if current is None:
+            continue
+
+        # Check if the current branch is a task branch for a non-frozen task.
+        if not current.startswith(task_branch_prefix):
+            continue
+        suffix = current[len(task_branch_prefix) :]
+        # Task branches are agentrelay/<graph>/<task_id> (no further slashes).
+        # Integration branches have an extra /integration suffix.
+        if "/" in suffix:
+            continue
+        task_id = suffix
+        if task_id in frozen_task_ids:
+            continue
+
+        # Switch to the integration branch and remove untracked files.
+        # Untracked files from the interrupted agent survive branch
+        # switches.  Without cleanup, the new agent would see a partial,
+        # potentially incoherent view of the interrupted work (uncommitted
+        # files but not committed ones, since force-create overwrites the
+        # branch).  A clean worktree ensures a coherent fresh start.
+        integration_branch = f"agentrelay/{graph_name}/{ws_id}/integration"
+        git.checkout(worktree_path, integration_branch)
+        git.clean(worktree_path)
+
+
+def _compare_run_configs(
+    prior_run_dir: Path,
+    current_config: OrchestratorConfig,
+    *,
+    model: Optional[str],
+    sandbox: Optional[str],
+) -> list[str]:
+    """Compare prior run config with current settings.
+
+    Returns a list of warning strings for fields that differ.  Returns
+    an empty list if the file is missing or configs match.
+
+    Args:
+        prior_run_dir: Path to the prior run directory.
+        current_config: Current orchestrator configuration.
+        model: Current model override (from CLI or YAML), or None.
+        sandbox: Current sandbox override (from CLI), or None.
+
+    Returns:
+        List of human-readable warning strings.
+    """
+    path = prior_run_dir / "run_config.json"
+    if not path.is_file():
+        return []
+    try:
+        prior = json.loads(path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return []
+
+    warnings: list[str] = []
+    checks: list[tuple[str, Any, Any]] = [
+        (
+            "max_concurrency",
+            prior.get("max_concurrency"),
+            current_config.max_concurrency,
+        ),
+        (
+            "max_task_attempts",
+            prior.get("max_task_attempts"),
+            current_config.max_task_attempts,
+        ),
+        (
+            "task_teardown_mode",
+            prior.get("task_teardown_mode"),
+            current_config.task_teardown_mode.value,
+        ),
+        ("model", prior.get("model"), model),
+        ("sandbox", prior.get("sandbox"), sandbox),
+    ]
+    for field_name, prior_val, current_val in checks:
+        if prior_val != current_val:
+            warnings.append(
+                f"{field_name}: {prior_val} -> {current_val} (using current)"
+            )
+    return warnings
 
 
 def _any_task_uses_oci(graph: TaskGraph) -> bool:
@@ -502,11 +816,77 @@ async def run_graph(
 
     assert graph.name is not None, "Graph must have a name"
 
-    run_dir = _resolve_run_dir(repo_path, graph.name)
+    ctx = _resolve_run_context(repo_path, graph.name)
     _validate_tmux_sessions(graph)
     validate_tools(ops.tools)
-    _record_run_start(run_dir, repo_path)
-    _copy_graph_yaml(run_dir, graph_path)
+
+    # -- Resume path: probe prior run and prepare new run dir --
+    task_runtimes: Optional[dict[str, TaskRuntime]] = None
+    workstream_runtimes: Optional[dict[str, WorkstreamRuntime]] = None
+
+    if ctx.is_resume:
+        assert ctx.prior_run_dir is not None
+        assert ctx.prior_run_number is not None
+
+        pr_prober = build_task_pr_prober()
+        probe = probe_graph_state(
+            repo_path, graph.name, graph, ctx.prior_run_dir, pr_prober
+        )
+
+        # Collect frozen tasks (those with resolved.json).
+        frozen = {
+            tid: tp.resolved
+            for tid, tp in probe.task_probes.items()
+            if tp.resolved is not None
+        }
+        current_tasks = {tid: graph.task(tid) for tid in graph.task_ids()}
+        validation = validate_frozen_tasks(frozen, current_tasks)
+        if validation.has_errors:
+            missing = ", ".join(validation.missing_task_ids)
+            raise RuntimeError(
+                f"Cannot resume: frozen task(s) missing from current graph: {missing}\n"
+                "These tasks completed in a prior run but no longer exist in the "
+                "graph YAML. Add them back or use `agentrelay reset` to start fresh."
+            )
+
+        _copy_frozen_artifacts(ctx.prior_run_dir, ctx.run_dir, probe)
+
+        frozen_ids = set(frozen.keys())
+        _reset_stale_worktree_branches(repo_path, graph.name, graph, frozen_ids)
+
+        config_warnings = _compare_run_configs(
+            ctx.prior_run_dir, config, model=model_override, sandbox=sandbox_override
+        )
+
+        task_runtimes, workstream_runtimes = _build_resume_runtimes(
+            graph, probe, ctx.run_dir
+        )
+
+        # Print resume summary.
+        task_infos = [
+            ResumeTaskInfo(
+                task_id=tid,
+                status=probe.task_probes[tid].status,
+                frozen=tid in frozen_ids,
+            )
+            for tid in graph.task_ids()
+        ]
+        print_resume_summary(
+            graph.name, ctx.run_number, ctx.prior_run_number, task_infos
+        )
+        if validation.has_overrides:
+            print_override_report(validation)
+        if config_warnings:
+            print_config_warnings(config_warnings)
+
+    # -- Record run metadata --
+    prior_start_head = (
+        _read_prior_start_head(ctx.prior_run_dir)
+        if ctx.is_resume and ctx.prior_run_dir is not None
+        else None
+    )
+    _record_run_start(ctx.run_dir, repo_path, start_head=prior_start_head)
+    _copy_graph_yaml(ctx.run_dir, graph_path)
 
     # Resolve Anthropic credential: CLI flag > graph YAML default > auto-select.
     effective_anthropic_name = anthropic_credential_name or ops.anthropic_credential
@@ -517,7 +897,7 @@ async def run_graph(
         )
 
     _record_run_config(
-        run_dir,
+        ctx.run_dir,
         config,
         keep_panes=effective_keep_panes,
         model=model_override,
@@ -535,13 +915,14 @@ async def run_graph(
             raise RuntimeError(
                 "Docker is required for OCI sandbox but is not available"
             )
-        docker_ops.network_create(network_name)
+        if not docker_ops.network_exists(network_name):
+            docker_ops.network_create(network_name)
 
     try:
         task_runner = build_standard_runner(
             repo_path=repo_path,
             graph_name=graph.name,
-            run_dir=run_dir,
+            run_dir=ctx.run_dir,
             graph=graph,
             keep_panes=effective_keep_panes,
             tools=ops.tools,
@@ -551,7 +932,7 @@ async def run_graph(
         workstream_runner = build_standard_workstream_runner(
             repo_path=repo_path,
             graph_name=graph.name,
-            run_dir=run_dir,
+            run_dir=ctx.run_dir,
         )
         orchestrator = Orchestrator(
             graph=graph,
@@ -562,7 +943,10 @@ async def run_graph(
             integration_merge_checker=build_integration_merge_checker(repo_path),
             integration_auto_merger=build_integration_auto_merger(repo_path),
         )
-        return await orchestrator.run()
+        return await orchestrator.run(
+            task_runtimes=task_runtimes,
+            workstream_runtimes=workstream_runtimes,
+        )
     finally:
         if network_name is not None:
             try:
@@ -615,16 +999,17 @@ def dry_run(graph_path: Path) -> None:
 
 
 def _dry_run_conflict_check(repo_path: Path, graph_name: str) -> None:
-    """Print conflict warnings during dry-run (non-fatal)."""
+    """Print resume notice during dry-run (non-fatal)."""
     workflow_dir = repo_path / ".workflow" / graph_name
-    worktree_dir = repo_path / ".worktrees" / graph_name
-    if workflow_dir.is_dir() or worktree_dir.is_dir():
-        print(f"\nWARNING: Leftover state from a previous run of '{graph_name}':")
-        if workflow_dir.is_dir():
-            print(f"  {workflow_dir}")
-        if worktree_dir.is_dir():
-            print(f"  {worktree_dir}")
-        print("  Run reset_graph to clean up before a real run.")
+    if workflow_dir.is_dir():
+        latest = _find_latest_run_dir(workflow_dir)
+        if latest is not None:
+            run_num = int(latest.name)
+            print(
+                f"\nNote: prior run exists (run {run_num}). "
+                f"Running this graph will resume as run {run_num + 1}."
+            )
+            print("  Use `agentrelay reset` first for a completely fresh start.")
 
 
 def _print_result(result: OrchestratorResult) -> None:
@@ -785,7 +1170,6 @@ def main() -> None:
             )
         )
     except (
-        _ConflictError,
         _SessionError,
         ToolValidationError,
         ValueError,

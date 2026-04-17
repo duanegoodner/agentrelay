@@ -494,3 +494,90 @@ class TestPrintSummary:
         assert "Outcome: succeeded" in output
         # No table rows.
         assert "Task" not in output
+
+
+# ---------------------------------------------------------------------------
+# Resume-specific output
+# ---------------------------------------------------------------------------
+
+
+class TestPrintResumeSummary:
+    """Tests for print_resume_summary()."""
+
+    def test_basic_table(self) -> None:
+        from agentrelay.output.console import ResumeTaskInfo, print_resume_summary
+
+        buf = io.StringIO()
+        infos = [
+            ResumeTaskInfo(task_id="task_a", status=TaskStatus.PR_MERGED, frozen=True),
+            ResumeTaskInfo(task_id="task_b", status=TaskStatus.FAILED, frozen=False),
+            ResumeTaskInfo(task_id="task_c", status=TaskStatus.PENDING, frozen=False),
+        ]
+        print_resume_summary("my-graph", 1, 0, infos, stream=buf)
+        output = buf.getvalue()
+        assert "Resuming graph 'my-graph' (run 1, prior: run 0)" in output
+        assert "task_a" in output
+        assert "skip (frozen)" in output
+        assert "task_b" in output
+        assert "restart" in output
+        assert "task_c" in output
+        assert "start" in output
+
+    def test_empty_tasks(self) -> None:
+        from agentrelay.output.console import print_resume_summary
+
+        buf = io.StringIO()
+        print_resume_summary("g", 1, 0, [], stream=buf)
+        output = buf.getvalue()
+        assert "(no tasks)" in output
+
+
+class TestPrintOverrideReport:
+    """Tests for print_override_report()."""
+
+    def test_single_mismatch(self) -> None:
+        from agentrelay.output.console import print_override_report
+        from agentrelay.resolved_validation import (
+            FieldMismatch,
+            FrozenValidationResult,
+            TaskValidationResult,
+        )
+
+        validation = FrozenValidationResult(
+            task_results=(
+                TaskValidationResult(
+                    task_id="task_a",
+                    mismatches=(
+                        FieldMismatch(
+                            field="model",
+                            resolved_value="claude-sonnet-4-6",
+                            current_value="claude-opus-4-6",
+                        ),
+                    ),
+                ),
+            ),
+            missing_task_ids=(),
+        )
+        buf = io.StringIO()
+        print_override_report(validation, stream=buf)
+        output = buf.getvalue()
+        assert "task_a" in output
+        assert "model" in output
+        assert "claude-sonnet-4-6" in output
+        assert "claude-opus-4-6" in output
+
+
+class TestPrintConfigWarnings:
+    """Tests for print_config_warnings()."""
+
+    def test_prints_warnings(self) -> None:
+        from agentrelay.output.console import print_config_warnings
+
+        buf = io.StringIO()
+        print_config_warnings(
+            ["max_concurrency: 2 -> 4 (using current)"],
+            stream=buf,
+        )
+        output = buf.getvalue()
+        assert "Config changed" in output
+        assert "max_concurrency" in output

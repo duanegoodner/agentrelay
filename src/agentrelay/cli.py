@@ -28,7 +28,6 @@ from agentrelay.graph_index import DuplicateGraphNameError, GraphIndex
 from agentrelay.orchestrator import OrchestratorOutcome
 from agentrelay.reset_graph import _resolve_graph_name, reset_graph
 from agentrelay.run_graph import (
-    _ConflictError,
     _dry_run_conflict_check,
     _print_result,
     _SessionError,
@@ -162,7 +161,6 @@ def _handle_run(args: argparse.Namespace) -> None:
             )
         )
     except (
-        _ConflictError,
         _SessionError,
         ToolValidationError,
         ValueError,
