@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), and PR D (#196) merged.
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), and PR E (#197) merged.
 
 ## Goal
 
@@ -1009,7 +1009,7 @@ Depends on PR A (path layout).
 - New test: prepare with pre-existing worktree + existing signal_dir →
   no crash, state set correctly
 
-### PR E: Wire resumption into run_graph.py + CLI
+### PR E: Wire resumption into run_graph.py + CLI — #197 Merged
 
 **Scope:** Integration glue. Depends on PR A, B, C, and D.
 
@@ -1135,6 +1135,43 @@ Key decisions driving the simplification:
 - Integration test: `run_graph()` resume → pre-built runtimes passed
   to orchestrator
 - Integration test: resume with modified YAML → override report printed
+
+**Notes from implementation (2026-04-16):**
+
+- **Design simplification:** Collapsed RESUME/FORCE_FRESH into a single
+  resume mode. Every restart creates `runs/<N+1>/`, always restarts
+  in-flight tasks, always copies `resolved.json`. No `--force-fresh`
+  flag — `agentrelay reset` is the escape hatch for a full wipe. The
+  original two-mode design was rejected because (a) reusing the same
+  run dir creates invisible resume boundaries, and (b) the backward-
+  reference approach for `resolved.json` breaks on chained resumes
+  (run 0 → 1 → 2).
+- **Workstream state copying:** Initial implementation only copied
+  signal files for MERGED workstreams. E2e testing revealed that
+  PR_CREATED workstreams (integration PR created but not merged) also
+  need their signals copied — otherwise `_refresh_workstream_terminal_
+  states()` tries to write `merge_ready` to a missing `signal_dir`.
+  Fixed to copy for all non-PENDING workstreams.
+- **Docker network idempotency:** OCI e2e Scenario 2 (interrupt +
+  restart) failed because the Docker network from run 0 survived the
+  kill. Fixed with `network_exists` check before `network_create`.
+- **git clean for coherent restart:** Untracked files from an
+  interrupted agent survive branch switches. Without `git clean -fd`,
+  the new agent sees partial artifacts from the interrupted run
+  (uncommitted files but not committed ones — incoherent state).
+  Added `git.clean()` to `_reset_stale_worktree_branches()`.
+- **`build_task_pr_prober()` factory:** Added to `builders.py` to
+  keep concrete `GhTaskPrProber` import out of `run_graph.py`,
+  matching the pattern of `build_integration_merge_checker()`.
+- **E2e validation:** Three scenarios tested against `quick-chained`
+  graph in agentrelaydemos, both bare and OCI:
+  1. Completed run + re-run → both tasks frozen, exits immediately.
+  2. Interrupt mid-task + restart → frozen task skipped, interrupted
+     task restarts with clean worktree.
+  3. Chained resume (run 0 → 1 → 2) → `resolved.json` chains
+     correctly, `start_head` identical across all three runs.
+- **Test delta:** +15 new tests (1555 → 1570). `pixi run check`
+  passes. PR #197.
 
 ### PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction
 
