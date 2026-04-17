@@ -23,15 +23,19 @@ from pathlib import Path
 from typing import Optional
 
 from agentrelay.orchestrator.probe import GraphProbe
+from agentrelay.run_repo import GitRunRepoManager
 from agentrelay.sandbox import (
     AnthropicCredential,
     ClaudeCodeAdapter,
     CredentialProvider,
     NullCredentialProvider,
     NullSandbox,
+    NullSandboxInfrastructureManager,
     OciSandbox,
+    OciSandboxInfrastructureManager,
     SandboxType,
 )
+from agentrelay.session import TmuxSessionResolver
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runner.core.dispatch import StepDispatch
 from agentrelay.task_runner.core.io import (
@@ -382,3 +386,53 @@ def build_task_pr_prober() -> GhTaskPrProber:
         A :class:`GhTaskPrProber` instance.
     """
     return GhTaskPrProber()
+
+
+def build_sandbox_infrastructure_manager(
+    graph: TaskGraph,
+) -> OciSandboxInfrastructureManager | NullSandboxInfrastructureManager:
+    """Build the appropriate sandbox infrastructure manager for a graph.
+
+    Inspects the graph's tasks for OCI sandbox usage.  Returns an
+    ``OciSandboxInfrastructureManager`` when any task uses OCI
+    isolation, otherwise returns a
+    ``NullSandboxInfrastructureManager``.
+
+    Args:
+        graph: Validated immutable task graph.
+
+    Returns:
+        Appropriate infrastructure manager implementation.
+    """
+    uses_oci = False
+    for task_id in graph.task_ids():
+        isolation = graph.task(task_id).primary_agent.isolation
+        if isolation is not None and isolation.sandbox_type == SandboxType.OCI:
+            uses_oci = True
+            break
+    if uses_oci:
+        assert graph.name is not None
+        return OciSandboxInfrastructureManager(graph.name)
+    return NullSandboxInfrastructureManager()
+
+
+def build_session_resolver() -> TmuxSessionResolver:
+    """Build the standard session resolver for tmux environments.
+
+    Returns:
+        A ``TmuxSessionResolver`` instance.
+    """
+    return TmuxSessionResolver()
+
+
+def build_run_repo_manager(repo_path: Path, graph_name: str) -> GitRunRepoManager:
+    """Build the standard run repo manager for git repositories.
+
+    Args:
+        repo_path: Path to the repository root.
+        graph_name: Name of the graph being executed.
+
+    Returns:
+        A ``GitRunRepoManager`` instance.
+    """
+    return GitRunRepoManager(repo_path=repo_path, graph_name=graph_name)

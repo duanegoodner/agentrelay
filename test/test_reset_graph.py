@@ -315,7 +315,7 @@ def test_run_graph_writes_run_info(tmp_git_repo: Path) -> None:
 
     run_dir = tmp_git_repo / ".workflow" / "my-graph" / "runs" / "0"
     run_dir.mkdir(parents=True)
-    _record_run_start(run_dir, tmp_git_repo)
+    _record_run_start(run_dir, "a" * 40)
 
     run_info_path = run_dir / "run_info.json"
     assert run_info_path.is_file()

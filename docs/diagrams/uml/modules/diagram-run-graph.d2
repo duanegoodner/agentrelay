@@ -42,10 +42,26 @@ classes: {
 #  run_graph.py — top-level composition and CLI
 # ─────────────────────────────────────────────
 run_graph_py: "run_graph.py" {
+  RunOptions: "RunOptions <<frozen dataclass>>" {
+    shape: class
+    tmux_session: "str | None"
+    keep_panes: bool
+    model_override: "str | None"
+    max_concurrency: "int | None"
+    max_task_attempts: "int | None"
+    teardown_mode: "str | None"
+    fail_fast_on_workstream_error: "bool | None"
+    fail_fast_on_internal_error: "bool | None"
+    credential_provider: "CredentialProvider | None"
+    anthropic_credential_name: "str | None"
+    sandbox_override: "str | None"
+    verbose: bool
+  }
+
   run_graph_functions: "run_graph <<module>>" {
     shape: class
     module_path: run_graph
-    "+run_graph(graph_path, repo_path, ...)": OrchestratorResult
+    "+run_graph(graph_path, repo_path, options)": OrchestratorResult
     "+dry_run(graph_path)": void
     "+main()": void
   }
@@ -56,8 +72,6 @@ run_graph_py: "run_graph.py" {
 
 ops_pkg: "ops/" {
   style.opacity: 0.5
-  docker: "docker <<module>>" { shape: class }
-  git: "git <<module>>" { shape: class }
   signals: "signals <<module>>" { shape: class }
 }
 
@@ -73,6 +87,24 @@ output_pkg: "output/" {
   style.opacity: 0.5
   ConsoleListener: "ConsoleListener <<dataclass>>" { shape: class }
   console_functions: "console <<module>>" { shape: class }
+}
+
+run_repo_py: "run_repo.py" {
+  style.opacity: 0.5
+  RunRepoManager: "RunRepoManager <<protocol>>" { shape: class }
+}
+
+sandbox_pkg: "sandbox/" {
+  style.opacity: 0.5
+  sandbox_core_pkg: "core/" {
+    CredentialProvider: "CredentialProvider" { shape: class }
+    SandboxInfrastructureManager: "SandboxInfrastructureManager" { shape: class }
+  }
+}
+
+session_py: "session.py" {
+  style.opacity: 0.5
+  SessionResolver: "SessionResolver <<protocol>>" { shape: class }
 }
 
 task_graph_pkg: "task_graph/" {
@@ -93,9 +125,11 @@ run_graph_py.run_graph_functions -> orchestrator_pkg.builders: builds runners { 
 run_graph_py.run_graph_functions -> orchestrator_pkg.Orchestrator: creates and runs { class: dependency }
 run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorConfig: configures { class: dependency }
 run_graph_py.run_graph_functions -> orchestrator_pkg.OrchestratorResult: returns { class: dependency }
-run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dependency }
+run_graph_py.run_graph_functions -> run_repo_py.RunRepoManager: "current_head, reset branches" { class: dependency }
 run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.ConsoleListener: creates { class: dependency }
 run_graph_py.run_graph_functions -> output_pkg.console_functions: "prints summary" { class: dependency }
-run_graph_py.run_graph_functions -> ops_pkg.docker: "network lifecycle" { class: dependency }
+run_graph_py.run_graph_functions -> sandbox_pkg.sandbox_core_pkg.SandboxInfrastructureManager: "setup/teardown" { class: dependency }
+run_graph_py.run_graph_functions -> session_py.SessionResolver: "resolves session" { class: dependency }
+run_graph_py.RunOptions -> sandbox_pkg.sandbox_core_pkg.CredentialProvider: "credential_provider (optional)" { class: dependency }
 run_graph_py.run_graph_functions -> tools_py.tools_functions: "validate_tools()" { class: dependency }

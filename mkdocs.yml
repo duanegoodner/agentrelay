@@ -70,7 +70,9 @@ nav:
     - output: api/core/output.md
     - reset_graph: api/core/reset_graph.md
     - run_graph: api/core/run_graph.md
+    - run_repo: api/core/run_repo.md
     - sandbox: api/sandbox/index.md
+    - session: api/core/session.md
     - task: api/core/task.md
     - task_graph: api/task_graph/index.md
     - task_runner: api/core/task_runner.md

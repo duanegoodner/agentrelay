@@ -137,11 +137,22 @@ run_graph_py: "run_graph.py" {
   run_graph_functions: "run_graph <<module>>" { shape: class }
 }
 
+run_repo_py: "run_repo.py" {
+  style.opacity: 0.5
+  GitRunRepoManager: "GitRunRepoManager" { shape: class }
+}
+
 sandbox_pkg: "sandbox/" {
   style.opacity: 0.5
   sandbox_impl_pkg: "implementations/" {
     OciSandbox: "OciSandbox" { shape: class }
+    OciSandboxInfrastructureManager: "OciSandboxInfrastructureManager" { shape: class }
   }
+}
+
+session_py: "session.py" {
+  style.opacity: 0.5
+  TmuxSessionResolver: "TmuxSessionResolver" { shape: class }
 }
 
 task_runner_pkg: "task_runner/" {
@@ -172,6 +183,7 @@ workstream_pkg: "workstream/" {
 
 sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.docker: uses { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.OciSandbox -> ops_pkg.git: uses { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.OciSandboxInfrastructureManager -> ops_pkg.docker: uses { class: dependency }
 orchestrator_pkg.probe -> ops_pkg.signals: "reads signal files" { class: dependency }
 workstream_pkg.workstream_impl_pkg.GitWorkstreamPreparer -> ops_pkg.git: uses { class: dependency }
 workstream_pkg.workstream_impl_pkg.GhWorkstreamIntegrator -> ops_pkg.gh: uses { class: dependency }
@@ -191,9 +203,9 @@ task_runner_pkg.task_runner_impl_pkg.GhTaskMerger -> ops_pkg.git: uses { class: 
 task_runner_pkg.task_runner_impl_pkg.WorktreeTaskTeardown -> ops_pkg.git: uses { class: dependency }
 agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.tmux: uses { class: dependency }
 agent_pkg.agent_impl_pkg.TmuxAddress -> ops_pkg.signals: uses { class: dependency }
-run_graph_py.run_graph_functions -> ops_pkg.git: "records run_info" { class: dependency }
 run_graph_py.run_graph_functions -> ops_pkg.signals: "writes run_info.json" { class: dependency }
-run_graph_py.run_graph_functions -> ops_pkg.docker: "network lifecycle" { class: dependency }
+session_py.TmuxSessionResolver -> ops_pkg.tmux: uses { class: dependency }
+run_repo_py.GitRunRepoManager -> ops_pkg.git: uses { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.docker: "container/network cleanup" { class: dependency }

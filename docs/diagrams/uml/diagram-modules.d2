@@ -57,6 +57,8 @@ resolved_py: "resolved.py"
 output_pkg: "output/"
 tools_py: "tools.py"
 run_graph_py: "run_graph.py"
+session_py: "session.py"
+run_repo_py: "run_repo.py"
 reset_graph_py: "reset_graph.py"
 graph_index_py: "graph_index.py"
 sandbox_pkg: "sandbox/"
@@ -89,8 +91,13 @@ task_runner_pkg -> agent_sdk_pkg { class: dependency }
 agent_pkg -> ops_pkg { class: dependency }
 run_graph_py -> task_graph_pkg { class: dependency }
 run_graph_py -> orchestrator_pkg { class: dependency }
+run_graph_py -> run_repo_py { class: dependency }
 run_graph_py -> ops_pkg { class: dependency }
 run_graph_py -> output_pkg { class: dependency }
+run_graph_py -> sandbox_pkg { class: dependency }
+run_graph_py -> session_py { class: dependency }
+session_py -> ops_pkg { class: dependency }
+run_repo_py -> ops_pkg { class: dependency }
 reset_graph_py -> ops_pkg { class: dependency }
 output_pkg -> orchestrator_pkg { class: dependency }
 resolved_py -> task_runtime_pkg { class: dependency }

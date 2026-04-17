@@ -1,0 +1,80 @@
+direction: down
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  session.py — session resolution and validation
+# ─────────────────────────────────────────────
+session_py: "session.py" {
+  SessionError: "SessionError <<exception>>" {
+    shape: class
+  }
+
+  SessionResolver: "SessionResolver <<protocol>>" {
+    shape: class
+    "+resolve(cli_session)": str
+    "+validate(graph)": void
+  }
+
+  TmuxSessionResolver: "TmuxSessionResolver" {
+    shape: class
+    "+resolve(cli_session)": str
+    "+validate(graph)": void
+  }
+}
+
+
+# ─── External dependencies ───
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  tmux: "tmux <<module>>" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  run_graph_functions: "run_graph <<module>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+run_graph_py.run_graph_functions -> session_py.SessionResolver: "resolves session" { class: dependency }
+session_py.TmuxSessionResolver -> session_py.SessionResolver: satisfies { class: implementation }
+session_py.TmuxSessionResolver -> ops_pkg.tmux: uses { class: dependency }

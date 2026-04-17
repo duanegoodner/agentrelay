@@ -22,11 +22,18 @@ from agentrelay.sandbox.core.config import (
     TokenTier,
 )
 from agentrelay.sandbox.core.credentials import CredentialProvider
+from agentrelay.sandbox.core.infrastructure import SandboxInfrastructureManager
 from agentrelay.sandbox.core.sandbox import AgentSandbox
 from agentrelay.sandbox.implementations.claude_code_adapter import ClaudeCodeAdapter
 from agentrelay.sandbox.implementations.file_credentials import FileCredentialProvider
 from agentrelay.sandbox.implementations.null_credentials import NullCredentialProvider
+from agentrelay.sandbox.implementations.null_infrastructure import (
+    NullSandboxInfrastructureManager,
+)
 from agentrelay.sandbox.implementations.null_sandbox import NullSandbox
+from agentrelay.sandbox.implementations.oci_infrastructure import (
+    OciSandboxInfrastructureManager,
+)
 from agentrelay.sandbox.implementations.oci_sandbox import OciSandbox
 
 __all__ = [
@@ -41,8 +48,11 @@ __all__ = [
     "IsolationConfig",
     "NullCredentialProvider",
     "NullSandbox",
+    "NullSandboxInfrastructureManager",
     "OciSandbox",
+    "OciSandboxInfrastructureManager",
     "SandboxContext",
+    "SandboxInfrastructureManager",
     "SandboxType",
     "TokenTier",
 ]

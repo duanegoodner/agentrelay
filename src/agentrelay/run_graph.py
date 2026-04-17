@@ -8,10 +8,10 @@ Usage::
 
 This module provides:
 
-- :func:`run_graph`: async composition function that wires all components and
+- ``run_graph()``: async composition function that wires all components and
   runs the orchestrator.
-- :func:`dry_run`: validates a graph YAML and prints the execution plan.
-- :func:`main`: CLI entry point with argparse.
+- ``dry_run()``: validates a graph YAML and prints the execution plan.
+- ``main()``: CLI entry point with argparse.
 """
 
 from __future__ import annotations
@@ -28,8 +28,7 @@ from typing import Any, Optional
 
 import yaml
 
-from agentrelay.ops import docker as docker_ops
-from agentrelay.ops import git, signals, tmux
+from agentrelay.ops import signals
 from agentrelay.orchestrator import (
     GraphProbe,
     Orchestrator,
@@ -40,6 +39,9 @@ from agentrelay.orchestrator import (
     WorkstreamRuntimeBuilder,
     build_integration_auto_merger,
     build_integration_merge_checker,
+    build_run_repo_manager,
+    build_sandbox_infrastructure_manager,
+    build_session_resolver,
     build_standard_runner,
     build_standard_workstream_runner,
     build_task_pr_prober,
@@ -55,12 +57,13 @@ from agentrelay.output import (
 )
 from agentrelay.reset_graph import _find_latest_run_dir
 from agentrelay.resolved_validation import validate_frozen_tasks
+from agentrelay.run_repo import RunRepoManager
 from agentrelay.sandbox import (
     AnthropicCredential,
     CredentialProvider,
     FileCredentialProvider,
-    SandboxType,
 )
+from agentrelay.session import SessionError
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
 from agentrelay.task_runtime import TaskRuntime
@@ -86,6 +89,48 @@ class OperationalConfig:
     max_concurrency: Optional[int] = None
     max_task_attempts: Optional[int] = None
     teardown_mode: Optional[str] = None
+
+
+@dataclasses.dataclass(frozen=True)
+class RunOptions:
+    """CLI-level options for ``run_graph()``.
+
+    Bundles the keyword arguments that callers pass to control
+    orchestration behavior.  ``None`` for optional fields means
+    "not specified; fall back to graph YAML, then
+    ``OrchestratorConfig`` default."
+
+    Attributes:
+        tmux_session: Override tmux session name, or ``None`` for
+            auto-detection.
+        keep_panes: Keep tmux panes open after task completion.
+        model_override: Override model for all agents.
+        max_concurrency: Maximum concurrent tasks.
+        max_task_attempts: Maximum attempts per task.
+        teardown_mode: When to tear down task resources
+            (``"always"``, ``"never"``, or ``"on_success"``).
+        fail_fast_on_workstream_error: Stop on workstream failure.
+        fail_fast_on_internal_error: Stop on internal errors.
+        credential_provider: Credential provider for sandboxed agents.
+        anthropic_credential_name: Anthropic credential name from
+            the credentials YAML.
+        sandbox_override: Override sandbox type for all tasks
+            (``"oci"`` or ``"none"``).
+        verbose: Show detailed step-level output.
+    """
+
+    tmux_session: Optional[str] = None
+    keep_panes: bool = False
+    model_override: Optional[str] = None
+    max_concurrency: Optional[int] = None
+    max_task_attempts: Optional[int] = None
+    teardown_mode: Optional[str] = None
+    fail_fast_on_workstream_error: Optional[bool] = None
+    fail_fast_on_internal_error: Optional[bool] = None
+    credential_provider: Optional[CredentialProvider] = None
+    anthropic_credential_name: Optional[str] = None
+    sandbox_override: Optional[str] = None
+    verbose: bool = False
 
 
 _VALID_TEARDOWN_MODES = {"always", "never", "on_success"}
@@ -305,41 +350,9 @@ def _resolve_run_context(repo_path: Path, graph_name: str) -> _RunContext:
     )
 
 
-class _SessionError(RuntimeError):
-    """Raised when the tmux session is not specified or doesn't exist."""
-
-
-def _validate_tmux_sessions(graph: TaskGraph) -> None:
-    """Validate that all tasks have a tmux session and it exists.
-
-    Raises:
-        _SessionError: If any task has an empty session or the session
-            doesn't exist.
-    """
-    sessions_seen: set[str] = set()
-    for task_id in graph.task_ids():
-        task = graph.task(task_id)
-        session = task.primary_agent.environment.session
-        if not session:
-            raise _SessionError(
-                f"Task '{task_id}' has no tmux session specified.\n"
-                "Use --tmux-session on the CLI or run from inside a tmux session."
-            )
-        sessions_seen.add(session)
-
-    for session in sorted(sessions_seen):
-        if not tmux.has_session(session):
-            raise _SessionError(
-                f"Tmux session '{session}' does not exist.\n"
-                f"Create it first: tmux new-session -d -s {session}"
-            )
-
-
 def _record_run_start(
     run_dir: Path,
-    repo_path: Path,
-    *,
-    start_head: Optional[str] = None,
+    start_head: str,
 ) -> None:
     """Write run_info.json with start HEAD and timestamp.
 
@@ -347,15 +360,10 @@ def _record_run_start(
 
     Args:
         run_dir: Path to the per-run directory.
-        repo_path: Path to the repository root (for ``git rev-parse``).
-        start_head: Override for the start HEAD SHA.  When resuming,
-            pass the prior run's ``start_head`` so that
-            ``agentrelay reset`` always finds the original pre-graph
-            HEAD regardless of how many resume cycles have occurred.
-            When ``None``, reads from ``git rev-parse HEAD``.
+        start_head: The HEAD SHA at orchestrator launch.  For fresh
+            runs this is the current HEAD; for resume runs it is
+            propagated from the original run's ``run_info.json``.
     """
-    if start_head is None:
-        start_head = git.rev_parse_head(repo_path)
     signals.write_json(
         run_dir,
         "run_info.json",
@@ -442,6 +450,74 @@ def _copy_graph_yaml(run_dir: Path, graph_path: Path) -> None:
     dest = run_dir / "graph.yaml"
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_bytes(graph_path.read_bytes())
+
+
+def _resolve_override(
+    cli_value: Optional[Any],
+    yaml_value: Optional[Any],
+) -> Optional[Any]:
+    """Resolve a config value: CLI > YAML > ``None``.
+
+    Returns ``None`` when neither CLI nor YAML specifies a value,
+    leaving the :class:`OrchestratorConfig` default in effect.
+    """
+    if cli_value is not None:
+        return cli_value
+    return yaml_value
+
+
+# ---------------------------------------------------------------------------
+# Phase functions
+# ---------------------------------------------------------------------------
+
+
+def _resolve_config(
+    ops: OperationalConfig,
+    options: RunOptions,
+) -> tuple[OrchestratorConfig, bool]:
+    """Resolve orchestrator config from CLI > YAML > default cascading.
+
+    Args:
+        ops: Operational config extracted from graph YAML.
+        options: CLI-level run options.
+
+    Returns:
+        Tuple of ``(config, effective_keep_panes)``.
+    """
+    config = OrchestratorConfig()
+    effective_keep_panes = options.keep_panes or ops.keep_panes
+
+    eff_concurrency = _resolve_override(options.max_concurrency, ops.max_concurrency)
+    if eff_concurrency is not None:
+        config = dataclasses.replace(config, max_concurrency=eff_concurrency)
+
+    eff_attempts = _resolve_override(options.max_task_attempts, ops.max_task_attempts)
+    if eff_attempts is not None:
+        config = dataclasses.replace(config, max_task_attempts=eff_attempts)
+
+    eff_teardown = _resolve_override(options.teardown_mode, ops.teardown_mode)
+    if eff_teardown is not None:
+        config = dataclasses.replace(
+            config, task_teardown_mode=TearDownMode(eff_teardown)
+        )
+
+    eff_fail_fast = _resolve_override(
+        options.fail_fast_on_workstream_error, ops.fail_fast_on_workstream_error
+    )
+    if eff_fail_fast is not None:
+        config = dataclasses.replace(
+            config, fail_fast_on_workstream_error=eff_fail_fast
+        )
+
+    eff_fail_fast_internal = _resolve_override(
+        options.fail_fast_on_internal_error, ops.fail_fast_on_internal_error
+    )
+    if eff_fail_fast_internal is not None:
+        config = dataclasses.replace(
+            config, fail_fast_on_internal_error=eff_fail_fast_internal
+        )
+
+    return config, effective_keep_panes
 
 
 # ---------------------------------------------------------------------------
@@ -568,63 +644,6 @@ def _build_resume_runtimes(
     return task_runtimes, workstream_runtimes
 
 
-def _reset_stale_worktree_branches(
-    repo_path: Path,
-    graph_name: str,
-    graph: TaskGraph,
-    frozen_task_ids: set[str],
-) -> None:
-    """Switch worktrees off stale task branches before dispatch.
-
-    When a worktree is checked out on a non-frozen task's branch, the
-    task preparer would treat it as a retry (preserving old WIP commits).
-    Switching to the integration branch forces the preparer to
-    force-create a clean task branch.
-
-    Args:
-        repo_path: Path to the repository root.
-        graph_name: Name of the graph.
-        graph: Current graph definition.
-        frozen_task_ids: Set of task IDs that are frozen (should not be
-            touched).
-    """
-    task_branch_prefix = f"agentrelay/{graph_name}/"
-    for ws_id in graph.workstream_ids():
-        worktree_path = repo_path / ".worktrees" / graph_name / ws_id
-        if not worktree_path.is_dir():
-            continue
-
-        try:
-            current = git.current_branch(worktree_path)
-        except Exception:
-            continue
-
-        if current is None:
-            continue
-
-        # Check if the current branch is a task branch for a non-frozen task.
-        if not current.startswith(task_branch_prefix):
-            continue
-        suffix = current[len(task_branch_prefix) :]
-        # Task branches are agentrelay/<graph>/<task_id> (no further slashes).
-        # Integration branches have an extra /integration suffix.
-        if "/" in suffix:
-            continue
-        task_id = suffix
-        if task_id in frozen_task_ids:
-            continue
-
-        # Switch to the integration branch and remove untracked files.
-        # Untracked files from the interrupted agent survive branch
-        # switches.  Without cleanup, the new agent would see a partial,
-        # potentially incoherent view of the interrupted work (uncommitted
-        # files but not committed ones, since force-create overwrites the
-        # branch).  A clean worktree ensures a coherent fresh start.
-        integration_branch = f"agentrelay/{graph_name}/{ws_id}/integration"
-        git.checkout(worktree_path, integration_branch)
-        git.clean(worktree_path)
-
-
 def _compare_run_configs(
     prior_run_dir: Path,
     current_config: OrchestratorConfig,
@@ -682,52 +701,105 @@ def _compare_run_configs(
     return warnings
 
 
-def _any_task_uses_oci(graph: TaskGraph) -> bool:
-    """Check whether any task in the graph uses OCI sandbox isolation.
+def _setup_resume(
+    ctx: _RunContext,
+    graph: TaskGraph,
+    graph_name: str,
+    config: OrchestratorConfig,
+    *,
+    repo_path: Path,
+    repo_manager: RunRepoManager,
+    model_override: Optional[str],
+    sandbox_override: Optional[str],
+) -> tuple[Optional[dict[str, TaskRuntime]], Optional[dict[str, WorkstreamRuntime]]]:
+    """Probe prior run and set up resume runtimes.
+
+    If this is not a resume run, returns ``(None, None)`` immediately.
+    Otherwise probes the prior run, validates frozen tasks, copies
+    artifacts, builds resume runtimes, and prints the resume summary.
 
     Args:
-        graph: Validated immutable task graph.
+        ctx: Run context with prior run directory.
+        graph: Current task graph.
+        graph_name: Validated non-None graph name.
+        config: Resolved orchestrator config.
+        repo_path: Repository root path.
+        repo_manager: Repo operations for worktree cleanup.
+        model_override: Model override for config comparison.
+        sandbox_override: Sandbox override for config comparison.
 
     Returns:
-        ``True`` if at least one task has ``SandboxType.OCI``.
+        Tuple of ``(task_runtimes, workstream_runtimes)`` if resuming,
+        or ``(None, None)`` for fresh runs.
     """
-    for task_id in graph.task_ids():
-        isolation = graph.task(task_id).primary_agent.isolation
-        if isolation is not None and isolation.sandbox_type == SandboxType.OCI:
-            return True
-    return False
+    if not ctx.is_resume:
+        return None, None
+
+    assert ctx.prior_run_dir is not None
+    assert ctx.prior_run_number is not None
+
+    pr_prober = build_task_pr_prober()
+    probe = probe_graph_state(
+        repo_path, graph_name, graph, ctx.prior_run_dir, pr_prober
+    )
+
+    # Collect frozen tasks (those with resolved.json).
+    frozen = {
+        tid: tp.resolved
+        for tid, tp in probe.task_probes.items()
+        if tp.resolved is not None
+    }
+    current_tasks = {tid: graph.task(tid) for tid in graph.task_ids()}
+    validation = validate_frozen_tasks(frozen, current_tasks)
+    if validation.has_errors:
+        missing = ", ".join(validation.missing_task_ids)
+        raise RuntimeError(
+            f"Cannot resume: frozen task(s) missing from current graph: {missing}\n"
+            "These tasks completed in a prior run but no longer exist in the "
+            "graph YAML. Add them back or use `agentrelay reset` to start fresh."
+        )
+
+    _copy_frozen_artifacts(ctx.prior_run_dir, ctx.run_dir, probe)
+
+    frozen_ids = set(frozen.keys())
+    repo_manager.reset_stale_worktree_branches(graph, frozen_ids)
+
+    config_warnings = _compare_run_configs(
+        ctx.prior_run_dir, config, model=model_override, sandbox=sandbox_override
+    )
+
+    task_runtimes, workstream_runtimes = _build_resume_runtimes(
+        graph, probe, ctx.run_dir
+    )
+
+    # Print resume summary.
+    task_infos = [
+        ResumeTaskInfo(
+            task_id=tid,
+            status=probe.task_probes[tid].status,
+            frozen=tid in frozen_ids,
+        )
+        for tid in graph.task_ids()
+    ]
+    print_resume_summary(graph_name, ctx.run_number, ctx.prior_run_number, task_infos)
+    if validation.has_overrides:
+        print_override_report(validation)
+    if config_warnings:
+        print_config_warnings(config_warnings)
+
+    return task_runtimes, workstream_runtimes
 
 
-def _resolve_override(
-    cli_value: Optional[Any],
-    yaml_value: Optional[Any],
-) -> Optional[Any]:
-    """Resolve a config value: CLI > YAML > ``None``.
-
-    Returns ``None`` when neither CLI nor YAML specifies a value,
-    leaving the :class:`OrchestratorConfig` default in effect.
-    """
-    if cli_value is not None:
-        return cli_value
-    return yaml_value
+# ---------------------------------------------------------------------------
+# Top-level composition
+# ---------------------------------------------------------------------------
 
 
 async def run_graph(
     graph_path: Path,
     repo_path: Path,
     *,
-    tmux_session: Optional[str] = None,
-    keep_panes: bool = False,
-    model_override: Optional[str] = None,
-    max_concurrency: Optional[int] = None,
-    max_task_attempts: Optional[int] = None,
-    teardown_mode: Optional[str] = None,
-    fail_fast_on_workstream_error: Optional[bool] = None,
-    fail_fast_on_internal_error: Optional[bool] = None,
-    credential_provider: Optional[CredentialProvider] = None,
-    anthropic_credential_name: Optional[str] = None,
-    sandbox_override: Optional[str] = None,
-    verbose: bool = False,
+    options: RunOptions = RunOptions(),
 ) -> OrchestratorResult:
     """Build all components from a graph YAML and run the orchestrator.
 
@@ -735,164 +807,62 @@ async def run_graph(
     :func:`build_standard_runner`, :func:`build_standard_workstream_runner`,
     and :class:`Orchestrator` together.
 
-    All ``Optional`` config parameters follow CLI > YAML > default
-    precedence.  ``None`` means "not specified by CLI; fall back to
-    graph YAML, then :class:`OrchestratorConfig` default."
-
     Args:
         graph_path: Path to the graph YAML file.
         repo_path: Path to the repository root.
-        tmux_session: Override tmux session name (overrides YAML value).
-        keep_panes: Keep tmux panes open after task completion.
-        model_override: Override model for all agents (overrides YAML value).
-        max_concurrency: CLI override for max concurrent tasks.
-        max_task_attempts: CLI override for max attempts per task.
-        teardown_mode: CLI override for teardown mode
-            (``"always"``, ``"never"``, or ``"on_success"``).
-        fail_fast_on_workstream_error: CLI override for workstream
-            fail-fast behavior.
-        fail_fast_on_internal_error: CLI override for internal error
-            fail-fast behavior.
-        credential_provider: Credential provider for sandboxed agents.
-            When ``None``, :class:`NullCredentialProvider` is used.
-        anthropic_credential_name: Name of the Anthropic credential to
-            use from the credentials YAML ``anthropic`` section.
-        sandbox_override: CLI override for sandbox type (``"oci"`` or
-            ``"none"``).  When set, overrides sandbox config for all tasks.
-        verbose: Show detailed step-level output during execution.
+        options: CLI-level run options controlling orchestration behavior.
 
     Returns:
         OrchestratorResult: Terminal orchestration result.
     """
-    config = OrchestratorConfig()
+    # Phase 1: Session resolution (before graph loading — needed for overrides).
+    session_resolver = build_session_resolver()
+    tmux_session = session_resolver.resolve(options.tmux_session)
 
-    # Resolve tmux session: CLI flag > auto-detect > error.
-    if tmux_session is None:
-        tmux_session = tmux.current_session()
-    if tmux_session is None:
-        raise _SessionError(
-            "No tmux session specified and not running inside tmux.\n"
-            "Either run from inside a tmux session or use --tmux-session."
-        )
-
+    # Phase 2: Load graph and resolve config.
     graph, ops = _load_and_prepare_graph(
         graph_path,
         tmux_session=tmux_session,
-        model_override=model_override,
-        sandbox_override=sandbox_override,
+        model_override=options.model_override,
+        sandbox_override=options.sandbox_override,
     )
-    effective_keep_panes = keep_panes or ops.keep_panes
-
-    # Resolve config fields: CLI > YAML > OrchestratorConfig default.
-    eff_concurrency = _resolve_override(max_concurrency, ops.max_concurrency)
-    if eff_concurrency is not None:
-        config = dataclasses.replace(config, max_concurrency=eff_concurrency)
-
-    eff_attempts = _resolve_override(max_task_attempts, ops.max_task_attempts)
-    if eff_attempts is not None:
-        config = dataclasses.replace(config, max_task_attempts=eff_attempts)
-
-    eff_teardown = _resolve_override(teardown_mode, ops.teardown_mode)
-    if eff_teardown is not None:
-        config = dataclasses.replace(
-            config, task_teardown_mode=TearDownMode(eff_teardown)
-        )
-
-    eff_fail_fast = _resolve_override(
-        fail_fast_on_workstream_error, ops.fail_fast_on_workstream_error
-    )
-    if eff_fail_fast is not None:
-        config = dataclasses.replace(
-            config, fail_fast_on_workstream_error=eff_fail_fast
-        )
-
-    eff_fail_fast_internal = _resolve_override(
-        fail_fast_on_internal_error, ops.fail_fast_on_internal_error
-    )
-    if eff_fail_fast_internal is not None:
-        config = dataclasses.replace(
-            config, fail_fast_on_internal_error=eff_fail_fast_internal
-        )
+    config, effective_keep_panes = _resolve_config(ops, options)
 
     assert graph.name is not None, "Graph must have a name"
 
-    ctx = _resolve_run_context(repo_path, graph.name)
-    _validate_tmux_sessions(graph)
+    # Phase 3: Session validation + tool validation.
+    session_resolver.validate(graph)
     validate_tools(ops.tools)
 
-    # -- Resume path: probe prior run and prepare new run dir --
-    task_runtimes: Optional[dict[str, TaskRuntime]] = None
-    workstream_runtimes: Optional[dict[str, WorkstreamRuntime]] = None
-
-    if ctx.is_resume:
-        assert ctx.prior_run_dir is not None
-        assert ctx.prior_run_number is not None
-
-        pr_prober = build_task_pr_prober()
-        probe = probe_graph_state(
-            repo_path, graph.name, graph, ctx.prior_run_dir, pr_prober
-        )
-
-        # Collect frozen tasks (those with resolved.json).
-        frozen = {
-            tid: tp.resolved
-            for tid, tp in probe.task_probes.items()
-            if tp.resolved is not None
-        }
-        current_tasks = {tid: graph.task(tid) for tid in graph.task_ids()}
-        validation = validate_frozen_tasks(frozen, current_tasks)
-        if validation.has_errors:
-            missing = ", ".join(validation.missing_task_ids)
-            raise RuntimeError(
-                f"Cannot resume: frozen task(s) missing from current graph: {missing}\n"
-                "These tasks completed in a prior run but no longer exist in the "
-                "graph YAML. Add them back or use `agentrelay reset` to start fresh."
-            )
-
-        _copy_frozen_artifacts(ctx.prior_run_dir, ctx.run_dir, probe)
-
-        frozen_ids = set(frozen.keys())
-        _reset_stale_worktree_branches(repo_path, graph.name, graph, frozen_ids)
-
-        config_warnings = _compare_run_configs(
-            ctx.prior_run_dir, config, model=model_override, sandbox=sandbox_override
-        )
-
-        task_runtimes, workstream_runtimes = _build_resume_runtimes(
-            graph, probe, ctx.run_dir
-        )
-
-        # Print resume summary.
-        task_infos = [
-            ResumeTaskInfo(
-                task_id=tid,
-                status=probe.task_probes[tid].status,
-                frozen=tid in frozen_ids,
-            )
-            for tid in graph.task_ids()
-        ]
-        print_resume_summary(
-            graph.name, ctx.run_number, ctx.prior_run_number, task_infos
-        )
-        if validation.has_overrides:
-            print_override_report(validation)
-        if config_warnings:
-            print_config_warnings(config_warnings)
-
-    # -- Record run metadata --
-    prior_start_head = (
-        _read_prior_start_head(ctx.prior_run_dir)
-        if ctx.is_resume and ctx.prior_run_dir is not None
-        else None
+    # Phase 4: Run context + resume setup.
+    ctx = _resolve_run_context(repo_path, graph.name)
+    repo_manager = build_run_repo_manager(repo_path, graph.name)
+    task_runtimes, workstream_runtimes = _setup_resume(
+        ctx,
+        graph,
+        graph.name,
+        config,
+        repo_path=repo_path,
+        repo_manager=repo_manager,
+        model_override=options.model_override,
+        sandbox_override=options.sandbox_override,
     )
-    _record_run_start(ctx.run_dir, repo_path, start_head=prior_start_head)
+
+    # Phase 5: Record run metadata.
+    if ctx.is_resume and ctx.prior_run_dir is not None:
+        start_head = _read_prior_start_head(ctx.prior_run_dir)
+    else:
+        start_head = repo_manager.current_head()
+    _record_run_start(ctx.run_dir, start_head)
     _copy_graph_yaml(ctx.run_dir, graph_path)
 
     # Resolve Anthropic credential: CLI flag > graph YAML default > auto-select.
-    effective_anthropic_name = anthropic_credential_name or ops.anthropic_credential
+    effective_anthropic_name = (
+        options.anthropic_credential_name or ops.anthropic_credential
+    )
     anthropic_credential: Optional[AnthropicCredential] = None
-    if isinstance(credential_provider, FileCredentialProvider):
-        anthropic_credential = credential_provider.resolve_anthropic(
+    if isinstance(options.credential_provider, FileCredentialProvider):
+        anthropic_credential = options.credential_provider.resolve_anthropic(
             effective_anthropic_name
         )
 
@@ -900,23 +870,15 @@ async def run_graph(
         ctx.run_dir,
         config,
         keep_panes=effective_keep_panes,
-        model=model_override,
-        sandbox=sandbox_override,
+        model=options.model_override,
+        sandbox=options.sandbox_override,
         anthropic_credential=effective_anthropic_name,
-        verbose=verbose,
+        verbose=options.verbose,
     )
 
-    # Create Docker network if any task uses OCI sandbox.
-    uses_oci = _any_task_uses_oci(graph)
-    network_name = f"agentrelay-{graph.name}" if uses_oci else None
-
-    if network_name is not None:
-        if not docker_ops.is_available():
-            raise RuntimeError(
-                "Docker is required for OCI sandbox but is not available"
-            )
-        if not docker_ops.network_exists(network_name):
-            docker_ops.network_create(network_name)
+    # Phase 6: Infrastructure setup + orchestrator wiring.
+    infra_manager = build_sandbox_infrastructure_manager(graph)
+    infra_manager.setup()
 
     try:
         task_runner = build_standard_runner(
@@ -926,7 +888,7 @@ async def run_graph(
             graph=graph,
             keep_panes=effective_keep_panes,
             tools=ops.tools,
-            credential_provider=credential_provider,
+            credential_provider=options.credential_provider,
             anthropic_credential=anthropic_credential,
         )
         workstream_runner = build_standard_workstream_runner(
@@ -939,7 +901,7 @@ async def run_graph(
             task_runner=task_runner,
             workstream_runner=workstream_runner,
             config=config,
-            listener=ConsoleListener(verbose=verbose),
+            listener=ConsoleListener(verbose=options.verbose),
             integration_merge_checker=build_integration_merge_checker(repo_path),
             integration_auto_merger=build_integration_auto_merger(repo_path),
         )
@@ -948,11 +910,7 @@ async def run_graph(
             workstream_runtimes=workstream_runtimes,
         )
     finally:
-        if network_name is not None:
-            try:
-                docker_ops.network_remove(network_name)
-            except Exception:
-                pass  # Best-effort cleanup
+        infra_manager.teardown()
 
 
 def dry_run(graph_path: Path) -> None:
@@ -1150,27 +1108,31 @@ def main() -> None:
             sys.exit(1)
         credential_provider = FileCredentialProvider(creds_path)
 
+    options = RunOptions(
+        tmux_session=args.tmux_session,
+        keep_panes=args.keep_panes,
+        model_override=args.model,
+        max_concurrency=args.max_concurrency,
+        max_task_attempts=args.max_task_attempts,
+        teardown_mode=args.teardown_mode,
+        fail_fast_on_workstream_error=args.fail_fast_workstream,
+        fail_fast_on_internal_error=args.fail_fast_internal,
+        credential_provider=credential_provider,
+        anthropic_credential_name=args.anthropic_credential,
+        sandbox_override=args.sandbox,
+        verbose=args.verbose,
+    )
+
     try:
         result = asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=repo_path,
-                tmux_session=args.tmux_session,
-                keep_panes=args.keep_panes,
-                model_override=args.model,
-                max_concurrency=args.max_concurrency,
-                max_task_attempts=args.max_task_attempts,
-                teardown_mode=args.teardown_mode,
-                fail_fast_on_workstream_error=args.fail_fast_workstream,
-                fail_fast_on_internal_error=args.fail_fast_internal,
-                credential_provider=credential_provider,
-                anthropic_credential_name=args.anthropic_credential,
-                sandbox_override=args.sandbox,
-                verbose=args.verbose,
+                options=options,
             )
         )
     except (
-        _SessionError,
+        SessionError,
         ToolValidationError,
         ValueError,
         RuntimeError,

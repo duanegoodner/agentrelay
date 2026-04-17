@@ -28,13 +28,14 @@ from agentrelay.graph_index import DuplicateGraphNameError, GraphIndex
 from agentrelay.orchestrator import OrchestratorOutcome
 from agentrelay.reset_graph import _resolve_graph_name, reset_graph
 from agentrelay.run_graph import (
+    RunOptions,
     _dry_run_conflict_check,
     _print_result,
-    _SessionError,
     dry_run,
     run_graph,
 )
 from agentrelay.sandbox import FileCredentialProvider
+from agentrelay.session import SessionError
 from agentrelay.tools import ToolValidationError
 
 
@@ -141,27 +142,31 @@ def _handle_run(args: argparse.Namespace) -> None:
             sys.exit(1)
         credential_provider = FileCredentialProvider(creds_path)
 
+    options = RunOptions(
+        tmux_session=args.tmux_session,
+        keep_panes=args.keep_panes,
+        model_override=args.model,
+        max_concurrency=args.max_concurrency,
+        max_task_attempts=args.max_task_attempts,
+        teardown_mode=args.teardown_mode,
+        fail_fast_on_workstream_error=args.fail_fast_workstream,
+        fail_fast_on_internal_error=args.fail_fast_internal,
+        credential_provider=credential_provider,
+        anthropic_credential_name=args.anthropic_credential,
+        sandbox_override=args.sandbox,
+        verbose=args.verbose,
+    )
+
     try:
         result = asyncio.run(
             run_graph(
                 graph_path=graph_path,
                 repo_path=repo_path,
-                tmux_session=args.tmux_session,
-                keep_panes=args.keep_panes,
-                model_override=args.model,
-                max_concurrency=args.max_concurrency,
-                max_task_attempts=args.max_task_attempts,
-                teardown_mode=args.teardown_mode,
-                fail_fast_on_workstream_error=args.fail_fast_workstream,
-                fail_fast_on_internal_error=args.fail_fast_internal,
-                credential_provider=credential_provider,
-                anthropic_credential_name=args.anthropic_credential,
-                sandbox_override=args.sandbox,
-                verbose=args.verbose,
+                options=options,
             )
         )
     except (
-        _SessionError,
+        SessionError,
         ToolValidationError,
         ValueError,
         RuntimeError,
