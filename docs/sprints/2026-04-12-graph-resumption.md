@@ -1136,7 +1136,7 @@ Key decisions driving the simplification:
   to orchestrator
 - Integration test: resume with modified YAML → override report printed
 
-### PR E.5: Refactor run_graph.py — infrastructure decoupling + phase extraction
+### PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction
 
 **Scope:** Cleanup follow-up to PR E. Reduces `run_graph.py` coupling
 to concrete infrastructure and improves readability by extracting the
