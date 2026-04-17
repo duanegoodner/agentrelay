@@ -111,6 +111,12 @@ sandbox_pkg: "sandbox/" {
       shape: class
       "+resolve(tier)": "dict[str, str]"
     }
+
+    SandboxInfrastructureManager: "SandboxInfrastructureManager <<protocol>>" {
+      shape: class
+      "+setup()": void
+      "+teardown()": void
+    }
   }
 
   sandbox_impl_pkg: "implementations/" {
@@ -144,6 +150,19 @@ sandbox_pkg: "sandbox/" {
       path: Path
       "+resolve(tier)": "dict[str, str]"
     }
+
+    OciSandboxInfrastructureManager: "OciSandboxInfrastructureManager" {
+      shape: class
+      -_network_name: str
+      "+setup()": void
+      "+teardown()": void
+    }
+
+    NullSandboxInfrastructureManager: "NullSandboxInfrastructureManager" {
+      shape: class
+      "+setup()": void
+      "+teardown()": void
+    }
   }
 }
 
@@ -154,6 +173,12 @@ ops_pkg: "ops/" {
   style.opacity: 0.5
   docker: "docker <<module>>" { shape: class }
   git: "git <<module>>" { shape: class }
+}
+
+run_graph_py: "run_graph.py" {
+  style.opacity: 0.5
+  RunOptions: "RunOptions <<frozen dataclass>>" { shape: class }
+  run_graph_functions: "run_graph <<module>>" { shape: class }
 }
 
 task_py: "task.py" {
@@ -192,8 +217,13 @@ sandbox_pkg.sandbox_impl_pkg.ClaudeCodeAdapter -> sandbox_pkg.sandbox_core_pkg.A
 sandbox_pkg.sandbox_core_pkg.CredentialProvider -> sandbox_pkg.sandbox_core_pkg.TokenTier: tier { class: dependency }
 sandbox_pkg.sandbox_impl_pkg.NullCredentialProvider -> sandbox_pkg.sandbox_core_pkg.CredentialProvider: satisfies { class: implementation }
 sandbox_pkg.sandbox_impl_pkg.FileCredentialProvider -> sandbox_pkg.sandbox_core_pkg.CredentialProvider: satisfies { class: implementation }
+sandbox_pkg.sandbox_impl_pkg.OciSandboxInfrastructureManager -> sandbox_pkg.sandbox_core_pkg.SandboxInfrastructureManager: satisfies { class: implementation }
+sandbox_pkg.sandbox_impl_pkg.OciSandboxInfrastructureManager -> ops_pkg.docker: uses { class: dependency }
+sandbox_pkg.sandbox_impl_pkg.NullSandboxInfrastructureManager -> sandbox_pkg.sandbox_core_pkg.SandboxInfrastructureManager: satisfies { class: implementation }
 task_py.AgentConfig -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_py.Task -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 workstream_pkg.workstream_core_pkg.WorkstreamSpec -> sandbox_pkg.sandbox_core_pkg.IsolationConfig: "isolation (optional)" { class: composition }
 task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.AgentSandbox: "sandbox (optional)" { class: composition }
 task_runtime_pkg.TaskArtifacts -> sandbox_pkg.sandbox_core_pkg.SandboxContext: "sandbox_context (optional)" { class: composition }
+run_graph_py.run_graph_functions -> sandbox_pkg.sandbox_core_pkg.SandboxInfrastructureManager: "setup/teardown" { class: dependency }
+run_graph_py.RunOptions -> sandbox_pkg.sandbox_core_pkg.CredentialProvider: "credential_provider (optional)" { class: dependency }
