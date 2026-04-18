@@ -2083,22 +2083,10 @@
 <hr />
 <h2 id="core-execution">Core Execution</h2>
 <ul>
-<li><strong>Decouple <code>run_graph.py</code> from infrastructure implementation details</strong>:
-  <code>run_graph.run_graph()</code> currently calls <code>docker_ops</code> directly (network
-  create/exists/remove) and <code>tmux.current_session()</code> for session detection.
-  This means the wiring layer knows concrete infrastructure mechanisms —
-  if we add Podman-specific setup, SSH tunnels, or a non-tmux agent
-  environment, those details would naturally land in <code>run_graph.py</code>,
-  turning it from a composition layer into an implementation layer.
-  Extract infrastructure lifecycle (network setup/teardown, session
-  detection/validation) behind protocols that <code>run_graph.py</code> calls
-  without knowing the concrete mechanism.  Candidates:</li>
-<li>Docker/Podman network lifecycle → protocol behind a factory in
-    <code>builders.py</code> (similar to <code>build_task_pr_prober()</code>).</li>
-<li>tmux session detection/validation → protocol on
-    <code>AgentEnvironment</code> or a new <code>SessionResolver</code> abstraction.
-  Address before adding new infrastructure types (non-tmux environments,
-  alternative container runtimes beyond the <code>runtime</code> parameter).</li>
+<li>~~<strong>Decouple <code>run_graph.py</code> from infrastructure implementation details</strong>~~:
+  <strong>Resolved</strong> in PR #199. <code>SandboxInfrastructureManager</code>,
+  <code>SessionResolver</code>, and <code>RunRepoManager</code> protocols eliminate all
+  <code>ops.docker</code>, <code>ops.tmux</code>, and <code>ops.git</code> imports from <code>run_graph.py</code>.</li>
 <li>Expand orchestrator support for richer resume hooks and durable state checkpoints.</li>
 <li><strong>Graph resumption across orchestrator runs</strong>: When a graph is re-launched
   and <code>.workflow/&lt;graph&gt;/</code> already exists from a previous run, the orchestrator
@@ -2839,28 +2827,31 @@ Full design discussion in <code>docs/discussions/PERSISTENT_AGENTS.md</code>.</p
 </ul>
 <h2 id="code-quality">Code Quality</h2>
 <ul>
-<li><strong>Audit and refactor <code>run_graph.run_graph()</code></strong>: The function has grown
-  long and complex — config resolution, resume detection, probing,
-  artifact copying, runtime building, credential resolution, Docker
-  network lifecycle, runner construction, and orchestrator wiring are all
-  inline.  Most of the <code>if ... is not None</code> branches are config
-  resolution (CLI &gt; YAML &gt; default), which is verbose but mechanical.
-  The resume path (added in PR E, sprint 2026-04-12) added another ~40
-  lines of inline logic.  Refactoring goals:</li>
-<li><strong>Extract phases into named functions</strong>: e.g.,
-    <code>_resolve_config(ops, cli_args) -&gt; OrchestratorConfig</code>,
-    <code>_setup_resume(ctx, graph, config) -&gt; (runtimes, runtimes)</code>,
-    <code>_setup_infrastructure(graph) -&gt; cleanup_callback</code>.  The top-level
-    <code>run_graph()</code> becomes a short sequence of phase calls.</li>
-<li><strong>Decouple from concrete infrastructure</strong>: see the separate backlog
-    item "Decouple <code>run_graph.py</code> from infrastructure implementation
-    details" above.  The refactor and the decoupling are complementary
-    but can be done independently.</li>
-<li><strong>Reduce parameter count</strong>: <code>run_graph()</code> has 13 keyword arguments.
-    Consider grouping related parameters into a config dataclass (e.g.,
-    <code>RunOptions</code> combining model, sandbox, credentials, verbose, etc.).
-  Natural timing: before or during the Rust migration planning, when
-  the function's structure needs to be well-understood for porting.</li>
+<li>~~<strong>Audit and refactor <code>run_graph.run_graph()</code></strong>~~: <strong>Resolved</strong> in
+  PR #199. Phase extraction (<code>_resolve_config</code>, <code>_setup_resume</code>),
+  <code>RunOptions</code> dataclass, and protocol decoupling
+  (<code>SandboxInfrastructureManager</code>, <code>SessionResolver</code>, <code>RunRepoManager</code>).</li>
+<li><strong>Audit codebase for direct external-package coupling</strong>: Scan all
+  modules (not just <code>run_graph.py</code>) for places where core tooling
+  directly imports concrete external packages, specific implementations,
+  or anything else that should be pluggable via a protocol or interface.
+  <code>run_graph.py</code> was the most egregious case (resolved in PR #199), but
+  other modules may have similar coupling — e.g., <code>task_helper.py</code>
+  calling <code>gh</code> directly (already noted under Extensibility), or modules
+  importing <code>ops/</code> functions where a protocol would better express the
+  dependency.  Goal: the design diagram should accurately represent all
+  dependency arrows, and core modules should depend on protocols rather
+  than concrete implementations wherever the dependency crosses an
+  architectural boundary.</li>
+<li><strong>Audit docstrings for consistent Google-style format</strong>: Scan the
+  entire <code>src/agentrelay/</code> tree for Sphinx-style docstring syntax
+  (<code>:class:</code>, <code>:func:</code>, <code>:meth:</code>, <code>:param:</code>, <code>:type:</code>, <code>::</code> literal
+  blocks) and convert to Google-style (backtick-quoted names, <code>Args:</code>,
+  <code>Returns:</code>, <code>Raises:</code>, <code>Attributes:</code> sections).  Also ensure all
+  dataclasses have <code>Attributes:</code> sections and all protocols have
+  <code>Methods:</code> sections.  Broader than the existing "API Reference mkdocs
+  rendering issues" item (which is scoped to <code>__init__.py</code> and
+  module-level docstrings) — this covers every docstring in the codebase.</li>
 <li><strong>Replace raw tuple returns with named types</strong>: Audit the codebase for
   functions that return raw tuples (especially heterogeneous ones) and
   replace them with <code>dataclass</code> or <code>NamedTuple</code> return types. Named

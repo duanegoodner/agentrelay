@@ -1688,10 +1688,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-e2-refactor-run_graphpy-infrastructure-decoupling-phase-extraction" class="md-nav__link">
+  <a href="#pr-e2-refactor-run_graphpy-infrastructure-decoupling-phase-extraction-199-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction
+        PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction — #199 Merged
       
     </span>
   </a>
@@ -1871,7 +1871,7 @@
 
 <h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), and PR E (#197) merged.</p>
+<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), and PR E2 (#199) merged.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
@@ -2994,7 +2994,7 @@ uses <code>agentrelay reset</code> for a full wipe including frozen tasks.</p>
 <li><strong>Test delta:</strong> +15 new tests (1555 → 1570). <code>pixi run check</code>
   passes. PR #197.</li>
 </ul>
-<h3 id="pr-e2-refactor-run_graphpy-infrastructure-decoupling-phase-extraction">PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction</h3>
+<h3 id="pr-e2-refactor-run_graphpy-infrastructure-decoupling-phase-extraction-199-merged">PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction — #199 Merged</h3>
 <p><strong>Scope:</strong> Cleanup follow-up to PR E. Reduces <code>run_graph.py</code> coupling
 to concrete infrastructure and improves readability by extracting the
 monolithic <code>run_graph()</code> function into named phases.</p>
@@ -3041,6 +3041,41 @@ composition layer into an implementation layer.</p>
 - <code>src/agentrelay/orchestrator/builders.py</code> (new factories)
 - Tests for refactored functions</p>
 <p><strong>Depends on:</strong> PR E (merged).</p>
+<p><strong>Notes from implementation (2026-04-17):</strong></p>
+<ul>
+<li><strong>Three new protocols</strong> decouple <code>run_graph.py</code> from all <code>ops/</code>
+  modules except <code>ops.signals</code> (core infrastructure):</li>
+<li><code>SandboxInfrastructureManager</code> (in <code>sandbox/core/infrastructure.py</code>)
+    with <code>setup()</code> / <code>teardown()</code>.  <code>OciSandboxInfrastructureManager</code>
+    wraps Docker network lifecycle; <code>NullSandboxInfrastructureManager</code>
+    is a no-op for non-OCI graphs.</li>
+<li><code>SessionResolver</code> (in <code>session.py</code>) with <code>resolve(cli_session)</code> /
+    <code>validate(graph)</code>.  <code>TmuxSessionResolver</code> wraps <code>tmux.current_session()</code>
+    and <code>tmux.has_session()</code>.  <code>SessionError</code> replaces the old private
+    <code>_SessionError</code>.</li>
+<li><code>RunRepoManager</code> (in <code>run_repo.py</code>) with <code>current_head()</code> /
+    <code>reset_stale_worktree_branches(graph, frozen_task_ids)</code>.
+    <code>GitRunRepoManager</code> wraps <code>git.rev_parse_head()</code>, <code>git.current_branch()</code>,
+    <code>git.checkout()</code>, <code>git.clean()</code>.</li>
+<li><strong><code>RunOptions</code> frozen dataclass</strong> bundles the 13 keyword args of
+  <code>run_graph()</code> into a single parameter.  <code>run_graph()</code> signature
+  simplified to <code>(graph_path, repo_path, *, options=RunOptions())</code>.
+  Both <code>cli.py</code> and <code>run_graph.py</code> <code>main()</code> updated.</li>
+<li><strong>Phase extraction</strong>: <code>_resolve_config(ops, options)</code> extracts config
+  cascading; <code>_setup_resume(ctx, graph, ...)</code> extracts the full resume
+  block (probe, validate, copy, build runtimes, print summary).
+  <code>run_graph()</code> is now a short 6-phase sequence.</li>
+<li><strong>Removed from <code>run_graph.py</code></strong>: <code>_SessionError</code>, <code>_validate_tmux_sessions()</code>,
+  <code>_any_task_uses_oci()</code>, <code>_reset_stale_worktree_branches()</code>, all imports
+  of <code>ops.docker</code>, <code>ops.tmux</code>, and <code>ops.git</code>.</li>
+<li><strong>Diagram</strong>: new per-module diagrams for <code>session.py</code> and <code>run_repo.py</code>.
+  <code>diagram-run-graph.svg</code> no longer shows direct <code>ops.git</code>/<code>ops.docker</code>
+  dependency arrows.</li>
+<li><strong>Docs</strong>: new API reference pages for <code>session</code> and <code>run_repo</code> modules.
+  Google-style docstrings with <code>Attributes:</code> sections on dataclasses.</li>
+<li><strong>Test delta:</strong> +27 new tests (1570 → 1597).  <code>pixi run check</code> passes.
+  PR #199.</li>
+</ul>
 <h3 id="pr-f-shared-reset-utilities-primitive-commands">PR F: Shared reset utilities + primitive commands</h3>
 <p><strong>Scope:</strong> Shared utility layer and three primitive undo commands.
 Depends on PR A (path layout) and PR B (<code>resolved.json</code> for pre-merge
