@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), and PR E (#197) merged.
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), and PR E2 (#199) merged.
 
 ## Goal
 
@@ -1173,7 +1173,7 @@ Key decisions driving the simplification:
 - **Test delta:** +15 new tests (1555 → 1570). `pixi run check`
   passes. PR #197.
 
-### PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction
+### PR E2: Refactor run_graph.py — infrastructure decoupling + phase extraction — #199 Merged
 
 **Scope:** Cleanup follow-up to PR E. Reduces `run_graph.py` coupling
 to concrete infrastructure and improves readability by extracting the
@@ -1218,6 +1218,41 @@ composition layer into an implementation layer.
 - Tests for refactored functions
 
 **Depends on:** PR E (merged).
+
+**Notes from implementation (2026-04-17):**
+
+- **Three new protocols** decouple `run_graph.py` from all `ops/`
+  modules except `ops.signals` (core infrastructure):
+  - `SandboxInfrastructureManager` (in `sandbox/core/infrastructure.py`)
+    with `setup()` / `teardown()`.  `OciSandboxInfrastructureManager`
+    wraps Docker network lifecycle; `NullSandboxInfrastructureManager`
+    is a no-op for non-OCI graphs.
+  - `SessionResolver` (in `session.py`) with `resolve(cli_session)` /
+    `validate(graph)`.  `TmuxSessionResolver` wraps `tmux.current_session()`
+    and `tmux.has_session()`.  `SessionError` replaces the old private
+    `_SessionError`.
+  - `RunRepoManager` (in `run_repo.py`) with `current_head()` /
+    `reset_stale_worktree_branches(graph, frozen_task_ids)`.
+    `GitRunRepoManager` wraps `git.rev_parse_head()`, `git.current_branch()`,
+    `git.checkout()`, `git.clean()`.
+- **`RunOptions` frozen dataclass** bundles the 13 keyword args of
+  `run_graph()` into a single parameter.  `run_graph()` signature
+  simplified to `(graph_path, repo_path, *, options=RunOptions())`.
+  Both `cli.py` and `run_graph.py` `main()` updated.
+- **Phase extraction**: `_resolve_config(ops, options)` extracts config
+  cascading; `_setup_resume(ctx, graph, ...)` extracts the full resume
+  block (probe, validate, copy, build runtimes, print summary).
+  `run_graph()` is now a short 6-phase sequence.
+- **Removed from `run_graph.py`**: `_SessionError`, `_validate_tmux_sessions()`,
+  `_any_task_uses_oci()`, `_reset_stale_worktree_branches()`, all imports
+  of `ops.docker`, `ops.tmux`, and `ops.git`.
+- **Diagram**: new per-module diagrams for `session.py` and `run_repo.py`.
+  `diagram-run-graph.svg` no longer shows direct `ops.git`/`ops.docker`
+  dependency arrows.
+- **Docs**: new API reference pages for `session` and `run_repo` modules.
+  Google-style docstrings with `Attributes:` sections on dataclasses.
+- **Test delta:** +27 new tests (1570 → 1597).  `pixi run check` passes.
+  PR #199.
 
 ### PR F: Shared reset utilities + primitive commands
 
