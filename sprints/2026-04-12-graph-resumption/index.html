@@ -1710,6 +1710,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pr-f2-reset-observability-integration-pr-body-workstream-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F2: Reset observability — integration PR body + workstream signals
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pr-g-reset-to-batch-rollback" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3208,6 +3219,145 @@ SHAs).</p>
   fresh infrastructure from current main
 - Integration: reset-workstream on tip → target branch rolled back,
   re-run starts workstream from scratch</p>
+<h3 id="pr-f2-reset-observability-integration-pr-body-workstream-signals">PR F2: Reset observability — integration PR body + workstream signals</h3>
+<p><strong>Scope:</strong> Keep workstream on-disk state consistent when <code>reset-task</code>
+or <code>reset-workstream</code> modifies the integration branch.  Discovered
+during PR F e2e testing: after resetting all tasks in a workstream, the
+integration PR is auto-closed by GitHub (zero diff), but the workstream
+signal directory still shows <code>pr_created</code> — stale.</p>
+<p><strong>Motivation:</strong> Two gaps in observability after task resets:</p>
+<ol>
+<li>The integration PR body retains its original content with no record
+   of reset activity.  Someone reading the PR on GitHub has no way to
+   know that tasks were subsequently undone.</li>
+<li>The workstream signal directory doesn't reflect that the integration
+   branch was rolled back or that the PR was invalidated.  The status
+   file still says <code>pr_created</code> even though the PR is closed.</li>
+</ol>
+<p><strong>Scenarios:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Integration PR?</th>
+<th>What happens on task reset?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All tasks completed</td>
+<td>Yes (<code>pr_created</code>)</td>
+<td>Branch rolled back, PR diff shrinks, GitHub auto-closes when diff = 0</td>
+</tr>
+<tr>
+<td>Partial completion (some tasks FAILED)</td>
+<td>No (workstream ACTIVE)</td>
+<td>Branch rolled back, no PR to affect</td>
+</tr>
+<tr>
+<td>Single task workstream</td>
+<td>Depends</td>
+<td>Same as above based on whether all tasks completed</td>
+</tr>
+</tbody>
+</table>
+<p>In all scenarios, the workstream signal dir becomes stale.  The
+integration PR body (if one exists) loses accuracy.</p>
+<p><strong>Non-merged task resets:</strong> When a FAILED/RUNNING task is reset, the
+integration branch is NOT rolled back (nothing was merged into it).
+No workstream signal or PR body update is needed — only the task-level
+RESET status (already written by PR F) applies.</p>
+<p><strong>Changes:</strong></p>
+<ol>
+<li><strong>Append reset activity to integration PR body</strong> — when <code>reset-task</code>
+   resets a merged task (SUCCESS_STATUSES) and an integration PR exists
+   (<code>merge_pr_url</code> in workstream signals), append a
+   <code>## Reset activity</code> section to the PR body.  Format:
+   <div class="highlight"><pre><span></span><code>---
+## Reset activity
+- &lt;timestamp&gt;: Task `&lt;task_id&gt;` reset (was &lt;prior_status&gt;)
+</code></pre></div></li>
+</ol>
+<p>Uses <code>gh api</code> REST (<code>PATCH /repos/{owner}/{repo}/pulls/{number}</code>)
+   since <code>gh pr edit</code> is deprecated.  Requires parsing owner, repo,
+   and PR number from the URL (format:
+   <code>https://github.com/{owner}/{repo}/pull/{number}</code>).</p>
+<p><strong>Best-effort:</strong> PR body update failures (network, permissions,
+   PR already deleted) are logged but do not block the reset operation.</p>
+<p><strong>Works on closed/merged PRs:</strong> The GitHub API allows body updates
+   on PRs in any state.</p>
+<p><code>reset-workstream</code> also appends to the integration PR body (if it
+   exists) when it undoes a merged workstream, before closing the PR.
+   This ensures traceability even for workstream-level resets.</p>
+<p><strong>Idempotent section header:</strong> If the <code>## Reset activity</code> section
+   already exists (from a prior <code>reset-task</code> call on the same PR),
+   append new entries to it rather than creating a duplicate section.</p>
+<ol>
+<li><strong>Write workstream rollback log</strong> — when <code>reset-task</code> resets a
+   merged task (rolling back the integration branch), write a log entry
+   to the workstream signal directory.  File:
+   <code>rollback_log.json</code> — a JSON array of timestamped entries:
+   <div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-04-19T14:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;use_counter&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prior_status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pr_merged&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;integration_branch_sha_before&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;af5acb96...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;integration_branch_sha_after&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;d61d3cf9...&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></li>
+</ol>
+<p>Uses append semantics: read existing array, append new entry, write
+   back.  Created on first rollback.</p>
+<p>This is a log, not a status — it records events but does not change
+   the workstream's status in the signal model.  The two workstream
+   state indicators are:</p>
+<ul>
+<li><strong><code>rollback_log.json</code></strong>: written by <code>reset-task</code> when rolling
+     back the integration branch.  Records what happened and when.</li>
+<li><strong>Workstream <code>reset</code> status</strong>: written by <code>teardown-workstream</code>
+     and <code>reset-workstream</code> only.  Indicates infrastructure was
+     fully cleaned up.</li>
+</ul>
+<p>This distinction matters because <code>rollback_log.json</code> can exist
+   alongside <code>pr_created</code> (the PR was created, then tasks were peeled,
+   then the PR auto-closed — the <code>pr_created</code> status is stale but
+   the rollback log explains what happened).</p>
+<p><code>reset-workstream</code> also writes to <code>rollback_log.json</code> (one entry
+   per task it resets) for consistency.</p>
+<p><strong>Interaction with probe/resume:</strong> <code>rollback_log.json</code> is a passive
+log — the probe does not read it and the resume path does not copy it.
+It exists purely for human inspection.  The task-level <code>status/reset</code>
+files (from PR F) are what the probe and resume path use to determine
+execution state.</p>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/ops/gh.py</code> (new: <code>pr_append_body()</code> or
+  <code>pr_update_body()</code> via <code>gh api</code> REST)
+- <code>src/agentrelay/reset_task.py</code> (append to PR body, write rollback
+  log after integration branch reset)
+- <code>src/agentrelay/reset_workstream.py</code> (append to PR body before
+  closing, write rollback log entries)
+- <code>src/agentrelay/reset_ops.py</code> (new: <code>write_rollback_entry()</code> helper)
+- <code>test/test_reset_task.py</code> (new scenarios for PR body + rollback log)
+- <code>test/test_reset_workstream.py</code> (new scenarios for PR body +
+  rollback log)
+- <code>test/ops/test_gh.py</code> (new: <code>pr_update_body</code> test)</p>
+<p><strong>Tests:</strong>
+- <code>reset_task</code> on merged task with integration PR: PR body appended,
+  rollback log entry written
+- <code>reset_task</code> on merged task without integration PR: rollback log
+  entry written, no PR update attempted
+- <code>reset_task</code> on non-merged (FAILED) task: no rollback log, no PR
+  update (integration branch not modified)
+- <code>reset_task</code> successive resets: rollback log accumulates entries,
+  PR body appends each time
+- <code>reset_workstream</code> with integration PR: PR body appended before
+  close, rollback log entries written for each task
+- <code>pr_update_body</code>: mock <code>gh api</code> PATCH call with correct payload
+- <code>pr_update_body</code> failure: logged, does not raise
+- <code>write_rollback_entry</code>: creates file on first call, appends on
+  subsequent calls</p>
 <h3 id="pr-g-reset-to-batch-rollback">PR G: <code>reset-to</code> batch rollback</h3>
 <p><strong>Scope:</strong> Direct-jump batch rollback command. Depends on PR F (shared
 utilities).</p>
@@ -3288,14 +3438,15 @@ utilities).</p>
                    │
                    ├──→ PR D (idempotent prep)
                    │
-                   └──→ PR F (shared utils + primitive cmds) ──→ PR G (reset-to)
+                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR G (reset-to)
                         (depends on A + B)
 </code></pre></div>
 <p>PR A must land first (directory layout foundation). After PR A:
 - PRs B, C, D can develop in parallel
 - PR F can start once PR B lands (needs <code>resolved.json</code> format)
 - PR E depends on B, C, and D
-- PR G depends on PR F (uses shared utilities)
+- PR F2 depends on PR F (extends reset-task with observability)
+- PR G depends on PR F2 (uses shared utilities)
 - PR E and PR G are independent of each other</p>
 <h2 id="risk-assessment">Risk assessment</h2>
 <p><strong>Low risk:</strong>

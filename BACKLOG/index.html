@@ -2815,6 +2815,13 @@ Full design discussion in <code>docs/discussions/PERSISTENT_AGENTS.md</code>.</p
   2026-04-09). All attempt artifacts now live under
   <code>signal_dir/attempts/&lt;N&gt;/</code> including the current attempt.</p>
 </li>
+<li>
+<p><strong>Clean up empty graph-level worktree directory after teardown</strong>:
+  <code>reset_workstream_state</code> removes <code>.worktrees/&lt;graph&gt;/&lt;ws-id&gt;/</code> but
+  leaves the parent <code>.worktrees/&lt;graph&gt;/</code> behind as an empty directory.
+  Cosmetic — <code>agentrelay reset</code> cleans it up, and a re-run recreates it.
+  Low priority.</p>
+</li>
 </ul>
 <h2 id="diagram-tooling">Diagram Tooling</h2>
 <ul>
@@ -2939,6 +2946,11 @@ Full design discussion in <code>docs/discussions/PERSISTENT_AGENTS.md</code>.</p
   sprint 2026-04-12 (PR E). The MVP copies <code>resolved.json</code> directly
   rather than referencing backward into prior run directories. Each run
   directory is self-contained.</li>
+<li><strong>Resume summary table for RESET tasks</strong>: When resuming after task
+  resets, the summary table shows <code>reset  skip (frozen)</code> for RESET
+  tasks — but they actually run (they're skipped from frozen-artifact
+  copying, not from execution). The phrasing could be clearer about
+  what will happen on this run.</li>
 <li>Standardize runtime artifacts (state snapshots, audit log, failure context).</li>
 <li>Define the minimal durable signals needed for reliable resume behavior.</li>
 <li><strong>Orchestrator log files</strong>: The orchestrator currently writes all output to

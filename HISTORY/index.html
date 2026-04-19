@@ -515,6 +515,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-17
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-17">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shared-reset-utilities-and-primitive-undo-commands-sprint-pr-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared reset utilities and primitive undo commands (sprint PR F)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-13" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2415,6 +2443,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#2026-04-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2026-04-17
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2026-04-17">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shared-reset-utilities-and-primitive-undo-commands-sprint-pr-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared reset utilities and primitive undo commands (sprint PR F)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#2026-04-13" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3437,6 +3493,30 @@
 <h1 id="changelog">Changelog</h1>
 <p>Chronological log of significant changes to the main codebase. For full details see each PR on GitHub.</p>
 <hr />
+<h2 id="2026-04-17">2026-04-17</h2>
+<h3 id="shared-reset-utilities-and-primitive-undo-commands-sprint-pr-f">Shared reset utilities and primitive undo commands (sprint PR F)</h3>
+<ul>
+<li><strong>Shared reset utilities</strong> (<code>reset_ops.py</code>): Five composable building
+  blocks for stack-based undo: <code>reset_branch</code>, <code>delete_task_state</code>,
+  <code>delete_workstream_state</code>, <code>find_workstream_tip</code>,
+  <code>workstream_merge_order</code>.  Uses <code>git update-ref</code> for branch resets
+  (works even when the branch is checked out in a worktree).</li>
+<li><strong><code>reset-task</code> command</strong> (<code>reset_task.py</code>): Peel the tip task from a
+  workstream's execution stack.  Rolls back the integration branch for
+  merged tasks (using pre-merge SHA from <code>resolved.json</code>), deletes
+  signal directories and branches for non-merged tasks.  Auto-detects
+  the tip when <code>--workstream</code> is used instead of <code>--task</code>.</li>
+<li><strong><code>teardown-workstream</code> command</strong> (<code>reset_workstream.py</code>): Remove
+  workstream infrastructure (worktree, integration branch, signal dir)
+  after all tasks have been peeled back.</li>
+<li><strong><code>reset-workstream</code> command</strong> (<code>reset_workstream.py</code>): Undo a merged
+  workstream from its target branch.  Validates the stack constraint
+  (must be the most recently merged), resets the target branch, closes
+  the integration PR, and removes all task and workstream state.</li>
+<li><strong><code>pr_close_by_url</code></strong> (<code>ops/gh.py</code>): New URL-based PR close function.</li>
+<li><strong>Diagram updates</strong>: Three new per-module diagrams (<code>reset-ops</code>,
+  <code>reset-task</code>, <code>reset-workstream</code>) and updated module overview.</li>
+</ul>
 <h2 id="2026-04-13">2026-04-13</h2>
 <h3 id="fix-tmux-kickoff-prompt-submission">Fix tmux kickoff prompt submission</h3>
 <ul>
