@@ -1699,10 +1699,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-f-shared-reset-utilities-primitive-commands" class="md-nav__link">
+  <a href="#pr-f-shared-reset-utilities-primitive-commands-201-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR F: Shared reset utilities + primitive commands
+        PR F: Shared reset utilities + primitive commands — #201 Merged
       
     </span>
   </a>
@@ -1882,7 +1882,7 @@
 
 <h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), and PR E2 (#199) merged.</p>
+<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), and PR F (#201) merged.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
@@ -3087,7 +3087,7 @@ composition layer into an implementation layer.</p>
 <li><strong>Test delta:</strong> +27 new tests (1570 → 1597).  <code>pixi run check</code> passes.
   PR #199.</li>
 </ul>
-<h3 id="pr-f-shared-reset-utilities-primitive-commands">PR F: Shared reset utilities + primitive commands</h3>
+<h3 id="pr-f-shared-reset-utilities-primitive-commands-201-merged">PR F: Shared reset utilities + primitive commands — #201 Merged</h3>
 <p><strong>Scope:</strong> Shared utility layer and three primitive undo commands.
 Depends on PR A (path layout) and PR B (<code>resolved.json</code> for pre-merge
 SHAs).</p>
@@ -3219,6 +3219,42 @@ SHAs).</p>
   fresh infrastructure from current main
 - Integration: reset-workstream on tip → target branch rolled back,
   re-run starts workstream from scratch</p>
+<p><strong>Notes from implementation (2026-04-18/19):</strong></p>
+<ul>
+<li><strong>RESET status added to both enums</strong>: <code>TaskStatus.RESET</code> and
+  <code>WorkstreamStatus.RESET</code> take absolute priority in signal readers
+  (checked before FAILED). Instead of deleting signal directories,
+  <code>reset_task_state</code> writes <code>status/reset</code> and <code>reset_workstream_state</code>
+  writes a <code>reset</code> file — preserving <code>resolved.json</code>, <code>attempts/</code>, and
+  prior status files for inspection. This was a design change during
+  e2e testing: the original implementation deleted signal dirs, leaving
+  no record that tasks/workstreams had ever run.</li>
+<li><strong>Function renaming</strong>: <code>delete_task_state</code> → <code>reset_task_state</code>,
+  <code>delete_workstream_state</code> → <code>reset_workstream_state</code> to reflect
+  the new preserve-and-mark behavior.</li>
+<li><strong>Resume path handles RESET</strong>: <code>_copy_frozen_artifacts</code> and
+  <code>_build_resume_runtimes</code> skip RESET tasks and workstreams. RESET
+  status only exists in a prior run's directory — the orchestrator
+  never sees it; tasks start as PENDING on re-run. No orchestrator.py
+  changes needed.</li>
+<li><strong><code>find_workstream_tip</code> and <code>workstream_merge_order</code></strong> updated to
+  skip RESET tasks/workstreams. <code>teardown_workstream</code> validation
+  accepts tasks with RESET status (previously required no signal dir).</li>
+<li><strong><code>pr_close_by_url</code></strong> added to <code>ops/gh.py</code> for URL-based PR closing
+  (used by <code>reset-workstream</code> to close integration PRs).</li>
+<li><strong><code>git update-ref</code></strong> used for branch resets instead of <code>git branch -f</code>
+  — works even when the branch is checked out in a worktree.</li>
+<li><strong>Integration PR auto-close</strong>: When all tasks in a workstream are
+  reset, the integration branch has zero commits ahead of main. GitHub
+  auto-closes the integration PR. This is expected behavior but
+  the workstream signal dir doesn't reflect it — addressed in PR F2.</li>
+<li><strong>E2E validation</strong>: <code>quick-chained</code> (reset-task successive peeling,
+  teardown-workstream, re-run after teardown) and
+  <code>auto-merge-2-workstreams</code> (reset-workstream undoing merge from main).
+  Both bare and OCI.</li>
+<li><strong>Test delta</strong>: +51 new tests (1597 → 1648). <code>pixi run check</code> passes.
+  PR #201.</li>
+</ul>
 <h3 id="pr-f2-reset-observability-integration-pr-body-workstream-signals">PR F2: Reset observability — integration PR body + workstream signals</h3>
 <p><strong>Scope:</strong> Keep workstream on-disk state consistent when <code>reset-task</code>
 or <code>reset-workstream</code> modifies the integration branch.  Discovered
