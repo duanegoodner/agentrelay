@@ -873,6 +873,11 @@ Full design discussion in `docs/discussions/PERSISTENT_AGENTS.md`.
   sprint 2026-04-12 (PR E). The MVP copies `resolved.json` directly
   rather than referencing backward into prior run directories. Each run
   directory is self-contained.
+- **Resume summary table for RESET tasks**: When resuming after task
+  resets, the summary table shows `reset  skip (frozen)` for RESET
+  tasks — but they actually run (they're skipped from frozen-artifact
+  copying, not from execution). The phrasing could be clearer about
+  what will happen on this run.
 - Standardize runtime artifacts (state snapshots, audit log, failure context).
 - Define the minimal durable signals needed for reliable resume behavior.
 - **Orchestrator log files**: The orchestrator currently writes all output to
