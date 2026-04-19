@@ -13,7 +13,10 @@ from agentrelay.cli import (
     _handle_dry_run,
     _handle_list,
     _handle_reset,
+    _handle_reset_task,
+    _handle_reset_workstream,
     _handle_run,
+    _handle_teardown_workstream,
     _resolve_graph_path,
     _resolve_graph_with_index,
     _resolve_repo_path,
@@ -701,3 +704,152 @@ def test_handle_list_duplicate_names_exits(tmp_path: Path) -> None:
     args = parser.parse_args(["list", "-g", str(tmp_path)])
     with pytest.raises(SystemExit, match="1"):
         _handle_list(args)
+
+
+# --- build_parser: reset-task subcommand ---
+
+
+def test_reset_task_with_task_flag() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["reset-task", "graph.yaml", "--task", "task_a"])
+    assert args.command == "reset-task"
+    assert args.graph == "graph.yaml"
+    assert args.task == "task_a"
+    assert args.workstream is None
+
+
+def test_reset_task_with_workstream_flag() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["reset-task", "graph.yaml", "--workstream", "ws-a"])
+    assert args.command == "reset-task"
+    assert args.task is None
+    assert args.workstream == "ws-a"
+
+
+def test_reset_task_requires_task_or_workstream() -> None:
+    parser = build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["reset-task", "graph.yaml"])
+
+
+# --- build_parser: teardown-workstream subcommand ---
+
+
+def test_teardown_workstream_defaults() -> None:
+    parser = build_parser()
+    args = parser.parse_args(
+        ["teardown-workstream", "graph.yaml", "--workstream", "ws-a"]
+    )
+    assert args.command == "teardown-workstream"
+    assert args.workstream == "ws-a"
+
+
+# --- build_parser: reset-workstream subcommand ---
+
+
+def test_reset_workstream_defaults() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["reset-workstream", "graph.yaml", "--workstream", "ws-a"])
+    assert args.command == "reset-workstream"
+    assert args.workstream == "ws-a"
+    assert args.yes is False
+
+
+def test_reset_workstream_yes_flag() -> None:
+    parser = build_parser()
+    args = parser.parse_args(
+        ["reset-workstream", "graph.yaml", "--workstream", "ws-a", "--yes"]
+    )
+    assert args.yes is True
+
+
+# --- _handle_reset_task ---
+
+
+def test_handle_reset_task_calls_reset_task(tmp_path: Path) -> None:
+    graph_yaml = tmp_path / "graph.yaml"
+    graph_yaml.write_text("name: test\ntasks:\n  - id: t1\n    description: test\n")
+
+    with (
+        patch("agentrelay.cli._resolve_graph_with_index", return_value=graph_yaml),
+        patch("agentrelay.cli._resolve_repo_path", return_value=tmp_path),
+        patch(
+            "agentrelay.cli._find_latest_run_dir", return_value=tmp_path / "runs" / "0"
+        ),
+        patch("agentrelay.cli.reset_task", return_value=["Done"]) as mock_reset,
+    ):
+        parser = build_parser()
+        args = parser.parse_args(["reset-task", str(graph_yaml), "--task", "t1"])
+        _handle_reset_task(args)
+
+    mock_reset.assert_called_once()
+    call_kwargs = mock_reset.call_args
+    assert call_kwargs.kwargs["task_id"] == "t1"
+
+
+def test_handle_reset_task_error_exits_1(tmp_path: Path) -> None:
+    graph_yaml = tmp_path / "graph.yaml"
+    graph_yaml.write_text("name: test\ntasks:\n  - id: t1\n    description: test\n")
+
+    with (
+        patch("agentrelay.cli._resolve_graph_with_index", return_value=graph_yaml),
+        patch("agentrelay.cli._resolve_repo_path", return_value=tmp_path),
+        patch(
+            "agentrelay.cli._find_latest_run_dir", return_value=tmp_path / "runs" / "0"
+        ),
+        patch("agentrelay.cli.reset_task", side_effect=ValueError("not the tip")),
+        pytest.raises(SystemExit, match="1"),
+    ):
+        parser = build_parser()
+        args = parser.parse_args(["reset-task", str(graph_yaml), "--task", "t1"])
+        _handle_reset_task(args)
+
+
+# --- _handle_teardown_workstream ---
+
+
+def test_handle_teardown_workstream_calls_teardown(tmp_path: Path) -> None:
+    graph_yaml = tmp_path / "graph.yaml"
+    graph_yaml.write_text("name: test\ntasks:\n  - id: t1\n    description: test\n")
+
+    with (
+        patch("agentrelay.cli._resolve_graph_with_index", return_value=graph_yaml),
+        patch("agentrelay.cli._resolve_repo_path", return_value=tmp_path),
+        patch(
+            "agentrelay.cli._find_latest_run_dir", return_value=tmp_path / "runs" / "0"
+        ),
+        patch("agentrelay.cli.teardown_workstream", return_value=["Done"]) as mock_td,
+    ):
+        parser = build_parser()
+        args = parser.parse_args(
+            ["teardown-workstream", str(graph_yaml), "--workstream", "default"]
+        )
+        _handle_teardown_workstream(args)
+
+    mock_td.assert_called_once()
+    assert mock_td.call_args.kwargs["ws_id"] == "default"
+
+
+# --- _handle_reset_workstream ---
+
+
+def test_handle_reset_workstream_calls_reset(tmp_path: Path) -> None:
+    graph_yaml = tmp_path / "graph.yaml"
+    graph_yaml.write_text("name: test\ntasks:\n  - id: t1\n    description: test\n")
+
+    with (
+        patch("agentrelay.cli._resolve_graph_with_index", return_value=graph_yaml),
+        patch("agentrelay.cli._resolve_repo_path", return_value=tmp_path),
+        patch(
+            "agentrelay.cli._find_latest_run_dir", return_value=tmp_path / "runs" / "0"
+        ),
+        patch("agentrelay.cli.reset_workstream", return_value=["Done"]) as mock_rw,
+    ):
+        parser = build_parser()
+        args = parser.parse_args(
+            ["reset-workstream", str(graph_yaml), "--workstream", "default", "--yes"]
+        )
+        _handle_reset_workstream(args)
+
+    mock_rw.assert_called_once()
+    assert mock_rw.call_args.kwargs["ws_id"] == "default"

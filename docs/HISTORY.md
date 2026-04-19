@@ -4,6 +4,31 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-17
+
+### Shared reset utilities and primitive undo commands (sprint PR F)
+
+- **Shared reset utilities** (`reset_ops.py`): Five composable building
+  blocks for stack-based undo: `reset_branch`, `delete_task_state`,
+  `delete_workstream_state`, `find_workstream_tip`,
+  `workstream_merge_order`.  Uses `git update-ref` for branch resets
+  (works even when the branch is checked out in a worktree).
+- **`reset-task` command** (`reset_task.py`): Peel the tip task from a
+  workstream's execution stack.  Rolls back the integration branch for
+  merged tasks (using pre-merge SHA from `resolved.json`), deletes
+  signal directories and branches for non-merged tasks.  Auto-detects
+  the tip when `--workstream` is used instead of `--task`.
+- **`teardown-workstream` command** (`reset_workstream.py`): Remove
+  workstream infrastructure (worktree, integration branch, signal dir)
+  after all tasks have been peeled back.
+- **`reset-workstream` command** (`reset_workstream.py`): Undo a merged
+  workstream from its target branch.  Validates the stack constraint
+  (must be the most recently merged), resets the target branch, closes
+  the integration PR, and removes all task and workstream state.
+- **`pr_close_by_url`** (`ops/gh.py`): New URL-based PR close function.
+- **Diagram updates**: Three new per-module diagrams (`reset-ops`,
+  `reset-task`, `reset-workstream`) and updated module overview.
+
 ## 2026-04-13
 
 ### Fix tmux kickoff prompt submission

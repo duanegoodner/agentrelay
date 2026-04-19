@@ -101,6 +101,21 @@ orchestrator_pkg: "orchestrator/" {
   probe: "probe <<module>>" { shape: class }
 }
 
+reset_ops_py: "reset_ops.py" {
+  style.opacity: 0.5
+  reset_ops_functions: "reset_ops <<module>>" { shape: class }
+}
+
+reset_task_py: "reset_task.py" {
+  style.opacity: 0.5
+  reset_task_functions: "reset_task <<module>>" { shape: class }
+}
+
+reset_workstream_py: "reset_workstream.py" {
+  style.opacity: 0.5
+  reset_workstream_functions: "reset_workstream <<module>>" { shape: class }
+}
+
 run_graph_py: "run_graph.py" {
   style.opacity: 0.5
   run_graph_functions: "run_graph <<module>>" { shape: class }
@@ -131,3 +146,6 @@ orchestrator_pkg.WorkstreamRuntimeBuilder -> task_graph_pkg.TaskGraph: reads { c
 orchestrator_pkg.probe -> task_graph_pkg.TaskGraph: reads { class: dependency }
 orchestrator_pkg.Orchestrator -> task_graph_pkg.TaskGraph: reads { class: dependency }
 run_graph_py.run_graph_functions -> task_graph_pkg.TaskGraphBuilder: loads YAML { class: dependency }
+reset_ops_py.reset_ops_functions -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream_ids" { class: dependency }
+reset_task_py.reset_task_functions -> task_graph_pkg.TaskGraph: "task, tasks_in_workstream" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream" { class: dependency }

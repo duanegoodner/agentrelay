@@ -107,6 +107,19 @@ def pr_close(repo_dir: Path, pr_number: int) -> None:
     )
 
 
+def pr_close_by_url(pr_url: str) -> None:
+    """Close a pull request by URL.
+
+    Runs ``gh pr close <url>``.  Unlike :func:`pr_close`, this does not
+    require a working directory — the URL is fully qualified.
+    """
+    subprocess.run(
+        ["gh", "pr", "close", pr_url],
+        check=True,
+        capture_output=True,
+    )
+
+
 def pr_merge(pr_url: str) -> None:
     """Merge a pull request using the merge strategy.
 

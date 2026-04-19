@@ -1,0 +1,166 @@
+"""Workstream-level undo and infrastructure cleanup.
+
+Usage::
+
+    agentrelay teardown-workstream <graph.yaml> --workstream <ws-id>
+    agentrelay reset-workstream <graph.yaml> --workstream <ws-id> --yes
+
+Functions:
+    teardown_workstream: Remove worktree and integration infrastructure.
+    reset_workstream: Undo a merged workstream from its target branch.
+"""
+
+from __future__ import annotations
+
+import json
+import subprocess
+from pathlib import Path
+
+from agentrelay.ops import gh
+from agentrelay.reset_ops import (
+    delete_task_state,
+    delete_workstream_state,
+    reset_branch,
+    workstream_merge_order,
+)
+from agentrelay.resolved import ResolvedWorkstream
+from agentrelay.task_graph import TaskGraph
+
+
+def teardown_workstream(
+    graph_name: str,
+    graph: TaskGraph,
+    run_dir: Path,
+    repo_path: Path,
+    ws_id: str,
+) -> list[str]:
+    """Remove workstream infrastructure (worktree + integration branch).
+
+    Only valid when all tasks in the workstream have been peeled back
+    (no task has a signal directory).  This is infrastructure cleanup,
+    not an undo of merged work.
+
+    Args:
+        graph_name: Graph name (for path conventions).
+        graph: Current task graph.
+        run_dir: Path to the per-run directory.
+        repo_path: Path to the repository root.
+        ws_id: Workstream identifier.
+
+    Returns:
+        List of log messages describing actions taken.
+
+    Raises:
+        KeyError: If the workstream ID is unknown.
+        ValueError: If any task still has a signal directory.
+    """
+    graph.workstream(ws_id)  # Validate workstream exists.
+
+    for tid in graph.tasks_in_workstream(ws_id):
+        if (run_dir / "signals" / tid).is_dir():
+            raise ValueError(
+                f"Task '{tid}' still has execution state. "
+                f"Reset all tasks in workstream '{ws_id}' first."
+            )
+
+    log = delete_workstream_state(run_dir, ws_id, graph_name, repo_path)
+    log.append(
+        f"Teardown workstream '{ws_id}'. Infrastructure removed. "
+        "Next run will create fresh worktree from current base branch."
+    )
+    return log
+
+
+def reset_workstream(
+    graph_name: str,
+    graph: TaskGraph,
+    run_dir: Path,
+    repo_path: Path,
+    ws_id: str,
+) -> list[str]:
+    """Undo a merged workstream from its target branch.
+
+    Rolls back the target branch (typically ``main``) to its pre-merge
+    SHA, closes the integration PR, and removes all task and workstream
+    state.  Only valid when the workstream is the most recently merged
+    on its target branch (stack constraint).
+
+    Args:
+        graph_name: Graph name (for path conventions).
+        graph: Current task graph.
+        run_dir: Path to the per-run directory.
+        repo_path: Path to the repository root.
+        ws_id: Workstream identifier.
+
+    Returns:
+        List of log messages describing actions taken.
+
+    Raises:
+        KeyError: If the workstream ID is unknown.
+        ValueError: If the workstream is not merged, or is not the most
+            recently merged on its target branch.
+    """
+    ws_spec = graph.workstream(ws_id)  # Validate + get spec.
+
+    # Load resolved.json.
+    resolved_path = run_dir / "workstreams" / ws_id / "resolved.json"
+    if not resolved_path.is_file():
+        raise ValueError(
+            f"Workstream '{ws_id}' has no resolved.json. "
+            "Only merged workstreams can be reset."
+        )
+
+    data = json.loads(resolved_path.read_text())
+    resolved = ResolvedWorkstream.from_dict(data)
+
+    if not resolved.merge_occurred:
+        raise ValueError(
+            f"Workstream '{ws_id}' was not merged (merge_occurred=False). "
+            "Nothing to undo on the target branch."
+        )
+
+    # Validate tip-of-target-branch (stack constraint).
+    merge_order = workstream_merge_order(run_dir, graph)
+    if not merge_order or merge_order[-1] != ws_id:
+        if merge_order:
+            last = merge_order[-1]
+            raise ValueError(
+                f"Workstream '{ws_id}' is not the most recently merged. "
+                f"'{last}' was merged after it. Reset '{last}' first."
+            )
+        raise ValueError(
+            f"Workstream '{ws_id}' not found in merge order. "
+            "Cannot determine stack position."
+        )
+
+    log: list[str] = []
+
+    # Reset target branch.
+    target_sha = resolved.target_branch_before_any_merge
+    target_branch = ws_spec.merge_target_branch
+    reset_branch(repo_path, target_branch, target_sha)
+    log.append(f"Reset '{target_branch}' to {target_sha[:12]}")
+
+    # Close integration PR (best-effort).
+    if resolved.integration_pr_url is not None:
+        try:
+            gh.pr_close_by_url(resolved.integration_pr_url)
+            log.append(f"Closed integration PR {resolved.integration_pr_url}")
+        except subprocess.CalledProcessError:
+            log.append(
+                f"WARNING: Could not close integration PR "
+                f"{resolved.integration_pr_url} (may already be closed)"
+            )
+
+    # Delete all task state.
+    for tid in graph.tasks_in_workstream(ws_id):
+        log.extend(delete_task_state(run_dir, tid, graph_name, repo_path))
+
+    # Delete workstream state.
+    log.extend(delete_workstream_state(run_dir, ws_id, graph_name, repo_path))
+
+    log.append(
+        f"Reset workstream '{ws_id}'. Target branch '{target_branch}' "
+        f"rolled back to {target_sha[:12]}. All workstream state removed."
+    )
+    return log

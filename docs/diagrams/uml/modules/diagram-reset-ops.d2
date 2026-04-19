@@ -1,0 +1,91 @@
+direction: down
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  reset_ops.py — shared reset utilities
+# ─────────────────────────────────────────────
+reset_ops_py: "reset_ops.py" {
+  reset_ops_functions: "reset_ops <<module>>" {
+    shape: class
+    module_path: reset_ops
+    "+reset_branch(repo_path, branch, target_sha)": void
+    "+delete_task_state(run_dir, task_id, graph_name, repo_path)": "list[str]"
+    "+delete_workstream_state(run_dir, ws_id, graph_name, repo_path)": "list[str]"
+    "+find_workstream_tip(run_dir, graph, ws_id)": "str | None"
+    "+workstream_merge_order(run_dir, graph)": "list[str]"
+  }
+}
+
+
+# ─── External dependencies ───
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  git: "git <<module>>" { shape: class }
+}
+
+reset_task_py: "reset_task.py" {
+  style.opacity: 0.5
+  reset_task_functions: "reset_task <<module>>" { shape: class }
+}
+
+reset_workstream_py: "reset_workstream.py" {
+  style.opacity: 0.5
+  reset_workstream_functions: "reset_workstream <<module>>" { shape: class }
+}
+
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  ResolvedWorkstream: "ResolvedWorkstream <<frozen dataclass>>" { shape: class }
+}
+
+task_graph_pkg: "task_graph/" {
+  style.opacity: 0.5
+  TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+reset_ops_py.reset_ops_functions -> ops_pkg.git: "branch, worktree, push ops" { class: dependency }
+reset_ops_py.reset_ops_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
+reset_ops_py.reset_ops_functions -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream_ids" { class: dependency }
+reset_task_py.reset_task_functions -> reset_ops_py.reset_ops_functions: "delete_task_state, find_workstream_tip, reset_branch" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> reset_ops_py.reset_ops_functions: "shared utilities" { class: dependency }
