@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), and PR E2 (#199) merged.
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), and PR F (#201) merged.
 
 ## Goal
 
@@ -1254,7 +1254,7 @@ composition layer into an implementation layer.
 - **Test delta:** +27 new tests (1570 → 1597).  `pixi run check` passes.
   PR #199.
 
-### PR F: Shared reset utilities + primitive commands
+### PR F: Shared reset utilities + primitive commands — #201 Merged
 
 **Scope:** Shared utility layer and three primitive undo commands.
 Depends on PR A (path layout) and PR B (`resolved.json` for pre-merge
@@ -1367,6 +1367,42 @@ SHAs).
   fresh infrastructure from current main
 - Integration: reset-workstream on tip → target branch rolled back,
   re-run starts workstream from scratch
+
+**Notes from implementation (2026-04-18/19):**
+
+- **RESET status added to both enums**: `TaskStatus.RESET` and
+  `WorkstreamStatus.RESET` take absolute priority in signal readers
+  (checked before FAILED). Instead of deleting signal directories,
+  `reset_task_state` writes `status/reset` and `reset_workstream_state`
+  writes a `reset` file — preserving `resolved.json`, `attempts/`, and
+  prior status files for inspection. This was a design change during
+  e2e testing: the original implementation deleted signal dirs, leaving
+  no record that tasks/workstreams had ever run.
+- **Function renaming**: `delete_task_state` → `reset_task_state`,
+  `delete_workstream_state` → `reset_workstream_state` to reflect
+  the new preserve-and-mark behavior.
+- **Resume path handles RESET**: `_copy_frozen_artifacts` and
+  `_build_resume_runtimes` skip RESET tasks and workstreams. RESET
+  status only exists in a prior run's directory — the orchestrator
+  never sees it; tasks start as PENDING on re-run. No orchestrator.py
+  changes needed.
+- **`find_workstream_tip` and `workstream_merge_order`** updated to
+  skip RESET tasks/workstreams. `teardown_workstream` validation
+  accepts tasks with RESET status (previously required no signal dir).
+- **`pr_close_by_url`** added to `ops/gh.py` for URL-based PR closing
+  (used by `reset-workstream` to close integration PRs).
+- **`git update-ref`** used for branch resets instead of `git branch -f`
+  — works even when the branch is checked out in a worktree.
+- **Integration PR auto-close**: When all tasks in a workstream are
+  reset, the integration branch has zero commits ahead of main. GitHub
+  auto-closes the integration PR. This is expected behavior but
+  the workstream signal dir doesn't reflect it — addressed in PR F2.
+- **E2E validation**: `quick-chained` (reset-task successive peeling,
+  teardown-workstream, re-run after teardown) and
+  `auto-merge-2-workstreams` (reset-workstream undoing merge from main).
+  Both bare and OCI.
+- **Test delta**: +51 new tests (1597 → 1648). `pixi run check` passes.
+  PR #201.
 
 ### PR F2: Reset observability — integration PR body + workstream signals
 
