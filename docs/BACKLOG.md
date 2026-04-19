@@ -751,6 +751,12 @@ Full design discussion in `docs/discussions/PERSISTENT_AGENTS.md`.
   2026-04-09). All attempt artifacts now live under
   `signal_dir/attempts/<N>/` including the current attempt.
 
+- **Clean up empty graph-level worktree directory after teardown**:
+  `reset_workstream_state` removes `.worktrees/<graph>/<ws-id>/` but
+  leaves the parent `.worktrees/<graph>/` behind as an empty directory.
+  Cosmetic — `agentrelay reset` cleans it up, and a re-run recreates it.
+  Low priority.
+
 ## Diagram Tooling
 
 - **Interactive module overview on docs site**: Enhance the module
