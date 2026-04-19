@@ -5,12 +5,16 @@ Usage::
     agentrelay run graphs/demo.yaml
     agentrelay run graphs/demo.yaml --target-repo /path/to/repo
     agentrelay reset graphs/demo.yaml --yes
+    agentrelay reset-task graphs/demo.yaml --task my_task
+    agentrelay teardown-workstream graphs/demo.yaml --workstream ws-1
+    agentrelay reset-workstream graphs/demo.yaml --workstream ws-1 --yes
     agentrelay check --target-repo /path/to/repo
     agentrelay dry-run graphs/demo.yaml
 
 This module provides the ``agentrelay`` console script registered in
 ``pyproject.toml``.  Each subcommand delegates to the existing library
-functions in :mod:`run_graph` and :mod:`reset_graph`.
+functions in :mod:`run_graph`, :mod:`reset_graph`, :mod:`reset_task`,
+and :mod:`reset_workstream`.
 """
 
 from __future__ import annotations
@@ -26,16 +30,27 @@ import yaml
 
 from agentrelay.graph_index import DuplicateGraphNameError, GraphIndex
 from agentrelay.orchestrator import OrchestratorOutcome
-from agentrelay.reset_graph import _resolve_graph_name, reset_graph
+from agentrelay.reset_graph import (
+    _find_latest_run_dir,
+    _resolve_graph_name,
+    reset_graph,
+)
+from agentrelay.reset_task import reset_task
+from agentrelay.reset_workstream import (
+    reset_workstream,
+    teardown_workstream,
+)
 from agentrelay.run_graph import (
     RunOptions,
     _dry_run_conflict_check,
+    _extract_operational_config,
     _print_result,
     dry_run,
     run_graph,
 )
 from agentrelay.sandbox import FileCredentialProvider
 from agentrelay.session import SessionError
+from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.tools import ToolValidationError
 
 
@@ -240,6 +255,125 @@ def _handle_list(args: argparse.Namespace) -> None:
         print(f"{e.name:<{name_w}}  {e.category:<{cat_w}}  {e.path}")
 
 
+def _resolve_reset_context(
+    args: argparse.Namespace,
+) -> tuple[str, TaskGraph, Path, Path]:
+    """Resolve graph, repo path, and run dir for reset subcommands.
+
+    Loads the graph YAML, strips operational config keys, builds a
+    :class:`TaskGraph`, and locates the latest run directory.
+
+    Args:
+        args: Parsed CLI arguments with ``graph``, ``graph_dir``, and
+            ``target_repo``.
+
+    Returns:
+        Tuple of ``(graph_name, graph, repo_path, run_dir)``.
+    """
+    graph_path = _resolve_graph_with_index(args)
+    repo_path = _resolve_repo_path(args)
+
+    raw = yaml.safe_load(graph_path.read_text())
+    graph_name = raw.get("name")
+    if not graph_name:
+        print("Error: Graph YAML has no 'name' field", file=sys.stderr)
+        sys.exit(1)
+
+    _extract_operational_config(raw)  # Pops operational keys.
+    graph = TaskGraphBuilder.from_dict(raw)
+
+    workflow_dir = repo_path / ".workflow" / graph_name
+    run_dir = _find_latest_run_dir(workflow_dir)
+    if run_dir is None:
+        print(
+            f"Error: No run directory found for graph '{graph_name}'. "
+            "Has this graph been run?",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    return graph_name, graph, repo_path, run_dir
+
+
+def _handle_reset_task(args: argparse.Namespace) -> None:
+    """Handler for ``agentrelay reset-task``."""
+    graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+
+    try:
+        log = reset_task(
+            graph_name,
+            graph,
+            run_dir,
+            repo_path,
+            task_id=args.task,
+            ws_id=args.workstream,
+        )
+    except (ValueError, KeyError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    for msg in log:
+        print(f"[reset-task] {msg}")
+    print("[reset-task] Done.")
+
+
+def _handle_teardown_workstream(args: argparse.Namespace) -> None:
+    """Handler for ``agentrelay teardown-workstream``."""
+    graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+
+    try:
+        log = teardown_workstream(
+            graph_name,
+            graph,
+            run_dir,
+            repo_path,
+            ws_id=args.workstream,
+        )
+    except (ValueError, KeyError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    for msg in log:
+        print(f"[teardown-workstream] {msg}")
+    print("[teardown-workstream] Done.")
+
+
+def _handle_reset_workstream(args: argparse.Namespace) -> None:
+    """Handler for ``agentrelay reset-workstream``."""
+    graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+
+    if not args.yes:
+        try:
+            ws_spec = graph.workstream(args.workstream)
+        except KeyError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            sys.exit(1)
+        print(
+            f"[reset-workstream] This will force-push to "
+            f"'{ws_spec.merge_target_branch}'."
+        )
+        response = input("[reset-workstream] Continue? [y/N] ")
+        if response.strip().lower() != "y":
+            print("[reset-workstream] Aborted.")
+            return
+
+    try:
+        log = reset_workstream(
+            graph_name,
+            graph,
+            run_dir,
+            repo_path,
+            ws_id=args.workstream,
+        )
+    except (ValueError, KeyError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    for msg in log:
+        print(f"[reset-workstream] {msg}")
+    print("[reset-workstream] Done.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the top-level CLI parser with all subcommands."""
     parser = argparse.ArgumentParser(
@@ -399,6 +533,72 @@ def build_parser() -> argparse.ArgumentParser:
         help="Directory to scan for graph YAML files",
     )
     list_parser.set_defaults(func=_handle_list)
+
+    # --- reset-task ---
+    reset_task_parser = subparsers.add_parser(
+        "reset-task",
+        help="Reset the tip task of a workstream",
+        description="Reset a task to allow re-execution. Must be the workstream tip.",
+    )
+    reset_task_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(reset_task_parser)
+    _add_target_repo_arg(reset_task_parser)
+    reset_task_group = reset_task_parser.add_mutually_exclusive_group(required=True)
+    reset_task_group.add_argument(
+        "--task",
+        default=None,
+        help="Task ID to reset (must be the workstream tip)",
+    )
+    reset_task_group.add_argument(
+        "--workstream",
+        default=None,
+        help="Workstream ID (auto-detect tip task)",
+    )
+    reset_task_parser.set_defaults(func=_handle_reset_task)
+
+    # --- teardown-workstream ---
+    teardown_ws_parser = subparsers.add_parser(
+        "teardown-workstream",
+        help="Remove workstream worktree and integration branch",
+        description=(
+            "Remove worktree and integration infrastructure for a workstream. "
+            "All tasks must be reset first."
+        ),
+    )
+    teardown_ws_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(teardown_ws_parser)
+    _add_target_repo_arg(teardown_ws_parser)
+    teardown_ws_parser.add_argument(
+        "--workstream",
+        required=True,
+        help="Workstream ID to tear down",
+    )
+    teardown_ws_parser.set_defaults(func=_handle_teardown_workstream)
+
+    # --- reset-workstream ---
+    reset_ws_parser = subparsers.add_parser(
+        "reset-workstream",
+        help="Reset a merged workstream and its target branch",
+        description=(
+            "Fully reset a merged workstream, including target branch rollback. "
+            "Force-pushes to the target branch (usually main)."
+        ),
+    )
+    reset_ws_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(reset_ws_parser)
+    _add_target_repo_arg(reset_ws_parser)
+    reset_ws_parser.add_argument(
+        "--workstream",
+        required=True,
+        help="Workstream ID to reset",
+    )
+    reset_ws_parser.add_argument(
+        "--yes",
+        "-y",
+        action="store_true",
+        help="Skip confirmation prompt (required: force-pushes to target branch)",
+    )
+    reset_ws_parser.set_defaults(func=_handle_reset_workstream)
 
     return parser
 

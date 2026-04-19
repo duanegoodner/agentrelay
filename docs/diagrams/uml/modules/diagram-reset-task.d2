@@ -1,0 +1,81 @@
+direction: down
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  reset_task.py — single-task undo
+# ─────────────────────────────────────────────
+reset_task_py: "reset_task.py" {
+  reset_task_functions: "reset_task <<module>>" {
+    shape: class
+    module_path: reset_task
+    "+reset_task(graph_name, graph, run_dir, repo_path, ...)": "list[str]"
+  }
+}
+
+
+# ─── External dependencies ───
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  git: "git <<module>>" { shape: class }
+}
+
+reset_ops_py: "reset_ops.py" {
+  style.opacity: 0.5
+  reset_ops_functions: "reset_ops <<module>>" { shape: class }
+}
+
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  ResolvedTask: "ResolvedTask <<frozen dataclass>>" { shape: class }
+}
+
+task_graph_pkg: "task_graph/" {
+  style.opacity: 0.5
+  TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+reset_task_py.reset_task_functions -> reset_ops_py.reset_ops_functions: "delete_task_state, find_workstream_tip, reset_branch" { class: dependency }
+reset_task_py.reset_task_functions -> resolved_py.ResolvedTask: "reads resolved.json" { class: dependency }
+reset_task_py.reset_task_functions -> task_graph_pkg.TaskGraph: "task, tasks_in_workstream" { class: dependency }
+reset_task_py.reset_task_functions -> ops_pkg.git: "checkout, clean" { class: dependency }

@@ -60,6 +60,9 @@ run_graph_py: "run_graph.py"
 session_py: "session.py"
 run_repo_py: "run_repo.py"
 reset_graph_py: "reset_graph.py"
+reset_ops_py: "reset_ops.py"
+reset_task_py: "reset_task.py"
+reset_workstream_py: "reset_workstream.py"
 graph_index_py: "graph_index.py"
 sandbox_pkg: "sandbox/"
 
@@ -99,6 +102,17 @@ run_graph_py -> session_py { class: dependency }
 session_py -> ops_pkg { class: dependency }
 run_repo_py -> ops_pkg { class: dependency }
 reset_graph_py -> ops_pkg { class: dependency }
+reset_ops_py -> ops_pkg { class: dependency }
+reset_ops_py -> resolved_py { class: dependency }
+reset_ops_py -> task_graph_pkg { class: dependency }
+reset_task_py -> reset_ops_py { class: dependency }
+reset_task_py -> resolved_py { class: dependency }
+reset_task_py -> task_graph_pkg { class: dependency }
+reset_task_py -> ops_pkg { class: dependency }
+reset_workstream_py -> reset_ops_py { class: dependency }
+reset_workstream_py -> ops_pkg { class: dependency }
+reset_workstream_py -> task_graph_pkg { class: dependency }
+reset_workstream_py -> resolved_py { class: dependency }
 output_pkg -> orchestrator_pkg { class: dependency }
 resolved_py -> task_runtime_pkg { class: dependency }
 resolved_py -> workstream_pkg { class: dependency }

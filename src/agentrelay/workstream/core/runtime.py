@@ -33,6 +33,9 @@ class WorkstreamStatus(str, Enum):
         PR_CREATED: Integration PR has been created, awaiting merge.
         MERGED: Integration PR has been merged into the target branch.
         FAILED: Workstream execution failed.
+        RESET: Workstream was reset via ``reset-workstream`` or
+            ``teardown-workstream``.  Signal directory is preserved for
+            history; workstream is logically available for re-execution.
     """
 
     PENDING = "pending"
@@ -41,6 +44,7 @@ class WorkstreamStatus(str, Enum):
     PR_CREATED = "pr_created"
     MERGED = "merged"
     FAILED = "failed"
+    RESET = "reset"
 
 
 # Ordered sequence of non-failure statuses for determining current state
@@ -57,7 +61,8 @@ _STATUS_SEQUENCE: tuple[WorkstreamStatus, ...] = (
 def _read_status_from_signals(signal_dir: Path) -> WorkstreamStatus:
     """Determine workstream status from signal files on disk.
 
-    ``FAILED`` takes priority if present. Otherwise, the latest status in
+    ``RESET`` takes absolute priority (deliberate user action).
+    ``FAILED`` takes priority next.  Otherwise, the latest status in
     the known sequence whose signal file exists is returned.
 
     Args:
@@ -66,6 +71,8 @@ def _read_status_from_signals(signal_dir: Path) -> WorkstreamStatus:
     Returns:
         The current workstream status.
     """
+    if (signal_dir / "reset").exists():
+        return WorkstreamStatus.RESET
     if (signal_dir / "failed").exists():
         return WorkstreamStatus.FAILED
     result = WorkstreamStatus.PENDING
@@ -201,3 +208,7 @@ class WorkstreamRuntime:
         if self.state.signal_dir is not None:
             self._write_signal("failed", error)
         self.state.error = error
+
+    def mark_reset(self) -> None:
+        """Write the ``reset`` signal file."""
+        self._write_signal("reset")

@@ -1,0 +1,82 @@
+direction: down
+**.style.font-size: 50
+*.style.font-size: 100
+
+classes: {
+  composition: {
+    # NOTE: source-arrowhead.shape: diamond doesn't propagate via classes (D2 limitation)
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  dependency: {
+    target-arrowhead: {
+      shape: arrow
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  inheritance: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke: "#333333"
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+  implementation: {
+    target-arrowhead: {
+      shape: triangle
+      style.filled: false
+    }
+    style.stroke-dash: 3
+    style.stroke-width: 12
+    style.font-size: 55
+  }
+}
+
+# ─────────────────────────────────────────────
+#  reset_workstream.py — workstream undo and teardown
+# ─────────────────────────────────────────────
+reset_workstream_py: "reset_workstream.py" {
+  reset_workstream_functions: "reset_workstream <<module>>" {
+    shape: class
+    module_path: reset_workstream
+    "+teardown_workstream(graph_name, graph, run_dir, repo_path, ws_id)": "list[str]"
+    "+reset_workstream(graph_name, graph, run_dir, repo_path, ws_id)": "list[str]"
+  }
+}
+
+
+# ─── External dependencies ───
+
+ops_pkg: "ops/" {
+  style.opacity: 0.5
+  gh: "gh <<module>>" { shape: class }
+}
+
+reset_ops_py: "reset_ops.py" {
+  style.opacity: 0.5
+  reset_ops_functions: "reset_ops <<module>>" { shape: class }
+}
+
+resolved_py: "resolved.py" {
+  style.opacity: 0.5
+  ResolvedWorkstream: "ResolvedWorkstream <<frozen dataclass>>" { shape: class }
+}
+
+task_graph_pkg: "task_graph/" {
+  style.opacity: 0.5
+  TaskGraph: "TaskGraph <<frozen dataclass>>" { shape: class }
+}
+
+
+# ─── Relationships ───
+
+reset_workstream_py.reset_workstream_functions -> reset_ops_py.reset_ops_functions: "shared utilities" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> ops_pkg.gh: "pr_close_by_url" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }

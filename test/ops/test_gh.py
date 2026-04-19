@@ -10,6 +10,7 @@ import pytest
 
 from agentrelay.ops.gh import (
     pr_body,
+    pr_close_by_url,
     pr_create,
     pr_is_merged,
     pr_merge,
@@ -70,6 +71,31 @@ class TestPrCreate:
                 base="main",
                 head="feat/x",
             )
+
+
+class TestPrCloseByUrl:
+    """Tests for pr_close_by_url."""
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_closes_pr_by_url(self, mock_run: MagicMock) -> None:
+        """Runs gh pr close with the full URL."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout=b"", stderr=b""
+        )
+        pr_close_by_url("https://github.com/org/repo/pull/42")
+
+        mock_run.assert_called_once_with(
+            ["gh", "pr", "close", "https://github.com/org/repo/pull/42"],
+            check=True,
+            capture_output=True,
+        )
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_raises_on_failure(self, mock_run: MagicMock) -> None:
+        """Raises CalledProcessError when close fails."""
+        mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
+        with pytest.raises(subprocess.CalledProcessError):
+            pr_close_by_url("https://github.com/org/repo/pull/99")
 
 
 class TestPrMerge:
