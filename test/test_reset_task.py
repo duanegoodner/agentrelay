@@ -151,15 +151,16 @@ def task_reset_repo(tmp_path: Path) -> tuple[Path, Path]:
 class TestResetNonMergedTask:
     """Tests for resetting non-merged (FAILED) tasks."""
 
-    def test_deletes_state(
+    def test_marks_reset_and_deletes_branches(
         self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
     ) -> None:
-        """FAILED tip task: signal dir and branch deleted."""
+        """FAILED tip task: signal dir preserved with status/reset; branches deleted."""
         clone, run_dir = task_reset_repo
 
         log = reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
 
-        assert not (run_dir / "signals" / "task_b").exists()
+        assert (run_dir / "signals" / "task_b").is_dir()
+        assert (run_dir / "signals" / "task_b" / "status" / "reset").is_file()
         remaining = git.ls_remote_branches(
             clone, "refs/heads/agentrelay/test-graph/task_b"
         )
@@ -192,7 +193,7 @@ class TestResetMergedTask:
         integration_sha = git.rev_parse(clone, "agentrelay/test-graph/ws-a/integration")
         assert integration_sha == pre_merge_sha
 
-        assert not (run_dir / "signals" / "task_a").exists()
+        assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()
         assert any("Reset integration branch" in msg for msg in log)
         assert any("no remaining tasks" in msg for msg in log)
 
@@ -270,9 +271,10 @@ class TestResetTaskAutoDetect:
 
         log = reset_task("test-graph", two_task_graph, run_dir, clone, ws_id="ws-a")
 
-        assert not (run_dir / "signals" / "task_b").exists()
-        # task_a should still have state.
+        assert (run_dir / "signals" / "task_b" / "status" / "reset").is_file()
+        # task_a should still have non-RESET state.
         assert (run_dir / "signals" / "task_a").is_dir()
+        assert not (run_dir / "signals" / "task_a" / "status" / "reset").exists()
         assert any("Reset task 'task_b'" in msg for msg in log)
 
 
@@ -290,12 +292,13 @@ class TestSuccessiveResets:
             "test-graph", two_task_graph, run_dir, clone, task_id="task_b"
         )
         assert any("tip is now 'task_a'" in msg for msg in log_b)
-        assert not (run_dir / "signals" / "task_b").exists()
+        assert (run_dir / "signals" / "task_b" / "status" / "reset").is_file()
         assert (run_dir / "signals" / "task_a").is_dir()
+        assert not (run_dir / "signals" / "task_a" / "status" / "reset").exists()
 
         # Reset task_a (PR_MERGED, now the tip).
         log_a = reset_task(
             "test-graph", two_task_graph, run_dir, clone, task_id="task_a"
         )
         assert any("no remaining tasks" in msg for msg in log_a)
-        assert not (run_dir / "signals" / "task_a").exists()
+        assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()

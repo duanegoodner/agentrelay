@@ -215,29 +215,50 @@ class TestTeardownWorkstream:
     def test_removes_infrastructure(
         self, ws_teardown_repo: tuple[Path, Path], single_ws_graph: TaskGraph
     ) -> None:
-        """Removes worktree, branches, and signal dir when all tasks peeled."""
+        """Removes worktree, branches; marks workstream as RESET."""
         clone, run_dir = ws_teardown_repo
 
         log = teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
 
         assert not (clone / ".worktrees" / "test-graph" / "ws-a").exists()
-        assert not (run_dir / "workstreams" / "ws-a").exists()
+        # Signal dir preserved, reset file written.
+        assert (run_dir / "workstreams" / "ws-a" / "reset").is_file()
         remaining = git.ls_remote_branches(
             clone, "refs/heads/agentrelay/test-graph/ws-a/integration"
         )
         assert remaining == []
         assert any("Teardown workstream" in msg for msg in log)
 
-    def test_rejects_tasks_with_signal_dirs(
+    def test_accepts_reset_tasks(
         self, ws_teardown_repo: tuple[Path, Path], single_ws_graph: TaskGraph
     ) -> None:
-        """Raises ValueError when a task still has a signal directory."""
+        """Teardown succeeds when tasks have RESET status (already peeled)."""
         clone, run_dir = ws_teardown_repo
 
-        # Create a task signal dir.
-        (run_dir / "signals" / "task_a").mkdir(parents=True)
+        # Create task signal dirs with RESET status.
+        for tid in ("task_a", "task_b"):
+            status_dir = run_dir / "signals" / tid / "status"
+            status_dir.mkdir(parents=True)
+            (status_dir / "reset").write_text("")
 
-        with pytest.raises(ValueError, match="Task 'task_a' still has execution state"):
+        # Should not raise — RESET tasks are considered peeled.
+        log = teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        assert any("Teardown workstream" in msg for msg in log)
+
+    def test_rejects_tasks_with_active_state(
+        self, ws_teardown_repo: tuple[Path, Path], single_ws_graph: TaskGraph
+    ) -> None:
+        """Raises ValueError when a task has non-RESET active state."""
+        clone, run_dir = ws_teardown_repo
+
+        # Create a task signal dir with pr_merged status (not RESET).
+        status_dir = run_dir / "signals" / "task_a" / "status"
+        status_dir.mkdir(parents=True)
+        (status_dir / "pr_merged").write_text("")
+
+        with pytest.raises(
+            ValueError, match="Task 'task_a' still has active execution state"
+        ):
             teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
 
     def test_unknown_workstream_raises_key_error(
@@ -303,33 +324,34 @@ class TestResetWorkstream:
 
         mock_close.assert_called_once_with("https://github.com/org/repo/pull/10")
 
-    def test_deletes_all_task_state(
+    def test_marks_all_tasks_as_reset(
         self,
         ws_reset_repo: tuple[Path, Path, str],
         single_ws_graph: TaskGraph,
     ) -> None:
-        """All task signal dirs and branches are removed."""
+        """All task signal dirs preserved with status/reset."""
         clone, run_dir, _ = ws_reset_repo
 
         with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
             reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
 
-        assert not (run_dir / "signals" / "task_a").exists()
-        assert not (run_dir / "signals" / "task_b").exists()
+        # task_a had a signal dir — should be marked RESET.
+        assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()
+        # task_b had no signal dir — no change (reset_task_state is a no-op).
 
-    def test_deletes_workstream_state(
+    def test_marks_workstream_as_reset(
         self,
         ws_reset_repo: tuple[Path, Path, str],
         single_ws_graph: TaskGraph,
     ) -> None:
-        """Workstream worktree, branches, and signal dir are removed."""
+        """Workstream worktree and branches removed; signal dir preserved with reset."""
         clone, run_dir, _ = ws_reset_repo
 
         with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
             reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
 
         assert not (clone / ".worktrees" / "test-graph" / "ws-a").exists()
-        assert not (run_dir / "workstreams" / "ws-a").exists()
+        assert (run_dir / "workstreams" / "ws-a" / "reset").is_file()
 
     def test_non_merged_raises_value_error(
         self, ws_teardown_repo: tuple[Path, Path], single_ws_graph: TaskGraph

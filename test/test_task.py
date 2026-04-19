@@ -105,8 +105,9 @@ class TestTaskStatus:
         # PENDING -> RUNNING -> PR_CREATED -> PR_MERGED (PR-backed)
         # PENDING -> RUNNING -> COMPLETED (PR-less)
         # or PENDING -> RUNNING -> FAILED
+        # RESET is a user-initiated override (from reset-task command)
         statuses = list(TaskStatus)
-        assert len(statuses) == 6
+        assert len(statuses) == 7
 
 
 # ── Tests for AgentEnvironment ──

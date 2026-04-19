@@ -21,7 +21,7 @@ import subprocess
 from pathlib import Path
 
 from agentrelay.ops import git
-from agentrelay.reset_ops import delete_task_state, find_workstream_tip, reset_branch
+from agentrelay.reset_ops import find_workstream_tip, reset_branch, reset_task_state
 from agentrelay.resolved import ResolvedTask
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runtime import TaskStatus
@@ -119,10 +119,10 @@ def reset_task(
                     f"Reset integration branch '{integration_branch}' to "
                     f"{resolved.integration_branch_before_merge[:12]}"
                 )
-        log.extend(delete_task_state(run_dir, task_id, graph_name, repo_path))
+        log.extend(reset_task_state(run_dir, task_id, graph_name, repo_path))
     else:
         # Non-merged task: delete state, then switch worktree to integration branch.
-        log.extend(delete_task_state(run_dir, task_id, graph_name, repo_path))
+        log.extend(reset_task_state(run_dir, task_id, graph_name, repo_path))
         worktree_path = repo_path / ".worktrees" / graph_name / task_ws_id
         if worktree_path.is_dir():
             task_branch = f"{_BRANCH_PREFIX}/{graph_name}/{task_id}"

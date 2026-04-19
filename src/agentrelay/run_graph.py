@@ -66,7 +66,7 @@ from agentrelay.sandbox import (
 from agentrelay.session import SessionError
 from agentrelay.task_graph import TaskGraph, TaskGraphBuilder
 from agentrelay.task_runner.core.runner import TearDownMode
-from agentrelay.task_runtime import TaskRuntime
+from agentrelay.task_runtime import TaskRuntime, TaskStatus
 from agentrelay.tools import ToolValidationError, validate_tools
 from agentrelay.workstream import WorkstreamRuntime, WorkstreamStatus
 
@@ -553,6 +553,8 @@ def _copy_frozen_artifacts(
     for task_id, task_probe in probe.task_probes.items():
         if task_probe.resolved is None:
             continue
+        if task_probe.status == TaskStatus.RESET:
+            continue  # Reset tasks are not frozen — start fresh.
         src_dir = prior_run_dir / "signals" / task_id
         dst_dir = new_run_dir / "signals" / task_id
         dst_dir.mkdir(parents=True, exist_ok=True)
@@ -577,7 +579,7 @@ def _copy_frozen_artifacts(
                     shutil.copy2(signal_file, dst_status / signal_file.name)
 
     for ws_id, ws_probe in probe.workstream_probes.items():
-        if ws_probe.status == WorkstreamStatus.PENDING:
+        if ws_probe.status in (WorkstreamStatus.PENDING, WorkstreamStatus.RESET):
             continue
         src_dir = prior_run_dir / "workstreams" / ws_id
         if not src_dir.is_dir():
@@ -621,6 +623,8 @@ def _build_resume_runtimes(
     for task_id, task_probe in probe.task_probes.items():
         if task_probe.resolved is None:
             continue
+        if task_probe.status == TaskStatus.RESET:
+            continue  # Reset tasks start as PENDING.
         runtime = task_runtimes[task_id]
         runtime.state.signal_dir = new_run_dir / "signals" / task_id
         runtime.state.branch_name = task_probe.branch_name
@@ -629,7 +633,7 @@ def _build_resume_runtimes(
 
     workstream_runtimes = WorkstreamRuntimeBuilder.from_graph(graph)
     for ws_id, ws_probe in probe.workstream_probes.items():
-        if ws_probe.status == WorkstreamStatus.PENDING:
+        if ws_probe.status in (WorkstreamStatus.PENDING, WorkstreamStatus.RESET):
             continue
         ws_runtime = workstream_runtimes[ws_id]
         ws_runtime.state.signal_dir = new_run_dir / "workstreams" / ws_id

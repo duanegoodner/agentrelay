@@ -10,10 +10,10 @@ import pytest
 
 from agentrelay.ops import git
 from agentrelay.reset_ops import (
-    delete_task_state,
-    delete_workstream_state,
     find_workstream_tip,
     reset_branch,
+    reset_task_state,
+    reset_workstream_state,
     workstream_merge_order,
 )
 from agentrelay.task import AgentConfig, AgentRole, Task
@@ -182,23 +182,24 @@ class TestResetBranch:
         assert remote_sha == original_sha
 
 
-# ── delete_task_state ──
+# ── reset_task_state ──
 
 
-class TestDeleteTaskState:
-    """Tests for delete_task_state."""
+class TestResetTaskState:
+    """Tests for reset_task_state."""
 
-    def test_removes_signal_dir_and_branches(
+    def test_marks_reset_and_deletes_branches(
         self, reset_ops_repo: tuple[Path, Path]
     ) -> None:
-        """Signal directory and branches are deleted."""
+        """Signal directory preserved with status/reset; branches deleted."""
         clone, run_dir = reset_ops_repo
 
-        log = delete_task_state(run_dir, "task_a", "test-graph", clone)
+        log = reset_task_state(run_dir, "task_a", "test-graph", clone)
 
-        assert not (run_dir / "signals" / "task_a").exists()
-        assert any("signal directory" in msg for msg in log)
-        assert any("Deleted" in msg for msg in log)
+        # Signal dir preserved, status/reset written.
+        assert (run_dir / "signals" / "task_a").is_dir()
+        assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()
+        assert any("RESET" in msg for msg in log)
 
         # Remote branch should be gone.
         remaining = git.ls_remote_branches(
@@ -213,7 +214,7 @@ class TestDeleteTaskState:
         clone, run_dir = reset_ops_repo
 
         # Delete signal dir first, then call again.
-        log = delete_task_state(run_dir, "nonexistent_task", "test-graph", clone)
+        log = reset_task_state(run_dir, "nonexistent_task", "test-graph", clone)
 
         # Should not raise — just returns (possibly empty) log.
         assert isinstance(log, list)
@@ -237,34 +238,36 @@ class TestDeleteTaskState:
         )
 
         # Should not raise.
-        log = delete_task_state(run_dir, "task_a", "test-graph", clone)
-        assert any("signal directory" in msg for msg in log)
+        log = reset_task_state(run_dir, "task_a", "test-graph", clone)
+        assert any("RESET" in msg for msg in log)
 
 
-# ── delete_workstream_state ──
+# ── reset_workstream_state ──
 
 
-class TestDeleteWorkstreamState:
-    """Tests for delete_workstream_state."""
+class TestResetWorkstreamState:
+    """Tests for reset_workstream_state."""
 
-    def test_removes_worktree_branches_and_signals(
+    def test_marks_reset_removes_worktree_and_branches(
         self, reset_ops_repo: tuple[Path, Path]
     ) -> None:
-        """Worktree dir, branches, and signal dir are removed."""
+        """Worktree and branches removed; signal dir preserved with reset file."""
         clone, run_dir = reset_ops_repo
 
-        log = delete_workstream_state(run_dir, "ws-a", "test-graph", clone)
+        log = reset_workstream_state(run_dir, "ws-a", "test-graph", clone)
 
         # Worktree dir should be gone.
         assert not (clone / ".worktrees" / "test-graph" / "ws-a").exists()
-        # Signal dir should be gone.
-        assert not (run_dir / "workstreams" / "ws-a").exists()
+        # Signal dir preserved, reset file written.
+        assert (run_dir / "workstreams" / "ws-a").is_dir()
+        assert (run_dir / "workstreams" / "ws-a" / "reset").is_file()
         # Remote branch should be gone.
         remaining = git.ls_remote_branches(
             clone, "refs/heads/agentrelay/test-graph/ws-a/integration"
         )
         assert remaining == []
         assert any("worktree" in msg.lower() for msg in log)
+        assert any("RESET" in msg for msg in log)
 
     def test_missing_worktree_is_best_effort(
         self, reset_ops_repo: tuple[Path, Path]
@@ -278,7 +281,7 @@ class TestDeleteWorkstreamState:
         shutil.rmtree(clone / ".worktrees" / "test-graph" / "ws-a")
 
         # Should not raise.
-        log = delete_workstream_state(run_dir, "ws-a", "test-graph", clone)
+        log = reset_workstream_state(run_dir, "ws-a", "test-graph", clone)
         assert isinstance(log, list)
 
     def test_missing_signal_dir_is_noop(
@@ -292,7 +295,7 @@ class TestDeleteWorkstreamState:
 
         shutil.rmtree(run_dir / "workstreams" / "ws-a")
 
-        log = delete_workstream_state(run_dir, "ws-a", "test-graph", clone)
+        log = reset_workstream_state(run_dir, "ws-a", "test-graph", clone)
         assert isinstance(log, list)
 
 
@@ -345,6 +348,31 @@ class TestFindWorkstreamTip:
 
         tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip == "task_c"
+
+    def test_skips_reset_tasks(self, tmp_path: Path, simple_graph: TaskGraph) -> None:
+        """RESET tasks are skipped — tip is the last non-RESET task."""
+        run_dir = tmp_path / "runs" / "0"
+        (run_dir / "signals" / "task_a" / "status").mkdir(parents=True)
+        (run_dir / "signals" / "task_a" / "status" / "pr_merged").write_text("")
+        (run_dir / "signals" / "task_b" / "status").mkdir(parents=True)
+        (run_dir / "signals" / "task_b" / "status" / "pr_merged").write_text("")
+        # task_c is RESET.
+        (run_dir / "signals" / "task_c" / "status").mkdir(parents=True)
+        (run_dir / "signals" / "task_c" / "status" / "reset").write_text("")
+
+        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        assert tip == "task_b"
+
+    def test_returns_none_when_all_reset(
+        self, tmp_path: Path, simple_graph: TaskGraph
+    ) -> None:
+        """Returns None when all tasks with signal dirs are RESET."""
+        run_dir = tmp_path / "runs" / "0"
+        (run_dir / "signals" / "task_a" / "status").mkdir(parents=True)
+        (run_dir / "signals" / "task_a" / "status" / "reset").write_text("")
+
+        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        assert tip is None
 
 
 # ── workstream_merge_order ──
@@ -419,6 +447,32 @@ class TestWorkstreamMergeOrder:
         """Returns empty list when no workstreams have resolved.json."""
         run_dir = tmp_path / "runs" / "0"
         run_dir.mkdir(parents=True)
+
+        order = workstream_merge_order(run_dir, two_ws_graph)
+        assert order == []
+
+    def test_excludes_reset_workstreams(
+        self, tmp_path: Path, two_ws_graph: TaskGraph
+    ) -> None:
+        """RESET workstreams are excluded even if resolved.json exists."""
+        run_dir = tmp_path / "runs" / "0"
+
+        ws1_dir = run_dir / "workstreams" / "ws-1"
+        ws1_dir.mkdir(parents=True)
+        (ws1_dir / "resolved.json").write_text(
+            json.dumps(
+                {
+                    "workstream_id": "ws-1",
+                    "integration_pr_url": None,
+                    "target_branch": "main",
+                    "target_branch_before_any_merge": "abc123",
+                    "merge_occurred": True,
+                    "merged_at": "2026-04-12T10:00:00Z",
+                }
+            )
+        )
+        # Write reset signal — this workstream was undone.
+        (ws1_dir / "reset").write_text("")
 
         order = workstream_merge_order(run_dir, two_ws_graph)
         assert order == []

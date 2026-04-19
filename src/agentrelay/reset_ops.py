@@ -7,13 +7,13 @@ operation using :mod:`ops.git` subprocess wrappers.
 
 Functions:
     reset_branch: Reset a branch to a target SHA and force-push.
-    delete_task_state: Remove a task's signal directory and branches.
-    delete_workstream_state: Remove a workstream's worktree, branches,
-        and signal directory.
+    reset_task_state: Mark a task as RESET and delete its branches.
+    reset_workstream_state: Mark a workstream as RESET, remove worktree,
+        and delete its branches.
     find_workstream_tip: Find the most recently touched task in a
-        workstream.
+        workstream (excluding RESET tasks).
     workstream_merge_order: Determine the merge order of workstreams on
-        their target branch.
+        their target branch (excluding RESET workstreams).
 """
 
 from __future__ import annotations
@@ -26,6 +26,12 @@ from pathlib import Path
 from agentrelay.ops import git
 from agentrelay.resolved import ResolvedWorkstream
 from agentrelay.task_graph import TaskGraph
+from agentrelay.task_runtime import TaskStatus
+from agentrelay.task_runtime.runtime import _read_task_status_from_signals
+from agentrelay.workstream.core.runtime import (
+    WorkstreamStatus,
+    _read_status_from_signals,
+)
 
 _BRANCH_PREFIX = "agentrelay"
 
@@ -46,16 +52,18 @@ def reset_branch(repo_path: Path, branch: str, target_sha: str) -> None:
     git.push_force_with_lease(repo_path, branch)
 
 
-def delete_task_state(
+def reset_task_state(
     run_dir: Path,
     task_id: str,
     graph_name: str,
     repo_path: Path,
 ) -> list[str]:
-    """Remove a task's signal directory and branches.
+    """Mark a task as RESET and delete its branches.
 
-    Performs best-effort cleanup: missing signal directories are skipped,
-    and branch deletion failures are caught silently.
+    Writes ``status/reset`` to the task signal directory (preserving all
+    prior artifacts for history) and deletes the task branch.  Best-effort:
+    missing signal directories are skipped, and branch deletion failures
+    are caught silently.
 
     Args:
         run_dir: Path to the per-run directory.
@@ -70,8 +78,10 @@ def delete_task_state(
 
     signal_dir = run_dir / "signals" / task_id
     if signal_dir.is_dir():
-        shutil.rmtree(signal_dir)
-        log.append(f"Removed signal directory for task '{task_id}'")
+        status_dir = signal_dir / "status"
+        status_dir.mkdir(parents=True, exist_ok=True)
+        (status_dir / "reset").write_text("")
+        log.append(f"Marked task '{task_id}' as RESET")
 
     branch = f"{_BRANCH_PREFIX}/{graph_name}/{task_id}"
 
@@ -90,16 +100,17 @@ def delete_task_state(
     return log
 
 
-def delete_workstream_state(
+def reset_workstream_state(
     run_dir: Path,
     ws_id: str,
     graph_name: str,
     repo_path: Path,
 ) -> list[str]:
-    """Remove a workstream's worktree, branches, and signal directory.
+    """Mark a workstream as RESET, remove worktree, and delete branches.
 
-    Performs best-effort cleanup at each step so that subsequent steps
-    still execute even if an earlier one fails.
+    Writes a ``reset`` signal file to the workstream signal directory
+    (preserving all prior artifacts for history), removes the worktree,
+    and deletes the integration branch.  Best-effort at each step.
 
     Args:
         run_dir: Path to the per-run directory.
@@ -141,8 +152,8 @@ def delete_workstream_state(
 
     signal_dir = run_dir / "workstreams" / ws_id
     if signal_dir.is_dir():
-        shutil.rmtree(signal_dir)
-        log.append(f"Removed workstream signal directory for '{ws_id}'")
+        (signal_dir / "reset").write_text("")
+        log.append(f"Marked workstream '{ws_id}' as RESET")
 
     try:
         git.worktree_prune(repo_path)
@@ -161,7 +172,7 @@ def find_workstream_tip(
 
     Tasks within a workstream execute sequentially in topological order.
     The "tip" is the last task in that order whose signal directory
-    exists on disk.
+    exists on disk and whose status is not ``RESET``.
 
     Args:
         run_dir: Path to the per-run directory.
@@ -169,12 +180,16 @@ def find_workstream_tip(
         ws_id: Workstream identifier.
 
     Returns:
-        Task ID of the tip, or ``None`` if no task has a signal directory.
+        Task ID of the tip, or ``None`` if no active task has a signal
+        directory.
     """
     tip: str | None = None
     for task_id in graph.tasks_in_workstream(ws_id):
-        if (run_dir / "signals" / task_id).is_dir():
-            tip = task_id
+        signal_dir = run_dir / "signals" / task_id
+        if signal_dir.is_dir():
+            status = _read_task_status_from_signals(signal_dir)
+            if status != TaskStatus.RESET:
+                tip = task_id
     return tip
 
 
@@ -185,8 +200,8 @@ def workstream_merge_order(
     """Determine the merge order of workstreams on their target branch.
 
     Reads ``resolved.json`` for each workstream and returns those with
-    ``merge_occurred=True``, sorted by ``merged_at`` timestamp (oldest
-    first).
+    ``merge_occurred=True`` and status not ``RESET``, sorted by
+    ``merged_at`` timestamp (oldest first).
 
     Args:
         run_dir: Path to the per-run directory.
@@ -197,6 +212,13 @@ def workstream_merge_order(
     """
     merged: list[tuple[str, str]] = []  # (merged_at, ws_id)
     for ws_id in graph.workstream_ids():
+        # Skip RESET workstreams — they've been undone.
+        ws_signal_dir = run_dir / "workstreams" / ws_id
+        if ws_signal_dir.is_dir():
+            ws_status = _read_status_from_signals(ws_signal_dir)
+            if ws_status == WorkstreamStatus.RESET:
+                continue
+
         resolved_path = run_dir / "workstreams" / ws_id / "resolved.json"
         if not resolved_path.is_file():
             continue

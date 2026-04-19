@@ -18,13 +18,15 @@ from pathlib import Path
 
 from agentrelay.ops import gh
 from agentrelay.reset_ops import (
-    delete_task_state,
-    delete_workstream_state,
     reset_branch,
+    reset_task_state,
+    reset_workstream_state,
     workstream_merge_order,
 )
 from agentrelay.resolved import ResolvedWorkstream
 from agentrelay.task_graph import TaskGraph
+from agentrelay.task_runtime import TaskStatus
+from agentrelay.task_runtime.runtime import _read_task_status_from_signals
 
 
 def teardown_workstream(
@@ -36,9 +38,9 @@ def teardown_workstream(
 ) -> list[str]:
     """Remove workstream infrastructure (worktree + integration branch).
 
-    Only valid when all tasks in the workstream have been peeled back
-    (no task has a signal directory).  This is infrastructure cleanup,
-    not an undo of merged work.
+    Only valid when all tasks in the workstream have been reset or have
+    no signal directory.  This is infrastructure cleanup, not an undo
+    of merged work.
 
     Args:
         graph_name: Graph name (for path conventions).
@@ -52,18 +54,21 @@ def teardown_workstream(
 
     Raises:
         KeyError: If the workstream ID is unknown.
-        ValueError: If any task still has a signal directory.
+        ValueError: If any task still has active execution state.
     """
     graph.workstream(ws_id)  # Validate workstream exists.
 
     for tid in graph.tasks_in_workstream(ws_id):
-        if (run_dir / "signals" / tid).is_dir():
-            raise ValueError(
-                f"Task '{tid}' still has execution state. "
-                f"Reset all tasks in workstream '{ws_id}' first."
-            )
+        signal_dir = run_dir / "signals" / tid
+        if signal_dir.is_dir():
+            status = _read_task_status_from_signals(signal_dir)
+            if status != TaskStatus.RESET:
+                raise ValueError(
+                    f"Task '{tid}' still has active execution state. "
+                    f"Reset all tasks in workstream '{ws_id}' first."
+                )
 
-    log = delete_workstream_state(run_dir, ws_id, graph_name, repo_path)
+    log = reset_workstream_state(run_dir, ws_id, graph_name, repo_path)
     log.append(
         f"Teardown workstream '{ws_id}'. Infrastructure removed. "
         "Next run will create fresh worktree from current base branch."
@@ -81,9 +86,9 @@ def reset_workstream(
     """Undo a merged workstream from its target branch.
 
     Rolls back the target branch (typically ``main``) to its pre-merge
-    SHA, closes the integration PR, and removes all task and workstream
-    state.  Only valid when the workstream is the most recently merged
-    on its target branch (stack constraint).
+    SHA, closes the integration PR, and marks all task and workstream
+    state as RESET.  Only valid when the workstream is the most recently
+    merged on its target branch (stack constraint).
 
     Args:
         graph_name: Graph name (for path conventions).
@@ -152,12 +157,12 @@ def reset_workstream(
                 f"{resolved.integration_pr_url} (may already be closed)"
             )
 
-    # Delete all task state.
+    # Mark all tasks as RESET.
     for tid in graph.tasks_in_workstream(ws_id):
-        log.extend(delete_task_state(run_dir, tid, graph_name, repo_path))
+        log.extend(reset_task_state(run_dir, tid, graph_name, repo_path))
 
-    # Delete workstream state.
-    log.extend(delete_workstream_state(run_dir, ws_id, graph_name, repo_path))
+    # Mark workstream as RESET.
+    log.extend(reset_workstream_state(run_dir, ws_id, graph_name, repo_path))
 
     log.append(
         f"Reset workstream '{ws_id}'. Target branch '{target_branch}' "

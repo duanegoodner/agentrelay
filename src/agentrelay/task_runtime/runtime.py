@@ -39,6 +39,9 @@ class TaskStatus(str, Enum):
         PR_MERGED: Pull request has been merged into the worktree primary branch.
         COMPLETED: Task completed successfully without creating a PR.
         FAILED: Task execution failed.
+        RESET: Task was reset via ``reset-task``.  Signal directory is
+            preserved for history; task is logically available for
+            re-execution.
     """
 
     PENDING = "pending"
@@ -47,6 +50,7 @@ class TaskStatus(str, Enum):
     PR_MERGED = "pr_merged"  # PR merged into worktree primary branch
     COMPLETED = "completed"  # PR-less task finished successfully
     FAILED = "failed"
+    RESET = "reset"  # Task was reset via reset-task; preserved for history
 
 
 # Ordered sequence of non-failure statuses for determining current state
@@ -72,8 +76,10 @@ SUCCESS_STATUSES: frozenset[TaskStatus] = frozenset(
 def _read_task_status_from_signals(signal_dir: Path) -> TaskStatus:
     """Determine task status from signal files on disk.
 
-    ``FAILED`` takes priority if present.  Otherwise, the latest status in
-    the known sequence whose signal file exists is returned.
+    ``RESET`` takes absolute priority (deliberate user action that
+    overrides any prior state).  ``FAILED`` takes priority next.
+    Otherwise, the latest status in the known sequence whose signal
+    file exists is returned.
 
     Args:
         signal_dir: Path to the task signal directory.  Status files are
@@ -83,6 +89,8 @@ def _read_task_status_from_signals(signal_dir: Path) -> TaskStatus:
         The current task status.
     """
     status_dir = signal_dir / "status"
+    if (status_dir / "reset").exists():
+        return TaskStatus.RESET
     if (status_dir / "failed").exists():
         return TaskStatus.FAILED
     result = TaskStatus.PENDING
@@ -254,6 +262,10 @@ class TaskRuntime:
         if self.state.signal_dir is not None:
             self._write_status_signal("failed", error)
         self.state.error = error
+
+    def mark_reset(self) -> None:
+        """Write the ``reset`` status signal file."""
+        self._write_status_signal("reset")
 
     def prepare_for_attempt(self, attempt_num: int) -> None:
         """Reset error and set attempt number before a task attempt."""
