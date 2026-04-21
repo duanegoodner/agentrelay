@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), and PR F (#201) merged.
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), and PR F2 (#203) merged.
 
 ## Goal
 
@@ -1404,7 +1404,7 @@ SHAs).
 - **Test delta**: +51 new tests (1597 → 1648). `pixi run check` passes.
   PR #201.
 
-### PR F2: Reset observability — integration PR body + workstream signals
+### PR F2: Reset observability — integration PR body + workstream signals — #203 Merged
 
 **Scope:** Keep workstream on-disk state consistent when `reset-task`
 or `reset-workstream` modifies the integration branch.  Discovered
@@ -1620,12 +1620,12 @@ utilities).
 - Integration: reset-to then re-run → graph resumes correctly from
   the target state
 
-### PR F3: Decouple reset commands from ops layer
+### PR H: Decouple reset commands from ops layer
 
 **Scope:** Introduce protocols to eliminate direct `ops.git` and `ops.gh`
 imports from `reset_task.py`, `reset_workstream.py`, and `reset_ops.py`.
 Aligns the reset command layer with the decoupling achieved in
-`run_graph.py` by PR E2.  Depends on PR F2.
+`run_graph.py` by PR E2.  Depends on PR G.
 
 **Motivation:** PR E2 (#199) decoupled `run_graph.py` from all `ops/`
 modules (except `ops.signals`) via three protocols
@@ -1668,7 +1668,7 @@ PR A (per-run dirs) ──→ PR B (frozen records) ──┐
                    │
                    ├──→ PR D (idempotent prep)
                    │
-                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR F3 (reset decoupling) ──→ PR G (reset-to)
+                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR G (reset-to) ──→ PR H (reset decoupling)
                         (depends on A + B)
 ```
 
@@ -1677,8 +1677,8 @@ PR A must land first (directory layout foundation). After PR A:
 - PR F can start once PR B lands (needs `resolved.json` format)
 - PR E depends on B, C, and D
 - PR F2 depends on PR F (extends reset-task with observability)
-- PR F3 depends on PR F2 (decouples reset commands from ops layer)
-- PR G depends on PR F3 (uses shared utilities; benefits from decoupling)
+- PR G depends on PR F2 (uses shared utilities)
+- PR H depends on PR G (decouples all reset commands from ops layer)
 - PR E and PR G are independent of each other
 
 ## Risk assessment
