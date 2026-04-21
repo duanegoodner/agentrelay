@@ -1540,6 +1540,41 @@ execution state.
 - `write_rollback_entry`: creates file on first call, appends on
   subsequent calls
 
+**Notes from implementation (2026-04-20):**
+
+- **Protocol-based PR body updates**: Architectural review identified
+  that putting `append_reset_activity_to_pr()` directly in `reset_ops.py`
+  would couple the shared utility layer to `ops.gh`. Introduced
+  `PrBodyUpdater` protocol + `GhPrBodyUpdater` implementation in new
+  `reset_pr.py`, following the `session.py` / `run_repo.py` pattern
+  (protocol + implementation co-located in dedicated file). `cli.py`
+  constructs `GhPrBodyUpdater()` and injects via `pr_body_updater`
+  parameter on `reset_task()` and `reset_workstream()`.
+- **Best-effort at two layers**: `GhPrBodyUpdater` catches
+  `CalledProcessError` internally (GitHub API failures). Callers also
+  wrap the updater call in `try/except Exception` so a broken updater
+  implementation doesn't block the reset operation.
+- **`pr_update_body` uses `gh api` REST**: `PATCH /repos/{owner}/{repo}/
+  pulls/{number}` via `gh api` instead of deprecated `gh pr edit`
+  (Projects Classic deprecation causes exit code 1). URL-to-REST-path
+  conversion via string replacement.
+- **Diagram fixes from PR F**: `delete_task_state` → `reset_task_state`,
+  `delete_workstream_state` → `reset_workstream_state` corrected in
+  `diagram-detailed.d2`. Added `pr_update_body` and `pr_close_by_url`
+  to `ops.gh` diagram block (both were missing).
+- **PR H added**: Architectural review revealed that `reset_task.py`,
+  `reset_workstream.py`, and `reset_ops.py` all have direct `ops.git`
+  and/or `ops.gh` imports — inconsistent with the protocol decoupling
+  achieved in `run_graph.py` by PR E2. PR H spec added to sprint doc
+  for post-G cleanup.
+- **E2E validation**: `quick-chained` (successive `reset-task` peeling,
+  verify `rollback_log.json` and `## Reset activity` on integration PR)
+  and `auto_merge_2_workstreams` (`reset-task` on ws_b, `teardown-
+  workstream` ws_b, `reset-workstream` ws_a with main rollback
+  verification via `target_branch_before_any_merge` SHA).
+- **Test delta**: +22 new tests (1648 → 1670). `pixi run check` passes.
+  PR #203.
+
 ### PR G: `reset-to` batch rollback
 
 **Scope:** Direct-jump batch rollback command. Depends on PR F (shared
