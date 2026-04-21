@@ -1731,6 +1731,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pr-f3-decouple-reset-commands-from-ops-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR F3: Decouple reset commands from ops layer
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3467,6 +3478,38 @@ utilities).</p>
   ws-3 in progress → main reset once, all state for ws-2/ws-3 removed
 - Integration: reset-to then re-run → graph resumes correctly from
   the target state</p>
+<h3 id="pr-f3-decouple-reset-commands-from-ops-layer">PR F3: Decouple reset commands from ops layer</h3>
+<p><strong>Scope:</strong> Introduce protocols to eliminate direct <code>ops.git</code> and <code>ops.gh</code>
+imports from <code>reset_task.py</code>, <code>reset_workstream.py</code>, and <code>reset_ops.py</code>.
+Aligns the reset command layer with the decoupling achieved in
+<code>run_graph.py</code> by PR E2.  Depends on PR F2.</p>
+<p><strong>Motivation:</strong> PR E2 (#199) decoupled <code>run_graph.py</code> from all <code>ops/</code>
+modules (except <code>ops.signals</code>) via three protocols
+(<code>SandboxInfrastructureManager</code>, <code>SessionResolver</code>, <code>RunRepoManager</code>).
+The reset commands added in PR F (#201) use <code>ops.git</code> and <code>ops.gh</code>
+directly — acceptable for the initial implementation, but inconsistent
+with the protocol-isolation pattern established elsewhere.</p>
+<p><strong>Current direct coupling:</strong>
+- <code>reset_task.py</code> → <code>ops.git</code> (checkout, clean, rev_parse)
+- <code>reset_workstream.py</code> → <code>ops.gh</code> (pr_close_by_url), <code>ops.git</code> (rev_parse)
+- <code>reset_ops.py</code> → <code>ops.git</code> (branch_delete, push_delete_branch,
+  update_local_ref, push_force_with_lease, worktree_remove, worktree_prune)</p>
+<p><strong>Approach:</strong> Define protocols for the git and gh operations used by
+the reset layer.  Place protocol definitions in the reset modules
+(or a shared file); place implementations alongside existing patterns.
+Wire concrete implementations in <code>cli.py</code>.</p>
+<p><strong>Files touched:</strong>
+- <code>src/agentrelay/reset_task.py</code> (replace <code>ops.git</code> imports with protocol)
+- <code>src/agentrelay/reset_workstream.py</code> (replace <code>ops.gh</code> and <code>ops.git</code>
+  imports with protocols)
+- <code>src/agentrelay/reset_ops.py</code> (replace <code>ops.git</code> imports with protocol)
+- New protocol + implementation file(s)
+- <code>src/agentrelay/cli.py</code> (construct and pass implementations)
+- Tests for all affected files
+- <code>docs/diagrams/uml/diagram-detailed.d2</code></p>
+<p><strong>Tests:</strong>
+- Existing reset tests continue to pass with injected implementations
+- New tests verify protocol contracts</p>
 <h2 id="merge-order">Merge order</h2>
 <div class="highlight"><pre><span></span><code>PR A (per-run dirs) ──→ PR B (frozen records) ──┐
                    │                            ├──→ PR E (wiring + CLI)
@@ -3474,7 +3517,7 @@ utilities).</p>
                    │
                    ├──→ PR D (idempotent prep)
                    │
-                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR G (reset-to)
+                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR F3 (reset decoupling) ──→ PR G (reset-to)
                         (depends on A + B)
 </code></pre></div>
 <p>PR A must land first (directory layout foundation). After PR A:
@@ -3482,7 +3525,8 @@ utilities).</p>
 - PR F can start once PR B lands (needs <code>resolved.json</code> format)
 - PR E depends on B, C, and D
 - PR F2 depends on PR F (extends reset-task with observability)
-- PR G depends on PR F2 (uses shared utilities)
+- PR F3 depends on PR F2 (decouples reset commands from ops layer)
+- PR G depends on PR F3 (uses shared utilities; benefits from decoupling)
 - PR E and PR G are independent of each other</p>
 <h2 id="risk-assessment">Risk assessment</h2>
 <p><strong>Low risk:</strong>

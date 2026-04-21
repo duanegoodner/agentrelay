@@ -78,6 +78,8 @@ ops_pkg: "ops/" {
     +pr_create(repo_dir, title, body, base, head): str
     +pr_merge(pr_url): void
     +pr_body(pr_url): str
+    +pr_update_body(pr_url, body): void
+    +pr_close_by_url(pr_url): void
     +pr_is_merged(pr_url): bool
     +pr_merge_commit_sha(pr_url): "str | None"
   }
@@ -135,6 +137,11 @@ reset_graph_py: "reset_graph.py" {
 reset_ops_py: "reset_ops.py" {
   style.opacity: 0.5
   reset_ops_functions: "reset_ops <<module>>" { shape: class }
+}
+
+reset_pr_py: "reset_pr.py" {
+  style.opacity: 0.5
+  GhPrBodyUpdater: "GhPrBodyUpdater" { shape: class }
 }
 
 reset_task_py: "reset_task.py" {
@@ -225,6 +232,8 @@ reset_graph_py.reset_graph_functions -> ops_pkg.git: "reset, branch ops" { class
 reset_graph_py.reset_graph_functions -> ops_pkg.gh: "PR list / close" { class: dependency }
 reset_graph_py.reset_graph_functions -> ops_pkg.docker: "container/network cleanup" { class: dependency }
 reset_ops_py.reset_ops_functions -> ops_pkg.git: "branch, worktree, push ops" { class: dependency }
-reset_task_py.reset_task_functions -> ops_pkg.git: "checkout, clean" { class: dependency }
+reset_task_py.reset_task_functions -> ops_pkg.git: "checkout, clean, rev_parse" { class: dependency }
 reset_workstream_py.reset_workstream_functions -> ops_pkg.gh: "pr_close_by_url" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> ops_pkg.git: "rev_parse" { class: dependency }
+reset_pr_py.GhPrBodyUpdater -> ops_pkg.gh: "pr_body, pr_update_body" { class: dependency }
 agent_sdk_pkg.TaskHelper -> ops_pkg.gh: "creates PR" { class: dependency }
