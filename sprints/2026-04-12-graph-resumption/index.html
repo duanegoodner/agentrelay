@@ -1710,10 +1710,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-f2-reset-observability-integration-pr-body-workstream-signals" class="md-nav__link">
+  <a href="#pr-f2-reset-observability-integration-pr-body-workstream-signals-203-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR F2: Reset observability — integration PR body + workstream signals
+        PR F2: Reset observability — integration PR body + workstream signals — #203 Merged
       
     </span>
   </a>
@@ -1732,10 +1732,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-f3-decouple-reset-commands-from-ops-layer" class="md-nav__link">
+  <a href="#pr-h-decouple-reset-commands-from-ops-layer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR F3: Decouple reset commands from ops layer
+        PR H: Decouple reset commands from ops layer
       
     </span>
   </a>
@@ -1893,7 +1893,7 @@
 
 <h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), and PR F (#201) merged.</p>
+<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), and PR F2 (#203) merged.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
@@ -3266,7 +3266,7 @@ SHAs).</p>
 <li><strong>Test delta</strong>: +51 new tests (1597 → 1648). <code>pixi run check</code> passes.
   PR #201.</li>
 </ul>
-<h3 id="pr-f2-reset-observability-integration-pr-body-workstream-signals">PR F2: Reset observability — integration PR body + workstream signals</h3>
+<h3 id="pr-f2-reset-observability-integration-pr-body-workstream-signals-203-merged">PR F2: Reset observability — integration PR body + workstream signals — #203 Merged</h3>
 <p><strong>Scope:</strong> Keep workstream on-disk state consistent when <code>reset-task</code>
 or <code>reset-workstream</code> modifies the integration branch.  Discovered
 during PR F e2e testing: after resetting all tasks in a workstream, the
@@ -3478,11 +3478,11 @@ utilities).</p>
   ws-3 in progress → main reset once, all state for ws-2/ws-3 removed
 - Integration: reset-to then re-run → graph resumes correctly from
   the target state</p>
-<h3 id="pr-f3-decouple-reset-commands-from-ops-layer">PR F3: Decouple reset commands from ops layer</h3>
+<h3 id="pr-h-decouple-reset-commands-from-ops-layer">PR H: Decouple reset commands from ops layer</h3>
 <p><strong>Scope:</strong> Introduce protocols to eliminate direct <code>ops.git</code> and <code>ops.gh</code>
 imports from <code>reset_task.py</code>, <code>reset_workstream.py</code>, and <code>reset_ops.py</code>.
 Aligns the reset command layer with the decoupling achieved in
-<code>run_graph.py</code> by PR E2.  Depends on PR F2.</p>
+<code>run_graph.py</code> by PR E2.  Depends on PR G.</p>
 <p><strong>Motivation:</strong> PR E2 (#199) decoupled <code>run_graph.py</code> from all <code>ops/</code>
 modules (except <code>ops.signals</code>) via three protocols
 (<code>SandboxInfrastructureManager</code>, <code>SessionResolver</code>, <code>RunRepoManager</code>).
@@ -3517,7 +3517,7 @@ Wire concrete implementations in <code>cli.py</code>.</p>
                    │
                    ├──→ PR D (idempotent prep)
                    │
-                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR F3 (reset decoupling) ──→ PR G (reset-to)
+                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR G (reset-to) ──→ PR H (reset decoupling)
                         (depends on A + B)
 </code></pre></div>
 <p>PR A must land first (directory layout foundation). After PR A:
@@ -3525,8 +3525,8 @@ Wire concrete implementations in <code>cli.py</code>.</p>
 - PR F can start once PR B lands (needs <code>resolved.json</code> format)
 - PR E depends on B, C, and D
 - PR F2 depends on PR F (extends reset-task with observability)
-- PR F3 depends on PR F2 (decouples reset commands from ops layer)
-- PR G depends on PR F3 (uses shared utilities; benefits from decoupling)
+- PR G depends on PR F2 (uses shared utilities)
+- PR H depends on PR G (decouples all reset commands from ops layer)
 - PR E and PR G are independent of each other</p>
 <h2 id="risk-assessment">Risk assessment</h2>
 <p><strong>Low risk:</strong>
