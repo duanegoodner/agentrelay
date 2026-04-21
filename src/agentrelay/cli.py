@@ -35,6 +35,7 @@ from agentrelay.reset_graph import (
     _resolve_graph_name,
     reset_graph,
 )
+from agentrelay.reset_pr import GhPrBodyUpdater
 from agentrelay.reset_task import reset_task
 from agentrelay.reset_workstream import (
     reset_workstream,
@@ -307,6 +308,7 @@ def _handle_reset_task(args: argparse.Namespace) -> None:
             repo_path,
             task_id=args.task,
             ws_id=args.workstream,
+            pr_body_updater=GhPrBodyUpdater(),
         )
     except (ValueError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
@@ -364,6 +366,7 @@ def _handle_reset_workstream(args: argparse.Namespace) -> None:
             run_dir,
             repo_path,
             ws_id=args.workstream,
+            pr_body_updater=GhPrBodyUpdater(),
         )
     except (ValueError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)

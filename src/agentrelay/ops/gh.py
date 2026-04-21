@@ -176,6 +176,28 @@ def pr_body(pr_url: str) -> str:
     return result.stdout.strip()
 
 
+def pr_update_body(pr_url: str, body: str) -> None:
+    """Update the body of a pull request via the GitHub REST API.
+
+    Uses ``gh api repos/{owner}/{repo}/pulls/{number} -X PATCH`` instead
+    of ``gh pr edit``, which fails with exit code 1 due to Projects
+    Classic deprecation.
+
+    Args:
+        pr_url: Full PR URL
+            (``https://github.com/{owner}/{repo}/pull/{number}``).
+        body: New body text for the PR.
+    """
+    api_path = pr_url.replace("https://github.com/", "repos/").replace(
+        "/pull/", "/pulls/"
+    )
+    subprocess.run(
+        ["gh", "api", api_path, "-X", "PATCH", "-f", f"body={body}"],
+        check=True,
+        capture_output=True,
+    )
+
+
 def pr_merge_commit_sha(pr_url: str) -> str | None:
     """Return the merge commit SHA for a merged pull request.
 

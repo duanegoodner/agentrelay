@@ -1620,6 +1620,45 @@ utilities).
 - Integration: reset-to then re-run → graph resumes correctly from
   the target state
 
+### PR F3: Decouple reset commands from ops layer
+
+**Scope:** Introduce protocols to eliminate direct `ops.git` and `ops.gh`
+imports from `reset_task.py`, `reset_workstream.py`, and `reset_ops.py`.
+Aligns the reset command layer with the decoupling achieved in
+`run_graph.py` by PR E2.  Depends on PR F2.
+
+**Motivation:** PR E2 (#199) decoupled `run_graph.py` from all `ops/`
+modules (except `ops.signals`) via three protocols
+(`SandboxInfrastructureManager`, `SessionResolver`, `RunRepoManager`).
+The reset commands added in PR F (#201) use `ops.git` and `ops.gh`
+directly — acceptable for the initial implementation, but inconsistent
+with the protocol-isolation pattern established elsewhere.
+
+**Current direct coupling:**
+- `reset_task.py` → `ops.git` (checkout, clean, rev_parse)
+- `reset_workstream.py` → `ops.gh` (pr_close_by_url), `ops.git` (rev_parse)
+- `reset_ops.py` → `ops.git` (branch_delete, push_delete_branch,
+  update_local_ref, push_force_with_lease, worktree_remove, worktree_prune)
+
+**Approach:** Define protocols for the git and gh operations used by
+the reset layer.  Place protocol definitions in the reset modules
+(or a shared file); place implementations alongside existing patterns.
+Wire concrete implementations in `cli.py`.
+
+**Files touched:**
+- `src/agentrelay/reset_task.py` (replace `ops.git` imports with protocol)
+- `src/agentrelay/reset_workstream.py` (replace `ops.gh` and `ops.git`
+  imports with protocols)
+- `src/agentrelay/reset_ops.py` (replace `ops.git` imports with protocol)
+- New protocol + implementation file(s)
+- `src/agentrelay/cli.py` (construct and pass implementations)
+- Tests for all affected files
+- `docs/diagrams/uml/diagram-detailed.d2`
+
+**Tests:**
+- Existing reset tests continue to pass with injected implementations
+- New tests verify protocol contracts
+
 ## Merge order
 
 ```
@@ -1629,7 +1668,7 @@ PR A (per-run dirs) ──→ PR B (frozen records) ──┐
                    │
                    ├──→ PR D (idempotent prep)
                    │
-                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR G (reset-to)
+                   └──→ PR F (shared utils + primitive cmds) ──→ PR F2 (reset observability) ──→ PR F3 (reset decoupling) ──→ PR G (reset-to)
                         (depends on A + B)
 ```
 
@@ -1638,7 +1677,8 @@ PR A must land first (directory layout foundation). After PR A:
 - PR F can start once PR B lands (needs `resolved.json` format)
 - PR E depends on B, C, and D
 - PR F2 depends on PR F (extends reset-task with observability)
-- PR G depends on PR F2 (uses shared utilities)
+- PR F3 depends on PR F2 (decouples reset commands from ops layer)
+- PR G depends on PR F3 (uses shared utilities; benefits from decoupling)
 - PR E and PR G are independent of each other
 
 ## Risk assessment

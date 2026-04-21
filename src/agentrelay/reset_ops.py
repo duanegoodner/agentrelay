@@ -14,6 +14,8 @@ Functions:
         workstream (excluding RESET tasks).
     workstream_merge_order: Determine the merge order of workstreams on
         their target branch (excluding RESET workstreams).
+    write_rollback_entry: Append a timestamped entry to the workstream
+        rollback log (``rollback_log.json``).
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 from agentrelay.ops import git
@@ -231,3 +234,45 @@ def workstream_merge_order(
             merged.append((resolved.merged_at, ws_id))
     merged.sort(key=lambda x: x[0])
     return [ws_id for _, ws_id in merged]
+
+
+def write_rollback_entry(
+    ws_signal_dir: Path,
+    task_id: str,
+    prior_status: str,
+    integration_branch_sha_before: str,
+    integration_branch_sha_after: str,
+) -> None:
+    """Append a rollback entry to the workstream rollback log.
+
+    Reads the existing ``rollback_log.json`` (if present), appends a
+    new timestamped entry, and writes the updated array back.  Creates
+    the file and parent directory on first call.
+
+    Args:
+        ws_signal_dir: Workstream signal directory.
+        task_id: Task that was reset.
+        prior_status: Task status before reset (e.g. ``"pr_merged"``).
+        integration_branch_sha_before: SHA before rollback.
+        integration_branch_sha_after: SHA after rollback.
+    """
+    log_path = ws_signal_dir / "rollback_log.json"
+    entries: list[dict[str, str]] = []
+    if log_path.is_file():
+        try:
+            entries = json.loads(log_path.read_text())
+        except json.JSONDecodeError:
+            entries = []
+
+    entries.append(
+        {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "task_id": task_id,
+            "prior_status": prior_status,
+            "integration_branch_sha_before": integration_branch_sha_before,
+            "integration_branch_sha_after": integration_branch_sha_after,
+        }
+    )
+
+    ws_signal_dir.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(json.dumps(entries, indent=2) + "\n")
