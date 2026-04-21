@@ -3405,6 +3405,41 @@ execution state.</p>
 - <code>pr_update_body</code> failure: logged, does not raise
 - <code>write_rollback_entry</code>: creates file on first call, appends on
   subsequent calls</p>
+<p><strong>Notes from implementation (2026-04-20):</strong></p>
+<ul>
+<li><strong>Protocol-based PR body updates</strong>: Architectural review identified
+  that putting <code>append_reset_activity_to_pr()</code> directly in <code>reset_ops.py</code>
+  would couple the shared utility layer to <code>ops.gh</code>. Introduced
+  <code>PrBodyUpdater</code> protocol + <code>GhPrBodyUpdater</code> implementation in new
+  <code>reset_pr.py</code>, following the <code>session.py</code> / <code>run_repo.py</code> pattern
+  (protocol + implementation co-located in dedicated file). <code>cli.py</code>
+  constructs <code>GhPrBodyUpdater()</code> and injects via <code>pr_body_updater</code>
+  parameter on <code>reset_task()</code> and <code>reset_workstream()</code>.</li>
+<li><strong>Best-effort at two layers</strong>: <code>GhPrBodyUpdater</code> catches
+  <code>CalledProcessError</code> internally (GitHub API failures). Callers also
+  wrap the updater call in <code>try/except Exception</code> so a broken updater
+  implementation doesn't block the reset operation.</li>
+<li><strong><code>pr_update_body</code> uses <code>gh api</code> REST</strong>: <code>PATCH /repos/{owner}/{repo}/
+  pulls/{number}</code> via <code>gh api</code> instead of deprecated <code>gh pr edit</code>
+  (Projects Classic deprecation causes exit code 1). URL-to-REST-path
+  conversion via string replacement.</li>
+<li><strong>Diagram fixes from PR F</strong>: <code>delete_task_state</code> → <code>reset_task_state</code>,
+  <code>delete_workstream_state</code> → <code>reset_workstream_state</code> corrected in
+  <code>diagram-detailed.d2</code>. Added <code>pr_update_body</code> and <code>pr_close_by_url</code>
+  to <code>ops.gh</code> diagram block (both were missing).</li>
+<li><strong>PR H added</strong>: Architectural review revealed that <code>reset_task.py</code>,
+  <code>reset_workstream.py</code>, and <code>reset_ops.py</code> all have direct <code>ops.git</code>
+  and/or <code>ops.gh</code> imports — inconsistent with the protocol decoupling
+  achieved in <code>run_graph.py</code> by PR E2. PR H spec added to sprint doc
+  for post-G cleanup.</li>
+<li><strong>E2E validation</strong>: <code>quick-chained</code> (successive <code>reset-task</code> peeling,
+  verify <code>rollback_log.json</code> and <code>## Reset activity</code> on integration PR)
+  and <code>auto_merge_2_workstreams</code> (<code>reset-task</code> on ws_b, <code>teardown-
+  workstream</code> ws_b, <code>reset-workstream</code> ws_a with main rollback
+  verification via <code>target_branch_before_any_merge</code> SHA).</li>
+<li><strong>Test delta</strong>: +22 new tests (1648 → 1670). <code>pixi run check</code> passes.
+  PR #203.</li>
+</ul>
 <h3 id="pr-g-reset-to-batch-rollback">PR G: <code>reset-to</code> batch rollback</h3>
 <p><strong>Scope:</strong> Direct-jump batch rollback command. Depends on PR F (shared
 utilities).</p>
