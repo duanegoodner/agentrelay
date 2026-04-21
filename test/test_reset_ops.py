@@ -15,6 +15,7 @@ from agentrelay.reset_ops import (
     reset_task_state,
     reset_workstream_state,
     workstream_merge_order,
+    write_rollback_entry,
 )
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_graph import TaskGraph
@@ -476,3 +477,62 @@ class TestWorkstreamMergeOrder:
 
         order = workstream_merge_order(run_dir, two_ws_graph)
         assert order == []
+
+
+# ── WriteRollbackEntry ──
+
+
+class TestWriteRollbackEntry:
+    """Tests for write_rollback_entry."""
+
+    def test_creates_file_on_first_call(self, tmp_path: Path) -> None:
+        """Creates rollback_log.json with a single entry."""
+        ws_dir = tmp_path / "workstreams" / "ws-a"
+        ws_dir.mkdir(parents=True)
+
+        write_rollback_entry(ws_dir, "task_a", "pr_merged", "aaa", "bbb")
+
+        log_path = ws_dir / "rollback_log.json"
+        assert log_path.is_file()
+        entries = json.loads(log_path.read_text())
+        assert len(entries) == 1
+        assert entries[0]["task_id"] == "task_a"
+
+    def test_appends_to_existing_log(self, tmp_path: Path) -> None:
+        """Appends to an existing rollback_log.json."""
+        ws_dir = tmp_path / "workstreams" / "ws-a"
+        ws_dir.mkdir(parents=True)
+
+        write_rollback_entry(ws_dir, "task_a", "pr_merged", "aaa", "bbb")
+        write_rollback_entry(ws_dir, "task_b", "completed", "bbb", "ccc")
+
+        entries = json.loads((ws_dir / "rollback_log.json").read_text())
+        assert len(entries) == 2
+        assert entries[0]["task_id"] == "task_a"
+        assert entries[1]["task_id"] == "task_b"
+
+    def test_entry_fields_match(self, tmp_path: Path) -> None:
+        """All expected fields are present with correct values."""
+        ws_dir = tmp_path / "workstreams" / "ws-a"
+        ws_dir.mkdir(parents=True)
+
+        write_rollback_entry(ws_dir, "task_x", "pr_merged", "sha1", "sha2")
+
+        entries = json.loads((ws_dir / "rollback_log.json").read_text())
+        entry = entries[0]
+        assert entry["task_id"] == "task_x"
+        assert entry["prior_status"] == "pr_merged"
+        assert entry["integration_branch_sha_before"] == "sha1"
+        assert entry["integration_branch_sha_after"] == "sha2"
+        # Timestamp is an ISO string.
+        assert "T" in entry["timestamp"]
+
+    def test_creates_signal_dir_if_missing(self, tmp_path: Path) -> None:
+        """Creates the workstream signal directory if it does not exist."""
+        ws_dir = tmp_path / "workstreams" / "ws-new"
+        assert not ws_dir.exists()
+
+        write_rollback_entry(ws_dir, "task_a", "pr_merged", "aaa", "bbb")
+
+        assert ws_dir.is_dir()
+        assert (ws_dir / "rollback_log.json").is_file()

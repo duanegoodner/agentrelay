@@ -16,17 +16,22 @@ import json
 import subprocess
 from pathlib import Path
 
-from agentrelay.ops import gh
+from agentrelay.ops import gh, git
 from agentrelay.reset_ops import (
     reset_branch,
     reset_task_state,
     reset_workstream_state,
     workstream_merge_order,
+    write_rollback_entry,
 )
+from agentrelay.reset_pr import PrBodyUpdater
 from agentrelay.resolved import ResolvedWorkstream
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runtime import TaskStatus
-from agentrelay.task_runtime.runtime import _read_task_status_from_signals
+from agentrelay.task_runtime.runtime import (
+    SUCCESS_STATUSES,
+    _read_task_status_from_signals,
+)
 
 
 def teardown_workstream(
@@ -82,6 +87,8 @@ def reset_workstream(
     run_dir: Path,
     repo_path: Path,
     ws_id: str,
+    *,
+    pr_body_updater: PrBodyUpdater | None = None,
 ) -> list[str]:
     """Undo a merged workstream from its target branch.
 
@@ -96,6 +103,8 @@ def reset_workstream(
         run_dir: Path to the per-run directory.
         repo_path: Path to the repository root.
         ws_id: Workstream identifier.
+        pr_body_updater: Optional updater to append reset activity to
+            the integration PR body.  ``None`` skips PR body updates.
 
     Returns:
         List of log messages describing actions taken.
@@ -140,11 +149,41 @@ def reset_workstream(
 
     log: list[str] = []
 
-    # Reset target branch.
+    # Capture current target branch SHA before rollback.
     target_sha = resolved.target_branch_before_any_merge
     target_branch = ws_spec.merge_target_branch
+    sha_before = git.rev_parse(repo_path, target_branch)
+
+    # Reset target branch.
     reset_branch(repo_path, target_branch, target_sha)
     log.append(f"Reset '{target_branch}' to {target_sha[:12]}")
+
+    # Write rollback log entries and collect PR body entries.
+    ws_signal_dir = run_dir / "workstreams" / ws_id
+    pr_body_entries: list[tuple[str, str]] = []
+    for tid in graph.tasks_in_workstream(ws_id):
+        task_signal_dir = run_dir / "signals" / tid
+        if task_signal_dir.is_dir():
+            task_status = _read_task_status_from_signals(task_signal_dir)
+            if task_status in SUCCESS_STATUSES:
+                write_rollback_entry(
+                    ws_signal_dir, tid, task_status.value, sha_before, target_sha
+                )
+                log.append(f"Wrote rollback log entry for task '{tid}'")
+                pr_body_entries.append((tid, task_status.value))
+
+    # Append to integration PR body (best-effort), before closing.
+    if pr_body_updater is not None and pr_body_entries:
+        try:
+            pr_created = ws_signal_dir / "pr_created"
+            if pr_created.is_file():
+                pr_url = pr_created.read_text().strip()
+                if pr_url:
+                    log.extend(
+                        pr_body_updater.append_reset_activity(pr_url, pr_body_entries)
+                    )
+        except Exception:
+            log.append(f"WARNING: PR body update failed for workstream '{ws_id}'")
 
     # Close integration PR (best-effort).
     if resolved.integration_pr_url is not None:

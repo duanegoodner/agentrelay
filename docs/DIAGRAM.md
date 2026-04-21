@@ -40,6 +40,7 @@ module.
 | output/ | [diagram-output.svg](diagrams/uml/modules/diagram-output.svg){: target="_blank" } |
 | reset_graph.py | [diagram-reset-graph.svg](diagrams/uml/modules/diagram-reset-graph.svg){: target="_blank" } |
 | reset_ops.py | [diagram-reset-ops.svg](diagrams/uml/modules/diagram-reset-ops.svg){: target="_blank" } |
+| reset_pr.py | [diagram-reset-pr.svg](diagrams/uml/modules/diagram-reset-pr.svg){: target="_blank" } |
 | reset_task.py | [diagram-reset-task.svg](diagrams/uml/modules/diagram-reset-task.svg){: target="_blank" } |
 | reset_workstream.py | [diagram-reset-workstream.svg](diagrams/uml/modules/diagram-reset-workstream.svg){: target="_blank" } |
 | run_graph.py | [diagram-run-graph.svg](diagrams/uml/modules/diagram-run-graph.svg){: target="_blank" } |

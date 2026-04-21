@@ -62,6 +62,11 @@ reset_ops_py: "reset_ops.py" {
   reset_ops_functions: "reset_ops <<module>>" { shape: class }
 }
 
+reset_pr_py: "reset_pr.py" {
+  style.opacity: 0.5
+  PrBodyUpdater: "PrBodyUpdater <<protocol>>" { shape: class }
+}
+
 resolved_py: "resolved.py" {
   style.opacity: 0.5
   ResolvedTask: "ResolvedTask <<frozen dataclass>>" { shape: class }
@@ -75,7 +80,8 @@ task_graph_pkg: "task_graph/" {
 
 # ─── Relationships ───
 
-reset_task_py.reset_task_functions -> reset_ops_py.reset_ops_functions: "delete_task_state, find_workstream_tip, reset_branch" { class: dependency }
+reset_task_py.reset_task_functions -> reset_ops_py.reset_ops_functions: "reset_task_state, find_workstream_tip, reset_branch, write_rollback_entry" { class: dependency }
+reset_task_py.reset_task_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
 reset_task_py.reset_task_functions -> resolved_py.ResolvedTask: "reads resolved.json" { class: dependency }
 reset_task_py.reset_task_functions -> task_graph_pkg.TaskGraph: "task, tasks_in_workstream" { class: dependency }
-reset_task_py.reset_task_functions -> ops_pkg.git: "checkout, clean" { class: dependency }
+reset_task_py.reset_task_functions -> ops_pkg.git: "checkout, clean, rev_parse" { class: dependency }

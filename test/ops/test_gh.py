@@ -15,6 +15,7 @@ from agentrelay.ops.gh import (
     pr_is_merged,
     pr_merge,
     pr_merge_commit_sha,
+    pr_update_body,
 )
 
 
@@ -209,6 +210,50 @@ class TestPrBody:
         mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
         with pytest.raises(subprocess.CalledProcessError):
             pr_body("https://github.com/org/repo/pull/99")
+
+
+class TestPrUpdateBody:
+    """Tests for pr_update_body."""
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_updates_body_via_api_patch(self, mock_run: MagicMock) -> None:
+        """Calls gh api with PATCH and the correct REST path."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout=b"", stderr=b""
+        )
+        pr_update_body("https://github.com/org/repo/pull/42", "new body text")
+
+        mock_run.assert_called_once_with(
+            [
+                "gh",
+                "api",
+                "repos/org/repo/pulls/42",
+                "-X",
+                "PATCH",
+                "-f",
+                "body=new body text",
+            ],
+            check=True,
+            capture_output=True,
+        )
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_raises_on_failure(self, mock_run: MagicMock) -> None:
+        """Raises CalledProcessError when gh api fails."""
+        mock_run.side_effect = subprocess.CalledProcessError(1, "gh")
+        with pytest.raises(subprocess.CalledProcessError):
+            pr_update_body("https://github.com/org/repo/pull/42", "body")
+
+    @patch("agentrelay.ops.gh.subprocess.run")
+    def test_converts_url_to_api_path(self, mock_run: MagicMock) -> None:
+        """Converts a full GitHub PR URL to the REST API path."""
+        mock_run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout=b"", stderr=b""
+        )
+        pr_update_body("https://github.com/my-org/my-repo/pull/123", "body")
+
+        call_args = mock_run.call_args[0][0]
+        assert call_args[2] == "repos/my-org/my-repo/pulls/123"
 
 
 class TestPrMergeCommitSha:

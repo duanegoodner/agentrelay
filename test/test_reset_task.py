@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -302,3 +303,108 @@ class TestSuccessiveResets:
         )
         assert any("no remaining tasks" in msg for msg in log_a)
         assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()
+
+
+class TestResetMergedTaskObservability:
+    """Tests for rollback log and PR body updates on merged-task reset."""
+
+    def test_writes_rollback_log_for_merged_task(
+        self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
+    ) -> None:
+        """Resetting a merged task writes a rollback_log.json entry."""
+        clone, run_dir = task_reset_repo
+
+        # Reset task_b (FAILED tip) first.
+        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        # Reset task_a (PR_MERGED, now the tip).
+        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_a")
+
+        log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
+        assert log_path.is_file()
+        entries = json.loads(log_path.read_text())
+        assert len(entries) == 1
+        assert entries[0]["task_id"] == "task_a"
+        assert entries[0]["prior_status"] == "pr_merged"
+        assert entries[0]["integration_branch_sha_before"] != ""
+        assert entries[0]["integration_branch_sha_after"] != ""
+
+    def test_calls_pr_body_updater_for_merged_task(
+        self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
+    ) -> None:
+        """Calls PrBodyUpdater.append_reset_activity for a merged task."""
+        clone, run_dir = task_reset_repo
+
+        # Write pr_created file so the updater is invoked.
+        ws_dir = run_dir / "workstreams" / "ws-a"
+        ws_dir.mkdir(parents=True, exist_ok=True)
+        (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/5")
+
+        mock_updater = MagicMock()
+        mock_updater.append_reset_activity.return_value = ["Updated PR"]
+
+        # Reset task_b first.
+        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        # Reset task_a with updater.
+        log = reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            clone,
+            task_id="task_a",
+            pr_body_updater=mock_updater,
+        )
+
+        mock_updater.append_reset_activity.assert_called_once()
+        call_args = mock_updater.append_reset_activity.call_args
+        assert call_args[0][0] == "https://github.com/org/repo/pull/5"
+        assert call_args[0][1] == [("task_a", "pr_merged")]
+        assert "Updated PR" in log
+
+    def test_no_rollback_log_for_non_merged_task(
+        self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
+    ) -> None:
+        """No rollback_log.json for a FAILED task reset."""
+        clone, run_dir = task_reset_repo
+
+        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+
+        log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
+        assert not log_path.exists()
+
+    def test_no_pr_update_without_pr_body_updater(
+        self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
+    ) -> None:
+        """No PR update when pr_body_updater is None."""
+        clone, run_dir = task_reset_repo
+
+        # Write pr_created file — but no updater is provided.
+        ws_dir = run_dir / "workstreams" / "ws-a"
+        ws_dir.mkdir(parents=True, exist_ok=True)
+        (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/5")
+
+        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        log = reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_a")
+
+        # No "Updated" in log — only rollback log written, no PR update.
+        assert not any("Updated" in msg for msg in log)
+
+    def test_no_pr_update_without_pr_created(
+        self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
+    ) -> None:
+        """No PR update when pr_created file does not exist."""
+        clone, run_dir = task_reset_repo
+
+        mock_updater = MagicMock()
+        mock_updater.append_reset_activity.return_value = []
+
+        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            clone,
+            task_id="task_a",
+            pr_body_updater=mock_updater,
+        )
+
+        mock_updater.append_reset_activity.assert_not_called()

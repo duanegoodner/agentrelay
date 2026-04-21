@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -458,3 +458,120 @@ class TestResetWorkstream:
 
         mock_close.assert_not_called()
         assert any("rolled back" in msg for msg in log)
+
+
+class TestResetWorkstreamObservability:
+    """Tests for rollback log and PR body updates on workstream reset."""
+
+    def test_writes_rollback_log_entries(
+        self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
+    ) -> None:
+        """Writes rollback_log.json entries for merged tasks."""
+        clone, run_dir, _ = ws_reset_repo
+
+        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
+            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+
+        log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
+        assert log_path.is_file()
+        entries = json.loads(log_path.read_text())
+        assert len(entries) == 1
+        assert entries[0]["task_id"] == "task_a"
+        assert entries[0]["prior_status"] == "pr_merged"
+
+    def test_calls_pr_body_updater_before_close(
+        self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
+    ) -> None:
+        """Calls PrBodyUpdater.append_reset_activity before closing PR."""
+        clone, run_dir, _ = ws_reset_repo
+
+        # Write pr_created file.
+        ws_dir = run_dir / "workstreams" / "ws-a"
+        (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/10")
+
+        mock_updater = MagicMock()
+        mock_updater.append_reset_activity.return_value = ["Updated PR"]
+
+        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
+            log = reset_workstream(
+                "test-graph",
+                single_ws_graph,
+                run_dir,
+                clone,
+                "ws-a",
+                pr_body_updater=mock_updater,
+            )
+
+        mock_updater.append_reset_activity.assert_called_once()
+        call_args = mock_updater.append_reset_activity.call_args
+        assert call_args[0][0] == "https://github.com/org/repo/pull/10"
+        assert ("task_a", "pr_merged") in call_args[0][1]
+        assert "Updated PR" in log
+
+    def test_no_pr_update_without_updater(
+        self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
+    ) -> None:
+        """No PR body update when pr_body_updater is None."""
+        clone, run_dir, _ = ws_reset_repo
+
+        # Write pr_created file but don't pass updater.
+        ws_dir = run_dir / "workstreams" / "ws-a"
+        (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/10")
+
+        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
+            log = reset_workstream(
+                "test-graph", single_ws_graph, run_dir, clone, "ws-a"
+            )
+
+        # Rollback log still written, but no "Updated" message.
+        assert (ws_dir / "rollback_log.json").is_file()
+        assert not any("Updated" in msg for msg in log)
+
+    def test_rollback_log_skips_non_merged_tasks(
+        self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
+    ) -> None:
+        """Only merged tasks appear in rollback_log.json."""
+        clone, run_dir, _ = ws_reset_repo
+
+        # Mark task_b as FAILED (it has no signal dir by default, create one).
+        task_b_dir = run_dir / "signals" / "task_b"
+        (task_b_dir / "status").mkdir(parents=True)
+        (task_b_dir / "status" / "failed").write_text("")
+
+        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
+            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+
+        entries = json.loads(
+            (run_dir / "workstreams" / "ws-a" / "rollback_log.json").read_text()
+        )
+        # Only task_a (pr_merged), not task_b (failed).
+        task_ids = [e["task_id"] for e in entries]
+        assert "task_a" in task_ids
+        assert "task_b" not in task_ids
+
+    def test_pr_updater_failure_does_not_block_reset(
+        self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
+    ) -> None:
+        """Reset completes even when PrBodyUpdater raises."""
+        clone, run_dir, _ = ws_reset_repo
+
+        ws_dir = run_dir / "workstreams" / "ws-a"
+        (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/10")
+
+        mock_updater = MagicMock()
+        mock_updater.append_reset_activity.side_effect = RuntimeError("boom")
+
+        # The reset should still complete — updater failure is non-fatal.
+        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
+            log = reset_workstream(
+                "test-graph",
+                single_ws_graph,
+                run_dir,
+                clone,
+                "ws-a",
+                pr_body_updater=mock_updater,
+            )
+
+        assert any("WARNING" in msg for msg in log)
+        assert any("rolled back" in msg for msg in log)
+        assert (ws_dir / "reset").is_file()
