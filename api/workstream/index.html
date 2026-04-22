@@ -8052,7 +8052,27 @@ so that task PRs can target it.</p>
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
-<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">GitWorkstreamPreparer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision a worktree and integration branch for a workstream lane.</span>
 
@@ -8095,10 +8115,30 @@ so that task PRs can target it.</p>
                     <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">,</span>
                     <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
-                <span class="p">)</span>
-                <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="c1"># Check if the integration branch already exists (e.g.,</span>
+                <span class="c1"># after reset-to rolled back the branch but didn&#39;t delete</span>
+                <span class="c1"># it, and the prior run&#39;s teardown removed the worktree).</span>
+                <span class="n">branch_exists</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">git</span><span class="o">.</span><span class="n">rev_parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+                    <span class="n">branch_exists</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+
+                <span class="k">if</span> <span class="n">branch_exists</span><span class="p">:</span>
+                    <span class="c1"># Reuse existing branch — create worktree without -b.</span>
+                    <span class="n">git</span><span class="o">.</span><span class="n">worktree_add_existing</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+                        <span class="n">worktree_path</span><span class="p">,</span>
+                        <span class="n">branch_name</span><span class="p">,</span>
+                        <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                 <span class="n">git</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">worktree_path</span><span class="p">,</span> <span class="s2">&quot;push.autoSetupRemote&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">_WorkspaceIntegrationError</span><span class="p">(</span>
@@ -8219,7 +8259,27 @@ so that task PRs can target it.</p>
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
-<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prepare_workstream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workstream_runtime</span><span class="p">:</span> <span class="n">WorkstreamRuntime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Provision worktree and integration branch for this workstream.</span>
 
 <span class="sd">    Args:</span>
@@ -8246,10 +8306,30 @@ so that task PRs can target it.</p>
                 <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;origin/</span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span>
-            <span class="p">)</span>
-            <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Check if the integration branch already exists (e.g.,</span>
+            <span class="c1"># after reset-to rolled back the branch but didn&#39;t delete</span>
+            <span class="c1"># it, and the prior run&#39;s teardown removed the worktree).</span>
+            <span class="n">branch_exists</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">rev_parse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">)</span>
+                <span class="n">branch_exists</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+            <span class="k">if</span> <span class="n">branch_exists</span><span class="p">:</span>
+                <span class="c1"># Reuse existing branch — create worktree without -b.</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">worktree_add_existing</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">worktree_path</span><span class="p">,</span> <span class="n">branch_name</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">worktree_add</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span>
+                    <span class="n">worktree_path</span><span class="p">,</span>
+                    <span class="n">branch_name</span><span class="p">,</span>
+                    <span class="n">spec</span><span class="o">.</span><span class="n">base_branch</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">git</span><span class="o">.</span><span class="n">push_branch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_path</span><span class="p">,</span> <span class="n">branch_name</span><span class="p">,</span> <span class="n">set_upstream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">git</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">worktree_path</span><span class="p">,</span> <span class="s2">&quot;push.autoSetupRemote&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">_WorkspaceIntegrationError</span><span class="p">(</span>

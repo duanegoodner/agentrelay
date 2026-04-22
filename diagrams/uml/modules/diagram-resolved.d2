@@ -112,6 +112,11 @@ reset_task_py: "reset_task.py" {
   reset_task_functions: "reset_task <<module>>" { shape: class }
 }
 
+reset_to_py: "reset_to.py" {
+  style.opacity: 0.5
+  reset_to_functions: "reset_to <<module>>" { shape: class }
+}
+
 reset_workstream_py: "reset_workstream.py" {
   style.opacity: 0.5
   reset_workstream_functions: "reset_workstream <<module>>" { shape: class }
@@ -144,6 +149,8 @@ orchestrator_pkg.WorkstreamProbe -> resolved_py.ResolvedWorkstream: "resolved (o
 reset_ops_py.reset_ops_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
 reset_task_py.reset_task_functions -> resolved_py.ResolvedTask: "reads resolved.json" { class: dependency }
 reset_workstream_py.reset_workstream_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
+reset_to_py.reset_to_functions -> resolved_py.ResolvedTask: "reads resolved.json" { class: dependency }
+reset_to_py.reset_to_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
 resolved_py.ResolvedTask -> resolved_py.InputFromSpec: inputs_from { class: composition }
 resolved_py.ResolvedTask -> resolved_py.TaggedPathSpec: tagged_paths { class: composition }
 resolved_py.resolved_functions -> resolved_py.ResolvedTask: builds { class: dependency }

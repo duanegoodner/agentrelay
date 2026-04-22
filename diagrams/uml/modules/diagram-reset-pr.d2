@@ -68,6 +68,11 @@ reset_task_py: "reset_task.py" {
   reset_task_functions: "reset_task <<module>>" { shape: class }
 }
 
+reset_to_py: "reset_to.py" {
+  style.opacity: 0.5
+  reset_to_functions: "reset_to <<module>>" { shape: class }
+}
+
 reset_workstream_py: "reset_workstream.py" {
   style.opacity: 0.5
   reset_workstream_functions: "reset_workstream <<module>>" { shape: class }
@@ -78,4 +83,5 @@ reset_workstream_py: "reset_workstream.py" {
 
 reset_task_py.reset_task_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
 reset_workstream_py.reset_workstream_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
+reset_to_py.reset_to_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
 reset_pr_py.GhPrBodyUpdater -> ops_pkg.gh: "pr_body, pr_update_body" { class: dependency }
