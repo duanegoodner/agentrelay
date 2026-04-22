@@ -1721,10 +1721,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-g-reset-to-batch-rollback" class="md-nav__link">
+  <a href="#pr-g-reset-to-batch-rollback-206-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR G: reset-to batch rollback
+        PR G: reset-to batch rollback — #206 Merged
       
     </span>
   </a>
@@ -1893,7 +1893,7 @@
 
 <h1 id="sprint-plan-2026-04-12-graph-resumption-mvp">Sprint Plan — 2026-04-12: Graph Resumption (MVP)</h1>
 <blockquote>
-<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), and PR F2 (#203) merged.</p>
+<p><strong>Status: In progress.</strong> PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), PR F2 (#203), and PR G (#206) merged.</p>
 </blockquote>
 <h2 id="goal">Goal</h2>
 <p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
@@ -3440,7 +3440,7 @@ execution state.</p>
 <li><strong>Test delta</strong>: +22 new tests (1648 → 1670). <code>pixi run check</code> passes.
   PR #203.</li>
 </ul>
-<h3 id="pr-g-reset-to-batch-rollback">PR G: <code>reset-to</code> batch rollback</h3>
+<h3 id="pr-g-reset-to-batch-rollback-206-merged">PR G: <code>reset-to</code> batch rollback — #206 Merged</h3>
 <p><strong>Scope:</strong> Direct-jump batch rollback command. Depends on PR F (shared
 utilities).</p>
 <p><strong>Changes:</strong></p>
@@ -3513,6 +3513,46 @@ utilities).</p>
   ws-3 in progress → main reset once, all state for ws-2/ws-3 removed
 - Integration: reset-to then re-run → graph resumes correctly from
   the target state</p>
+<p><strong>Notes from implementation (2026-04-22):</strong></p>
+<ul>
+<li><strong>Plan-then-execute pattern</strong>: Following <code>reset_graph.py</code>'s pattern,
+  <code>build_plan()</code> computes a frozen <code>ResetToPlan</code> dataclass,
+  <code>format_plan()</code> renders it for display, <code>execute_plan()</code> performs
+  operations.  CLI orchestrates: build → display → confirm → execute.</li>
+<li><strong>Transitive dependency resolution via BFS</strong>: <code>dependent_ids()</code> is
+  direct-only, so <code>_transitive_dependents()</code> uses BFS for the full
+  closure.  Cross-workstream dependents are included in the removal set.</li>
+<li><strong>Workstream teardown logic for <code>--after ws</code></strong>: Tears down non-kept
+  workstreams that have cross-workstream deps on the target or on
+  unmerged workstreams.  Truly independent in-progress workstreams are
+  untouched.</li>
+<li><strong>Rollback log <code>source</code> field</strong>: <code>write_rollback_entry()</code> gained a
+  required <code>*, source: str</code> parameter.  Callers pass <code>"reset-task"</code>,
+  <code>"reset-workstream"</code>, or <code>"reset-to --after &lt;id&gt;"</code>.  Updated all
+  existing callers and tests.</li>
+<li><strong>Bug fix — frozen dict included RESET tasks</strong>: <code>_setup_resume()</code> in
+  <code>run_graph.py</code> collected all tasks with <code>resolved.json</code> into the
+  frozen set, but RESET tasks retain their <code>resolved.json</code> (PR F
+  preserves signal dirs).  Fixed by adding <code>tp.status != TaskStatus.RESET</code>
+  filter.  +2 tests.</li>
+<li><strong>Bug fix — stale workstream advancement signals</strong>: After resetting a
+  merged task, the workstream's <code>merge_ready</code> and <code>pr_created</code> signals
+  remained, causing the orchestrator to skip dispatch on resume.  Added
+  <code>rollback_workstream_advancement()</code> to <code>reset_ops.py</code> — removes
+  <code>active</code>, <code>merge_ready</code>, and <code>pr_created</code> signals.  Called from both
+  <code>reset_to.py</code> and <code>reset_task.py</code>.</li>
+<li><strong>Bug fix — worktree recreation with existing branch</strong>: After
+  <code>reset-to</code> + run teardown + resume, the workstream preparer failed
+  because <code>git worktree add -b</code> rejects existing branches.  Added
+  <code>git.worktree_add_existing()</code> (without <code>-b</code> flag) and branch
+  existence check in <code>GitWorkstreamPreparer</code>.  +1 test.</li>
+<li><strong>E2E validation</strong>: <code>quick-chained</code> (task target: <code>--after counter_fn</code>,
+  verify re-execution) and <code>auto-merge-2-workstreams</code> (workstream
+  target: <code>--after ws_a</code>, verify ws_b teardown and re-execution).
+  Both bare and OCI.</li>
+<li><strong>Test delta</strong>: +39 new tests (1670 → 1709).  <code>pixi run check</code> passes.
+  PR #206.</li>
+</ul>
 <h3 id="pr-h-decouple-reset-commands-from-ops-layer">PR H: Decouple reset commands from ops layer</h3>
 <p><strong>Scope:</strong> Introduce protocols to eliminate direct <code>ops.git</code> and <code>ops.gh</code>
 imports from <code>reset_task.py</code>, <code>reset_workstream.py</code>, and <code>reset_ops.py</code>.
