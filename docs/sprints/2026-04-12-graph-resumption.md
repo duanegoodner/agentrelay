@@ -1,6 +1,6 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), and PR F2 (#203) merged.
+> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), PR F2 (#203), and PR G (#206) merged.
 
 ## Goal
 
@@ -1575,7 +1575,7 @@ execution state.
 - **Test delta**: +22 new tests (1648 → 1670). `pixi run check` passes.
   PR #203.
 
-### PR G: `reset-to` batch rollback
+### PR G: `reset-to` batch rollback — #206 Merged
 
 **Scope:** Direct-jump batch rollback command. Depends on PR F (shared
 utilities).
@@ -1654,6 +1654,46 @@ utilities).
   ws-3 in progress → main reset once, all state for ws-2/ws-3 removed
 - Integration: reset-to then re-run → graph resumes correctly from
   the target state
+
+**Notes from implementation (2026-04-22):**
+
+- **Plan-then-execute pattern**: Following `reset_graph.py`'s pattern,
+  `build_plan()` computes a frozen `ResetToPlan` dataclass,
+  `format_plan()` renders it for display, `execute_plan()` performs
+  operations.  CLI orchestrates: build → display → confirm → execute.
+- **Transitive dependency resolution via BFS**: `dependent_ids()` is
+  direct-only, so `_transitive_dependents()` uses BFS for the full
+  closure.  Cross-workstream dependents are included in the removal set.
+- **Workstream teardown logic for `--after ws`**: Tears down non-kept
+  workstreams that have cross-workstream deps on the target or on
+  unmerged workstreams.  Truly independent in-progress workstreams are
+  untouched.
+- **Rollback log `source` field**: `write_rollback_entry()` gained a
+  required `*, source: str` parameter.  Callers pass `"reset-task"`,
+  `"reset-workstream"`, or `"reset-to --after <id>"`.  Updated all
+  existing callers and tests.
+- **Bug fix — frozen dict included RESET tasks**: `_setup_resume()` in
+  `run_graph.py` collected all tasks with `resolved.json` into the
+  frozen set, but RESET tasks retain their `resolved.json` (PR F
+  preserves signal dirs).  Fixed by adding `tp.status != TaskStatus.RESET`
+  filter.  +2 tests.
+- **Bug fix — stale workstream advancement signals**: After resetting a
+  merged task, the workstream's `merge_ready` and `pr_created` signals
+  remained, causing the orchestrator to skip dispatch on resume.  Added
+  `rollback_workstream_advancement()` to `reset_ops.py` — removes
+  `active`, `merge_ready`, and `pr_created` signals.  Called from both
+  `reset_to.py` and `reset_task.py`.
+- **Bug fix — worktree recreation with existing branch**: After
+  `reset-to` + run teardown + resume, the workstream preparer failed
+  because `git worktree add -b` rejects existing branches.  Added
+  `git.worktree_add_existing()` (without `-b` flag) and branch
+  existence check in `GitWorkstreamPreparer`.  +1 test.
+- **E2E validation**: `quick-chained` (task target: `--after counter_fn`,
+  verify re-execution) and `auto-merge-2-workstreams` (workstream
+  target: `--after ws_a`, verify ws_b teardown and re-execution).
+  Both bare and OCI.
+- **Test delta**: +39 new tests (1670 → 1709).  `pixi run check` passes.
+  PR #206.
 
 ### PR H: Decouple reset commands from ops layer
 
