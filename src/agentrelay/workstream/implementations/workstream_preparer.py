@@ -59,10 +59,30 @@ class GitWorkstreamPreparer:
                     spec.base_branch,
                     f"origin/{spec.base_branch}",
                 )
-                git.worktree_add(
-                    self.repo_path, worktree_path, branch_name, spec.base_branch
-                )
-                git.push_branch(self.repo_path, branch_name, set_upstream=True)
+
+                # Check if the integration branch already exists (e.g.,
+                # after reset-to rolled back the branch but didn't delete
+                # it, and the prior run's teardown removed the worktree).
+                branch_exists = False
+                try:
+                    git.rev_parse(self.repo_path, branch_name)
+                    branch_exists = True
+                except subprocess.CalledProcessError:
+                    pass
+
+                if branch_exists:
+                    # Reuse existing branch — create worktree without -b.
+                    git.worktree_add_existing(
+                        self.repo_path, worktree_path, branch_name
+                    )
+                else:
+                    git.worktree_add(
+                        self.repo_path,
+                        worktree_path,
+                        branch_name,
+                        spec.base_branch,
+                    )
+                    git.push_branch(self.repo_path, branch_name, set_upstream=True)
                 git.set_config(worktree_path, "push.autoSetupRemote", "true")
             except subprocess.CalledProcessError as exc:
                 raise _WorkspaceIntegrationError(

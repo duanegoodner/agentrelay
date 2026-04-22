@@ -167,7 +167,12 @@ def reset_workstream(
             task_status = _read_task_status_from_signals(task_signal_dir)
             if task_status in SUCCESS_STATUSES:
                 write_rollback_entry(
-                    ws_signal_dir, tid, task_status.value, sha_before, target_sha
+                    ws_signal_dir,
+                    tid,
+                    task_status.value,
+                    sha_before,
+                    target_sha,
+                    source="reset-workstream",
                 )
                 log.append(f"Wrote rollback log entry for task '{tid}'")
                 pr_body_entries.append((tid, task_status.value))

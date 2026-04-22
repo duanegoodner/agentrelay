@@ -1113,6 +1113,27 @@ def test_copy_frozen_artifacts_skips_non_frozen_tasks(tmp_path: Path) -> None:
     assert not (new / "signals" / "task_b").exists()
 
 
+def test_copy_frozen_artifacts_skips_reset_tasks(tmp_path: Path) -> None:
+    """RESET tasks have resolved.json but should not be copied."""
+    prior = tmp_path / "prior"
+    sig = prior / "signals" / "task_r"
+    (sig / "status").mkdir(parents=True)
+    (sig / "status" / "pr_merged").write_text("")
+    (sig / "status" / "reset").write_text("")
+    (sig / "resolved.json").write_text('{"task_id": "task_r"}')
+
+    probe = GraphProbe(
+        task_probes={
+            "task_r": _make_task_probe("task_r", resolved=True, status="reset")
+        },
+        workstream_probes={},
+    )
+    new = tmp_path / "new"
+    _copy_frozen_artifacts(prior, new, probe)
+
+    assert not (new / "signals" / "task_r").exists()
+
+
 def test_copy_frozen_artifacts_copies_merged_workstream(tmp_path: Path) -> None:
     """Copies signal files for MERGED workstreams."""
     prior = tmp_path / "prior"
@@ -1280,6 +1301,29 @@ def test_build_resume_runtimes_non_frozen_task(tmp_path: Path) -> None:
     probe = GraphProbe(
         task_probes={
             "task_a": _make_task_probe("task_a", resolved=False, status="failed")
+        },
+        workstream_probes={
+            ws_id: _make_ws_probe(ws_id) for ws_id in graph.workstream_ids()
+        },
+    )
+    task_rts, _ = _build_resume_runtimes(graph, probe, tmp_path)
+
+    rt = task_rts["task_a"]
+    assert rt.state.signal_dir is None
+    assert rt.status == TaskStatus.PENDING
+
+
+def test_build_resume_runtimes_reset_task_starts_pending(tmp_path: Path) -> None:
+    """RESET task (has resolved.json but was reset) starts as PENDING."""
+    from agentrelay.task_graph import TaskGraphBuilder
+    from agentrelay.task_runtime import TaskStatus
+
+    graph = TaskGraphBuilder.from_dict(
+        {"name": "g", "tasks": [{"id": "task_a", "description": "first"}]}
+    )
+    probe = GraphProbe(
+        task_probes={
+            "task_a": _make_task_probe("task_a", resolved=True, status="reset")
         },
         workstream_probes={
             ws_id: _make_ws_probe(ws_id) for ws_id in graph.workstream_ids()

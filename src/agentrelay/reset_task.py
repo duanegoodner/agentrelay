@@ -25,6 +25,7 @@ from agentrelay.reset_ops import (
     find_workstream_tip,
     reset_branch,
     reset_task_state,
+    rollback_workstream_advancement,
     write_rollback_entry,
 )
 from agentrelay.reset_pr import PrBodyUpdater
@@ -134,7 +135,12 @@ def reset_task(
                 # Write rollback log entry.
                 ws_signal_dir = run_dir / "workstreams" / task_ws_id
                 write_rollback_entry(
-                    ws_signal_dir, task_id, status.value, sha_before, sha_after
+                    ws_signal_dir,
+                    task_id,
+                    status.value,
+                    sha_before,
+                    sha_after,
+                    source="reset-task",
                 )
                 log.append(f"Wrote rollback log entry for task '{task_id}'")
 
@@ -154,6 +160,10 @@ def reset_task(
                         log.append(
                             f"WARNING: PR body update failed for task '{task_id}'"
                         )
+
+                # Remove stale workstream advancement signals so the
+                # workstream reads as ACTIVE on the next resume.
+                log.extend(rollback_workstream_advancement(ws_signal_dir))
         log.extend(reset_task_state(run_dir, task_id, graph_name, repo_path))
     else:
         # Non-merged task: delete state, then switch worktree to integration branch.

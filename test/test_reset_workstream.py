@@ -478,6 +478,7 @@ class TestResetWorkstreamObservability:
         assert len(entries) == 1
         assert entries[0]["task_id"] == "task_a"
         assert entries[0]["prior_status"] == "pr_merged"
+        assert entries[0]["source"] == "reset-workstream"
 
     def test_calls_pr_body_updater_before_close(
         self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph

@@ -63,6 +63,7 @@ reset_graph_py: "reset_graph.py"
 reset_ops_py: "reset_ops.py"
 reset_task_py: "reset_task.py"
 reset_workstream_py: "reset_workstream.py"
+reset_to_py: "reset_to.py"
 reset_pr_py: "reset_pr.py"
 graph_index_py: "graph_index.py"
 sandbox_pkg: "sandbox/"
@@ -117,6 +118,11 @@ reset_workstream_py -> reset_pr_py { class: dependency }
 reset_workstream_py -> ops_pkg { class: dependency }
 reset_workstream_py -> task_graph_pkg { class: dependency }
 reset_workstream_py -> resolved_py { class: dependency }
+reset_to_py -> reset_ops_py { class: dependency }
+reset_to_py -> reset_pr_py { class: dependency }
+reset_to_py -> ops_pkg { class: dependency }
+reset_to_py -> task_graph_pkg { class: dependency }
+reset_to_py -> resolved_py { class: dependency }
 reset_pr_py -> ops_pkg { class: dependency }
 output_pkg -> orchestrator_pkg { class: dependency }
 resolved_py -> task_runtime_pkg { class: dependency }
