@@ -490,7 +490,9 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True)
 
-        write_rollback_entry(ws_dir, "task_a", "pr_merged", "aaa", "bbb")
+        write_rollback_entry(
+            ws_dir, "task_a", "pr_merged", "aaa", "bbb", source="reset-task"
+        )
 
         log_path = ws_dir / "rollback_log.json"
         assert log_path.is_file()
@@ -503,8 +505,12 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True)
 
-        write_rollback_entry(ws_dir, "task_a", "pr_merged", "aaa", "bbb")
-        write_rollback_entry(ws_dir, "task_b", "completed", "bbb", "ccc")
+        write_rollback_entry(
+            ws_dir, "task_a", "pr_merged", "aaa", "bbb", source="reset-task"
+        )
+        write_rollback_entry(
+            ws_dir, "task_b", "completed", "bbb", "ccc", source="reset-task"
+        )
 
         entries = json.loads((ws_dir / "rollback_log.json").read_text())
         assert len(entries) == 2
@@ -516,7 +522,9 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True)
 
-        write_rollback_entry(ws_dir, "task_x", "pr_merged", "sha1", "sha2")
+        write_rollback_entry(
+            ws_dir, "task_x", "pr_merged", "sha1", "sha2", source="reset-task"
+        )
 
         entries = json.loads((ws_dir / "rollback_log.json").read_text())
         entry = entries[0]
@@ -524,6 +532,7 @@ class TestWriteRollbackEntry:
         assert entry["prior_status"] == "pr_merged"
         assert entry["integration_branch_sha_before"] == "sha1"
         assert entry["integration_branch_sha_after"] == "sha2"
+        assert entry["source"] == "reset-task"
         # Timestamp is an ISO string.
         assert "T" in entry["timestamp"]
 
@@ -532,7 +541,9 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-new"
         assert not ws_dir.exists()
 
-        write_rollback_entry(ws_dir, "task_a", "pr_merged", "aaa", "bbb")
+        write_rollback_entry(
+            ws_dir, "task_a", "pr_merged", "aaa", "bbb", source="reset-task"
+        )
 
         assert ws_dir.is_dir()
         assert (ws_dir / "rollback_log.json").is_file()

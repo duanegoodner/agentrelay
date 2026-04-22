@@ -67,6 +67,11 @@ reset_task_py: "reset_task.py" {
   reset_task_functions: "reset_task <<module>>" { shape: class }
 }
 
+reset_to_py: "reset_to.py" {
+  style.opacity: 0.5
+  reset_to_functions: "reset_to <<module>>" { shape: class }
+}
+
 reset_workstream_py: "reset_workstream.py" {
   style.opacity: 0.5
   reset_workstream_functions: "reset_workstream <<module>>" { shape: class }
@@ -90,3 +95,4 @@ reset_ops_py.reset_ops_functions -> resolved_py.ResolvedWorkstream: "reads resol
 reset_ops_py.reset_ops_functions -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream_ids" { class: dependency }
 reset_task_py.reset_task_functions -> reset_ops_py.reset_ops_functions: "reset_task_state, find_workstream_tip, reset_branch, write_rollback_entry" { class: dependency }
 reset_workstream_py.reset_workstream_functions -> reset_ops_py.reset_ops_functions: "shared utilities" { class: dependency }
+reset_to_py.reset_to_functions -> reset_ops_py.reset_ops_functions: "shared utilities" { class: dependency }

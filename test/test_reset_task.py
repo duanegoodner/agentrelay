@@ -327,6 +327,7 @@ class TestResetMergedTaskObservability:
         assert entries[0]["prior_status"] == "pr_merged"
         assert entries[0]["integration_branch_sha_before"] != ""
         assert entries[0]["integration_branch_sha_after"] != ""
+        assert entries[0]["source"] == "reset-task"
 
     def test_calls_pr_body_updater_for_merged_task(
         self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph

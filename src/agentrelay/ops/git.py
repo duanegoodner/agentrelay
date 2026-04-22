@@ -38,6 +38,33 @@ def worktree_add(
     )
 
 
+def worktree_add_existing(
+    repo: Path,
+    worktree_path: Path,
+    branch: str,
+) -> None:
+    """Create a git worktree for an existing branch.
+
+    Runs ``git -C <repo> worktree add <path> <branch>``.  Unlike
+    :func:`worktree_add`, this does not create a new branch — it checks
+    out an existing one.  Used when a prior run's teardown removed the
+    worktree but the branch still exists (e.g., after ``reset-to``).
+    """
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "worktree",
+            "add",
+            str(worktree_path),
+            branch,
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+
 def worktree_remove(repo: Path, worktree_path: Path) -> None:
     """Forcefully remove a git worktree.
 

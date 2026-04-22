@@ -747,11 +747,11 @@ def _setup_resume(
         repo_path, graph_name, graph, ctx.prior_run_dir, pr_prober
     )
 
-    # Collect frozen tasks (those with resolved.json).
+    # Collect frozen tasks (those with resolved.json, excluding RESET).
     frozen = {
         tid: tp.resolved
         for tid, tp in probe.task_probes.items()
-        if tp.resolved is not None
+        if tp.resolved is not None and tp.status != TaskStatus.RESET
     }
     current_tasks = {tid: graph.task(tid) for tid in graph.task_ids()}
     validation = validate_frozen_tasks(frozen, current_tasks)

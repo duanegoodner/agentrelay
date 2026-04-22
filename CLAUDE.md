@@ -16,6 +16,7 @@ The orchestrator merges PRs in dependency order.
 | `pixi run setup-hooks` | Enable git pre-commit hooks (one-time setup) |
 | `agentrelay run graphs/<category>/<name>.yaml` | Run a task graph |
 | `agentrelay reset graphs/<category>/<name>.yaml` | Reset repo to pre-run state |
+| `agentrelay reset-to graphs/<name>.yaml --after <id>` | Roll back graph to a specific task or workstream |
 | `agentrelay dry-run graphs/<category>/<name>.yaml` | Validate graph and print execution plan |
 | `agentrelay check` | Preflight checks on target repo |
 
@@ -54,6 +55,7 @@ The orchestrator merges PRs in dependency order.
 | `ops/` | Stateless subprocess wrappers: git, tmux, gh, signals |
 | `task.py` | `Task`, `AgentRole`, `AgentConfig`, `TaggedPath` data models |
 | `reset_graph.py` | Full graph reset: closes PRs, resets main, deletes branches |
+| `reset_to.py` | Batch rollback: `reset-to --after <id>` computes and executes minimum operations |
 
 ## Signal files
 

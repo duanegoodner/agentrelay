@@ -4,6 +4,35 @@ Chronological log of significant changes to the main codebase. For full details 
 
 ---
 
+## 2026-04-21
+
+### Batch rollback command `reset-to` (sprint PR G)
+
+- **`reset-to` command** (`reset_to.py`): Roll back a graph to any
+  reachable state in a single command.  `--after <id>` accepts a task ID
+  (keep that task + everything before it) or a workstream ID (keep that
+  workstream + everything merged before it).  Computes the minimum set
+  of operations (one branch reset per affected branch, not one per task),
+  displays a structured plan, and executes after confirmation.
+- **Plan-then-execute pattern**: `build_plan()` computes a frozen
+  `ResetToPlan` dataclass, `format_plan()` renders it for display,
+  `execute_plan()` performs the operations.  Composed entirely from
+  existing `reset_ops.py` shared utilities.
+- **Transitive dependency resolution**: Uses BFS through
+  `TaskGraph.dependent_ids()` to find all tasks that transitively depend
+  on removed tasks.  Dependent workstreams are torn down; independent
+  in-progress workstreams are untouched.
+- **Rollback log `source` field**: `write_rollback_entry()` now records
+  which command triggered each entry (`"reset-task"`,
+  `"reset-workstream"`, or `"reset-to --after <id>"`).
+- **Worktree checkout fixup**: After batch branch resets, surviving
+  worktrees checked out on deleted task branches are switched to their
+  integration branch.
+- **CLI**: `agentrelay reset-to <graph> --after <id> [--yes]`.
+- **Diagram updates**: New `reset-to` per-module diagram.
+
+---
+
 ## 2026-04-17
 
 ### Shared reset utilities and primitive undo commands (sprint PR F)

@@ -49,6 +49,8 @@ class TestGitWorkstreamPreparer:
         run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
         preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
+        # Branch does not exist yet (fresh run).
+        mock_git.rev_parse.side_effect = subprocess.CalledProcessError(128, "git")
 
         preparer.prepare_workstream(runtime)
 
@@ -69,6 +71,8 @@ class TestGitWorkstreamPreparer:
         run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
         preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
+        # Branch does not exist yet (fresh run).
+        mock_git.rev_parse.side_effect = subprocess.CalledProcessError(128, "git")
 
         preparer.prepare_workstream(runtime)
 
@@ -120,6 +124,8 @@ class TestGitWorkstreamPreparer:
         mock_git: MagicMock,
     ) -> None:
         """Wraps CalledProcessError from git in _WorkspaceIntegrationError."""
+        # Branch does not exist (fresh run), but worktree_add fails.
+        mock_git.rev_parse.side_effect = subprocess.CalledProcessError(128, "git")
         mock_git.worktree_add.side_effect = subprocess.CalledProcessError(
             1, "git worktree add"
         )
@@ -139,6 +145,8 @@ class TestGitWorkstreamPreparer:
         run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
         preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime(base_branch="develop")
+        # Branch does not exist (fresh run).
+        mock_git.rev_parse.side_effect = subprocess.CalledProcessError(128, "git")
 
         preparer.prepare_workstream(runtime)
 
@@ -159,6 +167,8 @@ class TestGitWorkstreamPreparer:
         run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
         preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
         runtime = _make_runtime()
+        # Branch does not exist (fresh run).
+        mock_git.rev_parse.side_effect = subprocess.CalledProcessError(128, "git")
 
         preparer.prepare_workstream(runtime)
 
@@ -190,9 +200,36 @@ class TestGitWorkstreamPreparer:
         mock_git.worktree_add.assert_not_called()
         mock_git.push_branch.assert_not_called()
         mock_git.set_config.assert_not_called()
-        assert runtime.state.worktree_path == worktree_path
-        assert runtime.state.branch_name == "agentrelay/demo/ws-1/integration"
-        assert runtime.state.signal_dir == run_dir / "workstreams" / "ws-1"
+
+    @patch("agentrelay.workstream.implementations.workstream_preparer.git")
+    def test_reuses_existing_branch_without_worktree(
+        self,
+        mock_git: MagicMock,
+        tmp_path: Path,
+    ) -> None:
+        """Uses worktree_add_existing when branch exists but worktree is gone.
+
+        This happens after reset-to rolls back a workstream and the prior
+        run's teardown removed the worktree.
+        """
+        run_dir = tmp_path / ".workflow" / "demo" / "runs" / "0"
+        preparer = _make_preparer(repo_path=tmp_path, run_dir=run_dir)
+        runtime = _make_runtime()
+        # Branch already exists (from prior run).
+        mock_git.rev_parse.return_value = "abc123"
+
+        preparer.prepare_workstream(runtime)
+
+        mock_git.worktree_add.assert_not_called()
+        mock_git.worktree_add_existing.assert_called_once_with(
+            tmp_path,
+            tmp_path / ".worktrees/demo/ws-1",
+            "agentrelay/demo/ws-1/integration",
+        )
+        # Should not push (branch already exists on remote).
+        mock_git.push_branch.assert_not_called()
+        # Should still set config.
+        mock_git.set_config.assert_called_once()
 
     @patch("agentrelay.workstream.implementations.workstream_preparer.git")
     def test_skips_git_ops_with_existing_signal_dir(

@@ -16,6 +16,8 @@ Functions:
         their target branch (excluding RESET workstreams).
     write_rollback_entry: Append a timestamped entry to the workstream
         rollback log (``rollback_log.json``).
+    rollback_workstream_advancement: Remove stale advancement signals
+        (``merge_ready``, ``pr_created``) from a workstream.
 """
 
 from __future__ import annotations
@@ -242,6 +244,8 @@ def write_rollback_entry(
     prior_status: str,
     integration_branch_sha_before: str,
     integration_branch_sha_after: str,
+    *,
+    source: str,
 ) -> None:
     """Append a rollback entry to the workstream rollback log.
 
@@ -255,6 +259,8 @@ def write_rollback_entry(
         prior_status: Task status before reset (e.g. ``"pr_merged"``).
         integration_branch_sha_before: SHA before rollback.
         integration_branch_sha_after: SHA after rollback.
+        source: Command that triggered this rollback (e.g. ``"reset-task"``,
+            ``"reset-workstream"``, ``"reset-to --after task_a"``).
     """
     log_path = ws_signal_dir / "rollback_log.json"
     entries: list[dict[str, str]] = []
@@ -271,8 +277,37 @@ def write_rollback_entry(
             "prior_status": prior_status,
             "integration_branch_sha_before": integration_branch_sha_before,
             "integration_branch_sha_after": integration_branch_sha_after,
+            "source": source,
         }
     )
 
     ws_signal_dir.mkdir(parents=True, exist_ok=True)
     log_path.write_text(json.dumps(entries, indent=2) + "\n")
+
+
+def rollback_workstream_advancement(ws_signal_dir: Path) -> list[str]:
+    """Remove stale advancement signals from a workstream.
+
+    When a merged task is rolled back from an integration branch, the
+    workstream's ``active``, ``merge_ready``, and ``pr_created`` signals
+    become stale.  This function removes them so the workstream reads as
+    ``PENDING``, which causes ``prepare()`` to recreate worktree
+    infrastructure on the next run.
+
+    Safe to call when the signals don't exist (no-op).
+
+    Args:
+        ws_signal_dir: Workstream signal directory.
+
+    Returns:
+        List of log messages describing actions taken.
+    """
+    log: list[str] = []
+    for signal_name in ("active", "merge_ready", "pr_created"):
+        signal_path = ws_signal_dir / signal_name
+        if signal_path.is_file():
+            signal_path.unlink()
+            log.append(
+                f"Removed stale '{signal_name}' signal from {ws_signal_dir.name}"
+            )
+    return log

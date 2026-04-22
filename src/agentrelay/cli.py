@@ -8,13 +8,14 @@ Usage::
     agentrelay reset-task graphs/demo.yaml --task my_task
     agentrelay teardown-workstream graphs/demo.yaml --workstream ws-1
     agentrelay reset-workstream graphs/demo.yaml --workstream ws-1 --yes
+    agentrelay reset-to graphs/demo.yaml --after my_task --yes
     agentrelay check --target-repo /path/to/repo
     agentrelay dry-run graphs/demo.yaml
 
 This module provides the ``agentrelay`` console script registered in
 ``pyproject.toml``.  Each subcommand delegates to the existing library
 functions in :mod:`run_graph`, :mod:`reset_graph`, :mod:`reset_task`,
-and :mod:`reset_workstream`.
+:mod:`reset_to`, and :mod:`reset_workstream`.
 """
 
 from __future__ import annotations
@@ -37,6 +38,9 @@ from agentrelay.reset_graph import (
 )
 from agentrelay.reset_pr import GhPrBodyUpdater
 from agentrelay.reset_task import reset_task
+from agentrelay.reset_to import build_plan as build_reset_to_plan
+from agentrelay.reset_to import execute_plan as execute_reset_to_plan
+from agentrelay.reset_to import format_plan as format_reset_to_plan
 from agentrelay.reset_workstream import (
     reset_workstream,
     teardown_workstream,
@@ -377,6 +381,44 @@ def _handle_reset_workstream(args: argparse.Namespace) -> None:
     print("[reset-workstream] Done.")
 
 
+def _handle_reset_to(args: argparse.Namespace) -> None:
+    """Handler for ``agentrelay reset-to``."""
+    graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+
+    try:
+        plan = build_reset_to_plan(graph_name, graph, run_dir, after=args.after)
+    except (ValueError, KeyError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    # Display plan.
+    for line in format_reset_to_plan(plan).splitlines():
+        print(f"[reset-to] {line}")
+
+    if not args.yes:
+        response = input("[reset-to] Proceed? [y/N] ")
+        if response.strip().lower() != "y":
+            print("[reset-to] Aborted.")
+            return
+
+    try:
+        log = execute_reset_to_plan(
+            graph_name,
+            graph,
+            run_dir,
+            repo_path,
+            plan,
+            pr_body_updater=GhPrBodyUpdater(),
+        )
+    except (ValueError, KeyError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    for msg in log:
+        print(f"[reset-to] {msg}")
+    print("[reset-to] Done.")
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the top-level CLI parser with all subcommands."""
     parser = argparse.ArgumentParser(
@@ -602,6 +644,33 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip confirmation prompt (required: force-pushes to target branch)",
     )
     reset_ws_parser.set_defaults(func=_handle_reset_workstream)
+
+    # --- reset-to ---
+    reset_to_parser = subparsers.add_parser(
+        "reset-to",
+        help="Roll back a graph to a specific task or workstream",
+        description=(
+            "Roll back a graph to a specific state in a single command. "
+            "--after accepts a task ID (keep that task and everything before it) "
+            "or a workstream ID (keep that workstream and everything merged "
+            "before it). Force-pushes to affected branches."
+        ),
+    )
+    reset_to_parser.add_argument("graph", help="Graph name or path to YAML file")
+    _add_graph_dir_arg(reset_to_parser)
+    _add_target_repo_arg(reset_to_parser)
+    reset_to_parser.add_argument(
+        "--after",
+        required=True,
+        help="Task ID or workstream ID to keep (everything after is removed)",
+    )
+    reset_to_parser.add_argument(
+        "--yes",
+        "-y",
+        action="store_true",
+        help="Skip confirmation prompt (force-pushes to affected branches)",
+    )
+    reset_to_parser.set_defaults(func=_handle_reset_to)
 
     return parser
 
