@@ -136,7 +136,7 @@ When making changes to agentrelay itself:
 5. **Push** — `git push -u origin feat/<short-name>`
 6. **Open PR** — `gh pr create` with a `## Summary` and `## Test plan` checklist
 7. **Iterate** — address review feedback; `pixi run check` after each change
-8. **Merge** — `gh pr merge <url> --merge` once the human approves
+8. **Merge** — `gh pr merge <url> --squash --delete-branch` once the human approves
 
 Rules:
 - Never commit directly to `main`
