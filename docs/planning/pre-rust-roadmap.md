@@ -135,47 +135,58 @@ the full rationale.
   current one. Eliminates archive-vs-live layout split. Simplifies
   `reset_for_retry()`.
 
----
+### Phase 4: Graph resumption (MVP) ✓
 
-## Remaining work
+> Sprint 2026-04-12 (PRs #191, #192, #193, #194, #196, #197, #199, #201,
+> #203, #206, #208). 1722 tests. Completed 2026-04-23.
 
-### Phase 4: Graph resumption (MVP)
+- **Per-run directory layout** (PR #191): `.workflow/<graph>/runs/<N>/`
+  contains signal dirs, workstream dirs, run_info.json, run_config.json,
+  graph.yaml. Worktrees remain at `.worktrees/<graph>/<ws-id>/`.
+- **Frozen records** (PR #192): `resolved.json` written at terminal
+  success for tasks and workstreams — captures definition +
+  pre-merge SHAs for rollback.
+- **Tmux kickoff fix** (PR #193): Ensures prompt submission to agent
+  panes is reliable at startup.
+- **State probing + runtime reconstruction** (PR #194): `probe_graph_state()`
+  reads per-run signals, normalizes stale RUNNING/PR_CREATED, loads
+  frozen resolved.json records. Post-probe invariant: no task in
+  RUNNING or PR_CREATED.
+- **Idempotent workstream preparation** (PR #196): Worktree/branch
+  creation skips re-creation when structures already exist.
+- **Wire resumption into CLI** (PR #197): `run_graph.py` auto-detects
+  resume; conflict check replaced by probe-driven dispatch.
+- **run_graph decoupling via protocols** (PR #199): `SandboxInfrastructureManager`,
+  `SessionResolver`, `RunRepoManager` protocols isolate `run_graph.py`
+  from `ops/` layer.
+- **Shared reset utilities + primitive undo commands** (PR #201):
+  `reset_ops.py`, `reset_task.py`, `reset_workstream.py`;
+  stack-based undo (`reset-task`, `teardown-workstream`,
+  `reset-workstream`).
+- **Reset observability** (PR #203): `rollback_log.json` per
+  workstream, integration PR body updates via `PrBodyUpdater` protocol
+  (later renamed to `IntegrationPrOps` in PR #208).
+- **`reset-to` batch rollback command** (PR #206): `agentrelay reset-to
+  --after <id>` computes the minimum set of operations to roll a graph
+  back to the state immediately after a given task or workstream,
+  plan-then-execute pattern.
+- **Decouple reset commands from ops layer** (PR #208): `RepoResetOps`
+  protocol (new `reset_repo.py`) and `IntegrationPrOps` protocol
+  (renamed from `PrBodyUpdater`, adds `close_pr`). `reset_ops.py`
+  converted from free-function module to `ResetOps` class. All four
+  reset commands now depend only on protocols.
 
-**Goal:** Make it easy to pick up where you left off — the
-highest-value improvement for anyone tinkering with the project.
-
-When a graph is re-launched and `.workflow/<graph>/` already exists,
-probe the actual state on disk and resume instead of refusing.
-
-**Why now:** The backlog notes that *"the Python version will be the
-public-facing testing ground for early users during the conversion,
-and 'reset and re-run the entire graph because task 8 failed' is a
-poor first experience."* This is the highest-value user-facing
-improvement for tinkerers.
-
-**Architecture advantage:** Task status is already derived from signal
-files on disk (`_read_task_status_from_signals()`), not stored in
-memory. The building blocks for resumption exist.
-
-**MVP scope:**
-1. Replace conflict check in `run_graph.py` with state probing
-   (auto-detect resume)
-2. `TaskRuntimeBuilder.from_disk()` / `WorkstreamRuntimeBuilder.from_disk()`
-   — reconstruct runtimes from signal files and filesystem state
-3. Resume-aware worktree/branch preparation (skip re-creation if exists)
-4. Tests
-
-**What the MVP skips** (deferred to Rust):
+**Deferred to Rust** (not blockers for freeze):
 - Cross-session retry of failed tasks
 - Corruption detection / worktree validation
 - Partial re-run of specific task subsets
 - Human-triggered re-run of completed tasks
+- Decoupling `reset_graph.py` from `ops/` (whole-run wipe — backlog)
+- Decoupling `task_helper.py`'s direct `gh` call (backlog)
 
-**What it delivers:** "Graph interrupted or task 8 failed? Re-run
-`agentrelay run <graph>`. Completed tasks skip, failed tasks retry,
-unstarted tasks proceed."
+---
 
-Estimated effort: 2–3 days.
+## Remaining work
 
 ### Phase 4.5: Persistent agents (minimal prototype)
 
@@ -338,9 +349,11 @@ The Python version is ready to freeze when:
 4. ✅ **Diagram tooling is settled.** D2 + ELK layout engine, monolith
    SVG dropped, per-module diagrams as primary navigation (PR #181).
 
-5. **A partial graph run can be resumed** without resetting and re-running
-   everything. Completed tasks are skipped, failed tasks retry, unstarted
-   tasks proceed. (Phase 4 — MVP)
+5. ✅ **A partial graph run can be resumed** without resetting and
+   re-running everything. Completed tasks are skipped, failed tasks retry,
+   unstarted tasks proceed. Primitive and batch rollback commands
+   (`reset-task`, `reset-workstream`, `teardown-workstream`, `reset-to`)
+   cover targeted undo. (Phase 4 — sprint 2026-04-12, completed 2026-04-23)
 
 6. **Persistent agents validated** (optional but recommended) — static
    agent assignment works, empirical data on whether persistent context
