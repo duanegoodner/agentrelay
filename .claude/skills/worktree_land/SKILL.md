@@ -20,7 +20,8 @@ active sprint doc.
 1. **Find the PR** for the target branch using `gh pr view` or
    `gh pr list --head <branch-name>`.
 
-2. **Attempt to merge** the PR with `gh pr merge <url> --merge`.
+2. **Attempt to merge** the PR with
+   `gh pr merge <url> --squash --delete-branch`.
 
 3. **If the merge fails due to conflicts:**
    - Switch to the worktree for this branch.
@@ -35,7 +36,7 @@ active sprint doc.
        semantically correct merge if they overlap).
      - `git add <resolved-files> && git rebase --continue`
    - Force-push the rebased branch: `git push --force-with-lease`.
-   - Retry the merge: `gh pr merge <url> --merge`.
+   - Retry the merge: `gh pr merge <url> --squash --delete-branch`.
    - If it still fails, report the issue to the user.
 
 ## Phase 2: Clean up
@@ -48,10 +49,12 @@ active sprint doc.
 5. **Remove the worktree and branch:**
    ```
    git -C <bare-repo-path> worktree remove <worktree-path>
-   git -C <bare-repo-path> branch -d <branch-name>
+   git -C <bare-repo-path> branch -D <branch-name>
    ```
-   The remote branch is typically deleted by GitHub on merge. If not,
-   also run `git push origin --delete <branch-name>`.
+   Use `-D` (not `-d`) because the squashed commit on main is not a
+   descendant of the feature branch, so git won't consider the branch
+   merged. `--delete-branch` on `gh pr merge` should have removed the
+   remote branch; if not, run `git push origin --delete <branch-name>`.
 
 ## Phase 3: Check for deferred work
 
