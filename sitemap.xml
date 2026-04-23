@@ -205,10 +205,6 @@
          <lastmod>2026-04-23</lastmod>
     </url>
     <url>
-         <loc>https://duanegoodner.github.io/agentrelay/sprints/2026-04-12-graph-resumption/</loc>
-         <lastmod>2026-04-23</lastmod>
-    </url>
-    <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-03-10-arch-improvements/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
@@ -262,6 +258,10 @@
     </url>
     <url>
          <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-09-cli-cleanup-and-diagram-tooling/</loc>
+         <lastmod>2026-04-23</lastmod>
+    </url>
+    <url>
+         <loc>https://duanegoodner.github.io/agentrelay/sprints/complete/2026-04-12-graph-resumption/</loc>
          <lastmod>2026-04-23</lastmod>
     </url>
 </urlset>

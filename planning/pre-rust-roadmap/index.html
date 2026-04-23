@@ -1455,106 +1455,11 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#remaining-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Remaining work
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Remaining work">
-      <ul class="md-nav__list">
-        
           <li class="md-nav__item">
   <a href="#phase-4-graph-resumption-mvp" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Phase 4: Graph resumption (MVP)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-45-persistent-agents-minimal-prototype" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 4.5: Persistent agents (minimal prototype)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-5-documentation-sprint" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 5: Documentation sprint
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Phase 5: Documentation sprint">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#readme-overhaul" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        README overhaul
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#design-philosophy-document" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design philosophy document
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#getting-started-guide-refresh" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Getting started guide refresh
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#graph-visualization-for-mental-model" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Graph visualization for mental model
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#docs-site-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docs site cleanup
+        Phase 4: Graph resumption (MVP) ✓
       
     </span>
   </a>
@@ -1563,44 +1468,6 @@
         
       </ul>
     </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#phase-6-freeze-python-begin-rust" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Phase 6: Freeze Python, begin Rust
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-is-not-pre-rust-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What is NOT pre-Rust work
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#success-criteria-for-starting-rust" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Success criteria for starting Rust
-      
-    </span>
-  </a>
   
 </li>
       
@@ -1742,37 +1609,57 @@ the full rationale.</p>
   current one. Eliminates archive-vs-live layout split. Simplifies
   <code>reset_for_retry()</code>.</li>
 </ul>
-<hr />
-<h2 id="remaining-work">Remaining work</h2>
-<h3 id="phase-4-graph-resumption-mvp">Phase 4: Graph resumption (MVP)</h3>
-<p><strong>Goal:</strong> Make it easy to pick up where you left off — the
-highest-value improvement for anyone tinkering with the project.</p>
-<p>When a graph is re-launched and <code>.workflow/&lt;graph&gt;/</code> already exists,
-probe the actual state on disk and resume instead of refusing.</p>
-<p><strong>Why now:</strong> The backlog notes that <em>"the Python version will be the
-public-facing testing ground for early users during the conversion,
-and 'reset and re-run the entire graph because task 8 failed' is a
-poor first experience."</em> This is the highest-value user-facing
-improvement for tinkerers.</p>
-<p><strong>Architecture advantage:</strong> Task status is already derived from signal
-files on disk (<code>_read_task_status_from_signals()</code>), not stored in
-memory. The building blocks for resumption exist.</p>
-<p><strong>MVP scope:</strong>
-1. Replace conflict check in <code>run_graph.py</code> with state probing
-   (auto-detect resume)
-2. <code>TaskRuntimeBuilder.from_disk()</code> / <code>WorkstreamRuntimeBuilder.from_disk()</code>
-   — reconstruct runtimes from signal files and filesystem state
-3. Resume-aware worktree/branch preparation (skip re-creation if exists)
-4. Tests</p>
-<p><strong>What the MVP skips</strong> (deferred to Rust):
+<h3 id="phase-4-graph-resumption-mvp">Phase 4: Graph resumption (MVP) ✓</h3>
+<blockquote>
+<p>Sprint 2026-04-12 (PRs #191, #192, #193, #194, #196, #197, #199, #201,</p>
+<h1 id="203-206-208-1722-tests-completed-2026-04-23">203, #206, #208). 1722 tests. Completed 2026-04-23.</h1>
+</blockquote>
+<ul>
+<li><strong>Per-run directory layout</strong> (PR #191): <code>.workflow/&lt;graph&gt;/runs/&lt;N&gt;/</code>
+  contains signal dirs, workstream dirs, run_info.json, run_config.json,
+  graph.yaml. Worktrees remain at <code>.worktrees/&lt;graph&gt;/&lt;ws-id&gt;/</code>.</li>
+<li><strong>Frozen records</strong> (PR #192): <code>resolved.json</code> written at terminal
+  success for tasks and workstreams — captures definition +
+  pre-merge SHAs for rollback.</li>
+<li><strong>Tmux kickoff fix</strong> (PR #193): Ensures prompt submission to agent
+  panes is reliable at startup.</li>
+<li><strong>State probing + runtime reconstruction</strong> (PR #194): <code>probe_graph_state()</code>
+  reads per-run signals, normalizes stale RUNNING/PR_CREATED, loads
+  frozen resolved.json records. Post-probe invariant: no task in
+  RUNNING or PR_CREATED.</li>
+<li><strong>Idempotent workstream preparation</strong> (PR #196): Worktree/branch
+  creation skips re-creation when structures already exist.</li>
+<li><strong>Wire resumption into CLI</strong> (PR #197): <code>run_graph.py</code> auto-detects
+  resume; conflict check replaced by probe-driven dispatch.</li>
+<li><strong>run_graph decoupling via protocols</strong> (PR #199): <code>SandboxInfrastructureManager</code>,
+  <code>SessionResolver</code>, <code>RunRepoManager</code> protocols isolate <code>run_graph.py</code>
+  from <code>ops/</code> layer.</li>
+<li><strong>Shared reset utilities + primitive undo commands</strong> (PR #201):
+  <code>reset_ops.py</code>, <code>reset_task.py</code>, <code>reset_workstream.py</code>;
+  stack-based undo (<code>reset-task</code>, <code>teardown-workstream</code>,
+  <code>reset-workstream</code>).</li>
+<li><strong>Reset observability</strong> (PR #203): <code>rollback_log.json</code> per
+  workstream, integration PR body updates via <code>PrBodyUpdater</code> protocol
+  (later renamed to <code>IntegrationPrOps</code> in PR #208).</li>
+<li><strong><code>reset-to</code> batch rollback command</strong> (PR #206): <code>agentrelay reset-to
+  --after &lt;id&gt;</code> computes the minimum set of operations to roll a graph
+  back to the state immediately after a given task or workstream,
+  plan-then-execute pattern.</li>
+<li><strong>Decouple reset commands from ops layer</strong> (PR #208): <code>RepoResetOps</code>
+  protocol (new <code>reset_repo.py</code>) and <code>IntegrationPrOps</code> protocol
+  (renamed from <code>PrBodyUpdater</code>, adds <code>close_pr</code>). <code>reset_ops.py</code>
+  converted from free-function module to <code>ResetOps</code> class. All four
+  reset commands now depend only on protocols.</li>
+</ul>
+<p><strong>Deferred to Rust</strong> (not blockers for freeze):
 - Cross-session retry of failed tasks
 - Corruption detection / worktree validation
 - Partial re-run of specific task subsets
-- Human-triggered re-run of completed tasks</p>
-<p><strong>What it delivers:</strong> "Graph interrupted or task 8 failed? Re-run
-<code>agentrelay run &lt;graph&gt;</code>. Completed tasks skip, failed tasks retry,
-unstarted tasks proceed."</p>
-<p>Estimated effort: 2–3 days.</p>
+- Human-triggered re-run of completed tasks
+- Decoupling <code>reset_graph.py</code> from <code>ops/</code> (whole-run wipe — backlog)
+- Decoupling <code>task_helper.py</code>'s direct <code>gh</code> call (backlog)</p>
+<hr />
+<h2 id="remaining-work">Remaining work</h2>
 <h3 id="phase-45-persistent-agents-minimal-prototype">Phase 4.5: Persistent agents (minimal prototype)</h3>
 <p><strong>Goal:</strong> Validate that agents carrying conversation context across
 tasks produces noticeably better output — and generate evidence that
@@ -1977,9 +1864,11 @@ documentation reflects the current system.</p>
    SVG dropped, per-module diagrams as primary navigation (PR #181).</p>
 </li>
 <li>
-<p><strong>A partial graph run can be resumed</strong> without resetting and re-running
-   everything. Completed tasks are skipped, failed tasks retry, unstarted
-   tasks proceed. (Phase 4 — MVP)</p>
+<p>✅ <strong>A partial graph run can be resumed</strong> without resetting and
+   re-running everything. Completed tasks are skipped, failed tasks retry,
+   unstarted tasks proceed. Primitive and batch rollback commands
+   (<code>reset-task</code>, <code>reset-workstream</code>, <code>teardown-workstream</code>, <code>reset-to</code>)
+   cover targeted undo. (Phase 4 — sprint 2026-04-12, completed 2026-04-23)</p>
 </li>
 <li>
 <p><strong>Persistent agents validated</strong> (optional but recommended) — static
