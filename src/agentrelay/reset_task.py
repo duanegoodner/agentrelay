@@ -20,15 +20,8 @@ import json
 import subprocess
 from pathlib import Path
 
-from agentrelay.ops import git
-from agentrelay.reset_ops import (
-    find_workstream_tip,
-    reset_branch,
-    reset_task_state,
-    rollback_workstream_advancement,
-    write_rollback_entry,
-)
-from agentrelay.reset_pr import PrBodyUpdater
+from agentrelay.reset_ops import ResetOps
+from agentrelay.reset_pr import IntegrationPrOps
 from agentrelay.resolved import ResolvedTask
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runtime import TaskStatus
@@ -44,11 +37,11 @@ def reset_task(
     graph_name: str,
     graph: TaskGraph,
     run_dir: Path,
-    repo_path: Path,
+    reset_ops: ResetOps,
     *,
     task_id: str | None = None,
     ws_id: str | None = None,
-    pr_body_updater: PrBodyUpdater | None = None,
+    integration_pr_ops: IntegrationPrOps | None = None,
 ) -> list[str]:
     """Reset the tip task of a workstream.
 
@@ -60,11 +53,13 @@ def reset_task(
         graph_name: Graph name (for branch naming).
         graph: Current task graph.
         run_dir: Path to the per-run directory.
-        repo_path: Path to the repository root.
+        reset_ops: Shared reset-layer operations bound to the target
+            repository.
         task_id: Explicit task ID to reset (must be tip).
         ws_id: Workstream ID (auto-detect tip).
-        pr_body_updater: Optional updater to append reset activity to
-            the integration PR body.  ``None`` skips PR body updates.
+        integration_pr_ops: Optional integration-PR mutation provider.
+            When present, reset activity is appended to the integration
+            PR body.  ``None`` skips PR mutations.
 
     Returns:
         List of log messages describing actions taken.
@@ -81,7 +76,7 @@ def reset_task(
     if task_id is None:
         assert ws_id is not None
         graph.workstream(ws_id)  # Validate workstream exists (raises KeyError).
-        task_id = find_workstream_tip(run_dir, graph, ws_id)
+        task_id = reset_ops.find_workstream_tip(run_dir, graph, ws_id)
         if task_id is None:
             raise ValueError(
                 f"No tasks have execution state in workstream '{ws_id}'. "
@@ -93,7 +88,7 @@ def reset_task(
     task_ws_id = task.workstream_id
 
     # Validate task is the workstream tip.
-    tip = find_workstream_tip(run_dir, graph, task_ws_id)
+    tip = reset_ops.find_workstream_tip(run_dir, graph, task_ws_id)
     if tip is None:
         raise ValueError(f"Task '{task_id}' has no execution state. Nothing to reset.")
     if tip != task_id:
@@ -120,9 +115,8 @@ def reset_task(
             data = json.loads(resolved_path.read_text())
             resolved = ResolvedTask.from_dict(data)
             if resolved.integration_branch_before_merge is not None:
-                sha_before = git.rev_parse(repo_path, integration_branch)
-                reset_branch(
-                    repo_path,
+                sha_before = reset_ops.repo_ops.rev_parse(integration_branch)
+                reset_ops.reset_branch(
                     integration_branch,
                     resolved.integration_branch_before_merge,
                 )
@@ -134,7 +128,7 @@ def reset_task(
 
                 # Write rollback log entry.
                 ws_signal_dir = run_dir / "workstreams" / task_ws_id
-                write_rollback_entry(
+                reset_ops.write_rollback_entry(
                     ws_signal_dir,
                     task_id,
                     status.value,
@@ -145,14 +139,14 @@ def reset_task(
                 log.append(f"Wrote rollback log entry for task '{task_id}'")
 
                 # Append to integration PR body (best-effort).
-                if pr_body_updater is not None:
+                if integration_pr_ops is not None:
                     try:
                         pr_created = ws_signal_dir / "pr_created"
                         if pr_created.is_file():
                             pr_url = pr_created.read_text().strip()
                             if pr_url:
                                 log.extend(
-                                    pr_body_updater.append_reset_activity(
+                                    integration_pr_ops.append_reset_activity(
                                         pr_url, [(task_id, status.value)]
                                     )
                                 )
@@ -163,19 +157,19 @@ def reset_task(
 
                 # Remove stale workstream advancement signals so the
                 # workstream reads as ACTIVE on the next resume.
-                log.extend(rollback_workstream_advancement(ws_signal_dir))
-        log.extend(reset_task_state(run_dir, task_id, graph_name, repo_path))
+                log.extend(reset_ops.rollback_workstream_advancement(ws_signal_dir))
+        log.extend(reset_ops.reset_task_state(run_dir, task_id, graph_name))
     else:
         # Non-merged task: delete state, then switch worktree to integration branch.
-        log.extend(reset_task_state(run_dir, task_id, graph_name, repo_path))
-        worktree_path = repo_path / ".worktrees" / graph_name / task_ws_id
+        log.extend(reset_ops.reset_task_state(run_dir, task_id, graph_name))
+        worktree_path = reset_ops.repo_path / ".worktrees" / graph_name / task_ws_id
         if worktree_path.is_dir():
             task_branch = f"{_BRANCH_PREFIX}/{graph_name}/{task_id}"
-            current = git.current_branch(worktree_path)
+            current = reset_ops.repo_ops.current_branch_in(worktree_path)
             if current == task_branch:
                 try:
-                    git.checkout(worktree_path, integration_branch)
-                    git.clean(worktree_path)
+                    reset_ops.repo_ops.checkout_in(worktree_path, integration_branch)
+                    reset_ops.repo_ops.clean_in(worktree_path)
                     log.append(f"Switched worktree to '{integration_branch}'")
                 except subprocess.CalledProcessError:
                     pass  # Best-effort: branch may already be gone

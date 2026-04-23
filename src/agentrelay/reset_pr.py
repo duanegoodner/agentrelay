@@ -1,31 +1,43 @@
-"""PR body update protocol and GitHub implementation.
+"""Integration PR mutation protocol and GitHub implementation.
 
-Abstracts the GitHub-specific logic for appending reset activity
-entries to integration PR bodies.  The :class:`PrBodyUpdater` protocol
-is consumed by :mod:`reset_task` and :mod:`reset_workstream`; the
-concrete :class:`GhPrBodyUpdater` is constructed in :mod:`cli` and
-injected at call time.
+Abstracts the GitHub-specific logic for mutating integration PRs from
+the reset command layer.  The :class:`IntegrationPrOps` protocol is
+consumed by :mod:`reset_task`, :mod:`reset_workstream`, and
+:mod:`reset_to`; the concrete :class:`GhIntegrationPrOps` is constructed
+in :mod:`cli` and injected at call time.
+
+Two operations are supported:
+
+* :meth:`IntegrationPrOps.append_reset_activity` — append a
+  ``## Reset activity`` entry to the PR body when a task is rolled back.
+* :meth:`IntegrationPrOps.close_pr` — close an integration PR when its
+  workstream is unmerged or torn down.
 
 Classes:
-    PrBodyUpdater: Protocol for appending reset activity to a PR body.
-    GhPrBodyUpdater: GitHub implementation via ``gh api`` REST.
+    IntegrationPrOps: Protocol for integration-PR mutations.
+    GhIntegrationPrOps: GitHub implementation via ``gh api`` REST.
 """
 
 from __future__ import annotations
 
 import subprocess
 from datetime import datetime, timezone
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from agentrelay.ops import gh
 
 
-class PrBodyUpdater(Protocol):
-    """Append reset activity entries to a pull request body.
+@runtime_checkable
+class IntegrationPrOps(Protocol):
+    """Integration-PR mutations used by the reset command layer.
 
-    Implementations fetch the current PR body, format and append
-    ``## Reset activity`` entries, and update the PR body.  Failures
-    are handled best-effort — callers should not expect exceptions.
+    Implementations handle appending reset-activity entries and closing
+    integration PRs.  Failures are handled best-effort — callers should
+    not expect exceptions.
+
+    Methods:
+        append_reset_activity: Append reset entries to a PR body.
+        close_pr: Close an integration PR.
     """
 
     def append_reset_activity(
@@ -42,14 +54,27 @@ class PrBodyUpdater(Protocol):
         """
         ...
 
+    def close_pr(self, pr_url: str) -> list[str]:
+        """Close an integration PR.
 
-class GhPrBodyUpdater:
-    """GitHub implementation of :class:`PrBodyUpdater`.
+        Args:
+            pr_url: Full PR URL.
 
-    Uses :func:`~agentrelay.ops.gh.pr_body` and
-    :func:`~agentrelay.ops.gh.pr_update_body` to fetch and update the
-    PR body via the GitHub REST API.  All failures are caught and
-    returned as warning log messages.
+        Returns:
+            List of log messages (single success line, or a warning on
+            failure).  No exceptions are raised.
+        """
+        ...
+
+
+class GhIntegrationPrOps:
+    """GitHub implementation of :class:`IntegrationPrOps`.
+
+    Uses :func:`~agentrelay.ops.gh.pr_body`,
+    :func:`~agentrelay.ops.gh.pr_update_body`, and
+    :func:`~agentrelay.ops.gh.pr_close_by_url` to mutate the PR via the
+    GitHub REST API.  All failures are caught and returned as log
+    messages (``WARNING:`` prefix when the mutation fails).
     """
 
     def append_reset_activity(
@@ -88,3 +113,21 @@ class GhPrBodyUpdater:
             return [f"Updated integration PR body: {pr_url}"]
         except subprocess.CalledProcessError:
             return [f"WARNING: Could not update integration PR body ({pr_url})"]
+
+    def close_pr(self, pr_url: str) -> list[str]:
+        """Close an integration PR (best-effort).
+
+        Args:
+            pr_url: Full PR URL.
+
+        Returns:
+            List with a single log entry describing the outcome.
+        """
+        try:
+            gh.pr_close_by_url(pr_url)
+            return [f"Closed integration PR {pr_url}"]
+        except subprocess.CalledProcessError:
+            return [
+                f"WARNING: Could not close integration PR {pr_url} "
+                "(may already be closed)"
+            ]

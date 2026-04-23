@@ -5,11 +5,12 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 from agentrelay.ops import git
+from agentrelay.reset_ops import ResetOps
 from agentrelay.reset_workstream import reset_workstream, teardown_workstream
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_graph import TaskGraph
@@ -206,6 +207,14 @@ def ws_reset_repo(tmp_path: Path) -> tuple[Path, Path, str]:
     return clone, run_dir, pre_merge_sha
 
 
+def _noop_integration_pr_ops() -> MagicMock:
+    """Return a MagicMock IntegrationPrOps whose methods return empty logs."""
+    mock = MagicMock()
+    mock.append_reset_activity.return_value = []
+    mock.close_pr.return_value = []
+    return mock
+
+
 # ── teardown_workstream tests ──
 
 
@@ -218,7 +227,9 @@ class TestTeardownWorkstream:
         """Removes worktree, branches; marks workstream as RESET."""
         clone, run_dir = ws_teardown_repo
 
-        log = teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        log = teardown_workstream(
+            "test-graph", single_ws_graph, run_dir, ResetOps.for_repo(clone), "ws-a"
+        )
 
         assert not (clone / ".worktrees" / "test-graph" / "ws-a").exists()
         # Signal dir preserved, reset file written.
@@ -242,7 +253,9 @@ class TestTeardownWorkstream:
             (status_dir / "reset").write_text("")
 
         # Should not raise — RESET tasks are considered peeled.
-        log = teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        log = teardown_workstream(
+            "test-graph", single_ws_graph, run_dir, ResetOps.for_repo(clone), "ws-a"
+        )
         assert any("Teardown workstream" in msg for msg in log)
 
     def test_rejects_tasks_with_active_state(
@@ -259,7 +272,13 @@ class TestTeardownWorkstream:
         with pytest.raises(
             ValueError, match="Task 'task_a' still has active execution state"
         ):
-            teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+            teardown_workstream(
+                "test-graph",
+                single_ws_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                "ws-a",
+            )
 
     def test_unknown_workstream_raises_key_error(
         self, ws_teardown_repo: tuple[Path, Path], single_ws_graph: TaskGraph
@@ -269,7 +288,11 @@ class TestTeardownWorkstream:
 
         with pytest.raises(KeyError, match="nonexistent"):
             teardown_workstream(
-                "test-graph", single_ws_graph, run_dir, clone, "nonexistent"
+                "test-graph",
+                single_ws_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                "nonexistent",
             )
 
     def test_missing_worktree_is_best_effort(
@@ -283,7 +306,9 @@ class TestTeardownWorkstream:
         shutil.rmtree(clone / ".worktrees" / "test-graph" / "ws-a")
 
         # Should not raise.
-        log = teardown_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        log = teardown_workstream(
+            "test-graph", single_ws_graph, run_dir, ResetOps.for_repo(clone), "ws-a"
+        )
         assert any("Teardown workstream" in msg for msg in log)
 
 
@@ -301,10 +326,14 @@ class TestResetWorkstream:
         """Target branch (main) is reset to pre-merge SHA."""
         clone, run_dir, pre_merge_sha = ws_reset_repo
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            log = reset_workstream(
-                "test-graph", single_ws_graph, run_dir, clone, "ws-a"
-            )
+        log = reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=_noop_integration_pr_ops(),
+        )
 
         current_head = git.rev_parse_head(clone)
         assert current_head == pre_merge_sha
@@ -316,13 +345,20 @@ class TestResetWorkstream:
         ws_reset_repo: tuple[Path, Path, str],
         single_ws_graph: TaskGraph,
     ) -> None:
-        """Integration PR is closed via gh CLI."""
+        """Integration PR is closed via IntegrationPrOps.close_pr."""
         clone, run_dir, _ = ws_reset_repo
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url") as mock_close:
-            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        mock_ops = _noop_integration_pr_ops()
+        reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=mock_ops,
+        )
 
-        mock_close.assert_called_once_with("https://github.com/org/repo/pull/10")
+        mock_ops.close_pr.assert_called_once_with("https://github.com/org/repo/pull/10")
 
     def test_marks_all_tasks_as_reset(
         self,
@@ -332,8 +368,14 @@ class TestResetWorkstream:
         """All task signal dirs preserved with status/reset."""
         clone, run_dir, _ = ws_reset_repo
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=_noop_integration_pr_ops(),
+        )
 
         # task_a had a signal dir — should be marked RESET.
         assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()
@@ -347,8 +389,14 @@ class TestResetWorkstream:
         """Workstream worktree and branches removed; signal dir preserved with reset."""
         clone, run_dir, _ = ws_reset_repo
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=_noop_integration_pr_ops(),
+        )
 
         assert not (clone / ".worktrees" / "test-graph" / "ws-a").exists()
         assert (run_dir / "workstreams" / "ws-a" / "reset").is_file()
@@ -360,7 +408,13 @@ class TestResetWorkstream:
         clone, run_dir = ws_teardown_repo
 
         with pytest.raises(ValueError, match="no resolved.json"):
-            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+            reset_workstream(
+                "test-graph",
+                single_ws_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                "ws-a",
+            )
 
     def test_merge_not_occurred_raises_value_error(
         self, tmp_path: Path, single_ws_graph: TaskGraph
@@ -383,7 +437,13 @@ class TestResetWorkstream:
         )
 
         with pytest.raises(ValueError, match="not merged"):
-            reset_workstream("test-graph", single_ws_graph, run_dir, tmp_path, "ws-a")
+            reset_workstream(
+                "test-graph",
+                single_ws_graph,
+                run_dir,
+                ResetOps.for_repo(tmp_path),
+                "ws-a",
+            )
 
     def test_not_most_recent_raises_value_error(
         self, tmp_path: Path, two_ws_graph: TaskGraph
@@ -426,7 +486,13 @@ class TestResetWorkstream:
         with pytest.raises(
             ValueError, match="not the most recently merged.*Reset 'ws-2'"
         ):
-            reset_workstream("test-graph", two_ws_graph, run_dir, tmp_path, "ws-1")
+            reset_workstream(
+                "test-graph",
+                two_ws_graph,
+                run_dir,
+                ResetOps.for_repo(tmp_path),
+                "ws-1",
+            )
 
     def test_no_integration_pr_skips_close(
         self,
@@ -451,12 +517,17 @@ class TestResetWorkstream:
             )
         )
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url") as mock_close:
-            log = reset_workstream(
-                "test-graph", single_ws_graph, run_dir, clone, "ws-a"
-            )
+        mock_ops = _noop_integration_pr_ops()
+        log = reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=mock_ops,
+        )
 
-        mock_close.assert_not_called()
+        mock_ops.close_pr.assert_not_called()
         assert any("rolled back" in msg for msg in log)
 
 
@@ -469,8 +540,14 @@ class TestResetWorkstreamObservability:
         """Writes rollback_log.json entries for merged tasks."""
         clone, run_dir, _ = ws_reset_repo
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=_noop_integration_pr_ops(),
+        )
 
         log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
         assert log_path.is_file()
@@ -483,28 +560,28 @@ class TestResetWorkstreamObservability:
     def test_calls_pr_body_updater_before_close(
         self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
     ) -> None:
-        """Calls PrBodyUpdater.append_reset_activity before closing PR."""
+        """Calls IntegrationPrOps.append_reset_activity before closing PR."""
         clone, run_dir, _ = ws_reset_repo
 
         # Write pr_created file.
         ws_dir = run_dir / "workstreams" / "ws-a"
         (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/10")
 
-        mock_updater = MagicMock()
-        mock_updater.append_reset_activity.return_value = ["Updated PR"]
+        mock_ops = MagicMock()
+        mock_ops.append_reset_activity.return_value = ["Updated PR"]
+        mock_ops.close_pr.return_value = []
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            log = reset_workstream(
-                "test-graph",
-                single_ws_graph,
-                run_dir,
-                clone,
-                "ws-a",
-                pr_body_updater=mock_updater,
-            )
+        log = reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=mock_ops,
+        )
 
-        mock_updater.append_reset_activity.assert_called_once()
-        call_args = mock_updater.append_reset_activity.call_args
+        mock_ops.append_reset_activity.assert_called_once()
+        call_args = mock_ops.append_reset_activity.call_args
         assert call_args[0][0] == "https://github.com/org/repo/pull/10"
         assert ("task_a", "pr_merged") in call_args[0][1]
         assert "Updated PR" in log
@@ -512,17 +589,20 @@ class TestResetWorkstreamObservability:
     def test_no_pr_update_without_updater(
         self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
     ) -> None:
-        """No PR body update when pr_body_updater is None."""
+        """No PR body update when integration_pr_ops is None."""
         clone, run_dir, _ = ws_reset_repo
 
         # Write pr_created file but don't pass updater.
         ws_dir = run_dir / "workstreams" / "ws-a"
         (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/10")
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            log = reset_workstream(
-                "test-graph", single_ws_graph, run_dir, clone, "ws-a"
-            )
+        log = reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+        )
 
         # Rollback log still written, but no "Updated" message.
         assert (ws_dir / "rollback_log.json").is_file()
@@ -539,8 +619,14 @@ class TestResetWorkstreamObservability:
         (task_b_dir / "status").mkdir(parents=True)
         (task_b_dir / "status" / "failed").write_text("")
 
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            reset_workstream("test-graph", single_ws_graph, run_dir, clone, "ws-a")
+        reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=_noop_integration_pr_ops(),
+        )
 
         entries = json.loads(
             (run_dir / "workstreams" / "ws-a" / "rollback_log.json").read_text()
@@ -553,25 +639,25 @@ class TestResetWorkstreamObservability:
     def test_pr_updater_failure_does_not_block_reset(
         self, ws_reset_repo: tuple[Path, Path, str], single_ws_graph: TaskGraph
     ) -> None:
-        """Reset completes even when PrBodyUpdater raises."""
+        """Reset completes even when IntegrationPrOps raises."""
         clone, run_dir, _ = ws_reset_repo
 
         ws_dir = run_dir / "workstreams" / "ws-a"
         (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/10")
 
-        mock_updater = MagicMock()
-        mock_updater.append_reset_activity.side_effect = RuntimeError("boom")
+        mock_ops = MagicMock()
+        mock_ops.append_reset_activity.side_effect = RuntimeError("boom")
+        mock_ops.close_pr.return_value = []
 
         # The reset should still complete — updater failure is non-fatal.
-        with patch("agentrelay.reset_workstream.gh.pr_close_by_url"):
-            log = reset_workstream(
-                "test-graph",
-                single_ws_graph,
-                run_dir,
-                clone,
-                "ws-a",
-                pr_body_updater=mock_updater,
-            )
+        log = reset_workstream(
+            "test-graph",
+            single_ws_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            "ws-a",
+            integration_pr_ops=mock_ops,
+        )
 
         assert any("WARNING" in msg for msg in log)
         assert any("rolled back" in msg for msg in log)

@@ -13,18 +13,10 @@ Functions:
 from __future__ import annotations
 
 import json
-import subprocess
 from pathlib import Path
 
-from agentrelay.ops import gh, git
-from agentrelay.reset_ops import (
-    reset_branch,
-    reset_task_state,
-    reset_workstream_state,
-    workstream_merge_order,
-    write_rollback_entry,
-)
-from agentrelay.reset_pr import PrBodyUpdater
+from agentrelay.reset_ops import ResetOps
+from agentrelay.reset_pr import IntegrationPrOps
 from agentrelay.resolved import ResolvedWorkstream
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runtime import TaskStatus
@@ -38,7 +30,7 @@ def teardown_workstream(
     graph_name: str,
     graph: TaskGraph,
     run_dir: Path,
-    repo_path: Path,
+    reset_ops: ResetOps,
     ws_id: str,
 ) -> list[str]:
     """Remove workstream infrastructure (worktree + integration branch).
@@ -51,7 +43,8 @@ def teardown_workstream(
         graph_name: Graph name (for path conventions).
         graph: Current task graph.
         run_dir: Path to the per-run directory.
-        repo_path: Path to the repository root.
+        reset_ops: Shared reset-layer operations bound to the target
+            repository.
         ws_id: Workstream identifier.
 
     Returns:
@@ -73,7 +66,7 @@ def teardown_workstream(
                     f"Reset all tasks in workstream '{ws_id}' first."
                 )
 
-    log = reset_workstream_state(run_dir, ws_id, graph_name, repo_path)
+    log = reset_ops.reset_workstream_state(run_dir, ws_id, graph_name)
     log.append(
         f"Teardown workstream '{ws_id}'. Infrastructure removed. "
         "Next run will create fresh worktree from current base branch."
@@ -85,10 +78,10 @@ def reset_workstream(
     graph_name: str,
     graph: TaskGraph,
     run_dir: Path,
-    repo_path: Path,
+    reset_ops: ResetOps,
     ws_id: str,
     *,
-    pr_body_updater: PrBodyUpdater | None = None,
+    integration_pr_ops: IntegrationPrOps | None = None,
 ) -> list[str]:
     """Undo a merged workstream from its target branch.
 
@@ -101,10 +94,12 @@ def reset_workstream(
         graph_name: Graph name (for path conventions).
         graph: Current task graph.
         run_dir: Path to the per-run directory.
-        repo_path: Path to the repository root.
+        reset_ops: Shared reset-layer operations bound to the target
+            repository.
         ws_id: Workstream identifier.
-        pr_body_updater: Optional updater to append reset activity to
-            the integration PR body.  ``None`` skips PR body updates.
+        integration_pr_ops: Optional integration-PR mutation provider.
+            When present, reset activity is appended to and the
+            integration PR is closed.  ``None`` skips PR mutations.
 
     Returns:
         List of log messages describing actions taken.
@@ -134,7 +129,7 @@ def reset_workstream(
         )
 
     # Validate tip-of-target-branch (stack constraint).
-    merge_order = workstream_merge_order(run_dir, graph)
+    merge_order = reset_ops.workstream_merge_order(run_dir, graph)
     if not merge_order or merge_order[-1] != ws_id:
         if merge_order:
             last = merge_order[-1]
@@ -152,10 +147,10 @@ def reset_workstream(
     # Capture current target branch SHA before rollback.
     target_sha = resolved.target_branch_before_any_merge
     target_branch = ws_spec.merge_target_branch
-    sha_before = git.rev_parse(repo_path, target_branch)
+    sha_before = reset_ops.repo_ops.rev_parse(target_branch)
 
     # Reset target branch.
-    reset_branch(repo_path, target_branch, target_sha)
+    reset_ops.reset_branch(target_branch, target_sha)
     log.append(f"Reset '{target_branch}' to {target_sha[:12]}")
 
     # Write rollback log entries and collect PR body entries.
@@ -166,7 +161,7 @@ def reset_workstream(
         if task_signal_dir.is_dir():
             task_status = _read_task_status_from_signals(task_signal_dir)
             if task_status in SUCCESS_STATUSES:
-                write_rollback_entry(
+                reset_ops.write_rollback_entry(
                     ws_signal_dir,
                     tid,
                     task_status.value,
@@ -178,35 +173,30 @@ def reset_workstream(
                 pr_body_entries.append((tid, task_status.value))
 
     # Append to integration PR body (best-effort), before closing.
-    if pr_body_updater is not None and pr_body_entries:
+    if integration_pr_ops is not None and pr_body_entries:
         try:
             pr_created = ws_signal_dir / "pr_created"
             if pr_created.is_file():
                 pr_url = pr_created.read_text().strip()
                 if pr_url:
                     log.extend(
-                        pr_body_updater.append_reset_activity(pr_url, pr_body_entries)
+                        integration_pr_ops.append_reset_activity(
+                            pr_url, pr_body_entries
+                        )
                     )
         except Exception:
             log.append(f"WARNING: PR body update failed for workstream '{ws_id}'")
 
     # Close integration PR (best-effort).
-    if resolved.integration_pr_url is not None:
-        try:
-            gh.pr_close_by_url(resolved.integration_pr_url)
-            log.append(f"Closed integration PR {resolved.integration_pr_url}")
-        except subprocess.CalledProcessError:
-            log.append(
-                f"WARNING: Could not close integration PR "
-                f"{resolved.integration_pr_url} (may already be closed)"
-            )
+    if integration_pr_ops is not None and resolved.integration_pr_url is not None:
+        log.extend(integration_pr_ops.close_pr(resolved.integration_pr_url))
 
     # Mark all tasks as RESET.
     for tid in graph.tasks_in_workstream(ws_id):
-        log.extend(reset_task_state(run_dir, tid, graph_name, repo_path))
+        log.extend(reset_ops.reset_task_state(run_dir, tid, graph_name))
 
     # Mark workstream as RESET.
-    log.extend(reset_workstream_state(run_dir, ws_id, graph_name, repo_path))
+    log.extend(reset_ops.reset_workstream_state(run_dir, ws_id, graph_name))
 
     log.append(
         f"Reset workstream '{ws_id}'. Target branch '{target_branch}' "
