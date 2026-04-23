@@ -1,6 +1,10 @@
 # Sprint Plan — 2026-04-12: Graph Resumption (MVP)
 
-> **Status: In progress.** PR A (#191), PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197), PR E2 (#199), PR F (#201), PR F2 (#203), and PR G (#206) merged.
+> **Status: COMPLETE (2026-04-23).** All 11 PRs merged: PR A (#191),
+> PR B (#192), PR B2 (#193), PR C (#194), PR D (#196), PR E (#197),
+> PR E2 (#199), PR F (#201), PR F2 (#203), PR G (#206), PR H (#208).
+> 1722 tests.  Phase 4 of pre-Rust roadmap complete.  Next: Phase 4.5
+> (persistent agents) — see `docs/discussions/PERSISTENT_AGENTS.md`.
 
 ## Goal
 
