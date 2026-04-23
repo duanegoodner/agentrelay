@@ -1732,10 +1732,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pr-h-decouple-reset-commands-from-ops-layer" class="md-nav__link">
+  <a href="#pr-h-decouple-reset-commands-from-ops-layer-208-merged" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PR H: Decouple reset commands from ops layer
+        PR H: Decouple reset commands from ops layer — #208 Merged
       
     </span>
   </a>
@@ -3553,38 +3553,83 @@ utilities).</p>
 <li><strong>Test delta</strong>: +39 new tests (1670 → 1709).  <code>pixi run check</code> passes.
   PR #206.</li>
 </ul>
-<h3 id="pr-h-decouple-reset-commands-from-ops-layer">PR H: Decouple reset commands from ops layer</h3>
+<h3 id="pr-h-decouple-reset-commands-from-ops-layer-208-merged">PR H: Decouple reset commands from ops layer — #208 Merged</h3>
 <p><strong>Scope:</strong> Introduce protocols to eliminate direct <code>ops.git</code> and <code>ops.gh</code>
-imports from <code>reset_task.py</code>, <code>reset_workstream.py</code>, and <code>reset_ops.py</code>.
-Aligns the reset command layer with the decoupling achieved in
-<code>run_graph.py</code> by PR E2.  Depends on PR G.</p>
+imports from <code>reset_task.py</code>, <code>reset_workstream.py</code>, <code>reset_ops.py</code>, and
+<code>reset_to.py</code>.  Aligns the reset command layer with the decoupling
+achieved in <code>run_graph.py</code> by PR E2.  Depends on PR G.</p>
 <p><strong>Motivation:</strong> PR E2 (#199) decoupled <code>run_graph.py</code> from all <code>ops/</code>
 modules (except <code>ops.signals</code>) via three protocols
 (<code>SandboxInfrastructureManager</code>, <code>SessionResolver</code>, <code>RunRepoManager</code>).
 The reset commands added in PR F (#201) use <code>ops.git</code> and <code>ops.gh</code>
 directly — acceptable for the initial implementation, but inconsistent
 with the protocol-isolation pattern established elsewhere.</p>
-<p><strong>Current direct coupling:</strong>
+<p><strong>Current direct coupling (pre-PR):</strong>
 - <code>reset_task.py</code> → <code>ops.git</code> (checkout, clean, rev_parse)
 - <code>reset_workstream.py</code> → <code>ops.gh</code> (pr_close_by_url), <code>ops.git</code> (rev_parse)
+- <code>reset_to.py</code> → <code>ops.git</code> (rev_parse, current_branch, checkout, clean),
+  <code>ops.gh</code> (pr_close_by_url)
 - <code>reset_ops.py</code> → <code>ops.git</code> (branch_delete, push_delete_branch,
   update_local_ref, push_force_with_lease, worktree_remove, worktree_prune)</p>
-<p><strong>Approach:</strong> Define protocols for the git and gh operations used by
-the reset layer.  Place protocol definitions in the reset modules
-(or a shared file); place implementations alongside existing patterns.
-Wire concrete implementations in <code>cli.py</code>.</p>
+<p><strong>Approach:</strong> Define two protocols that together cover the reset layer's
+coupling surface.  Place protocol definitions alongside implementations
+in dedicated modules (mirroring <code>reset_pr.py</code>).  Wire concrete
+implementations in <code>cli.py</code>.</p>
 <p><strong>Files touched:</strong>
-- <code>src/agentrelay/reset_task.py</code> (replace <code>ops.git</code> imports with protocol)
-- <code>src/agentrelay/reset_workstream.py</code> (replace <code>ops.gh</code> and <code>ops.git</code>
-  imports with protocols)
-- <code>src/agentrelay/reset_ops.py</code> (replace <code>ops.git</code> imports with protocol)
-- New protocol + implementation file(s)
+- <code>src/agentrelay/reset_repo.py</code> (new — <code>RepoResetOps</code> protocol + <code>GitRepoResetOps</code>)
+- <code>src/agentrelay/reset_pr.py</code> (rename <code>PrBodyUpdater</code> → <code>IntegrationPrOps</code>,
+  add <code>close_pr</code>)
+- <code>src/agentrelay/reset_ops.py</code> (free-function module → <code>ResetOps</code> class)
+- <code>src/agentrelay/reset_task.py</code> (inject <code>ResetOps</code> + <code>IntegrationPrOps</code>)
+- <code>src/agentrelay/reset_workstream.py</code> (inject <code>ResetOps</code> + <code>IntegrationPrOps</code>)
+- <code>src/agentrelay/reset_to.py</code> (inject <code>ResetOps</code> + <code>IntegrationPrOps</code>)
 - <code>src/agentrelay/cli.py</code> (construct and pass implementations)
-- Tests for all affected files
-- <code>docs/diagrams/uml/diagram-detailed.d2</code></p>
+- Tests for all affected files (new <code>test/test_reset_repo.py</code>, migrations
+  across five existing test files)
+- <code>docs/diagrams/uml/diagram-detailed.d2</code>, <code>docs/DIAGRAM.md</code></p>
 <p><strong>Tests:</strong>
 - Existing reset tests continue to pass with injected implementations
 - New tests verify protocol contracts</p>
+<p><strong>Notes from implementation (2026-04-22):</strong></p>
+<ul>
+<li><strong>Two protocols, not one</strong>: <code>RepoResetOps</code> (git ops: branch/worktree
+  mutation, rev-parse, force-push, checkout-in-worktree) lives in the new
+  <code>reset_repo.py</code>, mirroring the <code>session.py</code> / <code>run_repo.py</code> pattern.
+  <code>IntegrationPrOps</code> extends the old <code>PrBodyUpdater</code> with <code>close_pr()</code>,
+  moving the <code>gh.pr_close_by_url</code> best-effort try/except out of
+  <code>reset_workstream.py</code> and <code>reset_to.py</code> and into the concrete
+  <code>GhIntegrationPrOps</code>.  Kept <code>reset_pr.py</code> as the integration-PR module
+  (append + close are cohesive — both mutate the integration PR).</li>
+<li><strong><code>ResetOps</code> class with <code>for_repo()</code> factory</strong>: <code>reset_ops.py</code> now
+  exports a stateful <code>ResetOps</code> class holding a <code>RepoResetOps</code> instance
+  plus <code>repo_path</code> for worktree path construction.  <code>ResetOps.for_repo(
+  repo_path)</code> is the convenience factory used by <code>cli.py</code>; unit tests
+  inject a fake <code>RepoResetOps</code> directly.  This matches the project
+  convention that public API surfaces are classes.</li>
+<li><strong>Worktree ops take path explicitly</strong>: <code>RepoResetOps</code> distinguishes
+  main-repo ops (<code>branch_delete</code>, <code>rev_parse</code>, <code>worktree_prune</code>) from
+  worktree-scoped ops (<code>checkout_in</code>, <code>clean_in</code>, <code>current_branch_in</code>).
+  The main repo path is held by the impl; worktree paths pass through.</li>
+<li><strong><code>reset_to.py</code> included even though not named in the spec</strong>: spec
+  listed task/workstream/ops, but <code>reset_to.py</code> had identical direct
+  imports.  Including it keeps the reset layer internally consistent.</li>
+<li><strong><code>build_plan</code> gains <code>reset_ops</code> arg</strong>: workstream-target plans call
+  <code>workstream_merge_order</code>, which is now a <code>ResetOps</code> method.
+  Task-target plans don't actually use <code>reset_ops</code> (pure disk
+  computation), but the parameter is required for uniformity.</li>
+<li><strong>Test migration</strong>: existing reset tests used <code>@patch(
+  "agentrelay.reset_X.gh.pr_close_by_url")</code> to intercept integration-PR
+  closure.  Those patches no longer work (the modules no longer import
+  <code>gh</code>) and were replaced with a <code>MagicMock</code> <code>IntegrationPrOps</code> injected
+  via the new kwarg — which is actually cleaner (asserts are now
+  expressed against the protocol rather than the underlying subprocess).</li>
+<li><strong><code>reset_graph.py</code> deliberately left for follow-up</strong>: the whole-run
+  wipe command still imports <code>ops.git</code>/<code>ops.gh</code>/<code>ops.docker</code> directly.
+  It is structurally different (not stack-based undo) and out of scope
+  for PR H; tracked as a backlog follow-up.</li>
+<li><strong>Test delta</strong>: +13 new tests (1709 → 1722). <code>pixi run check</code> passes.
+  PR #208.</li>
+</ul>
 <h2 id="merge-order">Merge order</h2>
 <div class="highlight"><pre><span></span><code>PR A (per-run dirs) ──→ PR B (frozen records) ──┐
                    │                            ├──→ PR E (wiring + CLI)

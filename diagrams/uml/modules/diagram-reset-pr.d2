@@ -39,20 +39,22 @@ classes: {
 }
 
 # ─────────────────────────────────────────────
-#  reset_pr.py — PR body update protocol + GH implementation
+#  reset_pr.py — integration-PR mutation protocol + GH implementation
 # ─────────────────────────────────────────────
 reset_pr_py: "reset_pr.py" {
-  PrBodyUpdater: "PrBodyUpdater <<protocol>>" {
+  IntegrationPrOps: "IntegrationPrOps <<protocol>>" {
     shape: class
     module_path: reset_pr
-    +append_reset_activity(pr_url, entries): "list[str]"
+    "+append_reset_activity(pr_url, entries)": "list[str]"
+    "+close_pr(pr_url)": "list[str]"
   }
-  GhPrBodyUpdater: "GhPrBodyUpdater" {
+  GhIntegrationPrOps: "GhIntegrationPrOps" {
     shape: class
     module_path: reset_pr
-    +append_reset_activity(pr_url, entries): "list[str]"
+    "+append_reset_activity(pr_url, entries)": "list[str]"
+    "+close_pr(pr_url)": "list[str]"
   }
-  GhPrBodyUpdater -> PrBodyUpdater: satisfies { class: implementation }
+  GhIntegrationPrOps -> IntegrationPrOps: satisfies { class: implementation }
 }
 
 
@@ -81,7 +83,7 @@ reset_workstream_py: "reset_workstream.py" {
 
 # ─── Relationships ───
 
-reset_task_py.reset_task_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
-reset_workstream_py.reset_workstream_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
-reset_to_py.reset_to_functions -> reset_pr_py.PrBodyUpdater: "append_reset_activity" { class: dependency }
-reset_pr_py.GhPrBodyUpdater -> ops_pkg.gh: "pr_body, pr_update_body" { class: dependency }
+reset_task_py.reset_task_functions -> reset_pr_py.IntegrationPrOps: "append_reset_activity" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> reset_pr_py.IntegrationPrOps: "append_reset_activity, close_pr" { class: dependency }
+reset_to_py.reset_to_functions -> reset_pr_py.IntegrationPrOps: "append_reset_activity, close_pr" { class: dependency }
+reset_pr_py.GhIntegrationPrOps -> ops_pkg.gh: "pr_body, pr_update_body, pr_close_by_url" { class: dependency }

@@ -61,6 +61,7 @@ session_py: "session.py"
 run_repo_py: "run_repo.py"
 reset_graph_py: "reset_graph.py"
 reset_ops_py: "reset_ops.py"
+reset_repo_py: "reset_repo.py"
 reset_task_py: "reset_task.py"
 reset_workstream_py: "reset_workstream.py"
 reset_to_py: "reset_to.py"
@@ -68,7 +69,8 @@ reset_pr_py: "reset_pr.py"
 graph_index_py: "graph_index.py"
 sandbox_pkg: "sandbox/"
 
-GhPrBodyUpdater -> PrBodyUpdater { class: dependency }
+GitRepoResetOps -> RepoResetOps { class: dependency }
+GhIntegrationPrOps -> IntegrationPrOps { class: dependency }
 task_py -> workstream_pkg { class: dependency }
 task_py -> environments_py { class: dependency }
 sandbox_pkg -> ops_pkg { class: dependency }
@@ -105,22 +107,20 @@ run_graph_py -> session_py { class: dependency }
 session_py -> ops_pkg { class: dependency }
 run_repo_py -> ops_pkg { class: dependency }
 reset_graph_py -> ops_pkg { class: dependency }
-reset_ops_py -> ops_pkg { class: dependency }
+reset_repo_py -> ops_pkg { class: dependency }
+reset_ops_py -> reset_repo_py { class: dependency }
 reset_ops_py -> resolved_py { class: dependency }
 reset_ops_py -> task_graph_pkg { class: dependency }
 reset_task_py -> reset_ops_py { class: dependency }
 reset_task_py -> reset_pr_py { class: dependency }
 reset_task_py -> resolved_py { class: dependency }
 reset_task_py -> task_graph_pkg { class: dependency }
-reset_task_py -> ops_pkg { class: dependency }
 reset_workstream_py -> reset_ops_py { class: dependency }
 reset_workstream_py -> reset_pr_py { class: dependency }
-reset_workstream_py -> ops_pkg { class: dependency }
 reset_workstream_py -> task_graph_pkg { class: dependency }
 reset_workstream_py -> resolved_py { class: dependency }
 reset_to_py -> reset_ops_py { class: dependency }
 reset_to_py -> reset_pr_py { class: dependency }
-reset_to_py -> ops_pkg { class: dependency }
 reset_to_py -> task_graph_pkg { class: dependency }
 reset_to_py -> resolved_py { class: dependency }
 reset_pr_py -> ops_pkg { class: dependency }
