@@ -1,4 +1,4 @@
-"""Tests for reset_ops module — shared reset utilities."""
+"""Tests for reset_ops module — ResetOps class."""
 
 from __future__ import annotations
 
@@ -9,14 +9,7 @@ from pathlib import Path
 import pytest
 
 from agentrelay.ops import git
-from agentrelay.reset_ops import (
-    find_workstream_tip,
-    reset_branch,
-    reset_task_state,
-    reset_workstream_state,
-    workstream_merge_order,
-    write_rollback_entry,
-)
+from agentrelay.reset_ops import ResetOps
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_graph import TaskGraph
 from agentrelay.workstream import WorkstreamSpec
@@ -156,7 +149,7 @@ def two_ws_graph() -> TaskGraph:
 
 
 class TestResetBranch:
-    """Tests for reset_branch."""
+    """Tests for ResetOps.reset_branch."""
 
     def test_resets_and_force_pushes(self, reset_ops_repo: tuple[Path, Path]) -> None:
         """Branch is reset to target SHA locally and on remote."""
@@ -174,8 +167,8 @@ class TestResetBranch:
         _git(["-C", str(clone), "push", "origin", branch])
         _git(["-C", str(clone), "checkout", "main"])
 
-        # Reset to original.
-        reset_branch(clone, branch, original_sha)
+        reset_ops = ResetOps.for_repo(clone)
+        reset_ops.reset_branch(branch, original_sha)
 
         # Local and remote should be at original SHA.
         assert git.rev_parse(clone, branch) == original_sha
@@ -187,7 +180,7 @@ class TestResetBranch:
 
 
 class TestResetTaskState:
-    """Tests for reset_task_state."""
+    """Tests for ResetOps.reset_task_state."""
 
     def test_marks_reset_and_deletes_branches(
         self, reset_ops_repo: tuple[Path, Path]
@@ -195,7 +188,8 @@ class TestResetTaskState:
         """Signal directory preserved with status/reset; branches deleted."""
         clone, run_dir = reset_ops_repo
 
-        log = reset_task_state(run_dir, "task_a", "test-graph", clone)
+        reset_ops = ResetOps.for_repo(clone)
+        log = reset_ops.reset_task_state(run_dir, "task_a", "test-graph")
 
         # Signal dir preserved, status/reset written.
         assert (run_dir / "signals" / "task_a").is_dir()
@@ -214,8 +208,8 @@ class TestResetTaskState:
         """No error when signal directory does not exist."""
         clone, run_dir = reset_ops_repo
 
-        # Delete signal dir first, then call again.
-        log = reset_task_state(run_dir, "nonexistent_task", "test-graph", clone)
+        reset_ops = ResetOps.for_repo(clone)
+        log = reset_ops.reset_task_state(run_dir, "nonexistent_task", "test-graph")
 
         # Should not raise — just returns (possibly empty) log.
         assert isinstance(log, list)
@@ -238,8 +232,8 @@ class TestResetTaskState:
             ]
         )
 
-        # Should not raise.
-        log = reset_task_state(run_dir, "task_a", "test-graph", clone)
+        reset_ops = ResetOps.for_repo(clone)
+        log = reset_ops.reset_task_state(run_dir, "task_a", "test-graph")
         assert any("RESET" in msg for msg in log)
 
 
@@ -247,7 +241,7 @@ class TestResetTaskState:
 
 
 class TestResetWorkstreamState:
-    """Tests for reset_workstream_state."""
+    """Tests for ResetOps.reset_workstream_state."""
 
     def test_marks_reset_removes_worktree_and_branches(
         self, reset_ops_repo: tuple[Path, Path]
@@ -255,7 +249,8 @@ class TestResetWorkstreamState:
         """Worktree and branches removed; signal dir preserved with reset file."""
         clone, run_dir = reset_ops_repo
 
-        log = reset_workstream_state(run_dir, "ws-a", "test-graph", clone)
+        reset_ops = ResetOps.for_repo(clone)
+        log = reset_ops.reset_workstream_state(run_dir, "ws-a", "test-graph")
 
         # Worktree dir should be gone.
         assert not (clone / ".worktrees" / "test-graph" / "ws-a").exists()
@@ -281,8 +276,8 @@ class TestResetWorkstreamState:
 
         shutil.rmtree(clone / ".worktrees" / "test-graph" / "ws-a")
 
-        # Should not raise.
-        log = reset_workstream_state(run_dir, "ws-a", "test-graph", clone)
+        reset_ops = ResetOps.for_repo(clone)
+        log = reset_ops.reset_workstream_state(run_dir, "ws-a", "test-graph")
         assert isinstance(log, list)
 
     def test_missing_signal_dir_is_noop(
@@ -296,7 +291,8 @@ class TestResetWorkstreamState:
 
         shutil.rmtree(run_dir / "workstreams" / "ws-a")
 
-        log = reset_workstream_state(run_dir, "ws-a", "test-graph", clone)
+        reset_ops = ResetOps.for_repo(clone)
+        log = reset_ops.reset_workstream_state(run_dir, "ws-a", "test-graph")
         assert isinstance(log, list)
 
 
@@ -304,7 +300,7 @@ class TestResetWorkstreamState:
 
 
 class TestFindWorkstreamTip:
-    """Tests for find_workstream_tip."""
+    """Tests for ResetOps.find_workstream_tip."""
 
     def test_returns_last_task_with_signals(
         self, tmp_path: Path, simple_graph: TaskGraph
@@ -315,7 +311,8 @@ class TestFindWorkstreamTip:
         (run_dir / "signals" / "task_b").mkdir(parents=True)
         # task_c has no signal dir.
 
-        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        reset_ops = ResetOps.for_repo(tmp_path)
+        tip = reset_ops.find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip == "task_b"
 
     def test_returns_none_when_no_signals(
@@ -325,7 +322,8 @@ class TestFindWorkstreamTip:
         run_dir = tmp_path / "runs" / "0"
         run_dir.mkdir(parents=True)
 
-        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        reset_ops = ResetOps.for_repo(tmp_path)
+        tip = reset_ops.find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip is None
 
     def test_returns_single_task_with_signals(
@@ -335,7 +333,8 @@ class TestFindWorkstreamTip:
         run_dir = tmp_path / "runs" / "0"
         (run_dir / "signals" / "task_a").mkdir(parents=True)
 
-        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        reset_ops = ResetOps.for_repo(tmp_path)
+        tip = reset_ops.find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip == "task_a"
 
     def test_returns_last_when_all_have_signals(
@@ -347,7 +346,8 @@ class TestFindWorkstreamTip:
         (run_dir / "signals" / "task_b").mkdir(parents=True)
         (run_dir / "signals" / "task_c").mkdir(parents=True)
 
-        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        reset_ops = ResetOps.for_repo(tmp_path)
+        tip = reset_ops.find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip == "task_c"
 
     def test_skips_reset_tasks(self, tmp_path: Path, simple_graph: TaskGraph) -> None:
@@ -361,7 +361,8 @@ class TestFindWorkstreamTip:
         (run_dir / "signals" / "task_c" / "status").mkdir(parents=True)
         (run_dir / "signals" / "task_c" / "status" / "reset").write_text("")
 
-        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        reset_ops = ResetOps.for_repo(tmp_path)
+        tip = reset_ops.find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip == "task_b"
 
     def test_returns_none_when_all_reset(
@@ -372,7 +373,8 @@ class TestFindWorkstreamTip:
         (run_dir / "signals" / "task_a" / "status").mkdir(parents=True)
         (run_dir / "signals" / "task_a" / "status" / "reset").write_text("")
 
-        tip = find_workstream_tip(run_dir, simple_graph, "ws-a")
+        reset_ops = ResetOps.for_repo(tmp_path)
+        tip = reset_ops.find_workstream_tip(run_dir, simple_graph, "ws-a")
         assert tip is None
 
 
@@ -380,7 +382,7 @@ class TestFindWorkstreamTip:
 
 
 class TestWorkstreamMergeOrder:
-    """Tests for workstream_merge_order."""
+    """Tests for ResetOps.workstream_merge_order."""
 
     def test_sorts_by_merged_at(self, tmp_path: Path, two_ws_graph: TaskGraph) -> None:
         """Returns workstream IDs in merge order (oldest first)."""
@@ -417,7 +419,8 @@ class TestWorkstreamMergeOrder:
             )
         )
 
-        order = workstream_merge_order(run_dir, two_ws_graph)
+        reset_ops = ResetOps.for_repo(tmp_path)
+        order = reset_ops.workstream_merge_order(run_dir, two_ws_graph)
         assert order == ["ws-2", "ws-1"]
 
     def test_excludes_non_merged(self, tmp_path: Path, two_ws_graph: TaskGraph) -> None:
@@ -439,7 +442,8 @@ class TestWorkstreamMergeOrder:
             )
         )
 
-        order = workstream_merge_order(run_dir, two_ws_graph)
+        reset_ops = ResetOps.for_repo(tmp_path)
+        order = reset_ops.workstream_merge_order(run_dir, two_ws_graph)
         assert order == []
 
     def test_empty_when_no_merged(
@@ -449,7 +453,8 @@ class TestWorkstreamMergeOrder:
         run_dir = tmp_path / "runs" / "0"
         run_dir.mkdir(parents=True)
 
-        order = workstream_merge_order(run_dir, two_ws_graph)
+        reset_ops = ResetOps.for_repo(tmp_path)
+        order = reset_ops.workstream_merge_order(run_dir, two_ws_graph)
         assert order == []
 
     def test_excludes_reset_workstreams(
@@ -475,7 +480,8 @@ class TestWorkstreamMergeOrder:
         # Write reset signal — this workstream was undone.
         (ws1_dir / "reset").write_text("")
 
-        order = workstream_merge_order(run_dir, two_ws_graph)
+        reset_ops = ResetOps.for_repo(tmp_path)
+        order = reset_ops.workstream_merge_order(run_dir, two_ws_graph)
         assert order == []
 
 
@@ -483,14 +489,15 @@ class TestWorkstreamMergeOrder:
 
 
 class TestWriteRollbackEntry:
-    """Tests for write_rollback_entry."""
+    """Tests for ResetOps.write_rollback_entry."""
 
     def test_creates_file_on_first_call(self, tmp_path: Path) -> None:
         """Creates rollback_log.json with a single entry."""
         ws_dir = tmp_path / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True)
 
-        write_rollback_entry(
+        reset_ops = ResetOps.for_repo(tmp_path)
+        reset_ops.write_rollback_entry(
             ws_dir, "task_a", "pr_merged", "aaa", "bbb", source="reset-task"
         )
 
@@ -505,10 +512,11 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True)
 
-        write_rollback_entry(
+        reset_ops = ResetOps.for_repo(tmp_path)
+        reset_ops.write_rollback_entry(
             ws_dir, "task_a", "pr_merged", "aaa", "bbb", source="reset-task"
         )
-        write_rollback_entry(
+        reset_ops.write_rollback_entry(
             ws_dir, "task_b", "completed", "bbb", "ccc", source="reset-task"
         )
 
@@ -522,7 +530,8 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True)
 
-        write_rollback_entry(
+        reset_ops = ResetOps.for_repo(tmp_path)
+        reset_ops.write_rollback_entry(
             ws_dir, "task_x", "pr_merged", "sha1", "sha2", source="reset-task"
         )
 
@@ -541,7 +550,8 @@ class TestWriteRollbackEntry:
         ws_dir = tmp_path / "workstreams" / "ws-new"
         assert not ws_dir.exists()
 
-        write_rollback_entry(
+        reset_ops = ResetOps.for_repo(tmp_path)
+        reset_ops.write_rollback_entry(
             ws_dir, "task_a", "pr_merged", "aaa", "bbb", source="reset-task"
         )
 

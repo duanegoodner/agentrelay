@@ -39,27 +39,29 @@ classes: {
 }
 
 # ─────────────────────────────────────────────
-#  reset_ops.py — shared reset utilities
+#  reset_ops.py — ResetOps shared reset operations
 # ─────────────────────────────────────────────
 reset_ops_py: "reset_ops.py" {
-  reset_ops_functions: "reset_ops <<module>>" {
+  ResetOps: "ResetOps" {
     shape: class
     module_path: reset_ops
-    "+reset_branch(repo_path, branch, target_sha)": void
-    "+reset_task_state(run_dir, task_id, graph_name, repo_path)": "list[str]"
-    "+reset_workstream_state(run_dir, ws_id, graph_name, repo_path)": "list[str]"
+    "+reset_branch(branch, target_sha)": void
+    "+reset_task_state(run_dir, task_id, graph_name)": "list[str]"
+    "+reset_workstream_state(run_dir, ws_id, graph_name)": "list[str]"
     "+find_workstream_tip(run_dir, graph, ws_id)": "str | None"
     "+workstream_merge_order(run_dir, graph)": "list[str]"
     "+write_rollback_entry(ws_signal_dir, task_id, ...)": void
+    "+rollback_workstream_advancement(ws_signal_dir)": "list[str]"
+    "+for_repo(repo_path)": ResetOps
   }
 }
 
 
 # ─── External dependencies ───
 
-ops_pkg: "ops/" {
+reset_repo_py: "reset_repo.py" {
   style.opacity: 0.5
-  git: "git <<module>>" { shape: class }
+  RepoResetOps: "RepoResetOps <<protocol>>" { shape: class }
 }
 
 reset_task_py: "reset_task.py" {
@@ -90,9 +92,9 @@ task_graph_pkg: "task_graph/" {
 
 # ─── Relationships ───
 
-reset_ops_py.reset_ops_functions -> ops_pkg.git: "branch, worktree, push ops" { class: dependency }
-reset_ops_py.reset_ops_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
-reset_ops_py.reset_ops_functions -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream_ids" { class: dependency }
-reset_task_py.reset_task_functions -> reset_ops_py.reset_ops_functions: "reset_task_state, find_workstream_tip, reset_branch, write_rollback_entry" { class: dependency }
-reset_workstream_py.reset_workstream_functions -> reset_ops_py.reset_ops_functions: "shared utilities" { class: dependency }
-reset_to_py.reset_to_functions -> reset_ops_py.reset_ops_functions: "shared utilities" { class: dependency }
+reset_ops_py.ResetOps -> reset_repo_py.RepoResetOps: "delegates git ops" { class: dependency }
+reset_ops_py.ResetOps -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
+reset_ops_py.ResetOps -> task_graph_pkg.TaskGraph: "tasks_in_workstream, workstream_ids" { class: dependency }
+reset_task_py.reset_task_functions -> reset_ops_py.ResetOps: "reset_task_state, find_workstream_tip, reset_branch, write_rollback_entry" { class: dependency }
+reset_workstream_py.reset_workstream_functions -> reset_ops_py.ResetOps: "shared utilities" { class: dependency }
+reset_to_py.reset_to_functions -> reset_ops_py.ResetOps: "shared utilities" { class: dependency }

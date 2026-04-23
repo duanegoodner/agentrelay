@@ -41,6 +41,7 @@ module.
 | reset_graph.py | [diagram-reset-graph.svg](diagrams/uml/modules/diagram-reset-graph.svg){: target="_blank" } |
 | reset_ops.py | [diagram-reset-ops.svg](diagrams/uml/modules/diagram-reset-ops.svg){: target="_blank" } |
 | reset_pr.py | [diagram-reset-pr.svg](diagrams/uml/modules/diagram-reset-pr.svg){: target="_blank" } |
+| reset_repo.py | [diagram-reset-repo.svg](diagrams/uml/modules/diagram-reset-repo.svg){: target="_blank" } |
 | reset_task.py | [diagram-reset-task.svg](diagrams/uml/modules/diagram-reset-task.svg){: target="_blank" } |
 | reset_to.py | [diagram-reset-to.svg](diagrams/uml/modules/diagram-reset-to.svg){: target="_blank" } |
 | reset_workstream.py | [diagram-reset-workstream.svg](diagrams/uml/modules/diagram-reset-workstream.svg){: target="_blank" } |

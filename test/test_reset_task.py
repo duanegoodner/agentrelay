@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from agentrelay.ops import git
+from agentrelay.reset_ops import ResetOps
 from agentrelay.reset_task import reset_task
 from agentrelay.task import AgentConfig, AgentRole, Task
 from agentrelay.task_graph import TaskGraph
@@ -158,7 +159,13 @@ class TestResetNonMergedTask:
         """FAILED tip task: signal dir preserved with status/reset; branches deleted."""
         clone, run_dir = task_reset_repo
 
-        log = reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        log = reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
 
         assert (run_dir / "signals" / "task_b").is_dir()
         assert (run_dir / "signals" / "task_b" / "status" / "reset").is_file()
@@ -180,7 +187,13 @@ class TestResetMergedTask:
         clone, run_dir = task_reset_repo
 
         # First reset task_b (the tip).
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
 
         # Read the stored pre-merge SHA for task_a.
         resolved_path = run_dir / "signals" / "task_a" / "resolved.json"
@@ -188,7 +201,13 @@ class TestResetMergedTask:
         pre_merge_sha = data["integration_branch_before_merge"]
 
         # Now reset task_a (the new tip).
-        log = reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_a")
+        log = reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_a",
+        )
 
         # Integration branch should be reset to pre-merge SHA.
         integration_sha = git.rev_parse(clone, "agentrelay/test-graph/ws-a/integration")
@@ -209,7 +228,13 @@ class TestResetTaskValidation:
         clone, run_dir = task_reset_repo
 
         with pytest.raises(ValueError, match="not the workstream tip.*Reset 'task_b'"):
-            reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_a")
+            reset_task(
+                "test-graph",
+                two_task_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                task_id="task_a",
+            )
 
     def test_pending_task_raises_value_error(
         self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
@@ -227,7 +252,13 @@ class TestResetTaskValidation:
         shutil.rmtree(run_dir / "signals" / "task_a")
 
         with pytest.raises(ValueError, match="No tasks have execution state"):
-            reset_task("test-graph", two_task_graph, run_dir, clone, ws_id="ws-a")
+            reset_task(
+                "test-graph",
+                two_task_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                ws_id="ws-a",
+            )
 
     def test_unknown_task_raises_key_error(
         self, task_reset_repo: tuple[Path, Path], two_task_graph: TaskGraph
@@ -237,7 +268,11 @@ class TestResetTaskValidation:
 
         with pytest.raises(KeyError, match="nonexistent"):
             reset_task(
-                "test-graph", two_task_graph, run_dir, clone, task_id="nonexistent"
+                "test-graph",
+                two_task_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                task_id="nonexistent",
             )
 
     def test_unknown_workstream_raises_key_error(
@@ -248,7 +283,11 @@ class TestResetTaskValidation:
 
         with pytest.raises(KeyError, match="nonexistent"):
             reset_task(
-                "test-graph", two_task_graph, run_dir, clone, ws_id="nonexistent"
+                "test-graph",
+                two_task_graph,
+                run_dir,
+                ResetOps.for_repo(clone),
+                ws_id="nonexistent",
             )
 
     def test_neither_task_nor_ws_raises(
@@ -258,7 +297,7 @@ class TestResetTaskValidation:
         clone, run_dir = task_reset_repo
 
         with pytest.raises(ValueError, match="Either task_id or ws_id"):
-            reset_task("test-graph", two_task_graph, run_dir, clone)
+            reset_task("test-graph", two_task_graph, run_dir, ResetOps.for_repo(clone))
 
 
 class TestResetTaskAutoDetect:
@@ -270,7 +309,13 @@ class TestResetTaskAutoDetect:
         """Auto-detects task_b as the tip and resets it."""
         clone, run_dir = task_reset_repo
 
-        log = reset_task("test-graph", two_task_graph, run_dir, clone, ws_id="ws-a")
+        log = reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            ws_id="ws-a",
+        )
 
         assert (run_dir / "signals" / "task_b" / "status" / "reset").is_file()
         # task_a should still have non-RESET state.
@@ -290,7 +335,11 @@ class TestSuccessiveResets:
 
         # Reset task_b (FAILED tip).
         log_b = reset_task(
-            "test-graph", two_task_graph, run_dir, clone, task_id="task_b"
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
         )
         assert any("tip is now 'task_a'" in msg for msg in log_b)
         assert (run_dir / "signals" / "task_b" / "status" / "reset").is_file()
@@ -299,7 +348,11 @@ class TestSuccessiveResets:
 
         # Reset task_a (PR_MERGED, now the tip).
         log_a = reset_task(
-            "test-graph", two_task_graph, run_dir, clone, task_id="task_a"
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_a",
         )
         assert any("no remaining tasks" in msg for msg in log_a)
         assert (run_dir / "signals" / "task_a" / "status" / "reset").is_file()
@@ -315,9 +368,21 @@ class TestResetMergedTaskObservability:
         clone, run_dir = task_reset_repo
 
         # Reset task_b (FAILED tip) first.
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
         # Reset task_a (PR_MERGED, now the tip).
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_a")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_a",
+        )
 
         log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
         assert log_path.is_file()
@@ -344,15 +409,21 @@ class TestResetMergedTaskObservability:
         mock_updater.append_reset_activity.return_value = ["Updated PR"]
 
         # Reset task_b first.
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
         # Reset task_a with updater.
         log = reset_task(
             "test-graph",
             two_task_graph,
             run_dir,
-            clone,
+            ResetOps.for_repo(clone),
             task_id="task_a",
-            pr_body_updater=mock_updater,
+            integration_pr_ops=mock_updater,
         )
 
         mock_updater.append_reset_activity.assert_called_once()
@@ -367,7 +438,13 @@ class TestResetMergedTaskObservability:
         """No rollback_log.json for a FAILED task reset."""
         clone, run_dir = task_reset_repo
 
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
 
         log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
         assert not log_path.exists()
@@ -383,8 +460,20 @@ class TestResetMergedTaskObservability:
         ws_dir.mkdir(parents=True, exist_ok=True)
         (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/5")
 
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
-        log = reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_a")
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
+        log = reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
+            task_id="task_a",
+        )
 
         # No "Updated" in log — only rollback log written, no PR update.
         assert not any("Updated" in msg for msg in log)
@@ -398,14 +487,20 @@ class TestResetMergedTaskObservability:
         mock_updater = MagicMock()
         mock_updater.append_reset_activity.return_value = []
 
-        reset_task("test-graph", two_task_graph, run_dir, clone, task_id="task_b")
         reset_task(
             "test-graph",
             two_task_graph,
             run_dir,
-            clone,
+            ResetOps.for_repo(clone),
+            task_id="task_b",
+        )
+        reset_task(
+            "test-graph",
+            two_task_graph,
+            run_dir,
+            ResetOps.for_repo(clone),
             task_id="task_a",
-            pr_body_updater=mock_updater,
+            integration_pr_ops=mock_updater,
         )
 
         mock_updater.append_reset_activity.assert_not_called()

@@ -5,10 +5,11 @@ from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
+from agentrelay.reset_ops import ResetOps
 from agentrelay.reset_to import (
     BranchReset,
     ResetToPlan,
@@ -396,7 +397,13 @@ class TestTaskTargetPlan:
         _write_task_status(run_dir, "task_b", "pr_merged")
         _write_task_status(run_dir, "task_c", "failed")
 
-        plan = build_plan("test-graph", three_task_graph, run_dir, after="task_a")
+        plan = build_plan(
+            "test-graph",
+            three_task_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
+        )
         assert set(plan.tasks_to_reset) == {"task_b", "task_c"}
 
     def test_single_integration_reset_for_multiple_tasks(
@@ -408,7 +415,13 @@ class TestTaskTargetPlan:
         _write_task_status(run_dir, "task_c", "pr_merged")
         _write_task_resolved(run_dir, "task_c", "ws-a", "test-graph")
 
-        plan = build_plan("test-graph", three_task_graph, run_dir, after="task_a")
+        plan = build_plan(
+            "test-graph",
+            three_task_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
+        )
         # One integration branch reset (for task_b, the first removed).
         assert len(plan.integration_branch_resets) == 1
         assert "task_b" in plan.integration_branch_resets[0].description
@@ -420,7 +433,13 @@ class TestTaskTargetPlan:
         _write_task_status(run_dir, "task_b", "pr_merged")
         _write_task_resolved(run_dir, "task_b", "ws-a", "test-graph")
 
-        plan = build_plan("test-graph", three_task_graph, run_dir, after="task_a")
+        plan = build_plan(
+            "test-graph",
+            three_task_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
+        )
         assert plan.target_branch_reset is None
 
     def test_cross_ws_dependent_included(
@@ -431,7 +450,13 @@ class TestTaskTargetPlan:
         _write_task_resolved(run_dir, "task_b", "ws-a", "test-graph")
         _write_task_status(run_dir, "task_c", "running")
 
-        plan = build_plan("test-graph", cross_dep_graph, run_dir, after="task_a")
+        plan = build_plan(
+            "test-graph",
+            cross_dep_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
+        )
         assert "task_b" in plan.tasks_to_reset
         assert "task_c" in plan.tasks_to_reset
 
@@ -444,7 +469,11 @@ class TestTaskTargetPlan:
         _write_task_status(run_dir, "task_c", "running")
 
         plan = build_plan(
-            "test-graph", two_ws_independent_graph, run_dir, after="task_a"
+            "test-graph",
+            two_ws_independent_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
         )
         assert "task_b" in plan.tasks_to_reset
         # task_c is independent — should NOT be in the removal set.
@@ -456,7 +485,13 @@ class TestTaskTargetPlan:
         run_dir = tmp_path / "runs" / "0"
         # task_c is the last task; nothing after it.
         with pytest.raises(ValueError, match="Nothing to reset"):
-            build_plan("test-graph", three_task_graph, run_dir, after="task_c")
+            build_plan(
+                "test-graph",
+                three_task_graph,
+                run_dir,
+                ResetOps.for_repo(tmp_path),
+                after="task_c",
+            )
 
     def test_non_merged_tasks_no_branch_reset(
         self, three_task_graph: TaskGraph, tmp_path: Path
@@ -465,7 +500,13 @@ class TestTaskTargetPlan:
         _write_task_status(run_dir, "task_b", "failed")
         _write_task_status(run_dir, "task_c", "failed")
 
-        plan = build_plan("test-graph", three_task_graph, run_dir, after="task_a")
+        plan = build_plan(
+            "test-graph",
+            three_task_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
+        )
         assert len(plan.integration_branch_resets) == 0
 
     def test_workstream_teardown_when_all_tasks_removed(
@@ -477,7 +518,13 @@ class TestTaskTargetPlan:
         _write_task_resolved(run_dir, "task_b", "ws-a", "test-graph")
         _write_task_status(run_dir, "task_c", "running")
 
-        plan = build_plan("test-graph", cross_dep_graph, run_dir, after="task_a")
+        plan = build_plan(
+            "test-graph",
+            cross_dep_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="task_a",
+        )
         # ws-b has only task_c which is in the removal set.
         assert "ws-b" in plan.workstreams_to_teardown
 
@@ -530,7 +577,9 @@ class TestTaskTargetPlan:
         _write_task_status(run_dir, "task_b", "running")
         _write_task_status(run_dir, "task_c", "running")
 
-        plan = build_plan("test-graph", graph, run_dir, after="task_a1")
+        plan = build_plan(
+            "test-graph", graph, run_dir, ResetOps.for_repo(tmp_path), after="task_a1"
+        )
         # ws-b (depends on task_a2 being removed) should be torn down.
         assert "ws-b" in plan.workstreams_to_teardown
         # ws-c (independent) should NOT be torn down.
@@ -560,7 +609,13 @@ class TestWsTargetPlan:
         _write_ws_merged_status(run_dir, "ws-b")
         _write_task_status(run_dir, "task_c", "pr_merged")
 
-        plan = build_plan("test-graph", two_ws_independent_graph, run_dir, after="ws-a")
+        plan = build_plan(
+            "test-graph",
+            two_ws_independent_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="ws-a",
+        )
         assert "ws-b" in plan.workstreams_to_unmerge
 
     def test_single_target_branch_reset(
@@ -578,7 +633,13 @@ class TestWsTargetPlan:
         _write_ws_merged_status(run_dir, "ws-b")
         _write_task_status(run_dir, "task_c", "pr_merged")
 
-        plan = build_plan("test-graph", two_ws_independent_graph, run_dir, after="ws-a")
+        plan = build_plan(
+            "test-graph",
+            two_ws_independent_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="ws-a",
+        )
         assert plan.target_branch_reset is not None
         assert plan.target_branch_reset.target_sha == "sha_before_ws_b"
 
@@ -595,6 +656,7 @@ class TestWsTargetPlan:
                 "test-graph",
                 two_ws_independent_graph,
                 run_dir,
+                ResetOps.for_repo(tmp_path),
                 after="ws-a",
             )
 
@@ -607,6 +669,7 @@ class TestWsTargetPlan:
                 "test-graph",
                 two_ws_independent_graph,
                 run_dir,
+                ResetOps.for_repo(tmp_path),
                 after="ws-a",
             )
 
@@ -629,7 +692,13 @@ class TestWsTargetPlan:
         _write_ws_merged_status(run_dir, "ws-b")
         _write_task_status(run_dir, "task_c", "pr_merged")
 
-        plan = build_plan("test-graph", two_ws_independent_graph, run_dir, after="ws-a")
+        plan = build_plan(
+            "test-graph",
+            two_ws_independent_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="ws-a",
+        )
         assert "https://github.com/org/repo/pull/99" in plan.pr_urls_to_close
 
     def test_dependent_in_progress_torn_down(
@@ -648,7 +717,13 @@ class TestWsTargetPlan:
         # ws-c is in-progress (independent).
         _write_task_status(run_dir, "task_c", "running")
 
-        plan = build_plan("test-graph", multi_ws_mixed_graph, run_dir, after="ws-a")
+        plan = build_plan(
+            "test-graph",
+            multi_ws_mixed_graph,
+            run_dir,
+            ResetOps.for_repo(tmp_path),
+            after="ws-a",
+        )
         # ws-b is unmerged from target.
         assert "ws-b" in plan.workstreams_to_unmerge
         # ws-c is independent — should NOT be torn down.
@@ -725,10 +800,10 @@ class TestExecutePlan:
         self, three_task_repo: tuple[Path, Path, TaskGraph]
     ) -> None:
         clone, run_dir, graph = three_task_repo
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        reset_ops = ResetOps.for_repo(clone)
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
 
-        with patch("agentrelay.reset_to.gh.pr_close_by_url"):
-            execute_plan("test-graph", graph, run_dir, clone, plan)
+        execute_plan("test-graph", graph, run_dir, reset_ops, plan)
 
         # Integration branch should be at task_a's pre-merge SHA
         # (which is the SHA before task_b was merged).
@@ -754,10 +829,10 @@ class TestExecutePlan:
         self, three_task_repo: tuple[Path, Path, TaskGraph]
     ) -> None:
         clone, run_dir, graph = three_task_repo
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        reset_ops = ResetOps.for_repo(clone)
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
 
-        with patch("agentrelay.reset_to.gh.pr_close_by_url"):
-            execute_plan("test-graph", graph, run_dir, clone, plan)
+        execute_plan("test-graph", graph, run_dir, reset_ops, plan)
 
         for tid in ["task_b", "task_c"]:
             assert (run_dir / "signals" / tid / "status" / "reset").exists()
@@ -768,10 +843,10 @@ class TestExecutePlan:
         self, three_task_repo: tuple[Path, Path, TaskGraph]
     ) -> None:
         clone, run_dir, graph = three_task_repo
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        reset_ops = ResetOps.for_repo(clone)
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
 
-        with patch("agentrelay.reset_to.gh.pr_close_by_url"):
-            execute_plan("test-graph", graph, run_dir, clone, plan)
+        execute_plan("test-graph", graph, run_dir, reset_ops, plan)
 
         log_path = run_dir / "workstreams" / "ws-a" / "rollback_log.json"
         assert log_path.is_file()
@@ -785,8 +860,9 @@ class TestExecutePlan:
         self, three_task_repo: tuple[Path, Path, TaskGraph]
     ) -> None:
         clone, run_dir, graph = three_task_repo
+        reset_ops = ResetOps.for_repo(clone)
         # Build plan and inject a PR URL to close.
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
         plan = ResetToPlan(
             target_kind=plan.target_kind,
             target_id=plan.target_id,
@@ -798,14 +874,26 @@ class TestExecutePlan:
             pr_urls_to_close=("https://github.com/org/repo/pull/1",),
         )
 
-        with patch(
-            "agentrelay.reset_to.gh.pr_close_by_url",
-            side_effect=subprocess.CalledProcessError(1, "gh"),
-        ):
-            log = execute_plan("test-graph", graph, run_dir, clone, plan)
+        # IntegrationPrOps simulating gh failure: close_pr returns WARNING log
+        # lines (best-effort contract) rather than raising.
+        mock_ops = MagicMock()
+        mock_ops.append_reset_activity.return_value = []
+        mock_ops.close_pr.return_value = [
+            "WARNING: Could not close integration PR https://github.com/org/repo/pull/1"
+        ]
+
+        log = execute_plan(
+            "test-graph",
+            graph,
+            run_dir,
+            reset_ops,
+            plan,
+            integration_pr_ops=mock_ops,
+        )
 
         # Should complete despite PR close failure.
         assert any("WARNING" in msg and "Could not close" in msg for msg in log)
+        mock_ops.close_pr.assert_called_once_with("https://github.com/org/repo/pull/1")
         # Tasks should still be reset.
         assert (run_dir / "signals" / "task_b" / "status" / "reset").exists()
 
@@ -813,24 +901,25 @@ class TestExecutePlan:
         self, three_task_repo: tuple[Path, Path, TaskGraph]
     ) -> None:
         clone, run_dir, graph = three_task_repo
+        reset_ops = ResetOps.for_repo(clone)
         # Add pr_created for the PR body updater.
         ws_dir = run_dir / "workstreams" / "ws-a"
         ws_dir.mkdir(parents=True, exist_ok=True)
         (ws_dir / "pr_created").write_text("https://github.com/org/repo/pull/1")
 
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
         mock_updater = MagicMock()
         mock_updater.append_reset_activity.return_value = ["Updated PR"]
+        mock_updater.close_pr.return_value = []
 
-        with patch("agentrelay.reset_to.gh.pr_close_by_url"):
-            log = execute_plan(
-                "test-graph",
-                graph,
-                run_dir,
-                clone,
-                plan,
-                pr_body_updater=mock_updater,
-            )
+        log = execute_plan(
+            "test-graph",
+            graph,
+            run_dir,
+            reset_ops,
+            plan,
+            integration_pr_ops=mock_updater,
+        )
 
         mock_updater.append_reset_activity.assert_called_once()
         assert "Updated PR" in log
@@ -840,6 +929,7 @@ class TestExecutePlan:
     ) -> None:
         """Worktree on a deleted task branch gets switched to integration."""
         clone, run_dir, graph = three_task_repo
+        reset_ops = ResetOps.for_repo(clone)
 
         # Detach HEAD in main clone so we can check out branches in worktrees.
         _git(["-C", str(clone), "checkout", "--detach", "HEAD"])
@@ -857,10 +947,9 @@ class TestExecutePlan:
             ]
         )
 
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
 
-        with patch("agentrelay.reset_to.gh.pr_close_by_url"):
-            log = execute_plan("test-graph", graph, run_dir, clone, plan)
+        log = execute_plan("test-graph", graph, run_dir, reset_ops, plan)
 
         # Worktree should now be on the integration branch.
         current = subprocess.run(
@@ -877,6 +966,7 @@ class TestExecutePlan:
     ) -> None:
         """No-op if worktree is already on the integration branch."""
         clone, run_dir, graph = three_task_repo
+        reset_ops = ResetOps.for_repo(clone)
 
         # Detach HEAD in main clone so the integration branch can be
         # checked out in the worktree.
@@ -894,10 +984,9 @@ class TestExecutePlan:
             ]
         )
 
-        plan = build_plan("test-graph", graph, run_dir, after="task_a")
+        plan = build_plan("test-graph", graph, run_dir, reset_ops, after="task_a")
 
-        with patch("agentrelay.reset_to.gh.pr_close_by_url"):
-            log = execute_plan("test-graph", graph, run_dir, clone, plan)
+        log = execute_plan("test-graph", graph, run_dir, reset_ops, plan)
 
         # No "Switched" message since it was already on integration.
         assert not any("Switched worktree" in msg for msg in log)

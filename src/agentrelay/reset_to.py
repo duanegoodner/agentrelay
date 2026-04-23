@@ -28,16 +28,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 
-from agentrelay.ops import gh, git
-from agentrelay.reset_ops import (
-    reset_branch,
-    reset_task_state,
-    reset_workstream_state,
-    rollback_workstream_advancement,
-    workstream_merge_order,
-    write_rollback_entry,
-)
-from agentrelay.reset_pr import PrBodyUpdater
+from agentrelay.reset_ops import ResetOps
+from agentrelay.reset_pr import IntegrationPrOps
 from agentrelay.resolved import ResolvedTask, ResolvedWorkstream
 from agentrelay.task_graph import TaskGraph
 from agentrelay.task_runtime import TaskStatus
@@ -161,6 +153,7 @@ def _compute_task_target_plan(
     graph_name: str,
     graph: TaskGraph,
     run_dir: Path,
+    reset_ops: ResetOps,
     keep_task_id: str,
 ) -> ResetToPlan:
     """Compute a rollback plan for a task target.
@@ -169,6 +162,7 @@ def _compute_task_target_plan(
     Removes later tasks in that workstream plus transitive dependents
     in other workstreams.
     """
+    del reset_ops  # Not needed for task-target plans (disk-only computation).
     anchor_ws = graph.task(keep_task_id).workstream_id
     tasks_in_ws = graph.tasks_in_workstream(anchor_ws)
     idx = list(tasks_in_ws).index(keep_task_id)
@@ -262,6 +256,7 @@ def _compute_task_target_plan(
 def _compute_ws_target_plan(
     graph: TaskGraph,
     run_dir: Path,
+    reset_ops: ResetOps,
     keep_ws_id: str,
 ) -> ResetToPlan:
     """Compute a rollback plan for a workstream target.
@@ -270,7 +265,7 @@ def _compute_ws_target_plan(
     branch.  Removes later-merged workstreams and tears down dependent
     in-progress workstreams.
     """
-    merge_order = workstream_merge_order(run_dir, graph)
+    merge_order = reset_ops.workstream_merge_order(run_dir, graph)
 
     if keep_ws_id not in merge_order:
         raise ValueError(
@@ -389,6 +384,7 @@ def build_plan(
     graph_name: str,
     graph: TaskGraph,
     run_dir: Path,
+    reset_ops: ResetOps,
     *,
     after: str,
 ) -> ResetToPlan:
@@ -398,6 +394,8 @@ def build_plan(
         graph_name: Graph name (for branch naming).
         graph: Current task graph.
         run_dir: Path to the per-run directory.
+        reset_ops: Shared reset-layer operations (used for workstream
+            merge-order lookups).
         after: Task ID or workstream ID to keep.
 
     Returns:
@@ -409,8 +407,10 @@ def build_plan(
     """
     kind, target_id = resolve_target(graph, after)
     if kind == "task":
-        return _compute_task_target_plan(graph_name, graph, run_dir, target_id)
-    return _compute_ws_target_plan(graph, run_dir, target_id)
+        return _compute_task_target_plan(
+            graph_name, graph, run_dir, reset_ops, target_id
+        )
+    return _compute_ws_target_plan(graph, run_dir, reset_ops, target_id)
 
 
 # ── Plan display ──
@@ -484,10 +484,10 @@ def execute_plan(
     graph_name: str,
     graph: TaskGraph,
     run_dir: Path,
-    repo_path: Path,
+    reset_ops: ResetOps,
     plan: ResetToPlan,
     *,
-    pr_body_updater: PrBodyUpdater | None = None,
+    integration_pr_ops: IntegrationPrOps | None = None,
 ) -> list[str]:
     """Execute a computed rollback plan.
 
@@ -508,9 +508,10 @@ def execute_plan(
         graph_name: Graph name (for branch naming).
         graph: Current task graph.
         run_dir: Path to the per-run directory.
-        repo_path: Path to the repository root.
+        reset_ops: Shared reset-layer operations bound to the target
+            repository.
         plan: A :class:`ResetToPlan` from :func:`build_plan`.
-        pr_body_updater: Optional updater for integration PR bodies.
+        integration_pr_ops: Optional integration-PR mutation provider.
 
     Returns:
         List of log messages describing actions taken.
@@ -521,12 +522,12 @@ def execute_plan(
     # 1. Target branch reset.
     if plan.target_branch_reset is not None:
         br = plan.target_branch_reset
-        reset_branch(repo_path, br.branch, br.target_sha)
+        reset_ops.reset_branch(br.branch, br.target_sha)
         log.append(f"Reset '{br.branch}' to {br.target_sha[:12]}")
 
     # 2. Integration branch resets.
     for br in plan.integration_branch_resets:
-        reset_branch(repo_path, br.branch, br.target_sha)
+        reset_ops.reset_branch(br.branch, br.target_sha)
         log.append(f"Reset '{br.branch}' to {br.target_sha[:12]}")
 
     # 3. Worktree checkout fixup: switch surviving worktrees off
@@ -546,17 +547,17 @@ def execute_plan(
             surviving_ws_with_removals.add(ws)
 
     for ws_id in surviving_ws_with_removals:
-        worktree_path = repo_path / ".worktrees" / graph_name / ws_id
+        worktree_path = reset_ops.repo_path / ".worktrees" / graph_name / ws_id
         if not worktree_path.is_dir():
             continue
         try:
-            current = git.current_branch(worktree_path)
+            current = reset_ops.repo_ops.current_branch_in(worktree_path)
             if current in removed_task_branches:
                 integration_branch = (
                     f"{_BRANCH_PREFIX}/{graph_name}/{ws_id}/integration"
                 )
-                git.checkout(worktree_path, integration_branch)
-                git.clean(worktree_path)
+                reset_ops.repo_ops.checkout_in(worktree_path, integration_branch)
+                reset_ops.repo_ops.clean_in(worktree_path)
                 log.append(f"Switched worktree for '{ws_id}' to '{integration_branch}'")
         except subprocess.CalledProcessError:
             log.append(
@@ -588,7 +589,7 @@ def execute_plan(
         # For batch rollback, record the actual integration branch
         # pre-merge SHA as both before and after — the branch was reset
         # in a single jump rather than sequential peels.
-        write_rollback_entry(
+        reset_ops.write_rollback_entry(
             ws_signal_dir,
             tid,
             status.value,
@@ -600,7 +601,7 @@ def execute_plan(
         pr_body_by_ws[ws_id].append((tid, status.value))
 
     # 5. PR body updates (best-effort — reads pr_created before removal).
-    if pr_body_updater is not None:
+    if integration_pr_ops is not None:
         for ws_id, entries in pr_body_by_ws.items():
             try:
                 pr_created = run_dir / "workstreams" / ws_id / "pr_created"
@@ -608,7 +609,7 @@ def execute_plan(
                     pr_url = pr_created.read_text().strip()
                     if pr_url:
                         log.extend(
-                            pr_body_updater.append_reset_activity(pr_url, entries)
+                            integration_pr_ops.append_reset_activity(pr_url, entries)
                         )
             except Exception:
                 log.append(f"WARNING: PR body update failed for workstream '{ws_id}'")
@@ -619,28 +620,22 @@ def execute_plan(
     for ws_id in surviving_ws_with_removals:
         ws_signal_dir = run_dir / "workstreams" / ws_id
         if ws_signal_dir.is_dir():
-            log.extend(rollback_workstream_advancement(ws_signal_dir))
+            log.extend(reset_ops.rollback_workstream_advancement(ws_signal_dir))
 
     # 7. Close integration PRs (best-effort).
-    for pr_url in plan.pr_urls_to_close:
-        try:
-            gh.pr_close_by_url(pr_url)
-            log.append(f"Closed integration PR {pr_url}")
-        except subprocess.CalledProcessError:
-            log.append(
-                f"WARNING: Could not close integration PR {pr_url} "
-                "(may already be closed)"
-            )
+    if integration_pr_ops is not None:
+        for pr_url in plan.pr_urls_to_close:
+            log.extend(integration_pr_ops.close_pr(pr_url))
 
     # 8. Task state cleanup.
     for tid in plan.tasks_to_reset:
-        log.extend(reset_task_state(run_dir, tid, graph_name, repo_path))
+        log.extend(reset_ops.reset_task_state(run_dir, tid, graph_name))
 
     # 9. Workstream state cleanup.
     for ws_id in plan.workstreams_to_unmerge:
-        log.extend(reset_workstream_state(run_dir, ws_id, graph_name, repo_path))
+        log.extend(reset_ops.reset_workstream_state(run_dir, ws_id, graph_name))
     for ws_id in plan.workstreams_to_teardown:
-        log.extend(reset_workstream_state(run_dir, ws_id, graph_name, repo_path))
+        log.extend(reset_ops.reset_workstream_state(run_dir, ws_id, graph_name))
 
     return log
 

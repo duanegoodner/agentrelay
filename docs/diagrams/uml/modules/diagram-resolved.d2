@@ -104,7 +104,7 @@ orchestrator_pkg: "orchestrator/" {
 
 reset_ops_py: "reset_ops.py" {
   style.opacity: 0.5
-  reset_ops_functions: "reset_ops <<module>>" { shape: class }
+  ResetOps: "ResetOps" { shape: class }
 }
 
 reset_task_py: "reset_task.py" {
@@ -146,7 +146,7 @@ workstream_pkg: "workstream/" {
 
 orchestrator_pkg.TaskProbe -> resolved_py.ResolvedTask: "resolved (optional)" { class: composition }
 orchestrator_pkg.WorkstreamProbe -> resolved_py.ResolvedWorkstream: "resolved (optional)" { class: composition }
-reset_ops_py.reset_ops_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
+reset_ops_py.ResetOps -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
 reset_task_py.reset_task_functions -> resolved_py.ResolvedTask: "reads resolved.json" { class: dependency }
 reset_workstream_py.reset_workstream_functions -> resolved_py.ResolvedWorkstream: "reads resolved.json" { class: dependency }
 reset_to_py.reset_to_functions -> resolved_py.ResolvedTask: "reads resolved.json" { class: dependency }

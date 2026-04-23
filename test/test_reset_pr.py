@@ -1,15 +1,15 @@
-"""Tests for reset_pr module — PrBodyUpdater protocol and GhPrBodyUpdater."""
+"""Tests for reset_pr module — IntegrationPrOps protocol + GhIntegrationPrOps."""
 
 from __future__ import annotations
 
 import subprocess
 from unittest.mock import MagicMock, patch
 
-from agentrelay.reset_pr import GhPrBodyUpdater
+from agentrelay.reset_pr import GhIntegrationPrOps
 
 
-class TestGhPrBodyUpdater:
-    """Tests for GhPrBodyUpdater.append_reset_activity."""
+class TestGhIntegrationPrOpsAppendResetActivity:
+    """Tests for GhIntegrationPrOps.append_reset_activity."""
 
     @patch("agentrelay.reset_pr.gh.pr_update_body")
     @patch("agentrelay.reset_pr.gh.pr_body")
@@ -18,7 +18,7 @@ class TestGhPrBodyUpdater:
     ) -> None:
         """Adds ## Reset activity section when none exists."""
         mock_body.return_value = "## Summary\nOriginal body."
-        updater = GhPrBodyUpdater()
+        updater = GhIntegrationPrOps()
 
         log = updater.append_reset_activity(
             "https://github.com/org/repo/pull/5",
@@ -43,7 +43,7 @@ class TestGhPrBodyUpdater:
             "## Summary\nBody.\n\n---\n## Reset activity\n"
             "- 2026-04-19T10:00:00+00:00: Task `task_a` reset (was pr_merged)"
         )
-        updater = GhPrBodyUpdater()
+        updater = GhIntegrationPrOps()
 
         log = updater.append_reset_activity(
             "https://github.com/org/repo/pull/5",
@@ -64,7 +64,7 @@ class TestGhPrBodyUpdater:
         self, mock_body: MagicMock, mock_update: MagicMock
     ) -> None:
         """Returns empty list and makes no API calls for empty entries."""
-        updater = GhPrBodyUpdater()
+        updater = GhIntegrationPrOps()
 
         log = updater.append_reset_activity("https://github.com/org/repo/pull/5", [])
 
@@ -79,7 +79,7 @@ class TestGhPrBodyUpdater:
     ) -> None:
         """Returns warning log when pr_body fails."""
         mock_body.side_effect = subprocess.CalledProcessError(1, "gh")
-        updater = GhPrBodyUpdater()
+        updater = GhIntegrationPrOps()
 
         log = updater.append_reset_activity(
             "https://github.com/org/repo/pull/5",
@@ -98,7 +98,7 @@ class TestGhPrBodyUpdater:
         """Returns warning log when pr_update_body fails."""
         mock_body.return_value = "## Summary\nBody."
         mock_update.side_effect = subprocess.CalledProcessError(1, "gh")
-        updater = GhPrBodyUpdater()
+        updater = GhIntegrationPrOps()
 
         log = updater.append_reset_activity(
             "https://github.com/org/repo/pull/5",
@@ -107,3 +107,29 @@ class TestGhPrBodyUpdater:
 
         assert len(log) == 1
         assert "WARNING" in log[0]
+
+
+class TestGhIntegrationPrOpsClosePr:
+    """Tests for GhIntegrationPrOps.close_pr."""
+
+    @patch("agentrelay.reset_pr.gh.pr_close_by_url")
+    def test_close_pr_success(self, mock_close: MagicMock) -> None:
+        """Returns a success log line when the close call succeeds."""
+        updater = GhIntegrationPrOps()
+
+        log = updater.close_pr("https://github.com/org/repo/pull/5")
+
+        mock_close.assert_called_once_with("https://github.com/org/repo/pull/5")
+        assert log == ["Closed integration PR https://github.com/org/repo/pull/5"]
+
+    @patch("agentrelay.reset_pr.gh.pr_close_by_url")
+    def test_close_pr_failure_returns_warning(self, mock_close: MagicMock) -> None:
+        """Returns a WARNING log line when the close call fails."""
+        mock_close.side_effect = subprocess.CalledProcessError(1, "gh")
+        updater = GhIntegrationPrOps()
+
+        log = updater.close_pr("https://github.com/org/repo/pull/5")
+
+        assert len(log) == 1
+        assert "WARNING" in log[0]
+        assert "https://github.com/org/repo/pull/5" in log[0]

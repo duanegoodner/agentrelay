@@ -36,7 +36,8 @@ from agentrelay.reset_graph import (
     _resolve_graph_name,
     reset_graph,
 )
-from agentrelay.reset_pr import GhPrBodyUpdater
+from agentrelay.reset_ops import ResetOps
+from agentrelay.reset_pr import GhIntegrationPrOps
 from agentrelay.reset_task import reset_task
 from agentrelay.reset_to import build_plan as build_reset_to_plan
 from agentrelay.reset_to import execute_plan as execute_reset_to_plan
@@ -303,16 +304,17 @@ def _resolve_reset_context(
 def _handle_reset_task(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay reset-task``."""
     graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+    reset_ops = ResetOps.for_repo(repo_path)
 
     try:
         log = reset_task(
             graph_name,
             graph,
             run_dir,
-            repo_path,
+            reset_ops,
             task_id=args.task,
             ws_id=args.workstream,
-            pr_body_updater=GhPrBodyUpdater(),
+            integration_pr_ops=GhIntegrationPrOps(),
         )
     except (ValueError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
@@ -326,13 +328,14 @@ def _handle_reset_task(args: argparse.Namespace) -> None:
 def _handle_teardown_workstream(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay teardown-workstream``."""
     graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+    reset_ops = ResetOps.for_repo(repo_path)
 
     try:
         log = teardown_workstream(
             graph_name,
             graph,
             run_dir,
-            repo_path,
+            reset_ops,
             ws_id=args.workstream,
         )
     except (ValueError, KeyError) as exc:
@@ -347,6 +350,7 @@ def _handle_teardown_workstream(args: argparse.Namespace) -> None:
 def _handle_reset_workstream(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay reset-workstream``."""
     graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+    reset_ops = ResetOps.for_repo(repo_path)
 
     if not args.yes:
         try:
@@ -368,9 +372,9 @@ def _handle_reset_workstream(args: argparse.Namespace) -> None:
             graph_name,
             graph,
             run_dir,
-            repo_path,
+            reset_ops,
             ws_id=args.workstream,
-            pr_body_updater=GhPrBodyUpdater(),
+            integration_pr_ops=GhIntegrationPrOps(),
         )
     except (ValueError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
@@ -384,9 +388,12 @@ def _handle_reset_workstream(args: argparse.Namespace) -> None:
 def _handle_reset_to(args: argparse.Namespace) -> None:
     """Handler for ``agentrelay reset-to``."""
     graph_name, graph, repo_path, run_dir = _resolve_reset_context(args)
+    reset_ops = ResetOps.for_repo(repo_path)
 
     try:
-        plan = build_reset_to_plan(graph_name, graph, run_dir, after=args.after)
+        plan = build_reset_to_plan(
+            graph_name, graph, run_dir, reset_ops, after=args.after
+        )
     except (ValueError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)
@@ -406,9 +413,9 @@ def _handle_reset_to(args: argparse.Namespace) -> None:
             graph_name,
             graph,
             run_dir,
-            repo_path,
+            reset_ops,
             plan,
-            pr_body_updater=GhPrBodyUpdater(),
+            integration_pr_ops=GhIntegrationPrOps(),
         )
     except (ValueError, KeyError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
